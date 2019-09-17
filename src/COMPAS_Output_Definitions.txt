@@ -1,0 +1,12 @@
+
+# this will cause printing to all standard log file to be disabled (nothing to print...)
+
+sse_parms_rec = {}
+bse_sysparms_rec = {}
+BSE_DCO_Rec = {}
+BSE_SNE_Rec = {}
+BSE_CEE_Rec = {}
+BSE_RLOF_Rec = {}
+BSE_BE_Binaries_Rec ={}
+BSE_Pulsars_Rec= {}
+BSE_Detailed_Rec={}
