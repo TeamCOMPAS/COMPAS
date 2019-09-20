@@ -2,7 +2,8 @@
 #define __constants_h__
 
 #include <cmath>
-//#include <string>
+#include <string>
+#include <vector>
 #include <map>
 #include <unordered_map>
 

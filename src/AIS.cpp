@@ -208,7 +208,7 @@ void AIS::DefineGaussians() {
                 }
             }
 
-            if (numGaussians == 0 || numGaussians != m_MuM1.size()) {               // count doesn't match that specified in the file
+            if (numGaussians <= 0 || (unsigned int)numGaussians != m_MuM1.size()) { // count doesn't match that specified in the file
                 SHOW_WARN(ERROR::OUT_OF_BOUNDS, "AIS Gaussians file count error");  // show warning
             }
         }

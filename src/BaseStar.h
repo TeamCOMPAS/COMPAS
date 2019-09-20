@@ -63,7 +63,7 @@ public:
             bool                IsCCSN() const                                                  { return m_SupernovaDetails.events.now == SN_EVENT::CCSN; }
     virtual bool                IsDegenerate() const                                            { return false; }   // default is not degenerate - White Dwarfs, NS and BH are degenerate
             bool                IsECSN() const                                                  { return m_SupernovaDetails.events.now == SN_EVENT::ECSN; }
-    virtual bool                IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) { }
+    virtual bool                IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) { return false; }   // default is stable
             bool                IsOneOf(const STELLAR_TYPE_LIST p_List) const;
             bool                IsPISN() const                                                  { return m_SupernovaDetails.events.now == SN_EVENT::PISN; }
             bool                IsPPISN() const                                                 { return m_SupernovaDetails.events.now == SN_EVENT::PPISN; }
@@ -159,8 +159,8 @@ public:
 
             double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false);                                                               // JR: todo: better name?
 
-    virtual double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0)    { }                                                                                     // Use inheritance hierarchy
-    virtual double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)  { }                                                                                     // Use inheritance hierarchy
+    virtual double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0)    { return 0.0; }                                                                         // Use inheritance hierarchy
+    virtual double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)  { return 0.0; }                                                                         // Use inheritance hierarchy
 
             double          CalculateRadialChange()                                                             { return std::abs(m_Radius - m_RadiusPrev) / m_RadiusPrev; }
 
@@ -173,12 +173,12 @@ public:
     virtual double          CalculateThermalTimescale(const double p_Mass,
                                                       const double p_Radius,
                                                       const double p_Luminosity,
-                                                      const double p_EnvMass = 1.0) { }                                                                                             // Use inheritance hierarchy
-    virtual double          CalculateThermalTimescale() { }                                                                                                                         // Use inheritance hierarchy
+                                                      const double p_EnvMass = 1.0) { return 0.0; }                                                                                 // Use inheritance hierarchy
+    virtual double          CalculateThermalTimescale() { return 0.0; }                                                                                                             // Use inheritance hierarchy
 
             double          CalculateTimestep();
 
-    virtual double          CalculateZeta(CE_ZETA_PRESCRIPTION p_CEZetaPrescription) { }                                                                                            // Use inheritance hierarchy
+    virtual double          CalculateZeta(CE_ZETA_PRESCRIPTION p_CEZetaPrescription) { return 0.0; }                                                                                // Use inheritance hierarchy
             void            CalculateZetas();
 
     virtual void            CheckRunaway(const bool p_Disbound, const bool p_Survived);
@@ -188,7 +188,7 @@ public:
     virtual ENVELOPE        DetermineEnvelopeType()                                                             { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
     virtual ENVELOPE        DetermineEnvelopeTypeHurley2002()                                                   { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
 
-    virtual MT_CASE         DetermineMassTransferCase() { }                                                                                                                         // Use inheritance hierarchy
+    virtual MT_CASE         DetermineMassTransferCase() { return MT_CASE::NONE; }                                                                                                   // Use inheritance hierarchy
 
             double          CalculateDynamicalMassLossRate()                                                    { return m_Mass / CalculateDynamicalTimescale(); }                  // Use class member variables      JR: todo: never called?
 
@@ -563,7 +563,6 @@ protected:
 
             void            UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMass, const double p_DeltaMass0, const double p_DeltaTime);
 
-//           virtual void     Kludge() { }                                                                                                                                                      // JR: this needs to go....
 };
 
 #endif // __BaseStar_h__

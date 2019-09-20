@@ -20,8 +20,8 @@ class Rand {
 private:
 
    Rand() { m_Rng = NULL; };
-   Rand(Rand const&) {};
-   Rand& operator = (Rand const&) {};
+   Rand(Rand const&) = delete;
+   Rand& operator = (Rand const&) = delete;
 
    static Rand*  m_Instance;
 

@@ -64,7 +64,6 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
 
         double mass1        = OPTIONS->PrimaryMass();
         double mass2        = OPTIONS->SecondaryMass();
-        double massRatio    = mass2 / mass1;
 
         double metallicity1 = OPTIONS->InitialPrimaryMetallicity();
         double metallicity2 = OPTIONS->InitialSecondaryMetallicity();
@@ -701,8 +700,9 @@ COMPAS_VARIABLE BaseBinaryStar::PropertyValue(const T_ANY_PROPERTY p_Property) c
  * @return                                      Boolean - true if one of the stars of the binary is in list, false if not
  */
 bool BaseBinaryStar::HasOneOf(STELLAR_TYPE_LIST p_List) const {
-    for (auto elem: p_List)
+    for (auto elem: p_List) {
         if ((m_Star1->StellarType() == elem) || (m_Star2->StellarType() == elem)) return true;
+    }
 	return false;
 }
 
@@ -1539,7 +1539,7 @@ void BaseBinaryStar::ResolveTides() {
             constexpr double errorPermitted = 0.5;                                                                                                          // how much slop we'll accept...
 
             bool haveSolution = false;
-            int  i            = 0;
+            unsigned int  i   = 0;
             do {
                 aSolution[i] = solutions[2 * i] * solutions[2 * i];
                 wsync[i]     = sqrt(totalMass * G1 / (aSolution[i] * aSolution[i] * aSolution[i]));
@@ -1845,7 +1845,7 @@ bool BaseBinaryStar::ResolveSupernova() {
 	// Masses should already be correct, mass before SN given by star.m_MassPrev
     // Generate true anomaly - (for e=0, should be a flat distribution) - updates Eccentric anomaly and True anomaly automatically
     // ALEJANDRO - 09/05/2018 - If statement to avoid solving Kepler's equation for an unbound orbit; it may be of interest to have SN of unbound stars in the supernovae.txt file.
-    double psi = 0.0;
+
     if (IsUnbound()) {      // JR: todo: check this - was just "if (m_SemiMajorAxisPrime > 0.0)"
         // ALEJANDRO - 09/05/2018 - Following 3 lines copied from else statement in the end.                                    // JR: todo: are these going to be executed twice...? (I removed one... not required)
         m_Disbound = true;
@@ -2017,7 +2017,6 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 	star2Copy->SetCompanion(star1Copy);                                                                                 // need companion for CalculateSynchronisationTimescale() later
 
     double alphaCE = m_CommonEnvelopeAlpha;                                                                             // CE efficiency parameter
-	double eta     = OPTIONS->CommonEnvelopeRecombinationEnergyDensity();	                                            // recombination energy density
 
     double semiMajorAxis = m_SemiMajorAxisPrime;                                                                        // current semi-major axis in default units, AU (before CEE)
 	double eccentricity  = m_EccentricityPrime;								                                            // current eccentricity (before CEE)
@@ -2033,12 +2032,6 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
 	m_Radius1PostStripping = m_Radius1PreCEE;							                                                // star1 radius in Rsol after being stripped (= pre-CEE radius if not stripped)
 	m_Radius2PostStripping = m_Radius2PreCEE;							                                                // star2 fadius in Rsol after being stripped (= pre-CEE radius if not stripped)
-
-    m_Mass1Final;                                                                                                       // star1 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
-    m_Mass2Final;                                                                                                       // star2 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
-
-    m_MassEnv1;                                                                                                         // star1 envelope mass in Msol
-    m_MassEnv2;                                                                                                         // star2 envelope mass in Msol
 
     if (OPTIONS->AllowMainSequenceStarToSurviveCommonEnvelope()) {                                                      // allow main sequence stars to survive CEE?
         if (m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) {                                                                      // yes - star1 MS_LTE_07, MS_GT_07 or NAKED_HELIUM_STAR_MS?
@@ -2382,6 +2375,7 @@ double BaseBinaryStar::CalculateMassTransferFastPhaseCaseA(const double p_JLoss)
 
         // record values for lowest relative error
         if (utils::Compare(thisRelativeError, relativeErrorThreshold) <= 0) {                                                                           // relative error below threshold?  (will always be on first iteration)
+            relativeErrorThreshold = RELATIVE_ERROR_THRESHOLD;                                                                                          // set threshold to actual constant value
             if (utils::Compare(thisRelativeError, relativeError) < 0) {                                                                                 // this iteration relative error < lowest relative error?  (will always be on first iteration)
                 relativeError       = thisRelativeError;                                                                                                // set lowest relative error
                 massAfterMassLoss   = thisMassAfterMassLoss;                                                                                            // lowest error mass after mass loss
@@ -2543,7 +2537,6 @@ double BaseBinaryStar::CalculateMassTransferOrbit(BinaryConstituentStar& p_Donor
                 double massDprime = (p_MDotDonor * p_Dt) + massD;                                               // mass of the donor after mass transfer
                 double massAprime = (-m_FractionAccreted * p_MDotDonor * p_Dt) + massA;                         // mass of the accretor after mass transfer
                 double mPrime     = massDprime + massAprime;
-                double mAmD_Prime = massDprime * massAprime;
 
                 double jPrime     = jOrb + ((jLoss * jOrb * (1.0 - m_FractionAccreted) * p_MDotDonor / massAplusMassD) * p_Dt);
                 double jPrime_mm  = jPrime / (massDprime * massAprime);
@@ -2569,7 +2562,7 @@ double BaseBinaryStar::CalculateMassTransferOrbit(BinaryConstituentStar& p_Donor
  * Belczynsky et al. (2008), eq 41, using Woods et al. (2012) formula
  *
  *    dJ=Beta*((1.0-Fa)*(Ma2-Ma1)/(Ma1+Mb1))*Jorb1;
- *    a2=((Ma2+Mb2)*pow(Jorb1+dJ,2.0))/(GGG*Ma2*Ma2*Mb2*Mb2);  /* non-conservative MT assumption
+ *    a2=((Ma2+Mb2)*pow(Jorb1+dJ,2.0))/(GGG*Ma2*Ma2*Mb2*Mb2);  (non-conservative MT assumption)
  *
  * JR: todo: What does "(Numerical) ZRocheLobe" mean?  Why don't we call this function "CalculateRocheLobResponseToMasslossBelczynski" (or something)?
  *
@@ -2948,9 +2941,11 @@ void BaseBinaryStar::InitialiseMassTransfer() {
  */
 void BaseBinaryStar::CheckMassTransfer(const double p_Dt) {
 
-    InitialiseMassTransfer();                                           // initialise       JR: todo: only need this if mass transfer program option?
 
     if (OPTIONS->UseMassTransfer()) {                                   // only if using mass transfer (program option)
+
+        InitialiseMassTransfer();                                       // initialise
+
         if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                   // both stars overflowing their Roche Lobe?
 			m_CommonEnvelope = true;                                    // yes - common envelope event - no mass transfer
         }
@@ -3303,9 +3298,10 @@ double BaseBinaryStar::ChooseTimestep(const double p_Dt) {
  * Timesteps are calculated for each individual star, based on stellar type, age, etc.
  * The minimum of the calculated timesteps is returned as the timestep.
  *
- * Since the stars are actually evolved for one timestep to find their minimum timestep,
- * each star needs to be reverted after calculating the timesteps.  One day maybe we
- * should figure out how to do this without evolving and reverting (if that's possible).
+ * Rather than evolve and revert here we just create copies of the constituent stars,
+ * evolve them for one times step to get the new timestep, then discared them.  Maybe
+ * one day we can figure out how to do this without the overhead of evolving and
+ * discarding,
  *
  *
  * double CalculateTimestep(const double p_Dt)
@@ -3438,12 +3434,12 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve(const int p_Index) {
 
                         if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) PrintPulsarEvolutionParameters();                                     // print (log) pulsar evolution parameters    JR: todo: WD?
 
-                        if (IsNSandBH()) {                                                                                                  // neutron star and black hole
-                            ResolveCoalescence();                                                                                           // resolve coalescence
+                        if (IsDCO()) {                                                                                                      // double compact object?
+                            ResolveCoalescence();                                                                                           // yes - resolve coalescence
 
                             if (OPTIONS->AIS_ExploratoryPhase()) (void)m_AIS.CalculateDCOHit(this);                                         // track if we have an AIS DCO hit - internal counter is updated (don't need return value here)
 
-                            SHOW_WARN(ERROR::BINARY_EVOLUTION_STOPPED, "Binary is NS + BH");                                                // show warning that we're stopping evolution
+                            if (!OPTIONS->Quiet()) SAY(get<1>(ERROR_CATALOG.at(ERROR::BINARY_EVOLUTION_STOPPED)) << ": Double compact object");     // announce that we're stopping evolution
                             evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                    // stop evolving
                         }
 

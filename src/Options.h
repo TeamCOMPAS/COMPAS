@@ -51,8 +51,8 @@ class Options {
 private:
 
     Options() {};
-    Options(Options const&) {};
-    Options& operator = (Options const&) {};
+    Options(Options const&) = delete;
+    Options& operator = (Options const&) = delete;
 
     static Options* m_Instance;
 

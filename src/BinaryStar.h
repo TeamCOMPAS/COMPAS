@@ -42,8 +42,8 @@ public:
         m_ObjectId                       = globalObjectId++;                                // get unique object id (don't copy source)
         m_ObjectType                     = OBJECT_TYPE::BINARY_STAR;                        // can only copy from BINARY_STAR
 
-        BaseBinaryStar *m_BinaryStar     = new BaseBinaryStar(*(p_Star.m_BinaryStar));      // copy underlying BaseBinaryStar
-        BaseBinaryStar *m_SaveBinaryStar = new BaseBinaryStar(*(p_Star.m_SaveBinaryStar));  // copy underlying Saved BaseBinaryStar
+        m_BinaryStar     = new BaseBinaryStar(*(p_Star.m_BinaryStar));                      // copy underlying BaseBinaryStar
+        m_SaveBinaryStar = new BaseBinaryStar(*(p_Star.m_SaveBinaryStar));                  // copy underlying Saved BaseBinaryStar
     }
 
 
@@ -56,9 +56,9 @@ public:
             m_ObjectType                     = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;            // can only copy from BINARY_CONSTITUENT_STAR
 
             delete m_BinaryStar;                                                                // delete existing
-            BaseBinaryStar *m_BinaryStar     = new BaseBinaryStar(*(p_Star.m_BinaryStar));      // copy underlying BaseBinaryStar
+            m_BinaryStar     = new BaseBinaryStar(*(p_Star.m_BinaryStar));                      // copy underlying BaseBinaryStar
             delete m_SaveBinaryStar;                                                            // delete existing
-            BaseBinaryStar *m_SaveBinaryStar = new BaseBinaryStar(*(p_Star.m_SaveBinaryStar));  // copy underlying Saved BaseBinaryStar
+            m_SaveBinaryStar = new BaseBinaryStar(*(p_Star.m_SaveBinaryStar));                  // copy underlying Saved BaseBinaryStar
 
         }
         return *this;

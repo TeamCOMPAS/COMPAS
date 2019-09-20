@@ -647,9 +647,6 @@ void BaseStar::CalculateLCoefficients(const double p_LogMetallicityXi, DBL_VECTO
 #define coeff(x) coeff.second[LR_TCoeff::x] // for convenience and readability - undefined at end of function
 
     // pow() is slow - use multiplication
-    double logMetallicityXi_2 = p_LogMetallicityXi * p_LogMetallicityXi;
-
-    // pow() is slow - use multiplication
     // do these calculations once only - and esp. outside the loop
     double xi   = p_LogMetallicityXi;
     double xi_2 = xi * xi;
@@ -1014,8 +1011,6 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) {
     // Determine the evolutionary stage of the star (see LOVERIDGE_GROUP)
 
     LOVERIDGE_GROUP lGroup;
-
-    double LM_HM_cutOff = LOVERIDGE_LM_HM_CUTOFFS[lMetallicity];                            // low mass / high mass cutoff
 
     if (utils::Compare(m_Mass, LOVERIDGE_LM_HM_CUTOFFS[lMetallicity]) > 0) {                // mass > low mass / high mass cutoff?
         lGroup = LOVERIDGE_GROUP::HM;                                                       // yes, group is HM - High Mass
@@ -3098,8 +3093,9 @@ void BaseStar::CalculateBindingEnergies(const double p_CoreMass, const double p_
  * @return                                      Boolean - true if star is in list, false if not
  */
 bool BaseStar::IsOneOf(const STELLAR_TYPE_LIST p_List) const {
-    for (auto elem: p_List)
+    for (auto elem: p_List) {
         if (m_StellarType == elem) return true;
+    }
 	return false;
 }
 
@@ -3348,8 +3344,6 @@ STELLAR_TYPE BaseStar::EvolveOnPhase() {
 
         m_Luminosity  = CalculateLuminosityOnPhase();
         m_Radius      = CalculateRadiusOnPhase();
-
-//        Kludge();                                               // JR: remove this!
 
         ResolveEnvelopeMassOnPhase(m_Tau);
 

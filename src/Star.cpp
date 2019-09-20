@@ -65,6 +65,7 @@ BaseStar* Star::Clone(const BaseStar& p_Star) {
         case STELLAR_TYPE::NEUTRON_STAR                             : {ptr = new NS(p_Star, false);} break;
         case STELLAR_TYPE::BLACK_HOLE                               : {ptr = new BH(p_Star, false);} break;
         case STELLAR_TYPE::MASSLESS_REMNANT                         : {ptr = new MR(p_Star, false);} break;
+        default: break;                                             // avoids compiler warning - this should never happen
     }
 
     return ptr;
@@ -132,6 +133,7 @@ void Star::SwitchTo(const STELLAR_TYPE p_StellarType) {
             case STELLAR_TYPE::NEUTRON_STAR                             : {ptr = new NS(*m_Star);} break;
             case STELLAR_TYPE::BLACK_HOLE                               : {ptr = new BH(*m_Star);} break;
             case STELLAR_TYPE::MASSLESS_REMNANT                         : {ptr = new MR(*m_Star);} break;
+            default: break;                                             // avoids compiler warning - this should never happen
         }
 
         if (ptr) {
@@ -434,9 +436,7 @@ void Star::Evolve(const int p_StepNum) {
 
     m_Star->CalculateGBParams();                                                                        // calculate giant branch parameters - in case for some reason star is initially not MS
 
-    int    retryCount   = 0;
-    bool   takeTimestep = true;
-    double dt           = 0.0;
+    double dt = 0.0;
 
     // JR: todo:
     // m_Error seems to be set ad hoc for SSE, and doesn't actually stop the evolution

@@ -105,7 +105,6 @@ protected:
 
     void         UpdateInitialMass()                                            { if (m_Mass0 > m_CoreMass) m_Mass0 = m_Mass; }                                             // Per Hurley et al. 2000, section 7.1
 
-//     void         Kludge() { }                                                                                                                                            // JR: todo: this needs to go....
 };
 
 #endif // __HG_h__

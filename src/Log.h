@@ -109,8 +109,8 @@ private:
         m_Logfiles.empty();                                                         // default is no log files
         m_OpenStandardLogFileIds = {};                                              // no open COMPAS standard log files
     };
-    Log(Log const&) {};                                                             // copy constructor does nothing, and not exposed publicly
-    Log& operator = (Log const&) {};                                                // operator = does nothing, and not exposed publicly
+    Log(Log const&) = delete;                                                       // copy constructor does nothing, and not exposed publicly
+    Log& operator = (Log const&) = delete;                                          // operator = does nothing, and not exposed publicly
 
     // instance variable
     static Log       *m_Instance;                                                   // pointer to the instance
@@ -163,7 +163,7 @@ private:
 
     // member functions
 
-    bool IsValidId(const int p_LogfileId)    { return ((p_LogfileId >= 0) && (p_LogfileId < m_Logfiles.size())); }
+    bool IsValidId(const int p_LogfileId)    { return ((p_LogfileId >= 0) && ((unsigned int)p_LogfileId < m_Logfiles.size())); }
     bool IsActiveId(const int p_LogfileId)   { return IsValidId(p_LogfileId) && m_Logfiles[p_LogfileId].active; }
 
     void ClearEntry(const int p_LogfileId) {
@@ -181,12 +181,17 @@ private:
     bool Write_(const int p_LogfileId, const string p_LogStr);
     bool Put_(const int p_LogfileId, const string p_LogStr, const string p_Label = "");
     bool Debug_(const string p_DbgStr);
+    bool Close_(const int p_LogfileId);
 
     PROPERTY_DETAILS StellarPropertyDetails(ANY_STAR_PROPERTY p_Property);
     PROPERTY_DETAILS BinaryPropertyDetails(BINARY_PROPERTY p_Property);
     PROPERTY_DETAILS ProgramOptionDetails(PROGRAM_OPTION p_Property);
     STR_STR_STR_STR  FormatFieldHeaders(PROPERTY_DETAILS p_Details, string p_HeaderSuffix = "");
     LOGFILE_DETAILS  StandardLogFileDetails(const LOGFILE p_Logfile, const string p_FileSuffix = "");
+
+
+    std::tuple<bool, LOGFILE> GetLogfileDescriptorKey(const std::string p_Value);
+    std::tuple<bool, LOGFILE> GetStandardLogfileKey(const int p_FileId);
 
 
     /*

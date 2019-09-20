@@ -37,8 +37,8 @@ private:
             m_ErrorCatalog[it.first] = { std::get<0>(it.second), false, {}, {}, {}, {}, std::get<1>(it.second) };
         }
     };
-    Errors(Errors const&) {};
-    Errors& operator = (Errors const&) {};
+    Errors(Errors const&) = delete;
+    Errors& operator = (Errors const&) = delete;
 
     static Errors *m_Instance;                                                      // pointer to the instance
 

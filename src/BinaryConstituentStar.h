@@ -168,8 +168,8 @@ public:
     void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  JR: todo:  sanity check?
     void            SetMassTransferDiff(const double p_MassTransferDiff)                { m_MassTransferDiff = p_MassTransferDiff; }                // JR: todo: better way?  JR: todo:  sanity check?
 
-    double          SetPostSNeOrbitalEnergy(const double p_PostSNeOrbitalEnergy)        { m_PostSNeOrbitalEnergy = p_PostSNeOrbitalEnergy; };
-    double          SetPreSNeOrbitalEnergy(const double p_PreSNeOrbitalEnergy)          { m_PreSNeOrbitalEnergy = p_PreSNeOrbitalEnergy; };
+    void            SetPostSNeOrbitalEnergy(const double p_PostSNeOrbitalEnergy)        { m_PostSNeOrbitalEnergy = p_PostSNeOrbitalEnergy; };
+    void            SetPreSNeOrbitalEnergy(const double p_PreSNeOrbitalEnergy)          { m_PreSNeOrbitalEnergy = p_PreSNeOrbitalEnergy; };
 
     COMPAS_VARIABLE StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
 

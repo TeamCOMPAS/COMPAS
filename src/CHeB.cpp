@@ -1157,15 +1157,3 @@ STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
 STELLAR_TYPE CHeB::EvolveToNextPhase() {
     return STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH;
 }
-
-
-// JR: Why is this here - we really need to get rid of this if possible....
-
-//void CHeB::Kludge() {
-//    // KLUDGE for now
-//    // JR: todo: What's the underlying problem?  Can we fix that?  Or - if it has been decided this should really happen, put it in the code where it belongs?
-//    if (utils::Compare(m_CoreMass, m_Mass) > 0) {
-//        m_CoreMass   = m_Mass;
-//        m_HeCoreMass = m_CoreMass;
-//    }
-//}

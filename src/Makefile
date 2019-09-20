@@ -2,9 +2,9 @@
 CPP = g++
 
 #Check compiler version - need GCC/g++ 7.2.0 or greater
-CPPVERSION_1_EQ_7 := $(shell expr `gcc -dumpversion | cut -f1 -d.` \== 7)
-CPPVERSION_2_GTEQ_2 := $(shell expr `gcc -dumpversion | cut -f2 -d.` \>= 2)
-CPPVERSION_1_GTEQ_7 := $(shell expr `gcc -dumpversion | cut -f1 -d.` \>= 7)
+CPPVERSION_1_EQ_7 := $(shell expr `$(CPP) -dumpversion | cut -f1 -d.` \== 7)
+CPPVERSION_2_GTEQ_2 := $(shell expr `$(CPP) -dumpversion | cut -f2 -d.` \>= 2)
+CPPVERSION_1_GTEQ_7 := $(shell expr `$(CPP) -dumpversion | cut -f1 -d.` \>= 7)
 
 OK = 0
 ifeq "$(CPPVERSION_1_EQ_7)" "1"
@@ -27,8 +27,8 @@ CFLAGS = -g
 BOOST =
 CFLAGS =  -I.
 FCFLAGS =
-ICFLAGS = -I$(BOOST)/include -std=gnu++11
-LFLAGS =  -L$(BOOST)/lib -lgsl -lgslcblas -lm -lz -ldl -march=k8 -lboost_filesystem -lboost_program_options -lboost_system -std=gnu++11 -O3
+ICFLAGS = -I$(BOOST)/include -Wall -std=c++11
+LFLAGS =  -L$(BOOST)/lib -lgsl -lgslcblas -lm -lz -ldl -march=k8 -lboost_filesystem -lboost_program_options -lboost_system -std=c++11 -O3
 SOURCES = 								\
 			utils.cpp					\
 										\

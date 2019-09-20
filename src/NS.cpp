@@ -385,7 +385,6 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const double p_
 
     double mass                 = m_Mass * MSOL;
     double radius               = m_Radius * RSOL;
-    double omega                = m_PulsarDetails.spinFrequency;
     double initialMagField      = m_PulsarDetails.magneticField;
     double magFieldLowerLimit   = pow(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA;                                       // JR: todo: really should just calculate this once
     double momentOfInertia      = m_MomentOfInertia * unitsMoI;

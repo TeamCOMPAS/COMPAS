@@ -141,13 +141,13 @@ namespace utils {
      * Note that std::string has an == operator to test for equality (actually calls std::strcmp)
      *
      *
-     * std::string PadLeadingZeros(const std::string p_Str, const int p_MaxLength)
+     * std::string PadLeadingZeros(const std::string p_Str, const std::size_t p_MaxLength)
      *
      * @param   [IN]    p_Str                       String to be padded with leading "0"s
      * @param   [IN]    p_MaxLength                 The required length of the resultant string compared
      * @return                                      String padded with leading "0"s - will be unchanged from input string if length alread >= required length
      */
-    std::string PadLeadingZeros(const std::string p_Str, const int p_MaxLength) {
+    std::string PadLeadingZeros(const std::string p_Str, const std::size_t p_MaxLength) {
         return (p_Str.length() < p_MaxLength) ? std::string(p_MaxLength - p_Str.length(), '0') + p_Str : p_Str;
     }
 
@@ -157,14 +157,14 @@ namespace utils {
      * Extra space will be at the end of the string if necessary.
      *
      *
-     * std::string CentreJustify(const std::string p_Str, const int p_Width)
+     * std::string CentreJustify(const std::string p_Str, const std::size_t p_Width)
      *
      * @param   [IN]    p_Str                       String to be centre-justified
      * @param   [IN]    p_Width                     The required width of the resultant string
      * @return                                      String padded with leading and trailing spaces so as to (as close as possible) centre-justify p_Str
      *                                              The string returned will always be p_Width characters in length
      */
-     std::string CentreJustify(const std::string p_Str, const int p_Width) {
+     std::string CentreJustify(const std::string p_Str, const std::size_t p_Width) {
 
         std::string result = p_Str;                                                                 // default is no change
 
