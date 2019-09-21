@@ -9,4 +9,4 @@ BSE_CEE_Rec = {}
 BSE_RLOF_Rec = {}
 BSE_BE_Binaries_Rec ={}
 BSE_Pulsars_Rec= {}
-BSE_Detailed_Rec={ BINARY_PROPERTY::TIME }
+BSE_Detailed_Rec={}

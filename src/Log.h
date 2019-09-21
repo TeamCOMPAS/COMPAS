@@ -71,7 +71,7 @@ public:
     string operator()(const bool               v, const string fmtStr) const {
                                                                            string fmt = fmtStr; fmt = "%" + fmt + "s";
                                                                            string vS  = OPTIONS->PrintBoolAsString() ? (v ? "TRUE" : "FALSE") : (v ? "1" : "0");
-                                                                           return utils::vFormat(fmt.c_str(), vS);
+                                                                           return utils::vFormat(fmt.c_str(), vS.c_str());
                                                                        }
     string operator()(const int                v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
     string operator()(const short int          v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
@@ -82,7 +82,7 @@ public:
     string operator()(const float              v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "e"; return utils::vFormat(fmt.c_str(), v); }
     string operator()(const double             v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "e"; return utils::vFormat(fmt.c_str(), v); }
     string operator()(const long double        v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "e"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const string             v, const string fmtStr) const { string fmt = fmtStr; fmt = "%-" + fmt + "s"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const string             v, const string fmtStr) const { string fmt = fmtStr; fmt = "%-" + fmt + "s"; return utils::vFormat(fmt.c_str(), v.c_str()); }
     string operator()(const ERROR              v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const STELLAR_TYPE       v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const MT_CASE            v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
@@ -148,7 +148,7 @@ private:
 
     std::vector<logfileAttr> m_Logfiles;                                            // logfiles - in use and not
 
-    std::unordered_map<LOGFILE, LOGFILE_DETAILS> m_OpenStandardLogFileIds;          // currently open standard logfiles: fileId, property details, field format strings
+    COMPASUnorderedMap<LOGFILE, LOGFILE_DETAILS> m_OpenStandardLogFileIds;          // currently open standard logfiles: fileId, property details, field format strings
 
     ANY_PROPERTY_VECTOR m_SSE_Parms_Rec       = SSE_PARAMETERS_REC;                 // default specification
     ANY_PROPERTY_VECTOR m_BSE_SysParms_Rec    = BSE_SYSTEM_PARAMETERS_REC;          // default specification

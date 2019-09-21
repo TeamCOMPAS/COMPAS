@@ -42,6 +42,32 @@ public:
 	double      MuM1() const                           { return m_MuM1[m_RandomGaussianDraw]; }
 	double      MuQ() const                            { return m_MuQ[m_RandomGaussianDraw]; }
 
+	// getters for the constants
+	// this would be so much easier if we could put thee in constants.h...
+
+	double KroupaPower1() const                         { return kroupaPower1; }
+    double KroupaPower2() const                         { return kroupaPower2; }
+    double KroupaPower3() const                         { return kroupaPower3; }
+
+    double KroupaPowerPlus1_1() const                   { return kroupaPowerPlus1_1; }
+    double KroupaPowerPlus1_2() const                   { return kroupaPowerPlus1_2; }
+    double KroupaPowerPlus1_3() const                   { return kroupaPowerPlus1_3; }
+
+    double OneOverKroupaPower1Plus1() const             { return oneOverKroupaPower1Plus1; }
+    double OneOverKroupaPower2Plus1() const             { return oneOverKroupaPower2Plus1; }
+    double OneOverKroupaPower3Plus1() const             { return oneOverKroupaPower3Plus1; }
+
+    double KroupaBreak1() const                         { return kroupaBreak1; }
+    double KroupaBreak2() const                         { return kroupaBreak2; }
+
+    double KroupaBreak1_Plus1_1() const                 { return kroupaBreak1_Plus1_1; }
+    double KroupaBreak1_Plus1_2() const                 { return kroupaBreak1_Plus1_2; }
+    double KroupaBreak1_Power1_2() const                { return kroupaBreak1_Power1_2; }
+
+    double KroupaBreak2_Plus1_2() const                 { return kroupaBreak2_Plus1_2; }
+    double KroupaBreak2_Plus1_3() const                 { return kroupaBreak2_Plus1_3; }
+    double KroupaBreak2_Power2_3() const                { return kroupaBreak2_Power2_3; }
+
 
     // member functions - alphabetically (sort of)
 
@@ -103,6 +129,50 @@ protected:
 	DBL_VECTOR m_MuLogA;
 	DBL_VECTOR m_MuM1;
 	DBL_VECTOR m_MuQ;
+
+
+    // The following are AIS constants:
+    //
+    // IMF variables
+    // Taken from Kroupa 2001 https://arxiv.org/pdf/astro-ph/0009005.pdf
+    //
+    // Some of these are just plain constants, but other need to be calculated
+    // (the one that use pow()).  They are calculated once in the AIS constructor
+    // so that we don't waste time calculating them every time we use them.
+    //
+    // Some compilers let us declare them all as constexpr, but some compilers don't
+    // allow math functions (like pow()) in constexpr statements (the math functions
+    // delivered with some compilers aren't declared as constexpr themselves), hence
+    // the need to calculate these in Initialise().
+
+
+    // Kroupa IMF is a broken power law with three slopes
+    double kroupaPower1;
+    double kroupaPower2;
+    double kroupaPower3;
+
+    // Often require the power law exponent plus one
+    double kroupaPowerPlus1_1;
+    double kroupaPowerPlus1_2;
+    double kroupaPowerPlus1_3;
+
+    double oneOverKroupaPower1Plus1;
+    double oneOverKroupaPower2Plus1;
+    double oneOverKroupaPower3Plus1;
+
+    // There are two breaks in the Kroupa power law -- they occur here (in solar masses)
+    double kroupaBreak1;
+    double kroupaBreak2;
+
+    // Some values that can be calculated at compile time
+    // Works with gcc c++11 - may not work with other compilers
+    double kroupaBreak1_Plus1_1;
+    double kroupaBreak1_Plus1_2;
+    double kroupaBreak1_Power1_2;
+
+    double kroupaBreak2_Plus1_2;
+    double kroupaBreak2_Plus1_3;
+    double kroupaBreak2_Power2_3;
 
 
     // member functions - alphabetically

@@ -521,10 +521,7 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
     a[80] = max(0.0585542, a[80]);
     a[81] = min(1.5, max(0.4, a[81]));
 
-    constexpr double p2_0_4 = pow(2.0, 0.4);
-    constexpr double p2_1_9 = pow(2.0, 1.9);
-
-    LConstants(B_ALPHA_L)   = (a[45] + (a[46] * pow(2.0, a[48]))) / (p2_0_4 + (a[47] * p2_1_9));                // Hurley et al. 2000, eq 19a
+    LConstants(B_ALPHA_L)   = (a[45] + (a[46] * pow(2.0, a[48]))) / (pow(2.0, 0.4) + (a[47] * pow(2.0, 1.9)));  // Hurley et al. 2000, eq 19a
     LConstants(B_BETA_L)    = max(0.0, (a[54] - (a[55] * pow(a[57], a[56]))));                                  // Hurley et al. 2000, eq 20
     LConstants(B_DELTA_L)   = min((a[34] / pow(a[33], a[35])), (a[36] / pow(a[33], a[37])));                    // Hurley et al. 2000, eq 16
 
@@ -1065,10 +1062,8 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) {
  */
 double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss) {   // JR: todo: p_IsMassLoss is ignored - do we need it?  I've set the default to false
 
-    constexpr double smallNumber   = pow(10.0, -20);                                        // Avoid 0          // JR: todo: why? (and if necessary, why not std::numeric_limits<double>::min()?
-              double bindingEnergy = pow(10.0, CalculateLogBindingEnergyLoveridge(false));
-
-    return bindingEnergy > 0.0 ? (G_CGS * m_Mass * MSOL_TO_G * p_EnvMass * MSOL_TO_G) / (m_Radius * RSOL_TO_AU * AU_TO_CM * bindingEnergy) : smallNumber;   // JR: tod: fix this (see above)
+    double bindingEnergy = pow(10.0, CalculateLogBindingEnergyLoveridge(false));
+    return bindingEnergy > 0.0 ? (G_CGS * m_Mass * MSOL_TO_G * p_EnvMass * MSOL_TO_G) / (m_Radius * RSOL_TO_AU * AU_TO_CM * bindingEnergy) : pow(10.0, -20);   // JR: todo: fix this
 }
 
 
@@ -1842,8 +1837,7 @@ double BaseStar::CalculateMassLossRateVink() {
  */
 double BaseStar::CalculateMassLossRate() {
 
-    double mDot
-    ;
+    double mDot = 0.0;
     if (OPTIONS->UseMassLoss()) {
 
         switch (OPTIONS->MassLossPrescription()) {                                  // which prescription?
@@ -2716,7 +2710,7 @@ double BaseStar::DrawKickVelocityBrayEldridge(const double p_EjectaMass,
  */
 double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
 
-    double	remnantKick;	                    // units km/s
+    double	remnantKick = 0.0;	                // units km/s
 	double	lowerRegimeKick = 70.0;		        // Bernhard proposes to use 10 km s^-1 to replicate ECSN. He quotes Bray & Eldridge 2016 on this.
 
 	     if (utils::Compare(p_COCoreMass, 1.44) <  0) remnantKick = 0.0;

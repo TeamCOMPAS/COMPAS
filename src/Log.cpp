@@ -239,7 +239,7 @@ int Log::Open(const string p_LogFileName, const bool p_Append, const bool p_Time
  */
 bool Log::Close(const int p_LogfileId) {
 
-    bool result;
+    bool result = true;
 
     if (m_Enabled) {                                                                                            // logging enabled?
                                                                                                                 // yes
@@ -249,7 +249,7 @@ bool Log::Close(const int p_LogfileId) {
         LOGFILE logfile;
         std::tie(standardFile, logfile) = GetStandardLogfileKey(p_LogfileId);                                   // look in open standard file map
         if (standardFile) {                                                                                     // file is an open standard file
-            std::unordered_map<LOGFILE, LOGFILE_DETAILS>::const_iterator iter;                                  // iterator
+            COMPASUnorderedMap<LOGFILE, LOGFILE_DETAILS>::const_iterator iter;                                  // iterator
             iter = m_OpenStandardLogFileIds.find(logfile);                                                      // get the details
             if (iter != m_OpenStandardLogFileIds.end()) {                                                       // found
                 LOGFILE_DETAILS fileDetails = iter->second;                                                     // existing file details
@@ -279,7 +279,7 @@ bool Log::Close(const int p_LogfileId) {
  */
 bool Log::Close_(const int p_LogfileId) {
 
-    bool result;
+    bool result = true;
 
     if (m_Enabled && IsActiveId(p_LogfileId)) {                                                             // logging enabled and logfile active?
         if (m_Logfiles[p_LogfileId].file.is_open()) {                                                       // yes - check if log file open
@@ -884,7 +884,7 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
     LOGFILE_DETAILS      fileDetails = std::make_tuple(id, "", recordProperties, fmtVector);                                                    // default logfile details
     LOGFILE_DESCRIPTOR_T fileDescriptor;                                                                                                        // logfile descriptor
 
-    std::unordered_map<LOGFILE, LOGFILE_DETAILS>::const_iterator logfile;                                                                       // iterator
+    COMPASUnorderedMap<LOGFILE, LOGFILE_DETAILS>::const_iterator logfile;                                                                       // iterator
     logfile = m_OpenStandardLogFileIds.find(p_Logfile);                                                                                         // look for open logfile
     if (logfile == m_OpenStandardLogFileIds.end()) {                                                                                            // doesn't exist
 
@@ -1080,7 +1080,7 @@ bool Log::CloseStandardFile(const LOGFILE p_Logfile) {
 
     LOGFILE_DETAILS fileDetails;                                                                                    // file details
 
-    std::unordered_map<LOGFILE, LOGFILE_DETAILS>::const_iterator logfile;                                           // iterator
+    COMPASUnorderedMap<LOGFILE, LOGFILE_DETAILS>::const_iterator logfile;                                           // iterator
     logfile = m_OpenStandardLogFileIds.find(p_Logfile);                                                             // look for open logfile
     if (logfile != m_OpenStandardLogFileIds.end()) {                                                                // found
         fileDetails = logfile->second;                                                                              // existing file details

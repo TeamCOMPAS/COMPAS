@@ -53,8 +53,8 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
 
     m_AIS = p_AIS;                                                                  // Adaptive Importance Sampling
 
-    double mass1;
-    double mass2;
+    double mass1 = 0.0;
+    double mass2 = 0.0;
     m_SemiMajorAxis = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_Star1 = nullptr;
@@ -873,7 +873,7 @@ double BaseBinaryStar::SampleQDistribution() {
  */
 double BaseBinaryStar::SampleInitialMassDistribution() {
 
-    double thisMass;
+    double thisMass = 0.0;
 
     if (!m_AIS.DrawingFromAISDistributions()) {                                                                                                         // draw from priors (not from AIS distributions)
 
@@ -897,70 +897,70 @@ double BaseBinaryStar::SampleInitialMassDistribution() {
             case INITIAL_MASS_FUNCTION::KROUPA:                                                                                                         // KROUPA
 
                 // find out where the user specificed their minimum and maximum masses to generate
-                if (utils::Compare(OPTIONS->InitialMassFunctionMin(), kroupaBreak1) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), kroupaBreak1) <= 0) {
-                    thisMass = utils::InverseSampleFromPowerLaw(kroupaPower1, OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
+                if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak1()) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak1()) <= 0) {
+                    thisMass = utils::InverseSampleFromPowerLaw(m_AIS.KroupaPower1(), OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
                 }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), kroupaBreak1) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMin(), kroupaBreak2) <= 0 &&
-                         utils::Compare(OPTIONS->InitialMassFunctionMax(), kroupaBreak1) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), kroupaBreak2) <= 0) {
+                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak1()) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak2()) <= 0 &&
+                         utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak1()) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak2()) <= 0) {
 
-                    thisMass = utils::InverseSampleFromPowerLaw(kroupaPower2, OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
+                    thisMass = utils::InverseSampleFromPowerLaw(m_AIS.KroupaPower2(), OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
                 }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), kroupaBreak2) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), kroupaBreak2) > 0) {
+                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak2()) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak2()) > 0) {
 
-                    thisMass = utils::InverseSampleFromPowerLaw(kroupaPower3, OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
+                    thisMass = utils::InverseSampleFromPowerLaw(m_AIS.KroupaPower3(), OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
                 }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), kroupaBreak1) <= 0 &&
-                         utils::Compare(OPTIONS->InitialMassFunctionMax(), kroupaBreak1)  > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), kroupaBreak2) <= 0) {
+                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak1()) <= 0 &&
+                         utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak1())  > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak2()) <= 0) {
 
-                    double term1 = oneOverKroupaPower1Plus1 * (kroupaBreak1_Plus1_1 - pow(OPTIONS->InitialMassFunctionMin(), kroupaPowerPlus1_1));
-                    double term2 = oneOverKroupaPower2Plus1 * kroupaBreak1_Power1_2 * (pow(OPTIONS->InitialMassFunctionMax(), kroupaPowerPlus1_2) - kroupaBreak1_Plus1_2);
+                    double term1 = m_AIS.OneOverKroupaPower1Plus1() * (m_AIS.KroupaBreak1_Plus1_1() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()));
+                    double term2 = m_AIS.OneOverKroupaPower2Plus1() * m_AIS.KroupaBreak1_Power1_2() * (pow(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaPowerPlus1_2()) - m_AIS.KroupaBreak1_Plus1_2());
 
                     double C1    = 1.0 / (term1 + term2);
-                    double C2    = C1 * kroupaBreak1_Power1_2;
-                    double A     = oneOverKroupaPower1Plus1 * C1 * (kroupaBreak1_Plus1_1 - pow(OPTIONS->InitialMassFunctionMin(), kroupaPowerPlus1_1));
+                    double C2    = C1 * m_AIS.KroupaBreak1_Power1_2();
+                    double A     = m_AIS.OneOverKroupaPower1Plus1() * C1 * (m_AIS.KroupaBreak1_Plus1_1() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()));
 
                     double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
-                    thisMass = utils::Compare(rand, m_AIS.CalculateCDFKroupa(kroupaBreak1)) < 0
-                                ? pow(rand * (kroupaPowerPlus1_1 / C1) + pow(OPTIONS->InitialMassFunctionMin(), kroupaPowerPlus1_1), oneOverKroupaPower1Plus1)
-                                : pow((rand - A) * (kroupaPowerPlus1_2 / C2) + kroupaBreak1_Plus1_2, oneOverKroupaPower2Plus1);
+                    thisMass = utils::Compare(rand, m_AIS.CalculateCDFKroupa(m_AIS.KroupaBreak1())) < 0
+                                ? pow(rand * (m_AIS.KroupaPowerPlus1_1() / C1) + pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()), m_AIS.OneOverKroupaPower1Plus1())
+                                : pow((rand - A) * (m_AIS.KroupaPowerPlus1_2() / C2) + m_AIS.KroupaBreak1_Plus1_2(), m_AIS.OneOverKroupaPower2Plus1());
                 }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), kroupaBreak1) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), kroupaBreak2) > 0) {
+                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak1()) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak2()) > 0) {
 
-                    double term1 = oneOverKroupaPower1Plus1 * (kroupaBreak1_Plus1_1 - pow(OPTIONS->InitialMassFunctionMin(), kroupaPowerPlus1_1));
-                    double term2 = oneOverKroupaPower2Plus1 * kroupaBreak1_Power1_2 * (kroupaBreak2_Plus1_2 - kroupaBreak1_Plus1_2);
-                    double term3 = oneOverKroupaPower3Plus1 * kroupaBreak1_Power1_2 * kroupaBreak2_Power2_3 * (pow(OPTIONS->InitialMassFunctionMax(), kroupaPowerPlus1_3) - kroupaBreak2_Plus1_3);
+                    double term1 = m_AIS.OneOverKroupaPower1Plus1() * (m_AIS.KroupaBreak1_Plus1_1() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()));
+                    double term2 = m_AIS.OneOverKroupaPower2Plus1() * m_AIS.KroupaBreak1_Power1_2() * (m_AIS.KroupaBreak2_Plus1_2() - m_AIS.KroupaBreak1_Plus1_2());
+                    double term3 = m_AIS.OneOverKroupaPower3Plus1() * m_AIS.KroupaBreak1_Power1_2() * m_AIS.KroupaBreak2_Power2_3() * (pow(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaPowerPlus1_3()) - m_AIS.KroupaBreak2_Plus1_3());
 
                     double C1    = 1.0 / (term1 + term2 + term3);
-                    double C2    = C1 * kroupaBreak1_Power1_2;
-                    double C3    = C2 * kroupaBreak2_Power2_3;
+                    double C2    = C1 * m_AIS.KroupaBreak1_Power1_2();
+                    double C3    = C2 * m_AIS.KroupaBreak2_Power2_3();
 
-                    double A     = oneOverKroupaPower1Plus1 * C1 * (kroupaBreak1_Plus1_1 - pow(OPTIONS->InitialMassFunctionMin(), kroupaPowerPlus1_1));
-                    double B     = oneOverKroupaPower2Plus1 * C2 * (kroupaBreak2_Plus1_2 - kroupaBreak1_Plus1_2);
+                    double A     = m_AIS.OneOverKroupaPower1Plus1() * C1 * (m_AIS.KroupaBreak1_Plus1_1() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()));
+                    double B     = m_AIS.OneOverKroupaPower2Plus1() * C2 * (m_AIS.KroupaBreak2_Plus1_2() - m_AIS.KroupaBreak1_Plus1_2());
 
                     double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
 
-                    if (utils::Compare(rand, m_AIS.CalculateCDFKroupa(kroupaBreak1)) < 0)
-                        thisMass = pow(rand * (kroupaPowerPlus1_1 / C1) + pow(OPTIONS->InitialMassFunctionMin(), kroupaPowerPlus1_1), oneOverKroupaPower1Plus1);
-                    else if (utils::Compare(rand, m_AIS.CalculateCDFKroupa(kroupaBreak2)) < 0)
-                        thisMass = pow((rand - A) * (kroupaPowerPlus1_2 / C2) + kroupaBreak1_Plus1_2, oneOverKroupaPower2Plus1);
+                    if (utils::Compare(rand, m_AIS.CalculateCDFKroupa(m_AIS.KroupaBreak1())) < 0)
+                        thisMass = pow(rand * (m_AIS.KroupaPowerPlus1_1() / C1) + pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()), m_AIS.OneOverKroupaPower1Plus1());
+                    else if (utils::Compare(rand, m_AIS.CalculateCDFKroupa(m_AIS.KroupaBreak2())) < 0)
+                        thisMass = pow((rand - A) * (m_AIS.KroupaPowerPlus1_2() / C2) + m_AIS.KroupaBreak1_Plus1_2(), m_AIS.OneOverKroupaPower2Plus1());
                     else
-                        thisMass = pow((rand - A - B) * (kroupaPowerPlus1_3 / C3) + kroupaBreak2_Plus1_3, oneOverKroupaPower3Plus1);
+                        thisMass = pow((rand - A - B) * (m_AIS.KroupaPowerPlus1_3() / C3) + m_AIS.KroupaBreak2_Plus1_3(), m_AIS.OneOverKroupaPower3Plus1());
                 }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), kroupaBreak1)  > 0 &&
-                         utils::Compare(OPTIONS->InitialMassFunctionMin(), kroupaBreak2) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), kroupaBreak2) > 0) {
+                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak1())  > 0 &&
+                         utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak2()) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak2()) > 0) {
 
-                    double term1 = oneOverKroupaPower2Plus1 * (kroupaBreak2_Plus1_2 - pow(OPTIONS->InitialMassFunctionMin(), kroupaPowerPlus1_2));
-                    double term2 = oneOverKroupaPower3Plus1 * kroupaBreak2_Power2_3 * (pow(OPTIONS->InitialMassFunctionMax(), kroupaPowerPlus1_3) - kroupaBreak2_Plus1_3);
+                    double term1 = m_AIS.OneOverKroupaPower2Plus1() * (m_AIS.KroupaBreak2_Plus1_2() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_2()));
+                    double term2 = m_AIS.OneOverKroupaPower3Plus1() * m_AIS.KroupaBreak2_Power2_3() * (pow(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaPowerPlus1_3()) - m_AIS.KroupaBreak2_Plus1_3());
 
                     double C2    = 1.0 / (term1 + term2);
-                    double C3    = C2 * kroupaBreak2_Power2_3;
-                    double B     = oneOverKroupaPower2Plus1 * C2 * (kroupaBreak2_Plus1_2 - pow(OPTIONS->InitialMassFunctionMin(), kroupaPowerPlus1_2));
+                    double C3    = C2 * m_AIS.KroupaBreak2_Power2_3();
+                    double B     = m_AIS.OneOverKroupaPower2Plus1() * C2 * (m_AIS.KroupaBreak2_Plus1_2() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_2()));
 
                     double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
 
-                    thisMass = utils::Compare(rand, m_AIS.CalculateCDFKroupa(kroupaBreak2)) < 0
-                                ? pow(rand * (kroupaPowerPlus1_2 / C2) + pow(OPTIONS->InitialMassFunctionMin(), kroupaPowerPlus1_2), oneOverKroupaPower2Plus1)
-                                : pow((rand - B) * (kroupaPowerPlus1_3 / C3) + kroupaBreak2_Plus1_3, oneOverKroupaPower3Plus1);
+                    thisMass = utils::Compare(rand, m_AIS.CalculateCDFKroupa(m_AIS.KroupaBreak2())) < 0
+                                ? pow(rand * (m_AIS.KroupaPowerPlus1_2() / C2) + pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_2()), m_AIS.OneOverKroupaPower2Plus1())
+                                : pow((rand - B) * (m_AIS.KroupaPowerPlus1_3() / C3) + m_AIS.KroupaBreak2_Plus1_3(), m_AIS.OneOverKroupaPower3Plus1());
                 }
                 // JR: no other case possible - as long as OPTIONS->InitialMassFunctionMin() < OPTIONS->InitialMassFunctionMax() (currently enforced in Options.cpp)
                 break;

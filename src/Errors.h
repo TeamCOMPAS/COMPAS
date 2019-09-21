@@ -42,7 +42,7 @@ private:
 
     static Errors *m_Instance;                                                      // pointer to the instance
 
-    std::unordered_map<ERROR, std::tuple<ERROR_SCOPE, bool, std::vector<OBJECT_TYPE>, std::vector<OBJECT_ID>, std::vector<STELLAR_TYPE>, std::vector<std::string>, std::string>> m_ErrorCatalog = {};
+    COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, bool, std::vector<OBJECT_TYPE>, std::vector<OBJECT_ID>, std::vector<STELLAR_TYPE>, std::vector<std::string>, std::string>> m_ErrorCatalog = {};
 
 
 public:
@@ -58,8 +58,7 @@ public:
                 const OBJECT_ID    p_ObjectId      = 0,
                 const OBJECT_TYPE  p_ObjectType    = OBJECT_TYPE::NONE,
                 const STELLAR_TYPE p_StellarType   = STELLAR_TYPE::NONE,
-                const char*        p_FuncName      = __builtin_FUNCTION());
-
+                const char*        p_FuncName      = "Not provided");
 };
 
 #endif // __Errors_h_

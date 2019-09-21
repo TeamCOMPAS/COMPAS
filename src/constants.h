@@ -19,6 +19,21 @@ typedef std::tuple <double, double>                                     DBL_DBL;
 typedef std::tuple <double, double, double>                             DBL_DBL_DBL;
 typedef std::tuple<std::string, std::string, std::string, std::string>  STR_STR_STR_STR;
 
+struct EnumClassHash
+{
+    template <typename T>
+    std::size_t operator()(T t) const
+    {
+        return static_cast<std::size_t>(t);
+    }
+};
+
+template <typename Key>
+using HashType = typename std::conditional<std::is_enum<Key>::value, EnumClassHash, std::hash<Key>>::type;
+
+template <typename Key, typename T>
+using COMPASUnorderedMap = std::unordered_map<Key, T, HashType<Key>>;
+
 
 
 extern OBJECT_ID globalObjectId;                                                                    // used to uniquely identify objects - used primarily for error printing
@@ -105,7 +120,7 @@ constexpr double AU_TO_RSOL				                = 1.0 / RSOL_TO_AU;              
 // constants
 
 constexpr double _2_PI                                  = M_PI * 2;                                                 // 2PI
-constexpr double SQRT_M_2_PI                            = sqrt(M_2_PI);                                             // sqrt(2/PI)
+constexpr double SQRT_M_2_PI                            = 0.7978845608028653558799;                                 // sqrt(2/PI)
 constexpr double DEGREE                                 = M_PI / 180.0;                                             // 1 degree in radians
 
 constexpr double GAMMA_E                                = 0.57721566490153286060651209008240243104215933593992;     // Euler's Constant (probably don't need so many digits after the decimal point...)
@@ -190,44 +205,9 @@ constexpr double KROUPA_MAXIMUM                         = 100.0;                
 
 
 
-
-
-// The following constants are AIS constants - calculated here once at compile time
-// IMF variables
-// Taken from Kroupa 2001 https://arxiv.org/pdf/astro-ph/0009005.pdf
-
-// Kroupa IMF is a broken power law with three slopes
-constexpr double kroupaPower1                           = -0.3;
-constexpr double kroupaPower2                           = -1.3;
-constexpr double kroupaPower3                           = -2.3;
-
-// Often require the power law exponent plus one
-constexpr double kroupaPowerPlus1_1                     = 0.7;
-constexpr double kroupaPowerPlus1_2                     = -0.3;
-constexpr double kroupaPowerPlus1_3                     = -1.3;
-
-constexpr double oneOverKroupaPower1Plus1               = 1.0 / kroupaPowerPlus1_1;
-constexpr double oneOverKroupaPower2Plus1               = 1.0 / kroupaPowerPlus1_2;
-constexpr double oneOverKroupaPower3Plus1               = 1.0 / kroupaPowerPlus1_3;
-
-// There are two breaks in the Kroupa power law -- they occur here (in solar masses)
-constexpr double kroupaBreak1 = 0.08;
-constexpr double kroupaBreak2 = 0.5;
-
-// Some values that can be calculated at compile time
-// Works with gcc c++11 - may not work with other compilers
-constexpr double kroupaBreak1_Plus1_1                   = pow(kroupaBreak1, kroupaPowerPlus1_1);
-constexpr double kroupaBreak1_Plus1_2                   = pow(kroupaBreak1, kroupaPowerPlus1_2);
-constexpr double kroupaBreak1_Power1_2                  = pow(kroupaBreak1, (kroupaPower1 - kroupaPower2));
-
-constexpr double kroupaBreak2_Plus1_2                   = pow(kroupaBreak2, kroupaPowerPlus1_2);
-constexpr double kroupaBreak2_Plus1_3                   = pow(kroupaBreak2, kroupaPowerPlus1_3);
-constexpr double kroupaBreak2_Power2_3                  = pow(kroupaBreak2, (kroupaPower2 - kroupaPower3));
-
-
 // object types
 enum class OBJECT_TYPE: int { MAIN, UTILS, STAR, BASE_STAR, BINARY_STAR, BASE_BINARY_STAR, BINARY_CONSTITUENT_STAR, AIS, NONE };    //  if BASE_STAR, check STELLAR_TYPE
-const std::unordered_map<OBJECT_TYPE, std::string> OBJECT_TYPE_LABEL = {
+const COMPASUnorderedMap<OBJECT_TYPE, std::string> OBJECT_TYPE_LABEL = {
     { OBJECT_TYPE::MAIN,                    "Main" },
     { OBJECT_TYPE::UTILS,                   "Utils" },
     { OBJECT_TYPE::STAR,                    "Star" },
@@ -348,7 +328,7 @@ enum class ERROR_SCOPE: int { NEVER, ALWAYS, FIRST, FIRST_IN_OBJECT_TYPE, FIRST_
 //
 // unordered_map - key is integer message number (from enum class ERROR above)
 // listed alphabetically
-const std::unordered_map<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATALOG = {
+const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATALOG = {
     { ERROR::AGE_NEGATIVE_ONCE,                                     { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Age < 0.0" }},
     { ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS,                     { ERROR_SCOPE::ALWAYS,              "Logfile record specifications error" }},
     { ERROR::BINARY_EVOLUTION_STOPPED,                              { ERROR_SCOPE::ALWAYS,              "Evolution of current binary stopped" }},
@@ -455,7 +435,7 @@ enum class EVOLUTION_STATUS: int {
     AIS_EXPLORATORY
 };
 
-const std::unordered_map<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL = {
+const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL = {
     { EVOLUTION_STATUS::CONTINUE,            "Continue Evolution" },
     { EVOLUTION_STATUS::SSE_ERROR,           "SSE error for one of the constituent stars" },
     { EVOLUTION_STATUS::BINARY_ERROR,        "Error evolving binary" },
@@ -479,7 +459,7 @@ const std::unordered_map<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL =
 // Floor 25/04/2018
 // DCOtype names for exploratory phase Adaptive Importance Sampling  - AIS
 enum class AIS_DCO: int { ALL, BBH, BNS, BHNS, NSBH };
-const std::unordered_map<AIS_DCO, std::string> AIS_DCO_LABEL = {
+const COMPASUnorderedMap<AIS_DCO, std::string> AIS_DCO_LABEL = {
     { AIS_DCO::ALL,  "ALL" },    // don't select binaries
     { AIS_DCO::BBH,  "BBH" },    // select BBH
     { AIS_DCO::BNS,  "BNS" },    // select BNS
@@ -490,7 +470,7 @@ const std::unordered_map<AIS_DCO, std::string> AIS_DCO_LABEL = {
 
 // Black Hole Kick Options
 enum class BLACK_HOLE_KICK_OPTION: int { FULL, REDUCED, ZERO, FALLBACK };
-const std::unordered_map<BLACK_HOLE_KICK_OPTION, std::string> BLACK_HOLE_KICK_OPTION_LABEL = {
+const COMPASUnorderedMap<BLACK_HOLE_KICK_OPTION, std::string> BLACK_HOLE_KICK_OPTION_LABEL = {
     { BLACK_HOLE_KICK_OPTION::FULL,     "FULL" },     // FULL kicks option
     { BLACK_HOLE_KICK_OPTION::REDUCED,  "REDUCED" },  // REDUCED kicks option
     { BLACK_HOLE_KICK_OPTION::ZERO,     "ZERO" },     // ZERO kicks option
@@ -500,7 +480,7 @@ const std::unordered_map<BLACK_HOLE_KICK_OPTION, std::string> BLACK_HOLE_KICK_OP
 
 // Kick velocity distribution from Bray & Eldridge 2016,2018
 enum class BRAY_ELDRIDGE_CONSTANT: int { ALPHA, BETA };
-const std::unordered_map<BRAY_ELDRIDGE_CONSTANT, double> BRAY_ELDRIDGE_CONSTANT_VALUES = {
+const COMPASUnorderedMap<BRAY_ELDRIDGE_CONSTANT, double> BRAY_ELDRIDGE_CONSTANT_VALUES = {
     { BRAY_ELDRIDGE_CONSTANT::ALPHA, 100.0 },
     { BRAY_ELDRIDGE_CONSTANT::BETA, -170.0 }
 };
@@ -508,7 +488,7 @@ const std::unordered_map<BRAY_ELDRIDGE_CONSTANT, double> BRAY_ELDRIDGE_CONSTANT_
 
 // Common Envelope Accretion Prescriptions
 enum class CE_ACCRETION_PRESCRIPTION: int { ZERO, CONSTANT, UNIFORM, MACLEOD };
-const std::unordered_map<CE_ACCRETION_PRESCRIPTION, std::string> CE_ACCRETION_PRESCRIPTION_LABEL = {
+const COMPASUnorderedMap<CE_ACCRETION_PRESCRIPTION, std::string> CE_ACCRETION_PRESCRIPTION_LABEL = {
     { CE_ACCRETION_PRESCRIPTION::ZERO,     "ZERO" },
     { CE_ACCRETION_PRESCRIPTION::CONSTANT, "CONSTANT" },
     { CE_ACCRETION_PRESCRIPTION::UNIFORM,  "UNIFORM" },
@@ -518,7 +498,7 @@ const std::unordered_map<CE_ACCRETION_PRESCRIPTION, std::string> CE_ACCRETION_PR
 
 // Common Envelope Lambda Prescriptions
 enum class CE_LAMBDA_PRESCRIPTION: int { FIXED, LOVERIDGE, NANJING, KRUCKOW, DEWI };
-const std::unordered_map<CE_LAMBDA_PRESCRIPTION, std::string> CE_LAMBDA_PRESCRIPTION_LABEL = {
+const COMPASUnorderedMap<CE_LAMBDA_PRESCRIPTION, std::string> CE_LAMBDA_PRESCRIPTION_LABEL = {
     { CE_LAMBDA_PRESCRIPTION::FIXED,     "LAMBDA_FIXED" },
     { CE_LAMBDA_PRESCRIPTION::LOVERIDGE, "LAMBDA_LOVERIDGE" },
     { CE_LAMBDA_PRESCRIPTION::NANJING,   "LAMBDA_NANJING" },
@@ -529,7 +509,7 @@ const std::unordered_map<CE_LAMBDA_PRESCRIPTION, std::string> CE_LAMBDA_PRESCRIP
 
 // Common envelope zeta prescription
 enum class CE_ZETA_PRESCRIPTION: int { STARTRACK, SOBERMAN, HURLEY, ARBITRARY };
-const std::unordered_map<CE_ZETA_PRESCRIPTION, std::string> CE_ZETA_PRESCRIPTION_LABEL = {
+const COMPASUnorderedMap<CE_ZETA_PRESCRIPTION, std::string> CE_ZETA_PRESCRIPTION_LABEL = {
     { CE_ZETA_PRESCRIPTION::STARTRACK, "STARTRACK" },
     { CE_ZETA_PRESCRIPTION::SOBERMAN,  "SOBERMAN" },
     { CE_ZETA_PRESCRIPTION::HURLEY,    "HURLEY" },
@@ -539,7 +519,7 @@ const std::unordered_map<CE_ZETA_PRESCRIPTION, std::string> CE_ZETA_PRESCRIPTION
 
 // Common envelope prescriptions
 enum class COMMON_ENVELOPE_PRESCRIPTION: int { WEBBINK, OPTIMISTIC_HG, PESSIMISTIC_HG, STABLE_HG };
-const std::unordered_map<COMMON_ENVELOPE_PRESCRIPTION, std::string> COMMON_ENVELOPE_PRESCRIPTION_LABEL = {
+const COMPASUnorderedMap<COMMON_ENVELOPE_PRESCRIPTION, std::string> COMMON_ENVELOPE_PRESCRIPTION_LABEL = {
     { COMMON_ENVELOPE_PRESCRIPTION::WEBBINK,        "WEBBINK_CE" },
     { COMMON_ENVELOPE_PRESCRIPTION::OPTIMISTIC_HG,  "OPTIMISTIC_HG_CE" },   // Assume HG donors onto compact objects can initiate and survive CE
     { COMMON_ENVELOPE_PRESCRIPTION::PESSIMISTIC_HG, "PESSIMISTIC_HG_CE" },  // Assume HG donors onto compact objects can initiate but not survive CE
@@ -549,12 +529,12 @@ const std::unordered_map<COMMON_ENVELOPE_PRESCRIPTION, std::string> COMMON_ENVEL
 
 // Logfile delimiters
 enum class DELIMITER: int { TAB, SPACE, COMMA };
-const std::unordered_map<DELIMITER, std::string> DELIMITERLabel = {         // labels
+const COMPASUnorderedMap<DELIMITER, std::string> DELIMITERLabel = {         // labels
     { DELIMITER::TAB,   "TAB" },
     { DELIMITER::SPACE, "SPACE" },
     { DELIMITER::COMMA, "COMMA" }
 };
-const std::unordered_map<DELIMITER, std::string> DELIMITERValue = {         // values
+const COMPASUnorderedMap<DELIMITER, std::string> DELIMITERValue = {         // values
     { DELIMITER::TAB,   "\t" },
     { DELIMITER::SPACE, " " },
     { DELIMITER::COMMA, "," }
@@ -563,7 +543,7 @@ const std::unordered_map<DELIMITER, std::string> DELIMITERValue = {         // v
 
 // Eccentricity distribution
 enum class ECCENTRICITY_DISTRIBUTION: int { ZERO, FIXED, FLAT, THERMALISED, THERMAL, GELLER_2013, DUQUENNOYMAYOR1991, SANA2012, IMPORTANCE };
-const std::unordered_map<ECCENTRICITY_DISTRIBUTION, std::string> ECCENTRICITY_DISTRIBUTION_LABEL = {
+const COMPASUnorderedMap<ECCENTRICITY_DISTRIBUTION, std::string> ECCENTRICITY_DISTRIBUTION_LABEL = {
     { ECCENTRICITY_DISTRIBUTION::ZERO,               "ZERO" },
     { ECCENTRICITY_DISTRIBUTION::FIXED,              "FIXED" },
     { ECCENTRICITY_DISTRIBUTION::FLAT,               "FLAT" },
@@ -578,7 +558,7 @@ const std::unordered_map<ECCENTRICITY_DISTRIBUTION, std::string> ECCENTRICITY_DI
 
 // Envelope types
 enum class ENVELOPE: int { RADIATIVE, CONVECTIVE, REMNANT };
-const std::unordered_map<ENVELOPE, std::string> ENVELOPE_LABEL = {
+const COMPASUnorderedMap<ENVELOPE, std::string> ENVELOPE_LABEL = {
     { ENVELOPE::RADIATIVE,  "RADIATIVE" },
     { ENVELOPE::CONVECTIVE, "CONVECTIVE" },
     { ENVELOPE::REMNANT,    "REMNANT" }
@@ -587,7 +567,7 @@ const std::unordered_map<ENVELOPE, std::string> ENVELOPE_LABEL = {
 
 // Supernova Hydrogen content constants
 enum class HYDROGEN_CONTENT: int { RICH, POOR };
-const std::unordered_map<HYDROGEN_CONTENT, std::string> HYDROGEN_CONTENT_LABEL = {
+const COMPASUnorderedMap<HYDROGEN_CONTENT, std::string> HYDROGEN_CONTENT_LABEL = {
     { HYDROGEN_CONTENT::RICH, "RICH" },
     { HYDROGEN_CONTENT::POOR, "POOR" }
 };
@@ -595,7 +575,7 @@ const std::unordered_map<HYDROGEN_CONTENT, std::string> HYDROGEN_CONTENT_LABEL =
 
 // Kick velocity distribution
 enum class KICK_VELOCITY_DISTRIBUTION: int { ZERO, FIXED, FLAT, MAXWELLIAN, MAXWELL, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN };
-const std::unordered_map<KICK_VELOCITY_DISTRIBUTION, std::string> KICK_VELOCITY_DISTRIBUTION_LABEL = {
+const COMPASUnorderedMap<KICK_VELOCITY_DISTRIBUTION, std::string> KICK_VELOCITY_DISTRIBUTION_LABEL = {
     { KICK_VELOCITY_DISTRIBUTION::ZERO,                 "ZERO" },
     { KICK_VELOCITY_DISTRIBUTION::FIXED,                "FIXED" },
     { KICK_VELOCITY_DISTRIBUTION::FLAT,                 "FLAT" },
@@ -608,7 +588,7 @@ const std::unordered_map<KICK_VELOCITY_DISTRIBUTION, std::string> KICK_VELOCITY_
 
 // Initial mass function
 enum class INITIAL_MASS_FUNCTION: int { SALPETER, POWERLAW, UNIFORM, KROUPA };
-const std::unordered_map<INITIAL_MASS_FUNCTION, std::string> INITIAL_MASS_FUNCTION_LABEL = {
+const COMPASUnorderedMap<INITIAL_MASS_FUNCTION, std::string> INITIAL_MASS_FUNCTION_LABEL = {
     { INITIAL_MASS_FUNCTION::SALPETER, "SALPETER" },
     { INITIAL_MASS_FUNCTION::POWERLAW, "POWERLAW" },
     { INITIAL_MASS_FUNCTION::UNIFORM,  "UNIFORM" },
@@ -618,7 +598,7 @@ const std::unordered_map<INITIAL_MASS_FUNCTION, std::string> INITIAL_MASS_FUNCTI
 
 // Mass loss prescriptions
 enum class MASS_LOSS_PRESCRIPTION: int { NONE, HURLEY, VINK };
-const std::unordered_map<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIPTION_LABEL = {
+const COMPASUnorderedMap<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIPTION_LABEL = {
     { MASS_LOSS_PRESCRIPTION::NONE,   "NONE" },
     { MASS_LOSS_PRESCRIPTION::HURLEY, "HURLEY" },
     { MASS_LOSS_PRESCRIPTION::VINK,   "VINK" }
@@ -627,7 +607,7 @@ const std::unordered_map<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIP
 
 // Mass ratio distribution
 enum class MASS_RATIO_DISTRIBUTION: int { FLAT, DUQUENNOYMAYOR1991, SANA2012 };
-const std::unordered_map<MASS_RATIO_DISTRIBUTION, std::string> MASS_RATIO_DISTRIBUTION_LABEL = {
+const COMPASUnorderedMap<MASS_RATIO_DISTRIBUTION, std::string> MASS_RATIO_DISTRIBUTION_LABEL = {
     { MASS_RATIO_DISTRIBUTION::FLAT,               "FLAT" },
     { MASS_RATIO_DISTRIBUTION::DUQUENNOYMAYOR1991, "DUQUENNOYMAYOR1991" },
     { MASS_RATIO_DISTRIBUTION::SANA2012,           "SANA2012" }
@@ -636,7 +616,7 @@ const std::unordered_map<MASS_RATIO_DISTRIBUTION, std::string> MASS_RATIO_DISTRI
 
 // Mass Transfer types
 enum class MASS_TRANSFER: int { NONE, STABLE_TIMESCALE_NUCLEAR, STABLE_TIMESCALE_THERMAL, UNSTABLE_TIMESCALE_THERMAL, UNSTABLE_TIMESCALE_DYNAMICAL};
-const std::unordered_map<MASS_TRANSFER, std::string> MASS_TRANSFER_LABEL = {
+const COMPASUnorderedMap<MASS_TRANSFER, std::string> MASS_TRANSFER_LABEL = {
     { MASS_TRANSFER::NONE,                         "No mass transfer" },
     { MASS_TRANSFER::STABLE_TIMESCALE_NUCLEAR,     "Nuclear timescale stable mass transfer" },
     { MASS_TRANSFER::STABLE_TIMESCALE_THERMAL,     "Thermal timescale stable mass transfer" },
@@ -647,7 +627,7 @@ const std::unordered_map<MASS_TRANSFER, std::string> MASS_TRANSFER_LABEL = {
 
 // Mass transfer accretion efficiency prescriptions
 enum class MT_ACCRETION_EFFICIENCY_PRESCRIPTION: int { THERMALLY_LIMITED, FIXED_FRACTION, CENTRIFUGALLY_LIMITED };
-const std::unordered_map<MT_ACCRETION_EFFICIENCY_PRESCRIPTION, std::string> MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL = {
+const COMPASUnorderedMap<MT_ACCRETION_EFFICIENCY_PRESCRIPTION, std::string> MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL = {
     { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED,     "THERMAL" },
     { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION,        "FIXED" },
     { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::CENTRIFUGALLY_LIMITED, "CENTRIFUGAL" }
@@ -656,7 +636,7 @@ const std::unordered_map<MT_ACCRETION_EFFICIENCY_PRESCRIPTION, std::string> MT_A
 
 // Mass transfer angular momentum loss prescriptions
 enum class MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION: int { JEANS, ISOTROPIC_RE_EMISSION, CIRCUMBINARY_RING, ARBITRARY };
-const std::unordered_map<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION, std::string> MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL = {
+const COMPASUnorderedMap<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION, std::string> MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL = {
     { MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS,                 "JEANS" },
     { MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION, "ISOTROPIC" },
     { MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::CIRCUMBINARY_RING,     "CIRCUMBINARY" },
@@ -666,7 +646,7 @@ const std::unordered_map<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION, std::string> MT_
 
 // Mass transfer cases
 enum class MT_CASE: int { NONE, A, B, C };
-const std::unordered_map<MT_CASE, std::string> MT_CASE_LABEL = {
+const COMPASUnorderedMap<MT_CASE, std::string> MT_CASE_LABEL = {
     { MT_CASE::NONE, "Mass Transfer CASE NONE: No Mass Transfer" },
     { MT_CASE::A,    "Mass Transfer CASE A" },                          // mass transfer while donor is on main sequence
     { MT_CASE::B,    "Mass Transfer CASE B" },                          // donor star is in (or evolving to) Red Giant phase
@@ -676,7 +656,7 @@ const std::unordered_map<MT_CASE, std::string> MT_CASE_LABEL = {
 
 // Mass transfer prescriptions
 enum class MT_PRESCRIPTION: int { DEMINK, BELCZYNSKI, NONE };
-const std::unordered_map<MT_PRESCRIPTION, std::string> MT_PRESCRIPTION_LABEL = {
+const COMPASUnorderedMap<MT_PRESCRIPTION, std::string> MT_PRESCRIPTION_LABEL = {
     { MT_PRESCRIPTION::NONE,       "NONE" },
     { MT_PRESCRIPTION::DEMINK,     "DEMINK" },
     { MT_PRESCRIPTION::BELCZYNSKI, "BELCZYNSKI" }
@@ -685,7 +665,7 @@ const std::unordered_map<MT_PRESCRIPTION, std::string> MT_PRESCRIPTION_LABEL = {
 
 // Mass Transfer Thermally limited Variation options
 enum class MT_THERMALLY_LIMITED_VARIATION: int { C_FACTOR, RADIUS_TO_ROCHELOBE };
-const std::unordered_map<MT_THERMALLY_LIMITED_VARIATION, std::string> MT_THERMALLY_LIMITED_VARIATION_LABEL = {
+const COMPASUnorderedMap<MT_THERMALLY_LIMITED_VARIATION, std::string> MT_THERMALLY_LIMITED_VARIATION_LABEL = {
     { MT_THERMALLY_LIMITED_VARIATION::C_FACTOR,            "CFACTOR" },
     { MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE, "ROCHELOBE" }
 };
@@ -693,7 +673,7 @@ const std::unordered_map<MT_THERMALLY_LIMITED_VARIATION, std::string> MT_THERMAL
 
 // Mass transfer rejuvenation prescription
 enum class MT_REJUVENATION_PRESCRIPTION: int { NONE, STARTRACK };
-const std::unordered_map<MT_REJUVENATION_PRESCRIPTION, std::string> MT_REJUVENATION_PRESCRIPTION_LABEL = {
+const COMPASUnorderedMap<MT_REJUVENATION_PRESCRIPTION, std::string> MT_REJUVENATION_PRESCRIPTION_LABEL = {
     { MT_REJUVENATION_PRESCRIPTION::NONE,      "NONE" },
     { MT_REJUVENATION_PRESCRIPTION::STARTRACK, "STARTRACK" }
 };
@@ -701,7 +681,7 @@ const std::unordered_map<MT_REJUVENATION_PRESCRIPTION, std::string> MT_REJUVENAT
 
 // Mass transfer tracking constants
 enum class MT_TRACKING: int { NO_MASS_TRANSFER, STABLE_FROM_1_TO_2, STABLE_FROM_2_TO_1, CE_FROM_1_TO_2, CE_FROM_2_TO_1, CE_DOUBLE_CORE, CE_BOTH_MS, CE_MS_WITH_CO };
-const std::unordered_map<MT_TRACKING, std::string> MT_TRACKING_LABEL = {
+const COMPASUnorderedMap<MT_TRACKING, std::string> MT_TRACKING_LABEL = {
     { MT_TRACKING::NO_MASS_TRANSFER,   "NO MASS TRANSFER" },
     { MT_TRACKING::STABLE_FROM_1_TO_2, "MASS TRANSFER STABLE STAR1 -> STAR2" },
     { MT_TRACKING::STABLE_FROM_2_TO_1, "MASS TRANSFER STABLE STAR2 -> STAR1" },
@@ -715,7 +695,7 @@ const std::unordered_map<MT_TRACKING, std::string> MT_TRACKING_LABEL = {
 
 // Neutrino mass loss BH formation prescriptions
 enum class NEUTRINO_MASS_LOSS_PRESCRIPTION: int { FIXED_FRACTION, FIXED_MASS };
-const std::unordered_map<NEUTRINO_MASS_LOSS_PRESCRIPTION, std::string> NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL = {
+const COMPASUnorderedMap<NEUTRINO_MASS_LOSS_PRESCRIPTION, std::string> NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL = {
     { NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_FRACTION, "FIXED_FRACTION" },
     { NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS,     "FIXED_MASS" }
 };
@@ -723,7 +703,7 @@ const std::unordered_map<NEUTRINO_MASS_LOSS_PRESCRIPTION, std::string> NEUTRINO_
 
 // Neutron Star Equations of State
 enum class NS_EOS: int { SSE, ARP3 };
-const std::unordered_map<NS_EOS, std::string> NS_EOSLabel = {
+const COMPASUnorderedMap<NS_EOS, std::string> NS_EOSLabel = {
     { NS_EOS::SSE,  "SSE" },
     { NS_EOS::ARP3, "ARP3" }
 };
@@ -731,7 +711,7 @@ const std::unordered_map<NS_EOS, std::string> NS_EOSLabel = {
 
 // Pulsational Pair Instability Prescriptions
 enum class PPI_PRESCRIPTION: int { COMPAS, STARTRACK, MARCHANT };
-const std::unordered_map<PPI_PRESCRIPTION, std::string> PPI_PRESCRIPTION_LABEL = {
+const COMPASUnorderedMap<PPI_PRESCRIPTION, std::string> PPI_PRESCRIPTION_LABEL = {
     { PPI_PRESCRIPTION::COMPAS,    "COMPAS" },
     { PPI_PRESCRIPTION::STARTRACK, "STARTRACK" },
     { PPI_PRESCRIPTION::MARCHANT,  "MARCHANT" }
@@ -740,7 +720,7 @@ const std::unordered_map<PPI_PRESCRIPTION, std::string> PPI_PRESCRIPTION_LABEL =
 
 // Pulsar Birth Magnetic Field Distribution
 enum class PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION: int { ZERO, FIXED, FLATINLOG, UNIFORM, LOGNORMAL };
-const std::unordered_map<PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION, std::string> PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL = {
+const COMPASUnorderedMap<PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION, std::string> PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL = {
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO,      "ZERO" },
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FIXED,     "FIXED" },
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLATINLOG, "FLATINLOG" },
@@ -751,7 +731,7 @@ const std::unordered_map<PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION, std::string> 
 
 // Pulsar Birth Spin Period Distribution
 enum class PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION: int { ZERO, FIXED, UNIFORM, NORMAL };
-const std::unordered_map<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL = {
+const COMPASUnorderedMap<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL = {
     { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::ZERO,    "ZERO" },
     { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::FIXED,   "FIXED" },
     { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::UNIFORM, "UNIFORM" },
@@ -761,7 +741,7 @@ const std::unordered_map<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PUL
 
 // Remnant Mass Prescriptions
 enum class REMNANT_MASS_PRESCRIPTION: int { POSTITNOTE, HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLER2016MAXWELLIAN };
-const std::unordered_map<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PRESCRIPTION_LABEL = {
+const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PRESCRIPTION_LABEL = {
     { REMNANT_MASS_PRESCRIPTION::POSTITNOTE,           "POSTITNOTE" },
     { REMNANT_MASS_PRESCRIPTION::HURLEY2000,           "HURLEY2000" },
     { REMNANT_MASS_PRESCRIPTION::BELCZYNSKI2002,       "BELCZYNSKI2002" },
@@ -773,7 +753,7 @@ const std::unordered_map<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PR
 
 // Rotational Velocity Distribution options
 enum class ROTATIONAL_VELOCITY_DISTRIBUTION: int { ZERO, HURLEY, VLTFLAMES };
-const std::unordered_map<ROTATIONAL_VELOCITY_DISTRIBUTION, std::string> ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL = {
+const COMPASUnorderedMap<ROTATIONAL_VELOCITY_DISTRIBUTION, std::string> ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL = {
     { ROTATIONAL_VELOCITY_DISTRIBUTION::ZERO,      "ZERO" },
     { ROTATIONAL_VELOCITY_DISTRIBUTION::HURLEY,    "HURLEY" },
     { ROTATIONAL_VELOCITY_DISTRIBUTION::VLTFLAMES, "VLTFLAMES" }
@@ -782,7 +762,7 @@ const std::unordered_map<ROTATIONAL_VELOCITY_DISTRIBUTION, std::string> ROTATION
 
 // Remnant Mass Prescriptions
 enum class SEMI_MAJOR_AXIS_DISTRIBUTION: int { FLATINLOG, DUQUENNOYMAYOR1991, CUSTOM, SANA2012 };
-const std::unordered_map<SEMI_MAJOR_AXIS_DISTRIBUTION, std::string> SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL = {
+const COMPASUnorderedMap<SEMI_MAJOR_AXIS_DISTRIBUTION, std::string> SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL = {
     { SEMI_MAJOR_AXIS_DISTRIBUTION::FLATINLOG,          "FLATINLOG" },
     { SEMI_MAJOR_AXIS_DISTRIBUTION::DUQUENNOYMAYOR1991, "DUQUENNOYMAYOR1991" },
     { SEMI_MAJOR_AXIS_DISTRIBUTION::CUSTOM,             "CUSTOM" },
@@ -791,7 +771,7 @@ const std::unordered_map<SEMI_MAJOR_AXIS_DISTRIBUTION, std::string> SEMI_MAJOR_A
 
 // Supernova Engines (Fryer 2012)
 enum class SN_ENGINE: int { RAPID, DELAYED };
-const std::unordered_map<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
+const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
     { SN_ENGINE::RAPID,   "RAPID" },
     { SN_ENGINE::DELAYED, "DELAYED" }
 };
@@ -799,7 +779,7 @@ const std::unordered_map<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 
 // Supernova events/states
 enum class SN_EVENT: int { NONE, SN, USSN, CCSN, ECSN, PISN, PPISN, RUNAWAY, RECYCLED_NS, RLOF_ONTO_NS };
-const std::unordered_map<SN_EVENT, std::string> SN_EVENT_LABEL = {
+const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
     { SN_EVENT::NONE,         "No Supernova" },
     { SN_EVENT::SN,           "Supernova" },
     { SN_EVENT::USSN,         "Ultra Stripped Supernova" },
@@ -815,7 +795,7 @@ const std::unordered_map<SN_EVENT, std::string> SN_EVENT_LABEL = {
 
 // Supernova types
 enum class SN_STATE: int { NONE, STAR1, STAR2, BOTH };
-const std::unordered_map<SN_STATE, std::string> SN_STATE_LABEL = {
+const COMPASUnorderedMap<SN_STATE, std::string> SN_STATE_LABEL = {
     { SN_STATE::NONE,  "No Supernova" },
     { SN_STATE::STAR1, "Star1 only" },
     { SN_STATE::STAR2, "Star2 only" },
@@ -825,7 +805,7 @@ const std::unordered_map<SN_STATE, std::string> SN_STATE_LABEL = {
 
 // Spin assumption constants
 enum class SPIN_ASSUMPTION: int { SAME, ALIGNED, MISALIGNED, ISOTROPIC, GEROSA };
-const std::unordered_map<SPIN_ASSUMPTION, std::string> SPIN_ASSUMPTION_LABEL = {
+const COMPASUnorderedMap<SPIN_ASSUMPTION, std::string> SPIN_ASSUMPTION_LABEL = {
     { SPIN_ASSUMPTION::SAME,       "useSame" },
     { SPIN_ASSUMPTION::ALIGNED,    "bothAligned" },
     { SPIN_ASSUMPTION::MISALIGNED, "secondaryMisaligned" },
@@ -836,7 +816,7 @@ const std::unordered_map<SPIN_ASSUMPTION, std::string> SPIN_ASSUMPTION_LABEL = {
 
 // Spin distribution
 enum class SPIN_DISTRIBUTION: int { ZERO, FLAT, FIXED };
-const std::unordered_map<SPIN_DISTRIBUTION, std::string> SPIN_DISTRIBUTION_LABEL = {
+const COMPASUnorderedMap<SPIN_DISTRIBUTION, std::string> SPIN_DISTRIBUTION_LABEL = {
     { SPIN_DISTRIBUTION::ZERO,  "ZERO" },
     { SPIN_DISTRIBUTION::FLAT,  "FLAT" },
     { SPIN_DISTRIBUTION::FIXED, "FIXED" }
@@ -845,7 +825,7 @@ const std::unordered_map<SPIN_DISTRIBUTION, std::string> SPIN_DISTRIBUTION_LABEL
 
 // Tides prescriptions
 enum class TIDES_PRESCRIPTION: int { NONE, LOCKED_ENERGY, LOCKED_ANG_MOMENTUM, HUT };
-const std::unordered_map<TIDES_PRESCRIPTION, std::string> TIDES_PRESCRIPTION_LABEL = {
+const COMPASUnorderedMap<TIDES_PRESCRIPTION, std::string> TIDES_PRESCRIPTION_LABEL = {
     { TIDES_PRESCRIPTION::NONE,                "NONE" },
     { TIDES_PRESCRIPTION::LOCKED_ENERGY,       "LOCKED_ENERGY" },
     { TIDES_PRESCRIPTION::LOCKED_ANG_MOMENTUM, "LOCKED_ANGMOMENTUM" },
@@ -906,7 +886,7 @@ enum class STELLAR_TYPE: int {                      // Hurley
 
 // labels for stellar types
 // unordered_map - key is integer stellar type (from enum class STELLAR_TYPE above)
-const std::unordered_map<STELLAR_TYPE, std::string> STELLAR_TYPE_LABEL = {
+const COMPASUnorderedMap<STELLAR_TYPE, std::string> STELLAR_TYPE_LABEL = {
     { STELLAR_TYPE::MS_LTE_07,                                 "Main_Sequence_<=_0.7" },
     { STELLAR_TYPE::MS_GT_07,                                  "Main_Sequence_>_0.7" },
     { STELLAR_TYPE::HERTZSPRUNG_GAP,                           "Hertzsprung_Gap" },
@@ -965,7 +945,7 @@ const std::initializer_list<STELLAR_TYPE> COMPACT_OBJECTS = {
 // White Dwarf Effective Baryon Number
 // unordered_map - key is integer stellar type (from enum class ST above)
 // Hurley et al. 2000, just after eq 90
-const std::unordered_map<STELLAR_TYPE, double> WD_Baryon_Number = {
+const COMPASUnorderedMap<STELLAR_TYPE, double> WD_Baryon_Number = {
     {STELLAR_TYPE::HELIUM_WHITE_DWARF,         0.4},
     {STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, 15.0},
     {STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF,   17.0}
@@ -1075,7 +1055,7 @@ enum class TYPENAME: int {
 
 // labels (long and short) for typenames
 // unordered_map - key is integer typename (from enum class TYPENAME above)
-const std::unordered_map<TYPENAME, std::tuple<std::string, std::string>> TYPENAME_LABEL = {
+const COMPASUnorderedMap<TYPENAME, std::tuple<std::string, std::string>> TYPENAME_LABEL = {
     { TYPENAME::NONE,         { "NONE",               "NONE"   }},
     { TYPENAME::BOOL,         { "BOOL",               "BOOL"   }},
     { TYPENAME::SHORTINT,     { "SHORT INT",          "INT"    }},
@@ -1121,7 +1101,7 @@ typedef boost::variant<
 
 // Property types
 enum class PROPERTY_TYPE: int { NONE, STAR_PROPERTY, STAR_1_PROPERTY, STAR_2_PROPERTY, SUPERNOVA_PROPERTY, COMPANION_PROPERTY, ANY_STAR_PROPERTY, BINARY_PROPERTY, PROGRAM_OPTION };
-const std::unordered_map<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
+const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     { PROPERTY_TYPE::NONE,               "" },
     { PROPERTY_TYPE::STAR_PROPERTY,      "STAR_PROPERTY" },
     { PROPERTY_TYPE::STAR_1_PROPERTY,    "STAR_1_PROPERTY" },
@@ -1240,7 +1220,7 @@ enum class STAR_PROPERTY: int { STAR_PROPERTIES };
 // map STAR PROPERTY to string identifying the property
 // for lookup by the printing functions
 // this map serves as the lookup for: STAR_PROPERTY, STAR_1_PROPERTY, STAR_2_PROPERTY, SUPERNOVA_PROPERTY, COMPANION_PROPERTY and ANY_STAR_PROPERTY
-const std::unordered_map<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
+const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::AGE,                                             "AGE" },
     { STAR_PROPERTY::ANGULAR_MOMENTUM,                                "ANGULAR_MOMENTUM" },
     { STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE,               "BINDING_ENERGY_AT_COMMON_ENVELOPE" },
@@ -1487,7 +1467,7 @@ enum class BINARY_PROPERTY: int {
 
 // map BINARY_PROPERTY to string identifying the property
 // for lookup by the printing functions
-const std::unordered_map<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
+const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_LUMINOSITY,             "BE_BINARY_CURRENT_COMPANION_LUMINOSITY" },
     { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_MASS,                   "BE_BINARY_CURRENT_COMPANION_MASS" },
     { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_RADIUS,                 "BE_BINARY_CURRENT_COMPANION_RADIUS" },
@@ -1615,7 +1595,7 @@ enum class PROGRAM_OPTION: int {
 
 // map PROGRAM_OPTION to string identifying the property
 // for lookup by the printing functions
-const std::unordered_map<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
+const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::KICK_VELOCITY_DISTRIBUTION_SIGMA_CCSN_BH,  "KICK_VELOCITY_DISTRIBUTION_SIGMA_CCSN_BH" },
     { PROGRAM_OPTION::KICK_VELOCITY_DISTRIBUTION_SIGMA_CCSN_NS,  "KICK_VELOCITY_DISTRIBUTION_SIGMA_CCSN_NS" },
     { PROGRAM_OPTION::KICK_VELOCITY_DISTRIBUTION_SIGMA_FOR_ECSN, "KICK_VELOCITY_DISTRIBUTION_SIGMA_FOR_ECSN" },
@@ -2421,7 +2401,7 @@ enum class L_Coeff: int { ALPHA, BETA, GAMMA, DELTA, EPSILON, ZETA, ETA };
 // L (Luminosity) coefficients
 // Table 1 in Tout et al 1996
 // Key to map is L_Coeff.  Map element is unordered_map of term coefficient values.
-const std::map<int, std::unordered_map<LR_TCoeff, double>> L_COEFF = {
+const std::map<int, COMPASUnorderedMap<LR_TCoeff, double>> L_COEFF = {
     {static_cast<int>(ALPHA),   {{A, 0.39704170}, {B,  -0.32913574}, {C,  0.34776688}, {D,  0.37470851}, {E, 0.09011915}}},
     {static_cast<int>(BETA),    {{A, 8.52762600}, {B, -24.41225973}, {C, 56.43597107}, {D, 37.06152575}, {E, 5.45624060}}},
     {static_cast<int>(GAMMA),   {{A, 0.00025546}, {B,  -0.00123461}, {C, -0.00023246}, {D,  0.00045519}, {E, 0.00016176}}},
@@ -2456,7 +2436,7 @@ enum class R_Coeff: int { THETA, IOTA, KAPPA, LAMBDA, MU, NU, XI, OMICRON, PI };
 // R (Radius) coefficients
 // Table 2 in Tout et al. 1996
 // Key to map is L_Coeff.  Map element is unordered_map of term coefficient values.
-const std::map<int, std::unordered_map<LR_TCoeff, double>> R_COEFF = {
+const std::map<int, COMPASUnorderedMap<LR_TCoeff, double>> R_COEFF = {
     {static_cast<int>(THETA),   {{A,  1.71535900}, {B,  0.62246212}, {C,  -0.92557761}, {D,  -1.16996966}, {E, -0.30631491}}},
     {static_cast<int>(IOTA),    {{A,  6.59778800}, {B, -0.42450044}, {C, -12.13339427}, {D, -10.73509484}, {E, -2.51487077}}},
     {static_cast<int>(KAPPA),   {{A, 10.08855000}, {B, -7.11727086}, {C, -31.67119479}, {D, -24.24848322}, {E, -5.33608972}}},
@@ -2497,7 +2477,7 @@ enum class AB_TCoeff: int { ALPHA, BETA, GAMMA, ETA, MU };
 // A coefficients
 // Table in Appendix A of Hurley et al. 2000
 // Key to map is n (A(n)).  Map element is unordered_map of term coefficient values.
-const std::map<int, std::unordered_map<AB_TCoeff, double>> A_COEFF = {
+const std::map<int, COMPASUnorderedMap<AB_TCoeff, double>> A_COEFF = {
     { 1, {{ALPHA,  1.593890E3 }, {BETA,  2.053038E3 }, {GAMMA,  1.231226E3 }, {ETA,  2.327785E2 }, {MU,  0.000000E0 }}},
     { 2, {{ALPHA,  2.706708E3 }, {BETA,  1.483131E3 }, {GAMMA,  5.772723E2 }, {ETA,  7.411230E1 }, {MU,  0.000000E0 }}},
     { 3, {{ALPHA,  1.466143E2 }, {BETA, -1.048442E2 }, {GAMMA, -6.795374E1 }, {ETA, -1.391127E1 }, {MU,  0.000000E0 }}},
@@ -2593,7 +2573,7 @@ const std::map<int, std::unordered_map<AB_TCoeff, double>> A_COEFF = {
 // B coefficients
 // Table in Appendix A of Hurley et al. 2000
 // Key to map is n (B(n)).  Map element is unordered_map of term coefficient values.
-const std::map<int, std::unordered_map<AB_TCoeff, double>> B_COEFF = {
+const std::map<int, COMPASUnorderedMap<AB_TCoeff, double>> B_COEFF = {
     { 1, {{ALPHA,  3.970000E-1}, {BETA,  2.882600E-1}, {GAMMA,  5.293000E-1}, {ETA,  0.000000E0 }, {MU,  0.000000E0 }}},
     { 2, {{ALPHA,  0.000000E0 }, {BETA,  0.000000E0 }, {GAMMA,  0.000000E0 }, {ETA,  0.000000E0 }, {MU,  0.000000E0 }}},
     { 3, {{ALPHA,  0.000000E0 }, {BETA,  0.000000E0 }, {GAMMA,  0.000000E0 }, {ETA,  0.000000E0 }, {MU,  0.000000E0 }}},
@@ -2749,7 +2729,7 @@ const std::vector<std::tuple<LOVERIDGE_METALLICITY, double>> LOVERIDGE_METALLICI
 // Symbolic names for GB groups described in Loveridge et al., 2011
 // These are used as indices into the loveridgeCoefficients multi-dimensional vector (described below)
 enum class LOVERIDGE_GROUP: int { LMR1, LMR2, LMA, HM, RECOM };
-const std::unordered_map<LOVERIDGE_GROUP, std::string> LOVERIDGE_GROUP_LABEL = {
+const COMPASUnorderedMap<LOVERIDGE_GROUP, std::string> LOVERIDGE_GROUP_LABEL = {
     { LOVERIDGE_GROUP::LMR1,  "Low mass early Red Giant Branch (RGB) (before dredge-up)" },
     { LOVERIDGE_GROUP::LMR2,  "Low mass late Red Giant Branch (RGB) (after dredge-up)" },
     { LOVERIDGE_GROUP::LMA,   "Low mass Asymptotic Giant Branch (AGB)" },

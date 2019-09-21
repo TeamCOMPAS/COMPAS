@@ -196,11 +196,11 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
 
         case ENVELOPE::RADIATIVE: {                                             // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
 
-            constexpr double coeff2          = pow(52.0, 5.0 / 3.0);
-                      double e2              = 1.592E-9 * pow(Mass(), 2.84);    // second order tidal coefficient (a.k.a. E_2)
-                      double rAU             = Radius() * RSOL_TO_AU;
-                      double rAU_3           = rAU * rAU * rAU;
-                      double freeFallFactor  = sqrt(G1 * Mass() / rAU_3);
+            double coeff2          = pow(52.0, 5.0 / 3.0);                      // JR: todo: replace this with a constant (calculated) value?
+            double e2              = 1.592E-9 * pow(Mass(), 2.84);              // second order tidal coefficient (a.k.a. E_2)
+            double rAU             = Radius() * RSOL_TO_AU;
+            double rAU_3           = rAU * rAU * rAU;
+            double freeFallFactor  = sqrt(G1 * Mass() / rAU_3);
 
 		    denominator = coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * pow(1.0 + q2, 5.0 / 6.0) * e2 * pow(rOverA, 17.0 / 2.0);
             } break;

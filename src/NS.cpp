@@ -414,11 +414,11 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const double p_
    else if ((ExperiencedRecycledNS() || p_CommonEnvelope) && utils::Compare(p_MassGainPerTimeStep, 0.0) > 0) {
 
         // calculate the Alfven radius for an accreting neutron star - see Equation X in arxiv.xxxx       JR: todo: where?
-        double mDot                    = p_MassGainPerTimeStep / p_Stepsize ;
-        double p                       = ((radius * radius * radius * radius * radius * radius) / (sqrt(mass) * mDot));
-        double q                       = pow(p, 2.0 / 7.0);
-        constexpr double constant      = pow((2.0 * M_PI * M_PI) / (G * MU_0 * MU_0), 1.0 / 7.0);
-        double alfvenRadius            = constant * q * pow(m_PulsarDetails.magneticField, 4.0 / 7.0);
+        double mDot         = p_MassGainPerTimeStep / p_Stepsize ;
+        double p            = ((radius * radius * radius * radius * radius * radius) / (sqrt(mass) * mDot));
+        double q            = pow(p, 2.0 / 7.0);
+        double constant     = pow((2.0 * M_PI * M_PI) / (G * MU_0 * MU_0), 1.0 / 7.0);                                                          // JR: todo: should this be in constants.h?
+        double alfvenRadius = constant * q * pow(m_PulsarDetails.magneticField, 4.0 / 7.0);
 
         // calculate the difference in the keplerian angular velocity and surface angular velocity of the neutron star in m - see Equation X in arxiv.xxxx       JR: todo: where?
         double keplarianVelocityAtAlfvenRadius        = sqrt(G * mass) / sqrt(alfvenRadius / 2.0);

@@ -12,6 +12,37 @@ AIS::AIS() {
     m_FractionSampled             = 0.0;
     m_FractionExploratory         = 1.0;
     m_CounterDCOsAIS              = 0;          // counts the number of DCOs of interest ("hits") in the exploratory phase AIS
+
+
+    // calculate the constants
+
+    // Kroupa IMF is a broken power law with three slopes
+    kroupaPower1             = -0.3;
+    kroupaPower2             = -1.3;
+    kroupaPower3             = -2.3;
+
+    // Often require the power law exponent plus one
+    kroupaPowerPlus1_1       = 0.7;
+    kroupaPowerPlus1_2       = -0.3;
+    kroupaPowerPlus1_3       = -1.3;
+
+    oneOverKroupaPower1Plus1 = 1.0 / kroupaPowerPlus1_1;
+    oneOverKroupaPower2Plus1 = 1.0 / kroupaPowerPlus1_2;
+    oneOverKroupaPower3Plus1 = 1.0 / kroupaPowerPlus1_3;
+
+    // There are two breaks in the Kroupa power law -- they occur here (in solar masses)
+    kroupaBreak1             = 0.08;
+    kroupaBreak2             = 0.5;
+
+    // Some values that can be calculated at compile time
+    // Works with gcc c++11 - may not work with other compilers
+    kroupaBreak1_Plus1_1     = pow(kroupaBreak1, kroupaPowerPlus1_1);
+    kroupaBreak1_Plus1_2     = pow(kroupaBreak1, kroupaPowerPlus1_2);
+    kroupaBreak1_Power1_2    = pow(kroupaBreak1, (kroupaPower1 - kroupaPower2));
+
+    kroupaBreak2_Plus1_2     = pow(kroupaBreak2, kroupaPowerPlus1_2);
+    kroupaBreak2_Plus1_3     = pow(kroupaBreak2, kroupaPowerPlus1_3);
+    kroupaBreak2_Power2_3    = pow(kroupaBreak2, (kroupaPower2 - kroupaPower3));
 }
 
 
@@ -196,6 +227,7 @@ void AIS::DefineGaussians() {
             if (numGaussians > 0) {
                 double muM1, muLoga, muQ, covM1, covLogA, covQ;                     // temp storage
 
+                // JR: todo: probably should make this a bit more robust
                 while (infile >> muM1) {                                            // read the file
                     infile >> muLoga >> muQ >> covM1 >> covLogA >> covQ;            // file contains means and covariances of Gaussians in 6 columns
 

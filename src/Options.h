@@ -302,9 +302,6 @@ private:
 
     // member variables - alphabetically in groups
 
-    bool                                        help;
-
-
     bool                                        individualSystem;                                               // Flag for whether we are running population synthesis (many binaries or a single binary drawn randomly from the initial distributions) or a specific individual system
 
 
