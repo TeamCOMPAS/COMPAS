@@ -4,6 +4,7 @@
 #define LOGGING Log::Instance()
 
 #include <boost/variant.hpp>
+#include <fstream>
 
 #include "constants.h"
 #include "typedefs.h"
