@@ -11,13 +11,22 @@ For those who are unfamiliar, git and github are popular tools in the software d
 The purpose of this document is to outline a consistent workflow for COMPAS developers in their day-to-day use of git, protocols for whenever new projects are started or completed, and the commands that are required for this workflow (git is very powerful, so this is only a very small subset of the availalbe git commands). This is, in some sense, a living document, meaning we are always open to [suggestions and criticism](mailto:reinhold.willcox@monash.edu) with the workflow, and seek only to find the best option for everybody. With that said, everyone should commit to learning the agreed upon workflow, to ensure consistency between developers and protect against user-error which may derail development.
 
 ### 3. Outline
-Broadly speaking, the setup is outlined below:
 
 - The workflow here is based on the [Feature Branch Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow) in common use in industry, in which there are 2 permanent branches, Master and Dev. All other branches are considered "sub-branches", based on projects and/or concepts, whose purpose is to add a feature and then be deleted.
 
 - The Main Repository (also called the Main Fork, or simply Main) is considered "pristine", and should only contain the Master and Dev branches, and any sub-branches that are nearly ready to be made public (more on this later). 
 
 - Developers should each have their own personal Forks of the Main Repository, and any work done locally (on their personal computers) should be pushed up through their personal Repository before being added to Main (more on this later). 
+
+### 4. Sections of this Document
+
+- Getting Set Up: Step-by-step directions for how to configure your personal local and remote git repos
+
+- Lifetime of a Project: Walkthrough of creating, committing, pushing/pulling, and setting parents of branches
+
+- Test and Release New Versions: **Important** The specific COMPAS workflow around merges, pull-requests, and updates to the Main Git Repo
+
+- Terminology: Important git keywords that may be unfamiliar
 
 ---
 
@@ -126,7 +135,7 @@ Broadly speaking, the setup is outlined below:
 
 - The purpose of forks is to give you a place to work on projects privately and without stepping on the toes of other people (or letting anyone else step on your toes!). However, there will likely still be times when you want to check out a branch that someone else worked on. This may happen before the branch is polished enough to be sent to the Main repo, but they would still like feedback or edits. In this case, the other developer needs to add you as a collaborator on their personal repo (this is done on Github, in the settings menu of their repo). Once you are added, you can set up a local branch to point upstream to their remote branch.
 
-`git remote add <collaborator_name-repo> <url>` where <url> is the https or ssh url you can copy from Github, and <name> is the shorthand for what 
+`git remote add <collaborator_name-repo> <url>` where \<url\> is the https or ssh url you can copy from Github, and \<name\> is the shorthand for what 
 
 `git checkout dev`
 
@@ -136,6 +145,7 @@ Broadly speaking, the setup is outlined below:
 
 -- Note: now you can push and pull to that remote branch (assuming the other developer has given you permission) to see what work they have done as well.
 
+
 ---
 
 ## Testing and Release of New Versions 
@@ -143,7 +153,7 @@ Broadly speaking, the setup is outlined below:
 ### Overview 
 First, any and all changes to the main repo are done through pull-requests, not pushes (a pull-request really represents a push, with the added step of confirmation from a third party that the push meets certain standards). This is to ensure that the main repo is "clean" and contains code that has at least been somewhat tested. Branches will first be added into the main repo from the remote forks of a given collaborator, then (after further testing) added to the Dev branch. Finally, when sufficient sub-branches have been added to the Dev branch to warrant a new version release, the Dev branch will be added to the Master branch and published to the public. Ultimately, we should always be thinking of the next Version Release and which projects/concepts we would like to include in it, and define our timelines around those expectations.  
 
-### Protocol
+### Q&A Protocol
 A mature branch will have to through 3 rounds of Q&A before it is ready for deployment in a new COMPAS version. The first occurs when a pull-request is sent to have the branch included as a sub-branch in the main repo. The second occurs when a pull-request is sent to have that sub-branch merged into the Dev branch on the main repo. The final occurs when a pull-request is sent to have the Dev branch (which might contain several sub-branches) merged into the Master branch. Testing of a branch can never be done by someone who worked on it extensively (we can decide on a case-by-case basis who falls into that category). 
 
 1. To be included as a sub-branch in the main repo, the branch must be reviewed by one person in the broader COMPAS collaboration. It must compile and run, producing somewhat sensible output (e.g output files should not be empty, but at this stage they may contain data which is "wrong", or physically inconsistent) 
@@ -154,23 +164,23 @@ A mature branch will have to through 3 rounds of Q&A before it is ready for depl
 
 ---
 
-### Example 
+## Terminology
 
----
+- **Branch**: Branches in git separate work-streams for different features (e.g front-end developers might have a branch for a fancy new button for their website, while back-end developers might have a branch to make database-entry easier). In our case, branches will distinguish different projects or concepts (e.g Supernova-Kicks, White-Dwarf-Accretion, etc.). Branches should _not_ be used to distinguish developers. As mentioned previously, only the Master and Dev branches are permanent, and any new branches should be created with the intention of contributing some new feature or physics, and being [deleted once that is done.](https://rickandmorty.fandom.com/wiki/Mr._Meeseeks)
 
-### Terminology
+- **Repository**: A Repository (or Repo) is a collection of all the different branches of a given project which are kept in the same location. To be specific, a location might be your local computer or part of a remote server. A Repo can be public (often called Open Source) or private, with a select list of collaborators who have read and possibly write access. A single github user may have many Repos for all of their different projects, all of which might have any number of branches. Note: COMPAS development will be done in a private repo, but there will be a second public repo which will hold only a copy of the Master branch for the public to download.
 
-- *Branch*: Branches in git separate work-streams for different features (e.g front-end developers might have a branch for a fancy new button for their website, while back-end developers might have a branch to make database-entry easier). In our case, branches will distinguish different projects or concepts (e.g Supernova-Kicks, White-Dwarf-Accretion, etc.). Branches should _not_ be used to distinguish developers. As mentioned previously, only the Master and Dev branches are permanent, and any new branches should be created with the intention of contributing some new feature or physics, and being [deleted once that is done.](https://rickandmorty.fandom.com/wiki/Mr._Meeseeks)
+- **Fork**: A Fork is a full copy of a Repo, including all its branches, to another location. Most of the time, "another location" will mean elsewhere on the github servers, since we will be Forking from the Main Repo to our Personal Repo when we are setting up. In our case, Forks will distinguish different users, or perhaps groups of users (e.g Copenhagen/COMPAS). All core developers should have a personal fork. If you are familiar with the `git clone` command, this is identical to Forking from a remote server onto your own personal computer. 
 
-- *Repository*: A Repository (or Repo) is a collection of all the different branches of a given project which are kept in the same location. To be specific, a location might be your local computer or part of a remote server. A Repo can be public (often called Open Source) or private, with a select list of collaborators who have read and possibly write access. A single github user may have many Repos for all of their different projects, all of which might have any number of branches. Note: COMPAS development will be done in a private repo, but there will be a second public repo which will hold only a copy of the Master branch for the public to download.
+- **Local/Remote**: Local refers to what's on your personal computer, while Remote refers to anything that isn't. Github will be remote for everyone. My local computer is only local to me, and would be considered remote to anyone else. This should not come up often, because it would be very foolish to give anyone access to my local computer, even if it's a developer I trust. The purpose of your personal remote fork is to be a proxy for your local fork, where you can add things you've worked on that you wish to share around.
 
-- *Fork*: A Fork is a full copy of a Repo, including all its branches, to another location. Most of the time, "another location" will mean elsewhere on the github servers, since we will be Forking from the Main Repo to our Personal Repo when we are setting up. In our case, Forks will distinguish different users, or perhaps groups of users (e.g Copenhagen/COMPAS). All core developers should have a personal fork. If you are familiar with the `git clone` command, this is identical to Forking from a remote server onto your own personal computer. 
-
-- *Local/Remote*: Local refers to what's on your personal computer, while Remote refers to anything that isn't. Github will be remote for everyone. My local computer is only local to me, and would be considered remote to anyone else. This should not come up often, because it would be very foolish to give anyone access to my local computer, even if it's a developer I trust. The purpose of your personal remote fork is to be a proxy for your local fork, where you can add things you've worked on that you wish to share around.
-
-- *Tracking*: The word tracking refers to either remote repositories, or local files in a single branch, but they have slightly different meanings. 
+- **Tracking**: The word tracking refers to either remote repositories, or local files in a single branch, but they have slightly different meanings. 
     - A tracked repository is one which contains a branch which is "upstream" of a branch in your local repository. By default, all the branches on a cloned or forked repository track the branches they were cloned from, and new branches track their (local) parent branches. You can modify the upstream branch of a given branch to point at any other branch you like, whether local or remote, and can even track multiple remote repositories (see below). This is useful if you want to check out a branch that sits on a colleague's Fork. You can view all tracked repositories with `git remote -v`
     - A tracked file is one in your current working branch which has been either added or previously commited. If you make an edit to a file, it will be untracked until you add it. If a file (or collection of files) is in your .gitignore, it is considered neither tracked nor untracked, but ignored. If you try to change branches while you have untracked files, you will run into errors.
 
-- *Origin*: Origin is a shorthand for the most relevant remote repository. It is configured by default whenever you clone from a repository, so yours will (and usually should) point to your personal remote fork. If you track multiple remote forks, you should give them all helpful, distinguishing names (e.g jeff_fork, main_compas_repo)
+- **Origin**: Origin is a shorthand for the most relevant remote repository. It is configured by default whenever you clone from a repository, so yours will (and usually should) point to your personal remote fork. If you track multiple remote forks, you should give them all helpful, distinguishing names (e.g jeff_fork, main_compas_repo)
+
+- **Commit**: A commit is a complete set of edits to one or more files that you want added to the history of the branch. The branch itself is just made up of the sequence of commits throughout it's history, so committing to the branch just adds one more commit onto the end of it. Commits can be reverted if it is decided later on that they are not desired. Commits also include a message which should be very detailed. 
+
+- **Index**: The Index (aka Staging Area) exists only in the intermediate step between editing local files and committing those files. Historically, other Version Control systems only allowed editting files, and then committing those files one by one. The issue with that is that sometimes a collection of edits of different files logically make up one full "commit-worthy-edit". The classic example of this is adding a function to a .C file and it's header .h file. If you need to revert this commit back for any reason, it makes sense to remove both of those edits at once - you would virtually never need to remove the function from the C file but leave it in the header. Adding files to the index is the way to collect all of the files that were involved in a given series of edits that you want to treat as one big Edit. 
 
