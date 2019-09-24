@@ -1,7 +1,5 @@
 [//]: ## (grip -b git_workflow.md)
 
-# Test line
-	
 # Git Workflow for COMPAS software developers
 
 ## Introduction 
@@ -57,7 +55,7 @@ Broadly speaking, the setup is outlined below:
 
 ### 3. Clone from your remote repo locally
 
-- If you have not yet configured Github with ssh, you can clone over http: 
+- If you have not yet configured [Github with ssh](https://help.github.com/en/articles/connecting-to-github-with-ssh), you can clone over http: 
 
 `git clone https://github.com/user-name/COMPAS.git`
 
@@ -106,7 +104,7 @@ Broadly speaking, the setup is outlined below:
 
 ### New project idea 
 
-- When beginning a new project, you should start your first branch locally
+- When beginning a new project, you should start your first branch locally, branching off of your local Dev branch (which should ideally be identical to the upstream Dev branch on the Main Repo)
 
 
 ### Commit often and push to your repo 
@@ -119,6 +117,7 @@ Broadly speaking, the setup is outlined below:
 ### Overview 
 First, any and all changes to the main repo are done through pull-requests, not pushes (a pull-request really represents a push, with the added step of confirmation from a third party that the push meets certain standards). This is to ensure that the main repo is "clean" and contains code that has at least been somewhat tested. Branches will first be added into the main repo from the remote forks of a given collaborator, then (after further testing) added to the Dev branch. Finally, when sufficient sub-branches have been added to the Dev branch to warrant a new version release, the Dev branch will be added to the Master branch and published to the public. Ultimately, we should always be thinking of the next Version Release and which projects/concepts we would like to include in it, and define our timelines around those expectations.  
 
+### Protocol
 A mature branch will have to through 3 rounds of Q&A before it is ready for deployment in a new COMPAS version. The first occurs when a pull-request is sent to have the branch included as a sub-branch in the main repo. The second occurs when a pull-request is sent to have that sub-branch merged into the Dev branch on the main repo. The final occurs when a pull-request is sent to have the Dev branch (which might contain several sub-branches) merged into the Master branch. Testing of a branch can never be done by someone who worked on it extensively (we can decide on a case-by-case basis who falls into that category). 
 
 1. To be included as a sub-branch in the main repo, the branch must be reviewed by one person in the broader COMPAS collaboration. It must compile and run, producing somewhat sensible output (e.g output files should not be empty, but at this stage they may contain data which is "wrong", or physically inconsistent) 
