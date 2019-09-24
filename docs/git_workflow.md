@@ -145,6 +145,21 @@ The purpose of this document is to outline a consistent workflow for COMPAS deve
 
 -- Note: now you can push and pull to that remote branch (assuming the other developer has given you permission) to see what work they have done as well.
 
+### Mature projects - adding to the Main Repo
+
+- When a project is nearing completion (e.g when the code is nearly ready to be joined into the Main Repository), the author of the branch should do a final push to their personal remote repo, then submit a pull-request onto the Main Repo. This branch should cover only the scope of the named project and should not include work on any other project or bug fixes. 
+
+- In order to merge your remote branch into a branch on COMPAS, you will first need to create a new branch on the Main Repo (the reason for this is that we decided to keep all branches off of the Main Repo until they were mature, but you need to have an existing branch to receive a pull request). 
+
+    - 1. On the Main Repo, click the Code tab, click the Branch dropdown and select Dev, click the Branch dropdown again and into the Find or Create a Branch textbox, and type in the name of the new branch. In most situations, this will be the name of your mature branch (but you should ensure that it is clear what edits were made in this branch).
+
+    - 2. If you did the initial fork properly, there should be a clear yellow box right in the center of your repo's main page with recently pushed branches, and a button to "Compare and pull request". Click the button to see the Open a Pull Request GUI. 
+
+    - 3. The title of the pull request should be the name of the branch you are merging in, **only if this is the first pull-request**. If a pull-request is rejected and resubmitted, or if it is accepted but additions are made to it later on, the newer titles should broadly reflect the changes.
+
+    - 4. You should leave a detailed description of the branch in the comment section, and if you would like to request any Reviewers, feel free to do so. You can leave Assignees, Labels, Projects, and Milestones blank for now.
+
+    - 5. Once you have created the pull request, it is up to the other team members to review it (see below). 
 
 ---
 
@@ -154,13 +169,13 @@ The purpose of this document is to outline a consistent workflow for COMPAS deve
 First, any and all changes to the main repo are done through pull-requests, not pushes (a pull-request really represents a push, with the added step of confirmation from a third party that the push meets certain standards). This is to ensure that the main repo is "clean" and contains code that has at least been somewhat tested. Branches will first be added into the main repo from the remote forks of a given collaborator, then (after further testing) added to the Dev branch. Finally, when sufficient sub-branches have been added to the Dev branch to warrant a new version release, the Dev branch will be added to the Master branch and published to the public. Ultimately, we should always be thinking of the next Version Release and which projects/concepts we would like to include in it, and define our timelines around those expectations.  
 
 ### Q&A Protocol
-A mature branch will have to through 3 rounds of Q&A before it is ready for deployment in a new COMPAS version. The first occurs when a pull-request is sent to have the branch included as a sub-branch in the main repo. The second occurs when a pull-request is sent to have that sub-branch merged into the Dev branch on the main repo. The final occurs when a pull-request is sent to have the Dev branch (which might contain several sub-branches) merged into the Master branch. Testing of a branch can never be done by someone who worked on it extensively (we can decide on a case-by-case basis who falls into that category). 
+A mature branch will have to through 3 rounds of Q&A review before it is ready for deployment in a new COMPAS version. The Primary Review occurs when a pull-request is sent to have the branch included as a sub-branch in the main repo. The Secondary Review occurs when a pull-request is sent to have that sub-branch merged into the Dev branch on the main repo. The Final Review occurs when a pull-request is sent to have the Dev branch (which might contain several sub-branches) merged into the Master branch. **Testing and validation of a branch should never be done by someone who worked on it extensively** (we can decide on a case-by-case basis who falls into that category). 
 
-1. To be included as a sub-branch in the main repo, the branch must be reviewed by one person in the broader COMPAS collaboration. It must compile and run, producing somewhat sensible output (e.g output files should not be empty, but at this stage they may contain data which is "wrong", or physically inconsistent) 
+1. Primary Review: To be included as a sub-branch in the main repo, the branch must be reviewed by one person in the broader COMPAS collaboration. It must compile and run, producing somewhat sensible output (e.g output files should not be empty, but at this stage they may contain data which is "wrong", or physically inconsistent) 
 
-2. To be merged into the Dev branch on the main repo, the branch must then be reviewed by two people in the broader COMPAS collaboration, one of whom is a core developer. Additionally, one of the reviewers should focus on the consistency of the code layout and structure with the current code, while the other reviewer should focus primarily on the accuracy of the physics and its implementation, although ultimately both reviewers are responsible for ensuring that the branch is clearly and correctly written. This is the primary review step, with the expectation that code that is accepted to be merged into Dev is ready for the public. 
+2. Secondary Review: To be merged into the Dev branch on the main repo, the branch must then be reviewed by two people in the broader COMPAS collaboration, one of whom is a core developer. Additionally, one of the reviewers should focus on the consistency of the code layout and structure with the current code, while the other reviewer should focus primarily on the accuracy of the physics and its implementation, although ultimately both reviewers are responsible for ensuring that the branch is clearly and correctly written. This is the primary review step, with the expectation that code that is accepted to be merged into Dev is ready for the public. 
 
-3. When Dev is updated with a new branch, all collaborators should be testing it, and in particular should ensure that all of the different projects which have been added to Dev work with each other. When Dev is nearly ready to be merged into the Master branch, the core collaborators will host a COMPAS powwow to discuss and assign any final revisions/tests, and set a firm release date. Other collaborators are invited to join (over Zoom or in person), details decided on a case-by-case basis.
+3. Final Review: When Dev is updated with a new branch, all collaborators should be testing it, and in particular should ensure that all of the different projects which have been added to Dev work with each other. When Dev is nearly ready to be merged into the Master branch, the core collaborators will host a COMPAS Powwow to discuss and assign any final revisions/tests, and set a firm release date. Other collaborators are invited to join (over Zoom or in person), details decided on a case-by-case basis.
 
 ---
 
@@ -183,4 +198,5 @@ A mature branch will have to through 3 rounds of Q&A before it is ready for depl
 - **Commit**: A commit is a complete set of edits to one or more files that you want added to the history of the branch. The branch itself is just made up of the sequence of commits throughout it's history, so committing to the branch just adds one more commit onto the end of it. Commits can be reverted if it is decided later on that they are not desired. Commits also include a message which should be very detailed. 
 
 - **Index**: The Index (aka Staging Area) exists only in the intermediate step between editing local files and committing those files. Historically, other Version Control systems only allowed editting files, and then committing those files one by one. The issue with that is that sometimes a collection of edits of different files logically make up one full "commit-worthy-edit". The classic example of this is adding a function to a .C file and it's header .h file. If you need to revert this commit back for any reason, it makes sense to remove both of those edits at once - you would virtually never need to remove the function from the C file but leave it in the header. Adding files to the index is the way to collect all of the files that were involved in a given series of edits that you want to treat as one big Edit. 
+
 
