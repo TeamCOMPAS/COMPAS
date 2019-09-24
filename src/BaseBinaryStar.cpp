@@ -82,7 +82,7 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
             }
             else {                                                                  // user specified orbital period - use it
                 m_SemiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(mass1, mass2, OPTIONS->BinaryOrbitalPeriod());
-            }
+						}
         }
 
 
