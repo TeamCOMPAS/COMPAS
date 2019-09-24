@@ -112,7 +112,7 @@ Broadly speaking, the setup is outlined below:
 
 `git checkout -b <new-project>`
 
-### Commit often and push to your repo 
+### Commit often and push/pull 
 
 - Committing is the process of adding a selection of changes to the history of your branch. It is effectively saving your work, and should be done often (every time any small fix has been made). To perform a commit, you first need to add the relevant files to your "index", then commit with a message. The message should describe every change you made in some detail, so that in the event that we decide we want to revert back to a previous commit, we know exactly what happened at each step.
 
@@ -124,8 +124,31 @@ Broadly speaking, the setup is outlined below:
 
 -- Note: A single commit should capture an entire "fix" of one kind. If, for example, you want to add a function to a C file and it's header, and you also want to update the internal contents of a completely different function in the same C file, you should do 2 commits. First, make the edits to the first function and header, then `git add file.C file.h`, `git commit -m "created function myFunction to do someStuff and added it to the header file"`. Then make the second edits for the contents of the existing function, and run `git add file.C`, `git commit -m "updated internal contents of thisOtherFunction to allow for specificUseCase"`. 
 
+- Pushing to your remote repository is a way to save all of your commits (i.e the history of edits) somewhere off your local computer. This is good practice because it acts as a backup in the event something happens to your local machine, and it also allows other collaborators to see your work (without having to give them access to your personal device). This should also be done often, but does not need to be as frequent as commits. A good rule of thumb is to push any updated branches at the end of every day. 
+
+`git branch -vv` (check that you're on the correct branch, and that you are pointed to the correct remote branch)
+
+`git push`
+
+- Another good rule of thumb is to pull every morning (at least on branches that might have multiple contributors)!
+
+`git branch -vv` (check that you're on the correct branch, and that you are pointed to the correct remote branch)
+
+`git pull`
 
 ### Work collaboratively across forks 
+
+- The purpose of forks is to give you a place to work on projects privately and without stepping on the toes of other people (or letting anyone else step on your toes!). However, there will likely still be times when you want to check out a branch that someone else worked on. This may happen before the branch is polished enough to be sent to the Main repo, but they would still like feedback or edits. In this case, the other developer needs to add you as a collaborator on their personal repo (this is done on Github, in the settings menu of their repo). Once you are added, you can set up a local branch to point upstream to their remote branch.
+
+`git remote add <collaborator_name-repo> <url>` where <url> is the https or ssh url you can copy from Github, and <name> is the shorthand for what 
+
+`git checkout dev`
+
+`git checkout -b <collaborator_name-project1>`
+
+`git branch --set-upstream-to=<collaborator_name-repo>`
+
+-- Note: now you can push and pull to that remote branch (assuming the other developer has given you permission) to see what work they have done as well.
 
 ---
 
