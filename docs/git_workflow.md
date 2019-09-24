@@ -106,8 +106,25 @@ Broadly speaking, the setup is outlined below:
 
 - When beginning a new project, you should start your first branch locally, branching off of your local Dev branch (which should ideally be identical to the upstream Dev branch on the Main Repo)
 
+`git checkout dev`
+
+`git pull` 
+
+`git checkout -b <new-project>`
 
 ### Commit often and push to your repo 
+
+- Committing is the process of adding a selection of changes to the history of your branch. It is effectively saving your work, and should be done often (every time any small fix has been made). To perform a commit, you first need to add the relevant files to your "index", then commit with a message. The message should describe every change you made in some detail, so that in the event that we decide we want to revert back to a previous commit, we know exactly what happened at each step.
+
+`git branch` (check that you're on the correct branch)
+
+`git add <file1> <file2> <...>`
+
+`git commit -m "really clear message indicating all the changes you made in this commit."
+
+-- A single commit should capture an entire "fix" of one kind. If, for example, you want to add a function to a C file and it's header, and you also want to update the internal contents of a completely different function in the same C file, you should do 2 commits. First, make the edits to the first function and header, then `git add file.C file.h`, `git commit -m "created function myFunction to do someStuff and added it to the header file"`. Then make the second edits for the contents of the existing function, and run `git add file.C`, `git commit -m "updated internal contents of thisOtherFunction to allow for specificUseCase"`. 
+
+
 ### Work collaboratively across forks 
 
 ---
