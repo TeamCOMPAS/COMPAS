@@ -120,9 +120,9 @@ Broadly speaking, the setup is outlined below:
 
 `git add <file1> <file2> <...>`
 
-`git commit -m "really clear message indicating all the changes you made in this commit."
+`git commit -m "really clear message indicating all the changes you made in this commit."`
 
--- A single commit should capture an entire "fix" of one kind. If, for example, you want to add a function to a C file and it's header, and you also want to update the internal contents of a completely different function in the same C file, you should do 2 commits. First, make the edits to the first function and header, then `git add file.C file.h`, `git commit -m "created function myFunction to do someStuff and added it to the header file"`. Then make the second edits for the contents of the existing function, and run `git add file.C`, `git commit -m "updated internal contents of thisOtherFunction to allow for specificUseCase"`. 
+-- Note: A single commit should capture an entire "fix" of one kind. If, for example, you want to add a function to a C file and it's header, and you also want to update the internal contents of a completely different function in the same C file, you should do 2 commits. First, make the edits to the first function and header, then `git add file.C file.h`, `git commit -m "created function myFunction to do someStuff and added it to the header file"`. Then make the second edits for the contents of the existing function, and run `git add file.C`, `git commit -m "updated internal contents of thisOtherFunction to allow for specificUseCase"`. 
 
 
 ### Work collaboratively across forks 
