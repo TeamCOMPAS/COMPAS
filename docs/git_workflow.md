@@ -19,20 +19,6 @@ Broadly speaking, the setup is outlined below:
 
 - Developers should each have their own personal Forks of the Main Repository, and any work done locally (on their personal computers) should be pushed up through their personal Repository before being added to Main (more on this later). 
 
-### 4. Terminology
-
-- *Branch*: Branches in git separate work-streams for different features (e.g front-end developers might have a branch for a fancy new button for their website, while back-end developers might have a branch to make database-entry easier). In our case, branches will distinguish different projects or concepts (e.g Supernova-Kicks, White-Dwarf-Accretion, etc.). Branches should _not_ be used to distinguish developers. As mentioned previously, only the Master and Dev branches are permanent, and any new branches should be created with the intention of contributing some new feature or physics, and being [deleted once that is done.](https://rickandmorty.fandom.com/wiki/Mr._Meeseeks)
-
-- *Repository*: A Repository (or Repo) is a collection of all the different branches of a given project which are kept in the same location. To be specific, a location might be your local computer or part of a remote server. A Repo can be public (often called Open Source) or private, with a select list of collaborators who have read and possibly write access. A single github user may have many Repos for all of their different projects, all of which might have any number of branches. Note: COMPAS development will be done in a private repo, but there will be a second public repo which will hold only a copy of the Master branch for the public to download.
-
-- *Fork*: A Fork is a full copy of a Repo, including all its branches, to another location. Most of the time, "another location" will mean elsewhere on the github servers, since we will be Forking from the Main Repo to our Personal Repo when we are setting up. In our case, Forks will distinguish different users, or perhaps groups of users (e.g Copenhagen/COMPAS). All core developers should have a personal fork. If you are familiar with the `git clone` command, this is identical to Forking from a remote server onto your own personal computer. 
-
-- *Local/Remote*: Local refers to what's on your personal computer, while Remote refers to anything that isn't. Github will be remote for everyone. My local computer is only local to me, and would be considered remote to anyone else. This should not come up often, because it would be very foolish to give anyone access to my local computer, even if it's a developer I trust. The purpose of your personal remote fork is to be a proxy for your local fork, where you can add things you've worked on that you wish to share around.
-
-- *Tracking*: A tracked repository is one which has a branch which is "upstream" of a branch in your local repository. By default, all the branches on a cloned or forked repository track the branches they were cloned from, and new branches track their parent branches. You can modify the upstream branch of a given branch to point at any other branch you like, whether local or remote, and can even track multiple remote repositories (see below). This is useful if you want to check out a branch that sits on a colleague's Fork.
-
-- *Origin*: Origin is a shorthand for the most relevant remote repository. It is configured by default whenever you clone from a repository, so yours will point to your personal remote fork. If you track multiple remote forks, you should give them all helpful, distinguishing names (e.g jeff_fork, main_compas_repo)
-
 ---
 
 ## Getting Set Up 
@@ -168,4 +154,23 @@ A mature branch will have to through 3 rounds of Q&A before it is ready for depl
 
 ---
 
-## Example 
+### Example 
+
+---
+
+### Terminology
+
+- *Branch*: Branches in git separate work-streams for different features (e.g front-end developers might have a branch for a fancy new button for their website, while back-end developers might have a branch to make database-entry easier). In our case, branches will distinguish different projects or concepts (e.g Supernova-Kicks, White-Dwarf-Accretion, etc.). Branches should _not_ be used to distinguish developers. As mentioned previously, only the Master and Dev branches are permanent, and any new branches should be created with the intention of contributing some new feature or physics, and being [deleted once that is done.](https://rickandmorty.fandom.com/wiki/Mr._Meeseeks)
+
+- *Repository*: A Repository (or Repo) is a collection of all the different branches of a given project which are kept in the same location. To be specific, a location might be your local computer or part of a remote server. A Repo can be public (often called Open Source) or private, with a select list of collaborators who have read and possibly write access. A single github user may have many Repos for all of their different projects, all of which might have any number of branches. Note: COMPAS development will be done in a private repo, but there will be a second public repo which will hold only a copy of the Master branch for the public to download.
+
+- *Fork*: A Fork is a full copy of a Repo, including all its branches, to another location. Most of the time, "another location" will mean elsewhere on the github servers, since we will be Forking from the Main Repo to our Personal Repo when we are setting up. In our case, Forks will distinguish different users, or perhaps groups of users (e.g Copenhagen/COMPAS). All core developers should have a personal fork. If you are familiar with the `git clone` command, this is identical to Forking from a remote server onto your own personal computer. 
+
+- *Local/Remote*: Local refers to what's on your personal computer, while Remote refers to anything that isn't. Github will be remote for everyone. My local computer is only local to me, and would be considered remote to anyone else. This should not come up often, because it would be very foolish to give anyone access to my local computer, even if it's a developer I trust. The purpose of your personal remote fork is to be a proxy for your local fork, where you can add things you've worked on that you wish to share around.
+
+- *Tracking*: The word tracking refers to either remote repositories, or local files in a single branch, but they have slightly different meanings. 
+    - A tracked repository is one which contains a branch which is "upstream" of a branch in your local repository. By default, all the branches on a cloned or forked repository track the branches they were cloned from, and new branches track their (local) parent branches. You can modify the upstream branch of a given branch to point at any other branch you like, whether local or remote, and can even track multiple remote repositories (see below). This is useful if you want to check out a branch that sits on a colleague's Fork. You can view all tracked repositories with `git remote -v`
+    - A tracked file is one in your current working branch which has been either added or previously commited. If you make an edit to a file, it will be untracked until you add it. If a file (or collection of files) is in your .gitignore, it is considered neither tracked nor untracked, but ignored. If you try to change branches while you have untracked files, you will run into errors.
+
+- *Origin*: Origin is a shorthand for the most relevant remote repository. It is configured by default whenever you clone from a repository, so yours will (and usually should) point to your personal remote fork. If you track multiple remote forks, you should give them all helpful, distinguishing names (e.g jeff_fork, main_compas_repo)
+
