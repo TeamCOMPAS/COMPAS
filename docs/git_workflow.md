@@ -179,6 +179,18 @@ A mature branch will have to through 3 rounds of Q&A review before it is ready f
 
 ---
 
+## Quick Fixes
+
+- This workflow should work well for larger projects and features which need oversight and testing before merging into the Main Repo. However, there will inevitibly be times when only a simple bux-fix or last-minute addition is warranted. In these situations, we will use a stream-lined workflow for merging with the Main Repo. 
+
+    - 1. Determine the seriousness of the fix: is this a bug in the published Master branch that we need to fix urgently, or is there simply a typo in one of the sub-branches? Once this is decided, go onto the relevant branch on the Main Repo, and create a new branch (see Step 1 under Mature Projects, above). Give the branch a descriptive name that starts with "hotfix-", e.g "hotfix-typo_in_speed_of_light". 
+
+    - 2. Create a branch locally, and set the new hotfix branch as the upstream of the local branch (see Work Collaboratively Across Forks, above). 
+
+	- 3. Make the edits
+
+---
+
 ## Terminology
 
 - **Branch**: Branches in git separate work-streams for different features (e.g front-end developers might have a branch for a fancy new button for their website, while back-end developers might have a branch to make database-entry easier). In our case, branches will distinguish different projects or concepts (e.g Supernova-Kicks, White-Dwarf-Accretion, etc.). Branches should _not_ be used to distinguish developers. As mentioned previously, only the Master and Dev branches are permanent, and any new branches should be created with the intention of contributing some new feature or physics, and being [deleted once that is done.](https://rickandmorty.fandom.com/wiki/Mr._Meeseeks)
