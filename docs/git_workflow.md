@@ -185,17 +185,9 @@ A mature branch will have to through 3 rounds of Q&A review before it is ready f
 
     - 1. Determine the seriousness of the fix: is this a bug in the published Master branch that we need to fix urgently, or is there simply a typo in one of the sub-branches? Once this is decided, go onto the relevant branch on the Main Repo, and create a new branch (see Step 1 under Mature Projects, above). Give the branch a descriptive name that starts with "hotfix-", e.g "hotfix-typo_in_speed_of_light". 
 
-    - 2. Create a branch locally (from an up-to-date branch, e.g the local master), and set the new hotfix branch as the upstream of the local branch (see Work Collaboratively Across Forks, above). 
+    - 2. Create a branch locally, and set the new hotfix branch as the upstream of the local branch (see Work Collaboratively Across Forks, above). 
 
-	- 3. Make the edits on the local branch
-
-	- 4. `git push`, to merge your edits into the remote branch
-
-	- 5. Submit a pull request on the Main repo from the hotfix branch onto it's parent
-
-	- 6. Notify another collaborator to have them quickly review your hotfix and accept the pull request
-
--- Note: This will only work for branches that start with "hotfix-"
+	- 3. Make the edits
 
 ---
 
