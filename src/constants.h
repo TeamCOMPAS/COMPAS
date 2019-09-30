@@ -269,6 +269,8 @@ enum class ERROR: int {
     OUT_OF_BOUNDS,                                                  // value out of bounds
     RADIUS_NOT_POSITIVE,                                            // radius is <= 0.0 - invalid
     RADIUS_NOT_POSITIVE_ONCE,                                       // radius is <= 0.0 - invalid
+    RLOF_FROM_CHE,                                                  // RLOF from CHE star
+    RLOF_TO_CHE,                                                    // RLOF to CHE star
     STELLAR_EVOLUTION_STOPPED,                                      // evolution of current star stopped
     STELLAR_SIMULATION_STOPPED,                                     // stellar simulation stopped
     UNEXPECTED_END_OF_FILE,                                         // unexpected end of file
@@ -370,6 +372,8 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::OUT_OF_BOUNDS,                                         { ERROR_SCOPE::ALWAYS,              "Value out of bounds" }},
     { ERROR::RADIUS_NOT_POSITIVE,                                   { ERROR_SCOPE::ALWAYS,              "Radius <= 0.0" }},
     { ERROR::RADIUS_NOT_POSITIVE_ONCE,                              { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Radius <= 0.0" }},
+    { ERROR::RLOF_FROM_CHE,                                         { ERROR_SCOPE::ALWAYS,              "CHE star overflowing Roche Lobe" }},
+    { ERROR::RLOF_TO_CHE,                                           { ERROR_SCOPE::ALWAYS,              "CHE star accreting mass" }},
     { ERROR::STELLAR_EVOLUTION_STOPPED,                             { ERROR_SCOPE::ALWAYS,              "Evolution of current star stopped" }},
     { ERROR::STELLAR_SIMULATION_STOPPED,                            { ERROR_SCOPE::ALWAYS,              "Stellar simulation stopped" }},
     { ERROR::UNEXPECTED_END_OF_FILE,                                { ERROR_SCOPE::ALWAYS,              "Unexpected end of file" }},
@@ -435,19 +439,21 @@ enum class EVOLUTION_STATUS: int {
     AIS_EXPLORATORY
 };
 
+// JR: deliberately kept these message succinct (where I could) so running status doesn't scroll of fthe page...
 const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL = {
     { EVOLUTION_STATUS::CONTINUE,            "Continue Evolution" },
     { EVOLUTION_STATUS::SSE_ERROR,           "SSE error for one of the constituent stars" },
     { EVOLUTION_STATUS::BINARY_ERROR,        "Error evolving binary" },
-    { EVOLUTION_STATUS::SECONDARY_TOO_SMALL, "Secondary star is not massive enough to form compact object" },
-    { EVOLUTION_STATUS::MASSLESS_REMNANT,    "At least one Massless Remnant formed" },
-    { EVOLUTION_STATUS::STARS_TOUCHING,      "Constituent stars are touching" },
-    { EVOLUTION_STATUS::STELLAR_MERGER,      "Constituent stars have merged" },
-    { EVOLUTION_STATUS::WD_WD,               "Binary is double White Dwarf" },
-    { EVOLUTION_STATUS::TIMES_UP,            "Evolution time exceeds maximum allowed" },
-    { EVOLUTION_STATUS::STEPS_UP,            "Number of timesteps exceeds maximum allowed" },
+    { EVOLUTION_STATUS::SECONDARY_TOO_SMALL, "Secondary too small" },
+    { EVOLUTION_STATUS::MASSLESS_REMNANT,    "Massless Remnant formed" },
+    { EVOLUTION_STATUS::STARS_TOUCHING,      "Stars touching" },
+    { EVOLUTION_STATUS::STELLAR_MERGER,      "Stars merged" },
+    { EVOLUTION_STATUS::UNBOUND,             "Unbound binary" },
+    { EVOLUTION_STATUS::WD_WD,               "Double White Dwarf" },
+    { EVOLUTION_STATUS::TIMES_UP,            "Time exceeded" },
+    { EVOLUTION_STATUS::STEPS_UP,            "Timesteps exceeded" },
     { EVOLUTION_STATUS::STOPPED,             "Evolution stopped" },
-    { EVOLUTION_STATUS::AIS_EXPLORATORY,     "AIS Exploratory phase fraction exceeded" }
+    { EVOLUTION_STATUS::AIS_EXPLORATORY,     "AIS fraction exceeded" }
 };
 
 
@@ -514,6 +520,15 @@ const COMPASUnorderedMap<CE_ZETA_PRESCRIPTION, std::string> CE_ZETA_PRESCRIPTION
     { CE_ZETA_PRESCRIPTION::SOBERMAN,  "SOBERMAN" },
     { CE_ZETA_PRESCRIPTION::HURLEY,    "HURLEY" },
     { CE_ZETA_PRESCRIPTION::ARBITRARY, "ARBITRARY" }
+};
+
+
+// CHE (chemically Homogeneous Evolution) Options
+enum class CHE_OPTION: int { NONE, OPTIMISTIC, PESSIMISTIC };
+const COMPASUnorderedMap<CHE_OPTION, std::string> CHE_OPTION_LABEL = {
+    { CHE_OPTION::NONE,        "NONE" },
+    { CHE_OPTION::OPTIMISTIC,  "OPTIMISTIC" },
+    { CHE_OPTION::PESSIMISTIC, "PESSIMISTIC" }
 };
 
 
@@ -878,6 +893,7 @@ enum class STELLAR_TYPE: int {                      // Hurley
     NEUTRON_STAR,                                   //  13
     BLACK_HOLE,                                     //  14
     MASSLESS_REMNANT,                               //  15
+    CHEMICALLY_HOMOGENEOUS,                         //  16  JR: this is here to preserve the Hurley type numbers, but note that Hurley type number progression doesn't necessarily indicate class inheritance
     STAR,                                           //      JR: added this - star is created this way, then switches as required (down here so stellar types consistent with Hurley et al. 2000)
     BINARY_STAR,                                    //      JR: added this - mainly for diagnostics
     NONE                                            //      JR: added this - mainly for diagnostics
@@ -903,6 +919,7 @@ const COMPASUnorderedMap<STELLAR_TYPE, std::string> STELLAR_TYPE_LABEL = {
     { STELLAR_TYPE::NEUTRON_STAR,                              "Neutron_Star" },
     { STELLAR_TYPE::BLACK_HOLE,                                "Black_Hole" },
     { STELLAR_TYPE::MASSLESS_REMNANT,                          "Massless_Remnant" },
+    { STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS,                    "Chemically_Homogeneous" },
     { STELLAR_TYPE::STAR,                                      "Star" },
     { STELLAR_TYPE::BINARY_STAR,                               "Binary_Star" },
     { STELLAR_TYPE::NONE,                                      "Not_a_Star!" }
@@ -960,6 +977,7 @@ enum class MASS_CUTOFF: int {
     MHook,                  // Mass above which hook appears on MS (in Msol)
     MHeF,                   // Maximum initial mass for which helium ignites degenerately in a Helium Flash (HeF)
     MFGB,                   // Maximum initial mass for which helium ignites on the First Giant Branch (FGB)
+    MCHE,                   // Mass cutoff for calculation of initial angular frequency to determine if CHE occurs
 
     COUNT                   // Sentinel for entry count
 };
@@ -2376,6 +2394,12 @@ const std::map<LOGFILE, LOGFILE_DESCRIPTOR_T> LOGFILE_DESCRIPTOR = {
     { LOGFILE::BSE_PULSAR_EVOLUTION,       { "BSE_Pulsar_Evolution",       BSE_PULSAR_EVOLUTION_REC,       "BSE_PULSARS",     "BSE_PULSARS_REC",     LOGFILE_TYPE::BINARY }},
     { LOGFILE::BSE_DETAILED_OUTPUT,        { "BSE_Detailed_Output",        BSE_DETAILED_OUTPUT_REC,        "BSE_DETAILED",    "BSE_DETAILED_REC",    LOGFILE_TYPE::BINARY }}
 };
+
+
+// double vector CHE_Coefficients
+// coefficients for the calculation of initial angular frequency
+// Mandel from Butler 2018
+const DBL_VECTOR CHE_Coefficients = { 5.7914E-04, -1.9196E-06, -4.0602E-07, 1.0150E-08, -9.1792E-11, 2.9051E-13 };
 
 
 // enum class LR_TCoeff

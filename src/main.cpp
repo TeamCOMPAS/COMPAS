@@ -106,8 +106,27 @@ void EvolveBinaryStars() {
     do {
         BinaryStar binary = BinaryStar(ais, index);                                                                     // generate a random binary according to the user options    Floor : added means and covariances as variables in case using Adaptive Importance Sampling
 
-        if (!OPTIONS->Quiet()) SAY("Evolve binary " << index);
-        binary.Evolve(index); // JR todo: - fold this into constructor!
+        EVOLUTION_STATUS evolveStatus = binary.Evolve(index);
+
+        if (!OPTIONS->Quiet()) {
+            if (OPTIONS->CHE_Option() == CHE_OPTION::NONE) {
+                SAY(index                                       << ": "  <<
+                    EVOLUTION_STATUS_LABEL.at(evolveStatus)     << ": "  <<
+                    STELLAR_TYPE_LABEL.at(binary.Star1Type())   << " + " <<
+                    STELLAR_TYPE_LABEL.at(binary.Star2Type())
+                );
+            }
+            else {
+                SAY(index                                            << ": "    <<
+                    EVOLUTION_STATUS_LABEL.at(evolveStatus)          << ": ("   <<
+                    STELLAR_TYPE_LABEL.at(binary.Star1InitialType()) << " -> "  <<
+                    STELLAR_TYPE_LABEL.at(binary.Star1Type())        << ") + (" <<
+                    STELLAR_TYPE_LABEL.at(binary.Star2InitialType()) << " -> "  <<
+                    STELLAR_TYPE_LABEL.at(binary.Star2Type())        <<  ")"
+                );
+            }
+        }
+
 
         if (OPTIONS->AIS_ExploratoryPhase() && ais.ShouldStopExploratoryPhase(index)) {                                 // AIS says should stop simulation?
             SHOW_WARN(ERROR::BINARY_SIMULATION_STOPPED, EVOLUTION_STATUS_LABEL.at(EVOLUTION_STATUS::AIS_EXPLORATORY));  // yes - show warning
@@ -172,10 +191,6 @@ int main(int argc, char * argv[]) {
             }
             else {                                                                      // no - binary
                 EvolveBinaryStars();                                                    // evolve binary stars
-            }
-
-            if (!OPTIONS->Quiet()) {                                                    // verbose?
-                SAY("\nSuccess!");                                                      // yes - gloat
             }
 
             RAND->Free();                                                               // release gsl dynamically allocated memory

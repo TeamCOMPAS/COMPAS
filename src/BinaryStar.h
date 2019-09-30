@@ -75,8 +75,12 @@ public:
 
     // member functions
     EVOLUTION_STATUS    Evolve(const int p_Index)   { return m_BinaryStar->Evolve(p_Index); }
-    void                SaveState();
     bool                RevertState();
+    void                SaveState();
+    STELLAR_TYPE        Star1InitialType()          { return m_BinaryStar->InitialStellarType1(); }
+    STELLAR_TYPE        Star1Type()                 { return m_BinaryStar->StellarType1(); }
+    STELLAR_TYPE        Star2InitialType()          { return m_BinaryStar->InitialStellarType2(); }
+    STELLAR_TYPE        Star2Type()                 { return m_BinaryStar->StellarType2(); }
 
 
 

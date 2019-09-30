@@ -146,6 +146,18 @@ public:
     double          RocheLobeTracker() const                                            { return m_RocheLobeTracker; }
 
 
+    // setters
+    void            SetCompanion(BinaryConstituentStar* p_Companion)                    { m_Companion = p_Companion; }                              // this star's companion star
+
+    void            SetFastPhaseCaseA()                                                 { m_FastPhaseCaseA = true; }                                // JR: todo: revisit this
+
+    void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  JR: todo:  sanity check?
+    void            SetMassTransferDiff(const double p_MassTransferDiff)                { m_MassTransferDiff = p_MassTransferDiff; }                // JR: todo: better way?  JR: todo:  sanity check?
+
+    void            SetPostSNeOrbitalEnergy(const double p_PostSNeOrbitalEnergy)        { m_PostSNeOrbitalEnergy = p_PostSNeOrbitalEnergy; };
+    void            SetPreSNeOrbitalEnergy(const double p_PreSNeOrbitalEnergy)          { m_PreSNeOrbitalEnergy = p_PreSNeOrbitalEnergy; };
+
+
     // member functions - alphabetically
     void            BecomePrimary()                                                     { m_isPrimary = true; }
     void            BecomeSecondary()                                                   { m_isPrimary = false; }
@@ -160,16 +172,6 @@ public:
 
 
     void            ResolveCommonEnvelopeAccretion(const double p_FinalMass);
-
-    void            SetCompanion(BinaryConstituentStar* p_Companion)                    { m_Companion = p_Companion; }                              // this star's companion star
-
-    void            SetFastPhaseCaseA()                                                 { m_FastPhaseCaseA = true; }                                // JR: todo: revisit this
-
-    void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  JR: todo:  sanity check?
-    void            SetMassTransferDiff(const double p_MassTransferDiff)                { m_MassTransferDiff = p_MassTransferDiff; }                // JR: todo: better way?  JR: todo:  sanity check?
-
-    void            SetPostSNeOrbitalEnergy(const double p_PostSNeOrbitalEnergy)        { m_PostSNeOrbitalEnergy = p_PostSNeOrbitalEnergy; };
-    void            SetPreSNeOrbitalEnergy(const double p_PreSNeOrbitalEnergy)          { m_PreSNeOrbitalEnergy = p_PreSNeOrbitalEnergy; };
 
     COMPAS_VARIABLE StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
 

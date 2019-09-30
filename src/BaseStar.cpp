@@ -15,11 +15,12 @@ BaseStar::BaseStar() {
 
     // initialise member variables
 
-    m_ObjectId    = globalObjectId++;                           // unique object id - remains for life of star (even through evolution to other phases)
-    m_ObjectType  = OBJECT_TYPE::BASE_STAR;                     // object type - remains for life of star (even through evolution to other phases)
-    m_StellarType = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
+    m_ObjectId           = globalObjectId++;                           // unique object id - remains for life of star (even through evolution to other phases)
+    m_ObjectType         = OBJECT_TYPE::BASE_STAR;                     // object type - remains for life of star (even through evolution to other phases)
+    m_InitialStellarType = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
+    m_StellarType        = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
 
-    m_Error       = ERROR::NOT_INITIALISED;                     // clear error flag
+    m_Error              = ERROR::NOT_INITIALISED;                     // clear error flag
 }
 
 
@@ -27,11 +28,12 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, c
 
     // initialise member variables
 
-    m_ObjectId    = globalObjectId++;                           // unique object id - remains for life of star (even through evolution to other phases)
-    m_ObjectType  = OBJECT_TYPE::BASE_STAR;                     // object type - remains for life of star (even through evolution to other phases)
-    m_StellarType = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
+    m_ObjectId            = globalObjectId++;                           // unique object id - remains for life of star (even through evolution to other phases)
+    m_ObjectType          = OBJECT_TYPE::BASE_STAR;                     // object type - remains for life of star (even through evolution to other phases)
+    m_InitialStellarType  = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
+    m_StellarType         = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
 
-    m_Error       = ERROR::NONE;                                // clear error flag
+    m_Error               = ERROR::NONE;                                // clear error flag
 
     // Initialise member variables from input parameters
     m_RandomSeed          = p_RandomSeed;
@@ -108,6 +110,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, c
     m_LZAMS                                    = CalculateLuminosityAtZAMS(m_MZAMS);
     m_TZAMS                                    = CalculateTemperatureOnPhase_Static(m_LZAMS, m_RZAMS);
 
+    m_OmegaCHE                                 = CalculateOmegaCHE(m_MZAMS, m_Metallicity);
     m_OmegaZAMS                                = CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);
 
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
@@ -813,6 +816,8 @@ void BaseStar::CalculateMassCutoffs(const double p_Metallicity, const double p_L
     double top         = 13.048 * pow((p_Metallicity / ZSOL), 0.06);
     double bottom      = 1.0 + (0.0012 * pow((ZSOL / p_Metallicity), 1.27));
     massCutoffs(MFGB)  = top / bottom;                                              // MFGB - Hurley et al. 2000, eq 3
+
+    massCutoffs(MCHE)  = 100.0;// * MSOL;                                              // MCHE - Mandel/Butler - CHE calculation
 
 #undef massCutoffs
 }
@@ -2262,7 +2267,6 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
         default:                                                                        // unknown rorational velocity prescription
             SHOW_WARN(ERROR::UNKNOWN_VROT_PRESCRIPTION, "Using default vRot = 0.0");     // show warning
     }
-
     return vRot;
 }
 
@@ -2282,7 +2286,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
  */
 double BaseStar::CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS) {
     double vRot = CalculateRotationalVelocity(p_MZAMS);
-    return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 / (vRot / p_RZAMS);    // Hurley at al. 2000, eq 108       JR: todo: added check for vRot = 0
+    return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 * vRot / p_RZAMS;    // Hurley at al. 2000, eq 108       JR: todo: added check for vRot = 0
 }
 
 
@@ -2299,6 +2303,44 @@ double BaseStar::CalculateOmegaBreak() {
     constexpr double RSOL_TO_AU_3 = RSOL_TO_AU * RSOL_TO_AU * RSOL_TO_AU;
 
 	return sqrt(_2_PI_2 * m_Mass / (RSOL_TO_AU_3 * m_Radius * m_Radius * m_Radius));
+}
+
+
+/*
+ * Calculate the minimum rotational frequency (in yr^-1) at which CHE will occur
+ * for a star with ZAMS mass MZAMS
+ *
+ * Mendel's fit from Butler 2018
+ *
+ *
+ * double CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity)
+ *
+ * @param   [IN]        p_MZAMS                 Zero age main sequence mass in Msol
+ * @param   [IN]        p_Metallicity           Metallicity of the star
+ * @return                                      Initial angular frequency in rad*s^-1
+ */
+double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity) {
+#define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
+
+    double mRatio = p_MZAMS;                                                                        // in MSol, so ratio is just p_MZAMS
+
+    // calculate omegaCHE(M, Z = 0.004)
+    double omegaZ004 = 0.0;
+    if (utils::Compare(p_MZAMS, massCutoffs(MCHE)) <= 0) {
+        for (std::size_t i = 0; i < CHE_Coefficients.size(); i++) {
+            omegaZ004 += CHE_Coefficients[i] * utils::intPow(mRatio, i) / pow(mRatio, 0.4);
+        }
+    }
+    else {
+        for (std::size_t i = 0; i < CHE_Coefficients.size(); i++) {
+            omegaZ004 += CHE_Coefficients[i] * utils::intPow(100.0, i) / pow(mRatio, 0.4);
+        }
+    }
+
+    // calculate omegaCHE(M, Z)
+    return (1.0 / ((0.09 * log(p_Metallicity / 0.004)) + 1.0) * omegaZ004) * SECONDS_IN_YEAR / _2_PI;   // in yr^-1
+
+#undef massCutoffs
 }
 
 

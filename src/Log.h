@@ -3,6 +3,8 @@
 
 #define LOGGING Log::Instance()
 
+#include <fstream>
+
 #include <boost/variant.hpp>
 
 #include "constants.h"

@@ -43,19 +43,19 @@ class pythonProgramOptions:
     individual_initial_secondary_mass = 1.0  #  [Msol]
     individual_initial_primary_metallicity = 0.02
     individual_initial_secondary_metallicity = 0.02
-    individual_initial_primary_type = 1
-    individual_initial_secondary_type = 1
-    individual_initial_primary_rotational_velocity = 0.0
-    individual_initial_secondary_rotational_velocity = 0.0
+#    individual_initial_primary_type = 1                            # not yet implemented
+#    individual_initial_secondary_type = 1                          # not yet implemented
+#    individual_initial_primary_rotational_velocity = 0.0           # not yet implemented
+#    individual_initial_secondary_rotational_velocity = 0.0         # not yet implemented
     individual_initial_orbital_separation = -1  #  [AU]
     individual_initial_orbital_period = 1400.0  #  [days]
     individual_initial_orbital_eccentricity = 0.0
-    individual_initial_primary_core_mass = 0
-    individual_initial_secondary_core_mass = 0
-    individual_effective_initial_primary_mass = 0
-    individual_effective_initial_secondary_mass = 0
-    individual_initial_primary_age = 0
-    individual_initial_secondary_age = 0
+#    individual_initial_primary_core_mass = 0                       # not yet implemented
+#    individual_initial_secondary_core_mass = 0                     # not yet implemented
+#    individual_effective_initial_primary_mass = 0                  # not yet implemented
+#    individual_effective_initial_secondary_mass = 0                # not yet implemented
+#    individual_initial_primary_age = 0                             # not yet implemented
+#    individual_initial_secondary_age = 0                           # not yet implemented
 
 
     use_mass_loss = True
@@ -70,6 +70,8 @@ class pythonProgramOptions:
     quiet = False
 
     metallicity = 0.0142                    # Solar metallicity Asplund+2010
+
+    chemically_homogeneous_evolution = 'NONE'                            # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMIST" and 'PESSIMISTIC'
 
     common_envelope_alpha = 1.0
     common_envelope_lambda = 0.1                # Only if using 'LAMBDA_FIXED'
@@ -128,9 +130,7 @@ class pythonProgramOptions:
     critical_mass_ratio_white_dwarf_degenerate_accretor = -1.0 #1.6
 
 
-    #-- Print Chemically Homogeneous evolution
     BeBinaries  = False
-    CHEvolution = False;
     maximum_evolution_time = 13700.0
     maximum_number_iterations = 99999
 
@@ -293,7 +293,6 @@ class pythonProgramOptions:
             self.always_stable_case_BB_BC,
             self.angular_momentum_conservation_during_circularisation,
             self.BeBinaries,
-            self.CHEvolution,
             self.AIS_exploratory_phase,
             self.AIS_Hubble,
             self.AIS_RLOF,
@@ -334,7 +333,6 @@ class pythonProgramOptions:
             '--alwaysStableCaseBBBCFlag',
             '--angularMomentumConservationDuringCircularisation',
             '--BeBinaries',
-            '--CHEvolution',
             '--AIS-exploratory-phase',
             '--AIS-Hubble',
             '--AIS-RLOF',
@@ -359,19 +357,19 @@ class pythonProgramOptions:
             self.individual_initial_secondary_mass,
             self.individual_initial_primary_metallicity,
             self.individual_initial_secondary_metallicity,
-            self.individual_initial_primary_type,
-            self.individual_initial_secondary_type,
-            self.individual_initial_primary_rotational_velocity,
-            self.individual_initial_secondary_rotational_velocity,
+#            self.individual_initial_primary_type,
+#            self.individual_initial_secondary_type,
+#            self.individual_initial_primary_rotational_velocity,
+#            self.individual_initial_secondary_rotational_velocity,
             self.individual_initial_orbital_separation,
             self.individual_initial_orbital_period,
             self.individual_initial_orbital_eccentricity,
-            self.individual_initial_primary_core_mass,
-            self.individual_initial_secondary_core_mass,
-            self.individual_effective_initial_primary_mass,
-            self.individual_effective_initial_secondary_mass,
-            self.individual_initial_primary_age,
-            self.individual_initial_secondary_age,
+#            self.individual_initial_primary_core_mass,
+#            self.individual_initial_secondary_core_mass,
+#            self.individual_effective_initial_primary_mass,
+#            self.individual_effective_initial_secondary_mass,
+#            self.individual_initial_primary_age,
+#            self.individual_initial_secondary_age,
             self.metallicity,
             self.common_envelope_alpha,
             self.common_envelope_lambda,
@@ -471,19 +469,19 @@ class pythonProgramOptions:
             '--individual-initial-secondary-mass',
             '--individual-initial-primary-metallicity',
             '--individual-initial-secondary-metallicity',
-            '--individual-initial-primary-type',
-            '--individual-initial-secondary-type',
-            '--individual-initial-primary-rotational-velocity',
-            '--individual-initial-secondary-rotational-velocity',
+#            '--individual-initial-primary-type',
+#            '--individual-initial-secondary-type',
+#            '--individual-initial-primary-rotational-velocity',
+#            '--individual-initial-secondary-rotational-velocity',
             '--individual-initial-orbital-separation',
             '--individual-initial-orbital-period',
             '--individual-initial-orbital-eccentricity',
-            '--individual-initial-primary-core-mass',
-            '--individual-initial-secondary-core-mass',
-            '--individual-effective-initial-primary-mass',
-            '--individual-effective-initial-secondary-mass',
-            '--individual-initial-primary-age',
-            '--individual-initial-secondary-age',
+#            '--individual-initial-primary-core-mass',
+#            '--individual-initial-secondary-core-mass',
+#            '--individual-effective-initial-primary-mass',
+#            '--individual-effective-initial-secondary-mass',
+#            '--individual-initial-primary-age',
+#            '--individual-initial-secondary-age',
             '--metallicity',
             '--common-envelope-alpha',
             '--common-envelope-lambda',
@@ -577,6 +575,7 @@ class pythonProgramOptions:
 
     def stringChoices(self):
         stringChoices = [
+            self.chemically_homogeneous_evolution,
             self.tides_prescription,
             self.mass_loss_prescription,
             self.mass_transfer_prescription,
@@ -613,6 +612,7 @@ class pythonProgramOptions:
 
     def stringCommands(self):
         stringCommands = [
+            '--chemically-homogeneous-evolution',
             '--tides-prescription',
             '--mass-loss-prescription',
             '--mass-transfer-prescription',

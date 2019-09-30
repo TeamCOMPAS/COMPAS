@@ -256,6 +256,8 @@ public:
     bool                HasStarsTouching() const                    { return (utils::Compare(m_SemiMajorAxisPrime, 0.0) > 0) && (m_SemiMajorAxisPrime <= RSOL_TO_AU * (m_Star1->Radius() + m_Star2->Radius())); }
     bool                HasTwoOf(STELLAR_TYPE_LIST p_List) const;
     bool                ImmediateRLOFPostCEE() const                { return m_ImmediateRLOFPostCEE; }
+    STELLAR_TYPE        InitialStellarType1() const                 { return m_Star1->InitialStellarType(); }
+    STELLAR_TYPE        InitialStellarType2() const                 { return m_Star2->InitialStellarType(); }
     bool                IsBeBinary() const                          { return HasOneOf({STELLAR_TYPE::NEUTRON_STAR}) && HasOneOf({STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07}); }
     bool                IsBHandBH() const                           { return HasTwoOf({STELLAR_TYPE::BLACK_HOLE}); }
     bool                IsDCO() const                               { return HasTwoOf({STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE}); }
@@ -300,7 +302,9 @@ public:
     bool                SimultaneousRLOF() const                    { return m_SimultaneousRLOF; }
     bool                StableRLOFPostCEE() const                   { return m_RLOFDetails.stableRLOFPostCEE; }
     bool                StellarMerger() const                       { return m_StellarMerger; }
+    STELLAR_TYPE        StellarType1() const                        { return m_Star1->StellarType(); }
     STELLAR_TYPE        StellarType1PreCEE() const                  { return m_StellarType1PreCEE; }
+    STELLAR_TYPE        StellarType2() const                        { return m_Star2->StellarType(); }
     STELLAR_TYPE        StellarType2PreCEE() const                  { return m_StellarType2PreCEE; }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
     bool                SurvivedSNEvent() const                     { return m_Survived; }

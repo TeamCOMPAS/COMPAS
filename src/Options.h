@@ -35,6 +35,9 @@ using std::get;
 #define COMPLAIN_IF(cond, complainStr)  { if (cond) COMPLAIN(complainStr) }
 
 
+// JR: todo: one day rename all member variables "m_..."
+
+
 /*
  * Options Singleton
  *
@@ -88,7 +91,8 @@ public:
 
     BLACK_HOLE_KICK_OPTION                      BlackHoleKicksOption() const                                            { return blackHoleKicksOption; }
 
-    bool                                        CHEvolution() const                                                     { return chEvolution; }
+    CHE_OPTION                                  CHE_Option() const                                                      { return cheOption; }
+
     bool                                        CirculariseBinaryDuringMassTransfer() const                             { return circulariseBinaryDuringMassTransfer; }
 
     double                                      CommonEnvelopeAlpha() const                                             { return commonEnvelopeAlpha; }
@@ -109,8 +113,8 @@ public:
     vector<string>                              DebugClasses() const                                                    { return debugClasses; }
     int                                         DebugLevel() const                                                      { return debugLevel; }
     bool                                        DebugToFile() const                                                     { return debugToFile; }
-    bool                                        ErrorsToFile() const                                                    { return errorsToFile; }
     bool                                        DetailedOutput() const                                                  { return detailedOutput; }
+    bool                                        ErrorsToFile() const                                                    { return errorsToFile; }
     ECCENTRICITY_DISTRIBUTION                   EccentricityDistribution() const                                        { return eccentricityDistribution; }
     double                                      EccentricityDistributionMax() const                                     { return eccentricityDistributionMax; }
     double                                      EccentricityDistributionMin() const                                     { return eccentricityDistributionMin; }
@@ -215,6 +219,8 @@ public:
 
     bool                                        OnlyDoubleCompactObjects() const                                        { return onlyDoubleCompactObjects; }
 
+    bool                                        OptimisticCHE() const                                                   { return cheOption == CHE_OPTION::OPTIMISTIC; }
+
     string                                      OutputPathString() const                                                { return outputPathString; }
 
     double                                      PairInstabilityLowerLimit() const                                       { return pairInstabilityLowerLimit; }
@@ -300,18 +306,34 @@ public:
 
 private:
 
-    // member variables - alphabetically in groups
+    // member variables - alphabetically in groups (sort of...)
+
+    bool                                        debugToFile;                                                    // flag used to determine whether debug statements should also be written to a log file
+    bool                                        errorsToFile;                                                   // flag used to determine whether error statements should also be written to a log file
 
     bool                                        individualSystem;                                               // Flag for whether we are running population synthesis (many binaries or a single binary drawn randomly from the initial distributions) or a specific individual system
-
-
     bool                                        singleStar;                                                     // Whether to evolve a single star or a binary
 
-    bool                                        quiet;                                                          // suppress some output
+	bool                                        lambdaCalculationEveryTimeStep;							        // Flag indicates if lambda is calculated at each timestep or no
+	bool                                        zetaCalculationEveryTimeStep;
 
-    bool                                        onlyDoubleCompactObjects;                                       // A bunch of shortcuts to only evolve systems which are likely to form double compact objects.
-
+	bool                                        beBinaries;													    // Flag if we want to print BeBinaries (main.cpp)
+    bool                                        evolvePulsars;                                                  // Whether to evolve pulsars or not
 	bool                                        evolveUnboundSystems;							                // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
+    bool                                        onlyDoubleCompactObjects;                                       // A bunch of shortcuts to only evolve systems which are likely to form double compact objects.
+    bool                                        PNevolution;                                                    // Whether to integrate the spins using PN equations (default is no)
+
+    bool                                        detailedOutput;                                                 // Print detailed output details to file (default = false)
+    bool                                        populationDataPrinting;                                         // Print certain data for small populations, but not for larger one
+    bool                                        printBoolAsString;                                              // flag used to indicate that boolean properties should be printed as "TRUE" or "FALSE" (default is 1 or 0)
+    bool                                        quiet;                                                          // suppress some output
+    bool                                        rlofPrinting;
+
+    bool                                        useImportanceSampling;                                          // Options for importance sampling
+//    bool                                        useMCMC;                                                        // Simon Stevenson - 15/03/2018 - begining to add MCMC functionality (not yet implemented)
+
+    int                                         nBatchesUsed;                                                   // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
+
 
     // Individual system variables
     double                                      primaryMass;                                                    // Initial primary mass in solar masses
@@ -320,25 +342,26 @@ private:
     double                                      initialPrimaryMetallicity;                                      // Initial metallicity of the primary
     double                                      initialSecondaryMetallicity;                                    // Initial metallicity of the secondary
 
-    // Variables required to restart a binary/star halfway through
-    int                                         primaryStellarType;                                             // Initial primary stellar type (not yet implemented)
-    int                                         secondaryStellarType;                                           // Initial secondary stellar type (not yet implemented)
-
-    double                                      primaryEffectiveInitialMass;                                    // Effective initial mass for the primary in solar masses
-    double                                      secondaryEffectiveInitialMass;                                  // Effective initial mass for the secondary in solar masses
-
-    double                                      primaryCoreMass;                                                // Initial primary core mass in solar masses
-    double                                      secondaryCoreMass;                                              // Initial secondary core mass in solar masses
-
-    double                                      primaryAge;                                                     // Effective age for the primary star in Myrs
-    double                                      secondaryAge;                                                   // Effective age for the secondary star in Myrs
-
     double                                      binarySeparation;                                               // Initial separation in AU
     double                                      binaryOrbitalPeriod;                                            // Initial orbital period in day
     double                                      binaryEccentricity;                                             // Initial eccentricity
 
-    double                                      primaryRotationalVelocity;                                      // Initial rotational velocity of the primary
-    double                                      secondaryRotationalVelocity;                                    // Initial rotational velocity of the secondary
+    // Variables required to restart a binary/star halfway through
+//    int                                         primaryStellarType;                                             // Initial primary stellar type (not yet implemented)
+//    int                                         secondaryStellarType;                                           // Initial secondary stellar type (not yet implemented)
+
+//    double                                      primaryEffectiveInitialMass;                                    // Effective initial mass for the primary in solar masses (not yet implemented)
+//    double                                      secondaryEffectiveInitialMass;                                  // Effective initial mass for the secondary in solar masses (not yet implemented)
+
+//    double                                      primaryCoreMass;                                                // Initial primary core mass in solar masses (not yet implemented)
+//    double                                      secondaryCoreMass;                                              // Initial secondary core mass in solar masses (not yet implemented)
+
+//    double                                      primaryAge;                                                     // Effective age for the primary star in Myrs (not yet implemented)
+//    double                                      secondaryAge;                                                   // Effective age for the secondary star in Myrs (not yet implemented)
+
+//    double                                      primaryRotationalVelocity;                                      // Initial rotational velocity of the primary (not yet implemented)
+//    double                                      secondaryRotationalVelocity;                                    // Initial rotational velocity of the secondary (not yet implemented)
+
 
     // Code variables
     int                                         nBinaries;                                                      // Number of binaries to simulate (default = 10 for quick test)
@@ -394,6 +417,10 @@ private:
     BLACK_HOLE_KICK_OPTION                      blackHoleKicksOption;
     string                                      blackHoleKicksString;                                           // Whether to use full black hole kicks (default = "Full")
 
+    // CHE - Chemically Homogeneous Evolution
+    CHE_OPTION                                  cheOption;                                                      // whether and how to apply Chemically Homogeneous Evolution
+    string                                      cheString;
+
     // Supernova remnant mass
     REMNANT_MASS_PRESCRIPTION                   remnantMassPrescription;
     string                                      remnantMassPrescriptionString;                                  // Choose which prescription to use to calculate remnant mass
@@ -425,7 +452,6 @@ private:
     PPI_PRESCRIPTION                            pulsationalPairInstabilityPrescription;                         // Prescription for PPI to use
 
 	double                                      maximumNeutronStarMass;							                // Maximum mass of a neutron star allowed, set to default in StarTrack
-    int                                         nBatchesUsed;                                                   // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
 
     // Setup default output directory and desired output directory
     string                                      outputPathString;                                               // String to hold the output directory
@@ -441,12 +467,10 @@ private:
     SPIN_ASSUMPTION spinAssumption;
     string spinAssumptionString;                                                                                // What assumption to make in our spin study (default = both spins aligned)
 
-    // PN evolution options
-    bool                                        PNevolution;                                                    // Whether to integrate the spins using PN equations (default is no)
 
     // Tides options
-    string                                      tidesPrescriptionString;                                        // String containing which tides prescription to use (default = "None")
     TIDES_PRESCRIPTION                          tidesPrescription;                                              // Which tides prescription will be used by the code. (default = TIDES_PRESCRIPTION_NONE)
+    string                                      tidesPrescriptionString;                                        // String containing which tides prescription to use (default = "None")
 
     // Mass loss options
     bool                                        useMassLoss;                                                    // Whether to activate mass loss (default = True)
@@ -465,7 +489,7 @@ private:
 	bool                                        alwaysStableCaseBBBCFlag;									    // Whether if case BB/BC is always stable (default = true)
 	bool                                        angularMomentumConservationDuringCircularisation;			    // Whether to conserve angular momentum while circularising or circularise to periastron (default = false)
 
-    MT_PRESCRIPTION massTransferPrescription;                                                                   // Which mass transfer prescription will be used by the code (default = MASS_TRANSFER_PRESCRIPTION_NONE)
+    MT_PRESCRIPTION                             massTransferPrescription;                                       // Which mass transfer prescription will be used by the code (default = MASS_TRANSFER_PRESCRIPTION_NONE)
     string                                      massTransferPrescriptionString;                                 // String containing which mass transfer prescription to use (defaul = "None")
 
     MT_ACCRETION_EFFICIENCY_PRESCRIPTION        massTransferAccretionEfficiencyPrescription;                    // Which mass transfer prescription will be used by the code (default = MASS_TRANSFER_PRESCRIPTION_NONE)
@@ -484,7 +508,7 @@ private:
 	string                                      massTransferThermallyLimitedVariationString;			        // String
 
 
-    double massTransferJloss;                                                                                   // Specific angular momentum of the material leaving the system (not accreted)
+    double                                      massTransferJloss;                                              // Specific angular momentum of the material leaving the system (not accreted)
     MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION       massTransferAngularMomentumLossPrescription;                    // Which mass transfer angular momentum loss prescription will be used by the code (default = MASS_TRANSFER_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_NONE)
     string                                      massTransferAngularMomentumLossPrescriptionString;              // String containing which mass transfer angular momentum loss prescription to use (defaul = "None")
 
@@ -548,45 +572,42 @@ private:
 	// Common envelope lambda prescription
 	CE_LAMBDA_PRESCRIPTION                      commonEnvelopeLambdaPrescription;								// Which prescription to use for CE lambda (default = LAMBDA_FIXED)
 	string                                      commonEnvelopeLambdaPrescriptionString;					        // String containing which prescription to use for CE lambda (default = "LAMBDA_FIXED")
-	bool                                        lambdaCalculationEveryTimeStep;							        // Flag indicates if lambda is calculated at each timestep or no
+
 
 	// Common envelope Nandez and Ivanova energy formalism
 	bool                                        revisedEnergyFormalismNandezIvanova	= false;				    // Use the revised energy formalism from Nandez & Ivanova 2016 (default = false)
 	double                                      maximumMassDonorNandezIvanova;								    // Maximum mass allowed to use the revised energy formalism in Msol (default = 2.0)
 	double                                      commonEnvelopeRecombinationEnergyDensity;					    // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 ergs/g)
 
-	bool                                        beBinaries;													    // Flag if we want to print BeBinaries (main.cpp)
-    bool                                        chEvolution;                                                    // Flag if we want to print CHEvolution output
 
     //  Adaptive Importance Sampling options
     bool                                        AISexploratoryPhase;                                            // Flag if we want to run Exploratory phase of Adaptive Importance Sampling // Floor
     AIS_DCO                                     AISDCOtype;                                                     // Which prescription to use for DCO type (default = ALL)
     string                                      AISDCOtypeString;                                               // String containing which type of DCOs to focus on (default = "ALL")
     bool                                        AIShubble;                                                      // whether to exclude DCOs that not merge within Hubble
-    bool                                        AISrlof;                                                        // whether to exclude binaries that have RLOFSecondaryZAMS
     bool                                        AISpessimistic;                                                 // whether to exclude Optimistic binaries
     bool                                        AISrefinementPhase;                                             // Flag if we want to run refinement phase of Adaptive Importance Sampling
+    bool                                        AISrlof;                                                        // whether to exclude binaries that have RLOFSecondaryZAMS
     double                                      kappaGaussians;                                                 // Scaling factor for the width of the Gaussian distributions in AIS main sampling phase [should be in [0,1]]
 
-
-    bool                                        rlofPrinting;
 
     // Which prescription to use for calculating zetas
     CE_ZETA_PRESCRIPTION                        commonEnvelopeZetaPrescription;                                 // Which prescription to use for calculating CE zetas (default = ZETA_ADIABATIC)
     string                                      commonEnvelopeZetaPrescriptionString;                           // String containing which prescription to use for calculating CE zetas (default = STARTRACK)
-	bool                                        zetaCalculationEveryTimeStep;
+
 	double                                      zetaAdiabaticArbitrary;
+	double                                      zetaHertzsprungGap;
 	double                                      zetaThermalArbitrary;
 	double                                      zetaMainSequence;
-	double                                      zetaHertzsprungGap;
 
     // Metallicity options
-    double                                      metallicity;                                                    // Metallicity default = solar
     bool                                        fixedMetallicity;                                               // Whether user has specified a metallicity to use
+    double                                      metallicity;                                                    // Metallicity default = solar
 
-    // Rotational Velocity distribution options
-    ROTATIONAL_VELOCITY_DISTRIBUTION            rotationalVelocityDistribution;
-    string                                      rotationalVelocityDistributionString;                           // Which rotational velocity distribution to use (default = "ZERO")
+
+    // Neutron star equation of state
+    NS_EOS                                      neutronStarEquationOfState;                                     // which NS EOS to use
+    string                                      neutronStarEquationOfStateString;                               // String for which NS EOS to use
 
     // Pulsar birth magnetic field distribution string
     PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION    pulsarBirthMagneticFieldDistribution;
@@ -595,92 +616,74 @@ private:
     double                                      pulsarBirthMagneticFieldDistributionMax;                        // Maximum birth magnetic field (log10 B/G)
 
     // Pulsar birth spin period distribution string
-    PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION pulsarBirthSpinPeriodDistribution;
-    string pulsarBirthSpinPeriodDistributionString;                                                             // Which birth spin period distribution to use for pulsars
-    double pulsarBirthSpinPeriodDistributionMin;                                                                // Minimum birth spin period (ms)
-    double pulsarBirthSpinPeriodDistributionMax;                                                                // Maximum birth spin period (ms)
+    PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION       pulsarBirthSpinPeriodDistribution;
+    string                                      pulsarBirthSpinPeriodDistributionString;                        // Which birth spin period distribution to use for pulsars
+    double                                      pulsarBirthSpinPeriodDistributionMin;                           // Minimum birth spin period (ms)
+    double                                      pulsarBirthSpinPeriodDistributionMax;                           // Maximum birth spin period (ms)
 
-    double pulsarMagneticFieldDecayTimescale;                                                                   // Timescale on which magnetic field decays (Myrs)
-    double pulsarMagneticFieldDecayMassscale;                                                                   // Mass scale on which magnetic field decays during accretion (solar masses)
-    double pulsarLog10MinimumMagneticField;                                                                     // log10 of the minimum pulsar magnetic field in Gauss
-
-    bool evolvePulsars;                                                                                         // Whether to evolve pulsars or not
-
-    // Detailed output
-    bool detailedOutput;                                                                                        // Print detailed output details to file (default = false)
-
-    bool populationDataPrinting;                                                                                // Print certain data for small populations, but not for larger one
-
-	bool sampleKickVelocitySigma;
-	double sampleKickVelocitySigmaMin;
-	double sampleKickVelocitySigmaMax;
-
-	bool sampleKickDirectionPower;
-	double sampleKickDirectionPowerMin;
-	double sampleKickDirectionPowerMax;
-
-	bool sampleCommonEnvelopeAlpha;
-	double sampleCommonEnvelopeAlphaMin;
-	double sampleCommonEnvelopeAlphaMax;
-
-	bool sampleWolfRayetMultiplier;
-	double sampleWolfRayetMultiplierMin;
-	double sampleWolfRayetMultiplierMax;
-
-	bool sampleLuminousBlueVariableMultiplier;
-	double sampleLuminousBlueVariableMultiplierMin;
-	double sampleLuminousBlueVariableMultiplierMax;
+    double                                      pulsarMagneticFieldDecayTimescale;                              // Timescale on which magnetic field decays (Myrs)
+    double                                      pulsarMagneticFieldDecayMassscale;                              // Mass scale on which magnetic field decays during accretion (solar masses)
+    double                                      pulsarLog10MinimumMagneticField;                                // log10 of the minimum pulsar magnetic field in Gauss
 
 
-    bool useMCMC;                                                                                               // Simon Stevenson - 15/03/2018 - begining to add MCMC functionality
+    // Rotational Velocity distribution options
+    ROTATIONAL_VELOCITY_DISTRIBUTION            rotationalVelocityDistribution;
+    string                                      rotationalVelocityDistributionString;                           // Which rotational velocity distribution to use (default = "ZERO")
 
 
-    bool useImportanceSampling;                                                                                 // Options for importance sampling
+	bool                                        sampleCommonEnvelopeAlpha;
+	double                                      sampleCommonEnvelopeAlphaMax;
+	double                                      sampleCommonEnvelopeAlphaMin;
 
-    // Neutron star equation of state
-    string neutronStarEquationOfStateString;                                                                    // String for which NS EOS to use
-    NS_EOS neutronStarEquationOfState;                                                                          // which NS EOS to use
+	bool                                        sampleKickDirectionPower;
+	double                                      sampleKickDirectionPowerMax;
+	double                                      sampleKickDirectionPowerMin;
+
+	bool                                        sampleKickVelocitySigma;
+	double                                      sampleKickVelocitySigmaMax;
+	double                                      sampleKickVelocitySigmaMin;
+
+	bool                                        sampleLuminousBlueVariableMultiplier;
+	double                                      sampleLuminousBlueVariableMultiplierMax;
+	double                                      sampleLuminousBlueVariableMultiplierMin;
+
+	bool                                        sampleWolfRayetMultiplier;
+	double                                      sampleWolfRayetMultiplierMax;
+	double                                      sampleWolfRayetMultiplierMin;
 
 
     // debug and logging options
 
-    int            debugLevel;                                                                                  // debug level - used to determine which debug statements are actually written
-    vector<string> debugClasses;                                                                                // debug classes - used to determine which debug statements are actually written
+    int                                         debugLevel;                                                     // debug level - used to determine which debug statements are actually written
+    vector<string>                              debugClasses;                                                   // debug classes - used to determine which debug statements are actually written
 
-    int            logLevel;                                                                                    // logging level - used to determine which logging statements are actually written
-    vector<string> logClasses;                                                                                  // logging classes - used to determine which logging statements are actually written
+    int                                         logLevel;                                                       // logging level - used to determine which logging statements are actually written
+    vector<string>                              logClasses;                                                     // logging classes - used to determine which logging statements are actually written
 
-    string         logfileNamePrefix;                                                                           // prefix for log file names
+    string                                      logfileNamePrefix;                                              // prefix for log file names
 
-    string         logfileDefinitionsFilename;                                                                  // filename for the logfile record definitions
+    string                                      logfileDefinitionsFilename;                                     // filename for the logfile record definitions
 
-    string         logfileDelimiterString;                                                                      // field delimiter for log file records (program option string)
-    DELIMITER      logfileDelimiter;                                                                            // field delimiter for log file records
-
-    bool           debugToFile;                                                                                 // flag used to determine whether debug statements should also be written to a log file
-    bool           errorsToFile;                                                                                // flag used to determine whether error statements should also be written to a log file
-
-    bool           printBoolAsString;                                                                           // flag used to indicate that boolean properties should be printed as "TRUE" or "FALSE" (default is 1 or 0)
+    string                                      logfileDelimiterString;                                         // field delimiter for log file records (program option string)
+    DELIMITER                                   logfileDelimiter;                                               // field delimiter for log file records
 
     // SSE options
+    string                                      logfileSSEParameters;                                           // SSE output file name
 
-    string         logfileSSEParameters;                                                                        // SSE output file name
-
-    int            singleStarMassSteps;                                                                         // Number of stars of different masses to evolve
-    double         singleStarMassMin;                                                                           // The minimum mass to use for SSE (i.e. the mass of the first star to be evolved)
-    double         singleStarMassMax;                                                                           // The maximum mass to use for SSE (i.e. the mass of the last star to be evolved)
+    int                                         singleStarMassSteps;                                            // Number of stars of different masses to evolve
+    double                                      singleStarMassMin;                                              // The minimum mass to use for SSE (i.e. the mass of the first star to be evolved)
+    double                                      singleStarMassMax;                                              // The maximum mass to use for SSE (i.e. the mass of the last star to be evolved)
 
 
     // BSE options
-
-    string         logfileBSESystemParameters;                                                                  // BSE output file name: system parameters
-    string         logfileBSEDetailedOutput;                                                                    // BSE output file name: detailed output
-    string         logfileBSEDoubleCompactObjects;                                                              // BSE output file name: double compact objects
-    string         logfileBSESupernovae;                                                                        // BSE output file name: supernovae
-    string         logfileBSECommonEnvelopes;                                                                   // BSE output file name: common envelopes
-    string         logfileBSERLOFParameters;                                                                    // BSE output file name: Roche Lobe overflow
-    string         logfileBSEBeBinaries;                                                                        // BSE output file name: Be Binaries
-    string         logfileBSEPulsarEvolution;                                                                   // BSE output file name: pulsar evolution
+    string                                      logfileBSESystemParameters;                                     // BSE output file name: system parameters
+    string                                      logfileBSEDetailedOutput;                                       // BSE output file name: detailed output
+    string                                      logfileBSEDoubleCompactObjects;                                 // BSE output file name: double compact objects
+    string                                      logfileBSESupernovae;                                           // BSE output file name: supernovae
+    string                                      logfileBSECommonEnvelopes;                                      // BSE output file name: common envelopes
+    string                                      logfileBSERLOFParameters;                                       // BSE output file name: Roche Lobe overflow
+    string                                      logfileBSEBeBinaries;                                           // BSE output file name: Be Binaries
+    string                                      logfileBSEPulsarEvolution;                                      // BSE output file name: pulsar evolution
 
 };
 
