@@ -678,10 +678,10 @@ bool Log::Error(const string p_ErrStr) {
 PROPERTY_DETAILS Log::StellarPropertyDetails(ANY_STAR_PROPERTY p_Property) {
 
     PROPERTY_DETAILS details;
-    try { details = ANY_STAR_PROPERTY_DETAIL.at(p_Property); }                      // get stellar property details
-    catch (const std::exception& e) {                                               // unknown property
-        details = std::make_tuple(TYPENAME::NONE, "", "", 0, 0);                    // empty details
-        DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::UNKNOWN_STELLAR_PROPERTY)));        // show warning
+    try { details = ANY_STAR_PROPERTY_DETAIL.at(p_Property); }          // get stellar property details
+    catch (const std::exception& e) {                                   // unknown property
+        details = std::make_tuple(TYPENAME::NONE, "", "", 0, 0);        // empty details
+        DBG_WARN(ERR_MSG(ERROR::UNKNOWN_STELLAR_PROPERTY));             // show warning
     }
 
     return details;
@@ -705,10 +705,10 @@ PROPERTY_DETAILS Log::BinaryPropertyDetails(BINARY_PROPERTY p_Property) {
 
     PROPERTY_DETAILS details;
 
-    try { details = BINARY_PROPERTY_DETAIL.at(p_Property); }                    // get binary property details
-    catch (const std::exception& e) {                                           // unknown property
-        details = std::make_tuple(TYPENAME::NONE, "", "", 0, 0);                // empty details
-        DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::UNKNOWN_BINARY_PROPERTY)));     // show warning
+    try { details = BINARY_PROPERTY_DETAIL.at(p_Property); }            // get binary property details
+    catch (const std::exception& e) {                                   // unknown property
+        details = std::make_tuple(TYPENAME::NONE, "", "", 0, 0);        // empty details
+        DBG_WARN(ERR_MSG(ERROR::UNKNOWN_BINARY_PROPERTY));              // show warning
     }
 
     return details;
@@ -732,10 +732,10 @@ PROPERTY_DETAILS Log::ProgramOptionDetails(PROGRAM_OPTION p_Property) {
 
     PROPERTY_DETAILS details;
 
-    try { details = PROGRAM_OPTION_DETAIL.at(p_Property); }                     // get program option details
-    catch (const std::exception& e) {                                           // unknown property
-        details = std::make_tuple(TYPENAME::NONE, "", "", 0, 0);                // empty details
-        DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::UNKNOWN_PROGRAM_OPTION)));      // show warning
+    try { details = PROGRAM_OPTION_DETAIL.at(p_Property); }             // get program option details
+    catch (const std::exception& e) {                                   // unknown property
+        details = std::make_tuple(TYPENAME::NONE, "", "", 0, 0);        // empty details
+        DBG_WARN(ERR_MSG(ERROR::UNKNOWN_PROGRAM_OPTION));               // show warning
     }
 
     return details;
@@ -942,7 +942,7 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
                 default:                                                                                                                        // unknown logfile
                     recordProperties = {};                                                                                                      // no record properties
-                    DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::UNKNOWN_LOGFILE)) + ": Logging disabled for this file");                            // show warning
+                    DBG_WARN(ERR_MSG(ERROR::UNKNOWN_LOGFILE) + ": Logging disabled for this file");                                             // show warning
             }
 
             if (!recordProperties.empty()) {                                                                                                    // have properties?
@@ -1018,7 +1018,7 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
                                 default:                                                                                                        // unknown property type
                                     ok = false;                                                                                                 // that's not ok...
-                                    DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::UNKNOWN_PROPERTY_TYPE)));                                           // show warning
+                                    DBG_WARN(ERR_MSG(ERROR::UNKNOWN_PROPERTY_TYPE));                                                            // show warning
                             }
 
                             if (ok) {
@@ -1040,18 +1040,18 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     m_OpenStandardLogFileIds.insert({ p_Logfile, fileDetails});                                                                 // record the new file details and format strings
 
                     // write headers to file
-                    if (!Put_(id, fullTypeStr))   DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::FILE_WRITE_ERROR)) + ": Type String");                // type string first
-                    if (!Put_(id, fullUnitsStr))  DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::FILE_WRITE_ERROR)) + ": Units String");               // units string next
-                    if (!Put_(id, fullHeaderStr)) DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::FILE_WRITE_ERROR)) + ": Header String");              // header string last - this order helps with python processing later
+                    if (!Put_(id, fullTypeStr))   DBG_WARN(ERR_MSG(ERROR::FILE_WRITE_ERROR) + ": Type String");                                 // type string first
+                    if (!Put_(id, fullUnitsStr))  DBG_WARN(ERR_MSG(ERROR::FILE_WRITE_ERROR) + ": Units String");                                // units string next
+                    if (!Put_(id, fullHeaderStr)) DBG_WARN(ERR_MSG(ERROR::FILE_WRITE_ERROR) + ": Header String");                               // header string last - this order helps with python processing later
                 }
                 else {                                                                                                                          // open failed
-                    DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::FILE_OPEN_ERROR)) + ": Logging disabled for this file");                            // show warning
+                    DBG_WARN(ERR_MSG(ERROR::FILE_OPEN_ERROR) + ": Logging disabled for this file");                                             // show warning
                 }
             }
         }
         catch (const std::exception& e) {                                                                                                       // unknown logfile
             recordProperties = {};                                                                                                              // no record properties
-            DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::UNKNOWN_LOGFILE)) + ": Logging disabled for this file");                                    // show warning
+            DBG_WARN(ERR_MSG(ERROR::UNKNOWN_LOGFILE) + ": Logging disabled for this file");                                                     // show warning
         }
     }
     else {                                                                                                                                      // already exists
@@ -1415,8 +1415,8 @@ bool Log::UpdateAllLogfileRecordSpecs() {
 
 	if (!utils::FileExists(filename)) {                                                                                         // check definitions file exists
         SAY("");
-        SAY(std::get<1>(ERROR_CATALOG.at(ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS)));                                           // announce error
-        SAY(get<1>(ERROR_CATALOG.at(ERROR::FILE_DOES_NOT_EXIST)) + ": " + filename);                                             // file does not exist - show warning, and ...
+        SAY(ERR_MSG(ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS));                                                                 // announce error
+        SAY(ERR_MSG(ERROR::FILE_DOES_NOT_EXIST) + ": " + filename);                                                             // file does not exist - show warning, and ...
         return false;                                                                                                           // ... bail/bale out
 	}
 
@@ -1424,8 +1424,8 @@ bool Log::UpdateAllLogfileRecordSpecs() {
     defFile.open(filename);                                                                                                     // open the definitions file
 	if (defFile.fail()) {                                                                                                       // check open succeeded
         SAY("");
-        SAY(std::get<1>(ERROR_CATALOG.at(ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS)));                                           // announce error
-        SAY(get<1>(ERROR_CATALOG.at(ERROR::FILE_OPEN_ERROR)) + ": " + filename);                                                // failed - show warning, and ...
+        SAY(ERR_MSG(ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS));                                                                 // announce error
+        SAY(ERR_MSG(ERROR::FILE_OPEN_ERROR) + ": " + filename);                                                                 // failed - show warning, and ...
         return false;                                                                                                           // ... bail/bale out
     }
 
@@ -1758,11 +1758,11 @@ bool Log::UpdateAllLogfileRecordSpecs() {
     if (error != ERROR::NONE || expecting != TOKEN_TYPE::LOGFILE_RECORD_NAME) {                                                 // error?
 
         SAY("");
-        SAY(std::get<1>(ERROR_CATALOG.at(ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS)) << " in file: " << filename);               // announce error
+        SAY(ERR_MSG(ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS) << " in file: " << filename);                                     // announce error
 
         if (error == ERROR::NONE) {                                                                                             // must be unexpected end of file
             error = ERROR::UNEXPECTED_END_OF_FILE;                                                                              // set error
-            SAY(std::get<1>(ERROR_CATALOG.at(error)));                                                                          // announce error
+            SAY(ERR_MSG(error));                                                                                                // announce error
             size_t hashPos = recParsed.find("#");                                                                               // find first occurrence of "#" in the last record parsed
             errorPos = hashPos == std::string::npos ? recParsed.size() : hashPos;                                               // set location for caret indicator ("^")
             error = ERROR::EXPECTED_LOGFILE_RECORD_NAME;                                                                        // set error
@@ -1774,7 +1774,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
         loc += "^";                                                                                                             // add the caret indicator
         SAY(loc);                                                                                                               // show the caret indicator
 
-        SAY(std::get<1>(ERROR_CATALOG.at(error)));                                                                              // announce error
+        SAY(ERR_MSG(error));                                                                                                    // announce error
     }
 
 	return (error == ERROR::NONE);

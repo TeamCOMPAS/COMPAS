@@ -21,8 +21,16 @@ class BaseBinaryStar {
 
 public:
 
-    BaseBinaryStar() { }
     BaseBinaryStar(const AIS &p_AIS, const long int p_Id = -1l);
+
+    BaseBinaryStar(const AIS     &p_AIS,
+                   const double   p_Mass1,
+                   const double   p_Mass2,
+                   const double   p_Metallicity1,
+                   const double   p_Metallicity2,
+                   const double   p_SemiMajorAxis,
+                   const double   p_Eccentricity,
+                   const long int p_Id = -1l);
 
 
     void CopyMemberVariables(const BaseBinaryStar& p_Star) {
@@ -333,6 +341,8 @@ public:
 
 private:
 
+    BaseBinaryStar() { }
+
     OBJECT_ID    m_ObjectId;                                                                // Instantiated object's unique object id
     OBJECT_TYPE  m_ObjectType;                                                              // Instantiated object's object type
     STELLAR_TYPE m_StellarType;                                                             // Stellar type defined in Hurley et al. 2000
@@ -514,6 +524,11 @@ private:
     //                          - various signatures are defined here - they just assemble the parameters as required
     //                            and call the actual function
     // JR: todo: note in the orginal code the binary orbital velicity was passed in as a parameter but never used - I removed it
+
+    void    SetInitialCommonValues(const AIS &p_AIS, const long int p_Id);
+    void    SetRemainingCommonValues(const long int p_Id);
+
+
     double  CalculateAngularMomentum(const double p_SemiMajorAxis,
                                      const double p_Eccentricity,
                                      const double p_Star1Mass,

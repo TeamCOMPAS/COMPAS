@@ -17,9 +17,9 @@ class BinaryStar {
 public:
 
 
-    /* Constructor
+    /* Constructors
      *
-     * Parameter p_Id is optional, and is only included so that compariosn tests can
+     * Parameter p_Id is optional, and is only included so that comparison tests can
      * be run against the legacy Compas code.  If a fixed random seed is being used
      * (program option) the legacy code effectivley adds the loop index of the binary
      * (from COMPASBinary() in main.cpp) to the user-specified fixed random seed so
@@ -34,7 +34,18 @@ public:
      * (in which case it is not used to generate the random seed - the generated object
      * id is used instead).
      */
+
     BinaryStar(const AIS &p_AIS, const long int p_Id = -1l);
+
+    BinaryStar(const AIS     &p_AIS,
+               const double   p_Mass1,
+               const double   p_Mass2,
+               const double   p_Metallicity1,
+               const double   p_Metallicity2,
+               const double   p_SemiMajorAxis,
+               const double   p_Eccentricity,
+               const long int p_Id = -1l);
+
 
     // Copy constructor
     BinaryStar(const BinaryStar& p_Star) {
@@ -85,6 +96,8 @@ public:
 
 
 private:
+
+    BinaryStar() { }
 
     OBJECT_ID       m_ObjectId;                                                                 // Instantiated object's unique object id
     OBJECT_TYPE     m_ObjectType;                                                               // Instantiated object's object type

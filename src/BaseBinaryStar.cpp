@@ -21,7 +21,164 @@
  * (in which case it is not used to generate the random seed - the generated object
  * id is used instead).
  */
+
+
+// binary is generated according to distributions specified in program options
 BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
+
+    SetInitialCommonValues(p_AIS, p_Id);                                                                                                        // start construction of the binary
+
+    m_CommonEnvelopeAlpha = OPTIONS->SampleCommonEnvelopeAlpha()
+                                ? RAND->Random(OPTIONS->SampleCommonEnvelopeAlphaMin(), OPTIONS->SampleCommonEnvelopeAlphaMax())
+                                : OPTIONS->CommonEnvelopeAlpha();
+
+    m_LBVfactor           = OPTIONS->SampleLuminousBlueVariableMultiplier()
+                                ? RAND->Random(OPTIONS->SampleLuminousBlueVariableMultiplierMin(), OPTIONS->SampleLuminousBlueVariableMultiplierMax())
+                                : OPTIONS->LuminousBlueVariableFactor();
+
+    m_WolfRayetFactor     = OPTIONS->SampleWolfRayetMultiplier()
+                                ? RAND->Random(OPTIONS->SampleWolfRayetMultiplierMin(), OPTIONS->SampleWolfRayetMultiplierMax())
+                                : OPTIONS->WolfRayetFactor();
+
+
+    // generate initial properties of binary
+    // check that the constituent stars are not touching
+    // also check m2 > m2min
+    // also check that when we are using AIS we are sampling inside the parameter space
+
+    bool merger;
+    bool secondarySmallerThanMinimumMass;
+    bool initialParametersOutsideParameterSpace;
+
+    do {
+
+        if(OPTIONS->AIS_RefinementPhase()) {                                                                                                    // JR: todo: Floor, do we need to do this inside the loop?
+            m_AIS.Initialise();                                                                                                                 // run AIS step 2 and sample from importance sampling distribution
+        }
+
+        double mass1        = SampleInitialMassDistribution();
+        double massRatio    = SampleQDistribution();
+        double mass2        = massRatio * mass1;
+
+        double metallicity1 = SampleMetallicityDistribution();
+        double metallicity2 = SampleMetallicityDistribution();
+
+        m_SemiMajorAxis     = SampleSemiMajorAxisDistribution(mass1, mass2);
+        m_Eccentricity      = SampleEccentricityDistribution();
+
+        // binary star contains two instances of star to hold masses, radii and luminosities.
+        // star 1 initially more massive
+        m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, m_LBVfactor, m_WolfRayetFactor);
+        m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, m_LBVfactor, m_WolfRayetFactor);
+
+        double factor            = m_SemiMajorAxis * (1.0 - m_Eccentricity);
+        double rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass1, mass2));
+        double rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass2, mass1));
+
+        if (OPTIONS->CHE_Option() != CHE_OPTION::NONE &&                                                                                        // CHE enabled?
+           (utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0)) {                                        // either star overflowing Roche Lobe?
+
+            mass1            = (mass1 + mass2) / 2.0;                                                                                           // equilibrate masses
+            mass2            = mass1;                                                                                                           // ditto
+            m_SemiMajorAxis *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                                       // circularise; conserve angular momentum
+            m_Eccentricity   = 0.0;                                                                                                             // now circular
+
+            // create new stars with equal masses - eveything else is recalculated
+            delete m_Star1;
+            m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, m_LBVfactor, m_WolfRayetFactor);
+            delete m_Star2;
+            m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, m_LBVfactor, m_WolfRayetFactor);
+        }
+
+        m_Star1->SetCompanion(m_Star2);
+        m_Star2->SetCompanion(m_Star1);
+
+        merger                                 = (m_SemiMajorAxis * AU_TO_RSOL) < (m_Star1->Radius() + m_Star2->Radius());
+        secondarySmallerThanMinimumMass        = utils::Compare(mass2, OPTIONS->MinimumMassSecondary()) < 0;                                    // JR: todo: original code missed the == case - assume == is ok
+        initialParametersOutsideParameterSpace = false;
+
+        if(OPTIONS->AIS_RefinementPhase()) {                                                                                                    // when using Adaptive Importance Sampling (step 2) check if drawns from Gaussians are inside the COMPAS parameter space
+            initialParametersOutsideParameterSpace = utils::Compare(mass1,           OPTIONS->InitialMassFunctionMin())       < 0 ||            // mass1 is outside (below) parameter space
+                                                     utils::Compare(mass1,           OPTIONS->InitialMassFunctionMax())       > 0 ||            // mass1 is outside (above) parameter space
+                                                     utils::Compare(massRatio,       OPTIONS->MassRatioDistributionMin())     < 0 ||            // massRatio is outside (below) parameter space
+                                                     utils::Compare(massRatio,       OPTIONS->MassRatioDistributionMax())     > 0 ||            // massRatio is outside (above) parameter space
+                                                     utils::Compare(m_SemiMajorAxis, OPTIONS->SemiMajorAxisDistributionMin()) < 0 ||            // semiMajorAxis is outside (below) parameter space
+                                                     utils::Compare(m_SemiMajorAxis, OPTIONS->SemiMajorAxisDistributionMax()) > 0;              // semiMajorAxis is outside (above) parameter space
+        }
+    } while (merger || secondarySmallerThanMinimumMass || initialParametersOutsideParameterSpace);
+
+    SetRemainingCommonValues(p_Id);                                                                                                             // complete the construction of the binary
+}
+
+
+// binary is generated according to parameters passed
+BaseBinaryStar::BaseBinaryStar(const AIS     &p_AIS,
+                               const double   p_Mass1,
+                               const double   p_Mass2,
+                               const double   p_Metallicity1,
+                               const double   p_Metallicity2,
+                               const double   p_SemiMajorAxis,
+                               const double   p_Eccentricity,
+                               const long int p_Id) {
+
+    SetInitialCommonValues(p_AIS, p_Id);                                                                                                        // start construction of the binary
+
+    double mass1 = p_Mass1;                                                                                                                     // specified mass of the primary
+    double mass2 = p_Mass2;                                                                                                                     // specified mass of the secondary
+
+    double metallicity1 = p_Metallicity1;                                                                                                       // specified metallicity of the primary
+    double metallicity2 = p_Metallicity2;                                                                                                       // specified metallicity of the secondary
+
+    m_SemiMajorAxis = p_SemiMajorAxis;                                                                                                          // specified separation
+    m_Eccentricity  = p_Eccentricity;                                                                                                           // specified eccentricity
+
+    m_CommonEnvelopeAlpha = OPTIONS->CommonEnvelopeAlpha();
+    m_LBVfactor           = OPTIONS->LuminousBlueVariableFactor();
+    m_WolfRayetFactor     = OPTIONS->WolfRayetFactor();
+
+    // binary star contains two instances of star to hold masses, radii and luminosities.
+    // star 1 initially more massive (JR: todo: this is not guaranteed...)
+    m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, m_LBVfactor, m_WolfRayetFactor);
+    m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, m_LBVfactor, m_WolfRayetFactor);
+
+    double factor            = m_SemiMajorAxis * (1.0 - m_Eccentricity);
+    double rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass1, mass2));
+    double rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass2, mass1));
+
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE &&                                                                                            // CHE enabled?
+       (utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0)) {                                            // either star overflowing Roche Lobe?
+
+        mass1            = (mass1 + mass2) / 2.0;                                                                                               // equilibrate masses
+        mass2            = mass1;                                                                                                               // ditto
+        m_SemiMajorAxis *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                                           // circularise; conserve angular momentum
+        m_Eccentricity   = 0.0;                                                                                                                 // now circular
+
+        // create new stars with equal masses - eveything else is recalculated
+        delete m_Star1;
+        m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, m_LBVfactor, m_WolfRayetFactor);
+        delete m_Star2;
+        m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, m_LBVfactor, m_WolfRayetFactor);
+    }
+
+    m_Star1->SetCompanion(m_Star2);
+    m_Star2->SetCompanion(m_Star1);
+
+    SetRemainingCommonValues(p_Id);                                                                                                             // complete the construction of the binary
+}
+
+
+/*
+ * Initiate the construction of the binary - initial common values
+ *
+ *
+ * void SetInitialCommonValues(const AIS &p_AIS, const long int p_Id)
+ *
+ * @param   [IN]    p_AIS                       AIS object passed to the constructor
+ * @param   [IN]    p_Id                        Ordinal value of binary - see constructor notes above
+ */
+void BaseBinaryStar::SetInitialCommonValues(const AIS &p_AIS, const long int p_Id) {
+
+    m_Error = ERROR::NONE;
 
     m_ObjectId    = globalObjectId++;
     m_ObjectType  = OBJECT_TYPE::BASE_BINARY_STAR;
@@ -49,197 +206,47 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
         }
     }
 
-    m_Error = ERROR::NONE;
-
     m_AIS = p_AIS;                                                                                                                              // Adaptive Importance Sampling
-
-    double mass1 = 0.0;
-    double mass2 = 0.0;
-    m_SemiMajorAxis = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-    m_Star1 = nullptr;
-    m_Star2 = nullptr;
-
-    if (OPTIONS->IndividualSystem()) {                                                                                                          // user wants to create a binary with specified properties
-
-        mass1 = OPTIONS->PrimaryMass();
-        mass2 = OPTIONS->SecondaryMass();
-
-        double metallicity1 = OPTIONS->InitialPrimaryMetallicity();
-        double metallicity2 = OPTIONS->InitialSecondaryMetallicity();
-
-        if (utils::Compare(OPTIONS->BinarySeparation(), 0.0) > 0) {                                                                             // user specified separation
-            if (utils::Compare(OPTIONS->BinaryOrbitalPeriod(), 0.0) > 0) {                                                                      // ... and orbital period - oops
-                SHOW_WARN(ERROR::HAVE_SEPARATION_AND_PERIOD);                                                                                   // show warning
-            }
-            m_SemiMajorAxis = OPTIONS->BinarySeparation();                                                                                      // use separation
-        }
-        else {                                                                                                                                  // user did not specify separation
-            if (utils::Compare(OPTIONS->BinaryOrbitalPeriod(), 0.0) <= 0) {                                                                     // ... or orbital period - oops
-                SHOW_WARN(ERROR::HAVE_NEITHER_SEPARATION_NOR_PERIOD);                                                                           // show warning
-                m_SemiMajorAxis = DEFAULT_INITIAL_DOUBLE_VALUE;                                                                                 // default is no separation...
-            }
-            else {                                                                                                                              // user specified orbital period - use it
-                m_SemiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(mass1, mass2, OPTIONS->BinaryOrbitalPeriod());
-            }
-        }
+}
 
 
-        m_SemiMajorAxisPrime          = m_SemiMajorAxis;
-        m_SemiMajorAxisPrev           = m_SemiMajorAxis;
-        m_Eccentricity                = OPTIONS->BinaryEccentricity();
-        m_EccentricityPrime           = m_Eccentricity;
-        m_EccentricityPrev            = m_Eccentricity;
+/*
+ * Complete the construction of the binary - remaining common values
+ *
+ *
+ * void SetRemainingCommonValues(const long int p_Id)
+ *
+ * @param   [IN]    p_Id                        Ordinal value of binary - see constructor notes above
+ */
+void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
 
-        // initial binary parameters - kept constant as a record of the initial parameters of the binary
-        m_SemiMajorAxisInitial        = m_SemiMajorAxis;
-        m_EccentricityInitial         = m_Eccentricity;
+    // Initialise other parameters
 
-        // initialise variables to hold parameters prior to 2nd supernova
-        m_SemiMajorAxisPre2ndSN       = DEFAULT_INITIAL_DOUBLE_VALUE;
-        m_EccentricityPre2ndSN        = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SemiMajorAxisPrime          = m_SemiMajorAxis;
+    m_SemiMajorAxisPrev           = m_SemiMajorAxis;
 
-        // initialise variables to hold parameters at DCO formation
-        m_EccentricityAtDCOFormation  = DEFAULT_INITIAL_DOUBLE_VALUE;
-        m_SemiMajorAxisAtDCOFormation = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_EccentricityPrime           = m_Eccentricity;
+    m_EccentricityPrev            = m_Eccentricity;
 
-        m_CommonEnvelopeAlpha         = OPTIONS->CommonEnvelopeAlpha();
-        m_LBVfactor                   = OPTIONS->LuminousBlueVariableFactor();
-        m_WolfRayetFactor             = OPTIONS->WolfRayetFactor();
+    // initial binary parameters - kept constant as a record of the initial parameters of the binary
+    m_SemiMajorAxisInitial        = m_SemiMajorAxis;
+    m_EccentricityInitial         = m_Eccentricity;
 
-        // binary star contains two instances of star to hold masses, radii and luminosities.
-        // star 1 initially more massive (JR: todo: this is not guaranteed...)
-        delete m_Star1;
-        m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, m_LBVfactor, m_WolfRayetFactor);
-        delete m_Star2;
-        m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, m_LBVfactor, m_WolfRayetFactor);
+    // initialise variables to hold parameters prior to 2nd supernova
+    m_SemiMajorAxisPre2ndSN       = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_EccentricityPre2ndSN        = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-        double factor            = m_SemiMajorAxis * (1.0 - m_Eccentricity);
-        double rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass1, mass2));
-        double rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass2, mass1));
+    // initialise variables to hold parameters at DCO formation
+    m_SemiMajorAxisAtDCOFormation = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_EccentricityAtDCOFormation  = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-        if (OPTIONS->CHE_Option() != CHE_OPTION::NONE &&                                                                                        // CHE enabled?
-           (utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0)) {                                        // either star overflowing Roche Lobe?
 
-            mass1            = (mass1 + mass2) / 2.0;                                                                                           // equilibrate masses
-            mass2            = mass1;                                                                                                           // ditto
-            m_SemiMajorAxis *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                                       // circularise; conserve angular momentum
-            m_Eccentricity   = 0.0;                                                                                                             // now circular
+    m_OrbitalVelocity             = sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis));
 
-            // create new stars with equal masses - eveything else is recalculated
-            delete m_Star1;
-            m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, m_LBVfactor, m_WolfRayetFactor);
-            delete m_Star2;
-            m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, m_LBVfactor, m_WolfRayetFactor);
-        }
+    m_OrbitalVelocityPrime        = m_OrbitalVelocity;
+    m_OrbitalVelocityPrev         = m_OrbitalVelocity;
+    m_OrbitalVelocityPre2ndSN     = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-        m_Star1->SetCompanion(m_Star2);
-        m_Star2->SetCompanion(m_Star1);
-    }
-    else {                                                                                                                                      // binary is generated according to specified distributions
-
-    	m_CommonEnvelopeAlpha = OPTIONS->SampleCommonEnvelopeAlpha()
-                                    ? RAND->Random(OPTIONS->SampleCommonEnvelopeAlphaMin(), OPTIONS->SampleCommonEnvelopeAlphaMax())
-                                    : OPTIONS->CommonEnvelopeAlpha();
-
-    	m_LBVfactor           = OPTIONS->SampleLuminousBlueVariableMultiplier()
-                                    ? RAND->Random(OPTIONS->SampleLuminousBlueVariableMultiplierMin(), OPTIONS->SampleLuminousBlueVariableMultiplierMax())
-                                    : OPTIONS->LuminousBlueVariableFactor();
-
-    	m_WolfRayetFactor     = OPTIONS->SampleWolfRayetMultiplier()
-                                    ? RAND->Random(OPTIONS->SampleWolfRayetMultiplierMin(), OPTIONS->SampleWolfRayetMultiplierMax())
-                                    : OPTIONS->WolfRayetFactor();
-
-        // generate initial properties of binary
-        // check that it does not overflow its Roche Lobe at ZAMS
-        // also check m2 > m2min
-        // also check that when we are using AIS we are sampling inside the parameter space
-
-        bool merger;
-        bool secondarySmallerThanMinimumMass;
-        bool initialParametersOutsideParameterSpace;
-
-        do {
-
-            if(OPTIONS->AIS_RefinementPhase()) {                                                                                                // run AIS step 2 and sample from importance sampling distribution
-                m_AIS.Initialise();
-            }
-
-            mass1               = SampleInitialMassDistribution();
-            double massRatio    = SampleQDistribution();
-            mass2               = massRatio * mass1;
-
-            double metallicity1 = SampleMetallicityDistribution();
-            double metallicity2 = SampleMetallicityDistribution();
-
-            m_SemiMajorAxis     = SampleSemiMajorAxisDistribution(mass1, mass2);
-            m_Eccentricity      = SampleEccentricityDistribution();
-
-            // binary star contains two instances of star to hold masses, radii and luminosities.
-            // star 1 initially more massive
-            delete m_Star1;
-            m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, m_LBVfactor, m_WolfRayetFactor);
-            delete m_Star2;
-            m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, m_LBVfactor, m_WolfRayetFactor);
-
-            double factor            = m_SemiMajorAxis * (1.0 - m_Eccentricity);
-            double rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass1, mass2));
-            double rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass2, mass1));
-
-        if (OPTIONS->CHE_Option() != CHE_OPTION::NONE &&                                                                                        // CHE enabled?
-           (utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0)) {                                        // either star overflowing Roche Lobe?
-
-                mass1            = (mass1 + mass2) / 2.0;                                                                                       // equilibrate masses
-                mass2            = mass1;                                                                                                       // ditto
-                m_SemiMajorAxis *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                                   // circularise; conserve angular momentum
-                m_Eccentricity   = 0.0;                                                                                                         // now circular
-
-                // create new stars with equal masses - eveything else is recalculated
-                delete m_Star1;
-                m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, m_LBVfactor, m_WolfRayetFactor);
-                delete m_Star2;
-                m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, m_LBVfactor, m_WolfRayetFactor);
-            }
-
-            m_Star1->SetCompanion(m_Star2);
-            m_Star2->SetCompanion(m_Star1);
-
-            merger                                 = (m_SemiMajorAxis * AU_TO_RSOL) < (m_Star1->Radius() + m_Star2->Radius());
-            secondarySmallerThanMinimumMass        = utils::Compare(mass2, OPTIONS->MinimumMassSecondary()) < 0;                                // JR: todo: original code missed the == case - assume == is ok
-            initialParametersOutsideParameterSpace = false;
-
-            if(OPTIONS->AIS_RefinementPhase()) {                                                                                                // when using Adaptive Importance Sampling (step 2) check if drawns from Gaussians are inside the COMPAS parameter space
-                initialParametersOutsideParameterSpace = utils::Compare(mass1,           OPTIONS->InitialMassFunctionMin())       < 0 ||        // mass1 is outside (below) parameter space
-                                                         utils::Compare(mass1,           OPTIONS->InitialMassFunctionMax())       > 0 ||        // mass1 is outside (above) parameter space
-                                                         utils::Compare(massRatio,       OPTIONS->MassRatioDistributionMin())     < 0 ||        // massRatio is outside (below) parameter space
-                                                         utils::Compare(massRatio,       OPTIONS->MassRatioDistributionMax())     > 0 ||        // massRatio is outside (above) parameter space
-                                                         utils::Compare(m_SemiMajorAxis, OPTIONS->SemiMajorAxisDistributionMin()) < 0 ||        // semiMajorAxis is outside (below) parameter space
-                                                         utils::Compare(m_SemiMajorAxis, OPTIONS->SemiMajorAxisDistributionMax()) > 0;          // semiMajorAxis is outside (above) parameter space
-            }
-        } while (merger || secondarySmallerThanMinimumMass || initialParametersOutsideParameterSpace);
-
-        // Initialise other parameters
-        m_EccentricityPrime                      = m_Eccentricity;
-        m_EccentricityPrev                       = m_Eccentricity;
-
-        m_SemiMajorAxisPrime                     = m_SemiMajorAxis;
-        m_SemiMajorAxisPrev                      = m_SemiMajorAxis;
-
-        m_SemiMajorAxisInitial                   = m_SemiMajorAxis;
-        m_EccentricityInitial                    = m_Eccentricity;
-
-        m_SemiMajorAxisPre2ndSN                  = DEFAULT_INITIAL_DOUBLE_VALUE;
-        m_EccentricityPre2ndSN                   = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-        m_EccentricityAtDCOFormation             = DEFAULT_INITIAL_DOUBLE_VALUE;
-        m_SemiMajorAxisAtDCOFormation            = DEFAULT_INITIAL_DOUBLE_VALUE;
-    }
-
-    m_OrbitalVelocity                            = sqrt(G1 * (mass1 + mass2) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis));
-
-    m_OrbitalVelocityPrime                       = m_OrbitalVelocity;
-    m_OrbitalVelocityPrev                        = m_OrbitalVelocity;
-    m_OrbitalVelocityPre2ndSN                    = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // update rotational frequency for constituent stars - assume tidally locked
     m_Star1->SetOmega(m_OrbitalVelocity);
@@ -282,8 +289,8 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
     double gyrationRadius2                       = m_Star2->CalculateGyrationRadius();
 
     m_TotalEnergy                                = CalculateTotalEnergy(m_SemiMajorAxis,
-                                                                        mass1,
-                                                                        mass2,
+                                                                        m_Star1->Mass(),
+                                                                        m_Star2->Mass(),
                                                                         m_Star1->RZAMS(),
                                                                         m_Star2->RZAMS(),
                                                                         m_Star1->Omega(),
@@ -296,8 +303,8 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
 
     m_TotalAngularMomentumPrime                  = CalculateAngularMomentum(m_SemiMajorAxis,
                                                                             m_Eccentricity,
-                                                                            mass1,
-                                                                            mass2,
+                                                                            m_Star1->Mass(),
+                                                                            m_Star2->Mass(),
                                                                             m_Star1->RZAMS(),
                                                                             m_Star2->RZAMS(),
                                                                             m_Star1->Omega(),
@@ -306,9 +313,9 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
                                                                             gyrationRadius2);
 
     m_TotalAngularMomentumPrev                   = m_TotalAngularMomentumPrime;
-	m_TotalMassPrime 					         = mass1 + mass2;
+	m_TotalMassPrime 					         = m_Star1->Mass() + m_Star2->Mass();
 	m_TotalMassPrev						         = m_TotalMassPrime;
-	m_ReducedMassPrime					         = (mass1 * mass2) / m_TotalMassPrime;
+	m_ReducedMassPrime					         = (m_Star1->Mass() * m_Star2->Mass()) / m_TotalMassPrime;
 	m_ReducedMassPrev					         = m_ReducedMassPrime;
 	m_TotalOrbitalEnergyPrime 			         = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
 	m_TotalOrbitalEnergyPrev 			         = m_TotalOrbitalEnergyPrime;
@@ -3531,7 +3538,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve(const int p_Index) {
 
                             if (OPTIONS->AIS_ExploratoryPhase()) (void)m_AIS.CalculateDCOHit(this);                                         // track if we have an AIS DCO hit - internal counter is updated (don't need return value here)
 
-                            if (!OPTIONS->Quiet()) SAY(get<1>(ERROR_CATALOG.at(ERROR::BINARY_EVOLUTION_STOPPED)) << ": Double compact object");     // announce that we're stopping evolution
+                            if (!OPTIONS->Quiet()) SAY(ERR_MSG(ERROR::BINARY_EVOLUTION_STOPPED) << ": Double compact object");              // announce that we're stopping evolution
                             evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                    // stop evolving
                         }
 

@@ -90,6 +90,7 @@ public:
     double                      Mass() const                                                                                { return m_Star->Mass(); }
     double                      Mass0() const                                                                               { return m_Star->Mass0(); }
     double                      MassPrev() const                                                                            { return m_Star->MassPrev(); }
+    double                      Metallicity() const                                                                         { return m_Star->Metallicity(); }
     double                      MZAMS() const                                                                               { return m_Star->MZAMS(); }
     double                      Omega() const                                                                               { return m_Star->Omega(); }
     double                      OmegaCHE() const                                                                            { return m_Star->OmegaCHE(); }

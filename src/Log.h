@@ -262,7 +262,7 @@ private:
                 logRecord += valueStr + m_Logfiles[fileId].delimiter;                                                                   // add value string to log record - with delimiter
             }
 
-            if (!Put_(fileId, logRecord)) DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::FILE_WRITE_ERROR)));                                  // write the record - show warning if failure
+            if (!Put_(fileId, logRecord)) DBG_WARN(ERR_MSG(ERROR::FILE_WRITE_ERROR));                                                   // write the record - show warning if failure
         }
     }
 

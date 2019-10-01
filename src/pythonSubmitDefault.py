@@ -42,7 +42,7 @@ class pythonProgramOptions:
     individual_initial_primary_mass = 15.0  #  [Msol]
     individual_initial_secondary_mass = 1.0  #  [Msol]
     individual_initial_primary_metallicity = 0.02
-    individual_initial_secondary_metallicity = 0.02
+    individual_initial_secondary_metallicity = 0.0142 #0.02
 #    individual_initial_primary_type = 1                            # not yet implemented
 #    individual_initial_secondary_type = 1                          # not yet implemented
 #    individual_initial_primary_rotational_velocity = 0.0           # not yet implemented
@@ -57,6 +57,7 @@ class pythonProgramOptions:
 #    individual_initial_primary_age = 0                             # not yet implemented
 #    individual_initial_secondary_age = 0                           # not yet implemented
 
+    grid_filename = ''
 
     use_mass_loss = True
     mass_transfer = True
@@ -605,7 +606,8 @@ class pythonProgramOptions:
             self.pulsar_birth_spin_period_distribution,
             self.common_envelope_mass_accretion_prescription,
             self.logfile_name_prefix,
-            self.logfile_delimiter
+            self.logfile_delimiter,
+            self.grid_filename
         ]
 
         return stringChoices
@@ -642,7 +644,8 @@ class pythonProgramOptions:
             '--pulsar-birth-spin-period-distribution',
             '--common-envelope-mass-accretion-prescription',
             '--logfile-name-prefix',
-            '--logfile-delimiter'
+            '--logfile-delimiter',
+            '--grid'
         ]
 
         return stringCommands

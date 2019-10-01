@@ -245,6 +245,16 @@ enum class ERROR: int {
     FILE_NOT_CLOSED,                                                // error closing file - file not closed
     FILE_OPEN_ERROR,                                                // error opening file
     FILE_WRITE_ERROR,                                               // error writing to file - data not written
+    GRID_FILE_DEFAULT_METALLICITY,                                  // grid file metallicity missing for SSE - using default
+    GRID_FILE_DUPLICATE_HEADER,                                     // grid file has a duplicated header field
+    GRID_FILE_EMPTY_HEADER,                                         // grid file has an empty header field
+    GRID_FILE_EXTRA_COLUMN,                                         // grid file record has an extra data column
+    GRID_FILE_INVALID_DATA,                                         // grid file record has an invalid data value (not a number)
+    GRID_FILE_MISSING_DATA,                                         // grid file record has a missing data value
+    GRID_FILE_MISSING_HEADER,                                       // grid file has a missing header field
+    GRID_FILE_NEGATIVE_DATA,                                        // grid file record has a negative data value
+    GRID_FILE_UNKNOWN_HEADER,                                       // grid file has an unknown header field
+    GRID_FILE_USING_PERIOD,                                         // grid file - using Period to calculate separation (Separation is missing)
     HAVE_NEITHER_SEPARATION_NOR_PERIOD,                             // user specified neither separation nor period
     HAVE_SEPARATION_AND_PERIOD,                                     // user specified both separation and period
     HIGH_TEFF_WINDS,                                                // winds being used at high temperature
@@ -330,6 +340,9 @@ enum class ERROR_SCOPE: int { NEVER, ALWAYS, FIRST, FIRST_IN_OBJECT_TYPE, FIRST_
 //
 // unordered_map - key is integer message number (from enum class ERROR above)
 // listed alphabetically
+
+#define ERR_MSG(x) std::get<1>(ERROR_CATALOG.at(x))      // for convenience
+
 const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATALOG = {
     { ERROR::AGE_NEGATIVE_ONCE,                                     { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Age < 0.0" }},
     { ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS,                     { ERROR_SCOPE::ALWAYS,              "Logfile record specifications error" }},
@@ -348,6 +361,16 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::FILE_NOT_CLOSED,                                       { ERROR_SCOPE::ALWAYS,              "Error closing file - file not closed" }},
     { ERROR::FILE_OPEN_ERROR,                                       { ERROR_SCOPE::ALWAYS,              "Error opening file" }},
     { ERROR::FILE_WRITE_ERROR,                                      { ERROR_SCOPE::ALWAYS,              "Error writing to file - data not written" }},
+    { ERROR::GRID_FILE_DEFAULT_METALLICITY,                         { ERROR_SCOPE::ALWAYS,              "GRID file missing metallicity - using program options value" }},
+    { ERROR::GRID_FILE_DUPLICATE_HEADER,                            { ERROR_SCOPE::ALWAYS,              "Duplicated column heading in GRID file" }},
+    { ERROR::GRID_FILE_EMPTY_HEADER,                                { ERROR_SCOPE::ALWAYS,              "Empty column heading in GRID file" }},
+    { ERROR::GRID_FILE_EXTRA_COLUMN,                                { ERROR_SCOPE::ALWAYS,              "Extra data column in GRID file" }},
+    { ERROR::GRID_FILE_INVALID_DATA,                                { ERROR_SCOPE::ALWAYS,              "Invalid data value in GRID file" }},
+    { ERROR::GRID_FILE_MISSING_DATA,                                { ERROR_SCOPE::ALWAYS,              "Missing data value in GRID file" }},
+    { ERROR::GRID_FILE_MISSING_HEADER,                              { ERROR_SCOPE::ALWAYS,              "Missing column heading in GRID file" }},
+    { ERROR::GRID_FILE_NEGATIVE_DATA,                               { ERROR_SCOPE::ALWAYS,              "Negative data value in GRID file" }},
+    { ERROR::GRID_FILE_UNKNOWN_HEADER,                              { ERROR_SCOPE::ALWAYS,              "Unknown column heading in GRID file" }},
+    { ERROR::GRID_FILE_USING_PERIOD,                                { ERROR_SCOPE::ALWAYS,              "Using Period to calculate missing Separation" }},
     { ERROR::HAVE_NEITHER_SEPARATION_NOR_PERIOD,                    { ERROR_SCOPE::ALWAYS,              "Neither separation nor period specified - need one" }},
     { ERROR::HAVE_SEPARATION_AND_PERIOD,                            { ERROR_SCOPE::ALWAYS,              "Both separation and period specified - need just one" }},
     { ERROR::HIGH_TEFF_WINDS,                                       { ERROR_SCOPE::ALWAYS,              "Winds being used at high temperature" }},
@@ -424,7 +447,9 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
 
 // Binary evolution status constants
 enum class EVOLUTION_STATUS: int {
+    DONE,
     CONTINUE,
+    ERROR,
     SSE_ERROR,
     BINARY_ERROR,
     SECONDARY_TOO_SMALL,
@@ -441,7 +466,9 @@ enum class EVOLUTION_STATUS: int {
 
 // JR: deliberately kept these message succinct (where I could) so running status doesn't scroll of fthe page...
 const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL = {
-    { EVOLUTION_STATUS::CONTINUE,            "Continue Evolution" },
+    { EVOLUTION_STATUS::DONE,                "Simulation completed" },
+    { EVOLUTION_STATUS::CONTINUE,            "Continue evolution" },
+    { EVOLUTION_STATUS::ERROR,               "An error occurred" },
     { EVOLUTION_STATUS::SSE_ERROR,           "SSE error for one of the constituent stars" },
     { EVOLUTION_STATUS::BINARY_ERROR,        "Error evolving binary" },
     { EVOLUTION_STATUS::SECONDARY_TOO_SMALL, "Secondary too small" },
@@ -1900,8 +1927,9 @@ const ANY_PROPERTY_VECTOR SSE_PARAMETERS_REC = {
     STAR_PROPERTY::DT,
     STAR_PROPERTY::TIME,
     STAR_PROPERTY::STELLAR_TYPE,
-    STAR_PROPERTY::MASS,
+    STAR_PROPERTY::METALLICITY,
     STAR_PROPERTY::MASS_0,
+    STAR_PROPERTY::MASS,
     STAR_PROPERTY::RADIUS,
     STAR_PROPERTY::RZAMS,
     STAR_PROPERTY::LUMINOSITY,

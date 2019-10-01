@@ -128,6 +128,8 @@ public:
     bool                                        ForceCaseBBBCStabilityFlag() const                                      { return forceCaseBBBCStabilityFlag; }
     SN_ENGINE                                   FryerSupernovaEngine() const                                            { return fryerSupernovaEngine; }
 
+    string                                      GridFilename() const                                                    { return gridFilename; }
+
     bool                                        IndividualSystem() const                                                { return individualSystem; }
 
     INITIAL_MASS_FUNCTION                       InitialMassFunction() const                                             { return initialMassFunction; }
@@ -650,6 +652,11 @@ private:
 	bool                                        sampleWolfRayetMultiplier;
 	double                                      sampleWolfRayetMultiplierMax;
 	double                                      sampleWolfRayetMultiplierMin;
+
+
+	// grids
+
+    string                                      gridFilename;                                                   // grid filename - SSE or BSE
 
 
     // debug and logging options

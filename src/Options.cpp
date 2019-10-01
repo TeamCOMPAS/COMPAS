@@ -402,6 +402,11 @@ void Options::InitialiseMemberVariables(void) {
 	sampleLuminousBlueVariableMultiplierMax                         = 12.0;
 
 
+	// grids
+
+	gridFilename                                                    = "";                                                                               // default is no grid file
+
+
     // debug and logging options
 
     debugLevel                                                      = 0;                                                                                // default debug level
@@ -418,7 +423,6 @@ void Options::InitialiseMemberVariables(void) {
 
 
     // SSE options
-
     logfileSSEParameters                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PARAMETERS));                           // get filename from constants.h
 
     singleStarMassSteps                                             = 100;
@@ -427,7 +431,6 @@ void Options::InitialiseMemberVariables(void) {
 
 
     // BSE options
-
     logfileBSESystemParameters                                      = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));                    // get default filename from constants.h
     logfileBSEDetailedOutput                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT));                      // get default filename from constants.h
     logfileBSEDoubleCompactObjects                                  = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS));               // get default filename from constants.h
@@ -836,6 +839,11 @@ void Options::SetToFiducialValues(void) {
 	sampleLuminousBlueVariableMultiplierMax                         = 12.0;
 
 
+	// grids
+
+	gridFilename                                                    = "";                                                                               // default is no grid file
+
+
     // debug and logging options
 
     debugLevel                                                      = 0;                                                                                // default debug level
@@ -1088,6 +1096,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		    ("fryer-supernova-engine",                                      po::value<string>(&fryerSupernovaEngineString),                                     "If using Fryer et al 2012 fallback prescription, select between 'delayed' and 'rapid' engines (default = 'delayed')")
 
+            ("grid",                                                        po::value<string>(&gridFilename)->implicit_value(""),                               "Grid filename - SSE or BSE")
+
 		    ("initial-mass-function,i",                                     po::value<string>(&initialMassFunctionString),                                      "Specify initial mass function to use (options: SALPETER, POWERLAW, UNIFORM, KROUPA. default = KROUPA)")
 
 		    ("kick-direction",                                              po::value<string>(&kickDirection),                                                  "Distribution for natal kick direction (options: ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW. Default = ISOTROPIC)")
@@ -1101,7 +1111,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             ("logfile-BSE-rlof-parameters",                                 po::value<string>(&logfileBSERLOFParameters),                                       "Filename for BSE RLOF Parameters logfile")
             ("logfile-BSE-supernovae",                                      po::value<string>(&logfileBSESupernovae),                                           "Filename for BSE Supernovae logfile")
             ("logfile-BSE-system-parameters",                               po::value<string>(&logfileBSESystemParameters),                                     "Filename for BSE System Parameters logfile")
-            ("logfile-definitions",                                         po::value<string>(&logfileDefinitionsFilename),                                     "Filename for logfile record definitions")
+            ("logfile-definitions",                                         po::value<string>(&logfileDefinitionsFilename)->implicit_value(""),                 "Filename for logfile record definitions")
             ("logfile-delimiter",                                           po::value<string>(&logfileDelimiterString),                                         "Field delimiter for logfile records.  Default = TAB")
             ("logfile-name-prefix",                                         po::value<string>(&logfileNamePrefix),                                              "Prefix for logfile names")
             ("logfile-SSE-parameters",                                      po::value<string>(&logfileSSEParameters),                                           "Filename for SSE Parameters logfile")
@@ -1455,7 +1465,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             }
 
 
-            // constraint/value/range checks - alphabetically
+            // constraint/value/range checks - alphabetically (where possible)
 
             COMPLAIN_IF(vm.count("common-envelope-alpha") && commonEnvelopeAlpha < 0.0, "CE alpha (--common-envelope-alpha) < 0");
             COMPLAIN_IF(vm.count("common-envelope-alpha-thermal") && (commonEnvelopeAlphaThermal < 0.0 || commonEnvelopeAlphaThermal > 1.0), "CE alpha thermal (--common-envelope-alpha-thermal) must be between 0 and 1");
@@ -1469,6 +1479,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             COMPLAIN_IF(eccentricityDistributionMin < 0.0 || eccentricityDistributionMin > 1.0, "Minimum eccentricity (--eccentricity-min) must be between 0 and 1");
             COMPLAIN_IF(eccentricityDistributionMax < 0.0 || eccentricityDistributionMax > 1.0, "Maximum eccentricity (--eccentricity-max) must be between 0 and 1");
             COMPLAIN_IF(eccentricityDistributionMax <= eccentricityDistributionMin, "Maximum eccentricity (--eccentricity-max) must be > Minimum eccentricity (--eccentricity-min)");
+
+            if (individualSystem && !gridFilename.empty()) individualSystem = false;                                                    // ignore individual-system if have a grid filename
 
             COMPLAIN_IF(initialMassFunctionMin < 0.0, "Minimum initial mass (--initial-mass-min) < 0");
             COMPLAIN_IF(initialMassFunctionMax < 0.0, "Maximum initial mass (--initial-mass-max) < 0");
@@ -1600,7 +1612,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         default:                                                                                                        // unknown property
             ok    = false;                                                                                              // that's not ok...
             value = "UNKNOWN";                                                                                          // default value
-            std::cerr << std::get<1>(ERROR_CATALOG.at(ERROR::UNKNOWN_PROGRAM_OPTION)) << std::endl;                     // show warning (don't have logging or errors here...)
+            std::cerr << ERR_MSG(ERROR::UNKNOWN_PROGRAM_OPTION) << std::endl;                                           // show warning (don't have logging or errors here...)
     }
 
     return std::make_tuple(ok, value);

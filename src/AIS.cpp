@@ -171,7 +171,7 @@ void AIS::PrintExploratorySettings() {
 	SAY(" ------------------------------------------------------------- ");
 	SAY(" Running the Adaptive Importance Sampling exploratory phase ");
 
-    switch (_(utils::ToUpper(OPTIONS->AIS_DCOTypeString()).c_str())) {
+    switch (_(utils::ToUpper((OPTIONS->AIS_DCOTypeString())).c_str())) {
         case _("ALL") : SAY(" - Selecting all DCOs");         break;
         case _("BBH") : SAY(" - Selecting all BBH mergers");  break;
         case _("BNS") : SAY(" - Selecting all BNS mergers");  break;
