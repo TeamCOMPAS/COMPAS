@@ -944,7 +944,7 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
     else if (utils::Compare(p_COCoreMass, 4.6 ) < 0) { stellarType = STELLAR_TYPE::NEUTRON_STAR; }
     else if (utils::Compare(p_COCoreMass, 5.7 ) < 0) { stellarType = STELLAR_TYPE::BLACK_HOLE; }
     else if (utils::Compare(p_COCoreMass, 6.0 ) < 0) { stellarType = STELLAR_TYPE::NEUTRON_STAR; }
-    else                                      { stellarType = STELLAR_TYPE::BLACK_HOLE; }
+    else                                             { stellarType = STELLAR_TYPE::BLACK_HOLE; }
 
     return stellarType;
 }

@@ -17,9 +17,9 @@ class BinaryStar {
 public:
 
 
-    /* Constructor
+    /* Constructors
      *
-     * Parameter p_Id is optional, and is only included so that compariosn tests can
+     * Parameter p_Id is optional, and is only included so that comparison tests can
      * be run against the legacy Compas code.  If a fixed random seed is being used
      * (program option) the legacy code effectivley adds the loop index of the binary
      * (from COMPASBinary() in main.cpp) to the user-specified fixed random seed so
@@ -34,7 +34,18 @@ public:
      * (in which case it is not used to generate the random seed - the generated object
      * id is used instead).
      */
+
     BinaryStar(const AIS &p_AIS, const long int p_Id = -1l);
+
+    BinaryStar(const AIS     &p_AIS,
+               const double   p_Mass1,
+               const double   p_Mass2,
+               const double   p_Metallicity1,
+               const double   p_Metallicity2,
+               const double   p_SemiMajorAxis,
+               const double   p_Eccentricity,
+               const long int p_Id = -1l);
+
 
     // Copy constructor
     BinaryStar(const BinaryStar& p_Star) {
@@ -42,8 +53,8 @@ public:
         m_ObjectId                       = globalObjectId++;                                // get unique object id (don't copy source)
         m_ObjectType                     = OBJECT_TYPE::BINARY_STAR;                        // can only copy from BINARY_STAR
 
-        BaseBinaryStar *m_BinaryStar     = new BaseBinaryStar(*(p_Star.m_BinaryStar));      // copy underlying BaseBinaryStar
-        BaseBinaryStar *m_SaveBinaryStar = new BaseBinaryStar(*(p_Star.m_SaveBinaryStar));  // copy underlying Saved BaseBinaryStar
+        m_BinaryStar     = new BaseBinaryStar(*(p_Star.m_BinaryStar));                      // copy underlying BaseBinaryStar
+        m_SaveBinaryStar = new BaseBinaryStar(*(p_Star.m_SaveBinaryStar));                  // copy underlying Saved BaseBinaryStar
     }
 
 
@@ -56,9 +67,9 @@ public:
             m_ObjectType                     = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;            // can only copy from BINARY_CONSTITUENT_STAR
 
             delete m_BinaryStar;                                                                // delete existing
-            BaseBinaryStar *m_BinaryStar     = new BaseBinaryStar(*(p_Star.m_BinaryStar));      // copy underlying BaseBinaryStar
+            m_BinaryStar     = new BaseBinaryStar(*(p_Star.m_BinaryStar));                      // copy underlying BaseBinaryStar
             delete m_SaveBinaryStar;                                                            // delete existing
-            BaseBinaryStar *m_SaveBinaryStar = new BaseBinaryStar(*(p_Star.m_SaveBinaryStar));  // copy underlying Saved BaseBinaryStar
+            m_SaveBinaryStar = new BaseBinaryStar(*(p_Star.m_SaveBinaryStar));                  // copy underlying Saved BaseBinaryStar
 
         }
         return *this;
@@ -75,12 +86,18 @@ public:
 
     // member functions
     EVOLUTION_STATUS    Evolve(const int p_Index)   { return m_BinaryStar->Evolve(p_Index); }
-    void                SaveState();
     bool                RevertState();
+    void                SaveState();
+    STELLAR_TYPE        Star1InitialType()          { return m_BinaryStar->InitialStellarType1(); }
+    STELLAR_TYPE        Star1Type()                 { return m_BinaryStar->StellarType1(); }
+    STELLAR_TYPE        Star2InitialType()          { return m_BinaryStar->InitialStellarType2(); }
+    STELLAR_TYPE        Star2Type()                 { return m_BinaryStar->StellarType2(); }
 
 
 
 private:
+
+    BinaryStar() { }
 
     OBJECT_ID       m_ObjectId;                                                                 // Instantiated object's unique object id
     OBJECT_TYPE     m_ObjectType;                                                               // Instantiated object's object type

@@ -86,7 +86,7 @@ protected:
             ENVELOPE        DetermineEnvelopeType()                                                          { return ENVELOPE::CONVECTIVE; }                                                                // Always CONVECTIVE
             ENVELOPE        DetermineEnvelopeTypeHurley2002()                                                { return ENVELOPE::CONVECTIVE; }                                                                // Always CONVECTIVE
 
-            STELLAR_TYPE    EvolveToNextPhase() { }                                                                                                                                                          // NO-OP
+            STELLAR_TYPE    EvolveToNextPhase() { return m_StellarType; }                                                                                                                                    // NO-OP
 
             bool            IsEndOfPhase()                                                                   { return !ShouldEvolveOnPhase(); }                                                              // Phase ends when envelope loss or going supernova
             bool            IsSupernova()                                                                    { return (utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0); }    // Going supernova if envelope lost and core mass large enough

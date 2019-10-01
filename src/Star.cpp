@@ -18,17 +18,22 @@ Star::Star(const unsigned long int p_RandomSeed,
            const double p_LBVfactor,
            const double p_WolfRayetFactor) {
 
-    m_ObjectId   = globalObjectId++;                                                                // set object id
-    m_ObjectType = OBJECT_TYPE::STAR;                                                               // set object type
+    m_ObjectId   = globalObjectId++;                                                                                // set object id
+    m_ObjectType = OBJECT_TYPE::STAR;                                                                               // set object type
 
-    m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_Metallicity, p_LBVfactor, p_WolfRayetFactor);    // create underlying BaseStar object
+    m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_Metallicity, p_LBVfactor, p_WolfRayetFactor);                    // create underlying BaseStar object
 
-    // star begins life as a main sequence star - initial mass determines actual type
-    if (p_MZAMS <= 0.7) {
-        SwitchTo(STELLAR_TYPE::MS_LTE_07);
+    // star begins life as a main sequence star, unless it is
+    // spinning fast enough for it to be chemically homogeneous
+
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE && utils::Compare(m_Star->Omega(), m_Star->OmegaCHE()) >= 0) {    // CHE?
+        SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                       // yes
+    }
+    else if (p_MZAMS <= 0.7) {                                                                                      // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
+        SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                                                                    // MS <= 0.0 Msol
     }
     else {
-        SwitchTo(STELLAR_TYPE::MS_GT_07);
+        SwitchTo(STELLAR_TYPE::MS_GT_07, true);                                                                     // MS > 0.7 Msol
     }
 
     m_SaveStar = nullptr;
@@ -51,6 +56,7 @@ BaseStar* Star::Clone(const BaseStar& p_Star) {
     switch (p_Star.StellarType()) {
         case STELLAR_TYPE::MS_LTE_07                                : {ptr = new MS_lte_07(p_Star, false);} break;
         case STELLAR_TYPE::MS_GT_07                                 : {ptr = new MS_gt_07(p_Star, false);} break;
+        case STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS                   : {ptr = new CHE(p_Star, false);} break;
         case STELLAR_TYPE::HERTZSPRUNG_GAP                          : {ptr = new HG(p_Star, false);} break;
         case STELLAR_TYPE::FIRST_GIANT_BRANCH                       : {ptr = new FGB(p_Star, false);} break;
         case STELLAR_TYPE::CORE_HELIUM_BURNING                      : {ptr = new CHeB(p_Star, false);} break;
@@ -65,6 +71,7 @@ BaseStar* Star::Clone(const BaseStar& p_Star) {
         case STELLAR_TYPE::NEUTRON_STAR                             : {ptr = new NS(p_Star, false);} break;
         case STELLAR_TYPE::BLACK_HOLE                               : {ptr = new BH(p_Star, false);} break;
         case STELLAR_TYPE::MASSLESS_REMNANT                         : {ptr = new MR(p_Star, false);} break;
+        default: break;                                             // avoids compiler warning - this should never happen
     }
 
     return ptr;
@@ -106,11 +113,13 @@ Star& Star::operator = (const Star& p_Star) {
  * replaces it with pointer to newly instantiated object
  *
  *
- * void SwitchTo(const STELLAR_TYPE p_StellarType)
+ * void SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialState)
  *
  * @param   [IN]    p_StellarType               StellarType to switch to
+ * @param   [IN]    p_SetInitialType            Indicates whether the initial stellar type of the star should be set to p_StellarType
+ *                                              (optional, default = false)
  */
-void Star::SwitchTo(const STELLAR_TYPE p_StellarType) {
+void Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType) {
 
     if (p_StellarType != m_Star->StellarType()) {
         BaseStar *ptr = nullptr;
@@ -118,6 +127,7 @@ void Star::SwitchTo(const STELLAR_TYPE p_StellarType) {
         switch (p_StellarType) {
             case STELLAR_TYPE::MS_LTE_07                                : {ptr = new MS_lte_07(*m_Star);} break;
             case STELLAR_TYPE::MS_GT_07                                 : {ptr = new MS_gt_07(*m_Star);} break;
+            case STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS                   : {ptr = new CHE(*m_Star);} break;
             case STELLAR_TYPE::HERTZSPRUNG_GAP                          : {ptr = new HG(*m_Star);} break;
             case STELLAR_TYPE::FIRST_GIANT_BRANCH                       : {ptr = new FGB(*m_Star);} break;
             case STELLAR_TYPE::CORE_HELIUM_BURNING                      : {ptr = new CHeB(*m_Star);} break;
@@ -132,11 +142,14 @@ void Star::SwitchTo(const STELLAR_TYPE p_StellarType) {
             case STELLAR_TYPE::NEUTRON_STAR                             : {ptr = new NS(*m_Star);} break;
             case STELLAR_TYPE::BLACK_HOLE                               : {ptr = new BH(*m_Star);} break;
             case STELLAR_TYPE::MASSLESS_REMNANT                         : {ptr = new MR(*m_Star);} break;
+            default: break;                                             // avoids compiler warning - this should never happen
         }
 
         if (ptr) {
             delete m_Star;
             m_Star = ptr;
+
+            if (p_SetInitialType) m_Star->SetInitialType(p_StellarType);
         }
     }
 }
@@ -434,9 +447,7 @@ void Star::Evolve(const int p_StepNum) {
 
     m_Star->CalculateGBParams();                                                                        // calculate giant branch parameters - in case for some reason star is initially not MS
 
-    int    retryCount   = 0;
-    bool   takeTimestep = true;
-    double dt           = 0.0;
+    double dt = 0.0;
 
     // JR: todo:
     // m_Error seems to be set ad hoc for SSE, and doesn't actually stop the evolution

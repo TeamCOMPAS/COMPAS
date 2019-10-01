@@ -202,11 +202,11 @@ double HeHG::CalculatePerturbationMu() {
  */
 double HeHG::CalculateLambdaNanjing() {
 
-    constexpr double rMin = 0.25;                              // minimum considered radius: Natasha       JR: todo: should this be in constants.h?
-	constexpr double rMax = 120.0;                             // maximum considered radius: Natasha       JR: todo: should this be in constants.h?
+    double rMin = 0.25;                              // minimum considered radius: Natasha       JR: todo: should this be in constants.h?
+	double rMax = 120.0;                             // maximum considered radius: Natasha       JR: todo: should this be in constants.h?
 
-	constexpr double rMinLambda = 0.3 * pow(rMin, -0.8);       // JR: todo: should this be in constants.h?
-	constexpr double rMaxLambda = 0.3 * pow(rMax, -0.8);       // JR: todo: should this be in constants.h?
+	double rMinLambda = 0.3 * pow(rMin, -0.8);       // JR: todo: should this be in constants.h?
+	double rMaxLambda = 0.3 * pow(rMax, -0.8);       // JR: todo: should this be in constants.h?
 
 	return m_Radius < rMin ? rMinLambda : (m_Radius > rMax ? rMaxLambda : 0.3 * pow(m_Radius, -0.8));
 }
