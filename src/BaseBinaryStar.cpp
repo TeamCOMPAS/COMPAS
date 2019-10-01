@@ -248,9 +248,9 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
     m_OrbitalVelocityPre2ndSN     = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 
-    // update rotational frequency for constituent stars - assume tidally locked
-    m_Star1->SetOmega(m_OrbitalVelocity);
-    m_Star2->SetOmega(m_OrbitalVelocity);
+    // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star1->SetOmega(m_OrbitalVelocity);
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star2->SetOmega(m_OrbitalVelocity);
 
     // check for CHE
     //
@@ -1672,9 +1672,9 @@ void BaseBinaryStar::ResolveTides() {
     m_OrbitalVelocityPrime += m_OmegaTidesDiff;                                                                                                             // should here be a diff quantity because of MB?     JR: todo: ?
     m_SemiMajorAxisPrime   += m_aTidesDiff;
 
-    // update rotational frequency for constituent stars - assume tidally locked
-    m_Star1->SetOmega(m_OrbitalVelocityPrime);
-    m_Star2->SetOmega(m_OrbitalVelocityPrime);
+    // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star1->SetOmega(m_OrbitalVelocityPrime);
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star2->SetOmega(m_OrbitalVelocityPrime);
 }
 
 
@@ -2182,9 +2182,9 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     double omegafinal      = sqrt((m_Mass1Final + m_Mass2Final) * G1 / (aFinal * aFinal * aFinal));                     // orbital velocity after CEE   SIMON: Should be a function for this equation     JR: todo: is it used elsewhere?
     m_OrbitalVelocityPrime = omegafinal;
 
-    // update rotational frequency for constituent stars - assume tidally locked
-    m_Star1->SetOmega(m_OrbitalVelocityPrime);
-    m_Star2->SetOmega(m_OrbitalVelocityPrime);
+    // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star1->SetOmega(m_OrbitalVelocityPrime);
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star2->SetOmega(m_OrbitalVelocityPrime);
 
 	double rRLdfin1 = aFinal * CalculateRocheLobeRadius_Static(m_Mass1Final, m_Mass2Final);                             // Roche Lobe radius in AU after CEE, seen by star1
 	double rRLdfin2 = aFinal * CalculateRocheLobeRadius_Static(m_Mass2Final, m_Mass1Final);                             // Roche Lobe radius in AU after CEE, seen by star2
@@ -3226,9 +3226,9 @@ void BaseBinaryStar::ResolveMassChanges() {
     m_OrbitalVelocityPrime = m_OrbitalVelocityPrev + m_OmegaMassLossDiff + m_OmegaMassTransferDiff;     // should here be a diff quantity because of MB?    JR: todo: ?
     m_SemiMajorAxisPrime   = m_SemiMajorAxisPrev + m_aMassLossDiff + m_aMassTransferDiff;
 
-    // update rotational frequency for constituent stars - assume tidally locked
-    m_Star1->SetOmega(m_OrbitalVelocityPrime);
-    m_Star2->SetOmega(m_OrbitalVelocityPrime);
+    // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star1->SetOmega(m_OrbitalVelocityPrime);
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star2->SetOmega(m_OrbitalVelocityPrime);
 
     CalculateEnergyAndAngularMomentum();                                                                // perform energy and angular momentum calculations
 }
