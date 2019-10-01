@@ -15,11 +15,12 @@ BaseStar::BaseStar() {
 
     // initialise member variables
 
-    m_ObjectId    = globalObjectId++;                           // unique object id - remains for life of star (even through evolution to other phases)
-    m_ObjectType  = OBJECT_TYPE::BASE_STAR;                     // object type - remains for life of star (even through evolution to other phases)
-    m_StellarType = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
+    m_ObjectId           = globalObjectId++;                           // unique object id - remains for life of star (even through evolution to other phases)
+    m_ObjectType         = OBJECT_TYPE::BASE_STAR;                     // object type - remains for life of star (even through evolution to other phases)
+    m_InitialStellarType = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
+    m_StellarType        = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
 
-    m_Error       = ERROR::NOT_INITIALISED;                     // clear error flag
+    m_Error              = ERROR::NOT_INITIALISED;                     // clear error flag
 }
 
 
@@ -27,11 +28,12 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, c
 
     // initialise member variables
 
-    m_ObjectId    = globalObjectId++;                           // unique object id - remains for life of star (even through evolution to other phases)
-    m_ObjectType  = OBJECT_TYPE::BASE_STAR;                     // object type - remains for life of star (even through evolution to other phases)
-    m_StellarType = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
+    m_ObjectId            = globalObjectId++;                           // unique object id - remains for life of star (even through evolution to other phases)
+    m_ObjectType          = OBJECT_TYPE::BASE_STAR;                     // object type - remains for life of star (even through evolution to other phases)
+    m_InitialStellarType  = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
+    m_StellarType         = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
 
-    m_Error       = ERROR::NONE;                                // clear error flag
+    m_Error               = ERROR::NONE;                                // clear error flag
 
     // Initialise member variables from input parameters
     m_RandomSeed          = p_RandomSeed;
@@ -108,6 +110,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, c
     m_LZAMS                                    = CalculateLuminosityAtZAMS(m_MZAMS);
     m_TZAMS                                    = CalculateTemperatureOnPhase_Static(m_LZAMS, m_RZAMS);
 
+    m_OmegaCHE                                 = CalculateOmegaCHE(m_MZAMS, m_Metallicity);
     m_OmegaZAMS                                = CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);
 
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
@@ -521,10 +524,7 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
     a[80] = max(0.0585542, a[80]);
     a[81] = min(1.5, max(0.4, a[81]));
 
-    constexpr double p2_0_4 = pow(2.0, 0.4);
-    constexpr double p2_1_9 = pow(2.0, 1.9);
-
-    LConstants(B_ALPHA_L)   = (a[45] + (a[46] * pow(2.0, a[48]))) / (p2_0_4 + (a[47] * p2_1_9));                // Hurley et al. 2000, eq 19a
+    LConstants(B_ALPHA_L)   = (a[45] + (a[46] * pow(2.0, a[48]))) / (pow(2.0, 0.4) + (a[47] * pow(2.0, 1.9)));  // Hurley et al. 2000, eq 19a
     LConstants(B_BETA_L)    = max(0.0, (a[54] - (a[55] * pow(a[57], a[56]))));                                  // Hurley et al. 2000, eq 20
     LConstants(B_DELTA_L)   = min((a[34] / pow(a[33], a[35])), (a[36] / pow(a[33], a[37])));                    // Hurley et al. 2000, eq 16
 
@@ -645,9 +645,6 @@ void BaseStar::CalculateBnCoefficients(DBL_VECTOR &p_BnCoefficients) {
 void BaseStar::CalculateLCoefficients(const double p_LogMetallicityXi, DBL_VECTOR &p_LCoefficients) {
 #define index    coeff.first                // for convenience and readability - undefined at end of function
 #define coeff(x) coeff.second[LR_TCoeff::x] // for convenience and readability - undefined at end of function
-
-    // pow() is slow - use multiplication
-    double logMetallicityXi_2 = p_LogMetallicityXi * p_LogMetallicityXi;
 
     // pow() is slow - use multiplication
     // do these calculations once only - and esp. outside the loop
@@ -819,6 +816,8 @@ void BaseStar::CalculateMassCutoffs(const double p_Metallicity, const double p_L
     double top         = 13.048 * pow((p_Metallicity / ZSOL), 0.06);
     double bottom      = 1.0 + (0.0012 * pow((ZSOL / p_Metallicity), 1.27));
     massCutoffs(MFGB)  = top / bottom;                                              // MFGB - Hurley et al. 2000, eq 3
+
+    massCutoffs(MCHE)  = 100.0;// * MSOL;                                              // MCHE - Mandel/Butler - CHE calculation
 
 #undef massCutoffs
 }
@@ -1015,8 +1014,6 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) {
 
     LOVERIDGE_GROUP lGroup;
 
-    double LM_HM_cutOff = LOVERIDGE_LM_HM_CUTOFFS[lMetallicity];                            // low mass / high mass cutoff
-
     if (utils::Compare(m_Mass, LOVERIDGE_LM_HM_CUTOFFS[lMetallicity]) > 0) {                // mass > low mass / high mass cutoff?
         lGroup = LOVERIDGE_GROUP::HM;                                                       // yes, group is HM - High Mass
     }
@@ -1070,10 +1067,8 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) {
  */
 double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss) {   // JR: todo: p_IsMassLoss is ignored - do we need it?  I've set the default to false
 
-    constexpr double smallNumber   = pow(10.0, -20);                                        // Avoid 0          // JR: todo: why? (and if necessary, why not std::numeric_limits<double>::min()?
-              double bindingEnergy = pow(10.0, CalculateLogBindingEnergyLoveridge(false));
-
-    return bindingEnergy > 0.0 ? (G_CGS * m_Mass * MSOL_TO_G * p_EnvMass * MSOL_TO_G) / (m_Radius * RSOL_TO_AU * AU_TO_CM * bindingEnergy) : smallNumber;   // JR: tod: fix this (see above)
+    double bindingEnergy = pow(10.0, CalculateLogBindingEnergyLoveridge(false));
+    return bindingEnergy > 0.0 ? (G_CGS * m_Mass * MSOL_TO_G * p_EnvMass * MSOL_TO_G) / (m_Radius * RSOL_TO_AU * AU_TO_CM * bindingEnergy) : pow(10.0, -20);   // JR: todo: fix this
 }
 
 
@@ -1847,8 +1842,7 @@ double BaseStar::CalculateMassLossRateVink() {
  */
 double BaseStar::CalculateMassLossRate() {
 
-    double mDot
-    ;
+    double mDot = 0.0;
     if (OPTIONS->UseMassLoss()) {
 
         switch (OPTIONS->MassLossPrescription()) {                                  // which prescription?
@@ -2273,7 +2267,6 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
         default:                                                                        // unknown rorational velocity prescription
             SHOW_WARN(ERROR::UNKNOWN_VROT_PRESCRIPTION, "Using default vRot = 0.0");     // show warning
     }
-
     return vRot;
 }
 
@@ -2293,7 +2286,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
  */
 double BaseStar::CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS) {
     double vRot = CalculateRotationalVelocity(p_MZAMS);
-    return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 / (vRot / p_RZAMS);    // Hurley at al. 2000, eq 108       JR: todo: added check for vRot = 0
+    return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 * vRot / p_RZAMS;    // Hurley at al. 2000, eq 108       JR: todo: added check for vRot = 0
 }
 
 
@@ -2310,6 +2303,44 @@ double BaseStar::CalculateOmegaBreak() {
     constexpr double RSOL_TO_AU_3 = RSOL_TO_AU * RSOL_TO_AU * RSOL_TO_AU;
 
 	return sqrt(_2_PI_2 * m_Mass / (RSOL_TO_AU_3 * m_Radius * m_Radius * m_Radius));
+}
+
+
+/*
+ * Calculate the minimum rotational frequency (in yr^-1) at which CHE will occur
+ * for a star with ZAMS mass MZAMS
+ *
+ * Mendel's fit from Butler 2018
+ *
+ *
+ * double CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity)
+ *
+ * @param   [IN]        p_MZAMS                 Zero age main sequence mass in Msol
+ * @param   [IN]        p_Metallicity           Metallicity of the star
+ * @return                                      Initial angular frequency in rad*s^-1
+ */
+double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity) {
+#define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
+
+    double mRatio = p_MZAMS;                                                                        // in MSol, so ratio is just p_MZAMS
+
+    // calculate omegaCHE(M, Z = 0.004)
+    double omegaZ004 = 0.0;
+    if (utils::Compare(p_MZAMS, massCutoffs(MCHE)) <= 0) {
+        for (std::size_t i = 0; i < CHE_Coefficients.size(); i++) {
+            omegaZ004 += CHE_Coefficients[i] * utils::intPow(mRatio, i) / pow(mRatio, 0.4);
+        }
+    }
+    else {
+        for (std::size_t i = 0; i < CHE_Coefficients.size(); i++) {
+            omegaZ004 += CHE_Coefficients[i] * utils::intPow(100.0, i) / pow(mRatio, 0.4);
+        }
+    }
+
+    // calculate omegaCHE(M, Z)
+    return (1.0 / ((0.09 * log(p_Metallicity / 0.004)) + 1.0) * omegaZ004) * SECONDS_IN_YEAR / _2_PI;   // in yr^-1
+
+#undef massCutoffs
 }
 
 
@@ -2721,7 +2752,7 @@ double BaseStar::DrawKickVelocityBrayEldridge(const double p_EjectaMass,
  */
 double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
 
-    double	remnantKick;	                    // units km/s
+    double	remnantKick = 0.0;	                // units km/s
 	double	lowerRegimeKick = 70.0;		        // Bernhard proposes to use 10 km s^-1 to replicate ECSN. He quotes Bray & Eldridge 2016 on this.
 
 	     if (utils::Compare(p_COCoreMass, 1.44) <  0) remnantKick = 0.0;
@@ -3098,8 +3129,9 @@ void BaseStar::CalculateBindingEnergies(const double p_CoreMass, const double p_
  * @return                                      Boolean - true if star is in list, false if not
  */
 bool BaseStar::IsOneOf(const STELLAR_TYPE_LIST p_List) const {
-    for (auto elem: p_List)
+    for (auto elem: p_List) {
         if (m_StellarType == elem) return true;
+    }
 	return false;
 }
 
@@ -3348,8 +3380,6 @@ STELLAR_TYPE BaseStar::EvolveOnPhase() {
 
         m_Luminosity  = CalculateLuminosityOnPhase();
         m_Radius      = CalculateRadiusOnPhase();
-
-//        Kludge();                                               // JR: remove this!
 
         ResolveEnvelopeMassOnPhase(m_Tau);
 

@@ -53,7 +53,7 @@ protected:
 
     double          CalculateEddingtonCriticalRate()                                                    { return 1.5E-8 * (m_Radius * RSOL_TO_KM / 10.0) * MYR_TO_YEAR; }               // Sluys 2013 ("Binary Evolution in a Nutshell"), eq 70
 
-    double          CalculateEnvelopeMassOnPhase()                                                      { return 0.0; }
+    double          CalculateEnvelopeMassOnPhase(const double p_Tau)                                    { return 0.0; }
 
     void            CalculateGBParams()                                                                 { GiantBranch::CalculateGBParams(); }                                           // Default to GiantBranch
 

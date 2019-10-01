@@ -26,6 +26,7 @@ public:
     // object identifiers - all classes have these
     OBJECT_ID           ObjectId() const                                                        { return m_ObjectId; }
     OBJECT_TYPE         ObjectType() const                                                      { return m_ObjectType; }
+    STELLAR_TYPE        InitialStellarType() const                                              { return m_InitialStellarType; }
     STELLAR_TYPE        StellarType() const                                                     { return m_StellarType; }
     STELLAR_TYPE        StellarTypePrev() const                                                 { return m_StellarTypePrev; }
 
@@ -63,7 +64,7 @@ public:
             bool                IsCCSN() const                                                  { return m_SupernovaDetails.events.now == SN_EVENT::CCSN; }
     virtual bool                IsDegenerate() const                                            { return false; }   // default is not degenerate - White Dwarfs, NS and BH are degenerate
             bool                IsECSN() const                                                  { return m_SupernovaDetails.events.now == SN_EVENT::ECSN; }
-    virtual bool                IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) { }
+    virtual bool                IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) { return false; }   // default is stable
             bool                IsOneOf(const STELLAR_TYPE_LIST p_List) const;
             bool                IsPISN() const                                                  { return m_SupernovaDetails.events.now == SN_EVENT::PISN; }
             bool                IsPPISN() const                                                 { return m_SupernovaDetails.events.now == SN_EVENT::PPISN; }
@@ -87,6 +88,7 @@ public:
             double              MZAMS() const                                                   { return m_MZAMS; }
             double              NuclearTimescale() const                                        { return m_NuclearTimescale; }
             double              Omega() const                                                   { return m_Omega; }
+            double              OmegaCHE() const                                                { return m_OmegaCHE; }
             double              OmegaBreak() const                                              { return m_OmegaBreak; }
             double              OmegaPrev() const                                               { return m_OmegaPrev; }
             double              OmegaZAMS() const                                               { return m_OmegaZAMS; }
@@ -130,14 +132,23 @@ public:
             double              Zeta_Thermal() const                                            { return m_Zetas.thermal; }
 
 
+    // setters
+            void                SetInitialType(STELLAR_TYPE p_InitialType)                      { m_InitialStellarType = p_InitialType; }                                           // JR Could do some sanity checks here
+            void                SetOmega(double p_vRot)                                         { if (p_vRot >= 0.0) m_Omega = p_vRot; };                                           // Do nothing if sanity check fails (JR: I don't really like this, but I think unavoidable - at least for now)
+            void                SetSNCurrentEvent(const SN_EVENT p_SNEvent)                     { m_SupernovaDetails.events.now = p_SNEvent; }                                      // Set supernova event/state for current timestep
+            void                SetSNPastEvent(const SN_EVENT p_SNEvent)                        { m_SupernovaDetails.events.past.push_back(p_SNEvent); }                            // Record supernova past event/state (add event/state to vector)
+
+
     // member functions - alphabetically
-            void            ApplyMassTransferRejuvenationFactor()                                               { m_Age *= CalculateMassTransferRejuvenationFactor(); }             // apply age rejuvenation factor
+            void            ApplyMassTransferRejuvenationFactor()                                               { m_Age *= CalculateMassTransferRejuvenationFactor(); }             // Apply age rejuvenation factor
 
             void            CalculateAllTimescales();                                                                                                                               // Calculate dynamical, thermal, nuclear and radial expansion timescales
 
     virtual void            CalculateAngularMomentum()                                                          { m_AngularMomentum = CalculateGyrationRadius() * m_Radius * RSOL_TO_AU * m_Radius * RSOL_TO_AU * m_Omega; }
 
             void            CalculateBindingEnergies(const double p_CoreMass, const double p_EnvMass, const double p_Radius);
+
+            double          CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity);
 
             void            CalculateCommonEnvelopeValues();
 
@@ -159,8 +170,8 @@ public:
 
             double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false);                                                               // JR: todo: better name?
 
-    virtual double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0)    { }                                                                                     // Use inheritance hierarchy
-    virtual double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)  { }                                                                                     // Use inheritance hierarchy
+    virtual double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0)    { return 0.0; }                                                                         // Use inheritance hierarchy
+    virtual double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)  { return 0.0; }                                                                         // Use inheritance hierarchy
 
             double          CalculateRadialChange()                                                             { return std::abs(m_Radius - m_RadiusPrev) / m_RadiusPrev; }
 
@@ -173,12 +184,12 @@ public:
     virtual double          CalculateThermalTimescale(const double p_Mass,
                                                       const double p_Radius,
                                                       const double p_Luminosity,
-                                                      const double p_EnvMass = 1.0) { }                                                                                             // Use inheritance hierarchy
-    virtual double          CalculateThermalTimescale() { }                                                                                                                         // Use inheritance hierarchy
+                                                      const double p_EnvMass = 1.0) { return 0.0; }                                                                                 // Use inheritance hierarchy
+    virtual double          CalculateThermalTimescale() { return 0.0; }                                                                                                             // Use inheritance hierarchy
 
             double          CalculateTimestep();
 
-    virtual double          CalculateZeta(CE_ZETA_PRESCRIPTION p_CEZetaPrescription) { }                                                                                            // Use inheritance hierarchy
+    virtual double          CalculateZeta(CE_ZETA_PRESCRIPTION p_CEZetaPrescription) { return 0.0; }                                                                                // Use inheritance hierarchy
             void            CalculateZetas();
 
     virtual void            CheckRunaway(const bool p_Disbound, const bool p_Survived);
@@ -188,7 +199,7 @@ public:
     virtual ENVELOPE        DetermineEnvelopeType()                                                             { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
     virtual ENVELOPE        DetermineEnvelopeTypeHurley2002()                                                   { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
 
-    virtual MT_CASE         DetermineMassTransferCase() { }                                                                                                                         // Use inheritance hierarchy
+    virtual MT_CASE         DetermineMassTransferCase() { return MT_CASE::NONE; }                                                                                                   // Use inheritance hierarchy
 
             double          CalculateDynamicalMassLossRate()                                                    { return m_Mass / CalculateDynamicalTimescale(); }                  // Use class member variables      JR: todo: never called?
 
@@ -203,10 +214,6 @@ public:
     virtual void            ResolveMassLoss();
 
     virtual STELLAR_TYPE    ResolveRemnantAfterEnvelopeLoss()                                                   { return m_StellarType; }
-
-            void            SetSNCurrentEvent(const SN_EVENT p_SNEvent)                                         { m_SupernovaDetails.events.now = p_SNEvent; }                      // Set supernova event/state for current timestep
-
-            void            SetSNPastEvent(const SN_EVENT p_SNEvent)                                            { m_SupernovaDetails.events.past.push_back(p_SNEvent); }            // Record supernova past event/state (add event/state to vector)
 
     virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                            // Default is NO-OP
 
@@ -227,6 +234,7 @@ protected:
 
     OBJECT_ID               m_ObjectId;                                 // Instantiated object's unique object id
     OBJECT_TYPE             m_ObjectType;                               // Instantiated object's object type
+    STELLAR_TYPE            m_InitialStellarType;                       // Stellar type at birth, defined in Hurley et al. 2000
     STELLAR_TYPE            m_StellarType;                              // Stellar type defined in Hurley et al. 2000
 
     ERROR                   m_Error;                                    // Records most recent error encountered for this star
@@ -242,6 +250,7 @@ protected:
     double                  m_LZAMS;                                    // ZAMS Luminosity
     double                  m_MZAMS;                                    // ZAMS Mass
     double                  m_OmegaZAMS;                                // ZAMS Angular Frequency
+    double                  m_OmegaCHE;                                 // Minimum angular frequency at which CHE will occur (calculated at ZAMS)
     double                  m_RZAMS;                                    // ZAMS Radius
     double                  m_TZAMS;                                    // ZAMS Temperature
 
@@ -563,7 +572,6 @@ protected:
 
             void            UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMass, const double p_DeltaMass0, const double p_DeltaTime);
 
-//           virtual void     Kludge() { }                                                                                                                                                      // JR: this needs to go....
 };
 
 #endif // __BaseStar_h__

@@ -62,7 +62,7 @@ protected:
             double          CalculateLambdaNanjing();
 
             double          CalculateLuminosityOnPhase();
-            double          CalculateLuminosityAtPhaseEnd() { }                                                                                                                     // NO-OP
+            double          CalculateLuminosityAtPhaseEnd() { return m_Luminosity; }                                                                                                // NO-OP
 
             double          CalculateMassTransferRejuvenationFactor();
 
@@ -74,7 +74,7 @@ protected:
 
             double          CalculateRadialExtentConvectiveEnvelope()                                        { return GiantBranch::CalculateRadialExtentConvectiveEnvelope(); }     // Skip HeMS
 
-            double          CalculateRadiusAtPhaseEnd() { }                                                                                                                         // NO-OP
+            double          CalculateRadiusAtPhaseEnd() { return m_Radius; }                                                                                                        // NO-OP
             double          CalculateRadiusOnPhase();
 
             double          CalculateTauAtPhaseEnd()                                                         { return m_Tau; }                                                      // NO-OP

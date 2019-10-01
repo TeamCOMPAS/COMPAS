@@ -10,6 +10,7 @@
 #include "BaseStar.h"
 #include "MS_lte_07.h"
 #include "MS_gt_07.h"
+#include "CHE.h"
 #include "HG.h"
 #include "FGB.h"
 #include "CHeB.h"
@@ -28,6 +29,7 @@
 class BaseStar;
 class MS_lte_07;
 class MS_gt_07;
+class CHE;
 class HG;
 class FGB;
 class CHeB;
@@ -59,6 +61,7 @@ public:
     // object identifiers - all classes have these
     OBJECT_ID                   ObjectId() const                                                                            { return m_ObjectId; }
     OBJECT_TYPE                 ObjectType() const                                                                          { return m_ObjectType; }
+    STELLAR_TYPE                InitialStellarType() const                                                                  { return m_Star->InitialStellarType(); }
     STELLAR_TYPE                StellarType() const                                                                         { return m_Star->StellarType(); }
 
 
@@ -87,8 +90,10 @@ public:
     double                      Mass() const                                                                                { return m_Star->Mass(); }
     double                      Mass0() const                                                                               { return m_Star->Mass0(); }
     double                      MassPrev() const                                                                            { return m_Star->MassPrev(); }
+    double                      Metallicity() const                                                                         { return m_Star->Metallicity(); }
     double                      MZAMS() const                                                                               { return m_Star->MZAMS(); }
     double                      Omega() const                                                                               { return m_Star->Omega(); }
+    double                      OmegaCHE() const                                                                            { return m_Star->OmegaCHE(); }
     double                      OmegaPrev() const                                                                           { return m_Star->OmegaPrev(); }
     double                      Radius() const                                                                              { return m_Star->Radius(); }
     double                      RadiusPrev() const                                                                          { return m_Star->RadiusPrev(); }
@@ -101,6 +106,10 @@ public:
     double                      Temperature() const                                                                         { return m_Star->Temperature(); }
     double                      Timescale(TIMESCALE p_Timescale) const                                                      { return m_Star->Timescale(p_Timescale); }
     double                      XExponent() const                                                                           { return m_Star->XExponent(); }
+
+
+    // setters (JR: I don't really like this, but I think unavoidable - at least for now)
+    void                        SetOmega(double p_vRot)                                                                     { m_Star->SetOmega(p_vRot); }
 
 
     // member functions - alphabetically
@@ -192,7 +201,7 @@ public:
 
     void            SetSNPastEvent(const SN_EVENT p_SNEvent)                                                    { m_Star->SetSNPastEvent(p_SNEvent); }
 
-    void            SwitchTo(const STELLAR_TYPE p_StellarType);
+    void            SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
 
     void            UpdateAgeAfterMassLoss()                                                                    { m_Star->UpdateAgeAfterMassLoss(); }
 

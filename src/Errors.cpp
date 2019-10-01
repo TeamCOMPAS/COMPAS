@@ -116,7 +116,7 @@ bool Errors::ShowIt(const std::string  p_Prefix,
 
     bool print = false;                                                                                                                         // default - don't print
 
-    std::unordered_map<ERROR, std::tuple<ERROR_SCOPE, bool, std::vector<OBJECT_TYPE>, std::vector<OBJECT_ID>, std::vector<STELLAR_TYPE>, std::vector<string>, string>>::iterator iter;
+    COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, bool, std::vector<OBJECT_TYPE>, std::vector<OBJECT_ID>, std::vector<STELLAR_TYPE>, std::vector<string>, string>>::iterator iter;
 
 	iter = m_ErrorCatalog.find(p_Error);
 	if (iter != m_ErrorCatalog.end())	{                                                                                                       // error found?

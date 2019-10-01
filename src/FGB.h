@@ -90,7 +90,6 @@ protected:
     void            UpdateAgeAfterMassLoss()                                                    { GiantBranch::UpdateAgeAfterMassLoss(); }                                                      // Skip HG
     void            UpdateInitialMass()                                                         { GiantBranch::UpdateInitialMass(); }                                                           // Skip HG
 
-//     void         Kludge() { }                                                                                                                                                                // JR: todo: this needs to go....
 };
 
 #endif // __FGB_h__

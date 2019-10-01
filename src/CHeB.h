@@ -124,7 +124,6 @@ protected:
     bool            ShouldEvolveOnPhase()                                        { return (m_Age < (m_Timescales[static_cast<int>(TIMESCALE::tHeI)] + m_Timescales[static_cast<int>(TIMESCALE::tHe)])); }  // Evolve on CHeB phase if age after He Ign and while He Burning
     bool            ShouldSkipPhase()                                            { return false; }                                                              // Never skip CHeB phase
 
-//                  void         Kludge();                                                                                                                      // JR: todo: this needs to go....
 };
 
 #endif // __CHeB_h__

@@ -1,5 +1,5 @@
 
-//#define WARNINGS          // JR: todo: make this a program option
+#undef WARNINGS          // define/undef this to turn warnings on/off       JR: todo: make this a program option
 
 // ERRORS macros
 #define GET_MACRO(_0, _1, _2, _3, _4, _5, NAME, ...)                NAME

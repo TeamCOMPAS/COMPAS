@@ -1,0 +1,15 @@
+# sample SSE Grid file
+
+# note the order of the columns is not significant
+
+
+Mass, Metallicity
+
+
+10.0						# default metallicity (OPTIONS->Metallicity()) will be used
+
+25.5, 0.001
+
+35.0, 0.02
+
+145.75						# default metallicity (OPTIONS->Metallicity()) will be used

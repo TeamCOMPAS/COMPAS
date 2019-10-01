@@ -114,7 +114,7 @@ void Log::Start(const string              p_LogBasePath,
 void Log::Stop() {
     if (m_Enabled) {
         CloseAllStandardFiles();                                                                                // first close all standard log files
-        for(int index = 0; index < m_Logfiles.size(); index++) {                                                // check for open logfiles (even if not active)
+        for(unsigned int index = 0; index < m_Logfiles.size(); index++) {                                       // check for open logfiles (even if not active)
             if (m_Logfiles[index].file.is_open()) {                                                             // open file?
                 try {                                                                                           // yes
                     m_Logfiles[index].file.flush();                                                             // flush output and
@@ -160,7 +160,7 @@ int Log::Open(const string p_LogFileName, const bool p_Append, const bool p_Time
         // find, or create, an empty slot in m_Logfiles vector
         // this way is a bit slower for opening logfile, but faster for writing to them
 
-        for(int index = 0; index < m_Logfiles.size(); index++) {
+        for(unsigned int index = 0; index < m_Logfiles.size(); index++) {
             if (!m_Logfiles[index].active) {                                                                    // empty slot?
                 id = index;                                                                                     // yes - use it
 
@@ -239,24 +239,64 @@ int Log::Open(const string p_LogFileName, const bool p_Append, const bool p_Time
  */
 bool Log::Close(const int p_LogfileId) {
 
-    bool result;
+    bool result = true;
 
-    if (m_Enabled && IsActiveId(p_LogfileId)) {                                                                 // logging enabled and specified logfile active?
-        if (m_Logfiles[p_LogfileId].file.is_open()) {                                                           // yes - check if log file open
-            try {                                                                                               // log file open
-                m_Logfiles[p_LogfileId].file.flush();                                                           // flush output and
-                m_Logfiles[p_LogfileId].file.close();                                                           // close it
-
-                result = true;                                                                                  // set result
+    if (m_Enabled) {                                                                                            // logging enabled?
+                                                                                                                // yes
+        int fileId = p_LogfileId;                                                                               // file id to close
+                                                                                                                // check if the file is an open standard file
+        bool standardFile;
+        LOGFILE logfile;
+        std::tie(standardFile, logfile) = GetStandardLogfileKey(p_LogfileId);                                   // look in open standard file map
+        if (standardFile) {                                                                                     // file is an open standard file
+            COMPASUnorderedMap<LOGFILE, LOGFILE_DETAILS>::const_iterator iter;                                  // iterator
+            iter = m_OpenStandardLogFileIds.find(logfile);                                                      // get the details
+            if (iter != m_OpenStandardLogFileIds.end()) {                                                       // found
+                LOGFILE_DETAILS fileDetails = iter->second;                                                     // existing file details
+                fileId = get<0>(fileDetails);                                                                   // file id
             }
-            catch (const std::ofstream::failure &e) {                                                           // problem...
-                Squawk("ERROR: Unable to close log file with file name " + m_Logfiles[p_LogfileId].name);       // announce error
-                Squawk(e.what());                                                                               // plus details
+        }
 
-                result = false;                                                                                 // set result
+        result = Close_(fileId);                                                                                // close the file
+
+        if (result && standardFile) {                                                                           // if it was a standard file...
+            m_OpenStandardLogFileIds.erase(logfile);                                                            // ...remove it from the map
+        }
+    }
+
+    return result;
+}
+
+
+/*
+ * Close specified log file - without first checking if it is a standard log file
+ *
+ *
+ * bool Close_(const int p_LogfileId)
+ *
+ * @param   [IN]    p_LogfileId                 The id of the log file to be closed
+ * @return                                      Boolean indicating whether log file was closed successfully
+ */
+bool Log::Close_(const int p_LogfileId) {
+
+    bool result = true;
+
+    if (m_Enabled && IsActiveId(p_LogfileId)) {                                                             // logging enabled and logfile active?
+        if (m_Logfiles[p_LogfileId].file.is_open()) {                                                       // yes - check if log file open
+            try {                                                                                           // log file open
+                m_Logfiles[p_LogfileId].file.flush();                                                       // flush output and
+                m_Logfiles[p_LogfileId].file.close();                                                       // close it
+
+                result = true;                                                                              // set result
+            }
+            catch (const std::ofstream::failure &e) {                                                       // problem...
+                Squawk("ERROR: Unable to close log file with file name " + m_Logfiles[p_LogfileId].name);   // announce error
+                Squawk(e.what());                                                                           // plus details
+
+                result = false;                                                                             // set result
             }
 
-            ClearEntry(p_LogfileId);                                                                            // clear entry whether the close succeeded or not
+            ClearEntry(p_LogfileId);                                                                        // clear entry whether the close succeeded or not
         }
     }
 
@@ -573,7 +613,7 @@ bool Log::DebugWait(const string p_DbgClass, const int p_DbgLevel, const string 
         if (DoIt(p_DbgClass, p_DbgLevel, m_DbgClasses, m_DbgLevel)) {                                               // debugging this class and level?
             result = Debug_(p_DbgStr);                                                                              // debug it
             std::cout << "DEBUG: Press any key to continue...";                                                     // announce
-            std::cin;                                                                                               // and wait for input
+            string tmp; std::cin >> tmp;                                                                            // and wait for input
         }
     }
 
@@ -638,10 +678,10 @@ bool Log::Error(const string p_ErrStr) {
 PROPERTY_DETAILS Log::StellarPropertyDetails(ANY_STAR_PROPERTY p_Property) {
 
     PROPERTY_DETAILS details;
-    try { details = ANY_STAR_PROPERTY_DETAIL.at(p_Property); }                      // get stellar property details
-    catch (const std::exception& e) {                                               // unknown property
-        details = std::make_tuple(TYPENAME::NONE, "", "", 0, 0);                    // empty details
-        DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::UNKNOWN_STELLAR_PROPERTY)));        // show warning
+    try { details = ANY_STAR_PROPERTY_DETAIL.at(p_Property); }          // get stellar property details
+    catch (const std::exception& e) {                                   // unknown property
+        details = std::make_tuple(TYPENAME::NONE, "", "", 0, 0);        // empty details
+        DBG_WARN(ERR_MSG(ERROR::UNKNOWN_STELLAR_PROPERTY));             // show warning
     }
 
     return details;
@@ -665,10 +705,10 @@ PROPERTY_DETAILS Log::BinaryPropertyDetails(BINARY_PROPERTY p_Property) {
 
     PROPERTY_DETAILS details;
 
-    try { details = BINARY_PROPERTY_DETAIL.at(p_Property); }                    // get binary property details
-    catch (const std::exception& e) {                                           // unknown property
-        details = std::make_tuple(TYPENAME::NONE, "", "", 0, 0);                // empty details
-        DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::UNKNOWN_BINARY_PROPERTY)));     // show warning
+    try { details = BINARY_PROPERTY_DETAIL.at(p_Property); }            // get binary property details
+    catch (const std::exception& e) {                                   // unknown property
+        details = std::make_tuple(TYPENAME::NONE, "", "", 0, 0);        // empty details
+        DBG_WARN(ERR_MSG(ERROR::UNKNOWN_BINARY_PROPERTY));              // show warning
     }
 
     return details;
@@ -692,10 +732,10 @@ PROPERTY_DETAILS Log::ProgramOptionDetails(PROGRAM_OPTION p_Property) {
 
     PROPERTY_DETAILS details;
 
-    try { details = PROGRAM_OPTION_DETAIL.at(p_Property); }                     // get program option details
-    catch (const std::exception& e) {                                           // unknown property
-        details = std::make_tuple(TYPENAME::NONE, "", "", 0, 0);                // empty details
-        DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::UNKNOWN_PROGRAM_OPTION)));      // show warning
+    try { details = PROGRAM_OPTION_DETAIL.at(p_Property); }             // get program option details
+    catch (const std::exception& e) {                                   // unknown property
+        details = std::make_tuple(TYPENAME::NONE, "", "", 0, 0);        // empty details
+        DBG_WARN(ERR_MSG(ERROR::UNKNOWN_PROGRAM_OPTION));               // show warning
     }
 
     return details;
@@ -766,6 +806,51 @@ STR_STR_STR_STR Log::FormatFieldHeaders(PROPERTY_DETAILS p_PropertyDetails, stri
 
 
 /*
+ * Find a value in the LOGFILE_DESCRIPTOR map and return the key if found, otherwise defaut value
+ *
+ * This function looks for the passed string value in the LOGFILE_DESCRIPTOR map, and if the string
+ * is found returns the key correspoding to the value found.  If the value is not found the default
+ * value LOGFILE::NONE is returned.
+ *
+ * The string comparison is case-insensitive.
+ *
+ *
+ * static std::tuple<bool, LOGFILE> GetLogfileDescriptorKey(const std::string p_Value)
+ *
+ * @param   [IN]    p_Value                     The value to be located in the LOGFILE_DESCRIPTOR map
+ * @return                                      Tuple containing a boolean result (true if value found, else false), and the key
+ *                                              corresponding to the value found, or LOGFILE::NONE if the value was not found
+ */
+std::tuple<bool, LOGFILE> Log::GetLogfileDescriptorKey(const std::string p_Value) {
+    for (auto& it: LOGFILE_DESCRIPTOR)
+        if (utils::Equals(std::get<3>(it.second), p_Value)) return std::make_tuple(true, it.first);
+    return std::make_tuple(false, LOGFILE::NONE);
+}
+
+
+/*
+ * Find a value in the m_OpenStandardLogFileIds map and return the key if found, otherwise defaut value
+ *
+ * This function looks for the file id value in the m_OpenStandardLogFileIds map, and if the id is found
+ * returns the key correspoding to the id found.  If the value is not found the default value LOGFILE::NONE
+ * is returned.
+ *
+ *
+ * static std::tuple<bool, LOGFILE> GetStandardLogfileKey(const int p_FileId)
+ *
+ * @param   [IN]    p_Value                     The value to be located in the LOGFILE_DESCRIPTOR map
+ * @return                                      Key corresponding to the value found, or LOGFILE::NONE if the value was not found
+ * @return                                      Tuple containing a boolean result (true if id found, else false), and the key
+ *                                              corresponding to the id found, or LOGFILE::NONE if the value was not found
+ */
+std::tuple<bool, LOGFILE> Log::GetStandardLogfileKey(const int p_FileId) {
+    for (auto& it: m_OpenStandardLogFileIds)
+        if (std::get<0>(it.second) == p_FileId) return std::make_tuple(true, it.first);
+    return std::make_tuple(false, LOGFILE::NONE);
+}
+
+
+/*
  * Get standard log file details and open file if necessary
  *
  * This function will retrieve the details for the logfile specified, and open the file if it
@@ -799,7 +884,7 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
     LOGFILE_DETAILS      fileDetails = std::make_tuple(id, "", recordProperties, fmtVector);                                                    // default logfile details
     LOGFILE_DESCRIPTOR_T fileDescriptor;                                                                                                        // logfile descriptor
 
-    std::unordered_map<LOGFILE, LOGFILE_DETAILS>::const_iterator logfile;                                                                       // iterator
+    COMPASUnorderedMap<LOGFILE, LOGFILE_DETAILS>::const_iterator logfile;                                                                       // iterator
     logfile = m_OpenStandardLogFileIds.find(p_Logfile);                                                                                         // look for open logfile
     if (logfile == m_OpenStandardLogFileIds.end()) {                                                                                            // doesn't exist
 
@@ -857,7 +942,7 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
                 default:                                                                                                                        // unknown logfile
                     recordProperties = {};                                                                                                      // no record properties
-                    DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::UNKNOWN_LOGFILE)) + ": Logging disabled for this file");                            // show warning
+                    DBG_WARN(ERR_MSG(ERROR::UNKNOWN_LOGFILE) + ": Logging disabled for this file");                                             // show warning
             }
 
             if (!recordProperties.empty()) {                                                                                                    // have properties?
@@ -933,7 +1018,7 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
                                 default:                                                                                                        // unknown property type
                                     ok = false;                                                                                                 // that's not ok...
-                                    DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::UNKNOWN_PROPERTY_TYPE)));                                           // show warning
+                                    DBG_WARN(ERR_MSG(ERROR::UNKNOWN_PROPERTY_TYPE));                                                            // show warning
                             }
 
                             if (ok) {
@@ -955,18 +1040,18 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     m_OpenStandardLogFileIds.insert({ p_Logfile, fileDetails});                                                                 // record the new file details and format strings
 
                     // write headers to file
-                    if (!Put_(id, fullTypeStr))   DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::FILE_WRITE_ERROR)) + ": Type String");                // type string first
-                    if (!Put_(id, fullUnitsStr))  DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::FILE_WRITE_ERROR)) + ": Units String");               // units string next
-                    if (!Put_(id, fullHeaderStr)) DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::FILE_WRITE_ERROR)) + ": Header String");              // header string last - this order helps with python processing later
+                    if (!Put_(id, fullTypeStr))   DBG_WARN(ERR_MSG(ERROR::FILE_WRITE_ERROR) + ": Type String");                                 // type string first
+                    if (!Put_(id, fullUnitsStr))  DBG_WARN(ERR_MSG(ERROR::FILE_WRITE_ERROR) + ": Units String");                                // units string next
+                    if (!Put_(id, fullHeaderStr)) DBG_WARN(ERR_MSG(ERROR::FILE_WRITE_ERROR) + ": Header String");                               // header string last - this order helps with python processing later
                 }
                 else {                                                                                                                          // open failed
-                    DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::FILE_OPEN_ERROR)) + ": Logging disabled for this file");                            // show warning
+                    DBG_WARN(ERR_MSG(ERROR::FILE_OPEN_ERROR) + ": Logging disabled for this file");                                             // show warning
                 }
             }
         }
         catch (const std::exception& e) {                                                                                                       // unknown logfile
             recordProperties = {};                                                                                                              // no record properties
-            DBG_WARN(get<1>(ERROR_CATALOG.at(ERROR::UNKNOWN_LOGFILE)) + ": Logging disabled for this file");                                    // show warning
+            DBG_WARN(ERR_MSG(ERROR::UNKNOWN_LOGFILE) + ": Logging disabled for this file");                                                     // show warning
         }
     }
     else {                                                                                                                                      // already exists
@@ -995,12 +1080,12 @@ bool Log::CloseStandardFile(const LOGFILE p_Logfile) {
 
     LOGFILE_DETAILS fileDetails;                                                                                    // file details
 
-    std::unordered_map<LOGFILE, LOGFILE_DETAILS>::const_iterator logfile;                                           // iterator
+    COMPASUnorderedMap<LOGFILE, LOGFILE_DETAILS>::const_iterator logfile;                                           // iterator
     logfile = m_OpenStandardLogFileIds.find(p_Logfile);                                                             // look for open logfile
     if (logfile != m_OpenStandardLogFileIds.end()) {                                                                // found
         fileDetails = logfile->second;                                                                              // existing file details
         int id = get<0>(fileDetails);                                                                               // file id
-        result = Close(id);                                                                                         // close the file
+        result = Close_(id);                                                                                        // close the file
         if (result) {                                                                                               // closed ok?
             m_OpenStandardLogFileIds.erase(logfile);                                                                // yes - remove from map
         }
@@ -1150,6 +1235,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
             case LOGFILE::BSE_BE_BINARIES           : baseProps = m_BSE_BE_Binaries_Rec; break;
             case LOGFILE::BSE_PULSAR_EVOLUTION      : baseProps = m_BSE_Pulsars_Rec;     break;
             case LOGFILE::BSE_DETAILED_OUTPUT       : baseProps = m_BSE_Detailed_Rec;    break;
+            default: break;                                                                                             // avoids compiler warning
         }
     }
 
@@ -1218,6 +1304,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
         case LOGFILE::BSE_BE_BINARIES           : m_BSE_BE_Binaries_Rec = newProps; break;
         case LOGFILE::BSE_PULSAR_EVOLUTION      : m_BSE_Pulsars_Rec     = newProps; break;
         case LOGFILE::BSE_DETAILED_OUTPUT       : m_BSE_Detailed_Rec    = newProps; break;
+        default: break;                                                                                                 // avoids compiler warning...
     }
 }
 
@@ -1250,7 +1337,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *
  * <def_file>   ::= { <rec_spec> }
  *
- * <rec_spec>   ::= <rec_name> <op> "{" { <props_list> } "}" <spec_delim>
+ * <rec_spec>   ::= <rec_name> <op> "{" { [ <props_list> ] } "}" <spec_delim>
  *
  * <rec_name>   ::= "SSE_PARMS_REC"       |				# SSE only
  *                  "BSE_SYSPARMS_REC"    |				# BSE only
@@ -1328,8 +1415,8 @@ bool Log::UpdateAllLogfileRecordSpecs() {
 
 	if (!utils::FileExists(filename)) {                                                                                         // check definitions file exists
         SAY("");
-        SAY(std::get<1>(ERROR_CATALOG.at(ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS)));                                           // announce error
-        SAY(get<1>(ERROR_CATALOG.at(ERROR::FILE_DOES_NOT_EXIST)) + ": " + filename);                                             // file does not exist - show warning, and ...
+        SAY(ERR_MSG(ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS));                                                                 // announce error
+        SAY(ERR_MSG(ERROR::FILE_DOES_NOT_EXIST) + ": " + filename);                                                             // file does not exist - show warning, and ...
         return false;                                                                                                           // ... bail/bale out
 	}
 
@@ -1337,8 +1424,8 @@ bool Log::UpdateAllLogfileRecordSpecs() {
     defFile.open(filename);                                                                                                     // open the definitions file
 	if (defFile.fail()) {                                                                                                       // check open succeeded
         SAY("");
-        SAY(std::get<1>(ERROR_CATALOG.at(ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS)));                                           // announce error
-        SAY(get<1>(ERROR_CATALOG.at(ERROR::FILE_OPEN_ERROR)) + ": " + filename);                                                // failed - show warning, and ...
+        SAY(ERR_MSG(ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS));                                                                 // announce error
+        SAY(ERR_MSG(ERROR::FILE_OPEN_ERROR) + ": " + filename);                                                                 // failed - show warning, and ...
         return false;                                                                                                           // ... bail/bale out
     }
 
@@ -1429,7 +1516,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
 
                     bool found;
                     LOGFILE logfile;                                                                                            // logfile name
-                    std::tie(found, logfile) = utils::GetLogfileDescriptorKey(tokStr);                                          // check token against known logfile record names
+                    std::tie(found, logfile) = GetLogfileDescriptorKey(tokStr);                                                 // check token against known logfile record names
                     if (found) {                                                                                                // found - token is a logfile record name
                         currentLogfile     = logfile;                                                                           // record the logfile name
                         currentLogfileType = std::get<4>(LOGFILE_DESCRIPTOR.at(currentLogfile));                                // and type (STELLAR or BINARY)
@@ -1583,6 +1670,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                                                         case PROPERTY_TYPE::STAR_2_PROPERTY   : addProps.push_back(static_cast<STAR_2_PROPERTY>(property));    break;
                                                         case PROPERTY_TYPE::SUPERNOVA_PROPERTY: addProps.push_back(static_cast<SUPERNOVA_PROPERTY>(property)); break;
                                                         case PROPERTY_TYPE::COMPANION_PROPERTY: addProps.push_back(static_cast<COMPANION_PROPERTY>(property)); break;
+                                                        default: break;                                                         // avoids compiler warning
                                                     }
                                                     expecting = TOKEN_TYPE::COMMA;                                              // now expecting a comma or close brace
                                                 }
@@ -1593,6 +1681,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                                                         case PROPERTY_TYPE::STAR_2_PROPERTY   : subtractProps.push_back(static_cast<STAR_2_PROPERTY>(property));    break;
                                                         case PROPERTY_TYPE::SUPERNOVA_PROPERTY: subtractProps.push_back(static_cast<SUPERNOVA_PROPERTY>(property)); break;
                                                         case PROPERTY_TYPE::COMPANION_PROPERTY: subtractProps.push_back(static_cast<COMPANION_PROPERTY>(property)); break;
+                                                        default: break;                                                         // avoids compiler warning
                                                     }
                                                     expecting = TOKEN_TYPE::COMMA;                                              // now expecting a comma or close brace
                                                 }
@@ -1651,6 +1740,10 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                         }
                     }                                                                                                           // end expecting TOKEN_TYPE::PROPERTY_NAME
                     break;
+
+                case TOKEN_TYPE::CLOSE_BRACE:                                                                                   // ... close brace (end properties list)
+                    break;                                                                                                      // nothing to do but wait for next token
+
             }                                                                                                                   // end expecting switch
             if (error != ERROR::NONE) break;                                                                                    // stop processing tokens on error
         }                                                                                                                       // end for all tokens loop
@@ -1665,11 +1758,11 @@ bool Log::UpdateAllLogfileRecordSpecs() {
     if (error != ERROR::NONE || expecting != TOKEN_TYPE::LOGFILE_RECORD_NAME) {                                                 // error?
 
         SAY("");
-        SAY(std::get<1>(ERROR_CATALOG.at(ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS)) << " in file: " << filename);               // announce error
+        SAY(ERR_MSG(ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS) << " in file: " << filename);                                     // announce error
 
         if (error == ERROR::NONE) {                                                                                             // must be unexpected end of file
             error = ERROR::UNEXPECTED_END_OF_FILE;                                                                              // set error
-            SAY(std::get<1>(ERROR_CATALOG.at(error)));                                                                          // announce error
+            SAY(ERR_MSG(error));                                                                                                // announce error
             size_t hashPos = recParsed.find("#");                                                                               // find first occurrence of "#" in the last record parsed
             errorPos = hashPos == std::string::npos ? recParsed.size() : hashPos;                                               // set location for caret indicator ("^")
             error = ERROR::EXPECTED_LOGFILE_RECORD_NAME;                                                                        // set error
@@ -1681,7 +1774,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
         loc += "^";                                                                                                             // add the caret indicator
         SAY(loc);                                                                                                               // show the caret indicator
 
-        SAY(std::get<1>(ERROR_CATALOG.at(error)));                                                                              // announce error
+        SAY(ERR_MSG(error));                                                                                                    // announce error
     }
 
 	return (error == ERROR::NONE);
