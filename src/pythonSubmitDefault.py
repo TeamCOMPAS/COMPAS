@@ -72,7 +72,7 @@ class pythonProgramOptions:
 
     metallicity = 0.0142                    # Solar metallicity Asplund+2010
 
-    chemically_homogeneous_evolution = 'NONE'                            # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMIST" and 'PESSIMISTIC'
+    chemically_homogeneous_evolution = 'NONE'                            # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
 
     common_envelope_alpha = 1.0
     common_envelope_lambda = 0.1                # Only if using 'LAMBDA_FIXED'
