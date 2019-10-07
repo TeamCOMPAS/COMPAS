@@ -31,18 +31,31 @@ class Errors {
 
 private:
 
-    Errors() {
-        // populate error catalog
-        for (auto const &it: ERROR_CATALOG) {                                       // iterate over ERROR_CATALOG from constants.h
-            m_ErrorCatalog[it.first] = { std::get<0>(it.second), false, {}, {}, {}, {}, std::get<1>(it.second) };
-        }
-    };
+    Errors() { };
     Errors(Errors const&) = delete;
     Errors& operator = (Errors const&) = delete;
 
     static Errors *m_Instance;                                                      // pointer to the instance
 
-    COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, bool, std::vector<OBJECT_TYPE>, std::vector<OBJECT_ID>, std::vector<STELLAR_TYPE>, std::vector<std::string>, std::string>> m_ErrorCatalog = {};
+    // dynamic error catalog
+    // this unordered_map records the errors printed and thedetails (object type, object id, function name etc.)
+    // there are 2 objectId vectors (non-stellar and stellar object), and similarly 2 funcName vectors
+    // it's a bit of a hack, but splitting them out allows me to clean out the stellar vectors after each
+    // star/binary is evolved, so the catalog isn't bloated by details for deleted objects
+    COMPASUnorderedMap<
+        ERROR,                              // error id
+        std::tuple<                         // details for error id
+            ERROR_SCOPE,                    //    scope
+            bool,                           //    flag indicating if already printed
+            std::vector<OBJECT_TYPE>,       //    object type
+            std::vector<STELLAR_TYPE>,      //    stellar type
+            std::vector<OBJECT_ID>,         //    vector of non-stellar (main, utils, AIS etc) object ids
+            std::vector<OBJECT_ID>,         //    vector of stellar ids
+            std::vector<std::string>,       //    vector of function names for non-stellar object ids
+            std::vector<std::string>,       //    vector of function names for stellar ids
+            std::string                     //    error text
+        >
+    > m_ErrorCatalog = {};
 
 
 public:
@@ -59,6 +72,8 @@ public:
                 const OBJECT_TYPE  p_ObjectType    = OBJECT_TYPE::NONE,
                 const STELLAR_TYPE p_StellarType   = STELLAR_TYPE::NONE,
                 const char*        p_FuncName      = "Not provided");
+
+    void Clean();
 };
 
 #endif // __Errors_h_

@@ -11,6 +11,24 @@
 
 // JR: todo: this could do with some more tidying up and documentation
 
+// 02.00.00      JR - Sep 17, 2019 - Initial commit of new version
+// 02.00.01      JR - Sep 20, 2019 - Fix compiler warnings. Powwow fixes
+// 02.00.02      JR - Sep 21, 2019 - Make code clang-compliant
+// 02.00.03      IM - Sep 23, 2019 - Added fstream include
+// 02.01.00      JR - Oct 01, 2019 - Support for Chemically Homogeneous Evolution
+// 02.02.00      JR - Oct 01, 2019 - Support for Grids - both SSE and BSE
+// 02.02.01      JR - Oct 01, 2019 - Changed BaseBinaryStar code to assume tidal locking only if CHE is enables
+// 02.02.02      JR - Oct 07, 2019 - Defect repairs:
+//                                       SSE iteration (increment index - Grids worked, range of values wasn't incrementing)
+//                                       Errors service (FIRST_IN_FUNCTION errors sometimes printed every time)
+//                                       Added code for both SSE and BSE so that specified metallicities be clamped to [0.0, 1.0].  What are reasonable limits?
+//                                   Errors service performance enhancement (clean deleted stellar objects from catalog)
+//                                   Changed way binary constituent stars masses equilibrated (they now retain their ZAMS mass, but (initial) mass and mass0 changes)
+//                                   Add initial stellar type variable - and to some record definitions
+
+
+const std::string VERSION_STRING = "02.02.02";
+
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
 
@@ -206,17 +224,17 @@ constexpr double KROUPA_MAXIMUM                         = 100.0;                
 
 
 // object types
-enum class OBJECT_TYPE: int { MAIN, UTILS, STAR, BASE_STAR, BINARY_STAR, BASE_BINARY_STAR, BINARY_CONSTITUENT_STAR, AIS, NONE };    //  if BASE_STAR, check STELLAR_TYPE
+enum class OBJECT_TYPE: int { NONE, MAIN, UTILS, AIS, STAR, BASE_STAR, BINARY_STAR, BASE_BINARY_STAR, BINARY_CONSTITUENT_STAR };    //  if BASE_STAR, check STELLAR_TYPE
 const COMPASUnorderedMap<OBJECT_TYPE, std::string> OBJECT_TYPE_LABEL = {
+    { OBJECT_TYPE::NONE,                    "Not_an_Object!" },
     { OBJECT_TYPE::MAIN,                    "Main" },
     { OBJECT_TYPE::UTILS,                   "Utils" },
+    { OBJECT_TYPE::AIS,                     "AdaptiveImportanceSampling" },
     { OBJECT_TYPE::STAR,                    "Star" },
     { OBJECT_TYPE::BASE_STAR,               "BaseStar" },
     { OBJECT_TYPE::BINARY_STAR,             "BinaryStar" },
     { OBJECT_TYPE::BASE_BINARY_STAR,        "BaseBinaryStar" },
     { OBJECT_TYPE::BINARY_CONSTITUENT_STAR, "BinaryConstituentStar" },
-    { OBJECT_TYPE::AIS,                     "AdaptiveImportanceSampling" },
-    { OBJECT_TYPE::NONE,                    "Not_an_Object!" },
 };
 
 
@@ -1193,6 +1211,8 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     HYDROGEN_POOR,                                   \
     HYDROGEN_RICH,                                   \
     ID,                                              \
+    INITIAL_STELLAR_TYPE,                            \
+    INITIAL_STELLAR_TYPE_NAME,                       \
     IS_ECSN,                                         \
     IS_RLOF,                                         \
     IS_SN,                                           \
@@ -1297,6 +1317,8 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::HYDROGEN_POOR,                                   "HYDROGEN_POOR" },
     { STAR_PROPERTY::HYDROGEN_RICH,                                   "HYDROGEN_RICH" },
     { STAR_PROPERTY::ID,                                              "ID" },
+    { STAR_PROPERTY::INITIAL_STELLAR_TYPE,                            "STELLAR_TYPE" },
+    { STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                       "STELLAR_TYPE_NAME" },
     { STAR_PROPERTY::IS_ECSN,                                         "IS_ECSN" },
     { STAR_PROPERTY::IS_RLOF,                                         "IS_RLOF" },
     { STAR_PROPERTY::IS_SN,                                           "IS_SN" },
@@ -1726,6 +1748,8 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::HYDROGEN_POOR,                                     { TYPENAME::BOOL,           "Hydrogen_Poor",        "State",             0, 0 }},   // JR: todo: have left these as HRICH and HPOOR for backward compatibility
     { ANY_STAR_PROPERTY::HYDROGEN_RICH,                                     { TYPENAME::BOOL,           "Hydrogen_Rich",        "State",             0, 0 }},   // JR: todo: have left these as HRICH and HPOOR for backward compatibility
     { ANY_STAR_PROPERTY::ID,                                                { TYPENAME::OBJECT_ID,      "ID",                   "",                 12, 1 }},
+    { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE,                              { TYPENAME::STELLAR_TYPE,   "Stellar_Type_ZAMS",    "",                  4, 1 }},
+    { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                         { TYPENAME::STRING,         "Stellar_Type_ZAMS",    "",                 42, 1 }},
     { ANY_STAR_PROPERTY::IS_ECSN,                                           { TYPENAME::BOOL,           "USSN",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_RLOF,                                           { TYPENAME::BOOL,           "RLOF",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_SN,                                             { TYPENAME::BOOL,           "SN",                   "State",             0, 0 }},
@@ -1951,6 +1975,8 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
     STAR_1_PROPERTY::MZAMS,
     STAR_2_PROPERTY::MZAMS,
+    STAR_1_PROPERTY::MASS_0,
+    STAR_2_PROPERTY::MASS_0,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,
     BINARY_PROPERTY::ECCENTRICITY_INITIAL,
     STAR_1_PROPERTY::SUPERNOVA_KICK_VELOCITY_MAGNITUDE_RANDOM_NUMBER,
@@ -1974,8 +2000,12 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
     STAR_2_PROPERTY::METALLICITY,
     BINARY_PROPERTY::DISBOUND,
     BINARY_PROPERTY::STELLAR_MERGER,
+    STAR_1_PROPERTY::INITIAL_STELLAR_TYPE,
     STAR_1_PROPERTY::STELLAR_TYPE,
+    STAR_2_PROPERTY::INITIAL_STELLAR_TYPE,
     STAR_2_PROPERTY::STELLAR_TYPE,
+    STAR_1_PROPERTY::TIME,
+    STAR_2_PROPERTY::TIME,
     BINARY_PROPERTY::ERROR
 };
 
@@ -2044,6 +2074,7 @@ const ANY_PROPERTY_VECTOR BSE_DOUBLE_COMPACT_OBJECTS_REC = {
     STAR_1_PROPERTY::METALLICITY,
     STAR_2_PROPERTY::METALLICITY,
     STAR_1_PROPERTY::MZAMS,
+    STAR_1_PROPERTY::MASS_0,
     STAR_1_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,
     STAR_1_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
     STAR_1_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
@@ -2055,8 +2086,10 @@ const ANY_PROPERTY_VECTOR BSE_DOUBLE_COMPACT_OBJECTS_REC = {
     STAR_1_PROPERTY::SUPERNOVA_THETA,
     STAR_1_PROPERTY::SUPERNOVA_PHI,
     STAR_1_PROPERTY::MASS,
+    STAR_1_PROPERTY::INITIAL_STELLAR_TYPE,
     STAR_1_PROPERTY::STELLAR_TYPE,
     STAR_2_PROPERTY::MZAMS,
+    STAR_2_PROPERTY::MASS_0,
     STAR_2_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,
     STAR_2_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
     STAR_2_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
@@ -2068,6 +2101,7 @@ const ANY_PROPERTY_VECTOR BSE_DOUBLE_COMPACT_OBJECTS_REC = {
     STAR_2_PROPERTY::SUPERNOVA_THETA,
     STAR_2_PROPERTY::SUPERNOVA_PHI,
     STAR_2_PROPERTY::MASS,
+    STAR_2_PROPERTY::INITIAL_STELLAR_TYPE,
     STAR_2_PROPERTY::STELLAR_TYPE,
     BINARY_PROPERTY::TIME_TO_COALESCENCE,
     BINARY_PROPERTY::TIME,
@@ -2142,6 +2176,8 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     BINARY_PROPERTY::TIME,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL,
     BINARY_PROPERTY::ECCENTRICITY_PRIME,
+    STAR_1_PROPERTY::MZAMS,
+    STAR_2_PROPERTY::MZAMS,
     STAR_1_PROPERTY::MASS_0,
     STAR_2_PROPERTY::MASS_0,
     STAR_1_PROPERTY::MASS,
@@ -2164,6 +2200,8 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     STAR_2_PROPERTY::OMEGA,
     STAR_1_PROPERTY::OMEGA_BREAK,
     STAR_2_PROPERTY::OMEGA_BREAK,
+    STAR_1_PROPERTY::INITIAL_STELLAR_TYPE,
+    STAR_2_PROPERTY::INITIAL_STELLAR_TYPE,
     STAR_1_PROPERTY::STELLAR_TYPE,
     STAR_2_PROPERTY::STELLAR_TYPE,
     STAR_1_PROPERTY::AGE,
@@ -2275,6 +2313,7 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     SUPERNOVA_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
     SUPERNOVA_PROPERTY::MASS,
     SUPERNOVA_PROPERTY::EXPERIENCED_RLOF,
+    SUPERNOVA_PROPERTY::INITIAL_STELLAR_TYPE,
     SUPERNOVA_PROPERTY::STELLAR_TYPE,
     BINARY_PROPERTY::SUPERNOVA_STATE,
     SUPERNOVA_PROPERTY::STELLAR_TYPE_PREV,

@@ -60,8 +60,8 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
         double massRatio    = SampleQDistribution();
         double mass2        = massRatio * mass1;
 
-        double metallicity1 = SampleMetallicityDistribution();
-        double metallicity2 = SampleMetallicityDistribution();
+        double metallicity1 = std::min(std::max(SampleMetallicityDistribution(), 0.0), 1.0);
+        double metallicity2 = std::min(std::max(SampleMetallicityDistribution(), 0.0), 1.0);
 
         m_SemiMajorAxis     = SampleSemiMajorAxisDistribution(mass1, mass2);
         m_Eccentricity      = SampleEccentricityDistribution();
@@ -126,8 +126,8 @@ BaseBinaryStar::BaseBinaryStar(const AIS     &p_AIS,
     double mass1 = p_Mass1;                                                                                                                     // specified mass of the primary
     double mass2 = p_Mass2;                                                                                                                     // specified mass of the secondary
 
-    double metallicity1 = p_Metallicity1;                                                                                                       // specified metallicity of the primary
-    double metallicity2 = p_Metallicity2;                                                                                                       // specified metallicity of the secondary
+    double metallicity1 = std::min(std::max(p_Metallicity1, 0.0), 1.0);                                                                         // specified metallicity of the primary
+    double metallicity2 = std::min(std::max(p_Metallicity2, 0.0), 1.0);                                                                         // specified metallicity of the secondary
 
     m_SemiMajorAxis = p_SemiMajorAxis;                                                                                                          // specified separation
     m_Eccentricity  = p_Eccentricity;                                                                                                           // specified eccentricity
@@ -141,6 +141,9 @@ BaseBinaryStar::BaseBinaryStar(const AIS     &p_AIS,
     m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, m_LBVfactor, m_WolfRayetFactor);
     m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, m_LBVfactor, m_WolfRayetFactor);
 
+    m_Star1->SetCompanion(m_Star2);
+    m_Star2->SetCompanion(m_Star1);
+
     double factor            = m_SemiMajorAxis * (1.0 - m_Eccentricity);
     double rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass1, mass2));
     double rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass2, mass1));
@@ -148,20 +151,15 @@ BaseBinaryStar::BaseBinaryStar(const AIS     &p_AIS,
     if (OPTIONS->CHE_Option() != CHE_OPTION::NONE &&                                                                                            // CHE enabled?
        (utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0)) {                                            // either star overflowing Roche Lobe?
 
-        mass1            = (mass1 + mass2) / 2.0;                                                                                               // equilibrate masses
-        mass2            = mass1;                                                                                                               // ditto
+        double newMass1  = (mass1 + mass2) / 2.0;                                                                                               // equilibrate masses
+        double newMass2  = newMass1;                                                                                                            // ditto
         m_SemiMajorAxis *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                                           // circularise; conserve angular momentum
         m_Eccentricity   = 0.0;                                                                                                                 // now circular
 
-        // create new stars with equal masses - eveything else is recalculated
-        delete m_Star1;
-        m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, m_LBVfactor, m_WolfRayetFactor);
-        delete m_Star2;
-        m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, m_LBVfactor, m_WolfRayetFactor);
+        // equilibrate masses - recalculate everything else
+        m_Star1->UpdateAttributesAndAgeOneTimestep(newMass1 - mass1, newMass1 - mass1, 0.0, true);
+        m_Star2->UpdateAttributesAndAgeOneTimestep(newMass2 - mass2, newMass2 - mass2, 0.0, true);
     }
-
-    m_Star1->SetCompanion(m_Star2);
-    m_Star2->SetCompanion(m_Star1);
 
     SetRemainingCommonValues(p_Id);                                                                                                             // complete the construction of the binary
 }
@@ -520,7 +518,7 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
     m_BeBinaryDetails.props2.separation          = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_BeBinaryDetails.props2.eccentricity        = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    // BeBinary details - cirrent/prev props pointers
+    // BeBinary details - current/prev props pointers
     m_BeBinaryDetails.currentProps               = &m_BeBinaryDetails.props1;
     m_BeBinaryDetails.previousProps              = &m_BeBinaryDetails.props2;
 }
@@ -2470,6 +2468,7 @@ double BaseBinaryStar::CalculateMassTransferFastPhaseCaseA(const double p_JLoss)
         percentageMassLoss += percentageMassLossPerIteration;                                                                                           // increment percentage mass loss for next iteration
 
         SHOW_ERROR_IF(utils::Compare(radiusAfterMassLoss, radiusBeforeMassLoss) > 0, ERROR::INVALID_RADIUS_INCREASE_ONCE, "After fake mass loss");      // show error if radius increased
+
         delete donorCopy; donorCopy = nullptr;
     }
 
@@ -3409,11 +3408,13 @@ double BaseBinaryStar::CalculateTimestep(const double p_Dt) {
 
     BinaryConstituentStar* star1Copy = new BinaryConstituentStar(*m_Star1);             // copy star1
     double dt1 = star1Copy->EvolveOneTimestep(p_Dt);                                    // evolve the copy one timestep and get suggested timestep
+
     delete star1Copy; star1Copy = nullptr;                                              // nuke the copy
 
     // rinse and repeat for star2
     BinaryConstituentStar* star2Copy = new BinaryConstituentStar(*m_Star2);             // copy star2
     double dt2 = star2Copy->EvolveOneTimestep(p_Dt);                                    // evolve the copy one timestep and get suggested timestep
+
     delete star2Copy; star2Copy = nullptr;                                              // nuke the copy
 
     return std::min(dt1, dt2);
@@ -3565,9 +3566,9 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve(const int p_Index) {
         if (evolutionStatus == EVOLUTION_STATUS::STEPS_UP) {                                                                                // stopped because max timesteps reached?
             SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED);                                                                                    // show error
         }
-
-        PrintBinarySystemParameters();                                                                                                      // print (log) binary system parameters
     }
+
+    PrintBinarySystemParameters();                                                                                                          // print (log) binary system parameters
 
     return evolutionStatus;
 }
