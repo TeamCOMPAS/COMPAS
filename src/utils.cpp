@@ -20,7 +20,7 @@ namespace utils {
      */
     void SplashScreen() {
         // Print a nice splash screen
-        std::cout << "\nCOMPAS: Compact Object Mergers: Population Astrophysics and Statistics \nby Team COMPAS (http://compas.science/index.html)\nA binary star simulator\n" << std::endl;
+        std::cout << "\nCOMPAS v" << VERSION_STRING << "\nCompact Object Mergers: Population Astrophysics and Statistics \nby Team COMPAS (http://compas.science/index.html)\nA binary star simulator\n" << std::endl;
     }
 
 

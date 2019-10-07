@@ -458,6 +458,7 @@ void Star::Evolve(const int p_StepNum) {
                              STELLAR_TYPE::NAKED_HELIUM_STAR_MS, STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH })) {
 
         dt = m_Star->CalculateTimestep();                                                               // calculate new timestep
+
         dt = EvolveOneTimestep(dt);                                                                     // evolve for timestep
 
         m_Star->PrintSingleStarParameters(p_StepNum);                                                   // log record  JR: this should probably be before the star switches type, but this way matches the original code

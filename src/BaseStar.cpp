@@ -38,7 +38,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, c
     // Initialise member variables from input parameters
     m_RandomSeed          = p_RandomSeed;
     m_MZAMS               = p_MZAMS;
-    m_Metallicity         = p_Metallicity;
+    m_Metallicity         = std::min(std::max(p_Metallicity, 0.0), 1.0);
     m_LBVfactor           = p_LBVfactor;
     m_WolfRayetFactor     = p_WolfRayetFactor;
 

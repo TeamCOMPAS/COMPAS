@@ -2,6 +2,7 @@
 //  COMPAS main
 //
 #include <ctime>
+#include <chrono>
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -296,10 +297,12 @@ void EvolveSingleStars() {
 
     EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
 
-    clock_t clockStart = clock();
+    auto wallStart = std::chrono::system_clock::now();                                                                          // start wall timer
+    clock_t clockStart = clock();                                                                                               // start CPU timer
 
     if (!OPTIONS->Quiet()) {
-        SAY("Now generating stars.")
+        std::time_t timeStart = std::chrono::system_clock::to_time_t(wallStart);
+        SAY("Start generating stars at " << std::ctime(&timeStart));
     }
 
     std::ifstream grid;                                                                                                         // grid file
@@ -389,6 +392,10 @@ void EvolveSingleStars() {
             SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                                                  // close failed - show warning
             evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                        // this will cause problems later - stop evolution
         }
+
+        ERRORS->Clean();                                                                                                        // clean the dynamic error catalog
+
+        index++;                                                                                                                // next...
     }
     delete star;
 
@@ -398,11 +405,29 @@ void EvolveSingleStars() {
     // announce result
     if (!OPTIONS->Quiet()) {
         if (evolutionStatus != EVOLUTION_STATUS::CONTINUE) {
-            SAY(EVOLUTION_STATUS_LABEL.at(evolutionStatus));
+            SAY("\n" << EVOLUTION_STATUS_LABEL.at(evolutionStatus));
         }
     }
 
-    if (!OPTIONS->Quiet()) SAY("\nClock time = " << (clock() - clockStart) / (double) CLOCKS_PER_SEC << " seconds" << "\n");
+    if (!OPTIONS->Quiet()) {
+
+        double cpuSeconds = (clock() - clockStart) / (double) CLOCKS_PER_SEC;                                                   // stop CPU timer and calculate seconds
+
+        auto wallEnd = std::chrono::system_clock::now();                                                                        // stope wall timer
+        std::time_t timeEnd = std::chrono::system_clock::to_time_t(wallEnd);                                                    // get end time and date
+
+        SAY("\nEnd generating stars at " << std::ctime(&timeEnd));
+        SAY("Clock time = " << cpuSeconds << " CPU seconds");
+
+
+        std::chrono::duration<double> wallSeconds = wallEnd - wallStart;                                                        // elapsed seconds
+
+        int wallHH = (int)(wallSeconds.count() / 3600.0);                                                                       // hours
+        int wallMM = (int)((wallSeconds.count() - ((double)wallHH * 3600.0)) / 60.0);                                           // minutes
+        int wallSS = (int)(wallSeconds.count() - ((double)wallHH * 3600.0) - ((double)wallMM * 60.0));                          // seconds
+
+        SAY("Wall time  = " << wallHH << ":" << wallMM << ":" << wallSS << " (hh:mm:ss)");
+    }
 }
 
 
@@ -681,10 +706,12 @@ void EvolveBinaryStars() {
 
     EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
 
-    clock_t clockStart = clock();
+    auto wallStart = std::chrono::system_clock::now();                                                                      // start wall timer
+    clock_t clockStart = clock();                                                                                           // start CPU timer
 
     if (!OPTIONS->Quiet()) {
-        SAY("Now generating binaries.")
+        std::time_t timeStart = std::chrono::system_clock::to_time_t(wallStart);
+        SAY("Start generating binaries at " << std::ctime(&timeStart));
     }
 
     AIS ais;                                                                                                                // Adaptive Importance Sampling (AIS)
@@ -800,7 +827,10 @@ void EvolveBinaryStars() {
                 evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                // this will cause problems later - stop evolution
             }
         }
-        index++;
+
+        ERRORS->Clean();                                                                                                    // clean the dynamic error catalog
+
+        index++;                                                                                                            // next...
     }
     delete binary;
 
@@ -810,7 +840,7 @@ void EvolveBinaryStars() {
     // announce result
     if (!OPTIONS->Quiet()) {
         if (evolutionStatus != EVOLUTION_STATUS::CONTINUE) {
-            SAY(EVOLUTION_STATUS_LABEL.at(evolutionStatus));
+            SAY("\n" << EVOLUTION_STATUS_LABEL.at(evolutionStatus));
         }
     }
 
@@ -819,7 +849,25 @@ void EvolveBinaryStars() {
 
     (void)LOGGING->CloseAllStandardFiles();
 
-    if (!OPTIONS->Quiet()) SAY("\nClock time = " << (clock() - clockStart) / (double) CLOCKS_PER_SEC << " seconds" << "\n");
+    if (!OPTIONS->Quiet()) {
+
+        double cpuSeconds = (clock() - clockStart) / (double) CLOCKS_PER_SEC;                                               // stop CPU timer and calculate seconds
+
+        auto wallEnd = std::chrono::system_clock::now();                                                                    // stope wall timer
+        std::time_t timeEnd = std::chrono::system_clock::to_time_t(wallEnd);                                                // get end time and date
+
+        SAY("\nEnd generating binaries at " << std::ctime(&timeEnd));
+        SAY("Clock time = " << cpuSeconds << " CPU seconds");
+
+
+        std::chrono::duration<double> wallSeconds = wallEnd - wallStart;                                                    // elapsed seconds
+
+        int wallHH = (int)(wallSeconds.count() / 3600.0);                                                                   // hours
+        int wallMM = (int)((wallSeconds.count() - ((double)wallHH * 3600.0)) / 60.0);                                       // minutes
+        int wallSS = (int)(wallSeconds.count() - ((double)wallHH * 3600.0) - ((double)wallMM * 60.0));                      // seconds
+
+        SAY("Wall time  = " << wallHH << ":" << wallMM << ":" << wallSS << " (hh:mm:ss)");
+    }
 }
 
 

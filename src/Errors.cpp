@@ -116,11 +116,33 @@ bool Errors::ShowIt(const std::string  p_Prefix,
 
     bool print = false;                                                                                                                         // default - don't print
 
-    COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, bool, std::vector<OBJECT_TYPE>, std::vector<OBJECT_ID>, std::vector<STELLAR_TYPE>, std::vector<string>, string>>::iterator iter;
+    COMPASUnorderedMap<
+        ERROR,                                                                                                                                  // error id
+        std::tuple<                                                                                                                             // details for error id
+            ERROR_SCOPE,                                                                                                                        //    scope
+            bool,                                                                                                                               //    flag indicating if already printed
+            std::vector<OBJECT_TYPE>,                                                                                                           //    object type
+            std::vector<STELLAR_TYPE>,                                                                                                          //    stellar type
+            std::vector<OBJECT_ID>,                                                                                                             //    vector of non-stellar (main, utils, AIS etc) object ids
+            std::vector<OBJECT_ID>,                                                                                                             //    vector of stellar ids
+            std::vector<std::string>,                                                                                                           //    vector of function names for non-stellar object ids
+            std::vector<std::string>,                                                                                                           //    vector of function names for stellar ids
+            std::string                                                                                                                         //    error text
+        >
+    > ::iterator iter;
 
-	iter = m_ErrorCatalog.find(p_Error);
-	if (iter != m_ErrorCatalog.end())	{                                                                                                       // error found?
+	iter = m_ErrorCatalog.find(p_Error);                                                                                                        // look for error in dynamic catalog
+	if (iter == m_ErrorCatalog.end()) {                                                                                                         // found?
+        COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>>::const_iterator staticIter;
+        staticIter = ERROR_CATALOG.find(p_Error);                                                                                               // look for error in static catalog
+        if (staticIter != ERROR_CATALOG.end()) {                                                                                                // found
+            m_ErrorCatalog[p_Error] = { std::get<0>(staticIter->second), false, {}, {}, {}, {}, {}, {}, std::get<1>(staticIter->second) };      // yes - put new entry in dynamic catalog
+        }
+    }
 
+	iter = m_ErrorCatalog.find(p_Error);                                                                                                        // look for error in dynamic catalog
+	if (iter != m_ErrorCatalog.end()) {                                                                                                         // found?
+                                                                                                                                                // yes
         std::string funcName(p_FuncName);                                                                                                       // convert p_FuncName to string type
         std::string text;                                                                                                                       // error text to print
 
@@ -128,12 +150,14 @@ bool Errors::ShowIt(const std::string  p_Prefix,
 
         if (scope != ERROR_SCOPE::NEVER) {                                                                                                      // nothing to do if scope is NEVER
 
-            bool                      already      = std::get<1>(iter->second);                                                                 // already printed once?
-            std::vector<OBJECT_TYPE>  objectTypes  = std::get<2>(iter->second);                                                                 // object types from which error already printed
-            std::vector<OBJECT_ID>    objectIds    = std::get<3>(iter->second);                                                                 // object ids from which error already printed
-            std::vector<STELLAR_TYPE> stellarTypes = std::get<4>(iter->second);                                                                 // stellar types from which error already printed
-            std::vector<std::string>  funcs        = std::get<5>(iter->second);                                                                 // functions from which error already printed
-                                      text         = std::get<6>(iter->second);                                                                 // error text to print
+            bool                      already             = std::get<1>(iter->second);                                                          // already printed once?
+            std::vector<OBJECT_TYPE>  objectTypes         = std::get<2>(iter->second);                                                          // object types from which error already printed
+            std::vector<STELLAR_TYPE> stellarTypes        = std::get<3>(iter->second);                                                          // stellar types from which error already printed
+            std::vector<OBJECT_ID>    nonStellarObjectIds = std::get<4>(iter->second);                                                          // non-stellar object ids from which error already printed
+            std::vector<OBJECT_ID>    stellarObjectIds    = std::get<5>(iter->second);                                                          // stellar object ids from which error already printed
+            std::vector<std::string>  nonStellarFuncs     = std::get<6>(iter->second);                                                          // non-stellar functions from which error already printed
+            std::vector<std::string>  stellarFuncs        = std::get<7>(iter->second);                                                          // stellar functions from which error already printed
+                                      text                = std::get<8>(iter->second);                                                          // error text to print
 
             switch (scope) {
                 case ERROR_SCOPE::ALWAYS:               // scope is ALWAYS - no need to check anything else
@@ -144,7 +168,7 @@ bool Errors::ShowIt(const std::string  p_Prefix,
                     print = !already;                                                                                                           // print it only if not already printed
 
                     if (print) {                                                                                                                // if will print, then...
-                        iter->second = std::make_tuple(scope, true, objectTypes, objectIds, stellarTypes, funcs, text);                         // update 'already' - don't cate about others
+                        iter->second = std::make_tuple(scope, true, objectTypes, stellarTypes, nonStellarObjectIds, stellarObjectIds, nonStellarFuncs, stellarFuncs, text); // update catalog
                     }
                     break;
 
@@ -154,7 +178,7 @@ bool Errors::ShowIt(const std::string  p_Prefix,
 
                         if (print) {                                                                                                            // if will print, then...
                             objectTypes.push_back(p_ObjectType);                                                                                // add 'p_ObjectType' to 'objectTypes'
-                            iter->second = std::make_tuple(scope, already, objectTypes, objectIds, stellarTypes, funcs, text);                  // update 'objectTypes' - don't care about others
+                            iter->second = std::make_tuple(scope, already, objectTypes, stellarTypes, nonStellarObjectIds, stellarObjectIds, nonStellarFuncs, stellarFuncs, text); // update catalog
                         }
                     }
                     break;
@@ -165,42 +189,76 @@ bool Errors::ShowIt(const std::string  p_Prefix,
 
                         if (print) {                                                                                                            // if will print, then...
                             stellarTypes.push_back(p_StellarType);                                                                              // add 'p_StellarType' to 'stellarTypes'
-                            iter->second = std::make_tuple(scope, already, objectTypes, objectIds, stellarTypes, funcs, text);                  // update 'stellarTypes' - don't care about others
+                            iter->second = std::make_tuple(scope, already, objectTypes, stellarTypes, nonStellarObjectIds, stellarObjectIds, nonStellarFuncs, stellarFuncs, text); // update catalog
                         }
                     }
                     break;
 
                 case ERROR_SCOPE::FIRST_IN_OBJECT_ID:   // scope is FIRST in this object - need to check if already printed for this object
                     if (p_ObjectId >= 0) {                                                                                                      // valid object id (0 = main())?
-                        print = (std::find(objectIds.begin(), objectIds.end(), p_ObjectId) == objectIds.end());                                 // print it only if not already printed for this object id
+
+                        print = (std::find(stellarObjectIds.begin(), stellarObjectIds.end(), p_ObjectId) == stellarObjectIds.end());            // look for stellar objectId first
+                        if (print) {                                                                                                            // not found, now look for ...
+                            print = (std::find(nonStellarObjectIds.begin(), nonStellarObjectIds.end(), p_ObjectId) == nonStellarObjectIds.end()); // ... non-stellar objectId
+                        }
 
                         if (print) {                                                                                                            // if will print, then...
-                            objectIds.push_back(p_ObjectId);                                                                                    // add 'p_ObjectId' to 'objectIds'
-                            iter->second = std::make_tuple(scope, already, objectTypes, objectIds, stellarTypes, funcs, text);                  // update 'objectIds' - don't care about others
+                            if (p_ObjectType == OBJECT_TYPE::MAIN || p_ObjectType == OBJECT_TYPE::UTILS || p_ObjectType == OBJECT_TYPE::AIS) {  // add 'p_ObjectId' and 'funcNmae' to relevant vectors
+                                nonStellarObjectIds.push_back(p_ObjectId);                                                                      // non-stellar objectId
+                                nonStellarFuncs.push_back(funcName);                                                                            // non-stellar funcName (required for ERROR_SCOPE::FIRST_IN_FUNCTION)
+                            }
+                            else {
+                                stellarObjectIds.push_back(p_ObjectId);                                                                         // stellar objectId
+                                stellarFuncs.push_back(funcName);                                                                               // stellar funcName (required for ERROR_SCOPE::FIRST_IN_FUNCTION)
+                            }
+                            iter->second = std::make_tuple(scope, already, objectTypes, stellarTypes, nonStellarObjectIds, stellarObjectIds, nonStellarFuncs, stellarFuncs, text); // update catalog
                         }
                     }
                     break;
 
                 case ERROR_SCOPE::FIRST_IN_FUNCTION:    // scope is FIRST in FUNCTION of this object - need to check if already printed for this function for this object
                     if (p_ObjectId >= 0) {                                                                                                      // valid object id (0 = main())?
-                        std::vector<OBJECT_ID>::iterator thisIter = std::find(objectIds.begin(), objectIds.end(), p_ObjectId);                  // print it only if not already printed for this function for this object
-                        if (thisIter != objectIds.end()) {                                                                                      // already printed for this object?
-                                                                                                                                                // yes - check function name
-                            if (!funcName.empty()) {                                                                                            // blank function name?
-                                int thisIndex = std::distance(objectIds.begin(), thisIter);                                                     // no - get vector index for objectId located
-                                if (funcs[thisIndex] != funcName) {                                                                             // already printed for this function?
-                                    print = true;                                                                                               // no - print it
+
+                        if (!funcName.empty()) {                                                                                                // blank function name?
+                                                                                                                                                // no - proceed
+                            bool foundFunc = false;                                                                                             // found func for objectId?
+
+                            std::vector<OBJECT_ID>::iterator thisIter = std::find(stellarObjectIds.begin(), stellarObjectIds.end(), p_ObjectId); // look for stellar objectId first
+                            if (thisIter != stellarObjectIds.end()) {                                                                           // stellar objectId?
+                                                                                                                                                // yes
+                                while (thisIter != stellarObjectIds.end() && !foundFunc) {                                                      // while have objectId and not funcName
+                                    int thisIndex = std::distance(stellarObjectIds.begin(), thisIter);                                          // get vector index for objectId located
+                                    if (stellarFuncs[thisIndex] != funcName) {                                                              // have funcName?
+                                        thisIter = std::find(++thisIter, stellarObjectIds.end(), p_ObjectId);                                   // no - find next entry for objectId
+                                    }
+                                    else foundFunc = true;                                                                                      // yes - already printed
                                 }
                             }
-                        }
-                        else {                                                                                                                  // not already printed for this object - print it
-                            print = true;
-                        }
+                            else {                                                                                                              // not stellar objectId - look for non-stellar objectId
 
-                        if (print) {                                                                                                            // if will print, then...
-                            objectIds.push_back(p_ObjectId);                                                                                    // add 'p_ObjectId' to 'objectIds'
-                            funcs.push_back(funcName);                                                                                          // add 'funcName' to 'funcs'
-                            iter->second = std::make_tuple(scope, already, objectTypes, objectIds, stellarTypes, funcs, text);                  // update 'objectIds' and 'funcs' - don't care about others
+                                std::vector<OBJECT_ID>::iterator thisIter = std::find(nonStellarObjectIds.begin(), nonStellarObjectIds.end(), p_ObjectId); // look for stellar objectId first
+                                while (thisIter != nonStellarObjectIds.end() && !foundFunc) {                                                   // while have objectId and not funcName
+                                    int thisIndex = std::distance(nonStellarObjectIds.begin(), thisIter);                                       // get vector index for objectId located
+                                    if (nonStellarFuncs[thisIndex] != funcName) {                                                               // have funcName?
+                                        thisIter = std::find(++thisIter, nonStellarObjectIds.end(), p_ObjectId);                                // no - find next entry for objectId
+                                    }
+                                    else foundFunc = true;                                                                                      // yes - already printed
+                                }
+                            }
+                            print = !foundFunc;                                                                                                 // print it if not found
+
+
+                            if (print) {                                                                                                        // if will print, then...
+                                if (p_ObjectType == OBJECT_TYPE::MAIN || p_ObjectType == OBJECT_TYPE::UTILS || p_ObjectType == OBJECT_TYPE::AIS) {  // add 'p_ObjectId' and 'funcNmae' to relevant vectors
+                                    nonStellarObjectIds.push_back(p_ObjectId);                                                                  // non-stellar objectId
+                                    nonStellarFuncs.push_back(funcName);                                                                        // non-stellar funcName (required for ERROR_SCOPE::FIRST_IN_FUNCTION)
+                                }
+                                else {
+                                    stellarObjectIds.push_back(p_ObjectId);                                                                     // stellar objectId
+                                    stellarFuncs.push_back(funcName);                                                                           // stellar funcName (required for ERROR_SCOPE::FIRST_IN_FUNCTION)
+                                }
+                                iter->second = std::make_tuple(scope, already, objectTypes, stellarTypes, nonStellarObjectIds, stellarObjectIds, nonStellarFuncs, stellarFuncs, text); // update catalog
+                            }
                         }
                     }
                     break;
@@ -224,4 +282,35 @@ bool Errors::ShowIt(const std::string  p_Prefix,
 	}
 
 	return print;
+}
+
+
+/*
+ * Removes all objectId entries (and associated funcNames) from the Error Catalog
+ * This is so entries for deleted objects don't bloat the error catalog
+ *
+ *
+ * void Clean()
+ */
+void Errors::Clean() {
+
+    if (m_ErrorCatalog.size() == 0) return;                                                                                                                             // nothing to do
+
+    for (auto catalogIter : m_ErrorCatalog) {                                                                                                                           // for each entry in the error catalog
+        std::vector<OBJECT_ID> stellarObjectIds = std::get<5>(catalogIter.second);                                                                                      // stellar object ids
+        if (stellarObjectIds.size() == 0) continue;                                                                                                                     // no stellar objectIds for this error
+
+        ERROR_SCOPE               scope               = std::get<0>(catalogIter.second);                                                                                // scope of error
+        bool                      already             = std::get<1>(catalogIter.second);                                                                                // already
+        std::vector<OBJECT_TYPE>  objectTypes         = std::get<2>(catalogIter.second);                                                                                // object types
+        std::vector<STELLAR_TYPE> stellarTypes        = std::get<3>(catalogIter.second);                                                                                // stellar types
+        std::vector<OBJECT_ID>    nonStellarObjectIds = std::get<4>(catalogIter.second);                                                                                // object ids
+        std::vector<std::string>  nonStellarFuncs     = std::get<6>(catalogIter.second);                                                                                // functions
+        std::vector<std::string>  stellarFuncs        = std::get<7>(catalogIter.second);                                                                                // functions
+        std::string               text                = std::get<8>(catalogIter.second);                                                                                // error text
+
+        stellarObjectIds.clear();                                                                                                                                       // clear stellar objectIds vector
+        stellarFuncs.clear();                                                                                                                                           // clear stellar funcs vector
+        catalogIter.second = std::make_tuple(scope, already, objectTypes, stellarTypes, nonStellarObjectIds, stellarObjectIds, nonStellarFuncs, stellarFuncs, text);    // update catalog
+    }
 }
