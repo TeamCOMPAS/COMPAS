@@ -3554,6 +3554,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve(const int p_Index) {
             }
 
             if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) evolutionStatus = EVOLUTION_STATUS::STEPS_UP;                          // number of timesteps for evolution exceeds maximum
+
             if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                            // continue evolution?
 
                 dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep());                                                  // new timestep
@@ -3561,7 +3562,9 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve(const int p_Index) {
                 stepNum++;                                                                                                                  // increment stepNum
                 dt = CalculateTimestep(ChooseTimestep(dt));                                                                                 // calculate next timestep
             }
-       }
+
+
+        }
 
         if (evolutionStatus == EVOLUTION_STATUS::STEPS_UP) {                                                                                // stopped because max timesteps reached?
             SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED);                                                                                    // show error

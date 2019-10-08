@@ -190,11 +190,25 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, c
     m_SupernovaDetails.events.now              = SN_EVENT::NONE;
     m_SupernovaDetails.events.past             = {};
 
-    m_SupernovaDetails.hydrogenContent         = HYDROGEN_CONTENT::RICH;
-    m_SupernovaDetails.fallbackFraction        = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SupernovaDetails.coreMassAtCOFormation   = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_SupernovaDetails.COCoreMassAtCOFormation = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SupernovaDetails.HeCoreMassAtCOFormation = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SupernovaDetails.totalMassAtCOFormation  = DEFAULT_INITIAL_DOUBLE_VALUE;
+
     m_SupernovaDetails.drawnKickVelocity       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_SupernovaDetails.kickVelocity            = DEFAULT_INITIAL_DOUBLE_VALUE;
+
+    m_SupernovaDetails.hydrogenContent         = HYDROGEN_CONTENT::RICH;
+    m_SupernovaDetails.fallbackFraction        = DEFAULT_INITIAL_DOUBLE_VALUE;
+
+    m_SupernovaDetails.theta                   = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SupernovaDetails.phi                     = DEFAULT_INITIAL_DOUBLE_VALUE;
+
+    m_SupernovaDetails.meanAnomaly             = RAND->Random(0.0, _2_PI);
+    m_SupernovaDetails.eccentricAnomaly        = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SupernovaDetails.trueAnomaly             = DEFAULT_INITIAL_DOUBLE_VALUE;
+
+    m_SupernovaDetails.supernovaState          = SN_STATE::NONE;
 
     // Pulsar details
     m_PulsarDetails.magneticField              = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -300,6 +314,8 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::HYDROGEN_POOR:                                      value = SN_HydrogenContent() == HYDROGEN_CONTENT::POOR;         break;
             case ANY_STAR_PROPERTY::HYDROGEN_RICH:                                      value = SN_HydrogenContent() == HYDROGEN_CONTENT::RICH;         break;
             case ANY_STAR_PROPERTY::ID:                                                 value = ObjectId();                                             break;
+            case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE:                               value = InitialStellarType();                                   break;
+            case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
             case ANY_STAR_PROPERTY::IS_ECSN:                                            value = IsECSN();                                               break;
             case ANY_STAR_PROPERTY::IS_SN:                                              value = IsSN();                                                 break;
             case ANY_STAR_PROPERTY::IS_USSN:                                            value = IsUSSN();                                               break;
@@ -817,7 +833,7 @@ void BaseStar::CalculateMassCutoffs(const double p_Metallicity, const double p_L
     double bottom      = 1.0 + (0.0012 * pow((ZSOL / p_Metallicity), 1.27));
     massCutoffs(MFGB)  = top / bottom;                                              // MFGB - Hurley et al. 2000, eq 3
 
-    massCutoffs(MCHE)  = 100.0;// * MSOL;                                              // MCHE - Mandel/Butler - CHE calculation
+    massCutoffs(MCHE)  = 100.0;                                                     // MCHE - Mandel/Butler - CHE calculation
 
 #undef massCutoffs
 }
@@ -2957,11 +2973,14 @@ DBL_DBL BaseStar::SolveKeplersEquation(const double p_MeanAnomaly, const double 
 
     double kepler = E - (e * sin(E)) - M;                                                                                           // let f(E) = 0.  Equation (92) in my "A simple toy model" document
 
-    while (std::abs(kepler) >= NEWTON_RAPHSON_EPSILON) {                                                                            // repeat the approximation until E is within the specified error of the true value
+    int iteration = 0;
+    while (std::abs(kepler) >= NEWTON_RAPHSON_EPSILON && iteration++ < MAX_KEPLER_ITERATIONS) {                                     // repeat the approximation until E is within the specified error of the true value, or max iterations exceeded
         double keplerPrime = 1.0 - (e * cos(E));                                                                                    // derivative of f(E), f'(E).  Equation (94) in my "A simple toy model" document
         E = E - kepler / keplerPrime;
         kepler = E - (e * sin(E)) - M;                                                                                              // let f(E) = 0.  Equation (92) in my "A simple toy model" document
     }
+
+    if (iteration >= MAX_KEPLER_ITERATIONS) SHOW_ERROR(ERROR::NO_CONVERGENCE, "Solving Kepler's equation");                         // show error
 
     double nu = 2.0 * atan((sqrt((1.0 + e) / (1.0 - e))) * tan(0.5*E));                                                             // convert eccentric anomaly into true anomaly.  Equation (96) in my "A simple toy model" document
 
@@ -2975,7 +2994,7 @@ DBL_DBL BaseStar::SolveKeplersEquation(const double p_MeanAnomaly, const double 
 /*
  * Calculate eccentric anomaly and true anomaly - uses kepler's equation
  *
- * Modifies class memvber variables m_SupernovaDetails.eccentricAnomaly and m_SupernovaDetails.trueAnomaly
+ * Modifies class member variables m_SupernovaDetails.eccentricAnomaly and m_SupernovaDetails.trueAnomaly
  *
  *
  * void CalculateSNAnomalies(const double p_Eccentricity)

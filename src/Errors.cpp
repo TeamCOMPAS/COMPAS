@@ -203,7 +203,7 @@ bool Errors::ShowIt(const std::string  p_Prefix,
                         }
 
                         if (print) {                                                                                                            // if will print, then...
-                            if (p_ObjectType == OBJECT_TYPE::MAIN || p_ObjectType == OBJECT_TYPE::UTILS || p_ObjectType == OBJECT_TYPE::AIS) {  // add 'p_ObjectId' and 'funcNmae' to relevant vectors
+                            if (p_ObjectType == OBJECT_TYPE::MAIN || p_ObjectType == OBJECT_TYPE::UTILS || p_ObjectType == OBJECT_TYPE::AIS) {  // add 'p_ObjectId' and 'funcName' to relevant vectors
                                 nonStellarObjectIds.push_back(p_ObjectId);                                                                      // non-stellar objectId
                                 nonStellarFuncs.push_back(funcName);                                                                            // non-stellar funcName (required for ERROR_SCOPE::FIRST_IN_FUNCTION)
                             }

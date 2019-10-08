@@ -17,7 +17,7 @@
 // 02.00.03      IM - Sep 23, 2019 - Added fstream include
 // 02.01.00      JR - Oct 01, 2019 - Support for Chemically Homogeneous Evolution
 // 02.02.00      JR - Oct 01, 2019 - Support for Grids - both SSE and BSE
-// 02.02.01      JR - Oct 01, 2019 - Changed BaseBinaryStar code to assume tidal locking only if CHE is enables
+// 02.02.01      JR - Oct 01, 2019 - Changed BaseBinaryStar code to assume tidal locking only if CHE is enabled
 // 02.02.02      JR - Oct 07, 2019 - Defect repairs:
 //                                       SSE iteration (increment index - Grids worked, range of values wasn't incrementing)
 //                                       Errors service (FIRST_IN_FUNCTION errors sometimes printed every time)
@@ -25,9 +25,14 @@
 //                                   Errors service performance enhancement (clean deleted stellar objects from catalog)
 //                                   Changed way binary constituent stars masses equilibrated (they now retain their ZAMS mass, but (initial) mass and mass0 changes)
 //                                   Add initial stellar type variable - and to some record definitions
+//                                   Added change history and version number to constants.h
+// 02.02.03      JR - Oct 09, 2019 - Defect repair:
+//                                       Initialised all BaseStar.m_Supernova elements (some had not been initialised)
+//                                       Fixed regression in BaseStar.cpp (INITIAL_STELLAR_TYPE & INITIAL_STELLAR_TYPE_NAME in StellarPropertyValue())
+//                                   Added max iteration check to Newton-Raphson method in SolveKeplersEquation (see constant MAX_KEPLER_ITERATIONS)
 
 
-const std::string VERSION_STRING = "02.02.02";
+const std::string VERSION_STRING = "02.02.03";
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
@@ -55,7 +60,6 @@ using COMPASUnorderedMap = std::unordered_map<Key, T, HashType<Key>>;
 
 
 extern OBJECT_ID globalObjectId;                                                                    // used to uniquely identify objects - used primarily for error printing
-
 
 /*
  * Trick to allow SWITCH on literal strings
@@ -192,7 +196,7 @@ constexpr int    MAX_TIMESTEP_RETRIES                   = 30;                   
 constexpr double MAXIMUM_MASS_LOSS_FRACTION             = 0.01;                                                     // Maximum allowable mass loss - 1.0% (of mass) expressed as a fraction
 constexpr double MAXIMUM_RADIAL_CHANGE                  = 0.01;                                                     // Maximum allowable radial change - 1% (of radius) expressed as a fraction
 constexpr double FAKE_MASS_LOSS_PERCENTAGE              = 0.01;                                                     // Percentage mass loss for fake mass loss prescription (0.01% = 0.0001 fraction)
-const double MINIMUM_MASS_SECONDARY                     = 4.0;                                                      // Minimum mass of secondary to evolve
+constexpr double MINIMUM_MASS_SECONDARY                 = 4.0;                                                      // Minimum mass of secondary to evolve
 constexpr double RL_MASS_LOSS_FRACTION                  = 0.01;                                                     // Mass loss - 1.0% (of mass) expressed as a fraction - for calculating Roche Lobe resposne to mass transfer
 
 constexpr double ZETA_THERMAL_PERCENTAGE_MASS_CHANGE    = 1.0E-3;                                                   // Initial guess for percentage mass change when calculating zeta_thermal (use -ve for loss, +ve for gain)
@@ -212,6 +216,7 @@ constexpr double ROCHE_LOBE_OVERFLOW                    = 1.0;                  
 
 constexpr double MASS_TRANSFER_THRESHOLD                = 0.95;                                                     // JR: todo: description
 
+constexpr int    MAX_KEPLER_ITERATIONS                  = 1000;                                                     // Maximum number of iterations to solve Kepler's equation
 constexpr double NEWTON_RAPHSON_EPSILON                 = 1.0E-5;                                                   // Accuracy for Newton-Raphson method
 
 constexpr double EPSILON_PULSAR                         = 1.0;                                                      // JR: todo: description
