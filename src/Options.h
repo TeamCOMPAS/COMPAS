@@ -140,6 +140,8 @@ public:
     double                                      InitialPrimaryMetallicity() const                                       { return initialPrimaryMetallicity; }
     double                                      InitialSecondaryMetallicity() const                                     { return initialSecondaryMetallicity; }
 
+    KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return kickDirectionDistribution; }
+    double                                      KickDirectionPower() const                                              { return kickDirectionPower; }
     double                                      KickScalingFactor() const                                               { return kickScalingFactor; }
     KICK_VELOCITY_DISTRIBUTION                  KickVelocityDistribution() const                                        { return kickVelocityDistribution; }
 
@@ -438,7 +440,8 @@ private:
     double                                      fixedUK;                                                        // Dimensionless value to fix the kick velocity to
 
     // Kick direction options
-    string                                      kickDirection;                                                  // Which distribution to use for the kick directions
+    KICK_DIRECTION_DISTRIBUTION                 kickDirectionDistribution;                                      // Which distribution to use for the kick directions
+    string                                      kickDirectionDistributionString;                                // Which kick velocity distribution to use (default = "Maxwellian". Can also choose "flat")
     double                                      kickDirectionPower;
 
     // Pair instability and pulsational pair instability mass loss

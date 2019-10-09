@@ -26,13 +26,17 @@
 //                                   Changed way binary constituent stars masses equilibrated (they now retain their ZAMS mass, but (initial) mass and mass0 changes)
 //                                   Add initial stellar type variable - and to some record definitions
 //                                   Added change history and version number to constants.h
-// 02.02.03      JR - Oct 09, 2019 - Defect repair:
+// 02.02.03      JR - Oct 09, 2019 - Defect repairs:
 //                                       Initialised all BaseStar.m_Supernova elements (some had not been initialised)
 //                                       Fixed regression in BaseStar.cpp (INITIAL_STELLAR_TYPE & INITIAL_STELLAR_TYPE_NAME in StellarPropertyValue())
 //                                   Added max iteration check to Newton-Raphson method in SolveKeplersEquation (see constant MAX_KEPLER_ITERATIONS)
+// 02.02.04      JR - Oct 09, 2019 - Defect repairs:
+//                                       SN kick direction calculation corrected
+//                                       Boolean value output corrected
+//                                       Typos fixed
 
 
-const std::string VERSION_STRING = "02.02.03";
+const std::string VERSION_STRING = "02.02.04";
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
@@ -316,6 +320,7 @@ enum class ERROR: int {
     UNKNOWN_COMMON_ENVELOPE_PRESCRIPTION,                           // unknown Common Envelope Prescription
     UNKNOWN_ECCENTRICITY_DISTRIBUTION,                              // unknown eccentricity distribution
     UNKNOWN_INITIAL_MASS_FUNCTION,                                  // unknown initial mass function
+    UNKNOWN_KICK_DIRECTION_DISTRIBUTION,                            // unknown kick direction distribution
     UNKNOWN_KICK_VELOCITY_DISTRIBUTION,                             // unknown kick velocity distribution
     UNKNOWN_LOGFILE,                                                // unknown log file
     UNKNOWN_MT_ACCRETION_EFFICIENCY_PRESCRIPTION,                   // unknown mass transfer accretion efficiency prescription
@@ -432,6 +437,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_COMMON_ENVELOPE_PRESCRIPTION,                  { ERROR_SCOPE::ALWAYS,              "Unknown common envelope prescription" }},
     { ERROR::UNKNOWN_ECCENTRICITY_DISTRIBUTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown eccentricity distribution" }},
     { ERROR::UNKNOWN_INITIAL_MASS_FUNCTION,                         { ERROR_SCOPE::ALWAYS,              "Unknown initial mass function (IMF)" }},
+    { ERROR::UNKNOWN_KICK_DIRECTION_DISTRIBUTION,                   { ERROR_SCOPE::ALWAYS,              "Unknown kick direction distribution" }},
     { ERROR::UNKNOWN_KICK_VELOCITY_DISTRIBUTION,                    { ERROR_SCOPE::ALWAYS,              "Unknown kick velocity distribution" }},
     { ERROR::UNKNOWN_LOGFILE,                                       { ERROR_SCOPE::ALWAYS,              "Unknown log file" }},
     { ERROR::UNKNOWN_MT_CASE,                                       { ERROR_SCOPE::ALWAYS,              "Unknown mass transfer case" }},
@@ -650,6 +656,19 @@ const COMPASUnorderedMap<KICK_VELOCITY_DISTRIBUTION, std::string> KICK_VELOCITY_
     { KICK_VELOCITY_DISTRIBUTION::MULLER2016,           "MULLER2016" },
     { KICK_VELOCITY_DISTRIBUTION::MULLER2016MAXWELLIAN, "MULLER2016MAXWELLIAN" }
 };
+
+
+// Kick direction distribution
+enum class KICK_DIRECTION_DISTRIBUTION: int { ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW, WEDGE, POLES };
+const COMPASUnorderedMap<KICK_DIRECTION_DISTRIBUTION, std::string> KICK_DIRECTION_DISTRIBUTION_LABEL = {
+    { KICK_DIRECTION_DISTRIBUTION::ISOTROPIC,     "ISOTROPIC" },
+    { KICK_DIRECTION_DISTRIBUTION::INPLANE,       "INPLANE" },
+    { KICK_DIRECTION_DISTRIBUTION::PERPENDICULAR, "PERPENDICULAR" },
+    { KICK_DIRECTION_DISTRIBUTION::POWERLAW,      "POWERLAW" },
+    { KICK_DIRECTION_DISTRIBUTION::WEDGE,         "WEDGE" },
+    { KICK_DIRECTION_DISTRIBUTION::POLES,         "POLES" }
+};
+
 
 // Initial mass function
 enum class INITIAL_MASS_FUNCTION: int { SALPETER, POWERLAW, UNIFORM, KROUPA };

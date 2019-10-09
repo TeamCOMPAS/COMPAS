@@ -1900,7 +1900,7 @@ double BaseBinaryStar::CalculateSemiMajorAxisPostSupernova(const double p_KickVe
     double r_2           = 2.0 / m_Radius;
     double quadraticTerm = 1.0 + (2.0 * p_KickVelocity * cos(p_KickTheta) * cos(p_KickPhi)) + (p_KickVelocity * p_KickVelocity);
 
-    return 1.0 / (r_2 - (p_TotalMassPreSN / p_TotalMassPostSN) * (r_2 - (1.0 / m_SemiMajorAxisPrime)) * quadraticTerm);
+    return 1.0 / (r_2 - ((p_TotalMassPreSN / p_TotalMassPostSN) * (r_2 - (1.0 / m_SemiMajorAxisPrime)) * quadraticTerm));
 }
 
 

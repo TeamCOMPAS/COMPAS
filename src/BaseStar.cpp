@@ -201,14 +201,14 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, c
     m_SupernovaDetails.hydrogenContent         = HYDROGEN_CONTENT::RICH;
     m_SupernovaDetails.fallbackFraction        = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_SupernovaDetails.theta                   = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_SupernovaDetails.phi                     = DEFAULT_INITIAL_DOUBLE_VALUE;
-
     m_SupernovaDetails.meanAnomaly             = RAND->Random(0.0, _2_PI);
     m_SupernovaDetails.eccentricAnomaly        = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_SupernovaDetails.trueAnomaly             = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_SupernovaDetails.supernovaState          = SN_STATE::NONE;
+
+    std::tie(m_SupernovaDetails.theta, m_SupernovaDetails.phi) = DrawKickDirection();
+
 
     // Pulsar details
     m_PulsarDetails.magneticField              = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -2752,7 +2752,7 @@ double BaseStar::DrawKickVelocityBrayEldridge(const double p_EjectaMass,
 
 
 /*
- * Draw kick velocoty per Muller et al. 2016
+ * Draw kick velocity per Muller et al. 2016
  *
  * For BH assume complete fallback so no ejecta hence no rocket effect
  * If BH doesnt assumes complete fallback, e.g. neutrino mass loss, a Blauuw Kick should be calculated
@@ -2929,6 +2929,94 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
     }
 
     return vK;
+}
+
+
+ /*
+  * Draw the angular components of the supernova kick theta and phi according to user specified options.
+
+    Parameters
+    -----------
+    options : programOptions
+        User specified options
+    r : gsl_rng
+        Used for the random number generation
+    theta : double
+        Polar angle for kick (pointer)
+    phi : double
+        Azimuthal angle for kick (pointer)
+    kickDirectionPower : double
+        Power law for the POWER angle distribution
+
+    Returns
+    --------
+    updates values of theta and phi
+    */
+DBL_DBL BaseStar::DrawKickDirection() {
+
+    double theta;                                                                                               // theta, angle out of the plane
+    double phi;                                                                                                 // phi, angle in the plane
+
+    double delta = 1.0 * DEGREE;                                                                                // small angle () in radians - could be set by user in options
+
+    double rand = RAND->Random();                                                                               // do this here to be consistent with legacy code - allows comparison tests
+
+    switch (OPTIONS->KickDirectionDistribution()) {                                                             // which kick direction distribution?
+
+        case KICK_DIRECTION_DISTRIBUTION::ISOTROPIC:                                                            // ISOTROPIC: Draw theta and phi isotropically
+            theta = acos(1.0 - (2.0 * RAND->Random())) - M_PI_2;
+            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
+            break;
+
+        case KICK_DIRECTION_DISTRIBUTION::POWERLAW: {                                                           // POWERLAW: Draw phi uniform in [0,2pi], theta according to a powerlaw
+                                                                                                                // (power law power = 0 = isotropic, +infinity = kick along pole, -infinity = kick in plane)
+            // Choose magnitude of power law distribution -- if using a negative power law that blows up at 0,
+            // need a lower cutoff (currently set at 1E-6), check it doesn't affect things too much
+            // JR: todo: shsould these be in constants.h?
+            double magnitude_of_cos_theta = utils::InverseSampleFromPowerLaw(OPTIONS->KickDirectionPower(), 1.0, 1E-6);
+
+            if (OPTIONS->KickDirectionPower() < 0.0) magnitude_of_cos_theta = 1.0 - magnitude_of_cos_theta;     // don't use utils::Compare() here
+
+            double actual_cos_theta = magnitude_of_cos_theta;
+
+            if (RAND->Random() < 0.5) actual_cos_theta = -magnitude_of_cos_theta;                               // By taking the magnitude of cos theta we lost the information about whether it was up or down, so we put that back in randomly here
+
+            actual_cos_theta = min(1.0, max(-1.0, actual_cos_theta));                                           // clamp to [-1.0, 1.0]
+
+            theta = acos(actual_cos_theta);                                                                     // set the kick angle out of the plane theta
+            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
+            } break;
+
+        case KICK_DIRECTION_DISTRIBUTION::INPLANE:                                                              // INPLANE: Force the kick to be in the plane theta = 0
+            theta = 0.0;                                                                                        // force the kick to be in the plane - theta = 0
+            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
+            break;
+
+        case KICK_DIRECTION_DISTRIBUTION::PERPENDICULAR:                                                        // PERPENDICULAR: Force kick to be along spin axis
+            theta = M_PI_2;                                                                                     // pi/2 UP
+            if (rand >= 0.5) theta = -theta;                                                                    // switch to DOWN
+            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
+            break;
+
+        case KICK_DIRECTION_DISTRIBUTION::POLES:                                                                // POLES: Direct the kick in a small cone around the poles
+            if (rand < 0.5) theta = M_PI_2 - fabs(RAND->RandomGaussian(delta));                                 // UP - slightly less than or equal to pi/2
+            else            theta = fabs(RAND->RandomGaussian(delta)) - M_PI_2;                                 // DOWN - slightly more than or equal to -pi/2
+
+            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
+            break;
+
+        case KICK_DIRECTION_DISTRIBUTION::WEDGE:                                                                // WEDGE: Direct kick into a wedge around the horizon (theta = 0)
+            theta = RAND->RandomGaussian(delta);                                                                // Gaussian around 0 with a deviation delta
+            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
+            break;
+
+        default:                                                                                                // unknown kick direction distribution - use ISOTROPIC
+            theta = acos(1.0 - (2.0 * RAND->Random())) - M_PI_2;
+            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
+            SHOW_WARN(ERROR::UNKNOWN_KICK_DIRECTION_DISTRIBUTION, " Using default");                            // warn that an error occurred
+    }
+
+    return std::make_tuple(theta, phi);
 }
 
 
