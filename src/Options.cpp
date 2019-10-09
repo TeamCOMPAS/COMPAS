@@ -183,7 +183,8 @@ void Options::InitialiseMemberVariables(void) {
 
 
     // Kick direction option
-    kickDirection                                                   = "Isotropic";                                                                      // Which assumption for SN kicks: Possibilities: Isotropic, poles, plane, power       JR: todo:
+    kickDirectionDistribution                                       = KICK_DIRECTION_DISTRIBUTION::ISOTROPIC;                                           // Which assumption for SN kicks: Possibilities: isotropic, inplane, perpendicular, powerlaw, wedge, poles, default = isotropic
+    kickDirectionDistributionString                                 = KICK_DIRECTION_DISTRIBUTION_LABEL.at(kickDirectionDistribution);		            // Which assumption for SN kicks: Possibilities: isotropic, inplane, perpendicular, powerlaw, wedge, poles, default = isotropic
     kickDirectionPower                                              = 0.0;                                                                              // Power law power for the "power" SN kick direction choice
 
     // Get default output path
@@ -610,7 +611,8 @@ void Options::SetToFiducialValues(void) {
 
 
     // Kick direction option
-    kickDirection                                                   = "Isotropic";                                                                      // Which assumption for SN kicks: Possibilities: Isotropic, poles, plane, power     JR: todo:
+    kickDirectionDistribution                                       = KICK_DIRECTION_DISTRIBUTION::ISOTROPIC;                                           // Which assumption for SN kicks: Possibilities: isotropic, inplane, perpendicular, powerlaw, wedge, poles, default = isotropic
+    kickDirectionDistributionString                                 = KICK_DIRECTION_DISTRIBUTION_LABEL.at(kickDirectionDistribution);		            // Which assumption for SN kicks: Possibilities: isotropic, inplane, perpendicular, powerlaw, wedge, poles, default = isotropic
     kickDirectionPower                                              = 0.0;                                                                              // Power law power for the "power" SN kick direction choice
 
     // Get default output path
@@ -1100,7 +1102,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		    ("initial-mass-function,i",                                     po::value<string>(&initialMassFunctionString),                                      "Specify initial mass function to use (options: SALPETER, POWERLAW, UNIFORM, KROUPA. default = KROUPA)")
 
-		    ("kick-direction",                                              po::value<string>(&kickDirection),                                                  "Distribution for natal kick direction (options: ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW. Default = ISOTROPIC)")
+		    ("kick-direction",                                              po::value<string>(&kickDirectionDistributionString),                                "Distribution for natal kick direction (options: ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW, WEDGE, POLES. Default = ISOTROPIC)")
 		    ("kick-velocity-distribution",                                  po::value<string>(&kickVelocityDistributionString),                                 "Natal kick velocity distribution (options: ZERO, FLAT, MAXWELLIAN, MUELLER2016, MUELLER2016MAXWELLIAN, BRAYELDRIDGE. Default = MAXWELLIAN)")
 
             ("logfile-BSE-be-binaries",                                     po::value<string>(&logfileBSEBeBinaries),                                           "Filename for BSE Be Binaries logfile")
@@ -1355,7 +1357,12 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 COMPLAIN_IF(!found, "Unknown Initial Mass Function");
             }
 
-            if (vm.count("kick-velocity-distrinbution")) {                                                                              // initial mass function
+            if (vm.count("kick-direction")) {                                                                                           // kick direction
+                std::tie(found, kickDirectionDistribution) = utils::GetMapKey(kickDirectionDistributionString, KICK_DIRECTION_DISTRIBUTION_LABEL, kickDirectionDistribution);
+                COMPLAIN_IF(!found, "Unknown Kick Direction Distribution");
+            }
+
+            if (vm.count("kick-velocity-distribution")) {                                                                               // kick velocity
                 std::tie(found, kickVelocityDistribution) = utils::GetMapKey(kickVelocityDistributionString, KICK_VELOCITY_DISTRIBUTION_LABEL, kickVelocityDistribution);
                 COMPLAIN_IF(!found, "Unknown Kick Velocity Distribution");
             }
