@@ -607,6 +607,7 @@ class pythonProgramOptions:
             self.common_envelope_mass_accretion_prescription,
             self.logfile_name_prefix,
             self.logfile_delimiter,
+            self.logfile_definitions,
             self.grid_filename
         ]
 
@@ -645,6 +646,7 @@ class pythonProgramOptions:
             '--common-envelope-mass-accretion-prescription',
             '--logfile-name-prefix',
             '--logfile-delimiter',
+            '--logfile-definitions',
             '--grid'
         ]
 

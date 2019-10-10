@@ -2354,7 +2354,7 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
     }
 
     // calculate omegaCHE(M, Z)
-    return (1.0 / ((0.09 * log(p_Metallicity / 0.004)) + 1.0) * omegaZ004) * SECONDS_IN_YEAR / _2_PI;   // in yr^-1
+    return (1.0 / ((0.09 * log(p_Metallicity / 0.004)) + 1.0) * omegaZ004) * SECONDS_IN_YEAR;   // in rads/yr
 
 #undef massCutoffs
 }
@@ -2959,7 +2959,7 @@ DBL_DBL BaseStar::DrawKickDirection() {
 
     double delta = 1.0 * DEGREE;                                                                                // small angle () in radians - could be set by user in options
 
-    double rand = RAND->Random();                                                                               // do this here to be consistent with legacy code - allows comparison tests
+    double rand = RAND->Random();                                                                               // do this here to be consistent with legacy code - allows comparison tests (won't work for long - soon there will be too many changes to the code...)
 
     switch (OPTIONS->KickDirectionDistribution()) {                                                             // which kick direction distribution?
 

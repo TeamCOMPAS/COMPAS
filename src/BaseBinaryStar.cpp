@@ -239,7 +239,7 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
     m_EccentricityAtDCOFormation  = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 
-    m_OrbitalVelocity             = sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis));
+    m_OrbitalVelocity             = sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); // rads/year
 
     m_OrbitalVelocityPrime        = m_OrbitalVelocity;
     m_OrbitalVelocityPrev         = m_OrbitalVelocity;
@@ -247,41 +247,43 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
 
 
     // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
-    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star1->SetOmega(m_OrbitalVelocity);
-    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star2->SetOmega(m_OrbitalVelocity);
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) {
 
-    // check for CHE
-    //
-    // because we've changed the rotational frequency of the constituent stars we
-    // have to reset the stellar type - at this stage, based on their rotational
-    // frequency at birth, they may have already been assigned one of MS_LTE_07,
-    // MS_GT_07, or CHEMICALLY_HOMOGENEOUS
-    //
-    // here we need to change from MS_* -> CHE, or from CHE->MS* based on the
-    // newly-assigned rotational frequencies
+        m_Star1->SetOmega(m_OrbitalVelocity);
+        m_Star2->SetOmega(m_OrbitalVelocity);
 
-    // star 1
-    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE && utils::Compare(m_Star1->Omega(), m_Star1->OmegaCHE()) >= 0) {                              // star 1 CHE?
-        m_Star1->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                                          // yes
-    }
-    else if (m_Star1->MZAMS() <= 0.7) {                                                                                                         // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
-        m_Star1->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                                                                                       // MS <= 0.0 Msol
-    }
-    else {
-        m_Star1->SwitchTo(STELLAR_TYPE::MS_GT_07, true);                                                                                        // MS > 0.7 Msol
-    }
+        // check for CHE
+        //
+        // because we've changed the rotational frequency of the constituent stars we
+        // have to reset the stellar type - at this stage, based on their rotational
+        // frequency at birth, they may have already been assigned one of MS_LTE_07,
+        // MS_GT_07, or CHEMICALLY_HOMOGENEOUS
+        //
+        // here we need to change from MS_* -> CHE, or from CHE->MS* based on the
+        // newly-assigned rotational frequencies
 
-    // star 2
-    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE && utils::Compare(m_Star2->Omega(), m_Star2->OmegaCHE()) >= 0) {                              // star 2 CHE?
-        m_Star2->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                                          // yes
-    }
-    else if (m_Star2->MZAMS() <= 0.7) {                                                                                                         // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
-        m_Star2->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                                                                                       // MS <= 0.0 Msol
-    }
-    else {
-        m_Star2->SwitchTo(STELLAR_TYPE::MS_GT_07, true);                                                                                        // MS > 0.7 Msol
-    }
+        // star 1
+        if (utils::Compare(m_OrbitalVelocity, m_Star1->OmegaCHE()) >= 0) {                                                                      // star 1 CHE?
+            if (m_Star1->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star1->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);  // yes, switch if not alread Chemically Homogeneous
+        }
+        else if (m_Star1->MZAMS() <= 0.7) {                                                                                                     // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
+            if (m_Star1->StellarType() != STELLAR_TYPE::MS_LTE_07) m_Star1->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                            // MS <= 0.7 Msol - switch if necessary
+        }
+        else {
+            if (m_Star1->StellarType() != STELLAR_TYPE::MS_GT_07) m_Star1->SwitchTo(STELLAR_TYPE::MS_GT_07, true);                              // MS > 0.7 Msol - switch if necessary
+        }
 
+        // star 2
+        if (utils::Compare(m_OrbitalVelocity, m_Star2->OmegaCHE()) >= 0) {                                                                      // star 2 CHE?
+            if (m_Star2->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star2->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);  // yes, switch if not alread Chemically Homogeneous
+        }
+        else if (m_Star2->MZAMS() <= 0.7) {                                                                                                     // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
+            if (m_Star2->StellarType() != STELLAR_TYPE::MS_LTE_07) m_Star2->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                            // MS <= 0.0 Msol - switch if necessary
+        }
+        else {
+            if (m_Star2->StellarType() != STELLAR_TYPE::MS_GT_07) m_Star2->SwitchTo(STELLAR_TYPE::MS_GT_07, true);                              // MS > 0.7 Msol - switch if necessary
+        }
+    }
 
     double gyrationRadius1                       = m_Star1->CalculateGyrationRadius();
     double gyrationRadius2                       = m_Star2->CalculateGyrationRadius();
@@ -3288,11 +3290,6 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
     EvaluateBinaryPreamble();                                                                                               // get things ready - do some house-keeping
 
     CheckMassTransfer(p_Dt);                                                                                                // calculate mass transfer if necessary
-
-    if (m_Star1->IsOneOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}) && m_Star1->IsRLOF()) SHOW_ERROR(ERROR::RLOF_FROM_CHE);    // shouldn't happen
-    if (m_Star2->IsOneOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}) && m_Star2->IsRLOF()) SHOW_ERROR(ERROR::RLOF_FROM_CHE);    // shouldn't happen
-    if (m_Star1->IsOneOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}) && m_Star2->IsRLOF()) SHOW_WARN(ERROR::RLOF_TO_CHE);       // probably don't need this
-    if (m_Star2->IsOneOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}) && m_Star1->IsRLOF()) SHOW_WARN(ERROR::RLOF_TO_CHE);       // probably don't need this
 
     CalculateWindsMassLoss();                                                                                               // calculate mass loss dues to winds
 
