@@ -75,13 +75,17 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
         double rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass1, mass2));
         double rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass2, mass1));
 
+        m_MassesEquilibrated = false;                                                                                                           // default
+
         if (OPTIONS->CHE_Option() != CHE_OPTION::NONE &&                                                                                        // CHE enabled?
            (utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0)) {                                        // either star overflowing Roche Lobe?
 
-            mass1            = (mass1 + mass2) / 2.0;                                                                                           // equilibrate masses
-            mass2            = mass1;                                                                                                           // ditto
-            m_SemiMajorAxis *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                                       // circularise; conserve angular momentum
-            m_Eccentricity   = 0.0;                                                                                                             // now circular
+            m_MassesEquilibrated = true;                                                                                                        // record that we've equilbrated
+
+            mass1                = (mass1 + mass2) / 2.0;                                                                                       // equilibrate masses
+            mass2                = mass1;                                                                                                       // ditto
+            m_SemiMajorAxis     *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                                   // circularise; conserve angular momentum
+            m_Eccentricity       = 0.0;                                                                                                         // now circular
 
             // create new stars with equal masses - eveything else is recalculated
             delete m_Star1;
@@ -148,13 +152,17 @@ BaseBinaryStar::BaseBinaryStar(const AIS     &p_AIS,
     double rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass1, mass2));
     double rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass2, mass1));
 
+    m_MassesEquilibrated = false;                                                                                                               // default
+
     if (OPTIONS->CHE_Option() != CHE_OPTION::NONE &&                                                                                            // CHE enabled?
        (utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0)) {                                            // either star overflowing Roche Lobe?
 
-        double newMass1  = (mass1 + mass2) / 2.0;                                                                                               // equilibrate masses
-        double newMass2  = newMass1;                                                                                                            // ditto
-        m_SemiMajorAxis *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                                           // circularise; conserve angular momentum
-        m_Eccentricity   = 0.0;                                                                                                                 // now circular
+        m_MassesEquilibrated = true;                                                                                                            // record that we've equilbrated
+
+        double newMass1      = (mass1 + mass2) / 2.0;                                                                                           // equilibrate masses
+        double newMass2      = newMass1;                                                                                                        // ditto
+        m_SemiMajorAxis     *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                                       // circularise; conserve angular momentum
+        m_Eccentricity       = 0.0;                                                                                                             // now circular
 
         // equilibrate masses - recalculate everything else
         m_Star1->UpdateAttributesAndAgeOneTimestep(newMass1 - mass1, newMass1 - mass1, 0.0, true);
@@ -259,11 +267,11 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
         // frequency at birth, they may have already been assigned one of MS_LTE_07,
         // MS_GT_07, or CHEMICALLY_HOMOGENEOUS
         //
-        // here we need to change from MS_* -> CHE, or from CHE->MS* based on the
+        // here we need to change from MS_* -> CH, or from CH->MS* based on the
         // newly-assigned rotational frequencies
 
         // star 1
-        if (utils::Compare(m_OrbitalVelocity, m_Star1->OmegaCHE()) >= 0) {                                                                      // star 1 CHE?
+        if (utils::Compare(m_OrbitalVelocity, m_Star1->OmegaCHE()) >= 0) {                                                                      // star 1 CH?
             if (m_Star1->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star1->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);  // yes, switch if not alread Chemically Homogeneous
         }
         else if (m_Star1->MZAMS() <= 0.7) {                                                                                                     // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
@@ -274,7 +282,7 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
         }
 
         // star 2
-        if (utils::Compare(m_OrbitalVelocity, m_Star2->OmegaCHE()) >= 0) {                                                                      // star 2 CHE?
+        if (utils::Compare(m_OrbitalVelocity, m_Star2->OmegaCHE()) >= 0) {                                                                      // star 2 CH?
             if (m_Star2->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star2->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);  // yes, switch if not alread Chemically Homogeneous
         }
         else if (m_Star2->MZAMS() <= 0.7) {                                                                                                     // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
@@ -605,6 +613,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::MASS_2_PRE_COMMON_ENVELOPE:                           value = Mass2PreCEE();                                                      break;
         case BINARY_PROPERTY::MASS_ENV_1:                                           value = MassEnv1();                                                         break;
         case BINARY_PROPERTY::MASS_ENV_2:                                           value = MassEnv2();                                                         break;
+        case BINARY_PROPERTY::MASSES_EQUILIBRATED:                                  value = MassesEquilibrated();                                               break;
         case BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY:                        value = MassTransferTrackerHistory();                                       break;
         case BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME:                                value = MergesInHubbleTime();                                               break;
         case BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE:                           value = OptimisticCommonEnvelope();                                         break;

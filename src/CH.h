@@ -1,5 +1,5 @@
-#ifndef __CHE_h__
-#define __CHE_h__
+#ifndef __CH_h__
+#define __CH_h__
 
 #include "constants.h"
 #include "typedefs.h"
@@ -11,15 +11,15 @@
 class BaseStar;
 class MS_gt_07;
 
-class CHE: virtual public BaseStar, public MS_gt_07 {
+class CH: virtual public BaseStar, public MS_gt_07 {
 
 public:
 
-    CHE(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), MS_gt_07(p_BaseStar) {
+    CH(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), MS_gt_07(p_BaseStar) {
         if (p_Initialise) Initialise();
     }
 
-    CHE& operator = (const BaseStar &baseStar) {
+    CH& operator = (const BaseStar &baseStar) {
         static_cast<BaseStar&>(*this) = baseStar;
         Initialise();
         return *this;
@@ -44,4 +44,4 @@ protected:
 
 };
 
-#endif // __CHE_h__
+#endif // __CH_h__

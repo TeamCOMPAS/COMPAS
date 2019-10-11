@@ -56,7 +56,7 @@ BaseStar* Star::Clone(const BaseStar& p_Star) {
     switch (p_Star.StellarType()) {
         case STELLAR_TYPE::MS_LTE_07                                : {ptr = new MS_lte_07(p_Star, false);} break;
         case STELLAR_TYPE::MS_GT_07                                 : {ptr = new MS_gt_07(p_Star, false);} break;
-        case STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS                   : {ptr = new CHE(p_Star, false);} break;
+        case STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS                   : {ptr = new CH(p_Star, false);} break;
         case STELLAR_TYPE::HERTZSPRUNG_GAP                          : {ptr = new HG(p_Star, false);} break;
         case STELLAR_TYPE::FIRST_GIANT_BRANCH                       : {ptr = new FGB(p_Star, false);} break;
         case STELLAR_TYPE::CORE_HELIUM_BURNING                      : {ptr = new CHeB(p_Star, false);} break;
@@ -127,7 +127,7 @@ void Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType) {
         switch (p_StellarType) {
             case STELLAR_TYPE::MS_LTE_07                                : {ptr = new MS_lte_07(*m_Star);} break;
             case STELLAR_TYPE::MS_GT_07                                 : {ptr = new MS_gt_07(*m_Star);} break;
-            case STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS                   : {ptr = new CHE(*m_Star);} break;
+            case STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS                   : {ptr = new CH(*m_Star);} break;
             case STELLAR_TYPE::HERTZSPRUNG_GAP                          : {ptr = new HG(*m_Star);} break;
             case STELLAR_TYPE::FIRST_GIANT_BRANCH                       : {ptr = new FGB(*m_Star);} break;
             case STELLAR_TYPE::CORE_HELIUM_BURNING                      : {ptr = new CHeB(*m_Star);} break;
