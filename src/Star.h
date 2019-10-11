@@ -10,7 +10,7 @@
 #include "BaseStar.h"
 #include "MS_lte_07.h"
 #include "MS_gt_07.h"
-#include "CHE.h"
+#include "CH.h"
 #include "HG.h"
 #include "FGB.h"
 #include "CHeB.h"
@@ -29,7 +29,7 @@
 class BaseStar;
 class MS_lte_07;
 class MS_gt_07;
-class CHE;
+class CH;
 class HG;
 class FGB;
 class CHeB;

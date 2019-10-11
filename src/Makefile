@@ -164,7 +164,7 @@ SOURCES = 								\
 			MS_lte_07.cpp				\
 			MS_gt_07.cpp				\
 										\
-			CHE.cpp						\
+			CH.cpp						\
 										\
 			GiantBranch.cpp				\
 			HG.cpp						\

@@ -38,9 +38,12 @@
 //                                       Determination of Chemically Homogeneous star fixed (threshold calculation)
 //                                       Removed checks for RLOF to/from CH stars
 //                                       Typos fixed
+// 02.02.06      JR - Oct 11, 2019 - Renamed class "CHE" - now class "CH"
+//                                   Updated CHE documentation
+//                                   Added m_MassesEquilibrated variable to BaseBinaryStar
 
 
-const std::string VERSION_STRING = "02.02.05";
+const std::string VERSION_STRING = "02.02.06";
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
@@ -579,7 +582,7 @@ const COMPASUnorderedMap<CE_ZETA_PRESCRIPTION, std::string> CE_ZETA_PRESCRIPTION
 };
 
 
-// CHE (chemically Homogeneous Evolution) Options
+// CHE (Chemically Homogeneous Evolution) Options
 enum class CHE_OPTION: int { NONE, OPTIMISTIC, PESSIMISTIC };
 const COMPASUnorderedMap<CHE_OPTION, std::string> CHE_OPTION_LABEL = {
     { CHE_OPTION::NONE,        "NONE" },
@@ -1478,6 +1481,7 @@ enum class BINARY_PROPERTY: int {
     MASS_2_PRE_COMMON_ENVELOPE,
     MASS_ENV_1,
     MASS_ENV_2,
+    MASSES_EQUILIBRATED,
     MASS_TRANSFER_TRACKER_HISTORY,
     MERGES_IN_HUBBLE_TIME,
     OPTIMISTIC_COMMON_ENVELOPE,
@@ -1595,6 +1599,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::MASS_2_PRE_COMMON_ENVELOPE,                         "MASS_2_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::MASS_ENV_1,                                         "MASS_ENV_1" },
     { BINARY_PROPERTY::MASS_ENV_2,                                         "MASS_ENV_2" },
+    { BINARY_PROPERTY::MASSES_EQUILIBRATED,                                "MASSES_EQUILIBRATED" },
     { BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,                      "MASS_TRANSFER_TRACKER_HISTORY" },
     { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                              "MERGES_IN_HUBBLE_TIME" },
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                         "OPTIMISTIC_COMMON_ENVELOPE" },
@@ -1876,6 +1881,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::MASS_2_PRE_COMMON_ENVELOPE,                          { TYPENAME::DOUBLE,         "Mass_2<CE",            "Msol",             14, 6 }},
     { BINARY_PROPERTY::MASS_ENV_1,                                          { TYPENAME::DOUBLE,         "Mass_Env_1",           "Msol",             14, 6 }},
     { BINARY_PROPERTY::MASS_ENV_2,                                          { TYPENAME::DOUBLE,         "Mass_Env_2",           "Msol",             14, 6 }},
+    { BINARY_PROPERTY::MASSES_EQUILIBRATED,                                 { TYPENAME::BOOL,           "Equilibrated",         "Event",             0, 0 }},
     { BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,                       { TYPENAME::MT_TRACKING,    "MT_History",           "",                  4, 1 }},
     { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                               { TYPENAME::BOOL,           "Merges_Hubble_Time",   "State",             0, 0 }},
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                          { TYPENAME::BOOL,           "Optimistic_CE",        "State",             0, 0 }},
