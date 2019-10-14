@@ -504,6 +504,8 @@ protected:
 
     virtual double          ChooseTimestep(const double p_Time)                                                 { return m_Dt; }
 
+            DBL_DBL         DrawKickDirection();
+
             double          DrawKickVelocityBrayEldridge(const double p_EjectaMass,
                                                          const double p_RemnantMass,
                                                          const double p_Alpha,

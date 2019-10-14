@@ -17,7 +17,7 @@
 // 02.00.03      IM - Sep 23, 2019 - Added fstream include
 // 02.01.00      JR - Oct 01, 2019 - Support for Chemically Homogeneous Evolution
 // 02.02.00      JR - Oct 01, 2019 - Support for Grids - both SSE and BSE
-// 02.02.01      JR - Oct 01, 2019 - Changed BaseBinaryStar code to assume tidal locking only if CHE is enables
+// 02.02.01      JR - Oct 01, 2019 - Changed BaseBinaryStar code to assume tidal locking only if CHE is enabled
 // 02.02.02      JR - Oct 07, 2019 - Defect repairs:
 //                                       SSE iteration (increment index - Grids worked, range of values wasn't incrementing)
 //                                       Errors service (FIRST_IN_FUNCTION errors sometimes printed every time)
@@ -25,9 +25,25 @@
 //                                   Errors service performance enhancement (clean deleted stellar objects from catalog)
 //                                   Changed way binary constituent stars masses equilibrated (they now retain their ZAMS mass, but (initial) mass and mass0 changes)
 //                                   Add initial stellar type variable - and to some record definitions
+//                                   Added change history and version number to constants.h
+// 02.02.03      JR - Oct 09, 2019 - Defect repairs:
+//                                       Initialised all BaseStar.m_Supernova elements (some had not been initialised)
+//                                       Fixed regression in BaseStar.cpp (INITIAL_STELLAR_TYPE & INITIAL_STELLAR_TYPE_NAME in StellarPropertyValue())
+//                                   Added max iteration check to Newton-Raphson method in SolveKeplersEquation (see constant MAX_KEPLER_ITERATIONS)
+// 02.02.04      JR - Oct 09, 2019 - Defect repairs:
+//                                       SN kick direction calculation corrected
+//                                       Boolean value output corrected
+//                                       Typos fixed
+// 02.02.05      JR - Oct 10, 2019 - Defect repairs:
+//                                       Determination of Chemically Homogeneous star fixed (threshold calculation)
+//                                       Removed checks for RLOF to/from CH stars
+//                                       Typos fixed
+// 02.02.06      JR - Oct 11, 2019 - Renamed class "CHE" - now class "CH"
+//                                   Updated CHE documentation
+//                                   Added m_MassesEquilibrated variable to BaseBinaryStar
 
 
-const std::string VERSION_STRING = "02.02.02";
+const std::string VERSION_STRING = "02.02.06";
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
@@ -55,7 +71,6 @@ using COMPASUnorderedMap = std::unordered_map<Key, T, HashType<Key>>;
 
 
 extern OBJECT_ID globalObjectId;                                                                    // used to uniquely identify objects - used primarily for error printing
-
 
 /*
  * Trick to allow SWITCH on literal strings
@@ -192,7 +207,7 @@ constexpr int    MAX_TIMESTEP_RETRIES                   = 30;                   
 constexpr double MAXIMUM_MASS_LOSS_FRACTION             = 0.01;                                                     // Maximum allowable mass loss - 1.0% (of mass) expressed as a fraction
 constexpr double MAXIMUM_RADIAL_CHANGE                  = 0.01;                                                     // Maximum allowable radial change - 1% (of radius) expressed as a fraction
 constexpr double FAKE_MASS_LOSS_PERCENTAGE              = 0.01;                                                     // Percentage mass loss for fake mass loss prescription (0.01% = 0.0001 fraction)
-const double MINIMUM_MASS_SECONDARY                     = 4.0;                                                      // Minimum mass of secondary to evolve
+constexpr double MINIMUM_MASS_SECONDARY                 = 4.0;                                                      // Minimum mass of secondary to evolve
 constexpr double RL_MASS_LOSS_FRACTION                  = 0.01;                                                     // Mass loss - 1.0% (of mass) expressed as a fraction - for calculating Roche Lobe resposne to mass transfer
 
 constexpr double ZETA_THERMAL_PERCENTAGE_MASS_CHANGE    = 1.0E-3;                                                   // Initial guess for percentage mass change when calculating zeta_thermal (use -ve for loss, +ve for gain)
@@ -212,6 +227,7 @@ constexpr double ROCHE_LOBE_OVERFLOW                    = 1.0;                  
 
 constexpr double MASS_TRANSFER_THRESHOLD                = 0.95;                                                     // JR: todo: description
 
+constexpr int    MAX_KEPLER_ITERATIONS                  = 1000;                                                     // Maximum number of iterations to solve Kepler's equation
 constexpr double NEWTON_RAPHSON_EPSILON                 = 1.0E-5;                                                   // Accuracy for Newton-Raphson method
 
 constexpr double EPSILON_PULSAR                         = 1.0;                                                      // JR: todo: description
@@ -297,8 +313,6 @@ enum class ERROR: int {
     OUT_OF_BOUNDS,                                                  // value out of bounds
     RADIUS_NOT_POSITIVE,                                            // radius is <= 0.0 - invalid
     RADIUS_NOT_POSITIVE_ONCE,                                       // radius is <= 0.0 - invalid
-    RLOF_FROM_CHE,                                                  // RLOF from CHE star
-    RLOF_TO_CHE,                                                    // RLOF to CHE star
     STELLAR_EVOLUTION_STOPPED,                                      // evolution of current star stopped
     STELLAR_SIMULATION_STOPPED,                                     // stellar simulation stopped
     UNEXPECTED_END_OF_FILE,                                         // unexpected end of file
@@ -311,6 +325,7 @@ enum class ERROR: int {
     UNKNOWN_COMMON_ENVELOPE_PRESCRIPTION,                           // unknown Common Envelope Prescription
     UNKNOWN_ECCENTRICITY_DISTRIBUTION,                              // unknown eccentricity distribution
     UNKNOWN_INITIAL_MASS_FUNCTION,                                  // unknown initial mass function
+    UNKNOWN_KICK_DIRECTION_DISTRIBUTION,                            // unknown kick direction distribution
     UNKNOWN_KICK_VELOCITY_DISTRIBUTION,                             // unknown kick velocity distribution
     UNKNOWN_LOGFILE,                                                // unknown log file
     UNKNOWN_MT_ACCRETION_EFFICIENCY_PRESCRIPTION,                   // unknown mass transfer accretion efficiency prescription
@@ -413,8 +428,6 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::OUT_OF_BOUNDS,                                         { ERROR_SCOPE::ALWAYS,              "Value out of bounds" }},
     { ERROR::RADIUS_NOT_POSITIVE,                                   { ERROR_SCOPE::ALWAYS,              "Radius <= 0.0" }},
     { ERROR::RADIUS_NOT_POSITIVE_ONCE,                              { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Radius <= 0.0" }},
-    { ERROR::RLOF_FROM_CHE,                                         { ERROR_SCOPE::ALWAYS,              "CHE star overflowing Roche Lobe" }},
-    { ERROR::RLOF_TO_CHE,                                           { ERROR_SCOPE::ALWAYS,              "CHE star accreting mass" }},
     { ERROR::STELLAR_EVOLUTION_STOPPED,                             { ERROR_SCOPE::ALWAYS,              "Evolution of current star stopped" }},
     { ERROR::STELLAR_SIMULATION_STOPPED,                            { ERROR_SCOPE::ALWAYS,              "Stellar simulation stopped" }},
     { ERROR::UNEXPECTED_END_OF_FILE,                                { ERROR_SCOPE::ALWAYS,              "Unexpected end of file" }},
@@ -427,6 +440,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_COMMON_ENVELOPE_PRESCRIPTION,                  { ERROR_SCOPE::ALWAYS,              "Unknown common envelope prescription" }},
     { ERROR::UNKNOWN_ECCENTRICITY_DISTRIBUTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown eccentricity distribution" }},
     { ERROR::UNKNOWN_INITIAL_MASS_FUNCTION,                         { ERROR_SCOPE::ALWAYS,              "Unknown initial mass function (IMF)" }},
+    { ERROR::UNKNOWN_KICK_DIRECTION_DISTRIBUTION,                   { ERROR_SCOPE::ALWAYS,              "Unknown kick direction distribution" }},
     { ERROR::UNKNOWN_KICK_VELOCITY_DISTRIBUTION,                    { ERROR_SCOPE::ALWAYS,              "Unknown kick velocity distribution" }},
     { ERROR::UNKNOWN_LOGFILE,                                       { ERROR_SCOPE::ALWAYS,              "Unknown log file" }},
     { ERROR::UNKNOWN_MT_CASE,                                       { ERROR_SCOPE::ALWAYS,              "Unknown mass transfer case" }},
@@ -568,7 +582,7 @@ const COMPASUnorderedMap<CE_ZETA_PRESCRIPTION, std::string> CE_ZETA_PRESCRIPTION
 };
 
 
-// CHE (chemically Homogeneous Evolution) Options
+// CHE (Chemically Homogeneous Evolution) Options
 enum class CHE_OPTION: int { NONE, OPTIMISTIC, PESSIMISTIC };
 const COMPASUnorderedMap<CHE_OPTION, std::string> CHE_OPTION_LABEL = {
     { CHE_OPTION::NONE,        "NONE" },
@@ -645,6 +659,19 @@ const COMPASUnorderedMap<KICK_VELOCITY_DISTRIBUTION, std::string> KICK_VELOCITY_
     { KICK_VELOCITY_DISTRIBUTION::MULLER2016,           "MULLER2016" },
     { KICK_VELOCITY_DISTRIBUTION::MULLER2016MAXWELLIAN, "MULLER2016MAXWELLIAN" }
 };
+
+
+// Kick direction distribution
+enum class KICK_DIRECTION_DISTRIBUTION: int { ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW, WEDGE, POLES };
+const COMPASUnorderedMap<KICK_DIRECTION_DISTRIBUTION, std::string> KICK_DIRECTION_DISTRIBUTION_LABEL = {
+    { KICK_DIRECTION_DISTRIBUTION::ISOTROPIC,     "ISOTROPIC" },
+    { KICK_DIRECTION_DISTRIBUTION::INPLANE,       "INPLANE" },
+    { KICK_DIRECTION_DISTRIBUTION::PERPENDICULAR, "PERPENDICULAR" },
+    { KICK_DIRECTION_DISTRIBUTION::POWERLAW,      "POWERLAW" },
+    { KICK_DIRECTION_DISTRIBUTION::WEDGE,         "WEDGE" },
+    { KICK_DIRECTION_DISTRIBUTION::POLES,         "POLES" }
+};
+
 
 // Initial mass function
 enum class INITIAL_MASS_FUNCTION: int { SALPETER, POWERLAW, UNIFORM, KROUPA };
@@ -1454,6 +1481,7 @@ enum class BINARY_PROPERTY: int {
     MASS_2_PRE_COMMON_ENVELOPE,
     MASS_ENV_1,
     MASS_ENV_2,
+    MASSES_EQUILIBRATED,
     MASS_TRANSFER_TRACKER_HISTORY,
     MERGES_IN_HUBBLE_TIME,
     OPTIMISTIC_COMMON_ENVELOPE,
@@ -1571,6 +1599,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::MASS_2_PRE_COMMON_ENVELOPE,                         "MASS_2_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::MASS_ENV_1,                                         "MASS_ENV_1" },
     { BINARY_PROPERTY::MASS_ENV_2,                                         "MASS_ENV_2" },
+    { BINARY_PROPERTY::MASSES_EQUILIBRATED,                                "MASSES_EQUILIBRATED" },
     { BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,                      "MASS_TRANSFER_TRACKER_HISTORY" },
     { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                              "MERGES_IN_HUBBLE_TIME" },
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                         "OPTIMISTIC_COMMON_ENVELOPE" },
@@ -1739,7 +1768,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::ERROR,                                             { TYPENAME::ERROR,          "Error",                "",                  4, 1 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_ECSN,                                  { TYPENAME::BOOL,           "Experienced_ECSN",     "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_PISN,                                  { TYPENAME::BOOL,           "Experienced_PISN",     "Event",             0, 0 }},
-    { ANY_STAR_PROPERTY::EXPERIENCED_PPISN,                                 { TYPENAME::BOOL,           "Experienced_PPSIN",    "Event",             0, 0 }},
+    { ANY_STAR_PROPERTY::EXPERIENCED_PPISN,                                 { TYPENAME::BOOL,           "Experienced_PPISN",    "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_RLOF,                                  { TYPENAME::BOOL,           "Experienced_RLOF",     "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::FALLBACK_FRACTION,                                 { TYPENAME::DOUBLE,         "Fallback_Fraction",     "",                14, 6 }},
     { ANY_STAR_PROPERTY::HE_CORE_MASS,                                      { TYPENAME::DOUBLE,         "Mass_He_Core",         "Msol",             14, 6 }},
@@ -1852,6 +1881,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::MASS_2_PRE_COMMON_ENVELOPE,                          { TYPENAME::DOUBLE,         "Mass_2<CE",            "Msol",             14, 6 }},
     { BINARY_PROPERTY::MASS_ENV_1,                                          { TYPENAME::DOUBLE,         "Mass_Env_1",           "Msol",             14, 6 }},
     { BINARY_PROPERTY::MASS_ENV_2,                                          { TYPENAME::DOUBLE,         "Mass_Env_2",           "Msol",             14, 6 }},
+    { BINARY_PROPERTY::MASSES_EQUILIBRATED,                                 { TYPENAME::BOOL,           "Equilibrated",         "Event",             0, 0 }},
     { BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,                       { TYPENAME::MT_TRACKING,    "MT_History",           "",                  4, 1 }},
     { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                               { TYPENAME::BOOL,           "Merges_Hubble_Time",   "State",             0, 0 }},
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                          { TYPENAME::BOOL,           "Optimistic_CE",        "State",             0, 0 }},
@@ -2004,8 +2034,6 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
     STAR_1_PROPERTY::STELLAR_TYPE,
     STAR_2_PROPERTY::INITIAL_STELLAR_TYPE,
     STAR_2_PROPERTY::STELLAR_TYPE,
-    STAR_1_PROPERTY::TIME,
-    STAR_2_PROPERTY::TIME,
     BINARY_PROPERTY::ERROR
 };
 

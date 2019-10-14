@@ -83,6 +83,8 @@ public:
 
         m_LBVfactor                        = p_Star.m_LBVfactor;
 
+        m_MassesEquilibrated               = p_Star.m_MassesEquilibrated;
+
         m_Mass1Final                       = p_Star.m_Mass1Final;
         m_Mass2Final                       = p_Star.m_Mass2Final;
 
@@ -281,6 +283,7 @@ public:
     double              Mass2PreCEE() const                         { return m_Mass2PreCEE; }
     double              MassEnv1() const                            { return m_MassEnv1; }
     double              MassEnv2() const                            { return m_MassEnv2; }
+    double              MassesEquilibrated() const                  { return m_MassesEquilibrated; }
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
     bool                MergesInHubbleTime() const                  { return m_MergesInHubbleTime; }
     bool                OptimisticCommonEnvelope() const            { return m_OptimisticCommonEnvelope; }
@@ -393,6 +396,8 @@ private:
    	double	            m_JLoss;			                                                // Specific angular momentum with which mass is lost during non-conservative mass transfer
 
     double              m_LBVfactor;
+
+    double              m_MassesEquilibrated;                                               // Indicates whether CH stars had masses equilbrated at birth
 
 	double              m_Mass1Final;                                                       // Star1 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
     double              m_Mass2Final;                                                       // Star2 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)

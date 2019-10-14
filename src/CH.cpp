@@ -1,7 +1,7 @@
-#include "CHE.h"
+#include "CH.h"
 
 
-STELLAR_TYPE CHE::EvolveToNextPhase() {
+STELLAR_TYPE CH::EvolveToNextPhase() {
 
     STELLAR_TYPE stellarType = STELLAR_TYPE::MS_GT_07;
 
