@@ -71,8 +71,8 @@ using std::get;
 class FormatVariantValue: public boost::static_visitor<string> {
 public:
     string operator()(const bool               v, const string fmtStr) const {
-                                                                           string fmt = fmtStr; fmt = "%" + fmt + "s";
-                                                                           string vS  = OPTIONS->PrintBoolAsString() ? (v ? "TRUE" : "FALSE") : (v ? "1" : "0");
+                                                                           string fmt = OPTIONS->PrintBoolAsString() ? "%5s" : "%1s";
+                                                                           string vS  = OPTIONS->PrintBoolAsString() ? (v ? "TRUE " : "FALSE") : (v ? "1" : "0");
                                                                            return utils::vFormat(fmt.c_str(), vS.c_str());
                                                                        }
     string operator()(const int                v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
@@ -255,6 +255,7 @@ private:
                 std::tie(ok, value) = p_Star->PropertyValue(property);                                                                  // get property flag and value
                 if (ok) {                                                                                                               // have valid property value
                     boost::variant<string> fmtStr(get<3>(fileDetails)[index++]);                                                        // format string
+
                     valueStr = boost::apply_visitor(FormatVariantValue(), value, fmtStr);                                               // format value
                 }
                 else valueStr = "ERROR!";                                                                                               // error formatting value
