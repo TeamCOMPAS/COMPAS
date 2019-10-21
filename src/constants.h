@@ -42,7 +42,7 @@
 //                                   Updated CHE documentation
 //                                   Added m_MassesEquilibrated variable to BaseBinaryStar
 // 02.02.07      JR - Oct 20, 2019 - Defect repairs:
-//                                       CEE printing systems post-stripping - github issue - reworked CE details/pre/post CE
+//                                       CEE printing systems post-stripping - github issue - reworked CE details/pre/post CE - partial fix (BindingEnergy remaining)
 //                                       Added RANDOM_SEED to Options::OptionValue() (omitted erroneously)
 //                                   Added m_SecondaryTooSmallForDCO variable to BaseBinaryStar - and to some record definitions
 //                                   Added m_StellarMergerAtBirth variable to BaseBinaryStar - and to some record definitions
