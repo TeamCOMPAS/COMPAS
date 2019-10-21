@@ -67,8 +67,13 @@ public:
 
     // getters - alphabetically
     double                      Age() const                                                                                 { return m_Star->Age(); }
-    double                      CEE_Lambda() const                                                                          { return m_Star->CEE_Lambda(); }
+    double                      BindingEnergy_Fixed() const                                                                 { return m_Star->BindingEnergy_Fixed(); }
+    double                      BindingEnergy_Loveridge() const                                                             { return m_Star->BindingEnergy_Loveridge(); }
+    double                      BindingEnergy_Nanjing() const                                                               { return m_Star->BindingEnergy_Nanjing(); }
+    double                      BindingEnergy_Kruckow() const                                                               { return m_Star->BindingEnergy_Kruckow(); }
+    double                      COCoreMass() const                                                                          { return m_Star->COCoreMass(); }
     double                      CoreMass() const                                                                            { return m_Star->CoreMass(); }
+    double                      DynamicalTimescale() const                                                                  { return m_Star->DynamicalTimescale(); }
     double                      EnvMass() const                                                                             { return m_Star->EnvMass(); }
     bool                        ExperiencedCCSN() const                                                                     { return m_Star->ExperiencedCCSN(); }
     bool                        ExperiencedECSN() const                                                                     { return m_Star->ExperiencedECSN(); }
@@ -77,6 +82,7 @@ public:
     bool                        ExperiencedRunaway() const                                                                  { return m_Star->ExperiencedRunaway(); }
     bool                        ExperiencedSN() const                                                                       { return m_Star->ExperiencedSN(); }
     bool                        ExperiencedUSSN() const                                                                     { return m_Star->ExperiencedUSSN(); }
+    double                      HeCoreMass() const                                                                          { return m_Star->HeCoreMass(); }
     bool                        IsCCSN() const                                                                              { return m_Star->IsCCSN(); }
     bool                        IsDegenerate() const                                                                        { return m_Star->IsDegenerate(); }
     bool                        IsECSN() const                                                                              { return m_Star->IsECSN(); }
@@ -86,15 +92,21 @@ public:
     bool                        IsPPISN() const                                                                             { return m_Star->IsPPISN(); }
     bool                        IsSN() const                                                                                { return m_Star->IsSN(); }
     bool                        IsUSSN() const                                                                              { return m_Star->IsUSSN(); }
+    double                      Lambda_Fixed() const                                                                        { return m_Star->Lambda_Fixed(); }
+    double                      Lambda_Loveridge() const                                                                    { return m_Star->Lambda_Loveridge(); }
+    double                      Lambda_Nanjing() const                                                                      { return m_Star->Lambda_Nanjing(); }
+    double                      Lambda_Kruckow() const                                                                      { return m_Star->Lambda_Kruckow(); }
     double                      Luminosity() const                                                                          { return m_Star->Luminosity(); }
     double                      Mass() const                                                                                { return m_Star->Mass(); }
     double                      Mass0() const                                                                               { return m_Star->Mass0(); }
     double                      MassPrev() const                                                                            { return m_Star->MassPrev(); }
     double                      Metallicity() const                                                                         { return m_Star->Metallicity(); }
     double                      MZAMS() const                                                                               { return m_Star->MZAMS(); }
+    double                      NuclearTimescale() const                                                                    { return m_Star->NuclearTimescale(); }
     double                      Omega() const                                                                               { return m_Star->Omega(); }
     double                      OmegaCHE() const                                                                            { return m_Star->OmegaCHE(); }
     double                      OmegaPrev() const                                                                           { return m_Star->OmegaPrev(); }
+    double                      RadialExpansionTimescale() const                                                            { return m_Star->RadialExpansionTimescale(); }
     double                      Radius() const                                                                              { return m_Star->Radius(); }
     double                      RadiusPrev() const                                                                          { return m_Star->RadiusPrev(); }
     double                      RZAMS() const                                                                               { return m_Star->RZAMS(); }
@@ -104,6 +116,7 @@ public:
     double                      SN_TrueAnomaly() const                                                                      { return m_Star->SN_TrueAnomaly(); }
     COMPAS_VARIABLE             StellarPropertyValue(const T_ANY_PROPERTY p_Property) const                                 { return m_Star->StellarPropertyValue(p_Property); }
     double                      Temperature() const                                                                         { return m_Star->Temperature(); }
+    double                      ThermalTimescale() const                                                                    { return m_Star->ThermalTimescale(); }
     double                      Timescale(TIMESCALE p_Timescale) const                                                      { return m_Star->Timescale(p_Timescale); }
     double                      XExponent() const                                                                           { return m_Star->XExponent(); }
 
@@ -122,8 +135,6 @@ public:
     void            CalculateBindingEnergies(const double p_CoreMass,
                                              const double p_EnvMass,
                                              const double p_Radius)                                             { m_Star->CalculateBindingEnergies(p_CoreMass, p_EnvMass, p_Radius); }
-
-    void            CalculateCommonEnvelopeValues()                                                             { m_Star->CalculateCommonEnvelopeValues(); }
 
     double          CalculateDynamicalMassLossRate()                                                            { return m_Star->CalculateDynamicalMassLossRate(); }
 
