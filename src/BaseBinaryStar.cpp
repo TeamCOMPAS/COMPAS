@@ -28,17 +28,17 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
 
     SetInitialCommonValues(p_AIS, p_Id);                                                                                                        // start construction of the binary
 
-    m_CommonEnvelopeAlpha = OPTIONS->SampleCommonEnvelopeAlpha()
-                                ? RAND->Random(OPTIONS->SampleCommonEnvelopeAlphaMin(), OPTIONS->SampleCommonEnvelopeAlphaMax())
-                                : OPTIONS->CommonEnvelopeAlpha();
+    m_CEDetails.alpha = OPTIONS->SampleCommonEnvelopeAlpha()
+                        ? RAND->Random(OPTIONS->SampleCommonEnvelopeAlphaMin(), OPTIONS->SampleCommonEnvelopeAlphaMax())
+                        : OPTIONS->CommonEnvelopeAlpha();
 
-    m_LBVfactor           = OPTIONS->SampleLuminousBlueVariableMultiplier()
-                                ? RAND->Random(OPTIONS->SampleLuminousBlueVariableMultiplierMin(), OPTIONS->SampleLuminousBlueVariableMultiplierMax())
-                                : OPTIONS->LuminousBlueVariableFactor();
+    m_LBVfactor       = OPTIONS->SampleLuminousBlueVariableMultiplier()
+                        ? RAND->Random(OPTIONS->SampleLuminousBlueVariableMultiplierMin(), OPTIONS->SampleLuminousBlueVariableMultiplierMax())
+                        : OPTIONS->LuminousBlueVariableFactor();
 
-    m_WolfRayetFactor     = OPTIONS->SampleWolfRayetMultiplier()
-                                ? RAND->Random(OPTIONS->SampleWolfRayetMultiplierMin(), OPTIONS->SampleWolfRayetMultiplierMax())
-                                : OPTIONS->WolfRayetFactor();
+    m_WolfRayetFactor = OPTIONS->SampleWolfRayetMultiplier()
+                        ? RAND->Random(OPTIONS->SampleWolfRayetMultiplierMin(), OPTIONS->SampleWolfRayetMultiplierMax())
+                        : OPTIONS->WolfRayetFactor();
 
 
     // generate initial properties of binary
@@ -46,9 +46,10 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
     // also check m2 > m2min
     // also check that when we are using AIS we are sampling inside the parameter space
 
-    bool merger;
-    bool secondarySmallerThanMinimumMass;
-    bool initialParametersOutsideParameterSpace;
+    bool merger                                 = false;
+    bool rlof                                   = false;
+    bool secondarySmallerThanMinimumMass        = false;
+    bool initialParametersOutsideParameterSpace = false;
 
     do {
 
@@ -77,9 +78,9 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
 
         m_MassesEquilibrated = false;                                                                                                           // default
 
-        if (OPTIONS->CHE_Option() != CHE_OPTION::NONE &&                                                                                        // CHE enabled?
+        if ((OPTIONS->CHE_Option() != CHE_OPTION::NONE || OPTIONS->AllowRLOFAtBirth()) &&                                                       // CHE enabled or over-contact binaries at birth allowed?
            (utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0)) {                                        // either star overflowing Roche Lobe?
-
+            rlof                 = false;                                                                                                       // over-contact at birth allowed - set this false
             m_MassesEquilibrated = true;                                                                                                        // record that we've equilbrated
 
             mass1                = (mass1 + mass2) / 2.0;                                                                                       // equilibrate masses
@@ -93,6 +94,7 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
             delete m_Star2;
             m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, m_LBVfactor, m_WolfRayetFactor);
         }
+        else rlof = utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0;
 
         m_Star1->SetCompanion(m_Star2);
         m_Star2->SetCompanion(m_Star1);
@@ -109,7 +111,7 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
                                                      utils::Compare(m_SemiMajorAxis, OPTIONS->SemiMajorAxisDistributionMin()) < 0 ||            // semiMajorAxis is outside (below) parameter space
                                                      utils::Compare(m_SemiMajorAxis, OPTIONS->SemiMajorAxisDistributionMax()) > 0;              // semiMajorAxis is outside (above) parameter space
         }
-    } while (merger || secondarySmallerThanMinimumMass || initialParametersOutsideParameterSpace);
+    } while (rlof || (!OPTIONS->AllowTouchingAtBirth() && merger) || secondarySmallerThanMinimumMass || initialParametersOutsideParameterSpace);
 
     SetRemainingCommonValues(p_Id);                                                                                                             // complete the construction of the binary
 }
@@ -136,9 +138,9 @@ BaseBinaryStar::BaseBinaryStar(const AIS     &p_AIS,
     m_SemiMajorAxis = p_SemiMajorAxis;                                                                                                          // specified separation
     m_Eccentricity  = p_Eccentricity;                                                                                                           // specified eccentricity
 
-    m_CommonEnvelopeAlpha = OPTIONS->CommonEnvelopeAlpha();
-    m_LBVfactor           = OPTIONS->LuminousBlueVariableFactor();
-    m_WolfRayetFactor     = OPTIONS->WolfRayetFactor();
+    m_CEDetails.alpha = OPTIONS->CommonEnvelopeAlpha();
+    m_LBVfactor       = OPTIONS->LuminousBlueVariableFactor();
+    m_WolfRayetFactor = OPTIONS->WolfRayetFactor();
 
     // binary star contains two instances of star to hold masses, radii and luminosities.
     // star 1 initially more massive (JR: todo: this is not guaranteed...)
@@ -154,7 +156,7 @@ BaseBinaryStar::BaseBinaryStar(const AIS     &p_AIS,
 
     m_MassesEquilibrated = false;                                                                                                               // default
 
-    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE &&                                                                                            // CHE enabled?
+    if ((OPTIONS->CHE_Option() != CHE_OPTION::NONE || OPTIONS->AllowRLOFAtBirth()) &&                                                           // CHE enabled or over-contact binaries at birth allowed?
        (utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0)) {                                            // either star overflowing Roche Lobe?
 
         m_MassesEquilibrated = true;                                                                                                            // record that we've equilbrated
@@ -335,6 +337,8 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
 	m_Dt                                         = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_TimePrev                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
 
+    m_SecondaryTooSmallForDCO                    = false;
+
     // Differential quantities
     m_aTidesDiff                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_OmegaTidesDiff                             = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -347,54 +351,36 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
     m_OmegaMassTransferDiff                      = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 	m_MassTransferTrackerHistory                 = MT_TRACKING::NO_MASS_TRANSFER;
-    m_MassTransfer                               = DEFAULT_INITIAL_BOOLEAN_VALUE;
+    m_MassTransfer                               = false;
 
     m_JLoss                                      = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 	m_FractionAccreted                           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_FastPhaseCaseA                             = DEFAULT_INITIAL_BOOLEAN_VALUE;
+    m_FastPhaseCaseA                             = false;
 
     // Common Envelope
-    m_CommonEnvelope                             = DEFAULT_INITIAL_BOOLEAN_VALUE;
-    m_StellarMerger                              = DEFAULT_INITIAL_BOOLEAN_VALUE;
-	m_CommonEnvelopeOccuredAtLeastOnce           = DEFAULT_INITIAL_BOOLEAN_VALUE;
-    m_DoubleCoreCommonEnvelope                   = DEFAULT_INITIAL_BOOLEAN_VALUE;
-	m_OptimisticCommonEnvelope                   = DEFAULT_INITIAL_BOOLEAN_VALUE;
+    m_CEDetails.alpha                            = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_CEDetails.CEEcount                         = 0;
+    m_CEDetails.CEEnow                           = false;
+    m_CEDetails.doubleCoreCE                     = false;
+	m_CEDetails.optimisticCE                     = false;
+	m_CEDetails.postCEE.eccentricity             = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_CEDetails.postCEE.rocheLobe1to2            = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_CEDetails.postCEE.rocheLobe2to1            = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_CEDetails.postCEE.semiMajorAxis            = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_CEDetails.preCEE.eccentricity              = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_CEDetails.preCEE.rocheLobe1to2             = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_CEDetails.preCEE.rocheLobe2to1             = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_CEDetails.preCEE.semiMajorAxis             = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_Mass1PreCEE                                = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Mass2PreCEE                                = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-	m_Radius1PreCEE                              = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_Radius2PreCEE                              = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-	m_Radius1PostStripping                       = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_Radius2PostStripping                       = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-	m_StellarType1PreCEE                         = m_Star1->StellarType();
-	m_StellarType2PreCEE                         = m_Star2->StellarType();
+    m_StellarMerger                              = false;
+    m_StellarMergerAtBirth                       = false;
 
 	m_Mass1Final                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Mass2Final                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_MassEnv1                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_MassEnv2                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-	m_EccentricityPreCEE                         = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_EccentricityPostCEE                        = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-	m_SemiMajorAxisPreCEE                        = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_SemiMajorAxisPostCEE                       = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-	m_RocheLobe1to2PreCEE                        = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_RocheLobe1to2PostCEE                       = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_RocheLobe2to1PreCEE                        = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_RocheLobe2to1PostCEE                       = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-    m_CounterCEE                                 = DEFAULT_INITIAL_INTEGER_VALUE;
-
-    m_ImmediateRLOFPostCEE                       = DEFAULT_INITIAL_BOOLEAN_VALUE;
-
-    m_SimultaneousRLOF                           = DEFAULT_INITIAL_BOOLEAN_VALUE;
 
     m_ZetaRLOFAnalytic                           = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_ZetaRLOFNumerical                          = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -423,10 +409,10 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
 
     m_SupernovaState                             = SN_STATE::NONE;
 
-    m_Survived                                   = !DEFAULT_INITIAL_BOOLEAN_VALUE;
-    m_Merged                                     = DEFAULT_INITIAL_BOOLEAN_VALUE;
-    m_MergesInHubbleTime                         = DEFAULT_INITIAL_BOOLEAN_VALUE;
-    m_Disbound                                   = DEFAULT_INITIAL_BOOLEAN_VALUE;
+    m_Survived                                   = true;
+    m_Merged                                     = false;
+    m_MergesInHubbleTime                         = false;
+    m_Disbound                                   = false;
 
     m_SystemicVelocity                           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
@@ -434,9 +420,11 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
 	m_CircularizationTimescale                   = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 	// RLOF details
-    m_RLOFDetails.isRLOF                         = DEFAULT_INITIAL_BOOLEAN_VALUE;
-    m_RLOFDetails.experiencedRLOF                = DEFAULT_INITIAL_BOOLEAN_VALUE;
-    m_RLOFDetails.stableRLOFPostCEE              = DEFAULT_INITIAL_BOOLEAN_VALUE;
+    m_RLOFDetails.experiencedRLOF                = false;
+    m_RLOFDetails.immediateRLOFPostCEE           = false;
+    m_RLOFDetails.isRLOF                         = false;
+    m_RLOFDetails.simultaneousRLOF               = false;
+    m_RLOFDetails.stableRLOFPostCEE              = false;
 
 	// RLOF details - current properties
     m_RLOFDetails.currentProps.id                = -1l;
@@ -456,15 +444,15 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
 
     m_RLOFDetails.currentProps.time              = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_RLOFDetails.currentProps.isRLOF1           = DEFAULT_INITIAL_BOOLEAN_VALUE;
-    m_RLOFDetails.currentProps.isRLOF2           = DEFAULT_INITIAL_BOOLEAN_VALUE;
+    m_RLOFDetails.currentProps.isRLOF1           = false;
+    m_RLOFDetails.currentProps.isRLOF2           = false;
 
-    m_RLOFDetails.currentProps.isCE              = DEFAULT_INITIAL_BOOLEAN_VALUE;
+    m_RLOFDetails.currentProps.isCE              = false;
 
-    m_RLOFDetails.currentProps.monitorMS1        = DEFAULT_INITIAL_BOOLEAN_VALUE;
-    m_RLOFDetails.currentProps.monitorMS2        = DEFAULT_INITIAL_BOOLEAN_VALUE;
-    m_RLOFDetails.currentProps.monitorHeMS1      = DEFAULT_INITIAL_BOOLEAN_VALUE;
-    m_RLOFDetails.currentProps.monitorHeMS2      = DEFAULT_INITIAL_BOOLEAN_VALUE;
+    m_RLOFDetails.currentProps.monitorMS1        = false;
+    m_RLOFDetails.currentProps.monitorMS2        = false;
+    m_RLOFDetails.currentProps.monitorHeMS1      = false;
+    m_RLOFDetails.currentProps.monitorHeMS2      = false;
 
 	// RLOF details - previous properties
     m_RLOFDetails.previousProps.id = -1l;
@@ -484,15 +472,15 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
 
     m_RLOFDetails.previousProps.time             = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_RLOFDetails.previousProps.isRLOF1          = DEFAULT_INITIAL_BOOLEAN_VALUE;
-    m_RLOFDetails.previousProps.isRLOF2          = DEFAULT_INITIAL_BOOLEAN_VALUE;
+    m_RLOFDetails.previousProps.isRLOF1          = false;
+    m_RLOFDetails.previousProps.isRLOF2          = false;
 
-    m_RLOFDetails.previousProps.isCE             = DEFAULT_INITIAL_BOOLEAN_VALUE;
+    m_RLOFDetails.previousProps.isCE             = false;
 
-    m_RLOFDetails.previousProps.monitorMS1       = DEFAULT_INITIAL_BOOLEAN_VALUE;
-    m_RLOFDetails.previousProps.monitorMS2       = DEFAULT_INITIAL_BOOLEAN_VALUE;
-    m_RLOFDetails.previousProps.monitorHeMS1     = DEFAULT_INITIAL_BOOLEAN_VALUE;
-    m_RLOFDetails.previousProps.monitorHeMS2     = DEFAULT_INITIAL_BOOLEAN_VALUE;
+    m_RLOFDetails.previousProps.monitorMS1       = false;
+    m_RLOFDetails.previousProps.monitorMS2       = false;
+    m_RLOFDetails.previousProps.monitorHeMS1     = false;
+    m_RLOFDetails.previousProps.monitorHeMS2     = false;
 
     // BeBinary details - properties 1
     m_BeBinaryDetails.props1.id                  = -1l;
@@ -531,6 +519,14 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
     // BeBinary details - current/prev props pointers
     m_BeBinaryDetails.currentProps               = &m_BeBinaryDetails.props1;
     m_BeBinaryDetails.previousProps              = &m_BeBinaryDetails.props2;
+
+    // pointers
+
+    m_Donor                                      = nullptr;
+    m_Accretor                                   = nullptr;
+
+    m_Supernova                                  = nullptr;
+    m_Companion                                  = nullptr;
 }
 
 
@@ -597,7 +593,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE:                          value = DoubleCoreCE();                                                     break;
         case BINARY_PROPERTY::DT:                                                   value = Dt();                                                               break;
         case BINARY_PROPERTY::ECCENTRICITY:                                         value = Eccentricity();                                                     break;
-        case BINARY_PROPERTY::ECCENTRICITY_AT_DOUBLE_COMPACT_OBJECT_FORMATION:      value = EccentricityAtDCOFormation();                                       break;
+        case BINARY_PROPERTY::ECCENTRICITY_AT_DCO_FORMATION:                        value = EccentricityAtDCOFormation();                                       break;
         case BINARY_PROPERTY::ECCENTRICITY_INITIAL:                                 value = EccentricityInitial();                                              break;
         case BINARY_PROPERTY::ECCENTRICITY_POST_COMMON_ENVELOPE:                    value = EccentricityPostCEE();                                              break;
         case BINARY_PROPERTY::ECCENTRICITY_PRE_2ND_SUPERNOVA:                       value = EccentricityPre2ndSN();                                             break;
@@ -608,8 +604,10 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::IMMEDIATE_RLOF_POST_COMMON_ENVELOPE:                  value = ImmediateRLOFPostCEE();                                             break;
         case BINARY_PROPERTY::LUMINOUS_BLUE_VARIABLE_FACTOR:                        value = LBV_Factor();                                                       break;
         case BINARY_PROPERTY::MASS_1_FINAL:                                         value = Mass1Final();                                                       break;
+        case BINARY_PROPERTY::MASS_1_POST_COMMON_ENVELOPE:                          value = Mass1PostCEE();                                                     break;
         case BINARY_PROPERTY::MASS_1_PRE_COMMON_ENVELOPE:                           value = Mass1PreCEE();                                                      break;
         case BINARY_PROPERTY::MASS_2_FINAL:                                         value = Mass2Final();                                                       break;
+        case BINARY_PROPERTY::MASS_2_POST_COMMON_ENVELOPE:                          value = Mass2PostCEE();                                                     break;
         case BINARY_PROPERTY::MASS_2_PRE_COMMON_ENVELOPE:                           value = Mass2PreCEE();                                                      break;
         case BINARY_PROPERTY::MASS_ENV_1:                                           value = MassEnv1();                                                         break;
         case BINARY_PROPERTY::MASS_ENV_2:                                           value = MassEnv2();                                                         break;
@@ -619,9 +617,9 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE:                           value = OptimisticCommonEnvelope();                                         break;
         case BINARY_PROPERTY::ORBITAL_VELOCITY:                                     value = OrbitalVelocity();                                                  break;
         case BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_2ND_SUPERNOVA:                   value = OrbitalVelocityPre2ndSN();                                          break;
-        case BINARY_PROPERTY::RADIUS_1_POST_STRIPPING:                              value = Radius1PostStripping();                                             break;
+        case BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE:                        value = Radius1PostCEE();                                                   break;
         case BINARY_PROPERTY::RADIUS_1_PRE_COMMON_ENVELOPE:                         value = Radius1PreCEE();                                                    break;
-        case BINARY_PROPERTY::RADIUS_2_POST_STRIPPING:                              value = Radius2PostStripping();                                             break;
+        case BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE:                        value = Radius2PostCEE();                                                   break;
         case BINARY_PROPERTY::RADIUS_2_PRE_COMMON_ENVELOPE:                         value = Radius2PreCEE();                                                    break;
         case BINARY_PROPERTY::RANDOM_SEED:                                          value = RandomSeed();                                                       break;
         case BINARY_PROPERTY::RLOF_CURRENT_COMMON_ENVELOPE:                         value = RLOFDetails().currentProps.isCE;                                    break;
@@ -636,7 +634,9 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_CURRENT_STAR1_RLOF:                              value = RLOFDetails().currentProps.isRLOF1;                                 break;
         case BINARY_PROPERTY::RLOF_CURRENT_STAR2_RLOF:                              value = RLOFDetails().currentProps.isRLOF2;                                 break;
         case BINARY_PROPERTY::RLOF_CURRENT_STAR1_STELLAR_TYPE:                      value = RLOFDetails().currentProps.stellarType1;                            break;
+        case BINARY_PROPERTY::RLOF_CURRENT_STAR1_STELLAR_TYPE_NAME:                 value = STELLAR_TYPE_LABEL.at(RLOFDetails().currentProps.stellarType1);     break;
         case BINARY_PROPERTY::RLOF_CURRENT_STAR2_STELLAR_TYPE:                      value = RLOFDetails().currentProps.stellarType2;                            break;
+        case BINARY_PROPERTY::RLOF_CURRENT_STAR2_STELLAR_TYPE_NAME:                 value = STELLAR_TYPE_LABEL.at(RLOFDetails().currentProps.stellarType2);     break;
         case BINARY_PROPERTY::RLOF_CURRENT_TIME:                                    value = RLOFDetails().currentProps.time;                                    break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_EVENT_COUNTER:                          value = RLOFDetails().previousProps.eventCounter;                           break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_SEPARATION:                             value = RLOFDetails().previousProps.separation;                             break;
@@ -647,7 +647,9 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_PREVIOUS_STAR1_RLOF:                             value = RLOFDetails().previousProps.isRLOF1;                                break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_STAR2_RLOF:                             value = RLOFDetails().previousProps.isRLOF2;                                break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_STAR1_STELLAR_TYPE:                     value = RLOFDetails().previousProps.stellarType1;                           break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_STAR1_STELLAR_TYPE_NAME:                value = STELLAR_TYPE_LABEL.at(RLOFDetails().previousProps.stellarType1);    break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_STAR2_STELLAR_TYPE:                     value = RLOFDetails().previousProps.stellarType2;                           break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_STAR2_STELLAR_TYPE_NAME:                value = STELLAR_TYPE_LABEL.at(RLOFDetails().previousProps.stellarType2);    break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_TIME:                                   value = RLOFDetails().previousProps.time;                                   break;
         case BINARY_PROPERTY::RLOF_SECONDARY_POST_COMMON_ENVELOPE:                  value = RLOFSecondaryPostCEE();                                             break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1:                                  value = RocheLobeRadius1();                                                 break;
@@ -658,7 +660,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2_PRE_COMMON_ENVELOPE:              value = RocheLobe2to1PreCEE();                                              break;
         case BINARY_PROPERTY::ROCHE_LOBE_TRACKER_1:                                 value = RocheLobeTracker1();                                                break;
         case BINARY_PROPERTY::ROCHE_LOBE_TRACKER_2:                                 value = RocheLobeTracker2();                                                break;
-        case BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DOUBLE_COMPACT_OBJECT_FORMATION:   value = SemiMajorAxisAtDCOFormation();                                      break;
+        case BINARY_PROPERTY::SECONDARY_TOO_SMALL_FOR_DCO:                          value = SecondaryTooSmallForDCO();                                          break;
+        case BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION:                     value = SemiMajorAxisAtDCOFormation();                                      break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL:                              value = SemiMajorAxisInitial();                                             break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE:                 value = SemiMajorAxisPostCEE();                                             break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_2ND_SUPERNOVA:                    value = SemiMajorAxisPre2ndSN();                                            break;
@@ -669,10 +672,15 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::SIMULTANEOUS_RLOF:                                    value = SimultaneousRLOF();                                                 break;
         case BINARY_PROPERTY::STABLE_RLOF_POST_COMMON_ENVELOPE:                     value = StableRLOFPostCEE();                                                break;
         case BINARY_PROPERTY::STELLAR_MERGER:                                       value = StellarMerger();                                                    break;
+        case BINARY_PROPERTY::STELLAR_MERGER_AT_BIRTH:                              value = StellarMergerAtBirth();                                             break;
+        case BINARY_PROPERTY::STELLAR_TYPE_1_POST_COMMON_ENVELOPE:                  value = StellarType1PostCEE();                                              break;
         case BINARY_PROPERTY::STELLAR_TYPE_1_PRE_COMMON_ENVELOPE:                   value = StellarType1PreCEE();                                               break;
-        case BINARY_PROPERTY::STELLAR_TYPE_2_PRE_COMMON_ENVELOPE:                   value = StellarType1PreCEE();                                               break;
+        case BINARY_PROPERTY::STELLAR_TYPE_2_POST_COMMON_ENVELOPE:                  value = StellarType2PostCEE();                                              break;
+        case BINARY_PROPERTY::STELLAR_TYPE_2_PRE_COMMON_ENVELOPE:                   value = StellarType2PreCEE();                                               break;
+        case BINARY_PROPERTY::STELLAR_TYPE_NAME_1_POST_COMMON_ENVELOPE:             value = STELLAR_TYPE_LABEL.at(StellarType1PostCEE());                       break;
         case BINARY_PROPERTY::STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE:              value = STELLAR_TYPE_LABEL.at(StellarType1PreCEE());                        break;
-        case BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE:              value = STELLAR_TYPE_LABEL.at(StellarType1PreCEE());                        break;
+        case BINARY_PROPERTY::STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE:             value = STELLAR_TYPE_LABEL.at(StellarType2PostCEE());                       break;
+        case BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE:              value = STELLAR_TYPE_LABEL.at(StellarType2PreCEE());                        break;
         case BINARY_PROPERTY::SUPERNOVA_STATE:                                      value = SN_State();                                                         break;
         case BINARY_PROPERTY::SURVIVED_SUPERNOVA_EVENT:                             value = SurvivedSNEvent();                                                  break;
         case BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE:                            value = SynchronizationTimescale();                                         break;
@@ -743,22 +751,18 @@ COMPAS_VARIABLE BaseBinaryStar::PropertyValue(const T_ANY_PROPERTY p_Property) c
 
         case ANY_PROPERTY_TYPE::T_STAR_1_PROPERTY:                                                                      // star 1 of BSE binary star property
             if (m_Star1) std::tie(ok, value) = m_Star1->StellarPropertyValue(p_Property);                               // if have pointer to primary, get the value
-            else                      value  = "No Primary Star!";                                                      // otherwise set value to error string
             break;
 
         case ANY_PROPERTY_TYPE::T_STAR_2_PROPERTY:                                                                      // star 2 of BSE binary star property
             if (m_Star2) std::tie(ok, value) = m_Star2->StellarPropertyValue(p_Property);                               // if have pointer to secondary, get the value
-            else                      value  = "No Secondary Star!";                                                    // otherwise set value to error string
             break;
 
         case ANY_PROPERTY_TYPE::T_SUPERNOVA_PROPERTY:                                                                   // supernova star of BSE binary star property
             if (m_Supernova) std::tie(ok, value) = m_Supernova->StellarPropertyValue(p_Property);                       // if have pointer to supernova, get the value
-            else                          value  = "No Supernova!";                                                     // otherwise set value to error string
             break;
 
         case ANY_PROPERTY_TYPE::T_COMPANION_PROPERTY:                                                                   // companion star of BSE binary star property
             if (m_Companion) std::tie(ok, value) = m_Companion->StellarPropertyValue(p_Property);                       // if have pointer to companion, get the value
-            else                          value  = "No Companion!";                                                     // otherwise set value to error string
             break;
 
         case ANY_PROPERTY_TYPE::T_PROGRAM_OPTION:                                                                       // program option
@@ -766,8 +770,6 @@ COMPAS_VARIABLE BaseBinaryStar::PropertyValue(const T_ANY_PROPERTY p_Property) c
             break;
 
         default:                                                                                                        // unknown property type
-            ok    = false;                                                                                              // that's not ok...
-            value = "UNKNOWN";                                                                                          // default value
             SHOW_WARN(ERROR::UNKNOWN_PROPERTY_TYPE  );                                                                  // show warning
     }
 
@@ -1318,7 +1320,7 @@ void BaseBinaryStar::StashRLOFProperties(RLOFPropertiesT &p_RLOFProperties) {
     p_RLOFProperties.time         = m_Time;
     p_RLOFProperties.isRLOF1      = m_Star1->IsRLOF();
     p_RLOFProperties.isRLOF2      = m_Star2->IsRLOF();
-    p_RLOFProperties.isCE         = m_CommonEnvelope;
+    p_RLOFProperties.isCE         = m_CEDetails.CEEnow;
 }
 
 
@@ -1405,6 +1407,75 @@ void BaseBinaryStar::StashBeBinaryProperties() {
     m_BeBinaryDetails.currentProps->companionLuminosity = companionStar->Luminosity();                              // companion luminosity
     m_BeBinaryDetails.currentProps->companionTeff       = companionStar->Temperature();                             // companion temperature
     m_BeBinaryDetails.currentProps->companionRadius     = companionStar->Radius();                                  // companion radius
+}
+
+
+/*
+ * Calculate (or set) pre common envelope values for the binary:
+ *
+ *    m_CommonEnvelopeDetails.postCEE.eccentricity
+ *    m_CommonEnvelopeDetails.postCEE.semiMajorAxis
+ *    m_CommonEnvelopeDetails.postCEE.rocheLobe1to2
+ *    m_CommonEnvelopeDetails.postCEE.rocheLobe2to1
+ *    m_RLOFDetails.immediateRLOFPostCEE
+ *
+ *
+ * void SetPreCEEValues(const double p_SemiMajorAxis,
+ *                      const double p_Eccentricity,
+ *                      const double p_RocheLobe1to2,
+ *                      const double p_RocheLobe2to1)
+ *
+ * @param   [IN]    p_SemiMajorAxis             pre CEE semi-major axis in AU
+ * @param   [IN]    p_Eccentricity              pre CEE eccentricity
+ * @param   [IN]    p_RocheLobe1to2             pre CEE Roche Lobe radius in AU as seen by star1
+ * @param   [IN]    p_RocheLobe2to1             pre CEE Roche Lobe radius in AU as seen by star2
+ */
+void BaseBinaryStar::SetPreCEEValues(const double p_SemiMajorAxis,
+                                     const double p_Eccentricity,
+                                     const double p_RocheLobe1to2,
+                                     const double p_RocheLobe2to1) {
+
+	m_CEDetails.preCEE.semiMajorAxis = p_SemiMajorAxis * AU_TO_RSOL;        // convert to Rsol
+	m_CEDetails.preCEE.eccentricity  = p_Eccentricity;
+	m_CEDetails.preCEE.rocheLobe1to2 = p_RocheLobe1to2 * AU_TO_RSOL;        // convert to Rsol
+	m_CEDetails.preCEE.rocheLobe2to1 = p_RocheLobe2to1 * AU_TO_RSOL;        // convert to Rsol
+}
+
+
+/*
+ * Calculate (or set) post common envelope values for the binary:
+ *
+ *    m_CommonEnvelopeDetails.postCEE.eccentricity
+ *    m_CommonEnvelopeDetails.postCEE.semiMajorAxis
+ *    m_CommonEnvelopeDetails.postCEE.rocheLobe1to2
+ *    m_CommonEnvelopeDetails.postCEE.rocheLobe2to1
+ *    m_RLOFDetails.immediateRLOFPostCEE
+ *
+ *
+ * void SetPostCEEValues(const double p_SemiMajorAxis,
+ *                       const double p_Eccentricity,
+ *                       const double p_RocheLobe1to2,
+ *                       const double p_RocheLobe2to1)
+ *
+ * @param   [IN]    p_SemiMajorAxis             post CEE semi-major axis in AU
+ * @param   [IN]    p_Eccentricity              post CEE eccentricity
+ * @param   [IN]    p_RocheLobe1to2             post CEE Roche Lobe radius in AU as seen by star1
+ * @param   [IN]    p_RocheLobe2to1             post CEE Roche Lobe radius in AU as seen by star2
+ */
+void BaseBinaryStar::SetPostCEEValues(const double p_SemiMajorAxis,
+                                      const double p_Eccentricity,
+                                      const double p_RocheLobe1to2,
+                                      const double p_RocheLobe2to1) {
+
+	m_CEDetails.postCEE.semiMajorAxis = p_SemiMajorAxis * AU_TO_RSOL;                               // convert to Rsol
+    m_CEDetails.postCEE.eccentricity  = p_Eccentricity;
+	m_CEDetails.postCEE.rocheLobe1to2 = p_RocheLobe1to2 * AU_TO_RSOL;                               // convert to Rsol
+	m_CEDetails.postCEE.rocheLobe2to1 = p_RocheLobe2to1 * AU_TO_RSOL;                               // convert to Rsol
+
+    if (utils::Compare(m_Star1->RadiusPostCEE(), m_CEDetails.postCEE.rocheLobe1to2) >= 0 ||         // ALEJANDRO - 28/01/2019 - Check for RLOF immediatedly after the CEE.
+        utils::Compare(m_Star2->RadiusPostCEE(), m_CEDetails.postCEE.rocheLobe2to1) >= 0) {         // A check for it during the next timestep is done in evaluateBinary funtion.
+        m_RLOFDetails.immediateRLOFPostCEE = true;			                                        // JR: todo: is else false (always)?  or do we want to preserve previous true value?
+    }
 }
 
 
@@ -2100,27 +2171,15 @@ void BaseBinaryStar::EvaluateSupernovae() {
  */
 void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
-	BinaryConstituentStar* star1Copy = new BinaryConstituentStar(*m_Star1);                                             // clone star1 before CEE
+    BinaryConstituentStar* star1Copy = new BinaryConstituentStar(*m_Star1);                                             // clone star1 before CEE
 	BinaryConstituentStar* star2Copy = new BinaryConstituentStar(*m_Star2);                                             // clone star2 before CEE
 	star1Copy->SetCompanion(star2Copy);                                                                                 // need companion for CalculateSynchronisationTimescale() later
 	star2Copy->SetCompanion(star1Copy);                                                                                 // need companion for CalculateSynchronisationTimescale() later
 
-    double alphaCE = m_CommonEnvelopeAlpha;                                                                             // CE efficiency parameter
+    double alphaCE = m_CEDetails.alpha;                                                                                 // CE efficiency parameter
 
     double semiMajorAxis = m_SemiMajorAxisPrime;                                                                        // current semi-major axis in default units, AU (before CEE)
 	double eccentricity  = m_EccentricityPrime;								                                            // current eccentricity (before CEE)
-
-    m_StellarType1PreCEE = m_Star1->StellarType();                                                                      // star1 stellar type before CEE - record for printing
-    m_StellarType2PreCEE = m_Star2->StellarType();                                                                      // star2 stellar type before CCE - record for printing
-
-    m_Mass1PreCEE = m_Star1->Mass();                                                                                    // star1 mass in Msol before CEE - record for printing
-    m_Mass2PreCEE = m_Star2->Mass();                                                                                    // star2 mass in Msol before CEE - record for printing
-
-	m_Radius1PreCEE = m_Star1->Radius();									                                            // star1 radius in Rsol before CEE - record for printing
-	m_Radius2PreCEE = m_Star2->Radius();									                                            // star2 radius in Rsol before CEE - record for printing
-
-	m_Radius1PostStripping = m_Radius1PreCEE;							                                                // star1 radius in Rsol after being stripped (= pre-CEE radius if not stripped)
-	m_Radius2PostStripping = m_Radius2PreCEE;							                                                // star2 fadius in Rsol after being stripped (= pre-CEE radius if not stripped)
 
     if (OPTIONS->AllowMainSequenceStarToSurviveCommonEnvelope()) {                                                      // allow main sequence stars to survive CEE?
         if (m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) {                                                                      // yes - star1 MS_LTE_07, MS_GT_07 or NAKED_HELIUM_STAR_MS?
@@ -2154,9 +2213,8 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     double rRLd1 = semiMajorAxis * CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass());                   // Roche Lobe radius in AU at the moment where CEE begins, seen by star1
     double rRLd2 = semiMajorAxis * CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass());                   // Roche Lobe radius in AU at the moment where CEE begins, seen by star2
 
-    m_CounterCEE++;                                                                                                     // increment CEE count
-    m_SimultaneousRLOF                 = m_Star1->IsRLOF() && m_Star2->IsRLOF();                                        // ALEJANDRO - 29/01/2019 - Check for simultaneous RLOF
-    m_CommonEnvelopeOccuredAtLeastOnce = true;
+    m_CEDetails.CEEcount++;                                                                                             // increment CEE count
+    m_RLOFDetails.simultaneousRLOF = m_Star1->IsRLOF() && m_Star2->IsRLOF();                                            // ALEJANDRO - 29/01/2019 - Check for simultaneous RLOF
 
     // SIMON: Do we really need to calculate all of these?
 	// Alejandro: Not really, but I like to have them handy for the common envelopes file.
@@ -2168,14 +2226,21 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     m_Star2->CalculateBindingEnergies(m_Mass2Final, m_MassEnv2, m_Star2->Radius());                                     // calculate binding energies for star2 (uses lambdas)
 
     m_Star1->CalculateCommonEnvelopeValues();                                                                           // calculate common envelope values for star1
-    m_Star2->CalculateCommonEnvelopeValues();                                                                           // calculate common envelope values for star1
+    m_Star2->CalculateCommonEnvelopeValues();                                                                           // calculate common envelope values for star2
 
-    double lambda1 = m_Star1->CEE_Lambda();                                                                             // measures "the central concentration of the donor"
-    double lambda2 = m_Star2->CEE_Lambda();                                                                             // measures "the central concentration of the accretor"
+    double lambda1 = m_Star1->LambdaAtCEE();                                                                            // measures "the central concentration of the donor"
+    double lambda2 = m_Star2->LambdaAtCEE();                                                                            // measures "the central concentration of the accretor"
 
     if (HasOneOf(ALL_HERTZSPRUNG_GAP)) {                                                                                // check if we have an HG star, and if are allowing such a star to survive the CE       JR: todo: aren't we only checking the first condition?
-        m_OptimisticCommonEnvelope = true;			                                                                    // JR: todo: is else false (always)?  or do we want to preserve previous true value?
+        m_CEDetails.optimisticCE = true;			                                                                    // JR: todo: is else false (always)?  or do we want to preserve previous true value?
 	}
+
+    m_Star1->SetPreCEEValues();                                                                                         // squirrel away pre CEE stellar values for star 1
+    m_Star2->SetPreCEEValues();                                                                                         // squirrel away pre CEE stellar values for star 2
+  	SetPreCEEValues(semiMajorAxis, eccentricity, rRLd1, rRLd1);                                                         // squirrel away pre CEE binary values
+
+    m_Star1->SetPostCEEValues();                                                                                        // squirrel away (initial) post CEE stellar values for star 1 - default is just pre CEE values
+    m_Star2->SetPostCEEValues();                                                                                        // squirrel away (initial) post CEE stellar values for star 2 - default is just pre CEE values
 
 	// double common envelope phase prescription (Brown 1995) to calculate new semi-major axis
 	// due to the CEE as described in Belczynsky et al. 2002, eq. (12)
@@ -2186,7 +2251,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     double aFinal        = k4 / (k1 + k2 + k3);                                                                         // semi-major axis after CEE
     m_SemiMajorAxisPrime = aFinal;
 
-    m_DoubleCoreCommonEnvelope = utils::Compare(k1, 0.0) > 0 && utils::Compare(k2, 0.0) > 0 && utils::Compare(k3, 0.0) > 0 && utils::Compare(k4, 0.0) > 0;
+    m_CEDetails.doubleCoreCE = utils::Compare(k1, 0.0) > 0 && utils::Compare(k2, 0.0) > 0 && utils::Compare(k3, 0.0) > 0 && utils::Compare(k4, 0.0) > 0;
 
     double omegafinal      = sqrt((m_Mass1Final + m_Mass2Final) * G1 / (aFinal * aFinal * aFinal));                     // orbital velocity after CEE   SIMON: Should be a function for this equation     JR: todo: is it used elsewhere?
     m_OrbitalVelocityPrime = omegafinal;
@@ -2206,7 +2271,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     m_Star1->ResolveCommonEnvelopeAccretion(m_Mass1Final);                                                              // update star's mass after accretion
     m_Star2->ResolveCommonEnvelopeAccretion(m_Mass2Final);                                                              // update star's mass after accretion
 
-    // update stellar type after losing it's envelope. Star1, Star2 or both if double CEE.
+    // update stellar type after losing its envelope. Star1, Star2 or both if double CEE.
 	// Alejandro - 18/02018 - Calculate tidal timescales
     if (!envelopeFlag1 && !envelopeFlag2) {                                                                             // stellar merger
         m_MassTransferTrackerHistory = HasTwoOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_MS }) ? MT_TRACKING::CE_BOTH_MS : MT_TRACKING::CE_MS_WITH_CO; // Here MS-WD systems are flagged as CE_BOTH_MS
@@ -2221,7 +2286,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             m_SynchronizationTimescale = star1Copy->CalculateSynchronisationTimescale(periastronRsol);
             m_CircularizationTimescale = m_SynchronizationTimescale;
 
-            if (envelopeFlag2) {                                                                                        // correction - double CEE   JR: todo: why do we check envelopeFlags and not value of m_DoubleCoreCommonEnvelopeFlag calculated above?
+            if (envelopeFlag2) {                                                                                        // correction - double CEE   JR: todo: why do we check envelopeFlags and not value of m_CEDetails.doubleCoreCE calculated above?
                 m_Star2->ResolveEnvelopeLossAndSwitch();                                                                // resolve envelope loss for star2 and switch to new stellar type
                 m_MassTransferTrackerHistory = MT_TRACKING::CE_DOUBLE_CORE;                                             // record history - double CEE
             }
@@ -2237,34 +2302,18 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             m_MassTransferTrackerHistory = MT_TRACKING::CE_FROM_2_TO_1;                                                 // record history - star2 -> star1
         }
 
-		m_Radius1PostStripping = m_Star1->Radius();                                                                     // update star1 radius after stripping envelope
-		m_Radius2PostStripping = m_Star2->Radius();                                                                     // update star2 radius after stripping envelope
+        m_Star1->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 1 - update default values
+        m_Star2->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 2 - update default values
 	}
 
 	delete star1Copy; star1Copy = nullptr;
 	delete star2Copy; star2Copy = nullptr;
 
-    if (utils::Compare(aFinal, 0.0) <= 0 || utils::Compare(m_Radius1PostStripping + m_Radius2PostStripping, aFinal * AU_TO_RSOL) > 0) {
+    if (utils::Compare(aFinal, 0.0) <= 0 || utils::Compare(m_Star1->RadiusPostCEE() + m_Star2->RadiusPostCEE(), aFinal * AU_TO_RSOL) > 0) {
         m_StellarMerger = true;			                                                                                // JR: todo: is else false (always)?  or do we want to preserve previous true value?
     }
 
-	// ALEJANDRO - 06/12/2016 - Record values pre-post CE, for populations studies. All separations in Rsol.
-	m_EccentricityPreCEE   = eccentricity;
-	m_EccentricityPostCEE  = m_Eccentricity;
-
-	m_SemiMajorAxisPreCEE  = semiMajorAxis * AU_TO_RSOL;
-	m_SemiMajorAxisPostCEE = aFinal * AU_TO_RSOL;
-
-	m_RocheLobe1to2PreCEE  = rRLd1 * AU_TO_RSOL;
-	m_RocheLobe1to2PostCEE = rRLdfin1 * AU_TO_RSOL;
-
-	m_RocheLobe2to1PreCEE  = rRLd2 * AU_TO_RSOL;
-	m_RocheLobe2to1PostCEE = rRLdfin2 * AU_TO_RSOL;
-
-    if (utils::Compare(m_Radius1PostStripping, m_RocheLobe1to2PostCEE) >= 0 ||                                          // ALEJANDRO - 28/01/2019 - Check for RLOF immediatedly after the CEE.
-        utils::Compare(m_Radius2PostStripping, m_RocheLobe2to1PostCEE) >= 0) {                                          // A check for it during the next timestep is done in evaluateBinary funtion.
-        m_ImmediateRLOFPostCEE = true;			                                                                        // JR: todo: is else false (always)?  or do we want to preserve previous true value?
-    }
+	SetPostCEEValues(aFinal, m_Eccentricity, rRLdfin1, rRLdfin2);                                                       // squirrel away post CEE binary values.  ALEJANDRO - 06/12/2016 - for populations studies. All separations in Rsol.
 
     PrintCommonEnvelope();
 }
@@ -2773,7 +2822,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     if (!m_Star1->IsRLOF() && !m_Star2->IsRLOF()) return;                                                                                                   // neither star is overflowing its Roche Lobe - no mass transfer - nothing to do
 
     if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                                                                                                           // both stars overflowing their Roche Lobe?
-        m_CommonEnvelope = true;                                                                                                                            // yes - common envelope event - no mass transfer
+        m_CEDetails.CEEnow = true;                                                                                                                          // yes - common envelope event - no mass transfer
         return;                                                                                                                                             // and return - nothing (else) to do
     }
 
@@ -2804,7 +2853,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                      OPTIONS->MassTransferCriticalMassRatioWhiteDwarf();
 
     if (m_Donor->IsMassRatioUnstable(m_Accretor->Mass(), m_Accretor->IsDegenerate()) && qCritFlag) {
-        m_CommonEnvelope = true;
+        m_CEDetails.CEEnow = true;
     }
     else {
 
@@ -2933,19 +2982,19 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                             m_OmegaMassTransferDiff = wFinal - wInitial;
 
                             // Check for stable mass transfer after any CEE
-                            if (m_CommonEnvelopeOccuredAtLeastOnce && !m_RLOFDetails.stableRLOFPostCEE) {
+                            if (m_CEDetails.CEEcount > 0 && !m_RLOFDetails.stableRLOFPostCEE) {
                                 m_RLOFDetails.stableRLOFPostCEE = m_MassTransferTrackerHistory == MT_TRACKING::STABLE_FROM_2_TO_1 ||
                                                                   m_MassTransferTrackerHistory == MT_TRACKING::STABLE_FROM_1_TO_2;
                             }
                         }
                         else {                                                                                                                              // Unstable Mass Transfer
                             if (m_Donor->IsOneOf( MAIN_SEQUENCE )) {                                                                                        // How to deal with CEE here? Just worry about donor?
-                                m_StellarMerger  = true;
-                                isCEE            = true;
+                                m_StellarMerger    = true;
+                                isCEE              = true;
                             }
                             else {
-                                m_CommonEnvelope = true;
-                                isCEE            = true;
+                                m_CEDetails.CEEnow = true;
+                                isCEE              = true;
                             }
                         }
 
@@ -2993,11 +3042,11 @@ void BaseBinaryStar::InitialiseMassTransfer() {
 
 	m_MassTransferTrackerHistory = MT_TRACKING::NO_MASS_TRANSFER;	                                                            // ALEJANDRO - 16/11/2016 - Initiating flag, every timestep, to NO_MASS_TRANSFER. If it undergoes to MT or CEE, it should change.
 
-    m_Star1->InitialiseMassTransfer(m_CommonEnvelope, m_SemiMajorAxisPrime, m_Eccentricity);                                    // initialise mass transfer for star1
-    m_Star2->InitialiseMassTransfer(m_CommonEnvelope, m_SemiMajorAxisPrime, m_Eccentricity);                                    // initialise mass transfer for star2
+    m_Star1->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxisPrime, m_Eccentricity);                                  // initialise mass transfer for star1
+    m_Star2->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxisPrime, m_Eccentricity);                                  // initialise mass transfer for star2
 
-    m_MassTransfer   = false;                                                                                                   // initially - check below
-    m_CommonEnvelope = false;                                                                                                   // no common envelope
+    m_MassTransfer     = false;                                                                                                 // initially - check below
+    m_CEDetails.CEEnow = false;                                                                                                 // no common envelope
 
     if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {                                                                               // either star overflowing its Roche Lobe?
 		m_MassTransfer = true;                                                                                                  // yes - mass transfer
@@ -3043,7 +3092,7 @@ void BaseBinaryStar::CheckMassTransfer(const double p_Dt) {
         InitialiseMassTransfer();                                       // initialise
 
         if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                   // both stars overflowing their Roche Lobe?
-			m_CommonEnvelope = true;                                    // yes - common envelope event - no mass transfer
+			m_CEDetails.CEEnow = true;                                  // yes - common envelope event - no mass transfer
         }
         else if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {              // either star overflowing its Roche Lobe?
             CalculateMassTransfer(p_Dt);                                // yes - mass transfer
@@ -3302,7 +3351,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     CalculateWindsMassLoss();                                                                                               // calculate mass loss dues to winds
 
-         if (m_CommonEnvelope     || m_StellarMerger     ) ResolveCommonEnvelopeEvent();                                    // resolve CEE - immediate event
+         if (m_CEDetails.CEEnow   || m_StellarMerger     ) ResolveCommonEnvelopeEvent();                                    // resolve CEE - immediate event
     else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) EvaluateSupernovae();                                            // evaluate supernovae (both stars) - immediate event
     else                                                   ResolveMassChanges();                                            // apply mass loss and mass transfer as necessary
 
@@ -3313,8 +3362,8 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
     ResolveTides();                                                                                                         // resolve tides
     CalculateEnergyAndAngularMomentum();                                                                                    // perform energy and angular momentum calculations
 
-    m_Star1->UpdateMagneticFieldAndSpin(m_CommonEnvelope, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);            // update pulsar parameters for star1
-    m_Star2->UpdateMagneticFieldAndSpin(m_CommonEnvelope, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);            // update pulsar parameters for star2
+    m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);          // update pulsar parameters for star1
+    m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);          // update pulsar parameters for star2
 }
 
 
@@ -3481,10 +3530,16 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve(const int p_Index) {
 
     EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
 
-    if (OPTIONS->OnlyDoubleCompactObjects() && m_Star2->Mass() < MINIMUM_MASS_SECONDARY)                                                    // check size of secondary
-        evolutionStatus = EVOLUTION_STATUS::SECONDARY_TOO_SMALL;                                                                            // too small - don't bother - no possibility of forming a double compact object
-    else if (HasStarsTouching())                                                                                                            // check if stars are touching
-        evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                                 // binary components are touching (should usually be avoided as MT or CE should happen prior to this)
+    if (OPTIONS->OnlyDoubleCompactObjects() && m_Star2->Mass() < MINIMUM_MASS_SECONDARY) {                                                  // check size of secondary
+        m_SecondaryTooSmallForDCO = true;
+        evolutionStatus           = EVOLUTION_STATUS::SECONDARY_TOO_SMALL_FOR_DCO;                                                          // too small - don't bother - no possibility of forming a double compact object
+    }
+
+    if (HasStarsTouching()) {                                                                                                               // check if stars are touching
+        m_StellarMerger        = true;
+        m_StellarMergerAtBirth = true;
+        evolutionStatus        = EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH;                                                                 // binary components are touching - merger at birth
+    }
 
     PrintDetailedOutput(p_Index);                                                                                                           // print (log) detailed output for binary
 

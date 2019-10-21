@@ -39,11 +39,6 @@ public:
             double              BindingEnergy_Loveridge() const                                 { return m_BindingEnergies.loveridge; }
             double              BindingEnergy_LoveridgeWinds() const                            { return m_BindingEnergies.loveridgeWinds; }
             double              BindingEnergy_Kruckow() const                                   { return m_BindingEnergies.kruckow; }
-            double              CEE_BindingEnergy() const                                       { return m_CommonEnvelopeDetails.bindingEnergy; }
-            double              CEE_COCoreMass() const                                          { return m_CommonEnvelopeDetails.COCoreMass; }
-            double              CEE_CoreMass() const                                            { return m_CommonEnvelopeDetails.CoreMass; }
-            double              CEE_HeCoreMass() const                                          { return m_CommonEnvelopeDetails.HeCoreMass; }
-            double              CEE_Lambda() const                                              { return m_CommonEnvelopeDetails.lambda; }
             double              COCoreMass() const                                              { return m_COCoreMass; }
             double              CoreMass() const                                                { return m_CoreMass; }
             double              Dt() const                                                      { return m_Dt; }
@@ -149,8 +144,6 @@ public:
             void            CalculateBindingEnergies(const double p_CoreMass, const double p_EnvMass, const double p_Radius);
 
             double          CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity);
-
-            void            CalculateCommonEnvelopeValues();
 
             double          CalculateDynamicalTimescale()                                                       { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }    // Use class member variables
 
@@ -342,7 +335,6 @@ protected:
     ZetasT                  m_Zetas;                                    // Zeta values
 
     // Stellar details squirrelled away...
-    CommonEnvelopeDetailsT  m_CommonEnvelopeDetails;                    // Common envelope attributes
     SupernovaDetailsT       m_SupernovaDetails;                         // Supernova attributes
     PulsarDetailsT          m_PulsarDetails;                            // Pulsar attributes
 
