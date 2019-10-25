@@ -55,9 +55,13 @@
 //                                       recalculation of radius and separation is done) are allowed to evolve.  Evolve() function
 //                                       immediately checks for merger at birth, flags status as such and stops evolution.
 //                                   Documentation updated (see updated doc for detailed explanation of new program options)
+// 02.03.00      JR - Oct 25, 2019 - Defect repairs:
+//                                       removed extraneous delimiter at end of log file records
+//                                   Added '--version' option
+//                                   Changed minor version number - should have been done at last release - we'll grant the '--version' option minor release status...
 
 
-const std::string VERSION_STRING = "02.02.07";
+const std::string VERSION_STRING = "02.03.00";
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
