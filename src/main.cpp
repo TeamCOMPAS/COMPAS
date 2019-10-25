@@ -61,7 +61,7 @@ std::tuple<int, std::vector<std::string>> OpenSSEGridFile(std::ifstream &p_Grid,
 
         p_Grid.open(OPTIONS->GridFilename());                                                                   // yes - open the file
         if (p_Grid.fail()) {                                                                                    // open ok?
-            SAY(ERR_MSG(ERROR::FILE_OPEN_ERROR) << OPTIONS->GridFilename());                                    // no - show error
+            SAY(ERR_MSG(ERROR::FILE_OPEN_ERROR) << " " << OPTIONS->GridFilename());                             // no - show error
         }
         else {                                                                                                  // file open ok
 
@@ -459,7 +459,7 @@ std::tuple<int, std::vector<std::string>> OpenBSEGridFile(std::ifstream &p_Grid,
 
         p_Grid.open(OPTIONS->GridFilename());                                                                   // yes - open the file
         if (p_Grid.fail()) {                                                                                    // open ok?
-            SAY(ERR_MSG(ERROR::FILE_OPEN_ERROR) << OPTIONS->GridFilename());                                    // no - show error
+            SAY(ERR_MSG(ERROR::FILE_OPEN_ERROR) << " " << OPTIONS->GridFilename());                             // no - show error
         }
         else {                                                                                                  // file open ok
 
