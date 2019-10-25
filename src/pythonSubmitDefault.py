@@ -57,12 +57,12 @@ class pythonProgramOptions:
 #    individual_initial_primary_age = 0                             # not yet implemented
 #    individual_initial_secondary_age = 0                           # not yet implemented
 
-    grid_filename = ''
+    grid_filename = 'Grid.txt'
 
     use_mass_loss = True
     mass_transfer = True
     post_newtonian_evolution = False
-    detailed_output = False                 # WARNING: this creates a data heavy file
+    detailed_output = True                 # WARNING: this creates a data heavy file
     RLOFPrinting = True
     only_double_compact_objects = False             # Delete when STROOPWAFEL fully implemented
     evolve_unbound_systems = False
@@ -241,7 +241,7 @@ class pythonProgramOptions:
     PPI_lower_limit = 35.0      # Minimum core mass for PPI [Msol]
     PPI_upper_limit = 65.0      # Maximum core mass for PPI [Msol]
 
-    pulsational_pair_instability_prescription = 'COMPAS'
+    pulsational_pair_instability_prescription = 'MARCHANT'
 
     maximum_neutron_star_mass = 2.5  #  [Msol]
 
