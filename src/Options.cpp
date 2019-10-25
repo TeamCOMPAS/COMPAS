@@ -958,6 +958,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 			("sample-wolf-rayet-multiplier",                        "Sample over WR winds multiplicative constant")
             ("single-star",                                         "Evolve single star(s)")
 		    ("use-mass-loss",                                       "Enable mass loss")
+		    ("version,v",                                           "Print COMPAS version string")
 			("zeta-calculation-every-time-Step",                    "Calculate all values of MT zetas at each timestep")
 
 
@@ -1165,9 +1166,15 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             po::store(po::parse_command_line(argc, argv, desc), vm);
 
             // --help option
-            if (vm.count("help")) {                                                                                                     // user requested help
+            if (vm.count("help")) {                                                                                                     // user requested help?
                 utils::SplashScreen();                                                                                                  // yes - show splash screen
                 ANNOUNCE(desc);                                                                                                         // and help
+                programStatus = COMMANDLINE_STATUS::SUCCESS;                                                                            // ok
+            }
+
+            // --version option
+            if (vm.count("version")) {                                                                                                  // user requested version?
+                ANNOUNCE("COMPAS v" << VERSION_STRING);                                                                                 // yes, show version string
                 programStatus = COMMANDLINE_STATUS::SUCCESS;                                                                            // ok
             }
 
