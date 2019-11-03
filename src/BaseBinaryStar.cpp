@@ -360,7 +360,6 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
     m_FastPhaseCaseA                             = false;
 
     // Common Envelope
-    m_CEDetails.alpha                            = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_CEDetails.CEEcount                         = 0;
     m_CEDetails.CEEnow                           = false;
     m_CEDetails.doubleCoreCE                     = false;
