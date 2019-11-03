@@ -59,9 +59,11 @@
 //                                       removed extraneous delimiter at end of log file records
 //                                   Added '--version' option
 //                                   Changed minor version number - should have been done at last release - we'll grant the '--version' option minor release status...
+// 02.03.01      JR - Nov 04, 2019 - Defect repair:
+//                                       removed erroneous initialisation of m_CEDetails.alpha from BaseBinaryStar::SetRemainingCommonValues()
+//                                       (CE Alpha was alwas being initialised to 0.0 regardless of program options)
 
-
-const std::string VERSION_STRING = "02.03.00";
+const std::string VERSION_STRING = "02.03.01";
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
