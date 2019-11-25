@@ -35,6 +35,8 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, c
 
     m_Error               = ERROR::NONE;                                // clear error flag
 
+    m_CHE                 = false;                                      // initially
+    
     // Initialise member variables from input parameters
     m_RandomSeed          = p_RandomSeed;
     m_MZAMS               = p_MZAMS;
@@ -283,6 +285,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE:                           value = BindingEnergy_Loveridge();                              break;
             case ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS:                     value = BindingEnergy_LoveridgeWinds();                         break;
             case ANY_STAR_PROPERTY::BINDING_ENERGY_KRUCKOW:                             value = BindingEnergy_Kruckow();                                break;
+            case ANY_STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE:               value = CHonMS();                                               break;
             case ANY_STAR_PROPERTY::CO_CORE_MASS:                                       value = COCoreMass();                                           break;
             case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_COCoreMassAtCOFormation();                           break;
             case ANY_STAR_PROPERTY::CORE_MASS:                                          value = CoreMass();                                             break;

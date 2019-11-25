@@ -93,8 +93,12 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
             m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, m_LBVfactor, m_WolfRayetFactor);
             delete m_Star2;
             m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, m_LBVfactor, m_WolfRayetFactor);
+        
+            rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass1, mass2));
+            rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass2, mass1));
         }
-        else rlof = utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0;
+
+        rlof = utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0;
 
         m_Star1->SetCompanion(m_Star2);
         m_Star2->SetCompanion(m_Star1);
@@ -949,6 +953,103 @@ double BaseBinaryStar::SampleQDistribution() {
 
 //JR: todo: talk to Floor about using utils::Compare() in this function
 /*
+ * Calculate the value of the CDF of the Kroupa (2001) IMF at p_Mass
+ *
+ *
+ * double CalculateCDFKroupa(const double p_Mass)
+ *
+ * @param   [IN]    p_Mass                      Mass value (in Msol) at which to calculate the CDF
+ * @return                                      CDF value
+ */
+double BaseBinaryStar::CalculateCDFKroupa(const double p_Mass) {
+
+    double CDF = 0.0;
+
+    if (OPTIONS->InitialMassFunctionMin() <= KROUPA_BREAK_1 &&
+        OPTIONS->InitialMassFunctionMax() >  KROUPA_BREAK_1 &&
+        OPTIONS->InitialMassFunctionMax() <= KROUPA_BREAK_2) {
+
+        double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+        double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+
+        double C1 = 1.0 / (term1 + term2);
+        double C2 = C1 * KROUPA_BREAK_1_POWER_1_2;
+
+        if (p_Mass >= OPTIONS->InitialMassFunctionMin() && p_Mass < KROUPA_BREAK_1) {
+
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (pow(p_Mass, KROUPA_POWER_PLUS1_1) - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+        }
+        else if (p_Mass >= KROUPA_BREAK_1 && p_Mass < KROUPA_BREAK_2) {
+
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
+                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (pow(p_Mass, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+        }
+        else {
+            SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Using CDF = 0.0 (1)");
+        }
+
+    }
+    else if (OPTIONS->InitialMassFunctionMin() <= KROUPA_BREAK_1 &&
+             OPTIONS->InitialMassFunctionMax() >  KROUPA_BREAK_2) {
+
+        double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+        double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
+        double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+
+        double C1 = 1.0 / (term1 + term2 + term3);
+        double C2 = C1 * KROUPA_BREAK_1_POWER_1_2;
+        double C3 = C2 * KROUPA_BREAK_2_POWER_2_3;
+
+        if (p_Mass >= OPTIONS->InitialMassFunctionMin() && p_Mass < KROUPA_BREAK_1) {
+
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (pow(p_Mass, KROUPA_POWER_PLUS1_1) - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+        }
+        else if (p_Mass >= KROUPA_BREAK_1 && p_Mass < KROUPA_BREAK_2) {
+
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
+                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (pow(p_Mass, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+        }
+        else if (p_Mass >= KROUPA_BREAK_2 && p_Mass < OPTIONS->InitialMassFunctionMax()) {
+
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
+                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2) +
+                  ONE_OVER_KROUPA_POWER_3_PLUS1 * C3 * (pow(p_Mass, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+        }
+        else {
+            SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Using CDF = 0.0 (2)");
+        }
+
+    }
+    else if (OPTIONS->InitialMassFunctionMin() >  KROUPA_BREAK_1 &&
+             OPTIONS->InitialMassFunctionMin() <= KROUPA_BREAK_2 &&
+             OPTIONS->InitialMassFunctionMax() >  KROUPA_BREAK_2) {
+
+        double term1 = ONE_OVER_KROUPA_POWER_2_PLUS1 * (KROUPA_BREAK_2_PLUS1_2 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
+        double term2 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+
+        double C2 = 1.0 / (term1 + term2);
+        double C3 = C2 * KROUPA_BREAK_2_POWER_2_3;
+
+        if (p_Mass >= OPTIONS->InitialMassFunctionMin() && p_Mass < KROUPA_BREAK_2) {
+
+            CDF = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (pow(p_Mass, KROUPA_POWER_PLUS1_2) - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
+        }
+        else if (p_Mass >= KROUPA_BREAK_2 && p_Mass < OPTIONS->InitialMassFunctionMax()) {
+
+            CDF = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2)) +
+                  ONE_OVER_KROUPA_POWER_3_PLUS1 * C3 * (pow(p_Mass, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+        }
+        else {
+            SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Using CDF = 0.0 (3)");
+        }
+    }
+
+    return CDF;
+}
+
+
+//JR: todo: talk to Floor about using utils::Compare() in this function
+/*
  * Draw mass from the distribution specified by the user
  * (InitialMassFunction program option; will use AIS distribution if specified (AIS.DrawingFromAISDistributions))
  *
@@ -983,70 +1084,70 @@ double BaseBinaryStar::SampleInitialMassDistribution() {
             case INITIAL_MASS_FUNCTION::KROUPA:                                                                                                         // KROUPA
 
                 // find out where the user specificed their minimum and maximum masses to generate
-                if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak1()) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak1()) <= 0) {
-                    thisMass = utils::InverseSampleFromPowerLaw(m_AIS.KroupaPower1(), OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
+                if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_1) <= 0) {
+                    thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER_1, OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
                 }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak1()) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak2()) <= 0 &&
-                         utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak1()) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak2()) <= 0) {
+                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_2) <= 0 &&
+                         utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_1) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2) <= 0) {
 
-                    thisMass = utils::InverseSampleFromPowerLaw(m_AIS.KroupaPower2(), OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
+                    thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER_2, OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
                 }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak2()) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak2()) > 0) {
+                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_2) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2) > 0) {
 
-                    thisMass = utils::InverseSampleFromPowerLaw(m_AIS.KroupaPower3(), OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
+                    thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER_3, OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
                 }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak1()) <= 0 &&
-                         utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak1())  > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak2()) <= 0) {
+                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1) <= 0 &&
+                         utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_1)  > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2) <= 0) {
 
-                    double term1 = m_AIS.OneOverKroupaPower1Plus1() * (m_AIS.KroupaBreak1_Plus1_1() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()));
-                    double term2 = m_AIS.OneOverKroupaPower2Plus1() * m_AIS.KroupaBreak1_Power1_2() * (pow(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaPowerPlus1_2()) - m_AIS.KroupaBreak1_Plus1_2());
+                    double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+                    double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
 
                     double C1    = 1.0 / (term1 + term2);
-                    double C2    = C1 * m_AIS.KroupaBreak1_Power1_2();
-                    double A     = m_AIS.OneOverKroupaPower1Plus1() * C1 * (m_AIS.KroupaBreak1_Plus1_1() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()));
+                    double C2    = C1 * KROUPA_BREAK_1_POWER_1_2;
+                    double A     = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
 
                     double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
-                    thisMass = utils::Compare(rand, m_AIS.CalculateCDFKroupa(m_AIS.KroupaBreak1())) < 0
-                                ? pow(rand * (m_AIS.KroupaPowerPlus1_1() / C1) + pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()), m_AIS.OneOverKroupaPower1Plus1())
-                                : pow((rand - A) * (m_AIS.KroupaPowerPlus1_2() / C2) + m_AIS.KroupaBreak1_Plus1_2(), m_AIS.OneOverKroupaPower2Plus1());
+                    thisMass = utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_1)) < 0
+                                ? pow(rand * (KROUPA_POWER_PLUS1_1 / C1) + pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1), ONE_OVER_KROUPA_POWER_1_PLUS1)
+                                : pow((rand - A) * (KROUPA_POWER_PLUS1_2 / C2) + KROUPA_BREAK_1_PLUS1_2, ONE_OVER_KROUPA_POWER_2_PLUS1);
                 }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak1()) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak2()) > 0) {
+                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2_POWER_2_3) > 0) {
 
-                    double term1 = m_AIS.OneOverKroupaPower1Plus1() * (m_AIS.KroupaBreak1_Plus1_1() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()));
-                    double term2 = m_AIS.OneOverKroupaPower2Plus1() * m_AIS.KroupaBreak1_Power1_2() * (m_AIS.KroupaBreak2_Plus1_2() - m_AIS.KroupaBreak1_Plus1_2());
-                    double term3 = m_AIS.OneOverKroupaPower3Plus1() * m_AIS.KroupaBreak1_Power1_2() * m_AIS.KroupaBreak2_Power2_3() * (pow(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaPowerPlus1_3()) - m_AIS.KroupaBreak2_Plus1_3());
+                    double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+                    double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
+                    double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2_POWER_2_3) - KROUPA_BREAK_2_PLUS1_3);
 
                     double C1    = 1.0 / (term1 + term2 + term3);
-                    double C2    = C1 * m_AIS.KroupaBreak1_Power1_2();
-                    double C3    = C2 * m_AIS.KroupaBreak2_Power2_3();
+                    double C2    = C1 * KROUPA_BREAK_1_POWER_1_2;
+                    double C3    = C2 * KROUPA_BREAK_2_POWER_2_3;
 
-                    double A     = m_AIS.OneOverKroupaPower1Plus1() * C1 * (m_AIS.KroupaBreak1_Plus1_1() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()));
-                    double B     = m_AIS.OneOverKroupaPower2Plus1() * C2 * (m_AIS.KroupaBreak2_Plus1_2() - m_AIS.KroupaBreak1_Plus1_2());
+                    double A     = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+                    double B     = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
 
                     double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
 
-                    if (utils::Compare(rand, m_AIS.CalculateCDFKroupa(m_AIS.KroupaBreak1())) < 0)
-                        thisMass = pow(rand * (m_AIS.KroupaPowerPlus1_1() / C1) + pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()), m_AIS.OneOverKroupaPower1Plus1());
-                    else if (utils::Compare(rand, m_AIS.CalculateCDFKroupa(m_AIS.KroupaBreak2())) < 0)
-                        thisMass = pow((rand - A) * (m_AIS.KroupaPowerPlus1_2() / C2) + m_AIS.KroupaBreak1_Plus1_2(), m_AIS.OneOverKroupaPower2Plus1());
+                    if (utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_1)) < 0)
+                        thisMass = pow(rand * (KROUPA_POWER_PLUS1_1 / C1) + pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1), ONE_OVER_KROUPA_POWER_1_PLUS1);
+                    else if (utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_2)) < 0)
+                        thisMass = pow((rand - A) * (KROUPA_POWER_PLUS1_2 / C2) + KROUPA_BREAK_1_PLUS1_2, ONE_OVER_KROUPA_POWER_2_PLUS1);
                     else
-                        thisMass = pow((rand - A - B) * (m_AIS.KroupaPowerPlus1_3() / C3) + m_AIS.KroupaBreak2_Plus1_3(), m_AIS.OneOverKroupaPower3Plus1());
+                        thisMass = pow((rand - A - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
                 }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak1())  > 0 &&
-                         utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak2()) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak2()) > 0) {
+                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1)  > 0 &&
+                         utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_2) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2) > 0) {
 
-                    double term1 = m_AIS.OneOverKroupaPower2Plus1() * (m_AIS.KroupaBreak2_Plus1_2() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_2()));
-                    double term2 = m_AIS.OneOverKroupaPower3Plus1() * m_AIS.KroupaBreak2_Power2_3() * (pow(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaPowerPlus1_3()) - m_AIS.KroupaBreak2_Plus1_3());
+                    double term1 = ONE_OVER_KROUPA_POWER_2_PLUS1 * (KROUPA_BREAK_2_PLUS1_2 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
+                    double term2 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
 
                     double C2    = 1.0 / (term1 + term2);
-                    double C3    = C2 * m_AIS.KroupaBreak2_Power2_3();
-                    double B     = m_AIS.OneOverKroupaPower2Plus1() * C2 * (m_AIS.KroupaBreak2_Plus1_2() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_2()));
+                    double C3    = C2 * KROUPA_BREAK_2_POWER_2_3;
+                    double B     = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
 
                     double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
 
-                    thisMass = utils::Compare(rand, m_AIS.CalculateCDFKroupa(m_AIS.KroupaBreak2())) < 0
-                                ? pow(rand * (m_AIS.KroupaPowerPlus1_2() / C2) + pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_2()), m_AIS.OneOverKroupaPower2Plus1())
-                                : pow((rand - B) * (m_AIS.KroupaPowerPlus1_3() / C3) + m_AIS.KroupaBreak2_Plus1_3(), m_AIS.OneOverKroupaPower3Plus1());
+                    thisMass = utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_2)) < 0
+                                ? pow(rand * (KROUPA_POWER_PLUS1_2 / C2) + pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2), ONE_OVER_KROUPA_POWER_2_PLUS1)
+                                : pow((rand - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
                 }
                 // JR: no other case possible - as long as OPTIONS->InitialMassFunctionMin() < OPTIONS->InitialMassFunctionMax() (currently enforced in Options.cpp)
                 break;
@@ -2180,9 +2281,11 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     double semiMajorAxis = m_SemiMajorAxisPrime;                                                                        // current semi-major axis in default units, AU (before CEE)
 	double eccentricity  = m_EccentricityPrime;								                                            // current eccentricity (before CEE)
 
+    bool donorMS = false;                                                                                               // check for main sequence donor
     if (OPTIONS->AllowMainSequenceStarToSurviveCommonEnvelope()) {                                                      // allow main sequence stars to survive CEE?
         if (m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) {                                                                      // yes - star1 MS_LTE_07, MS_GT_07 or NAKED_HELIUM_STAR_MS?
-            m_Mass1Final = m_Star1->Mass();                                                                             // yes - set mass
+            donorMS      = donorMS || m_Star1->IsRLOF();                                                                // yes - donor MS?
+            m_Mass1Final = m_Star1->Mass();                                                                             // set mass
             m_MassEnv1   = 0.0;                                                                                         // no envelope
         }
         else {                                                                                                          // no, star1 not MS_LTE_07, MS_GT_07 or NAKED_HELIUM_STAR_MS
@@ -2191,6 +2294,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         }
 
         if (m_Star2->IsOneOf(ALL_MAIN_SEQUENCE)) {                                                                      // star2 MS_LTE_07, MS_GT_07 or NAKED_HELIUM_STAR_MS?
+            donorMS      = donorMS || m_Star2->IsRLOF();                                                                // yes - donor MS?
             m_Mass2Final = m_Star2->Mass();                                                                             // yes - set mass
             m_MassEnv2   = 0.0;                                                                                         // no envelope
         }
@@ -2272,12 +2376,13 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
     // update stellar type after losing its envelope. Star1, Star2 or both if double CEE.
 	// Alejandro - 18/02018 - Calculate tidal timescales
-    if (!envelopeFlag1 && !envelopeFlag2) {                                                                             // stellar merger
+
+    if (donorMS || (!envelopeFlag1 && !envelopeFlag2)) {                                                                // stellar merger
         m_MassTransferTrackerHistory = HasTwoOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_MS }) ? MT_TRACKING::CE_BOTH_MS : MT_TRACKING::CE_MS_WITH_CO; // Here MS-WD systems are flagged as CE_BOTH_MS
-        m_StellarMerger              = true;                                                                            // JR: todo: need to set false for conditions below?
+        m_StellarMerger              = true;
     }
 	else {
-        double periastronRsol = semiMajorAxis * AU_TO_RSOL* (1.0 - eccentricity);                                       // periatsron in Rsol
+        double periastronRsol = semiMajorAxis * AU_TO_RSOL* (1.0 - eccentricity);                                       // periastron in Rsol
 
         if (envelopeFlag1) {                                                                                            // star1 donor
             m_Star1->ResolveEnvelopeLossAndSwitch();                                                                    // resolve envelope loss for star1 and switch to new stellar type
@@ -3044,29 +3149,52 @@ void BaseBinaryStar::InitialiseMassTransfer() {
     m_Star1->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxisPrime, m_Eccentricity);                                  // initialise mass transfer for star1
     m_Star2->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxisPrime, m_Eccentricity);                                  // initialise mass transfer for star2
 
-    m_MassTransfer     = false;                                                                                                 // initially - check below
-    m_CEDetails.CEEnow = false;                                                                                                 // no common envelope
-
     if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {                                                                               // either star overflowing its Roche Lobe?
-		m_MassTransfer = true;                                                                                                  // yes - mass transfer
+                                                                                                                                // yes - mass transfer if not both CH
+        if (OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS})) {                    // CHE enabled and both stars CH?
+                                                                                                                                // yes
+            // equilibrate masses, circularise, and check for merger
 
-		if (OPTIONS->CirculariseBinaryDuringMassTransfer()) {                                                                   // circularise binary to the periapsis separation?
-            m_SemiMajorAxisPrime *= OPTIONS->AngularMomentumConservationDuringCircularisation()                                 // yes - conserve angular momentum?
+            double mass = (m_Star1->Mass() + m_Star2->Mass()) / 2.0;                                                            // share mass equally
+            m_Star1->UpdateAttributes(mass - m_Star1->Mass(), mass - m_Star1->Mass0(), true);                                   // set new mass, mass0 for star 1
+            m_Star1->UpdateAttributes(mass - m_Star2->Mass(), mass - m_Star2->Mass0(), true);                                   // set new mass, mass0 for star 2
+
+            m_MassesEquilibrated = true;                                                                                        // record that we've equilbrated
+
+            m_SemiMajorAxis *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                       // circularise; conserve angular momentum
+            m_Eccentricity   = 0.0;                                                                                             // now circular
+
+            m_Star1->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxisPrime, m_Eccentricity);                          // re-initialise mass transfer for star1
+            m_Star2->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxisPrime, m_Eccentricity);                          // re-initialise mass transfer for star2
+
+            m_MassTransfer     = false;                                                                                         // no mass transfer
+            m_CEDetails.CEEnow = false;                                                                                         // no common envelope
+        }
+        else {                                                                                                                  // not both CH, so ...
+		    m_MassTransfer = true;                                                                                              // ... mass transfer
+            m_CEDetails.CEEnow = false;                                                                                         // no common envelope
+
+		    if (OPTIONS->CirculariseBinaryDuringMassTransfer()) {                                                               // circularise binary to the periapsis separation?
+                m_SemiMajorAxisPrime *= OPTIONS->AngularMomentumConservationDuringCircularisation()                             // yes - conserve angular momentum?
                                         ? (1.0 - (m_Eccentricity * m_Eccentricity))                                             // yes - conserve angular momentum
                                         : (1.0 - m_Eccentricity);                                                               // no - angular momentum not coneserved
 
-			m_Eccentricity        = 0.0;			                                                                            // ALEJANDRO - 22/11/2016 - Think shouldn't use m_Eccentricity but m_EccentrictyPrime. Right now setting both. Check later.     JR: todo: check this
-			m_EccentricityPrime   = 0.0;                                                                                        // JR: todo: check comment above
+			    m_Eccentricity        = 0.0;			                                                                        // ALEJANDRO - 22/11/2016 - Think shouldn't use m_Eccentricity but m_EccentrictyPrime. Right now setting both. Check later.     JR: todo: check this
+			    m_EccentricityPrime   = 0.0;                                                                                    // JR: todo: check comment above
 
-			// ALEJANDRO - 23/11/2016 - Bug fix for systems which enter MT being eccentric.
-			// Previous values have to be the ones for periastron as later orbit is modified according to previous values.
-			// If you don't do this, you end up modifying pre-MT pre-circularisation orbit
-			// JR: todo: check that this is proper functionality, or just a kludge - if kludge, resolve it
-			m_SemiMajorAxisPrev   = m_SemiMajorAxisPrime;
-			m_EccentricityPrev    = m_EccentricityPrime;
-			m_OrbitalVelocityPrev = m_OrbitalVelocityPrime;
-		}
-
+			    // ALEJANDRO - 23/11/2016 - Bug fix for systems which enter MT being eccentric.
+			    // Previous values have to be the ones for periastron as later orbit is modified according to previous values.
+			    // If you don't do this, you end up modifying pre-MT pre-circularisation orbit
+			    // JR: todo: check that this is proper functionality, or just a kludge - if kludge, resolve it
+			    m_SemiMajorAxisPrev   = m_SemiMajorAxisPrime;
+			    m_EccentricityPrev    = m_EccentricityPrime;
+			    m_OrbitalVelocityPrev = m_OrbitalVelocityPrime;
+		    }
+        }
+    }
+    else {
+        m_MassTransfer     = false;                                                                                             // no mass transfer
+        m_CEDetails.CEEnow = false;                                                                                             // no common envelope
     }
 
     m_aMassTransferDiff     = 0.0;                                                                                              // iniitially - no changle to orbit (semi-major axis) due to mass transfer
@@ -3085,16 +3213,20 @@ void BaseBinaryStar::InitialiseMassTransfer() {
  */
 void BaseBinaryStar::CheckMassTransfer(const double p_Dt) {
 
+    InitialiseMassTransfer();                                                                                                   // initialise - even if not using mass transfer (sets some flags we might need)
 
-    if (OPTIONS->UseMassTransfer()) {                                   // only if using mass transfer (program option)
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}) && HasStarsTouching()) {  // CHE enabled and both stars CH?
+        m_StellarMerger = true;                                                                                                 // just merge
+    }
+    else {                                                                                                                      // not both CH
+        if (OPTIONS->UseMassTransfer()) {                                                                                       // only if using mass transfer (program option)
 
-        InitialiseMassTransfer();                                       // initialise
-
-        if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                   // both stars overflowing their Roche Lobe?
-			m_CEDetails.CEEnow = true;                                  // yes - common envelope event - no mass transfer
-        }
-        else if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {              // either star overflowing its Roche Lobe?
-            CalculateMassTransfer(p_Dt);                                // yes - mass transfer
+            if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                                                                       // both stars overflowing their Roche Lobe?
+			    m_CEDetails.CEEnow = true;                                                                                      // yes - common envelope event - no mass transfer
+            }
+            else if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {                                                                  // either star overflowing its Roche Lobe?
+                CalculateMassTransfer(p_Dt);                                                                                    // yes - mass transfer
+            }
         }
     }
 }
@@ -3348,21 +3480,31 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     CheckMassTransfer(p_Dt);                                                                                                // calculate mass transfer if necessary
 
-    CalculateWindsMassLoss();                                                                                               // calculate mass loss dues to winds
+    if (!(OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {                 // CHE enabled and both stars CH
+                                                                                                                            // no - proceed
+        CalculateWindsMassLoss();                                                                                           // calculate mass loss dues to winds
 
-         if (m_CEDetails.CEEnow   || m_StellarMerger     ) ResolveCommonEnvelopeEvent();                                    // resolve CEE - immediate event
-    else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) EvaluateSupernovae();                                            // evaluate supernovae (both stars) - immediate event
-    else                                                   ResolveMassChanges();                                            // apply mass loss and mass transfer as necessary
+        if ( (m_CEDetails.CEEnow || m_StellarMerger) &&                                                                     // CEE or merger?
+            !(OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {             // yes - avoid CEE if CH+CH
+                ResolveCommonEnvelopeEvent();                                                                               // resolve CEE - immediate event
+        }
+        else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) {
+            EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) - immediate event
+        }
+        else {
+            ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
+        }
 
-    (void)m_Star1->UpdateAttributes(0.0, 0.0, true);                                                                        // recalculate stellar attributes for star1
-    (void)m_Star2->UpdateAttributes(0.0, 0.0, true);                                                                        // recalculate stellar attributes for star2
+        (void)m_Star1->UpdateAttributes(0.0, 0.0, true);                                                                    // recalculate stellar attributes for star1
+        (void)m_Star2->UpdateAttributes(0.0, 0.0, true);                                                                    // recalculate stellar attributes for star2
 
-    EvaluateSupernovae();                                                                                                   // evaluate supernovae (both stars)   JR: todo: ?
-    ResolveTides();                                                                                                         // resolve tides
-    CalculateEnergyAndAngularMomentum();                                                                                    // perform energy and angular momentum calculations
+        EvaluateSupernovae();                                                                                               // evaluate supernovae (both stars)   JR: todo: ?
+        ResolveTides();                                                                                                     // resolve tides
+        CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
 
-    m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);          // update pulsar parameters for star1
-    m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);          // update pulsar parameters for star2
+        m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);      // update pulsar parameters for star1
+        m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);      // update pulsar parameters for star2
+    }
 }
 
 
