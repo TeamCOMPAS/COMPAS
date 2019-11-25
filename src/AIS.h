@@ -42,32 +42,6 @@ public:
 	double      MuM1() const                           { return m_MuM1[m_RandomGaussianDraw]; }
 	double      MuQ() const                            { return m_MuQ[m_RandomGaussianDraw]; }
 
-	// getters for the constants
-	// this would be so much easier if we could put thee in constants.h...
-
-	double KroupaPower1() const                         { return kroupaPower1; }
-    double KroupaPower2() const                         { return kroupaPower2; }
-    double KroupaPower3() const                         { return kroupaPower3; }
-
-    double KroupaPowerPlus1_1() const                   { return kroupaPowerPlus1_1; }
-    double KroupaPowerPlus1_2() const                   { return kroupaPowerPlus1_2; }
-    double KroupaPowerPlus1_3() const                   { return kroupaPowerPlus1_3; }
-
-    double OneOverKroupaPower1Plus1() const             { return oneOverKroupaPower1Plus1; }
-    double OneOverKroupaPower2Plus1() const             { return oneOverKroupaPower2Plus1; }
-    double OneOverKroupaPower3Plus1() const             { return oneOverKroupaPower3Plus1; }
-
-    double KroupaBreak1() const                         { return kroupaBreak1; }
-    double KroupaBreak2() const                         { return kroupaBreak2; }
-
-    double KroupaBreak1_Plus1_1() const                 { return kroupaBreak1_Plus1_1; }
-    double KroupaBreak1_Plus1_2() const                 { return kroupaBreak1_Plus1_2; }
-    double KroupaBreak1_Power1_2() const                { return kroupaBreak1_Power1_2; }
-
-    double KroupaBreak2_Plus1_2() const                 { return kroupaBreak2_Plus1_2; }
-    double KroupaBreak2_Plus1_3() const                 { return kroupaBreak2_Plus1_3; }
-    double KroupaBreak2_Power2_3() const                { return kroupaBreak2_Power2_3; }
-
 
     // member functions - alphabetically (sort of)
 
@@ -108,7 +82,6 @@ public:
         return (DCOhit == 1);
     }
 
-    double      CalculateCDFKroupa(const double p_Mass);
     void        DefineGaussians();
     void        Initialise();
     void        PrintExploratorySettings();

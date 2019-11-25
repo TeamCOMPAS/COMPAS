@@ -39,6 +39,7 @@ public:
             double              BindingEnergy_Loveridge() const                                 { return m_BindingEnergies.loveridge; }
             double              BindingEnergy_LoveridgeWinds() const                            { return m_BindingEnergies.loveridgeWinds; }
             double              BindingEnergy_Kruckow() const                                   { return m_BindingEnergies.kruckow; }
+            bool                CHonMS() const                                                  { return m_CHE; }
             double              COCoreMass() const                                              { return m_COCoreMass; }
             double              CoreMass() const                                                { return m_CoreMass; }
             double              Dt() const                                                      { return m_Dt; }
@@ -233,6 +234,8 @@ protected:
     ERROR                   m_Error;                                    // Records most recent error encountered for this star
 
     // member variables - alphabetical in groups
+
+    bool                    m_CHE;                                      // CHE flag - true if the star spent entire MS as a CH star; false if evolved CH->MS
 
     // Stellar variables - values passed as parameters to constructor
     double                  m_LBVfactor;                                // Luminous Blue Varaible factor

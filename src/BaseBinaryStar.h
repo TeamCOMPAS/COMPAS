@@ -515,6 +515,7 @@ private:
 
     double  CalculateAngularMomentumPrime()                                 { return CalculateAngularMomentum(m_SemiMajorAxisPrime, m_EccentricityPrime, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
 
+    double  CalculateCDFKroupa(const double p_Mass);
 
     double  CalculateCosFinalPlaneTilt(const double p_KickTheta, const double p_KickPhi);
 

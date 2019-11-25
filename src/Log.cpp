@@ -115,14 +115,16 @@ void Log::Stop() {
     if (m_Enabled) {
         CloseAllStandardFiles();                                                                                // first close all standard log files
         for(unsigned int index = 0; index < m_Logfiles.size(); index++) {                                       // check for open logfiles (even if not active)
-            if (m_Logfiles[index].file.is_open()) {                                                             // open file?
-                try {                                                                                           // yes
-                    m_Logfiles[index].file.flush();                                                             // flush output and
-                    m_Logfiles[index].file.close();                                                             // close it
-                }
-                catch (const std::ofstream::failure &e) {                                                       // problem...
-                    Squawk("ERROR: Unable to close log file with file name " + m_Logfiles[index].name);         // announce error
-                    Squawk(e.what());                                                                           // plus details
+            if (IsActiveId(index)) {                                                                            // logfile active?
+                if (m_Logfiles[index].file.is_open()) {                                                         // open file?
+                    try {                                                                                       // yes
+                        m_Logfiles[index].file.flush();                                                         // flush output and
+                        m_Logfiles[index].file.close();                                                         // close it
+                    }
+                    catch (const std::ofstream::failure &e) {                                                   // problem...
+                        Squawk("ERROR: Unable to close log file with file name " + m_Logfiles[index].name);     // announce error
+                        Squawk(e.what());                                                                       // plus details
+                    }
                 }
             }
         }

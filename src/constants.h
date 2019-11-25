@@ -62,8 +62,21 @@
 // 02.03.01      JR - Nov 04, 2019 - Defect repair:
 //                                       removed erroneous initialisation of m_CEDetails.alpha from BaseBinaryStar::SetRemainingCommonValues()
 //                                       (CE Alpha was alwas being initialised to 0.0 regardless of program options)
+// 02.03.02      JR - Nov 25, 2019 - Defect repairs:
+//                                       added check for active log file before closing in Log::Stop()
+//                                       added CH stars to MAIN_SEQUENCE and ALL_MAIN_SEQUENCE initializer_lists defined in constants.h
+//                                       moved InitialiseMassTransfer() outside 'if' - now called even if not using mass transfer - sets some flags we might need
+//                                       added code to recalculate rlof if CH stars are equilibrated in BaseBinaryStar constructor
+//                                   Enhancements:
+//                                       moved KROUPA constants from AIS class to constants.h
+//                                       moved CalculateCDFKroupa() function from AIS class to BaseBinaryStar class
+//                                       added m_CHE variable to BaseStar class - also selectable for printing
+//                                       added explicit check to ResolveCommonEnvelope() to merge binary if the donor is a main sequence star
+//                                   Chemically Homogeneous Evolution changes:
+//                                       added check to CheckMassTransfer() in BaseBinaryStar.cpp to merge if CH+CH and touching - avoid CEE
+//                                       added code to InitialiseMassTransfer() in BaseBinaryStar.cpp to equilibrate and possibly merge if both CH stars in RLOF
 
-const std::string VERSION_STRING = "02.03.01";
+const std::string VERSION_STRING = "02.03.02";
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
@@ -173,7 +186,7 @@ constexpr double AU_TO_RSOL				                = 1.0 / RSOL_TO_AU;              
 // constants
 
 constexpr double _2_PI                                  = M_PI * 2;                                                 // 2PI
-constexpr double SQRT_M_2_PI                            = 0.7978845608028653558799;                                 // sqrt(2/PI)
+constexpr double SQRT_M_2_PI                            = 0.7978845608028653558798921198687637369517;               // sqrt(2/PI)
 constexpr double DEGREE                                 = M_PI / 180.0;                                             // 1 degree in radians
 
 constexpr double GAMMA_E                                = 0.57721566490153286060651209008240243104215933593992;     // Euler's Constant (probably don't need so many digits after the decimal point...)
@@ -252,11 +265,38 @@ constexpr double NEWTON_RAPHSON_EPSILON                 = 1.0E-5;               
 
 constexpr double EPSILON_PULSAR                         = 1.0;                                                      // JR: todo: description
 
+// AIS constants
 constexpr double SALPETER_POWER                         = -2.35;                                                    // JR: todo; description (AIS)
 constexpr double KROUPA_POWER                           = -2.35;                                                    // JR: todo; description (AIS)
 constexpr double KROUPA_MINIMUM                         = 0.5;                                                      // JR: todo; description (AIS)
 constexpr double KROUPA_MAXIMUM                         = 100.0;                                                    // JR: todo; description (AIS)
 
+// Kroupa IMF is a broken power law with three slopes
+constexpr double KROUPA_POWER_1                         = -0.3;
+constexpr double KROUPA_POWER_2                         = -1.3;
+constexpr double KROUPA_POWER_3                         = -2.3;
+
+// Often require the power law exponent plus one
+constexpr double KROUPA_POWER_PLUS1_1                   = 0.7;
+constexpr double KROUPA_POWER_PLUS1_2                   = -0.3;
+constexpr double KROUPA_POWER_PLUS1_3                   = -1.3;
+
+constexpr double ONE_OVER_KROUPA_POWER_1_PLUS1          = 1.0 / KROUPA_POWER_PLUS1_1;
+constexpr double ONE_OVER_KROUPA_POWER_2_PLUS1          = 1.0 / KROUPA_POWER_PLUS1_2;
+constexpr double ONE_OVER_KROUPA_POWER_3_PLUS1          = 1.0 / KROUPA_POWER_PLUS1_3;
+
+// There are two breaks in the Kroupa power law -- they occur here (in solar masses)
+constexpr double KROUPA_BREAK_1                         = 0.08;
+constexpr double KROUPA_BREAK_2                         = 0.5;
+
+// Some values that are really constants
+constexpr double KROUPA_BREAK_1_PLUS1_1                 = 0.1706722802578593435430149987533206236794;               // pow(KROUPA_BREAK_1, KROUPA_POWER_PLUS1_1);
+constexpr double KROUPA_BREAK_1_PLUS1_2                 = 2.1334035032232417942876874844165077959929;               // pow(KROUPA_BREAK_1, KROUPA_POWER_PLUS1_2);
+constexpr double KROUPA_BREAK_1_POWER_1_2               = 0.08;                                                     // pow(KROUPA_BREAK_1, (KROUPA_POWER_1 - KROUPA_POWER_2));
+
+constexpr double KROUPA_BREAK_2_PLUS1_2                 = 1.2311444133449162844993930691677431098761;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_2);
+constexpr double KROUPA_BREAK_2_PLUS1_3                 = 2.4622888266898325689987861383354862197522;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_3);
+constexpr double KROUPA_BREAK_2_POWER_2_3               = 0.5;                                                      // pow(KROUPA_BREAK_2, (KROUPA_POWER_2 - KROUPA_POWER_2));
 
 
 // object types
@@ -1023,7 +1063,8 @@ const COMPASUnorderedMap<STELLAR_TYPE, std::string> STELLAR_TYPE_LABEL = {
 // (convenience) initializer list for MAIN SEQUENCE stars (does not include NAKED_HELIUM_STAR_MS)
 const std::initializer_list<STELLAR_TYPE> MAIN_SEQUENCE = {
     STELLAR_TYPE::MS_LTE_07,
-    STELLAR_TYPE::MS_GT_07
+    STELLAR_TYPE::MS_GT_07,
+    STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS
 };
 
 
@@ -1031,6 +1072,7 @@ const std::initializer_list<STELLAR_TYPE> MAIN_SEQUENCE = {
 const std::initializer_list<STELLAR_TYPE> ALL_MAIN_SEQUENCE = {
     STELLAR_TYPE::MS_LTE_07,
     STELLAR_TYPE::MS_GT_07,
+    STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS,
     STELLAR_TYPE::NAKED_HELIUM_STAR_MS
 };
 
@@ -1239,6 +1281,7 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     BINDING_ENERGY_LOVERIDGE,                        \
     BINDING_ENERGY_LOVERIDGE_WINDS,                  \
     BINDING_ENERGY_KRUCKOW,                          \
+    CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,            \
     CO_CORE_MASS,                                    \
     CO_CORE_MASS_AT_COMMON_ENVELOPE,                 \
     CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,        \
@@ -1358,6 +1401,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE,                        "BINDING_ENERGY_LOVERIDGE" },
     { STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS,                  "BINDING_ENERGY_LOVERIDGE_WINDS" },
     { STAR_PROPERTY::BINDING_ENERGY_KRUCKOW,                          "BINDING_ENERGY_KRUCKOW" },
+    { STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,            "CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE" },
     { STAR_PROPERTY::CO_CORE_MASS,                                    "CO_CORE_MASS" },
     { STAR_PROPERTY::CO_CORE_MASS_AT_COMMON_ENVELOPE,                 "CO_CORE_MASS_AT_COMMON_ENVELOPE" },
     { STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,        "CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION" },
@@ -1818,6 +1862,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE,                          { TYPENAME::DOUBLE,         "BE_Loveridge",         "ergs",             14, 6 }},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS,                    { TYPENAME::DOUBLE,         "BE_Loveridge_Winds",   "ergs",             14, 6 }},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_KRUCKOW,                            { TYPENAME::DOUBLE,         "BE_Kruckow",           "ergs",             14, 6 }},
+    { ANY_STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,              { TYPENAME::BOOL,           "CH_on_MS",             "State",             0, 0 }},
     { ANY_STAR_PROPERTY::CO_CORE_MASS,                                      { TYPENAME::DOUBLE,         "Mass_CO_Core",         "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Mass_CO_Core@CE",      "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,          { TYPENAME::DOUBLE,         "Mass_CO_Core@CO",      "Msol",             14, 6 }},
