@@ -44,7 +44,7 @@ public:
 
 	// getters for the constants
 	// this would be so much easier if we could put thee in constants.h...
-
+/*
 	double KroupaPower1() const                         { return kroupaPower1; }
     double KroupaPower2() const                         { return kroupaPower2; }
     double KroupaPower3() const                         { return kroupaPower3; }
@@ -67,7 +67,7 @@ public:
     double KroupaBreak2_Plus1_2() const                 { return kroupaBreak2_Plus1_2; }
     double KroupaBreak2_Plus1_3() const                 { return kroupaBreak2_Plus1_3; }
     double KroupaBreak2_Power2_3() const                { return kroupaBreak2_Power2_3; }
-
+*/
 
     // member functions - alphabetically (sort of)
 
@@ -108,7 +108,6 @@ public:
         return (DCOhit == 1);
     }
 
-    double      CalculateCDFKroupa(const double p_Mass);
     void        DefineGaussians();
     void        Initialise();
     void        PrintExploratorySettings();
