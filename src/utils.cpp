@@ -1,7 +1,8 @@
 #include <iostream>
 #include <stdarg.h>
 #include <fstream>
-
+#include <algorithm>
+#include <cstring>
 #include "utils.h"
 #include "Rand.h"
 
