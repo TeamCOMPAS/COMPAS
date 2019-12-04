@@ -1700,6 +1700,9 @@ void BaseBinaryStar::ResolveCoalescence() {
  */
 void BaseBinaryStar::ResolveTides() {
 
+    if (m_Star1->IsOneOf({ STELLAR_TYPE::BLACK_HOLE, STELLAR_TYPE::MASSLESS_REMNANT }) ||
+        m_Star2->IsOneOf({ STELLAR_TYPE::BLACK_HOLE, STELLAR_TYPE::MASSLESS_REMNANT })) return;
+
     m_aTidesDiff     = 0.0;
 	m_OmegaTidesDiff = 0.0;
 
@@ -2121,6 +2124,7 @@ bool BaseBinaryStar::ResolveSupernova() {
 	double reducedMass      = (m_Supernova->MassPrev() * m_Companion->MassPrev()) / totalMass;                                      // reduced mass before supernova event
 	double totalMassPrime   = m_Supernova->Mass() + m_Companion->Mass();                                                            // total mass of binary after supernova event
 	double reducedMassPrime = (m_Supernova->Mass() * m_Companion->Mass()) / totalMassPrime;                                         // reduced mass after supernova event
+if (m_Supernova->Mass() < 0.0005 || m_Companion->Mass() < 0.0005) exit(1);// JR REMOVE THIS <*********************
 
     #define a m_SemiMajorAxisPrime  // for convenience - undefined below
     #define e m_Eccentricity        // for convenience - undefined below
@@ -2233,24 +2237,28 @@ bool BaseBinaryStar::ResolveSupernova() {
  */
 void BaseBinaryStar::EvaluateSupernovae() {
 
-    m_SupernovaState = SN_STATE::NONE;                                                                                                  // not yet determined
+    m_SupernovaState = SN_STATE::NONE;                                                                  // not yet determined
 
-    if (m_Star1->IsSNevent()) {                                                                                                         // star1 supernova
-        m_SupernovaState = m_Star2->IsSNevent() && utils::Compare(m_SemiMajorAxisPrime, 0.0) > 0 ? SN_STATE::BOTH : SN_STATE::STAR1;    // star1 or both
+    if (m_Star1->IsSNevent() && utils::Compare(m_SemiMajorAxisPrime, 0.0) > 0) {                        // star1 supernova
+        m_SupernovaState = m_Star2->IsSNevent() ? SN_STATE::BOTH : SN_STATE::STAR1;                     // star1 or both
 
-        // resolve star1 supernova
-        m_Supernova = m_Star1;                                                                                                          // supernova
-        m_Companion = m_Star2;                                                                                                          // companion
-        (void)ResolveSupernova();                                                                                                       // resolve supernova
+        if (!(m_Star1->IsOneOf({ STELLAR_TYPE::BLACK_HOLE, STELLAR_TYPE::MASSLESS_REMNANT }))) { 
+            // resolve star1 supernova
+            m_Supernova = m_Star1;                                                                          // supernova
+            m_Companion = m_Star2;                                                                          // companion
+            (void)ResolveSupernova();                                                                       // resolve supernova
+        }
     }
 
-    if (m_Star2->IsSNevent()) {                                                                                                         // star2 supernova
-        m_SupernovaState = m_SupernovaState == SN_STATE::NONE ? SN_STATE::STAR2 : SN_STATE::BOTH;                                       // star2 or both
+    if (m_Star2->IsSNevent() && utils::Compare(m_SemiMajorAxisPrime, 0.0) > 0) {                                                                                                         // star2 supernova
+        m_SupernovaState = m_SupernovaState == SN_STATE::NONE ? SN_STATE::STAR2 : SN_STATE::BOTH;       // star2 or both
 
-        // resolve star2 supernova
-        m_Supernova = m_Star2;                                                                                                          // supernova
-        m_Companion = m_Star1;                                                                                                          // companion
-        (void)ResolveSupernova();                                                                                                       // resolve supernova
+        if (!(m_Star2->IsOneOf({ STELLAR_TYPE::BLACK_HOLE, STELLAR_TYPE::MASSLESS_REMNANT }))) { 
+            // resolve star2 supernova
+            m_Supernova = m_Star2;                                                                          // supernova
+            m_Companion = m_Star1;                                                                          // companion
+            (void)ResolveSupernova();                                                                       // resolve supernova
+        }
     }
 }
 
@@ -3369,6 +3377,8 @@ double BaseBinaryStar::CalculateAngularMomentum(const double p_SemiMajorAxis,
  */
 void BaseBinaryStar::CalculateEnergyAndAngularMomentum() {
 
+    if (m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) return;
+
     // ALEJANDRO - 16/11/2016 - calculate orbital energy and angular momentum
     m_TotalMassPrev                    = m_TotalMassPrime;
     m_ReducedMassPrev                  = m_ReducedMassPrime;
@@ -3407,7 +3417,7 @@ void BaseBinaryStar::ResolveMassChanges() {
     m_Star1->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star1
 
     // rinse and repeat for star2
-    (void)m_Star2->UpdateAttributes(m_Star2->MassPrev() - m_Star2->Mass() +m_Star2->MassLossDiff() + m_Star2->MassTransferDiff(), 0.0);        // update mass for star2
+    (void)m_Star2->UpdateAttributes(m_Star2->MassPrev() - m_Star2->Mass() + m_Star2->MassLossDiff() + m_Star2->MassTransferDiff(), 0.0);        // update mass for star2
     m_Star2->UpdateInitialMass();                                                                       // update initial mass of star 2 (MS, HG & HeMS)  JR: todo: fix this kludge one day - mass0 is overloaded, and isn't always "initial mass"
     m_Star2->UpdateAgeAfterMassLoss();                                                                  // update age of star2
     m_Star2->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star2
@@ -3484,9 +3494,9 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
                                                                                                                             // no - proceed
         CalculateWindsMassLoss();                                                                                           // calculate mass loss dues to winds
 
-        if ( (m_CEDetails.CEEnow || m_StellarMerger) &&                                                                     // CEE or merger?
-            !(OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {             // yes - avoid CEE if CH+CH
-                ResolveCommonEnvelopeEvent();                                                                               // resolve CEE - immediate event
+        if ((m_CEDetails.CEEnow || m_StellarMerger) &&                                                                      // CEE or merger?
+           !(OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {              // yes - avoid CEE if CH+CH
+            ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
         }
         else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) {
             EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) - immediate event
@@ -3502,8 +3512,10 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         ResolveTides();                                                                                                     // resolve tides
         CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
 
-        m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);      // update pulsar parameters for star1
-        m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);      // update pulsar parameters for star2
+        if (!(m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })))
+            m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);      // update pulsar parameters for star1
+        if (!(m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })))
+            m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);      // update pulsar parameters for star2
     }
 }
 

@@ -267,9 +267,13 @@ STELLAR_TYPE Star::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
 
     STELLAR_TYPE stellarType = m_Star->UpdateAttributesAndAgeOneTimestep(p_DeltaMass, p_DeltaMass0, p_DeltaTime, p_ForceRecalculate);
 
-    if (p_Switch) {                                                                         // switch to new stellar type?
+    if (p_Switch && (stellarType != m_Star->StellarType())) {                               // switch to new stellar type if necessary?
         SwitchTo(stellarType);                                                              // yes - switch
         m_Star->CalculateAllTimescales();                                                   // calculate dynamical, thermal, nuclear and radial expansion timescales
+        
+        // recalculate stellar attributes after switching - transition may not be continuous (e.g. CH -> HeMS)
+        // (this could get recursive, but shouldn't...)
+        UpdateAttributes(0.0, 0.0, true);                                                   // recalculate stellar attributes
     }
 
     return stellarType;                                                                     // return new stellar type

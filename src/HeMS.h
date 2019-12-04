@@ -44,7 +44,7 @@ protected:
 
     void Initialise() {
         m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                                                                                                                 // Set stellar type
-        CalculateTimescales();                                                                                                                                              // Initialise timescales
+        CalculateTimescales();
         // JR: Age for HeMS is partially calculated before switching -
         // can get here from various places in ResolveEnvelopeLoss(),
         // and Age is calculated differently in those cases
