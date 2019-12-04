@@ -39,11 +39,7 @@ public:
             double              BindingEnergy_Loveridge() const                                 { return m_BindingEnergies.loveridge; }
             double              BindingEnergy_LoveridgeWinds() const                            { return m_BindingEnergies.loveridgeWinds; }
             double              BindingEnergy_Kruckow() const                                   { return m_BindingEnergies.kruckow; }
-            double              CEE_BindingEnergy() const                                       { return m_CommonEnvelopeDetails.bindingEnergy; }
-            double              CEE_COCoreMass() const                                          { return m_CommonEnvelopeDetails.COCoreMass; }
-            double              CEE_CoreMass() const                                            { return m_CommonEnvelopeDetails.CoreMass; }
-            double              CEE_HeCoreMass() const                                          { return m_CommonEnvelopeDetails.HeCoreMass; }
-            double              CEE_Lambda() const                                              { return m_CommonEnvelopeDetails.lambda; }
+            bool                CHonMS() const                                                  { return m_CHE; }
             double              COCoreMass() const                                              { return m_COCoreMass; }
             double              CoreMass() const                                                { return m_CoreMass; }
             double              Dt() const                                                      { return m_Dt; }
@@ -150,8 +146,6 @@ public:
 
             double          CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity);
 
-            void            CalculateCommonEnvelopeValues();
-
             double          CalculateDynamicalTimescale()                                                       { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }    // Use class member variables
 
             double          CalculateEddyTurnoverTimescale();
@@ -240,6 +234,8 @@ protected:
     ERROR                   m_Error;                                    // Records most recent error encountered for this star
 
     // member variables - alphabetical in groups
+
+    bool                    m_CHE;                                      // CHE flag - true if the star spent entire MS as a CH star; false if evolved CH->MS
 
     // Stellar variables - values passed as parameters to constructor
     double                  m_LBVfactor;                                // Luminous Blue Varaible factor
@@ -342,7 +338,6 @@ protected:
     ZetasT                  m_Zetas;                                    // Zeta values
 
     // Stellar details squirrelled away...
-    CommonEnvelopeDetailsT  m_CommonEnvelopeDetails;                    // Common envelope attributes
     SupernovaDetailsT       m_SupernovaDetails;                         // Supernova attributes
     PulsarDetailsT          m_PulsarDetails;                            // Pulsar attributes
 

@@ -1396,7 +1396,7 @@ STELLAR_TYPE GiantBranch::IsTypeIIaSN() {
  * amount of high-energetic gamma rays which can create an electron-positron pair.
  * When a significant amounts of pairs are created the photons taken away
  * reduce the radiative pressure. The core contracts becomes hotter creating
- * more pairs. This runaway proces will end in a SN that explodes the entire core without
+ * more pairs. This runaway process will end in a SN that explodes the entire core without
  * leaving a remnant.
  *
  *
@@ -1435,9 +1435,6 @@ STELLAR_TYPE GiantBranch::IsPairInstabilitySN() {
 STELLAR_TYPE GiantBranch::IsPulsationalPairInstabilitySN() {
 
     STELLAR_TYPE stellarType = m_StellarType;
-
-    SetSNCurrentEvent(SN_EVENT::SN);
-    SetSNPastEvent(SN_EVENT::PPISN);
 
     double baryonicMass;
     switch (OPTIONS->PulsationalPairInstabilityPrescription()) {                                        // which prescription?
@@ -1483,13 +1480,22 @@ STELLAR_TYPE GiantBranch::IsPulsationalPairInstabilitySN() {
             m_Mass = m_HeCoreMass;                                                                      // strip off the hydrogen envelope if any was left -- factor of 0.9 applied later
     }
 
-    stellarType   = utils::Compare(m_Mass, 0.0) <= 0 ? STELLAR_TYPE::MASSLESS_REMNANT : STELLAR_TYPE::BLACK_HOLE;
+    if (utils::Compare(m_Mass, 0.0) <= 0) {                                                             // remnant mass <= 0?
+        stellarType = IsPairInstabilitySN();                                                            // yes - PISN rather than PPISN
+    }
+    else {                                                                                              // no - PPISN
 
-    m_Luminosity  = BH::CalculateLuminosityOnPhase_Static();
-    m_Radius      = BH::CalculateRadiusOnPhase_Static(m_Mass);                                          // Schwarzschild radius (not correct for rotating BH)
-    m_Temperature = CalculateTemperatureOnPhase(m_Luminosity, m_Radius);
+        SetSNCurrentEvent(SN_EVENT::SN);
+        SetSNPastEvent(SN_EVENT::PPISN);
 
-    m_SupernovaDetails.fallbackFraction = 1.0;                                                          // Fraction of mass that falls back
+        stellarType   = STELLAR_TYPE::BLACK_HOLE;                                                       // -> black hole
+
+        m_Luminosity  = BH::CalculateLuminosityOnPhase_Static();                                        // black hole luminosity
+        m_Radius      = BH::CalculateRadiusOnPhase_Static(m_Mass);                                      // Schwarzschild radius (not correct for rotating BH)
+        m_Temperature = CalculateTemperatureOnPhase(m_Luminosity, m_Radius);
+
+        m_SupernovaDetails.fallbackFraction = 1.0;                                                      // fraction of mass that falls back
+    }
 
     return stellarType;
 }

@@ -263,6 +263,8 @@ private:
                 logRecord += valueStr + m_Logfiles[fileId].delimiter;                                                                   // add value string to log record - with delimiter
             }
 
+            logRecord = logRecord.substr(0, logRecord.size()-1);                                                                        // remove the last character - extraneous delimiter
+
             if (!Put_(fileId, logRecord)) DBG_WARN(ERR_MSG(ERROR::FILE_WRITE_ERROR));                                                   // write the record - show warning if failure
         }
     }

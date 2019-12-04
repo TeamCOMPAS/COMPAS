@@ -16,7 +16,7 @@ class pythonProgramOptions:
     git_directory = os.environ.get('COMPAS_ROOT_DIR')
     compas_executable = os.path.join(git_directory, 'COMPAS')
 #os.path.join(git_directory, 'COMPAS/COMPAS')
-    number_of_binaries = 100  #number of binaries per batch
+    number_of_binaries = 10  #number of binaries per batch
     populationPrinting = False
 
     randomSeedFileName = 'randomSeed.txt'
@@ -72,7 +72,10 @@ class pythonProgramOptions:
 
     metallicity = 0.0142                    # Solar metallicity Asplund+2010
 
-    chemically_homogeneous_evolution = 'NONE'                            # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
+    allow_rlof_at_birth = False;                                            # allow binaries that have one or both stars in RLOF at birth to evolve?
+    allow_touching_at_birth = False;                                        # allow binaries that have stars touching at birth to evolve?
+
+    chemically_homogeneous_evolution = 'NONE'                               # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
 
     common_envelope_alpha = 1.0
     common_envelope_lambda = 0.1                # Only if using 'LAMBDA_FIXED'
@@ -232,33 +235,33 @@ class pythonProgramOptions:
     kick_velocity_maximum = -1.0
 
     pair_instability_supernovae = True
-    PISN_lower_limit = 65.0     # Minimum core mass for PISN [Msol]
+    PISN_lower_limit = 60.0     # Minimum core mass for PISN [Msol]
     PISN_upper_limit = 135.0    # Maximum core mass for PISN [Msol]
     pulsation_pair_instability = True
     PPI_lower_limit = 35.0      # Minimum core mass for PPI [Msol]
-    PPI_upper_limit = 65.0      # Maximum core mass for PPI [Msol]
+    PPI_upper_limit = 60.0      # Maximum core mass for PPI [Msol]
 
-    pulsational_pair_instability_prescription = 'COMPAS'
+    pulsational_pair_instability_prescription = 'MARCHANT'
 
     maximum_neutron_star_mass = 2.5  #  [Msol]
 
-    log_level         = 0;
-    log_classes       = [];
+    log_level         = 0
+    log_classes       = []
 
-    debug_level       = 0;
-    debug_classes     = [];
+    debug_level       = 0
+    debug_classes     = []
 
-    logfile_definitions = '';
+    logfile_definitions = ''
 
-    logfile_name_prefix = 'Compas_Log_';
-    logfile_delimiter   = 'COMMA';
+    logfile_name_prefix = 'Compas_Log_'
+    logfile_delimiter   = 'COMMA'
 
-    debug_to_file  = False;
-    errors_to_file = False;
+    debug_to_file  = False
+    errors_to_file = False
 
-    single_star_mass_steps = 10;
-    single_star_mass_min   = 1.0;
-    single_star_mass_max   = 75.0;
+    single_star_mass_steps = 10
+    single_star_mass_min   = 1.0
+    single_star_mass_max   = 75.0
 
 
     # read in nBatces for STROOPWAFEL if running Adaptive Sampling (AIS algorithm)  # you should not change this
@@ -306,7 +309,9 @@ class pythonProgramOptions:
             self.common_envelope_allow_main_sequence_survive,
             self.evolvePulsars,
             self.debug_to_file,
-            self.errors_to_file
+            self.errors_to_file,
+            self.allow_rlof_at_birth,
+            self.allow_touching_at_birth
         ]
 
         return booleanChoices
@@ -346,7 +351,9 @@ class pythonProgramOptions:
             '--common-envelope-allow-main-sequence-survive',
             '--evolve-pulsars',
             '--debug-to-file',
-            '--errors-to-file'
+            '--errors-to-file',
+            '--allow-rlof-at-birth',
+            '--allow-touching-at-birth'
         ]
 
         return booleanCommands

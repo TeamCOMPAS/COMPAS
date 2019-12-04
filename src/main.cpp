@@ -61,7 +61,7 @@ std::tuple<int, std::vector<std::string>> OpenSSEGridFile(std::ifstream &p_Grid,
 
         p_Grid.open(OPTIONS->GridFilename());                                                                   // yes - open the file
         if (p_Grid.fail()) {                                                                                    // open ok?
-            SAY(ERR_MSG(ERROR::FILE_OPEN_ERROR) << OPTIONS->GridFilename());                                    // no - show error
+            SAY(ERR_MSG(ERROR::FILE_OPEN_ERROR) << " " << OPTIONS->GridFilename());                             // no - show error
         }
         else {                                                                                                  // file open ok
 
@@ -459,7 +459,7 @@ std::tuple<int, std::vector<std::string>> OpenBSEGridFile(std::ifstream &p_Grid,
 
         p_Grid.open(OPTIONS->GridFilename());                                                                   // yes - open the file
         if (p_Grid.fail()) {                                                                                    // open ok?
-            SAY(ERR_MSG(ERROR::FILE_OPEN_ERROR) << OPTIONS->GridFilename());                                    // no - show error
+            SAY(ERR_MSG(ERROR::FILE_OPEN_ERROR) << " " << OPTIONS->GridFilename());                             // no - show error
         }
         else {                                                                                                  // file open ok
 
@@ -683,7 +683,8 @@ std::tuple<int, std::vector<double>> ReadBSEGridRecord(std::ifstream &p_Grid, co
             }
 
             if (gridValues[4] <= 0.0 && period > 0.0 && gridValues[0] > 0.0 && gridValues[1] > 0.0) {                   // already have sparation? Have required values to calculate from period?
-                SAY(ERR_MSG(ERROR::GRID_FILE_USING_PERIOD));                                                            // let the user know we're using Period
+// JR: change the next line to a warning that can be suppressed            
+//                SAY(ERR_MSG(ERROR::GRID_FILE_USING_PERIOD));                                                            // let the user know we're using Period
                 gridValues[4] = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(gridValues[0], gridValues[1], period);    // calculate separation from period
             }
         }

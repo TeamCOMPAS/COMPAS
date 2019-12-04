@@ -26,6 +26,9 @@ void Options::InitialiseMemberVariables(void) {
 
     // flags
 
+    allowRLOFAtBirth                                                = false;                                                                            // default is to not allow binaries that have one or both stars in RLOF  at birth to evolve
+    allowTouchingAtBirth                                            = false;                                                                            // default is to not allow binaries that are touching at birth to evolve
+
     debugToFile                                                     = false;                                                                            // default is do not log debug statements to a log file
     errorsToFile                                                    = false;                                                                            // default is do not log error messages to a log file
 
@@ -446,6 +449,9 @@ void Options::InitialiseMemberVariables(void) {
 void Options::SetToFiducialValues(void) {
 
     // flags
+
+    allowRLOFAtBirth                                                = false;                                                                            // default is to not allow binaries that have one or both stars in RLOF  at birth to evolve
+    allowTouchingAtBirth                                            = false;                                                                            // default is to not allow binaries that are touching at birth to evolve
 
     debugToFile                                                     = false;                                                                            // default is do not log debug statements to a log file
     errorsToFile                                                    = false;                                                                            // default is do not log error messages to a log file
@@ -918,6 +924,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("AIS-Pessimistic",                                     "Optimistic or Pessimistic selection in exploratory phase of STROOPWAFEL")
 		    ("AIS-refinement-phase",                                "If true: run main sampling phase (step2) of STROOPWAFEL")
 		    ("AIS-RLOF",                                            "RLOFSecondaryZAMS selection in exploratory phase of STROOPWAFEL")
+		    ("allow-rlof-at-birth",                                 "Allow binaries that have one or both stars in RLOF at birth to evolve")
+		    ("allow-touching-at-birth",                             "Allow binaries that are touching at birth to evolve")
 			("alwaysStableCaseBBBCFlag",                            "Choose case BB/BC mass transfer to be always stable (default = True)")
 			("angularMomentumConservationDuringCircularisation",    "Conserve angular momentum when binary is circularised when entering a Mass Transfer episode (default = False)")
 			("BeBinaries",                                          "Enable Be Binaries study")
@@ -950,6 +958,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 			("sample-wolf-rayet-multiplier",                        "Sample over WR winds multiplicative constant")
             ("single-star",                                         "Evolve single star(s)")
 		    ("use-mass-loss",                                       "Enable mass loss")
+		    ("version,v",                                           "Print COMPAS version string")
 			("zeta-calculation-every-time-Step",                    "Calculate all values of MT zetas at each timestep")
 
 
@@ -1087,7 +1096,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		  	("black-hole-kicks",                                            po::value<string>(&blackHoleKicksString),                                           "Black hole kicks relative to NS kicks (options: FULL, REDUCED, ZERO, FALLBACK. Default = FALLBACK)")
 
-		  	("chemically-homogeneous-evolution",                            po::value<string>(&cheString),                                                      "Chemically Homogenesous Evolution (options: NONE, OPTIMISTIC, PESSIMISTIC. Default = NONE)")
+		  	("chemically-homogeneous-evolution",                            po::value<string>(&cheString),                                                      "Chemically Homogeneous Evolution (options: NONE, OPTIMISTIC, PESSIMISTIC. Default = NONE)")
 
 			("common-envelope-hertzsprung-gap-assumption",                  po::value<string>(&commonEnvelopeHertzsprungGapDonorString),                        "Assumption to make about HG stars in CE (default = OPTIMISTIC_HG_CE)")
 			("common-envelope-lambda-prescription",                         po::value<string>(&commonEnvelopeLambdaPrescriptionString),                         "Prescription for CE lambda (options: LAMBDA_FIXED, LAMBDA_LOVERIDGE, LAMBDA_NANJING, LAMBDA_KRUCKOW, LAMBDA_DEWI. Default = LAMBDA_FIXED)")
@@ -1157,9 +1166,15 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             po::store(po::parse_command_line(argc, argv, desc), vm);
 
             // --help option
-            if (vm.count("help")) {                                                                                                     // user requested help
+            if (vm.count("help")) {                                                                                                     // user requested help?
                 utils::SplashScreen();                                                                                                  // yes - show splash screen
                 ANNOUNCE(desc);                                                                                                         // and help
+                programStatus = COMMANDLINE_STATUS::SUCCESS;                                                                            // ok
+            }
+
+            // --version option
+            if (vm.count("version")) {                                                                                                  // user requested version?
+                ANNOUNCE("COMPAS v" << VERSION_STRING);                                                                                 // yes, show version string
                 programStatus = COMMANDLINE_STATUS::SUCCESS;                                                                            // ok
             }
 
@@ -1173,6 +1188,9 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             AISpessimistic                                  = vm.count("AIS-Pessimistic");                                              // excluding binaries that are Optimistic (exploratory phase AIS)?  Do not retain previous (default) value
             AISrefinementPhase                              = vm.count("AIS-refinement-phase");
             AISrlof                                         = vm.count("AIS-RLOF");                                                     // excluding binaries that RLOFSecondaryZAMS (exploratory phase AIS)?  Do not retain previous (default) value
+
+            allowTouchingAtBirth                            = vm.count("allow-touching-at-birth");                                      // allow binaries that are touching at birth to evolve
+            allowRLOFAtBirth                                = vm.count("allow-rlof-at-birth");                                          // allow binaries that have one or both stars in RLOF at birth to evolve
 
             allowMainSequenceStarToSurviveCommonEnvelope    = vm.count("common-envelope-allow-main-sequence-survive");                  // allow MS stars to survive CE event?  Do not retain previous (default) value
 
@@ -1615,6 +1633,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::KICK_VELOCITY_DISTRIBUTION_SIGMA_CCSN_NS:  value = KickVelocityDistributionSigmaCCSN_NS(); break;
         case PROGRAM_OPTION::KICK_VELOCITY_DISTRIBUTION_SIGMA_FOR_ECSN: value = KickVelocityDistributionSigmaForECSN(); break;
         case PROGRAM_OPTION::KICK_VELOCITY_DISTRIBUTION_SIGMA_FOR_USSN: value = KickVelocityDistributionSigmaForUSSN(); break;
+        case PROGRAM_OPTION::RANDOM_SEED:                               value = RandomSeed();                           break;
 
         default:                                                                                                        // unknown property
             ok    = false;                                                                                              // that's not ok...
