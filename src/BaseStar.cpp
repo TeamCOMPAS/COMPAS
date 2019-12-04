@@ -35,6 +35,8 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, c
 
     m_Error               = ERROR::NONE;                                // clear error flag
 
+    m_CHE                 = false;                                      // initially
+    
     // Initialise member variables from input parameters
     m_RandomSeed          = p_RandomSeed;
     m_MZAMS               = p_MZAMS;
@@ -142,7 +144,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, c
     m_MomentOfInertia                          = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_MinimumLuminosityOnPhase                 = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_LBVphaseFlag                             = DEFAULT_INITIAL_BOOLEAN_VALUE;
+    m_LBVphaseFlag                             = false;
 
     // Previous timestep attributes
     m_StellarTypePrev                          = m_StellarType;
@@ -177,13 +179,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, c
     m_BindingEnergies.loveridge                = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_BindingEnergies.loveridgeWinds           = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_BindingEnergies.kruckow                  = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-    // Common Envelope Details
-    m_CommonEnvelopeDetails.bindingEnergy      = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_CommonEnvelopeDetails.COCoreMass         = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_CommonEnvelopeDetails.CoreMass           = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_CommonEnvelopeDetails.HeCoreMass         = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_CommonEnvelopeDetails.lambda             = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // Supernova detais
     m_SupernovaDetails.uRand                   = RAND->Random();
@@ -282,21 +277,18 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
     }
 
     if (ok) {
-
         switch (property) {
             case ANY_STAR_PROPERTY::AGE:                                                value = Age();                                                  break;
             case ANY_STAR_PROPERTY::ANGULAR_MOMENTUM:                                   value = AngularMomentum();                                      break;
-            case ANY_STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE:                  value = CEE_BindingEnergy();                                    break;
             case ANY_STAR_PROPERTY::BINDING_ENERGY_FIXED:                               value = BindingEnergy_Fixed();                                  break;
             case ANY_STAR_PROPERTY::BINDING_ENERGY_NANJING:                             value = BindingEnergy_Nanjing();                                break;
             case ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE:                           value = BindingEnergy_Loveridge();                              break;
             case ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS:                     value = BindingEnergy_LoveridgeWinds();                         break;
             case ANY_STAR_PROPERTY::BINDING_ENERGY_KRUCKOW:                             value = BindingEnergy_Kruckow();                                break;
+            case ANY_STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE:               value = CHonMS();                                               break;
             case ANY_STAR_PROPERTY::CO_CORE_MASS:                                       value = COCoreMass();                                           break;
-            case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMMON_ENVELOPE:                    value = CEE_COCoreMass();                                       break;
             case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_COCoreMassAtCOFormation();                           break;
             case ANY_STAR_PROPERTY::CORE_MASS:                                          value = CoreMass();                                             break;
-            case ANY_STAR_PROPERTY::CORE_MASS_AT_COMMON_ENVELOPE:                       value = CEE_CoreMass();                                         break;
             case ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION:              value = SN_CoreMassAtCOFormation();                             break;
             case ANY_STAR_PROPERTY::DRAWN_KICK_VELOCITY:                                value = SN_DrawnKickVelocity();                                 break;
             case ANY_STAR_PROPERTY::DT:                                                 value = Dt();                                                   break;
@@ -309,7 +301,6 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::EXPERIENCED_PPISN:                                  value = ExperiencedPPISN();                                     break;
             case ANY_STAR_PROPERTY::FALLBACK_FRACTION:                                  value = SN_FallbackFraction();                                  break;
             case ANY_STAR_PROPERTY::HE_CORE_MASS:                                       value = HeCoreMass();                                           break;
-            case ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMMON_ENVELOPE:                    value = CEE_CoreMass();                                         break;
             case ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_HeCoreMassAtCOFormation();                           break;
             case ANY_STAR_PROPERTY::HYDROGEN_POOR:                                      value = SN_HydrogenContent() == HYDROGEN_CONTENT::POOR;         break;
             case ANY_STAR_PROPERTY::HYDROGEN_RICH:                                      value = SN_HydrogenContent() == HYDROGEN_CONTENT::RICH;         break;
@@ -320,7 +311,6 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::IS_SN:                                              value = IsSN();                                                 break;
             case ANY_STAR_PROPERTY::IS_USSN:                                            value = IsUSSN();                                               break;
             case ANY_STAR_PROPERTY::KICK_VELOCITY:                                      value = SN_KickVelocity();                                      break;
-            case ANY_STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE:                          value = CEE_Lambda();                                           break;
             case ANY_STAR_PROPERTY::LAMBDA_DEWI:                                        value = Lambda_Dewi();                                          break;
             case ANY_STAR_PROPERTY::LAMBDA_FIXED:                                       value = Lambda_Fixed();                                         break;
             case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW:                                     value = Lambda_Kruckow();                                       break;
@@ -2911,9 +2901,7 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
 	if (error == ERROR::NONE) {                                                                 // check for errors
                                                                                                 // no errors - draw kick velocity
         vK = DrawSNKickVelocity(sigma, m_SupernovaDetails.COCoreMassAtCOFormation, m_SupernovaDetails.uRand, p_EjectaMass, p_RemnantMass);
-
-        m_SupernovaDetails.drawnKickVelocity = vK;
-        m_SupernovaDetails.kickVelocity      = vK;
+        m_SupernovaDetails.drawnKickVelocity = vK;                                              // drawn kick velocity
 
         if (m_SupernovaDetails.events.now == SN_EVENT::SN) {                                    // vanilla supernova event this timestep?
             vK = ApplyBlackHoleKicks(vK, m_SupernovaDetails.fallbackFraction, m_Mass);          // re-weight kicks by mass of remnant according to user specified black hole kicks option
@@ -2921,6 +2909,7 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
         else {                                                                                  // otherwise
             m_SupernovaDetails.fallbackFraction = 0.0;                                          // set fallback fraction to zero
         }
+        m_SupernovaDetails.kickVelocity = vK;                                                   // updated kick velocity
     }
     else {                                                                                      // error occurred
         vK = 0.0;                                                                               // set kick velocity to zero
@@ -3091,66 +3080,6 @@ DBL_DBL BaseStar::SolveKeplersEquation(const double p_MeanAnomaly, const double 
  */
 void BaseStar::CalculateSNAnomalies(const double p_Eccentricity) {
     std::tie(m_SupernovaDetails.eccentricAnomaly, m_SupernovaDetails.trueAnomaly) = SolveKeplersEquation(m_SupernovaDetails.meanAnomaly, p_Eccentricity);
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////
-//                                                                                   //
-//                             COMMON ENVELOPE FUNCTIONS                             //
-//                                                                                   //
-///////////////////////////////////////////////////////////////////////////////////////
-
-
-/*
- * Calculate (or set) common envelope values:
- *
- *    m_CommonEnvelopeDetails.HeCoreMass
- *    m_CommonEnvelopeDetails.COCoreMass
- *    m_CommonEnvelopeDetails.CoreMass
- *    m_CommonEnvelopeDetails.bindingEnergy
- *    m_CommonEnvelopeDetails.lambda
- *
- * JR: todo: Find a better way to do this
- *
- * void CalculateCommonEnvelopeValues()
- */
-void BaseStar::CalculateCommonEnvelopeValues() {
-
-    m_CommonEnvelopeDetails.HeCoreMass = m_HeCoreMass;
-    m_CommonEnvelopeDetails.COCoreMass = m_COCoreMass;
-    m_CommonEnvelopeDetails.CoreMass   = m_CoreMass;
-
-    m_CommonEnvelopeDetails.lambda     = 0.0;                                               // default
-
-    switch (OPTIONS->CommonEnvelopeLambdaPrescription()) {                                  // which common envelope lambda prescription?
-
-        case CE_LAMBDA_PRESCRIPTION::FIXED:
-            m_CommonEnvelopeDetails.lambda        = m_Lambdas.fixed;
-            m_CommonEnvelopeDetails.bindingEnergy = m_BindingEnergies.fixed;
-            break;
-
-        case CE_LAMBDA_PRESCRIPTION::LOVERIDGE:
-            m_CommonEnvelopeDetails.lambda        = m_Lambdas.loveridge;
-            m_CommonEnvelopeDetails.bindingEnergy = m_BindingEnergies.loveridge;
-            break;
-
-        case CE_LAMBDA_PRESCRIPTION::NANJING:
-            m_CommonEnvelopeDetails.lambda        = m_Lambdas.nanjing;
-            m_CommonEnvelopeDetails.bindingEnergy = m_BindingEnergies.nanjing;
-            break;
-
-        case CE_LAMBDA_PRESCRIPTION::KRUCKOW:
-            m_CommonEnvelopeDetails.lambda        = m_Lambdas.kruckow;
-            m_CommonEnvelopeDetails.bindingEnergy = m_BindingEnergies.kruckow;
-            break;
-
-        default:                                                                            // unknown prescription     jR: todo: what about Dewi?
-            SHOW_WARN(ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION, "Lambda = 0.0");               // show warning
-    }
-
-    if (m_CommonEnvelopeDetails.lambda < 0.00001) m_CommonEnvelopeDetails.lambda = 0.0;     // don't use compare here - seems like an epsilon already...  JR: todo: why the epsilon?
-
-    m_CommonEnvelopeDetails.lambda *= OPTIONS->CommonEnvelopeLambdaMultiplier();            // multiply by constant (program aoption, default = 1.0)
 }
 
 
