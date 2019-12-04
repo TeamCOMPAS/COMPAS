@@ -2901,9 +2901,7 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
 	if (error == ERROR::NONE) {                                                                 // check for errors
                                                                                                 // no errors - draw kick velocity
         vK = DrawSNKickVelocity(sigma, m_SupernovaDetails.COCoreMassAtCOFormation, m_SupernovaDetails.uRand, p_EjectaMass, p_RemnantMass);
-
-        m_SupernovaDetails.drawnKickVelocity = vK;
-        m_SupernovaDetails.kickVelocity      = vK;
+        m_SupernovaDetails.drawnKickVelocity = vK;                                              // drawn kick velocity
 
         if (m_SupernovaDetails.events.now == SN_EVENT::SN) {                                    // vanilla supernova event this timestep?
             vK = ApplyBlackHoleKicks(vK, m_SupernovaDetails.fallbackFraction, m_Mass);          // re-weight kicks by mass of remnant according to user specified black hole kicks option
@@ -2911,6 +2909,7 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
         else {                                                                                  // otherwise
             m_SupernovaDetails.fallbackFraction = 0.0;                                          // set fallback fraction to zero
         }
+        m_SupernovaDetails.kickVelocity = vK;                                                   // updated kick velocity
     }
     else {                                                                                      // error occurred
         vK = 0.0;                                                                               // set kick velocity to zero

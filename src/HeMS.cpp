@@ -122,7 +122,6 @@ double HeMS::CalculateLuminosityOnPhase_Static(const double p_Mass, const double
  * @return                                      Radius at ZAMS for a Helium Main Sequence star in Rsol
  */
 double HeMS::CalculateRadiusAtZAMS_Static(const double p_Mass) {
-
     // pow() is slow - use multiplication
     double m_3 = p_Mass * p_Mass * p_Mass;
     double m_4 = m_3 * p_Mass;

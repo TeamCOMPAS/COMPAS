@@ -57,7 +57,7 @@ class pythonProgramOptions:
 #    individual_initial_primary_age = 0                             # not yet implemented
 #    individual_initial_secondary_age = 0                           # not yet implemented
 
-    grid_filename = 'Grid.txt'
+    grid_filename = ''
 
     use_mass_loss = True
     mass_transfer = True
@@ -235,11 +235,11 @@ class pythonProgramOptions:
     kick_velocity_maximum = -1.0
 
     pair_instability_supernovae = True
-    PISN_lower_limit = 65.0     # Minimum core mass for PISN [Msol]
+    PISN_lower_limit = 60.0     # Minimum core mass for PISN [Msol]
     PISN_upper_limit = 135.0    # Maximum core mass for PISN [Msol]
     pulsation_pair_instability = True
     PPI_lower_limit = 35.0      # Minimum core mass for PPI [Msol]
-    PPI_upper_limit = 65.0      # Maximum core mass for PPI [Msol]
+    PPI_upper_limit = 60.0      # Maximum core mass for PPI [Msol]
 
     pulsational_pair_instability_prescription = 'MARCHANT'
 
