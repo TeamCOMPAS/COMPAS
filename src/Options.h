@@ -80,6 +80,8 @@ public:
     bool                                        AIS_RLOF() const                                                        { return AISrlof; }
 
     bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return allowMainSequenceStarToSurviveCommonEnvelope; }
+    bool                                        AllowRLOFAtBirth() const                                                { return allowRLOFAtBirth; }
+    bool                                        AllowTouchingAtBirth() const                                            { return allowTouchingAtBirth; }
     bool                                        AlwaysStableCaseBBBCFlag() const                                        { return alwaysStableCaseBBBCFlag; }
     bool                                        AngularMomentumConservationDuringCircularisation() const                { return angularMomentumConservationDuringCircularisation; }
 
@@ -311,6 +313,9 @@ public:
 private:
 
     // member variables - alphabetically in groups (sort of...)
+
+    bool                                        allowRLOFAtBirth;                                               // indicates whether binaries that have one or both stars in RLOF at birth are allowed to evolve
+    bool                                        allowTouchingAtBirth;                                           // indicates whether binaries that are touching at birth are allowed to evolve
 
     bool                                        debugToFile;                                                    // flag used to determine whether debug statements should also be written to a log file
     bool                                        errorsToFile;                                                   // flag used to determine whether error statements should also be written to a log file

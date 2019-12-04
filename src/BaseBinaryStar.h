@@ -50,12 +50,7 @@ public:
 
         m_CircularizationTimescale         = p_Star.m_CircularizationTimescale;
 
-        m_CommonEnvelope                   = p_Star.m_CommonEnvelope;
-        m_CommonEnvelopeAlpha              = p_Star.m_CommonEnvelopeAlpha;
-        m_CommonEnvelopeOccuredAtLeastOnce = p_Star.m_CommonEnvelopeOccuredAtLeastOnce;
-        m_CounterCEE                       = p_Star.m_CounterCEE;
-        m_DoubleCoreCommonEnvelope         = p_Star.m_DoubleCoreCommonEnvelope;
-        m_OptimisticCommonEnvelope         = p_Star.m_OptimisticCommonEnvelope;
+        m_CEDetails                        = p_Star.m_CEDetails;
 
         m_Disbound                         = p_Star.m_Disbound;
 
@@ -66,9 +61,7 @@ public:
         m_Eccentricity                     = p_Star.m_Eccentricity;
         m_EccentricityAtDCOFormation       = p_Star.m_EccentricityAtDCOFormation;
         m_EccentricityInitial              = p_Star.m_EccentricityInitial;
-        m_EccentricityPostCEE              = p_Star.m_EccentricityPostCEE;
         m_EccentricityPre2ndSN             = p_Star.m_EccentricityPre2ndSN;
-        m_EccentricityPreCEE               = p_Star.m_EccentricityPreCEE;
         m_EccentricityPrev                 = p_Star.m_EccentricityPrev;
         m_EccentricityPrime                = p_Star.m_EccentricityPrime;
 
@@ -87,9 +80,6 @@ public:
 
         m_Mass1Final                       = p_Star.m_Mass1Final;
         m_Mass2Final                       = p_Star.m_Mass2Final;
-
-        m_Mass1PreCEE                      = p_Star.m_Mass1PreCEE;
-        m_Mass2PreCEE                      = p_Star.m_Mass2PreCEE;
 
         m_MassEnv1                         = p_Star.m_MassEnv1;
         m_MassEnv2                         = p_Star.m_MassEnv2;
@@ -125,34 +115,19 @@ public:
 
         m_Radius                           = p_Star.m_Radius;
 
-        m_Radius1PostStripping             = p_Star.m_Radius1PostStripping;
-        m_Radius2PostStripping             = p_Star.m_Radius2PostStripping;
-
-        m_Radius1PreCEE                    = p_Star.m_Radius1PreCEE;
-        m_Radius2PreCEE                    = p_Star.m_Radius2PreCEE;
-
-        m_ImmediateRLOFPostCEE             = p_Star.m_ImmediateRLOFPostCEE;
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
-        m_SimultaneousRLOF                 = p_Star.m_SimultaneousRLOF;
 
-        m_RocheLobe1to2PreCEE              = p_Star.m_RocheLobe1to2PreCEE;
-        m_RocheLobe1to2PostCEE             = p_Star.m_RocheLobe1to2PostCEE;
-        m_RocheLobe2to1PreCEE              = p_Star.m_RocheLobe2to1PreCEE;
-        m_RocheLobe2to1PostCEE             = p_Star.m_RocheLobe2to1PostCEE;
+        m_SecondaryTooSmallForDCO          = p_Star.m_SecondaryTooSmallForDCO;
 
         m_SemiMajorAxis                    = p_Star.m_SemiMajorAxis;
         m_SemiMajorAxisAtDCOFormation      = p_Star.m_SemiMajorAxisAtDCOFormation;
         m_SemiMajorAxisInitial             = p_Star.m_SemiMajorAxisInitial;
-        m_SemiMajorAxisPostCEE             = p_Star.m_SemiMajorAxisPostCEE;
         m_SemiMajorAxisPre2ndSN            = p_Star.m_SemiMajorAxisPre2ndSN;
-        m_SemiMajorAxisPreCEE              = p_Star.m_SemiMajorAxisPreCEE;
         m_SemiMajorAxisPrev                = p_Star.m_SemiMajorAxisPrev;
         m_SemiMajorAxisPrime               = p_Star.m_SemiMajorAxisPrime;
 
         m_StellarMerger                    = p_Star.m_StellarMerger;
-
-        m_StellarType1PreCEE               = p_Star.m_StellarType1PreCEE;
-        m_StellarType2PreCEE               = p_Star.m_StellarType2PreCEE;
+        m_StellarMergerAtBirth             = p_Star.m_StellarMergerAtBirth;
 
         m_SupernovaState                   = p_Star.m_SupernovaState;
 
@@ -247,25 +222,26 @@ public:
 
     // getters - alphabetically
     BeBinaryDetailsT    BeBinaryDetails() const                     { return m_BeBinaryDetails; }
-	double              CEAlpha() const                             { return m_CommonEnvelopeAlpha; }
-	bool                CEAtLeastOnce() const                       { return m_CommonEnvelopeOccuredAtLeastOnce; }
+	double              CEAlpha() const                             { return m_CEDetails.alpha; }
+	bool                CEAtLeastOnce() const                       { return m_CEDetails.CEEcount > 0; }
+    unsigned int        CEEventCount() const                        { return m_CEDetails.CEEcount; }
 	double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
-    unsigned int        CommonEnvelopeEventCount() const            { return m_CounterCEE; }
+	unsigned int        CommonEnvelopeEventCount() const            { return m_CEDetails.CEEcount; }
     bool                Disbound() const                            { return m_Disbound; }
-    bool                DoubleCoreCE() const                        { return m_DoubleCoreCommonEnvelope; }
+    bool                DoubleCoreCE() const                        { return m_CEDetails.doubleCoreCE; }
     double              Dt() const                                  { return m_Dt; }
     double              Eccentricity() const                        { return m_Eccentricity; }
     double              EccentricityAtDCOFormation() const          { return m_EccentricityAtDCOFormation; }
     double              EccentricityInitial() const                 { return m_EccentricityInitial; }
-    double              EccentricityPostCEE() const                 { return m_EccentricityPostCEE; }
+    double              EccentricityPostCEE() const                 { return m_CEDetails.postCEE.eccentricity; }
     double              EccentricityPre2ndSN() const                { return m_EccentricityPre2ndSN; }
-    double              EccentricityPreCEE() const                  { return m_EccentricityPreCEE; }
+    double              EccentricityPreCEE() const                  { return m_CEDetails.preCEE.eccentricity; }
     double              EccentricityPrime() const                   { return m_EccentricityPrime; }
     ERROR               Error() const                               { return m_Error; }
     bool                HasOneOf(STELLAR_TYPE_LIST p_List) const;
     bool                HasStarsTouching() const                    { return (utils::Compare(m_SemiMajorAxisPrime, 0.0) > 0) && (m_SemiMajorAxisPrime <= RSOL_TO_AU * (m_Star1->Radius() + m_Star2->Radius())); }
     bool                HasTwoOf(STELLAR_TYPE_LIST p_List) const;
-    bool                ImmediateRLOFPostCEE() const                { return m_ImmediateRLOFPostCEE; }
+    bool                ImmediateRLOFPostCEE() const                { return m_RLOFDetails.immediateRLOFPostCEE; }
     STELLAR_TYPE        InitialStellarType1() const                 { return m_Star1->InitialStellarType(); }
     STELLAR_TYPE        InitialStellarType2() const                 { return m_Star2->InitialStellarType(); }
     bool                IsBeBinary() const                          { return HasOneOf({STELLAR_TYPE::NEUTRON_STAR}) && HasOneOf({STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07}); }
@@ -279,44 +255,50 @@ public:
     double              LBV_Factor() const                          { return m_LBVfactor; }
 	double              Mass1Final() const                          { return m_Mass1Final; }
     double              Mass2Final() const                          { return m_Mass2Final; }
-    double              Mass1PreCEE() const                         { return m_Mass1PreCEE; }
-    double              Mass2PreCEE() const                         { return m_Mass2PreCEE; }
+    double              Mass1PostCEE() const                        { return m_Star1->MassPostCEE(); }
+    double              Mass1PreCEE() const                         { return m_Star1->MassPreCEE(); }
+    double              Mass2PostCEE() const                        { return m_Star2->MassPostCEE(); }
+    double              Mass2PreCEE() const                         { return m_Star2->MassPreCEE(); }
     double              MassEnv1() const                            { return m_MassEnv1; }
     double              MassEnv2() const                            { return m_MassEnv2; }
     double              MassesEquilibrated() const                  { return m_MassesEquilibrated; }
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
     bool                MergesInHubbleTime() const                  { return m_MergesInHubbleTime; }
-    bool                OptimisticCommonEnvelope() const            { return m_OptimisticCommonEnvelope; }
+    bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
     double              OrbitalVelocity() const                     { return m_OrbitalVelocity; }
     double              OrbitalVelocityPre2ndSN() const             { return m_OrbitalVelocityPre2ndSN; }
-	double              Radius1PostStripping() const                { return m_Radius1PostStripping; }
-	double              Radius2PostStripping() const                { return m_Radius2PostStripping; }
-	double              Radius1PreCEE() const                       { return m_Radius1PreCEE; }
-	double              Radius2PreCEE() const                       { return m_Radius2PreCEE; }
+	double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
+	double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
+	double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }
+	double              Radius2PreCEE() const                       { return m_Star2->RadiusPreCEE(); }
 	unsigned long int   RandomSeed() const                          { return m_RandomSeed; }
 	BinaryRLOFDetailsT  RLOFDetails() const                         { return m_RLOFDetails; }
     bool                RLOFSecondaryPostCEE() const                { return m_Star2->RLOFPostCEE(); }
-    double              RocheLobe1to2PostCEE() const                { return m_RocheLobe1to2PostCEE; }
-    double              RocheLobe1to2PreCEE() const                 { return m_RocheLobe1to2PreCEE; }
-    double              RocheLobe2to1PostCEE() const                { return m_RocheLobe2to1PostCEE; }
-    double              RocheLobe2to1PreCEE() const                 { return m_RocheLobe2to1PreCEE; }
+    double              RocheLobe1to2PostCEE() const                { return m_CEDetails.postCEE.rocheLobe1to2; }
+    double              RocheLobe1to2PreCEE() const                 { return m_CEDetails.preCEE.rocheLobe1to2; }
+    double              RocheLobe2to1PostCEE() const                { return m_CEDetails.postCEE.rocheLobe2to1; }
+    double              RocheLobe2to1PreCEE() const                 { return m_CEDetails.preCEE.rocheLobe2to1; }
     double              RocheLobeRadius1() const                    { return m_Star1->RocheLobeRadius(); }
     double              RocheLobeRadius2() const                    { return m_Star2->RocheLobeRadius(); }
     double              RocheLobeTracker1() const                   { return m_Star1->RocheLobeTracker(); }
     double              RocheLobeTracker2() const                   { return m_Star2->RocheLobeTracker(); }
+    bool                SecondaryTooSmallForDCO() const             { return m_SecondaryTooSmallForDCO; }
     double              SemiMajorAxisAtDCOFormation() const         { return m_SemiMajorAxisAtDCOFormation; }
     double              SemiMajorAxisInitial() const                { return m_SemiMajorAxisInitial; }
-    double              SemiMajorAxisPostCEE() const                { return m_SemiMajorAxisPostCEE; }
+    double              SemiMajorAxisPostCEE() const                { return m_CEDetails.postCEE.semiMajorAxis; }
     double              SemiMajorAxisPre2ndSN() const               { return m_SemiMajorAxisPre2ndSN; }
-    double              SemiMajorAxisPreCEE() const                 { return m_SemiMajorAxisPreCEE; }
+    double              SemiMajorAxisPreCEE() const                 { return m_CEDetails.preCEE.semiMajorAxis; }
     double              SemiMajorAxisPrime() const                  { return m_SemiMajorAxisPrime; }
-    bool                SimultaneousRLOF() const                    { return m_SimultaneousRLOF; }
+    bool                SimultaneousRLOF() const                    { return m_RLOFDetails.simultaneousRLOF; }
     bool                StableRLOFPostCEE() const                   { return m_RLOFDetails.stableRLOFPostCEE; }
     bool                StellarMerger() const                       { return m_StellarMerger; }
+    bool                StellarMergerAtBirth() const                { return m_StellarMergerAtBirth; }
     STELLAR_TYPE        StellarType1() const                        { return m_Star1->StellarType(); }
-    STELLAR_TYPE        StellarType1PreCEE() const                  { return m_StellarType1PreCEE; }
+    STELLAR_TYPE        StellarType1PostCEE() const                 { return m_Star1->StellarTypePostCEE(); }
+    STELLAR_TYPE        StellarType1PreCEE() const                  { return m_Star1->StellarTypePreCEE(); }
     STELLAR_TYPE        StellarType2() const                        { return m_Star2->StellarType(); }
-    STELLAR_TYPE        StellarType2PreCEE() const                  { return m_StellarType2PreCEE; }
+    STELLAR_TYPE        StellarType2PostCEE() const                 { return m_Star2->StellarTypePostCEE(); }
+    STELLAR_TYPE        StellarType2PreCEE() const                  { return m_Star2->StellarTypePreCEE(); }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
     bool                SurvivedSNEvent() const                     { return m_Survived; }
 	double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
@@ -362,14 +344,9 @@ private:
 
     double              m_Beta;                                                             // Angle between r and v, related to eccentricity (= pi/2 for circular e = 0)
 
-	double              m_CircularizationTimescale;
+    BinaryCEDetailsT    m_CEDetails;                                                        // Common Event details
 
-    bool                m_CommonEnvelope;
-    double              m_CommonEnvelopeAlpha;
-    bool                m_CommonEnvelopeOccuredAtLeastOnce;
-    unsigned int        m_CounterCEE;                                                       // Common Envelope Event count
-    bool                m_DoubleCoreCommonEnvelope;
-    bool                m_OptimisticCommonEnvelope;
+	double              m_CircularizationTimescale;
 
     bool                m_Disbound;                                                         // Binary disbound?
 
@@ -380,9 +357,7 @@ private:
     double              m_Eccentricity;                                                     // Initial eccentricity
     double              m_EccentricityAtDCOFormation;                                       // Eccentricity at DCO formation
     double              m_EccentricityInitial;                                              // Record initial eccentricity              JR: todo: check necessary
-	double              m_EccentricityPostCEE;                                              // Eccentricity post common envelope event
     double              m_EccentricityPre2ndSN;                                             // Eccentricity prior to 2nd supernova
-	double              m_EccentricityPreCEE;                                               // Eccentricity pre common envelope event
     double              m_EccentricityPrev;                                                 // Eccentricity at previous timestep
     double              m_EccentricityPrime;                                                // Initial eccentricity
 
@@ -401,9 +376,6 @@ private:
 
 	double              m_Mass1Final;                                                       // Star1 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
     double              m_Mass2Final;                                                       // Star2 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
-
-    double              m_Mass1PreCEE;                                                      // Star1 mass in Msol before CEE
-    double              m_Mass2PreCEE;                                                      // Star2 mass in Msol before CEE
 
     double              m_MassEnv1;                                                         // Star1 envelope mass in Msol
     double              m_MassEnv2;                                                         // Star2 envelope mass in Msol
@@ -439,34 +411,19 @@ private:
 
     double              m_Radius;
 
-	double              m_Radius1PostStripping;							                    // Star1 radius in Rsol after being stripped (= pre-CEE radius if not stripped)
-	double              m_Radius2PostStripping;							                    // Star2 fadius in Rsol after being stripped (= pre-CEE radius if not stripped)
-
-	double              m_Radius1PreCEE;									                // Star1 radius in Rsol before CEE
-	double              m_Radius2PreCEE;									                // Star2 radius in Rsol before CEE
-
-    bool                m_ImmediateRLOFPostCEE;
     BinaryRLOFDetailsT  m_RLOFDetails;                                                      // RLOF details
-    bool                m_SimultaneousRLOF;
 
-	double              m_RocheLobe1to2PreCEE;
-	double              m_RocheLobe1to2PostCEE;
-	double              m_RocheLobe2to1PreCEE;
-	double              m_RocheLobe2to1PostCEE;
+    bool                m_SecondaryTooSmallForDCO;                                          // Indicates if the secondary star was born too small for the binary to evolbve into a DCO
 
     double              m_SemiMajorAxis;                                                    // Semi-major axis
     double              m_SemiMajorAxisAtDCOFormation;                                      // Semi-major axis at DCO formation
     double              m_SemiMajorAxisInitial;                                             // Record initial semi-major axis              JR: todo: check necessary
-	double              m_SemiMajorAxisPostCEE;                                             // Semi-major axis post common envelope event
     double              m_SemiMajorAxisPre2ndSN;                                            // Semi-major axis prior to 2nd supernova
-  	double              m_SemiMajorAxisPreCEE;                                              // Semi-major axis pre common envelope event
     double              m_SemiMajorAxisPrev;                                                // Semi-major axis at previous timestep
     double              m_SemiMajorAxisPrime;                                               // Semi-major axis
 
-    bool                m_StellarMerger;
-
-    STELLAR_TYPE        m_StellarType1PreCEE;                                               // Stellar type of star1 prior to the Common Envelope Event
-    STELLAR_TYPE        m_StellarType2PreCEE;                                               // Stellar type of star2 prior to the Common Envelope Event
+    bool                m_StellarMerger;                                                    // Indicates that the constituent stars merged
+    bool                m_StellarMergerAtBirth;                                             // Indicates that the constituent stars were touching at bierth
 
     SN_STATE            m_SupernovaState;                                                   // Indicates which star (or stars) are undergoing / hove undergone a supernova event
 
@@ -558,8 +515,7 @@ private:
 
     double  CalculateAngularMomentumPrime()                                 { return CalculateAngularMomentum(m_SemiMajorAxisPrime, m_EccentricityPrime, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
 
-
-    void    CalculateCommonEnvelopeValues();
+    double  CalculateCDFKroupa(const double p_Mass);
 
     double  CalculateCosFinalPlaneTilt(const double p_KickTheta, const double p_KickPhi);
 
@@ -663,6 +619,16 @@ private:
     double  SampleMetallicityDistribution();
     double  SampleQDistribution();
     double  SampleSpinDistribution();
+
+    void    SetPostCEEValues(const double p_SemiMajorAxis,
+                             const double p_Eccentricity,
+                             const double p_RocheLobe1to2,
+                             const double p_RocheLobe2to1);
+
+    void    SetPreCEEValues(const double p_SemiMajorAxis,
+                            const double p_Eccentricity,
+                            const double p_RocheLobe1to2,
+                            const double p_RocheLobe2to1);
 
     bool    ShouldPrintRLOFParameters();
 

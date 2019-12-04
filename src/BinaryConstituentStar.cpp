@@ -65,13 +65,32 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
     if (ok) {
 
         switch (property) {
-            case ANY_STAR_PROPERTY::EXPERIENCED_RLOF:                                   value = ExperiencedRLOF();                                      break;
-            case ANY_STAR_PROPERTY::IS_RLOF:                                            value = IsRLOF();                                               break;
-            case ANY_STAR_PROPERTY::MASS_LOSS_DIFF:                                     value = MassLossDiff();                                         break;
-            case ANY_STAR_PROPERTY::MASS_TRANSFER_CASE_INITIAL:                         value = static_cast<int>(MassTransferCaseInitial());            break;
-            case ANY_STAR_PROPERTY::MASS_TRANSFER_DIFF:                                 value = MassTransferDiff();                                     break;
-            case ANY_STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA:                       value = PreSNeOrbitalEnergy();                                  break;
-            case ANY_STAR_PROPERTY::ORBITAL_ENERGY_POST_SUPERNOVA:                      value = PostSNeOrbitalEnergy();                                 break;
+            case ANY_STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE:                  value = BindingEnergyAtCEE();                           break;
+            case ANY_STAR_PROPERTY::BINDING_ENERGY_POST_COMMON_ENVELOPE:                value = BindingEnergyPostCEE();                         break;
+            case ANY_STAR_PROPERTY::BINDING_ENERGY_PRE_COMMON_ENVELOPE:                 value = BindingEnergyPreCEE();                          break;
+            case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMMON_ENVELOPE:                    value = COCoreMassAtCEE();                              break;
+            case ANY_STAR_PROPERTY::CORE_MASS_AT_COMMON_ENVELOPE:                       value = CoreMassAtCEE();                                break;
+            case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE_POST_COMMON_ENVELOPE:           value = DynamicalTimescalePostCEE();                    break;
+            case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE_PRE_COMMON_ENVELOPE:            value = DynamicalTimescalePreCEE();                     break;
+            case ANY_STAR_PROPERTY::EXPERIENCED_RLOF:                                   value = ExperiencedRLOF();                              break;
+            case ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMMON_ENVELOPE:                    value = HeCoreMassAtCEE();                              break;
+            case ANY_STAR_PROPERTY::IS_RLOF:                                            value = IsRLOF();                                       break;
+            case ANY_STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE:                          value = LambdaAtCEE();                                  break;
+            case ANY_STAR_PROPERTY::LUMINOSITY_POST_COMMON_ENVELOPE:                    value = LuminosityPostCEE();                            break;
+            case ANY_STAR_PROPERTY::LUMINOSITY_PRE_COMMON_ENVELOPE:                     value = LuminosityPreCEE();                             break;
+            case ANY_STAR_PROPERTY::MASS_LOSS_DIFF:                                     value = MassLossDiff();                                 break;
+            case ANY_STAR_PROPERTY::MASS_TRANSFER_CASE_INITIAL:                         value = static_cast<int>(MassTransferCaseInitial());    break;
+            case ANY_STAR_PROPERTY::MASS_TRANSFER_DIFF:                                 value = MassTransferDiff();                             break;
+            case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE:             value = NuclearTimescalePostCEE();                      break;
+            case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE:              value = NuclearTimescalePreCEE();                       break;
+            case ANY_STAR_PROPERTY::ORBITAL_ENERGY_POST_SUPERNOVA:                      value = PostSNeOrbitalEnergy();                         break;
+            case ANY_STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA:                       value = PreSNeOrbitalEnergy();                          break;
+            case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_POST_COMMON_ENVELOPE:    value = RadialExpansionTimescalePostCEE();              break;
+            case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_PRE_COMMON_ENVELOPE:     value = RadialExpansionTimescalePreCEE();               break;
+            case ANY_STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE:                   value = TemperaturePostCEE();                           break;
+            case ANY_STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE:                    value = TemperaturePreCEE();                            break;
+            case ANY_STAR_PROPERTY::THERMAL_TIMESCALE_POST_COMMON_ENVELOPE:             value = ThermalTimescalePostCEE();                      break;
+            case ANY_STAR_PROPERTY::THERMAL_TIMESCALE_PRE_COMMON_ENVELOPE:              value = ThermalTimescalePreCEE();                       break;
 
             default:                                                                                                    // not a constitient star property - try underlying star
                 std::tie(ok, value) = Star::StellarPropertyValue(p_Property);
@@ -131,6 +150,126 @@ double BinaryConstituentStar::CalculateMassAccretedForNS(const double p_Companio
     }
 
     return deltaMass;
+}
+
+
+/*
+ * Calculate (or set) pre common envelope values:
+ *
+ *    m_CEDetails.preCEE.bindingEnergy
+ *    m_CEDetails.preCEE.dynamicalTimescale
+ *    m_CEDetails.preCEE.eccentricity
+ *    m_CEDetails.preCEE.luminosity
+ *    m_CEDetails.preCEE.mass
+ *    m_CEDetails.preCEE.nuclearTimescale
+ *    m_CEDetails.preCEE.radialExpansionTimescale
+ *    m_CEDetails.preCEE.radius
+ *    m_CEDetails.preCEE.semiMajorAxis
+ *    m_CEDetails.preCEE.stellarType
+ *    m_CEDetails.preCEE.temperature
+ *    m_CEDetails.preCEE.thermalTimescale
+ *
+ *
+ * void SetPreCEEValues()
+ */
+void BinaryConstituentStar::SetPreCEEValues() {
+
+    m_CEDetails.preCEE.bindingEnergy            = m_CEDetails.bindingEnergy;
+    m_CEDetails.preCEE.dynamicalTimescale       = DynamicalTimescale();
+    m_CEDetails.preCEE.luminosity               = Luminosity();
+    m_CEDetails.preCEE.mass                     = Mass();
+    m_CEDetails.preCEE.nuclearTimescale         = NuclearTimescale();
+    m_CEDetails.preCEE.radialExpansionTimescale = RadialExpansionTimescale();
+    m_CEDetails.preCEE.radius                   = Radius();
+    m_CEDetails.preCEE.stellarType              = StellarType();
+    m_CEDetails.preCEE.temperature              = Temperature();
+    m_CEDetails.preCEE.thermalTimescale         = ThermalTimescale();
+}
+
+
+/*
+ * Calculate (or set) pre common envelope values:
+ *
+ *    m_CEDetails.postCEE.bindingEnergy
+ *    m_CEDetails.postCEE.dynamicalTimescale
+ *    m_CEDetails.postCEE.eccentricity
+ *    m_CEDetails.postCEE.luminosity
+ *    m_CEDetails.postCEE.mass
+ *    m_CEDetails.postCEE.nuclearTimescale
+ *    m_CEDetails.postCEE.radialExpansionTimescale
+ *    m_CEDetails.postCEE.radius
+ *    m_CEDetails.postCEE.semiMajorAxis
+ *    m_CEDetails.postCEE.stellarType
+ *    m_CEDetails.postCEE.temperature
+ *    m_CEDetails.postCEE.thermalTimescale
+ *
+ *
+ * void SetPreCEEValues()
+ */
+void BinaryConstituentStar::SetPostCEEValues() {
+
+    m_CEDetails.postCEE.bindingEnergy            = m_CEDetails.bindingEnergy;
+    m_CEDetails.postCEE.dynamicalTimescale       = DynamicalTimescale();
+    m_CEDetails.postCEE.luminosity               = Luminosity();
+    m_CEDetails.postCEE.mass                     = Mass();
+    m_CEDetails.postCEE.nuclearTimescale         = NuclearTimescale();
+    m_CEDetails.postCEE.radialExpansionTimescale = RadialExpansionTimescale();
+    m_CEDetails.postCEE.radius                   = Radius();
+    m_CEDetails.postCEE.stellarType              = StellarType();
+    m_CEDetails.postCEE.temperature              = Temperature();
+    m_CEDetails.postCEE.thermalTimescale         = ThermalTimescale();
+}
+
+
+/*
+ * Calculate or set common envelope values:
+ *
+ *    m_CEDetails.HeCoreMass
+ *    m_CEDetails.COCoreMass
+ *    m_CEDetails.CoreMass
+ *    m_CEDetails.bindingEnergy
+ *    m_CEDetails.lambda
+ *
+ *
+ * void CalculateCommonEnvelopeValues()
+ */
+void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
+
+    m_CEDetails.HeCoreMass = HeCoreMass();
+    m_CEDetails.COCoreMass = COCoreMass();
+    m_CEDetails.CoreMass   = CoreMass();
+
+    m_CEDetails.lambda     = 0.0;                                               // default
+
+    switch (OPTIONS->CommonEnvelopeLambdaPrescription()) {                      // which common envelope lambda prescription?
+
+        case CE_LAMBDA_PRESCRIPTION::FIXED:
+            m_CEDetails.lambda        = Lambda_Fixed();
+            m_CEDetails.bindingEnergy = BindingEnergy_Fixed();
+            break;
+
+        case CE_LAMBDA_PRESCRIPTION::LOVERIDGE:
+            m_CEDetails.lambda        = Lambda_Loveridge();
+            m_CEDetails.bindingEnergy = BindingEnergy_Loveridge();
+            break;
+
+        case CE_LAMBDA_PRESCRIPTION::NANJING:
+            m_CEDetails.lambda        = Lambda_Nanjing();
+            m_CEDetails.bindingEnergy = BindingEnergy_Nanjing();
+            break;
+
+        case CE_LAMBDA_PRESCRIPTION::KRUCKOW:
+            m_CEDetails.lambda        = Lambda_Kruckow();
+            m_CEDetails.bindingEnergy = BindingEnergy_Kruckow();
+            break;
+
+        default:                                                                // unknown prescription     jR: todo: what about Dewi?
+            SHOW_WARN(ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION, "Lambda = 0.0");   // show warning
+    }
+
+    if (m_CEDetails.lambda < 0.00001) m_CEDetails.lambda = 0.0;                 // don't use compare here - seems like an epsilon already...  JR: todo: why the epsilon?
+
+    m_CEDetails.lambda *= OPTIONS->CommonEnvelopeLambdaMultiplier();            // multiply by constant (program option, default = 1.0)
 }
 
 
