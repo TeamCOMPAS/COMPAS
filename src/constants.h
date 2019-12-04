@@ -75,8 +75,18 @@
 //                                   Chemically Homogeneous Evolution changes:
 //                                       added check to CheckMassTransfer() in BaseBinaryStar.cpp to merge if CH+CH and touching - avoid CEE
 //                                       added code to InitialiseMassTransfer() in BaseBinaryStar.cpp to equilibrate and possibly merge if both CH stars in RLOF
+// (Unchanged)   IM - Nov 29, 2019 - Defect repairs:
+//                                       changed Disbound -> Unbounded in header strings in constants.h
+//                                       left one line in default/example grid file (Grid.txt)
+//                                       fix default PPISN mass limit in python submit: 65 Msol -> 60 Msol
+// 02.03.03      JR - Dec 04, 2019 - Defect repairs:
+//                                       added code to UpdateAttributesAndAgeOneTimestep() in Star.cpp to recalculate stellar attributes after switching to new stellar type
+//                                       (addresses discontinuous transitions e.g. CH -> HeMS)
+//                                       changed IsPulsationalPairInstabilitySN() in GiantBranch.cpp to call IsPairInstabilitySN() instead of set MASSLESS_REMNANT if remnant mass <= 0.0
+//                                       changed CalculateSNKickVelocity() in BaseStar.cpp to set m_SupernovaDetails.kickVelocity correctly after adjusting for fallback
 
-const std::string VERSION_STRING = "02.03.02";
+
+const std::string VERSION_STRING = "02.03.03";
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type

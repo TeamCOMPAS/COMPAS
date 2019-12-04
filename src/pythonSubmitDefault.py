@@ -57,7 +57,7 @@ class pythonProgramOptions:
 #    individual_initial_primary_age = 0                             # not yet implemented
 #    individual_initial_secondary_age = 0                           # not yet implemented
 
-    grid_filename = 'Grid.txt'
+    grid_filename = ''
 
     use_mass_loss = True
     mass_transfer = True
