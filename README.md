@@ -120,17 +120,23 @@ The purpose of this document is to outline a consistent workflow for COMPAS deve
 -- Note: A single commit should capture an entire "fix" of one kind. If, for example, you want to add a function to a C file and it's header, and you also want to update the internal contents of a completely different function in the same C file, you should do 2 commits. First, make the edits to the first function and header, then `git add file.C file.h`, `git commit -m "created function myFunction to do someStuff and added it to the header file"`. Then make the second edits for the contents of the existing function, and run `git add file.C`, `git commit -m "updated internal contents of thisOtherFunction to allow for specificUseCase"`. 
 
 - You can undo a `git add` before you have done a `git commit` with:
+
 `git reset <file>` 
 
 - You can also use `git commit --amend` to substitute the previous commit with a new one:
+
 `git commit -m ‘first commit`
+
 `git add fogotten_file`
+
 `git commit --amend`
 
 will open an editor and make it possible to modify the commit message. 
 
 - We can check the status of our git repository with:
+
 `git status`
+
 The printout is self explanatory and tells you which files have been added and which ones we need to add before committing
 
 - Pushing to your remote repository is a way to save all of your commits (i.e the history of edits) somewhere off your local computer. This is good practice because it acts as a backup in the event something happens to your local machine, and it also allows other collaborators to see your work (without having to give them access to your personal device). This should also be done often, but does not need to be as frequent as commits. A good rule of thumb is to push any updated branches at the end of every day. 
