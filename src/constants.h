@@ -85,6 +85,8 @@
 //                                       changed IsPulsationalPairInstabilitySN() in GiantBranch.cpp to call IsPairInstabilitySN() instead of set MASSLESS_REMNANT if remnant mass <= 0.0
 //                                       changed CalculateSNKickVelocity() in BaseStar.cpp to set m_SupernovaDetails.kickVelocity correctly after adjusting for fallback
 
+// FIXED EvolveSingleStars() in main.cpp to print correct initial mass
+// FIXED TPAGB::CalculateCOCoreMassAtPhaseEnd() - added conditional
 
 const std::string VERSION_STRING = "02.03.03";
 
