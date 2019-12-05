@@ -1016,7 +1016,11 @@ double GiantBranch::CalculateBaryonicRemnantMass(const double p_ProtoMass, doubl
  * @return                                      Gravitational mass of the remnant in Msol
  */
 double GiantBranch::CalculateGravitationalRemnantMass(const double p_BaryonicRemnantMass) {
-    return (utils::Compare(p_BaryonicRemnantMass, OPTIONS->MaximumNeutronStarMass()) < 0)
+    // Calculates the Baryonic mass for which the GravitationalRemnantMass will be equal to the maximumNeutronStarMass (inverse of SolveQuadratic())
+    // needed to decide whether to calculate Fryer+2012 for Neutron Star or Black Hole 
+    double baryonicMassOfMaximumNeutronStarMass = (0.075 * pow(OPTIONS->MaximumNeutronStarMass(), 2)) + OPTIONS->MaximumNeutronStarMass();
+
+    return (utils::Compare(p_BaryonicRemnantMass, baryonicMassOfMaximumNeutronStarMass) < 0)
             ? utils::SolveQuadratic(0.075, 1.0, -p_BaryonicRemnantMass)                 // Neutron Star
             : 0.9 * p_BaryonicRemnantMass;                                              // Black Hole
 }
