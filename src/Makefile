@@ -60,21 +60,21 @@ isCLANG = no
 isCompilerOK = no
 
 ifeq ($(doCompilerCheck),yes)
-	# compiler checks are on
+# compiler checks are on
 
-	# check compiler
+# check compiler
 
-	ifeq ($(CPP),g++)
+#	ifeq ($(CPP),g++)
 		isGNU = yes
-	else
-		ifeq ($(CPP),gcc)
-			isGNU = yes
-		else
-			ifeq ($(CPP),clang)
-				isCLANG = yes
-			endif
-		endif
-	endif
+#	else
+#		ifeq ($(CPP),gcc)
+#			isGNU = yes
+#		else
+#			ifeq ($(CPP),clang)
+#				isCLANG = yes
+#			endif
+#		endif
+#	endif
 
 
 	ifeq ($(isGNU),yes)
