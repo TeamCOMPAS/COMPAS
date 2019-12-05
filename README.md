@@ -125,9 +125,9 @@ The purpose of this document is to outline a consistent workflow for COMPAS deve
 
 - You can also use `git commit --amend` to substitute the previous commit with a new one:
 
-`git commit -m ‘first commit`
+`git commit -m "first commit"`
 
-`git add fogotten_file`
+`git add <fogotten_file_name>`
 
 `git commit --amend`
 
