@@ -36,7 +36,7 @@ protected:
 
     // member functions
 
-    static double       CalculateInitialSupernovaMass_Static()                  { return 5.0; }                                                                 // Force ONeWD to ccSN, 5.0 doesn't change a physical parameter of the star.
+           double       CalculateInitialSupernovaMass()                         { return 5.0; }                                                                 // Force ONeWD to ccSN, 5.0 doesn't change a physical parameter of the star.
 
            double       CalculateLuminosityOnPhase(const double p_Mass,
                                                    const double p_Time,

@@ -88,12 +88,11 @@
 //                                       fixed bug in Fryer+2012 CalculateGravitationalRemnantMassadded() function to compare baryon mass of star remnant with
 //										 baryon mass of MaximumNeutronStarMass instead of just MaximumNeutronStarMass. 
 //                                       added m_baryonicMassOfMaximumNeutronStarMass to BaseStar.h and BaseStar.cpp
+// 02.03.05      JR - Dec 05, 2019 - Defect repairs:
+//                                       fixed EvolveSingleStars() in main.cpp to print correct initial mass
+//                                       fixed TPAGB::CalculateCOCoreMassAtPhaseEnd() - added conditional
 
-
-
-
-
-const std::string VERSION_STRING = "02.03.03";
+const std::string VERSION_STRING = "02.03.05";
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
