@@ -204,6 +204,10 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, c
 
     std::tie(m_SupernovaDetails.theta, m_SupernovaDetails.phi) = DrawKickDirection();
 
+    // Calculates the Baryonic mass for which the GravitationalRemnantMass will be equal to the maximumNeutronStarMass (inverse of SolveQuadratic())
+    // needed to decide whether to calculate Fryer+2012 for Neutron Star or Black Hole in GiantBranch::CalculateGravitationalRemnantMass()
+    m_baryonicMassOfMaximumNeutronStarMass       = (0.075 * OPTIONS->MaximumNeutronStarMass() * OPTIONS->MaximumNeutronStarMass()) + OPTIONS->MaximumNeutronStarMass();
+    // calculate only once for entire simulation of N binaries in the future.
 
     // Pulsar details
     m_PulsarDetails.magneticField              = DEFAULT_INITIAL_DOUBLE_VALUE;
