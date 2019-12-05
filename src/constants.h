@@ -84,6 +84,13 @@
 //                                       (addresses discontinuous transitions e.g. CH -> HeMS)
 //                                       changed IsPulsationalPairInstabilitySN() in GiantBranch.cpp to call IsPairInstabilitySN() instead of set MASSLESS_REMNANT if remnant mass <= 0.0
 //                                       changed CalculateSNKickVelocity() in BaseStar.cpp to set m_SupernovaDetails.kickVelocity correctly after adjusting for fallback
+// 02.03.04      FSB - Dec 04, 2019 - Defect repairs:
+//                                       fixed bug in Fryer+2012 CalculateGravitationalRemnantMassadded() function to compare baryon mass of star remnant with
+//										 baryon mass of MaximumNeutronStarMass instead of just MaximumNeutronStarMass. 
+//                                       added m_baryonicMassOfMaximumNeutronStarMass to BaseStar.h and BaseStar.cpp
+
+
+
 
 
 const std::string VERSION_STRING = "02.03.03";
