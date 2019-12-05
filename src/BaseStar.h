@@ -304,6 +304,9 @@ protected:
     double                  m_RadialExpansionTimescale;
     double                  m_ThermalTimescale;
 
+    // constants only calculated once
+    double                  m_baryonicMassOfMaximumNeutronStarMass;      // baryonic mass of MaximumNeutronStarMass 
+
     // JR:
     // I initially implemented the following vectors as unordered_maps.  The code worked
     // quite well, except for one small problem - access times (presumably due to hashing)
