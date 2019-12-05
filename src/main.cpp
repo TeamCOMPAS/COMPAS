@@ -366,9 +366,9 @@ void EvolveSingleStars() {
             else evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                   // must have been a problem
         }
         else {                                                                                                                  // no grid file - use user-specified values
-            initialMass = index * massIncrement;                                                                                // for status message
+            initialMass = OPTIONS->SingleStarMassMin() + (index * massIncrement);                                               // for status message
             delete star;
-            star = new Star(randomSeed, OPTIONS->SingleStarMassMin() + initialMass, OPTIONS->Metallicity());                    // create a star with required mass and metallicity, and...
+            star = new Star(randomSeed, initialMass, OPTIONS->Metallicity());                                                   // create a star with required mass and metallicity, and...
         }
 
         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // still good?

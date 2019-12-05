@@ -84,9 +84,15 @@
 //                                       (addresses discontinuous transitions e.g. CH -> HeMS)
 //                                       changed IsPulsationalPairInstabilitySN() in GiantBranch.cpp to call IsPairInstabilitySN() instead of set MASSLESS_REMNANT if remnant mass <= 0.0
 //                                       changed CalculateSNKickVelocity() in BaseStar.cpp to set m_SupernovaDetails.kickVelocity correctly after adjusting for fallback
+// 02.03.04      FSB - Dec 04, 2019 - Defect repairs:
+//                                       fixed bug in Fryer+2012 CalculateGravitationalRemnantMassadded() function to compare baryon mass of star remnant with
+//										 baryon mass of MaximumNeutronStarMass instead of just MaximumNeutronStarMass. 
+//                                       added m_baryonicMassOfMaximumNeutronStarMass to BaseStar.h and BaseStar.cpp
+// 02.03.05      JR - Dec 05, 2019 - Defect repairs:
+//                                       fixed EvolveSingleStars() in main.cpp to print correct initial mass
+//                                       fixed TPAGB::CalculateCOCoreMassAtPhaseEnd() - added conditional
 
-
-const std::string VERSION_STRING = "02.03.03";
+const std::string VERSION_STRING = "02.03.05";
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
@@ -1689,7 +1695,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE,                      "COMMON_ENVELOPE_AT_LEAST_ONCE" },
     { BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT,                        "COMMON_ENVELOPE_EVENT_COUNT" },
     { BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY,                        "DIMENSIONLESS_KICK_VELOCITY" },
-    { BINARY_PROPERTY::DISBOUND,                                           "DISBOUND" },
+    { BINARY_PROPERTY::DISBOUND,                                           "UNBOUNDED" },
     { BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE,                        "DOUBLE_CORE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::DT,                                                 "DT" },
     { BINARY_PROPERTY::ECCENTRICITY,                                       "ECCENTRICITY" },
@@ -1993,7 +1999,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE,                       { TYPENAME::BOOL,           "CEE",                  "Event",             0, 0 }},
     { BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT,                         { TYPENAME::UINT,           "CE_Event_Count",       "Count",             6, 1 }},
     { BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY,                         { TYPENAME::DOUBLE,         "Kick_Velocity(uK)",    "",                 14, 6 }},
-    { BINARY_PROPERTY::DISBOUND,                                            { TYPENAME::BOOL,           "Disbound",             "State",             0, 0 }},
+    { BINARY_PROPERTY::DISBOUND,                                            { TYPENAME::BOOL,           "Unbounded",            "State",             0, 0 }},
     { BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE,                         { TYPENAME::BOOL,           "Double_Core_CE",       "Event",             0, 0 }},
     { BINARY_PROPERTY::DT,                                                  { TYPENAME::DOUBLE,         "dT",                   "Myr",              16, 8 }},
     { BINARY_PROPERTY::ECCENTRICITY,                                        { TYPENAME::DOUBLE,         "Eccentricity",         "",                 14, 6 }},
