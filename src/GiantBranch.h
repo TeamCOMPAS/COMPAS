@@ -41,7 +41,7 @@ protected:
 
     static  double          CalculateHRateConstant_Static(const double p_Mass);
 
-            double          CalculateInitialSupernovaMass()                                         { return m_Mass; }                                                  // Use class member variables
+    virtual double          CalculateInitialSupernovaMass()                                         { return m_Mass; }                                                  // Use class member variables
 
             double          CalculateLifetimeToHeIgnition(const double p_Mass, const double p_Tinf1_FGB, const double p_Tinf2_FGB);
 

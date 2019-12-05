@@ -632,13 +632,12 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
        (utils::Compare(m_COCoreMass, gbParams(McSN)) < 0 || utils::Compare(m_COCoreMass, m_Mass) >= 0))) {
 
         stellarType = utils::Compare(gbParams(McBAGB), 1.6) < 0 ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
-
         m_Mass      = m_CoreMass;
         m_Mass0     = m_Mass;
         m_Age       = 0.0;
         m_EnvMass   = 0.0;
         m_Radius    = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
-   }
+    }
 
     return stellarType;
 
