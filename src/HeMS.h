@@ -65,6 +65,8 @@ protected:
             double          CalculateHeCoreMassOnPhase()                                         { return m_Mass; }                                                      // McHe(HeMS) = Mass
             double          CalculateHeCoreMassAtPhaseEnd()                                      { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
 
+            double          CalculateInitialSupernovaMass()                                      { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch
+
             double          CalculateLambdaDewi()                                                { return 0.5; }
             double          CalculateLambdaNanjing()                                             { return BaseStar::CalculateLambdaNanjing(); }                          // Not supported - use BaseStar
 

@@ -265,7 +265,7 @@ private:
 
             logRecord = logRecord.substr(0, logRecord.size()-1);                                                                        // remove the last character - extraneous delimiter
 
-            if (!Put_(fileId, logRecord)) DBG_WARN(ERR_MSG(ERROR::FILE_WRITE_ERROR));                                                   // write the record - show warning if failure
+            if (!Put_(fileId, logRecord)) DBG_WARN(ERR_MSG(ERROR::FILE_WRITE_ERROR) + ": Log Record");                                  // write the record - show warning if failure
         }
     }
 
@@ -342,7 +342,7 @@ public:
     template <class T>
     void LogSupernovaDetails(const T* const p_Binary)                    { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE)), 0, LOGFILE::BSE_SUPERNOVAE, p_Binary); }
 
-    bool CloseStandardFile(const LOGFILE p_LogFile);
+    bool CloseStandardFile(const LOGFILE p_LogFile, const bool p_Erase = true);
     bool CloseAllStandardFiles();
 
 };

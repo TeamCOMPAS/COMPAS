@@ -13,21 +13,25 @@ BinaryStar::BinaryStar(const AIS &p_AIS, const long int p_Id) : m_BinaryStar(new
 
 
 // binary is generated according to parameters passed
-BinaryStar::BinaryStar(const AIS     &p_AIS,
-                       const double   p_Mass1,
-                       const double   p_Mass2,
-                       const double   p_Metallicity1,
-                       const double   p_Metallicity2,
-                       const double   p_SemiMajorAxis,
-                       const double   p_Eccentricity,
-                       const long int p_Id) : m_BinaryStar(new BaseBinaryStar(p_AIS,
-                                                                              p_Mass1,
-                                                                              p_Mass2,
-                                                                              p_Metallicity1,
-                                                                              p_Metallicity2,
-                                                                              p_SemiMajorAxis,
-                                                                              p_Eccentricity,
-                                                                              p_Id)) {
+BinaryStar::BinaryStar(const AIS       &p_AIS,
+                       const double     p_Mass1,
+                       const double     p_Mass2,
+                       const double     p_Metallicity1,
+                       const double     p_Metallicity2,
+                       const double     p_SemiMajorAxis,
+                       const double     p_Eccentricity,
+                       const DBL_VECTOR p_KickParameters1,
+                       const DBL_VECTOR p_KickParameters2,
+                       const long int   p_Id) : m_BinaryStar(new BaseBinaryStar(p_AIS,
+                                                                                p_Mass1,
+                                                                                p_Mass2,
+                                                                                p_Metallicity1,
+                                                                                p_Metallicity2,
+                                                                                p_SemiMajorAxis,
+                                                                                p_Eccentricity,
+                                                                                p_KickParameters1,
+                                                                                p_KickParameters2,
+                                                                                p_Id)) {
     m_ObjectId       = globalObjectId++;
     m_ObjectType     = OBJECT_TYPE::BINARY_STAR;
     m_StellarType    = STELLAR_TYPE::BINARY_STAR;

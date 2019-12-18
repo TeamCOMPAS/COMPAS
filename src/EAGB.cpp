@@ -724,7 +724,14 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
         m_EnvMass  = 0.0;
 
         CalculateTimescales(m_Mass0, m_Timescales);                     // JR: todo: not sure this is actually necessary here
-		CalculateGBParams(m_Mass0, m_GBParams);
+
+        // Need to calculate gbParams for new stellar type - calculations of stellar attributes below depend
+        // on new gbParams.  
+        // JR: This really needs to be revisited one day - these calculations should really be performed after
+        // switching to the new stellar type, but other calculations are done (in the legacy code) before the switch
+        // (see evolveOneTimestep() in star.cpp for EAGB stars in the legacy code)
+        
+        HeHG::CalculateGBParams_Static(m_Mass0, m_Mass, m_LogMetallicityXi, m_MassCutoffs, m_AnCoefficients, m_BnCoefficients, m_GBParams);
 
         m_Age        = HeGB::CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, timescales(tHeMS), m_GBParams);
         m_Luminosity = HeGB::CalculateLuminosityOnPhase_Static(m_COCoreMass, gbParams(B), gbParams(D));
