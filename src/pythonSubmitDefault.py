@@ -62,7 +62,7 @@ class pythonProgramOptions:
     use_mass_loss = True
     mass_transfer = True
     post_newtonian_evolution = False
-    detailed_output = False                 # WARNING: this creates a data heavy file
+    detailed_output = False                         # WARNING: this creates a data heavy file
     RLOFPrinting = True
     only_double_compact_objects = False             # Delete when STROOPWAFEL fully implemented
     evolve_unbound_systems = False
@@ -70,7 +70,7 @@ class pythonProgramOptions:
     zeta_calculation_every_timestep = False
     quiet = False
 
-    metallicity = 0.0142                    # Solar metallicity Asplund+2010
+    metallicity = 0.0142                            # Solar metallicity Asplund+2010
 
     allow_rlof_at_birth = False;                                            # allow binaries that have one or both stars in RLOF at birth to evolve?
     allow_touching_at_birth = False;                                        # allow binaries that have stars touching at birth to evolve?
