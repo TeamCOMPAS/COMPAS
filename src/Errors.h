@@ -74,6 +74,8 @@ public:
                 const char*        p_FuncName      = "Not provided");
 
     void Clean();
+
+    size_t CatalogSize() { return m_ErrorCatalog.size(); }
 };
 
 #endif // __Errors_h_

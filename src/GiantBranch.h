@@ -25,18 +25,21 @@ protected:
     // member functions - alphabetically (sort of - some are grouped by functionality)
     static  double          CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB);
             double          CalculateCoreMassAtBAGB(const double p_Mass);
+    static  double          CalculateCoreMassAtBAGB_Static(const double p_Mass, const DBL_VECTOR &p_BnCoefficients);
             double          CalculateCoreMassAtBGB(const double p_Mass, const DBL_VECTOR &p_GBParams);
+    static  double          CalculateCoreMassAtBGB_Static(const double p_Mass, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_GBParams);
             double          CalculateCoreMassAtHeIgnition(const double p_Mass);
     static  double          CalculateCoreMassAtSupernova_Static(const double p_McBAGB);
 
     static  double          CalculateCoreMass_Luminosity_B_Static(const double p_Mass);
-            double          CalculateCoreMass_Luminosity_D(const double p_Mass);
-            double          CalculateCoreMass_Luminosity_p(const double p_Mass);
-            double          CalculateCoreMass_Luminosity_q(const double p_Mass);
+    static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs);
+    static  double          CalculateCoreMass_Luminosity_p_Static(const double p_Mass, const DBL_VECTOR &p_MassCutoffs);
+    static  double          CalculateCoreMass_Luminosity_q_Static(const double p_Mass, const DBL_VECTOR &p_MassCutoffs);
     static  double          CalculateCoreMass_Luminosity_Lx_Static(const DBL_VECTOR &p_GBParams);
     static  double          CalculateCoreMass_Luminosity_Mx_Static(const DBL_VECTOR &p_GBParams);
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
+    static  void            CalculateGBParams_Static(const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_BnCoefficients, DBL_VECTOR &p_GBParams);
             void            CalculateGBParams()                                                     { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
 
     static  double          CalculateHRateConstant_Static(const double p_Mass);
@@ -67,7 +70,7 @@ protected:
             double          CalculateFallbackFractionRapid(const double p_PreSNMass, const double p_ProtoMass, const double p_COCoreMass);
             double          CalculateFallbackMass(const double p_PreSNMass, const double p_ProtoMass, const double p_Fallback);
             double          CalculateGravitationalRemnantMass(const double p_BaryonicRemnantMass);
-            double          CalculateProtoCoreMass(const double p_COCoreMass);
+            double          CalculateProtoCoreMassDelayed(const double p_COCoreMass);
             double          CalculateProtoCoreMassRapid();
             double          CalculateRemnantMassByBelczynski2002(const double p_Mass, const double p_COCoreMass, const double p_FallbackFraction);
             DBL_DBL         CalculateRemnantMassByFryer2012(const SN_ENGINE p_Engine, const double p_Mass, const double p_COCoreMass);
