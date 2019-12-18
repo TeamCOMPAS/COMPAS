@@ -25,6 +25,8 @@ public:
         return *this;
     }
 
+    static void CalculateGBParams_Static(const double p_Mass0, const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_BnCoefficients, DBL_VECTOR &p_GBParams);
+
 
 protected:
 
@@ -54,6 +56,7 @@ protected:
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
             void            CalculateGBParams()                                                              { CalculateGBParams(m_Mass0, m_GBParams); }                            // Use class member variables
+
             double          CalculateGyrationRadius()                                                        { return 0.21; }                                                       // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 
             double          CalculateHeCoreMassAtPhaseEnd()                                                  { return CalculateHeCoreMassOnPhase(); }                               // Same as on phase
@@ -62,7 +65,7 @@ protected:
             double          CalculateLambdaNanjing();
 
             double          CalculateLuminosityOnPhase();
-            double          CalculateLuminosityAtPhaseEnd() { return m_Luminosity; }                                                                                                // NO-OP
+            double          CalculateLuminosityAtPhaseEnd()                                                  { return m_Luminosity; }                                                                                                // NO-OP
 
             double          CalculateMassTransferRejuvenationFactor();
 
@@ -74,8 +77,11 @@ protected:
 
             double          CalculateRadialExtentConvectiveEnvelope()                                        { return GiantBranch::CalculateRadialExtentConvectiveEnvelope(); }     // Skip HeMS
 
-            double          CalculateRadiusAtPhaseEnd() { return m_Radius; }                                                                                                        // NO-OP
+            double          CalculateRadiusAtPhaseEnd()                                                      { return m_Radius; }                                                                                                        // NO-OP
             double          CalculateRadiusOnPhase();
+
+            std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity);
+            std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase()                         { return CalculateRadiusAndStellarTypeOnPhase(m_Mass, m_Luminosity); }
 
             double          CalculateTauAtPhaseEnd()                                                         { return m_Tau; }                                                      // NO-OP
             double          CalculateTauOnPhase()                                                            { return 0.0; }

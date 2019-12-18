@@ -54,6 +54,9 @@ protected:
             double      CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity);
             double      CalculateRadiusOnPhase()                                                                        { return CalculateRadiusOnPhase(m_Mass, m_Luminosity); }
 
+            std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity);
+            std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase()                                    { return CalculateRadiusAndStellarTypeOnPhase(m_Mass, m_Luminosity); }
+            
             ENVELOPE    DetermineEnvelopeType()                                                                         { return ENVELOPE::CONVECTIVE; }                        // Always CONVECTIVE
             ENVELOPE    DetermineEnvelopeTypeHurley2002()                                                               { return ENVELOPE::CONVECTIVE; }                        // Always CONVECTIVE
 
