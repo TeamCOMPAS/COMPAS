@@ -51,7 +51,12 @@ class Star {
 public:
 
     Star();
-    Star(const unsigned long int p_RandomSeed, const double p_MZAMS, const double p_Metallicity, const double p_LBVfactor = 0.0, const double p_WolfRayetFactor = 0.0);
+    Star(const unsigned long int p_RandomSeed, 
+         const double            p_MZAMS, 
+         const double            p_Metallicity, 
+         const DBL_VECTOR        p_KickParameters = {},
+         const double            p_LBVfactor = 0.0, 
+         const double            p_WolfRayetFactor = 0.0);
     Star(const Star& p_Star);
     Star& operator = (const Star& p_Star);
 

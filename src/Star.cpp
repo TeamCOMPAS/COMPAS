@@ -13,15 +13,16 @@ Star::Star() : m_Star(new BaseStar()) {
 
 // Regular constructor - with parameters for RandomSeed, MZAMS, Metallicity, LBVFactor and WolfRayetFactor
 Star::Star(const unsigned long int p_RandomSeed,
-           const double p_MZAMS,
-           const double p_Metallicity,
-           const double p_LBVfactor,
-           const double p_WolfRayetFactor) {
+           const double            p_MZAMS,
+           const double            p_Metallicity,
+           const DBL_VECTOR        p_KickParameters,
+           const double            p_LBVfactor,
+           const double            p_WolfRayetFactor) {
 
     m_ObjectId   = globalObjectId++;                                                                                // set object id
     m_ObjectType = OBJECT_TYPE::STAR;                                                                               // set object type
 
-    m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_Metallicity, p_LBVfactor, p_WolfRayetFactor);                    // create underlying BaseStar object
+    m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_Metallicity, p_KickParameters, p_LBVfactor, p_WolfRayetFactor);  // create underlying BaseStar object
 
     // star begins life as a main sequence star, unless it is
     // spinning fast enough for it to be chemically homogeneous
@@ -185,7 +186,6 @@ void Star::SaveState() {
  * @return                                      Boolean flag indicating success/failure (true = success)
  */
 bool Star::RevertState() {
-
     bool result = false;
 
     if (m_SaveStar) {
@@ -268,12 +268,16 @@ STELLAR_TYPE Star::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
     STELLAR_TYPE stellarType = m_Star->UpdateAttributesAndAgeOneTimestep(p_DeltaMass, p_DeltaMass0, p_DeltaTime, p_ForceRecalculate);
 
     if (p_Switch && (stellarType != m_Star->StellarType())) {                               // switch to new stellar type if necessary?
-        SwitchTo(stellarType);                                                              // yes - switch
+        STELLAR_TYPE stellarTypePrev = m_Star->StellarType();                               // yes - record current stellar type (will be previous...)
+        SwitchTo(stellarType);                                                              // switch
         m_Star->CalculateAllTimescales();                                                   // calculate dynamical, thermal, nuclear and radial expansion timescales
         
-        // recalculate stellar attributes after switching - transition may not be continuous (e.g. CH -> HeMS)
+        // recalculate stellar attributes after switching if necessary - transition may not be continuous (e.g. CH -> HeMS)
         // (this could get recursive, but shouldn't...)
-        UpdateAttributes(0.0, 0.0, true);                                                   // recalculate stellar attributes
+        if (stellarTypePrev == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS && 
+                stellarType == STELLAR_TYPE::NAKED_HELIUM_STAR_MS) {                        // discontinuous transition?
+            UpdateAttributes(0.0, 0.0, true);                                               // yes - recalculate stellar attributes
+        }
     }
 
     return stellarType;                                                                     // return new stellar type

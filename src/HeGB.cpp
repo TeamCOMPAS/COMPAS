@@ -69,7 +69,7 @@ std::tuple<double, double> HeGB::CalculateRadiusOnPhase_Static(const double p_Ma
  *
  * Hurley at al. 2000, eqs 85, 86, 87 & 88
  *
- * Calls CalculateRadiusOnPhase_Static() and returns the minimum of R1 and R2.  No need to set stellar type here.
+ * Calls CalculateRadiusOnPhase_Static() and returns the minimum of R1 and R2.
  *
  *
  * double CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity)
@@ -83,6 +83,39 @@ double HeGB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosi
     std::tie(R1, R2) = CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity);
 
     return std::min(R1, R2);
+}
+
+
+/*
+ * Calculate the giant branch radius for a helium star and determine new stellar type
+ *
+ * Hurley at al. 2000, eqs 85, 86, 87 & 88
+ *
+ * Calls CalculateRadiusOnPhase_Static() and returns the minimum of R1 and R2.  
+ * Returns stellr type to which star should evolve based on radius calculated.
+ *
+ *
+ * std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity)
+ *
+ * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_Luminosity                Luminosity in Lsol
+ * @return                                      Radius on the helium giant branch / post-HeMs
+ */
+std::tuple <double, STELLAR_TYPE> HeGB::CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity) {
+
+    double       radius;
+    STELLAR_TYPE stellarType = m_StellarType;
+
+    double R1, R2;
+    std::tie(R1, R2) = CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity);
+
+    radius = std::min(R1, R2);
+
+    if (utils::Compare(R1, R2) < 0) {
+        stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP;
+    }
+
+   return std::make_tuple(radius, stellarType);
 }
 
 

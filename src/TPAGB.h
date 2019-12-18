@@ -50,8 +50,6 @@ protected:
             double          CalculateHeCoreMassAtPhaseEnd()                                                  { return m_HeCoreMass; }                                                                        // NO-OP
             double          CalculateHeCoreMassOnPhase()                                                     { return m_HeCoreMass; }                                                                        // NO-OP
 
-            double          CalculateInitialSupernovaMass()                                                  { return m_GBParams[static_cast<int>(GBP::McBAGB)]; }                                           // For TPAGB we use the mass at Base Asymptotic Giant Branch to determine SN type
-
             double          CalculateLambdaDewi();
             double          CalculateLambdaNanjing();
 

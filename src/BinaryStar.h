@@ -37,14 +37,16 @@ public:
 
     BinaryStar(const AIS &p_AIS, const long int p_Id = -1l);
 
-    BinaryStar(const AIS     &p_AIS,
-               const double   p_Mass1,
-               const double   p_Mass2,
-               const double   p_Metallicity1,
-               const double   p_Metallicity2,
-               const double   p_SemiMajorAxis,
-               const double   p_Eccentricity,
-               const long int p_Id = -1l);
+    BinaryStar(const AIS       &p_AIS,
+               const double     p_Mass1,
+               const double     p_Mass2,
+               const double     p_Metallicity1,
+               const double     p_Metallicity2,
+               const double     p_SemiMajorAxis,
+               const double     p_Eccentricity,
+               const DBL_VECTOR p_KickParameters1,
+               const DBL_VECTOR p_KickParameters2,
+               const long int   p_Id = -1l);
 
 
     // Copy constructor
