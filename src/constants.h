@@ -91,8 +91,29 @@
 // 02.03.05      JR - Dec 05, 2019 - Defect repairs:
 //                                       fixed EvolveSingleStars() in main.cpp to print correct initial mass
 //                                       fixed TPAGB::CalculateCOCoreMassAtPhaseEnd() - added conditional
+// 02.04.00      JR - Dec 18, 2019 - New functionality:
+//                                       added columns to BSE grid functionality: Kick_Velocity_1(&2), Kick_Theta_1(&2), Kick_Phi_1(&2), Kick_Mean_Anomaly_1(&2).  Updated documentation.
+//                                   Changed functionality:
+//                                       removed compiler version checks from Makefile - they seemed to only work for native Ubuntu and were more of a nuisance than anything...  (old version exists as Makefile-checks)
+//                                   Defect repairs:
+//                                       added recalculation of gbParams Mx & Lx in HeHG calculateGbParams()
+//                                       created HeHG::CalculateGBParams_Static() and GiantBranch::CalculateGBParams_Static(), called from EAGB::ResolveEnvelopeLoss() to facilitate calculation of attributes for new stellar type before actually switching.  Needed to rewrite some other functions as static.  Note: this needs to be revisited and a more elegant solution implemented.
+//                                       added CalculateRadiusAndStellarTypeOnPhase() for HeHG and HeGBstars, and changed call to calculateRadiusOnPhase() to CalculateRadiusAndStellarTypeOnPhase() in BaseStar::EvolveOnPhase().  This allows for HeHG and HeGB stars to change stellar type based on radius (previously missed).
+//                                       set M = McBAGB for EAGB & TPAGB only (was being set for all types >= TPAGB)
+//                                       added extra print detailed in BaseBinaryStar:Evolve() - sometimes missing a switch type in detailed output if only 1 timestep
+//                                       swapped heading strings for ANY_STAR_PROPERTY::IS_ECSN and ANY_STAR_PROPERTY::IS_USSN (now correct)
+//                                       removed condition in BaseBinaryStar::EvaluateSupernovae().  ResolveSupernova() is now called for all stellar types (not sure what I was thinking orginally. I'm sure I had a good reason - or maybe I was just tired...)
+//                                       changed name of GiantBranch::CalculateProtoCoreMass() to GiantBranch::CalculateProtoCoreMassDelayed() and changed calls to the function
+//                                       swapped order of calculations of ePrime (CalculateOrbitalEccentricityPostSupernova()) and m_SemiMajorAxisPrime (CalculateSemiMajorAxisPostSupernova()) in BaseBinaryStar::ResolveSupernova().  Improper order was causing wrong value of m_SeminMajorAxisPrime to be used in calculation of ePrime
+//                                       set m_Disbound = true appropriately in BaseBinaryStar::Evolve() (note: m_Disbound will change name to m_Unbound soon...)
+//                                       changed return value of CHeB::DetermineEnvelopeType() to CONVECTIVE.  Left CHeB DetermineEnvelopeTypeHurley2002() as RADIATIVE (used in BinaryConstituentStar::CalculateSynchronisationTimescale())
+//                                       changed BINARY_PROPERTY::ORBITAL_VELOCITY to BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_2ND_SUPERNOVA in BSE_SUPERNOVAE_REC (6th value printed)
+//                                       added p_Erase parameter to Log::CloseStandardFile(); changed Log::CloseAllStandardFiles() to call Log::CloseStandardFile() with p_Erase=false and erase entire map after all files closed (prevent coredump when closing all files)
+//                                       added ResolveSupernova() to ONeWD.h - ONeWD stars were previously not checking for SN
+//                                       fixed BaseBinaryStar::InitialiseMassTransfer() - star1 was being updated instead of star2 for CH + CH stars when CHE enabled
 
-const std::string VERSION_STRING = "02.03.05";
+
+const std::string VERSION_STRING = "02.04.00";
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
@@ -1906,10 +1927,10 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::ID,                                                { TYPENAME::OBJECT_ID,      "ID",                   "",                 12, 1 }},
     { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE,                              { TYPENAME::STELLAR_TYPE,   "Stellar_Type_ZAMS",    "",                  4, 1 }},
     { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                         { TYPENAME::STRING,         "Stellar_Type_ZAMS",    "",                 42, 1 }},
-    { ANY_STAR_PROPERTY::IS_ECSN,                                           { TYPENAME::BOOL,           "USSN",                 "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::IS_ECSN,                                           { TYPENAME::BOOL,           "ECSN",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_RLOF,                                           { TYPENAME::BOOL,           "RLOF",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_SN,                                             { TYPENAME::BOOL,           "SN",                   "State",             0, 0 }},
-    { ANY_STAR_PROPERTY::IS_USSN,                                           { TYPENAME::BOOL,           "ECSN",                 "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::IS_USSN,                                           { TYPENAME::BOOL,           "USSN",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::KICK_VELOCITY,                                     { TYPENAME::DOUBLE,         "Kick_Velocity",        "kms^-1",           14, 6 }},
     { ANY_STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,                         { TYPENAME::DOUBLE,         "Lambda@CE",            "",                 14, 6 }},
     { ANY_STAR_PROPERTY::LAMBDA_DEWI,                                       { TYPENAME::DOUBLE,         "Dewi",                 "",                 14, 6 }},
@@ -2472,7 +2493,7 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     SUPERNOVA_PROPERTY::DRAWN_KICK_VELOCITY,
     SUPERNOVA_PROPERTY::KICK_VELOCITY,
     SUPERNOVA_PROPERTY::FALLBACK_FRACTION,
-    BINARY_PROPERTY::ORBITAL_VELOCITY,
+    BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_2ND_SUPERNOVA,
     BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY,
     SUPERNOVA_PROPERTY::TRUE_ANOMALY,
     SUPERNOVA_PROPERTY::SUPERNOVA_THETA,

@@ -83,6 +83,8 @@ protected:
 
     double          CalculateRadiusOnPhase(const double p_Mass)                                         { return CalculateRadiusOnPhase_Static(p_Mass); }
     double          CalculateRadiusOnPhase()                                                            { return CalculateRadiusOnPhase(m_Mass); }                                      // Use class member variables
+    std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase()                            { return BaseStar::CalculateRadiusAndStellarTypeOnPhase(); }
+
 
     double          CalculateTauOnPhase()                                                               { return m_Tau; }                                                               // NO-OP
 

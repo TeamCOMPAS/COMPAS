@@ -35,6 +35,9 @@ typedef struct SNEvents {
 // keep all SN-related attributes in the same place
 
 typedef struct SupernovaDetails {                           // Holds attributes, flags - if the star went supernova
+
+    DBL_VECTOR       initialKickParameters;                 // User-supplied initial kick parameters - if present used in place of drawing randomly/from distributions
+    
     double           coreMassAtCOFormation;                 // Core mass of this star when it formed a compact object
     double           COCoreMassAtCOFormation;               // Carbon Oxygen core mass of the star when it goes supernova and forms a compact object
     double           drawnKickVelocity;                     // Kick velocity the system received during the supernova (km s^-1)
