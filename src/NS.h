@@ -79,6 +79,7 @@ protected:
                                                        const double p_Stepsize,
                                                        const double p_MassGainPerTimeStep,
                                                        const double p_Epsilon);
+            STELLAR_TYPE    ResolveSupernova()                                      { return BaseStar::ResolveSupernova(); }                                        // Default to BaseStar
 
             bool            ShouldEvolveOnPhase()                                   { return true; }                                                                // Always
             bool            ShouldSkipPhase()                                       { return false; }                                                               // Don't skip

@@ -1071,12 +1071,13 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
  * from the map of currently open standard logfiles
  *
  *
- * bool CloseStandardFile(const LOGFILE p_Logfile)
+ * bool CloseStandardFile(const LOGFILE p_Logfile, const bool p_Erase)
  *
  * @param   [IN]    p_Logfile                   The logfile to be closed
+ * @param   [IN]    p_Erase                     Indicates whether the logfile entry should be erased
  * @return                                      True if the logfile was closed successfully, false if not
  */
-bool Log::CloseStandardFile(const LOGFILE p_Logfile) {
+bool Log::CloseStandardFile(const LOGFILE p_Logfile, const bool p_Erase) {
 
     bool result = true;                                                                                             // default is success
 
@@ -1088,7 +1089,7 @@ bool Log::CloseStandardFile(const LOGFILE p_Logfile) {
         fileDetails = logfile->second;                                                                              // existing file details
         int id = get<0>(fileDetails);                                                                               // file id
         result = Close_(id);                                                                                        // close the file
-        if (result) {                                                                                               // closed ok?
+        if (result && p_Erase) {                                                                                    // closed ok and erase required?
             m_OpenStandardLogFileIds.erase(logfile);                                                                // yes - remove from map
         }
     }
@@ -1112,8 +1113,9 @@ bool Log::CloseAllStandardFiles() {
 
     bool result = true;                                                                                             // default = success
     for (auto& iter: m_OpenStandardLogFileIds) {                                                                    // for each open standard log file
-        if (!CloseStandardFile(iter.first)) result = false;                                                         // close it - flag if fail
+        if (!CloseStandardFile(iter.first, false)) result = false;                                                  // close it - flag if fail
     }
+    if (result) m_OpenStandardLogFileIds.clear();                                                                   // remove all entries
 
     return result;
 }

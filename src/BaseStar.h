@@ -18,7 +18,12 @@ class BaseStar {
 public:
 
     BaseStar();
-    BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, const double p_Metallicity, const double p_LBVfactor = 0.0, const double p_WolfRayetFactor = 0.0);
+    BaseStar(const unsigned long int p_RandomSeed, 
+             const double            p_MZAMS, 
+             const double            p_Metallicity, 
+             const DBL_VECTOR        p_KickParameters = {},
+             const double            p_LBVfactor = 0.0, 
+             const double            p_WolfRayetFactor = 0.0);
 
     virtual ~BaseStar() {}
 
@@ -214,7 +219,7 @@ public:
             STELLAR_TYPE    UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
                                                               const double p_DeltaMass0,
                                                               const double p_DeltaTime,
-                                                              const bool p_ForceRecalculate);
+                                                              const bool   p_ForceRecalculate);
 
     virtual void            UpdateInitialMass() { }                                                                                                                                 // Default is NO-OP
 
@@ -298,7 +303,7 @@ protected:
     double                  m_Alpha4;                                   // alpha4 in Hurley et al. 2000, just after eq 57
     double                  m_XExponent;                                // exponent to which R depends on M - 'x' in Hurley et al. 2000, eq 47
 
-    // timescales
+    // Timescales
     double                  m_DynamicalTimescale;
     double                  m_NuclearTimescale;
     double                  m_RadialExpansionTimescale;
@@ -314,7 +319,7 @@ protected:
     // of times as we evolve the star.  So I used vectors instead - the code is not as
     // elegant, but performance is better by an order of magnitude
 
-    // timescales, Giant Branch parameters, mass cutoffs
+    // Timescales, Giant Branch parameters, mass cutoffs
     DBL_VECTOR              m_GBParams;                                 // Giant Branch Parameters
     DBL_VECTOR              m_MassCutoffs;                              // Mass cutoffs
     DBL_VECTOR              m_Timescales;                               // Timescales
@@ -390,8 +395,8 @@ protected:
     virtual double          CalculateHeCoreMassAtPhaseEnd()                                                     { return m_HeCoreMass; }                                                    // Default is NO-OP
     virtual double          CalculateHeCoreMassOnPhase()                                                        { return m_HeCoreMass; }                                                    // Default is NO-OP
 
-            double          CalculateHeRateConstant()                                                           { return HE_RATE_CONSTANT; }                                                // Only >= CHeB stars need AHe, but no drama if other stars calculate (retrieve it) - it's only a constant
-            double          CalculateHHeRateConstant()                                                          { return HHE_RATE_CONSTANT; }                                               // Only TPAGB stars need AHHe, but no drama if other stars calculate (retrieve it) - it's only a constant
+    static  double          CalculateHeRateConstant_Static()                                                    { return HE_RATE_CONSTANT; }                                                // Only >= CHeB stars need AHe, but no drama if other stars calculate (retrieve it) - it's only a constant (we could just use the constant inline...)
+    static  double          CalculateHHeRateConstant_Static()                                                   { return HHE_RATE_CONSTANT; }                                               // Only TPAGB stars need AHHe, but no drama if other stars calculate (retrieve it) - it's only a constant (we could just use the constant inline...)
 
     static  double          CalculateInitialEnvelopeMass_Static(const double p_Mass);
 
@@ -473,6 +478,7 @@ protected:
     virtual double          CalculateRadiusAtPhaseEnd()                                                         { return m_Radius; }                                                        // Default is NO-OP
             double          CalculateRadiusAtZAMS(const double p_MZAMS);
     virtual double          CalculateRadiusOnPhase()                                                            { return m_Radius; }                                                        // Default is NO-OP
+    virtual std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase()                            { return std::make_tuple(CalculateRadiusOnPhase(), m_StellarType); }
 
             void            CalculateRCoefficients(const double p_LogMetallicityXi, DBL_VECTOR &p_RCoefficients);
 
