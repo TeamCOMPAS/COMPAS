@@ -35,7 +35,6 @@ protected:
     void Initialise() {
         m_StellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;                                                                                            // Set stellar type
         CalculateTimescales();                                                                                                                              // Initialise timescales
-        m_Age = 0.0;                                                                                                                                        // Set age appropriately
     }
 
 

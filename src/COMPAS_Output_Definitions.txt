@@ -34,11 +34,10 @@ bse_sysparms_rec += {                                                   # ADD to
 
 bse_sysparms_rec += {                                                   # ADD to the BSE System Parameters specification:
     SUPERNOVA_PROPERTY::IS_ECSN,                                        # IS_ECSN for the supernova star
-    SUPERNOVA_PROPERTY::IS_SN,                                          # IS_SN for the supernova star
+    SUPERNOVA_PROPERTY::IS_CCSN,                                        # IS_CCSN for the supernova star
     SUPERNOVA_PROPERTY::IS_USSN,                                        # IS_USSN for the supernova star
     SUPERNOVA_PROPERTY::EXPERIENCED_PISN,                               # EXPERIENCED_PISN for the supernova star
     SUPERNOVA_PROPERTY::EXPERIENCED_PPISN,                              # EXPERIENCED_PPISN for the supernova star
-    BINARY_PROPERTY::SURVIVED_SUPERNOVA_EVENT,                          # SURVIVED_SUPERNOVA_EVENT for the binary
     SUPERNOVA_PROPERTY::MZAMS,                                          # MZAMS for the supernova star
     COMPANION_PROPERTY::MZAMS                                           # MZAMS for the companion star
 }
