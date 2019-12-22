@@ -8,6 +8,7 @@
 
 typedef std::tuple<bool, COMPAS_VARIABLE_TYPE>                                      COMPAS_VARIABLE;
 typedef std::initializer_list<STELLAR_TYPE>                                         STELLAR_TYPE_LIST;
+typedef std::initializer_list<SN_EVENT>                                             SN_EVENT_LIST;
 typedef std::tuple<int, std::string, ANY_PROPERTY_VECTOR, std::vector<std::string>> LOGFILE_DETAILS;
 
 
@@ -24,9 +25,12 @@ struct KickVelocityParams {
 };
 
 
+// struct for supernova events:
+//  CCSN, ECSN, PISN, PPSIN, USSN, RUNAWAY, RECYCLED_NS, RLOF_ONTO_NS
+
 typedef struct SNEvents {
-    SN_EVENT              now;                              // Supernova status at the current timestep: NONE if no supernova event happening
-    std::vector<SN_EVENT> past;                             // Supernova status at any past timestep   : NONE if no supernova event happened in any past timestep
+    SN_EVENT current;                                       // Supernova event at the current timestep: NONE if no supernova event happening
+    SN_EVENT past;                                          // Supernova event at any past timestep   : NONE if no supernova event happened in any past timestep
 } SNEventsT;
 
 // struct for supernova attributes of the base star

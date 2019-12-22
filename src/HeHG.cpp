@@ -182,7 +182,7 @@ double HeHG::CalculateRadiusOnPhase() {
  * Hurley at al. 2000, eqs 85, 86, 87 & 88
  *
  * Calls CalculateRadiusOnPhase_Static() and returns the minimum of R1 and R2.  
- * Returns stellr type to which star should evolve based on radius calculated.
+ * Returns stellar type to which star should evolve based on radius calculated.
  *
  *
  * std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity)
