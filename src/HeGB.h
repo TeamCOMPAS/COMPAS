@@ -39,9 +39,11 @@ public:
 protected:
 
     void Initialise() {
+        STELLAR_TYPE previousStellarType = m_StellarType;;
         m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH;                                                                                                           // Set stellar type
         CalculateTimescales();                                                                                                                                                  // Initialise timescales
-        m_Age = CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, m_Timescales[static_cast<int>(TIMESCALE::tHeMS)], m_GBParams);                                                 // Set age appropriately
+        if (previousStellarType != STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP)                                                                                             // If not evolving from HeHG...
+            m_Age = CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, m_Timescales[static_cast<int>(TIMESCALE::tHeMS)], m_GBParams);                                             // ... Set age appropriately
     }
 
 
