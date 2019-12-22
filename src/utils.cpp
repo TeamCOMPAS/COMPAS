@@ -455,4 +455,32 @@ namespace utils {
             if (p_StellarType == elem) return true;
         return false;
     }
+
+
+    /*
+     * Returns a single SN type based on the SN_EVENT parameter passed
+     * 
+     * Returns (in priority order):
+     *
+     *    SN_EVENT::CCSN  iff CCSN  bit is set and USSN bit is not set
+     *    SN_EVENT::ECSN  iff ECSN  bit is set
+     *    SN_EVENT::PISN  iff PISN  bit is set
+     *    SN_EVENT::PPISN iff PPISN bit is set
+     *    SN_EVENT::USSN  iff USSN  bit is set
+     *    SN_EVENT::NONE  otherwise
+     * 
+     *
+     * @param   [IN]    p_SNEvent                   SN_EVENT mask to check for SN event type
+     * @return                                      SN_EVENT
+     */
+    SN_EVENT SNEventType(const SN_EVENT p_SNEvent) {
+
+        if ((p_SNEvent & (SN_EVENT::CCSN | SN_EVENT::USSN)) == SN_EVENT::CCSN ) return SN_EVENT::CCSN;
+        if ((p_SNEvent &  SN_EVENT::ECSN                  ) == SN_EVENT::ECSN ) return SN_EVENT::ECSN;
+        if ((p_SNEvent &  SN_EVENT::PISN                  ) == SN_EVENT::PISN ) return SN_EVENT::PISN;
+        if ((p_SNEvent &  SN_EVENT::PPISN                 ) == SN_EVENT::PPISN) return SN_EVENT::PPISN;
+        if ((p_SNEvent &  SN_EVENT::USSN                  ) == SN_EVENT::USSN ) return SN_EVENT::USSN;
+        
+        return SN_EVENT::NONE;
+    }
 }

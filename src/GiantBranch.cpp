@@ -1453,8 +1453,8 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
         stellarType = STELLAR_TYPE::NEUTRON_STAR;
     }
 
-    SetSNCurrentEvent(SN_EVENT::SN);
-    SetSNPastEvent(SN_EVENT::CCSN);
+    SetSNCurrentEvent(SN_EVENT::CCSN);                                                                      // core-collapse SN happening now
+    SetSNPastEvent(SN_EVENT::CCSN);                                                                         // ... and will be a past event
 
     return stellarType;
 }
@@ -1483,8 +1483,8 @@ STELLAR_TYPE GiantBranch::IsElectronCaptureSN() {
     m_Radius            = NS::CalculateRadiusOnPhase_Static(m_Mass) * KM_TO_RSOL;   // neutronStarRadius in km      JR: todo: isn't this actually the radius in RSOL?
     m_Luminosity        = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);
 
-    SetSNCurrentEvent(SN_EVENT::ECSN);
-    SetSNPastEvent(SN_EVENT::ECSN);
+    SetSNCurrentEvent(SN_EVENT::ECSN);                                              // electron capture SN happening now
+    SetSNPastEvent(SN_EVENT::ECSN);                                                 // ... and will be a past event
 
     return STELLAR_TYPE::NEUTRON_STAR;
 }
@@ -1543,8 +1543,8 @@ STELLAR_TYPE GiantBranch::IsPairInstabilitySN() {
     m_SupernovaDetails.kickVelocity      = 0.0;
     m_SupernovaDetails.fallbackFraction  = 0.0;
 
-    SetSNCurrentEvent(SN_EVENT::SN);
-    SetSNPastEvent(SN_EVENT::PISN);
+    SetSNCurrentEvent(SN_EVENT::PISN);                                                                  // pair instability SN happening now
+    SetSNPastEvent(SN_EVENT::PISN);                                                                     // ... and will be a past event
 
     return STELLAR_TYPE::MASSLESS_REMNANT;
 }
@@ -1614,8 +1614,8 @@ STELLAR_TYPE GiantBranch::IsPulsationalPairInstabilitySN() {
     }
     else {                                                                                              // no - PPISN
 
-        SetSNCurrentEvent(SN_EVENT::SN);
-        SetSNPastEvent(SN_EVENT::PPISN);
+        SetSNCurrentEvent(SN_EVENT::PPISN);                                                             // pulsational pair instability SN happening now
+        SetSNPastEvent(SN_EVENT::PPISN);                                                                // ... and will be a past event
 
         stellarType   = STELLAR_TYPE::BLACK_HOLE;                                                       // -> black hole
 

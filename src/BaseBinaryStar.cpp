@@ -414,10 +414,9 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
 
     m_SupernovaState                             = SN_STATE::NONE;
 
-    m_Survived                                   = true;
     m_Merged                                     = false;
     m_MergesInHubbleTime                         = false;
-    m_Disbound                                   = false;
+    m_Unbound                                    = false;
 
     m_SystemicVelocity                           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
@@ -594,7 +593,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE:                        value = CEAtLeastOnce();                                                    break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT:                          value = CommonEnvelopeEventCount();                                         break;
         case BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY:                          value = UK();                                                               break;
-        case BINARY_PROPERTY::DISBOUND:                                             value = Disbound();                                                         break;
+        case BINARY_PROPERTY::UNBOUND:                                              value = Unbound();                                                         break;
         case BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE:                          value = DoubleCoreCE();                                                     break;
         case BINARY_PROPERTY::DT:                                                   value = Dt();                                                               break;
         case BINARY_PROPERTY::ECCENTRICITY:                                         value = Eccentricity();                                                     break;
@@ -687,7 +686,6 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE:             value = STELLAR_TYPE_LABEL.at(StellarType2PostCEE());                       break;
         case BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE:              value = STELLAR_TYPE_LABEL.at(StellarType2PreCEE());                        break;
         case BINARY_PROPERTY::SUPERNOVA_STATE:                                      value = SN_State();                                                         break;
-        case BINARY_PROPERTY::SURVIVED_SUPERNOVA_EVENT:                             value = SurvivedSNEvent();                                                  break;
         case BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE:                            value = SynchronizationTimescale();                                         break;
         case BINARY_PROPERTY::SYSTEMIC_VELOCITY:                                    value = SystemicVelocity();                                                 break;
         case BINARY_PROPERTY::TIME:                                                 value = Time();                                                             break;
@@ -2105,16 +2103,16 @@ double BaseBinaryStar::CalculateSemiMajorAxisPostSupernova(const double p_KickVe
  */
 bool BaseBinaryStar::ResolveSupernova() {
 
-    if (!m_Supernova->IsSN() && !m_Supernova->IsECSN() && !m_Supernova->IsUSSN()) return false;                                 // not a supernova event - bail out (or bale out depending whence you hail...) passively
+    // check for supernova event - USSN is not checked here because it is subsumed (later, if that makes sense) by CCSN
+    if (!m_Supernova->IsCCSN() && !m_Supernova->IsECSN()) return false;                                                             // not a supernova event - bail out (or bale out depending whence you hail...) passively
 
 	// Masses should already be correct, mass before SN given by star.m_MassPrev
     // Generate true anomaly - (for e=0, should be a flat distribution) - updates Eccentric anomaly and True anomaly automatically
     // ALEJANDRO - 09/05/2018 - If statement to avoid solving Kepler's equation for an unbound orbit; it may be of interest to have SN of unbound stars in the supernovae.txt file.
 
     if (IsUnbound()) {      // JR: todo: check this - was just "if (m_SemiMajorAxisPrime > 0.0)"
-        // ALEJANDRO - 09/05/2018 - Following 3 lines copied from else statement in the end.                                    // JR: todo: are these going to be executed twice...? (I removed one... not required)
-        m_Disbound = true;
-        m_Survived = false;
+        // ALEJANDRO - 09/05/2018 - Following 3 lines copied from else statement in the end.                                        // JR: todo: are these going to be executed twice...? (I removed one... not required)
+        m_Unbound = true;
     }
     else {
         m_Supernova->CalculateSNAnomalies(m_Eccentricity);
@@ -2180,8 +2178,6 @@ bool BaseBinaryStar::ResolveSupernova() {
     m_SystemicVelocity = 0.0;
 
     if (utils::Compare(epsilon, 0.0) < 0) {		                                                                                    // still bound?
-                                                                                                                                    // yes
-        m_Survived = true;                                                                                                          // it survived
 
         // Calculate post-SN orbital inclination using the equation for arbitrary eccentricity orbits
         m_CosIPrime   = CalculateCosFinalPlaneTilt(m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
@@ -2203,11 +2199,10 @@ bool BaseBinaryStar::ResolveSupernova() {
         m_SystemicVelocity /= KM;                                                                                                   // convert to km s^-1
     }
     else {                                                                                                                          // no longer bound
-        m_Disbound = true;
-        m_Survived = false;                                                                                                         // it did not survive
+        m_Unbound = true;
     }
 
-    m_Companion->CheckRunaway(m_Disbound, m_Survived);                                                                              // flag companion if runaway
+    m_Companion->CheckRunaway(m_Unbound);                                                                                           // flag companion if runaway
 
 
     // update some binary parameters
@@ -2244,23 +2239,19 @@ void BaseBinaryStar::EvaluateSupernovae() {
     if (m_Star1->IsSNevent() && utils::Compare(m_SemiMajorAxisPrime, 0.0) > 0) {                        // star1 supernova
         m_SupernovaState = SN_STATE::STAR1;                                                             // star1
 
-//        if (!(m_Star1->IsOneOf({ STELLAR_TYPE::BLACK_HOLE, STELLAR_TYPE::MASSLESS_REMNANT }))) { 
-            // resolve star1 supernova
-            m_Supernova = m_Star1;                                                                      // supernova
-            m_Companion = m_Star2;                                                                      // companion
-            (void)ResolveSupernova();                                                                   // resolve supernova
-//        }
+        // resolve star1 supernova
+        m_Supernova = m_Star1;                                                                      // supernova
+        m_Companion = m_Star2;                                                                      // companion
+        (void)ResolveSupernova();                                                                   // resolve supernova
     }
 
     if (m_Star2->IsSNevent() && utils::Compare(m_SemiMajorAxisPrime, 0.0) > 0) {                                                                                                         // star2 supernova
         m_SupernovaState = m_SupernovaState == SN_STATE::NONE ? SN_STATE::STAR2 : SN_STATE::BOTH;       // star2 or both
 
-//        if (!(m_Star2->IsOneOf({ STELLAR_TYPE::BLACK_HOLE, STELLAR_TYPE::MASSLESS_REMNANT }))) { 
-            // resolve star2 supernova
-            m_Supernova = m_Star2;                                                                      // supernova
-            m_Companion = m_Star1;                                                                      // companion
-            (void)ResolveSupernova();                                                                   // resolve supernova
-//        }
+        // resolve star2 supernova
+        m_Supernova = m_Star2;                                                                      // supernova
+        m_Companion = m_Star1;                                                                      // companion
+        (void)ResolveSupernova();                                                                   // resolve supernova
     }
 }
 
@@ -3058,7 +3049,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                             if (m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH })) {
 
                                 if (m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-                                    m_Donor->SetSNCurrentEvent(SN_EVENT::USSN);                                                                             // donor ultra-stripped SN
+                                    m_Donor->SetSNCurrentEvent(SN_EVENT::USSN);                                                                             // donor ultra-stripped SN happening now
+                                    m_Donor->SetSNPastEvent(SN_EVENT::USSN);                                                                                // ... and will be a past event
                                 }                                                                                                                           // JR: todo: check "else false"
 
                                 // Hard code stability
@@ -3730,7 +3722,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve(const int p_Index) {
             }
             else if ((IsUnbound() && !OPTIONS->EvolveUnboundSystems()) ||                                                                   // binary is unbound and we don't want unbound systems?
                     (!IsGravitationallyBound() && !OPTIONS->EvolveUnboundSystems())) {                                                      // binary is not gravitationally bound and we don't want unbound systems?
-                m_Disbound      = true;                                                                                                     // yes - set the unbound flag
+                m_Unbound      = true;                                                                                                      // yes - set the unbound flag (should already be set)
                 evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                                // stop evolution
             }
             else {                                                                                                                          // continue evolution
@@ -3750,7 +3742,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve(const int p_Index) {
                     evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                     // yes - stop evolution
                 }
                 else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                 // binary is unbound and we don't want unbound systems?
-                    m_Disbound      = true;                                                                                                 // yes - set the unbound flag
+                    m_Unbound      = true;                                                                                                  // yes - set the unbound flag (should already be set)
                     evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                            // stop evolution
                 }
 
@@ -3788,12 +3780,10 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve(const int p_Index) {
             if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                            // continue evolution?
 
                 dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep());                                                  // new timestep
-                                                                                                                                            // yes - prepare for next timestep
+
                 stepNum++;                                                                                                                  // increment stepNum
                 dt = CalculateTimestep(ChooseTimestep(dt));                                                                                 // calculate next timestep
             }
-
-
         }
         PrintDetailedOutput(p_Index);                                                                                                       // print (log) detailed output for binary
 

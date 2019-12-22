@@ -24,27 +24,45 @@
  * @param   [IN/OUT]    p_Timescales            Timescales - calculated here
  */
 void CHeB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
-#define timescales(x) p_Timescales[static_cast<int>(TIMESCALE::x)]          // for convenience and readability - undefined at end of function
-#define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]      // for convenience and readability - undefined at end of function
+#define timescales(x) p_Timescales[static_cast<int>(TIMESCALE::x)]                      // for convenience and readability - undefined at end of function
+#define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]                  // for convenience and readability - undefined at end of function
 
-    GiantBranch::CalculateTimescales(p_Mass, p_Timescales);                 // calculate common values
+    GiantBranch::CalculateTimescales(p_Mass, p_Timescales);                             // calculate common values
 
     timescales(tHe)     = CalculateLifetimeOnPhase(p_Mass);
 	timescales(tau_BL)  = CalculateLifetimeOnBluePhase(p_Mass);
+
+    // JR: The blue loop on CHeB can be 0-length/duration (see Hurley et al., 2000, section 5.3, 
+    // particularly eq 58 and beyond).  COMPAS does not allow for a 0-length blue loop - some of 
+    // the equations used (e.g. to calculate Radius) result in nan or inf.  As a temporary workaround 
+    // until we work out how to skip the blue loop (when it is 0-length) we will set the length of a 
+    // 0-length blue loop to the absolute minimum timestep (currently 100 seconds).
+    //
+    // Note that this works-around a long-standing problem, which was worked-around in legacy COMPAS
+    // by the following code in calculateBluePhaseFBL() in star.cpp:
+	//
+    //    if(brackets ==0){brackets = 1e-12;}  //If zero gives R=NaN Coen Neijssel 10-01-2017
+    //
+    // The workaround implemented here is closer to the source of the problem (the blue loop does not
+    // actually exist for some stars), and maybe a bit more meaningful (we're just using a very short 
+    // duration blue loop instead of a no duration (non-existent) one)
+
+    if (timescales(tau_BL) <= 0.0) timescales(tau_BL) = ABSOLUTE_MINIMUM_TIMESTEP;      // don't use utils::Compare() here
 
     // Calculate the relative age at the start of the blue phase of Core Helium Burning
     // Hurley et al. 2000, just before eq 59
     // Naturally clamped to [0, 1]
 	timescales(tauX_BL) = (utils::Compare(p_Mass, massCutoffs(MHeF)) >= 0 && utils::Compare(p_Mass, massCutoffs(MFGB)) < 0)
-                                    ? 1.0 - timescales(tau_BL)              // intermediate mass stars
-                                    : 0.0;                                  // low and high mass stars
+                                    ? 1.0 - timescales(tau_BL)                          // intermediate mass stars
+                                    : 0.0;                                              // low and high mass stars
 
     // Calculate the relative age at the end of the blue phase of Core Helium Burning
     // Hurley et al. 2000, just before eq 64
     // Naturally clamped to [0, 1]
 	timescales(tauY_BL) = utils::Compare(p_Mass, massCutoffs(MFGB)) >= 0
-                                    ? timescales(tau_BL)                    // high mass stars
-                                    : 1.0;                                  // intermediate and low mass stars
+                                    ? timescales(tau_BL)                                // high mass stars
+                                    : 1.0;                                              // intermediate and low mass stars
+
 #undef massCutoffs
 #undef timescales
 }
@@ -955,10 +973,6 @@ double CHeB::CalculateBluePhaseFBL(const double p_Mass) {
     // Calculate RAGB(LHeI(M)) for M > MFGB > MHeF
     double bottom   = EAGB::CalculateRadiusOnPhase_Static(p_Mass, LHeI, massCutoffs(MHeF), m_BnCoefficients);
     double brackets = 1.0 - (top / bottom);
-
-//	if (utils::Compare(brackets, 0.0) == 0) {  // JR: todo: really should figure out where the divide-by-zero is happening and fix/check that
-//        brackets = 1e-12;   // If zero gives R=NaN Coen Neijssel 10-01-2017
-//    }
 
     return pow(p_Mass, b[48]) * pow(brackets, b[49]);
 
