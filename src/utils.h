@@ -25,6 +25,8 @@ namespace utils {
     bool                        FileExists(const std::string& p_Filename);
     bool                        vFileExists(const char *p_Filename);
 
+    SN_EVENT                    SNEventType(const SN_EVENT p_SNEvent);
+
 
     /*
      * Find a value in an unordered map and return the key if found, otherwise defaut value
@@ -100,6 +102,7 @@ namespace utils {
 
         return iter != p_Vector.end() ? std::make_tuple(true, distance(p_Vector.begin(), iter)) : std::make_tuple(false, -1l);  // if found return index, otherwise -1
     }
+
 }
 
 #endif // __utils_h__

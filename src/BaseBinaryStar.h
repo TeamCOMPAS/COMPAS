@@ -54,7 +54,7 @@ public:
 
         m_CEDetails                        = p_Star.m_CEDetails;
 
-        m_Disbound                         = p_Star.m_Disbound;
+        m_Unbound                          = p_Star.m_Unbound;
 
         m_Dt                               = p_Star.m_Dt;
 
@@ -132,8 +132,6 @@ public:
         m_StellarMergerAtBirth             = p_Star.m_StellarMergerAtBirth;
 
         m_SupernovaState                   = p_Star.m_SupernovaState;
-
-        m_Survived                         = p_Star.m_Survived;
 
         m_SynchronizationTimescale         = p_Star.m_SynchronizationTimescale;
 
@@ -229,7 +227,7 @@ public:
     unsigned int        CEEventCount() const                        { return m_CEDetails.CEEcount; }
 	double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
 	unsigned int        CommonEnvelopeEventCount() const            { return m_CEDetails.CEEcount; }
-    bool                Disbound() const                            { return m_Disbound; }
+    bool                Unbound() const                             { return m_Unbound; }
     bool                DoubleCoreCE() const                        { return m_CEDetails.doubleCoreCE; }
     double              Dt() const                                  { return m_Dt; }
     double              Eccentricity() const                        { return m_Eccentricity; }
@@ -302,7 +300,6 @@ public:
     STELLAR_TYPE        StellarType2PostCEE() const                 { return m_Star2->StellarTypePostCEE(); }
     STELLAR_TYPE        StellarType2PreCEE() const                  { return m_Star2->StellarTypePreCEE(); }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
-    bool                SurvivedSNEvent() const                     { return m_Survived; }
 	double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
     double              SystemicVelocity() const                    { return m_SystemicVelocity; }
     double              Time() const                                { return m_Time; }
@@ -350,7 +347,7 @@ private:
 
 	double              m_CircularizationTimescale;
 
-    bool                m_Disbound;                                                         // Binary disbound?
+    bool                m_Unbound;                                                          // Binary unbound?
 
     double              m_Dt;                                                               // Timestep
 
@@ -428,8 +425,6 @@ private:
     bool                m_StellarMergerAtBirth;                                             // Indicates that the constituent stars were touching at bierth
 
     SN_STATE            m_SupernovaState;                                                   // Indicates which star (or stars) are undergoing / hove undergone a supernova event
-
-    bool                m_Survived;
 
 	double              m_SynchronizationTimescale;
 
