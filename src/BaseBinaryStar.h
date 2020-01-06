@@ -37,6 +37,8 @@ public:
 
     void CopyMemberVariables(const BaseBinaryStar& p_Star) {
 
+        m_Id                               = p_Star.m_Id;
+
         m_Error                            = p_Star.m_Error;
 
         m_RandomSeed                       = p_Star.m_RandomSeed;
@@ -218,6 +220,7 @@ public:
     OBJECT_ID           ObjectId() const                            { return m_ObjectId; }
     OBJECT_TYPE         ObjectType() const                          { return m_ObjectType; }
     STELLAR_TYPE        StellarType() const                         { return m_StellarType; }
+    long int            Id() const                                  { return m_Id; }
 
 
     // getters - alphabetically
@@ -318,7 +321,7 @@ public:
 
     static  double              CalculateRocheLobeRadius_Static(const double p_MassPrimary, const double p_MassSecondary);
 
-            EVOLUTION_STATUS    Evolve(const int p_Index);
+            EVOLUTION_STATUS    Evolve();
 
             COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
 
@@ -330,6 +333,7 @@ private:
     OBJECT_ID    m_ObjectId;                                                                // Instantiated object's unique object id
     OBJECT_TYPE  m_ObjectType;                                                              // Instantiated object's object type
     STELLAR_TYPE m_StellarType;                                                             // Stellar type defined in Hurley et al. 2000
+    long int     m_Id;                                                                      // Id used to name detailed output file - uses p_Id as passed (usually the index number of multiple binaries are being produced)
 
     ERROR m_Error;                                                                          // Records most recent error encountered for this binary
 
@@ -485,7 +489,7 @@ private:
     // JR: todo: note in the orginal code the binary orbital velicity was passed in as a parameter but never used - I removed it
 
     void    SetInitialCommonValues(const AIS &p_AIS, const long int p_Id);
-    void    SetRemainingCommonValues(const long int p_Id);
+    void    SetRemainingCommonValues();
 
 
     double  CalculateAngularMomentum(const double p_SemiMajorAxis,
@@ -597,7 +601,7 @@ private:
     void    EvaluateBinary(const double p_Dt);
     void    EvaluateBinaryPreamble();
 
-    void    EvaluateSupernovae();
+    void    EvaluateSupernovae(const bool p_Resolve2ndSN);
 
     void    EvolveOneTimestep(const double p_Dt);
     void    EvolveOneTimestepPreamble(const double p_Dt);

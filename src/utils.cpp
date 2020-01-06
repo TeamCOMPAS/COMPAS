@@ -476,10 +476,10 @@ namespace utils {
     SN_EVENT SNEventType(const SN_EVENT p_SNEvent) {
 
         if ((p_SNEvent & (SN_EVENT::CCSN | SN_EVENT::USSN)) == SN_EVENT::CCSN ) return SN_EVENT::CCSN;
-        if ((p_SNEvent &  SN_EVENT::ECSN                  ) == SN_EVENT::ECSN ) return SN_EVENT::ECSN;
-        if ((p_SNEvent &  SN_EVENT::PISN                  ) == SN_EVENT::PISN ) return SN_EVENT::PISN;
-        if ((p_SNEvent &  SN_EVENT::PPISN                 ) == SN_EVENT::PPISN) return SN_EVENT::PPISN;
-        if ((p_SNEvent &  SN_EVENT::USSN                  ) == SN_EVENT::USSN ) return SN_EVENT::USSN;
+        if ((p_SNEvent & SN_EVENT::ECSN )                   == SN_EVENT::ECSN ) return SN_EVENT::ECSN;
+        if ((p_SNEvent & SN_EVENT::PISN )                   == SN_EVENT::PISN ) return SN_EVENT::PISN;
+        if ((p_SNEvent & SN_EVENT::PPISN)                   == SN_EVENT::PPISN) return SN_EVENT::PPISN;
+        if ((p_SNEvent & SN_EVENT::USSN )                   == SN_EVENT::USSN ) return SN_EVENT::USSN;
         
         return SN_EVENT::NONE;
     }

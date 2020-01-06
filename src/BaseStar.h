@@ -56,9 +56,9 @@ public:
             bool                ExperiencedECSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::ECSN) == SN_EVENT::ECSN; }
             bool                ExperiencedPISN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::PISN) == SN_EVENT::PISN; }
             bool                ExperiencedPPISN() const                                        { return (m_SupernovaDetails.events.past & SN_EVENT::PPISN) == SN_EVENT::PPISN; }
-            bool                ExperiencedRecycledNS() const                                   { return (m_SupernovaDetails.events.current & SN_EVENT::RECYCLED_NS) == SN_EVENT::RECYCLED_NS; }
-            bool                ExperiencedRLOFOntoNS() const                                   { return (m_SupernovaDetails.events.current & SN_EVENT::RLOF_ONTO_NS) == SN_EVENT::RLOF_ONTO_NS; }
-            bool                ExperiencedRunaway() const                                      { return (m_SupernovaDetails.events.current & SN_EVENT::RUNAWAY) == SN_EVENT::RUNAWAY; }
+            bool                ExperiencedRecycledNS() const                                   { return (m_SupernovaDetails.events.past & SN_EVENT::RECYCLED_NS) == SN_EVENT::RECYCLED_NS; }
+            bool                ExperiencedRLOFOntoNS() const                                   { return (m_SupernovaDetails.events.past & SN_EVENT::RLOF_ONTO_NS) == SN_EVENT::RLOF_ONTO_NS; }
+            bool                ExperiencedRunaway() const                                      { return (m_SupernovaDetails.events.past & SN_EVENT::RUNAWAY) == SN_EVENT::RUNAWAY; }
             SN_EVENT            ExperiencedSN_Type() const                                      { return utils::SNEventType(m_SupernovaDetails.events.past); }
             bool                ExperiencedUSSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::USSN) == SN_EVENT::USSN; }
             double              HeCoreMass() const                                              { return m_HeCoreMass; }
@@ -311,7 +311,7 @@ protected:
     double                  m_ThermalTimescale;
 
     // constants only calculated once
-    double                  m_baryonicMassOfMaximumNeutronStarMass;      // baryonic mass of MaximumNeutronStarMass 
+    double                  m_BaryonicMassOfMaximumNeutronStarMass;      // baryonic mass of MaximumNeutronStarMass 
 
     // JR:
     // I initially implemented the following vectors as unordered_maps.  The code worked
