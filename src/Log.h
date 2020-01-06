@@ -325,7 +325,7 @@ public:
 
     // standard logfile logging functions
     template <class T>
-    void LogSingleStarParameters(const T* const p_Star, const int p_Id)  { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PARAMETERS)), 0, LOGFILE::SSE_PARAMETERS, p_Star, "_" + std::to_string(p_Id)); }
+    void LogSingleStarParameters(const T* const p_Star, const int p_Id)  { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PARAMETERS)), 0, LOGFILE::SSE_PARAMETERS, p_Star, "_" + std::to_string(abs(p_Id))); }
     template <class T>
     void LogBinarySystemParameters(const T* const p_Binary)              { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS)), 0, LOGFILE::BSE_SYSTEM_PARAMETERS, p_Binary); }
     template <class T>
@@ -337,7 +337,7 @@ public:
     template <class T>
     void LogBeBinary(const T* const p_Binary)                            { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES)), 0, LOGFILE::BSE_BE_BINARIES, p_Binary); }
     template <class T>
-    void LogDetailedOutput(const T* const p_Binary, const int p_Id)      { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT)), 0, LOGFILE::BSE_DETAILED_OUTPUT, p_Binary, "_" + std::to_string(p_Id)); }
+    void LogDetailedOutput(const T* const p_Binary, const int p_Id)      { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT)), 0, LOGFILE::BSE_DETAILED_OUTPUT, p_Binary, "_" + std::to_string(abs(p_Id))); }
     template <class T>
     void LogPulsarEvolutionParameters(const T* const p_Binary)           { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)), 0, LOGFILE::BSE_PULSAR_EVOLUTION, p_Binary); }
     template <class T>
