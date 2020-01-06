@@ -1129,7 +1129,7 @@ STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0) {                     // Envelope loss    JR: todo: >= in orginal code - not consistent?
+    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0) {                     // Envelope loss    JR: todo: >= in original code - not consistent?
 
         // reset total mass to be core mass
         m_CoreMass   = m_HeCoreMass;
