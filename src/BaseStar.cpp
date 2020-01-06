@@ -223,7 +223,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     // Calculates the Baryonic mass for which the GravitationalRemnantMass will be equal to the maximumNeutronStarMass (inverse of SolveQuadratic())
     // needed to decide whether to calculate Fryer+2012 for Neutron Star or Black Hole in GiantBranch::CalculateGravitationalRemnantMass()
-    m_baryonicMassOfMaximumNeutronStarMass       = (0.075 * OPTIONS->MaximumNeutronStarMass() * OPTIONS->MaximumNeutronStarMass()) + OPTIONS->MaximumNeutronStarMass();
+    m_BaryonicMassOfMaximumNeutronStarMass      = (0.075 * OPTIONS->MaximumNeutronStarMass() * OPTIONS->MaximumNeutronStarMass()) + OPTIONS->MaximumNeutronStarMass();
     // calculate only once for entire simulation of N binaries in the future.
 
     // Pulsar details
@@ -1172,7 +1172,7 @@ double BaseStar::CalculateZetaNuclear(const double p_DeltaTime) {
  */
 double BaseStar::CalculateConvergedTimestepZetaNuclear() {
 
-    double timestep  = -ZETA_NUCLEAR_TIMESTEP;                                                                                  // timestep
+    double timestep  = ZETA_NUCLEAR_TIMESTEP;                                                                                   // timestep
     double tolerance = 1.0 - ZETA_NUCLEAR_TOLERANCE;                                                                            // max change allowed in zeta nuclear between iterations - signals convergence
 
     double thisZetaNuclear;                                                                                                     // value of mass-radius exponent calculated at current iteration
@@ -3261,10 +3261,10 @@ double BaseStar::CalculateTimestep() {
  * Will apply mass changes to m_Mass and/or m_Mass0.  Note discussion in documentation for
  * UpdateAttributes() in Star.cpp - changing m_Mass0 is a bit of a kludge and should be fixed.
  *
- * If the timestep (p_DeltaTime) is > 0 then m_Mass and m_Radius will be saved as m_MassPrev and m_rediusPrev respectively.
+ * If the timestep (p_DeltaTime) is > 0 then m_Mass and m_Radius will be saved as m_MassPrev and m_RadiusPrev respectively.
  *
  *
- * void UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMass, const double p_DeltaMass0)
+ * void UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMass, const double p_DeltaMass0, const double p_DeltaTime)
  *
  * @param   [IN]    p_DeltaMass                 The change in mass to apply in Msol
  * @param   [IN]    p_DeltaMass0                The change in mass0 to apply in Msol
@@ -3276,7 +3276,7 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
     if (utils::Compare(p_DeltaMass0, 0.0) != 0) { m_Mass0 = max(0.0, m_Mass0 + p_DeltaMass0); }     // update mass0 as required (only change if delta != 0 with tolerance) and prevent -ve
 
     // record some current values before they are (possibly) changed by evolution
-    if (utils::Compare(p_DeltaTime, 0.0) > 0 ) {                                                    // only record if dt > 0 with tolerance - be careful here, dt can be very small  JR: todo: think about not using Compare() here
+    if (p_DeltaTime > 0.0) {                                                                        // don't use utils::Compare() here
         m_StellarTypePrev = m_StellarType;
         m_DtPrev          = m_Dt;
         m_MassPrev        = m_Mass;
@@ -3360,10 +3360,11 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
                                                          const bool   p_ForceRecalculate) {
     STELLAR_TYPE stellarType = m_StellarType;                                               // default is no change
 
+
     UpdateAttributesAndAgeOneTimestepPreamble(p_DeltaMass, p_DeltaMass0, p_DeltaTime);      // apply mass changes and save current values if required
 
     if (ShouldBeMasslessRemnant()) {                                                        // ALEJANDRO - 02/12/2016 - Attempt to fix updating the star if it lost all of its mass
-        stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
+        stellarType = STELLAR_TYPE::MASSLESS_REMNANT;                                       // JR: should also pik up already massless remnant
     }
     else {
         stellarType = ResolveSupernova();                                                   // handle supernova     JR: moved this to start of timestep
@@ -3404,7 +3405,7 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
  */
 void BaseStar::AgeOneTimestepPreamble(const double p_DeltaTime) {
 
-    if (p_DeltaTime > 0.0) {                        // if dt > 0
+    if (p_DeltaTime > 0.0) {                        // if dt > 0    (don't use utils::Compare() here)
         m_Time += p_DeltaTime;                      // advance physical simulation time
         m_Age  += p_DeltaTime;                      // advance age of star
         m_Dt    = p_DeltaTime;                      // set timestep
