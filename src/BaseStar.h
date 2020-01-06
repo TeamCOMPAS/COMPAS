@@ -18,7 +18,12 @@ class BaseStar {
 public:
 
     BaseStar();
-    BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, const double p_Metallicity, const double p_LBVfactor = 0.0, const double p_WolfRayetFactor = 0.0);
+    BaseStar(const unsigned long int p_RandomSeed, 
+             const double            p_MZAMS, 
+             const double            p_Metallicity, 
+             const DBL_VECTOR        p_KickParameters = {},
+             const double            p_LBVfactor = 0.0, 
+             const double            p_WolfRayetFactor = 0.0);
 
     virtual ~BaseStar() {}
 
@@ -47,25 +52,24 @@ public:
             double              DynamicalTimescale() const                                      { return m_DynamicalTimescale; }
             double              EnvMass() const                                                 { return m_EnvMass; }
             ERROR               Error() const                                                   { return m_Error; }
-            bool                ExperiencedCCSN() const                                         { return std::get<0>(utils::Find(SN_EVENT::CCSN, m_SupernovaDetails.events.past)); }
-            bool                ExperiencedECSN() const                                         { return std::get<0>(utils::Find(SN_EVENT::ECSN, m_SupernovaDetails.events.past)); }
-            bool                ExperiencedPISN() const                                         { return std::get<0>(utils::Find(SN_EVENT::PISN, m_SupernovaDetails.events.past)); }
-            bool                ExperiencedPPISN() const                                        { return std::get<0>(utils::Find(SN_EVENT::PPISN, m_SupernovaDetails.events.past)); }
-            bool                ExperiencedRecycledNS() const                                   { return std::get<0>(utils::Find(SN_EVENT::RECYCLED_NS, m_SupernovaDetails.events.past)); }
-            bool                ExperiencedRLOFOntoNS() const                                   { return std::get<0>(utils::Find(SN_EVENT::RLOF_ONTO_NS, m_SupernovaDetails.events.past)); }
-            bool                ExperiencedRunaway() const                                      { return std::get<0>(utils::Find(SN_EVENT::RUNAWAY, m_SupernovaDetails.events.past)); }
-            bool                ExperiencedSN() const                                           { return std::get<0>(utils::Find(SN_EVENT::SN, m_SupernovaDetails.events.past)); }
-            bool                ExperiencedUSSN() const                                         { return std::get<0>(utils::Find(SN_EVENT::USSN, m_SupernovaDetails.events.past)); }
+            bool                ExperiencedCCSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
+            bool                ExperiencedECSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::ECSN) == SN_EVENT::ECSN; }
+            bool                ExperiencedPISN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::PISN) == SN_EVENT::PISN; }
+            bool                ExperiencedPPISN() const                                        { return (m_SupernovaDetails.events.past & SN_EVENT::PPISN) == SN_EVENT::PPISN; }
+            bool                ExperiencedRecycledNS() const                                   { return (m_SupernovaDetails.events.past & SN_EVENT::RECYCLED_NS) == SN_EVENT::RECYCLED_NS; }
+            bool                ExperiencedRLOFOntoNS() const                                   { return (m_SupernovaDetails.events.past & SN_EVENT::RLOF_ONTO_NS) == SN_EVENT::RLOF_ONTO_NS; }
+            bool                ExperiencedRunaway() const                                      { return (m_SupernovaDetails.events.past & SN_EVENT::RUNAWAY) == SN_EVENT::RUNAWAY; }
+            SN_EVENT            ExperiencedSN_Type() const                                      { return utils::SNEventType(m_SupernovaDetails.events.past); }
+            bool                ExperiencedUSSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::USSN) == SN_EVENT::USSN; }
             double              HeCoreMass() const                                              { return m_HeCoreMass; }
-            bool                IsCCSN() const                                                  { return m_SupernovaDetails.events.now == SN_EVENT::CCSN; }
+            bool                IsCCSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
     virtual bool                IsDegenerate() const                                            { return false; }   // default is not degenerate - White Dwarfs, NS and BH are degenerate
-            bool                IsECSN() const                                                  { return m_SupernovaDetails.events.now == SN_EVENT::ECSN; }
+            bool                IsECSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::ECSN) == SN_EVENT::ECSN; }
     virtual bool                IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) { return false; }   // default is stable
             bool                IsOneOf(const STELLAR_TYPE_LIST p_List) const;
-            bool                IsPISN() const                                                  { return m_SupernovaDetails.events.now == SN_EVENT::PISN; }
-            bool                IsPPISN() const                                                 { return m_SupernovaDetails.events.now == SN_EVENT::PPISN; }
-            bool                IsSN() const                                                    { return m_SupernovaDetails.events.now == SN_EVENT::SN; }
-            bool                IsUSSN() const                                                  { return m_SupernovaDetails.events.now == SN_EVENT::USSN; }
+            bool                IsPISN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::PISN) == SN_EVENT::PISN; }
+            bool                IsPPISN() const                                                 { return (m_SupernovaDetails.events.current & SN_EVENT::PPISN) == SN_EVENT::PPISN; }
+            bool                IsUSSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::USSN) == SN_EVENT::USSN; }
             double              Lambda_Dewi() const                                             { return m_Lambdas.dewi; }
             double              Lambda_Fixed() const                                            { return m_Lambdas.fixed; }
             double              Lambda_Kruckow() const                                          { return m_Lambdas.kruckow; }
@@ -112,6 +116,7 @@ public:
             double              SN_TotalMassAtCOFormation() const                               { return m_SupernovaDetails.totalMassAtCOFormation; }
             double              SN_TrueAnomaly() const                                          { return m_SupernovaDetails.trueAnomaly; }
             double              SN_Theta() const                                                { return m_SupernovaDetails.theta; }
+            SN_EVENT            SN_Type() const                                                 { return utils::SNEventType(m_SupernovaDetails.events.current); }
             double              SN_URand() const                                                { return m_SupernovaDetails.uRand; }
             COMPAS_VARIABLE     StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
             double              Tau() const                                                     { return m_Tau; }
@@ -131,8 +136,9 @@ public:
     // setters
             void                SetInitialType(STELLAR_TYPE p_InitialType)                      { m_InitialStellarType = p_InitialType; }                                           // JR Could do some sanity checks here
             void                SetOmega(double p_vRot)                                         { if (p_vRot >= 0.0) m_Omega = p_vRot; };                                           // Do nothing if sanity check fails (JR: I don't really like this, but I think unavoidable - at least for now)
-            void                SetSNCurrentEvent(const SN_EVENT p_SNEvent)                     { m_SupernovaDetails.events.now = p_SNEvent; }                                      // Set supernova event/state for current timestep
-            void                SetSNPastEvent(const SN_EVENT p_SNEvent)                        { m_SupernovaDetails.events.past.push_back(p_SNEvent); }                            // Record supernova past event/state (add event/state to vector)
+
+            void                SetSNCurrentEvent(SN_EVENT p_SNEvent)                           { m_SupernovaDetails.events.current |= p_SNEvent; }                                 // Set supernova primary event/state for current timestep
+            void                SetSNPastEvent(const SN_EVENT p_SNEvent)                        { m_SupernovaDetails.events.past |= p_SNEvent; }                                    // Set supernova primary event/state for any past timestep
 
 
     // member functions - alphabetically
@@ -186,9 +192,9 @@ public:
     virtual double          CalculateZeta(CE_ZETA_PRESCRIPTION p_CEZetaPrescription) { return 0.0; }                                                                                // Use inheritance hierarchy
             void            CalculateZetas();
 
-    virtual void            CheckRunaway(const bool p_Disbound, const bool p_Survived);
+    virtual void            CheckRunaway(const bool p_Unbound)                                                  { if (p_Unbound) SetSNPastEvent(SN_EVENT::RUNAWAY); }
 
-            void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.now = SN_EVENT::NONE; }                 // Clear supernova event/state for current timestep
+            void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
 
     virtual ENVELOPE        DetermineEnvelopeType()                                                             { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
     virtual ENVELOPE        DetermineEnvelopeTypeHurley2002()                                                   { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
@@ -214,7 +220,7 @@ public:
             STELLAR_TYPE    UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
                                                               const double p_DeltaMass0,
                                                               const double p_DeltaTime,
-                                                              const bool p_ForceRecalculate);
+                                                              const bool   p_ForceRecalculate);
 
     virtual void            UpdateInitialMass() { }                                                                                                                                 // Default is NO-OP
 
@@ -298,11 +304,14 @@ protected:
     double                  m_Alpha4;                                   // alpha4 in Hurley et al. 2000, just after eq 57
     double                  m_XExponent;                                // exponent to which R depends on M - 'x' in Hurley et al. 2000, eq 47
 
-    // timescales
+    // Timescales
     double                  m_DynamicalTimescale;
     double                  m_NuclearTimescale;
     double                  m_RadialExpansionTimescale;
     double                  m_ThermalTimescale;
+
+    // constants only calculated once
+    double                  m_BaryonicMassOfMaximumNeutronStarMass;      // baryonic mass of MaximumNeutronStarMass 
 
     // JR:
     // I initially implemented the following vectors as unordered_maps.  The code worked
@@ -311,7 +320,7 @@ protected:
     // of times as we evolve the star.  So I used vectors instead - the code is not as
     // elegant, but performance is better by an order of magnitude
 
-    // timescales, Giant Branch parameters, mass cutoffs
+    // Timescales, Giant Branch parameters, mass cutoffs
     DBL_VECTOR              m_GBParams;                                 // Giant Branch Parameters
     DBL_VECTOR              m_MassCutoffs;                              // Mass cutoffs
     DBL_VECTOR              m_Timescales;                               // Timescales
@@ -387,8 +396,8 @@ protected:
     virtual double          CalculateHeCoreMassAtPhaseEnd()                                                     { return m_HeCoreMass; }                                                    // Default is NO-OP
     virtual double          CalculateHeCoreMassOnPhase()                                                        { return m_HeCoreMass; }                                                    // Default is NO-OP
 
-            double          CalculateHeRateConstant()                                                           { return HE_RATE_CONSTANT; }                                                // Only >= CHeB stars need AHe, but no drama if other stars calculate (retrieve it) - it's only a constant
-            double          CalculateHHeRateConstant()                                                          { return HHE_RATE_CONSTANT; }                                               // Only TPAGB stars need AHHe, but no drama if other stars calculate (retrieve it) - it's only a constant
+    static  double          CalculateHeRateConstant_Static()                                                    { return HE_RATE_CONSTANT; }                                                // Only >= CHeB stars need AHe, but no drama if other stars calculate (retrieve it) - it's only a constant (we could just use the constant inline...)
+    static  double          CalculateHHeRateConstant_Static()                                                   { return HHE_RATE_CONSTANT; }                                               // Only TPAGB stars need AHHe, but no drama if other stars calculate (retrieve it) - it's only a constant (we could just use the constant inline...)
 
     static  double          CalculateInitialEnvelopeMass_Static(const double p_Mass);
 
@@ -470,6 +479,7 @@ protected:
     virtual double          CalculateRadiusAtPhaseEnd()                                                         { return m_Radius; }                                                        // Default is NO-OP
             double          CalculateRadiusAtZAMS(const double p_MZAMS);
     virtual double          CalculateRadiusOnPhase()                                                            { return m_Radius; }                                                        // Default is NO-OP
+    virtual std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase()                            { return std::make_tuple(CalculateRadiusOnPhase(), m_StellarType); }
 
             void            CalculateRCoefficients(const double p_LogMetallicityXi, DBL_VECTOR &p_RCoefficients);
 

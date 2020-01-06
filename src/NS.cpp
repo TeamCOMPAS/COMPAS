@@ -25,12 +25,12 @@ double NS::CalculateLuminosityOnPhase_Static(const double p_Mass, const double p
  * Calculate Neutron Star radius according to selected equation of state (by commandline option)
  *
  *
- * double CalculateRadiusOnPhase_Static(const double p_Mass)
+ * double CalculateRadiusOnPhaseInKM_Static(const double p_Mass)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Radius of Neutron Star in km
  */
-double NS::CalculateRadiusOnPhase_Static(const double p_Mass) {
+double NS::CalculateRadiusOnPhaseInKM_Static(const double p_Mass) {
 
     double radius;
 
@@ -88,7 +88,7 @@ double NS::CalculateRadiusOnPhase_Static(const double p_Mass) {
  */
 DBL_DBL_DBL NS::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
     double luminosity  = CalculateLuminosityOnPhase_Static(p_Mass, 0.0);                    // Luminosity of Neutron Star as it cools
-    double radius      = CalculateRadiusOnPhase_Static(p_Mass) * KM_TO_RSOL;                // Radius of Neutron Star in km     JR: isn't this actually the radius in RSOL?
+    double radius      = CalculateRadiusOnPhase_Static(p_Mass);                             // Radius of Neutron Star in Rsol
     double temperature = BaseStar::CalculateTemperatureOnPhase_Static(luminosity, radius);  // Temperature of NS
 
     return std::make_tuple(luminosity, radius, temperature);

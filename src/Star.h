@@ -51,7 +51,12 @@ class Star {
 public:
 
     Star();
-    Star(const unsigned long int p_RandomSeed, const double p_MZAMS, const double p_Metallicity, const double p_LBVfactor = 0.0, const double p_WolfRayetFactor = 0.0);
+    Star(const unsigned long int p_RandomSeed, 
+         const double            p_MZAMS, 
+         const double            p_Metallicity, 
+         const DBL_VECTOR        p_KickParameters = {},
+         const double            p_LBVfactor = 0.0, 
+         const double            p_WolfRayetFactor = 0.0);
     Star(const Star& p_Star);
     Star& operator = (const Star& p_Star);
 
@@ -80,7 +85,6 @@ public:
     bool                        ExperiencedPISN() const                                                                     { return m_Star->ExperiencedPISN() ; }
     bool                        ExperiencedPPISN() const                                                                    { return m_Star->ExperiencedPPISN(); }
     bool                        ExperiencedRunaway() const                                                                  { return m_Star->ExperiencedRunaway(); }
-    bool                        ExperiencedSN() const                                                                       { return m_Star->ExperiencedSN(); }
     bool                        ExperiencedUSSN() const                                                                     { return m_Star->ExperiencedUSSN(); }
     double                      HeCoreMass() const                                                                          { return m_Star->HeCoreMass(); }
     bool                        IsCCSN() const                                                                              { return m_Star->IsCCSN(); }
@@ -90,7 +94,6 @@ public:
     bool                        IsOneOf(STELLAR_TYPE_LIST p_List) const                                                     { return m_Star->IsOneOf(p_List); }
     bool                        IsPISN() const                                                                              { return m_Star->IsPISN(); }
     bool                        IsPPISN() const                                                                             { return m_Star->IsPPISN(); }
-    bool                        IsSN() const                                                                                { return m_Star->IsSN(); }
     bool                        IsUSSN() const                                                                              { return m_Star->IsUSSN(); }
     double                      Lambda_Fixed() const                                                                        { return m_Star->Lambda_Fixed(); }
     double                      Lambda_Loveridge() const                                                                    { return m_Star->Lambda_Loveridge(); }
@@ -114,6 +117,7 @@ public:
     double                      SN_Phi() const                                                                              { return m_Star->SN_Phi(); }
     double                      SN_Theta() const                                                                            { return m_Star->SN_Theta(); }
     double                      SN_TrueAnomaly() const                                                                      { return m_Star->SN_TrueAnomaly(); }
+    SN_EVENT                    SN_Type() const                                                                             { return m_Star->SN_Type(); }
     COMPAS_VARIABLE             StellarPropertyValue(const T_ANY_PROPERTY p_Property) const                                 { return m_Star->StellarPropertyValue(p_Property); }
     double                      Temperature() const                                                                         { return m_Star->Temperature(); }
     double                      ThermalTimescale() const                                                                    { return m_Star->ThermalTimescale(); }
@@ -179,7 +183,7 @@ public:
 
     void            CalculateZetas()                                                                            { m_Star->CalculateZetas(); }
 
-    void            CheckRunaway(const bool p_Disbound, const bool p_Survived)                                  { m_Star->CheckRunaway(p_Disbound, p_Survived); }
+    void            CheckRunaway(const bool p_Unbound)                                                          { m_Star->CheckRunaway(p_Unbound); }
 
     void            ClearCurrentSNEvent()                                                                       { m_Star->ClearCurrentSNEvent(); }
 
@@ -209,7 +213,6 @@ public:
     void            SaveState();
 
     void            SetSNCurrentEvent(const SN_EVENT p_SNEvent)                                                 { m_Star->SetSNCurrentEvent(p_SNEvent); }
-
     void            SetSNPastEvent(const SN_EVENT p_SNEvent)                                                    { m_Star->SetSNPastEvent(p_SNEvent); }
 
     void            SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);

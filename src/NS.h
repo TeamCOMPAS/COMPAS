@@ -33,7 +33,8 @@ public:
 
     static  double          CalculatePulsarBirthSpinPeriod_Static();
 
-    static  double          CalculateRadiusOnPhase_Static(const double p_Mass);
+    static  double          CalculateRadiusOnPhaseInKM_Static(const double p_Mass);                                                                                 // Radius on phase in km
+    static  double          CalculateRadiusOnPhase_Static(const double p_Mass)      { return CalculateRadiusOnPhaseInKM_Static(p_Mass) * KM_TO_RSOL; }              // Radius on phase in Rsol
 
     static  double          CalculateRemnantMass_Static(const double p_CoreMass)    { return 1.17 + (0.09 * p_CoreMass); }                                          // Hurley et al., eq 92
 
@@ -50,11 +51,13 @@ protected:
     // member functions - alphabetically
             void            CalculateAndSetPulsarParameters();
 
-            double          CalculateCOCoreMassOnPhase()                            { return m_Mass; }                                                              // return m_Mass
+            double          CalculateCOCoreMassOnPhase()                            { return m_Mass; }                                                              // Return m_Mass
 
             double          CalculateConvergedMassStepZetaThermal()                 { return 1.0; }                                                                 // For NS & BH  JR: todo: check this - BH seems to be different...
 
-            double          CalculateHeCoreMassOnPhase()                            { return m_Mass; }                                                              // return m_Mass
+            double          CalculateHeCoreMassOnPhase()                            { return m_Mass; }                                                              // Return m_Mass
+
+            double          CalculateInitialSupernovaMass()                         { return GiantBranch::CalculateInitialSupernovaMass(); }                        // Use GiantBranch
 
             double          CalculateLuminosityOnPhase()                            { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age); }                    // Use class member variables
 
@@ -65,6 +68,8 @@ protected:
     static  double          CalculateMomentOfInertia_Static(const double p_Mass, const double p_Radius);
 
     static  double          CalculatePulsarBirthMagneticField_Static();
+
+            double          CalculateRadiusOnPhase()                                { return CalculateRadiusOnPhase_Static(m_Mass); }                               // Use class member variables - returns radius in Rsol
 
     static  double          CalculateSpinDownRate_Static(const double p_Omega,
                                                          const double p_MomentOfInteria,
@@ -79,6 +84,7 @@ protected:
                                                        const double p_Stepsize,
                                                        const double p_MassGainPerTimeStep,
                                                        const double p_Epsilon);
+            STELLAR_TYPE    ResolveSupernova()                                      { return BaseStar::ResolveSupernova(); }                                        // Default to BaseStar
 
             bool            ShouldEvolveOnPhase()                                   { return true; }                                                                // Always
             bool            ShouldSkipPhase()                                       { return false; }                                                               // Don't skip

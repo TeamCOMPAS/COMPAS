@@ -37,14 +37,16 @@ public:
 
     BinaryStar(const AIS &p_AIS, const long int p_Id = -1l);
 
-    BinaryStar(const AIS     &p_AIS,
-               const double   p_Mass1,
-               const double   p_Mass2,
-               const double   p_Metallicity1,
-               const double   p_Metallicity2,
-               const double   p_SemiMajorAxis,
-               const double   p_Eccentricity,
-               const long int p_Id = -1l);
+    BinaryStar(const AIS       &p_AIS,
+               const double     p_Mass1,
+               const double     p_Mass2,
+               const double     p_Metallicity1,
+               const double     p_Metallicity2,
+               const double     p_SemiMajorAxis,
+               const double     p_Eccentricity,
+               const DBL_VECTOR p_KickParameters1,
+               const DBL_VECTOR p_KickParameters2,
+               const long int   p_Id = -1l);
 
 
     // Copy constructor
@@ -63,8 +65,8 @@ public:
 
         if (this != &p_Star) {                                                                  // make sure we're not not copying ourselves...
 
-            m_ObjectId                       = globalObjectId++;                                // get unique object id (don't copy source)
-            m_ObjectType                     = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;            // can only copy from BINARY_CONSTITUENT_STAR
+            m_ObjectId   = globalObjectId++;                                                    // get unique object id (don't copy source)
+            m_ObjectType = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;                                // can only copy from BINARY_CONSTITUENT_STAR
 
             delete m_BinaryStar;                                                                // delete existing
             m_BinaryStar     = new BaseBinaryStar(*(p_Star.m_BinaryStar));                      // copy underlying BaseBinaryStar
@@ -85,7 +87,8 @@ public:
 
 
     // member functions
-    EVOLUTION_STATUS    Evolve(const int p_Index)   { return m_BinaryStar->Evolve(p_Index); }
+    long int            Id()                        { return m_BinaryStar->Id(); }
+    EVOLUTION_STATUS    Evolve()                    { return m_BinaryStar->Evolve(); }
     bool                RevertState();
     void                SaveState();
     STELLAR_TYPE        Star1InitialType()          { return m_BinaryStar->InitialStellarType1(); }
