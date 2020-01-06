@@ -36,7 +36,7 @@ protected:
 
     // member functions
 
-    static double       CalculateInitialSupernovaMass_Static()                  { return 5.0; }                                                                 // Force ONeWD to ccSN, 5.0 doesn't change a physical parameter of the star.
+           double       CalculateInitialSupernovaMass()                         { return 5.0; }                                                                 // Force ONeWD to ccSN, 5.0 doesn't change a physical parameter of the star.
 
            double       CalculateLuminosityOnPhase(const double p_Mass,
                                                    const double p_Time,
@@ -46,7 +46,11 @@ protected:
 
            STELLAR_TYPE EvolveToNextPhase()                                     { return BaseStar::EvolveToNextPhase(); }                                       // Default to BaseStar
 
-           bool         ShouldEvolveOnPhase()                                   { return (m_Mass <= MCH); }                                                     // Evolve on phase unless mass > Chandrasekhar mass
+           bool         IsSupernova()                                           { return (utils::Compare(m_Mass, MCH) > 0); }                                   // Going supernova if mass large enough
+
+           STELLAR_TYPE ResolveSupernova()                                      { return GiantBranch::ResolveSupernova(); }                                     // Use GiantBranch
+
+           bool         ShouldEvolveOnPhase()                                   { return (utils::Compare(m_Mass, MCH) <= 0); }                                  // Evolve on phase unless mass > Chandrasekhar mass
            bool         ShouldSkipPhase()                                       { return false; }                                                               // Never skip HeMS phase
 
 };

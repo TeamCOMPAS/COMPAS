@@ -83,6 +83,8 @@ protected:
 
     double          CalculateRadiusOnPhase(const double p_Mass)                                         { return CalculateRadiusOnPhase_Static(p_Mass); }
     double          CalculateRadiusOnPhase()                                                            { return CalculateRadiusOnPhase(m_Mass); }                                      // Use class member variables
+    std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase()                            { return BaseStar::CalculateRadiusAndStellarTypeOnPhase(); }
+
 
     double          CalculateTauOnPhase()                                                               { return m_Tau; }                                                               // NO-OP
 
@@ -104,7 +106,7 @@ protected:
                                                                                                           SHOW_WARN(m_Error);                                                           // Warn that an error occurred
                                                                                                           return 0.0; }                                                                 // Should never be called...
 
-    void            CheckRunaway(const bool p_Disbound, const bool p_Survived) { }                                                                                                      // NO-OP
+    void            CheckRunaway(const bool p_Unbound) { }                                                                                                      // NO-OP
 
     double          ChooseTimestep(const double p_Time);
 

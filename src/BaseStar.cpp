@@ -24,7 +24,12 @@ BaseStar::BaseStar() {
 }
 
 
-BaseStar::BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, const double p_Metallicity, const double p_LBVfactor, const double p_WolfRayetFactor) {
+BaseStar::BaseStar(const unsigned long int p_RandomSeed, 
+                   const double            p_MZAMS, 
+                   const double            p_Metallicity, 
+                   const DBL_VECTOR        p_KickParameters,
+                   const double            p_LBVfactor, 
+                   const double            p_WolfRayetFactor) {
 
     // initialise member variables
 
@@ -38,6 +43,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, c
     m_CHE                 = false;                                      // initially
     
     // Initialise member variables from input parameters
+    // (kick parameters initialised below - see m_SupernovaDetails)
     m_RandomSeed          = p_RandomSeed;
     m_MZAMS               = p_MZAMS;
     m_Metallicity         = std::min(std::max(p_Metallicity, 0.0), 1.0);
@@ -181,9 +187,11 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, c
     m_BindingEnergies.kruckow                  = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // Supernova detais
-    m_SupernovaDetails.uRand                   = RAND->Random();
-    m_SupernovaDetails.events.now              = SN_EVENT::NONE;
-    m_SupernovaDetails.events.past             = {};
+
+    m_SupernovaDetails.initialKickParameters   = p_KickParameters;
+
+    m_SupernovaDetails.events.current          = SN_EVENT::NONE;
+    m_SupernovaDetails.events.past             = SN_EVENT::NONE;
 
     m_SupernovaDetails.coreMassAtCOFormation   = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_SupernovaDetails.COCoreMassAtCOFormation = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -196,14 +204,27 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed, const double p_MZAMS, c
     m_SupernovaDetails.hydrogenContent         = HYDROGEN_CONTENT::RICH;
     m_SupernovaDetails.fallbackFraction        = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_SupernovaDetails.meanAnomaly             = RAND->Random(0.0, _2_PI);
     m_SupernovaDetails.eccentricAnomaly        = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_SupernovaDetails.trueAnomaly             = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_SupernovaDetails.supernovaState          = SN_STATE::NONE;
 
-    std::tie(m_SupernovaDetails.theta, m_SupernovaDetails.phi) = DrawKickDirection();
+    if (p_KickParameters.size() == 0) {
+        m_SupernovaDetails.uRand               = RAND->Random();
+        std::tie(m_SupernovaDetails.theta, m_SupernovaDetails.phi) = DrawKickDirection();
+        m_SupernovaDetails.meanAnomaly         = RAND->Random(0.0, _2_PI);
+    }
+    else {
+        m_SupernovaDetails.uRand               = DEFAULT_INITIAL_DOUBLE_VALUE;
+        m_SupernovaDetails.theta               = p_KickParameters[1];           // JR todo: vector index '1' should be a constant
+        m_SupernovaDetails.phi                 = p_KickParameters[2];           // JR todo: vector index '2' should be a constant
+        m_SupernovaDetails.meanAnomaly         = p_KickParameters[3];           // JR todo: vector index '3' should be a constant
+    }
 
+    // Calculates the Baryonic mass for which the GravitationalRemnantMass will be equal to the maximumNeutronStarMass (inverse of SolveQuadratic())
+    // needed to decide whether to calculate Fryer+2012 for Neutron Star or Black Hole in GiantBranch::CalculateGravitationalRemnantMass()
+    m_BaryonicMassOfMaximumNeutronStarMass      = (0.075 * OPTIONS->MaximumNeutronStarMass() * OPTIONS->MaximumNeutronStarMass()) + OPTIONS->MaximumNeutronStarMass();
+    // calculate only once for entire simulation of N binaries in the future.
 
     // Pulsar details
     m_PulsarDetails.magneticField              = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -296,9 +317,12 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
             case ANY_STAR_PROPERTY::ENV_MASS:                                           value = EnvMass();                                              break;
             case ANY_STAR_PROPERTY::ERROR:                                              value = Error();                                                break;
+            case ANY_STAR_PROPERTY::EXPERIENCED_CCSN:                                   value = ExperiencedCCSN();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_ECSN:                                   value = ExperiencedECSN();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_PISN:                                   value = ExperiencedPISN();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_PPISN:                                  value = ExperiencedPPISN();                                     break;
+            case ANY_STAR_PROPERTY::EXPERIENCED_SN_TYPE:                                value = ExperiencedSN_Type();                                   break;
+            case ANY_STAR_PROPERTY::EXPERIENCED_USSN:                                   value = ExperiencedUSSN();                                      break;
             case ANY_STAR_PROPERTY::FALLBACK_FRACTION:                                  value = SN_FallbackFraction();                                  break;
             case ANY_STAR_PROPERTY::HE_CORE_MASS:                                       value = HeCoreMass();                                           break;
             case ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_HeCoreMassAtCOFormation();                           break;
@@ -307,8 +331,10 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::ID:                                                 value = ObjectId();                                             break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE:                               value = InitialStellarType();                                   break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
+            case ANY_STAR_PROPERTY::IS_CCSN:                                            value = IsCCSN();                                               break;
             case ANY_STAR_PROPERTY::IS_ECSN:                                            value = IsECSN();                                               break;
-            case ANY_STAR_PROPERTY::IS_SN:                                              value = IsSN();                                                 break;
+            case ANY_STAR_PROPERTY::IS_PISN:                                            value = IsPISN();                                               break;
+            case ANY_STAR_PROPERTY::IS_PPISN:                                           value = IsPPISN();                                              break;
             case ANY_STAR_PROPERTY::IS_USSN:                                            value = IsUSSN();                                               break;
             case ANY_STAR_PROPERTY::KICK_VELOCITY:                                      value = SN_KickVelocity();                                      break;
             case ANY_STAR_PROPERTY::LAMBDA_DEWI:                                        value = Lambda_Dewi();                                          break;
@@ -342,6 +368,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::RLOF_ONTO_NS:                                       value = ExperiencedRLOFOntoNS();                                break;
             case ANY_STAR_PROPERTY::RUNAWAY:                                            value = ExperiencedRunaway();                                   break;
             case ANY_STAR_PROPERTY::RZAMS:                                              value = RZAMS();                                                break;
+            case ANY_STAR_PROPERTY::SN_TYPE:                                            value = SN_Type();                                              break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE:                                       value = StellarType();                                          break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE_NAME:                                  value = STELLAR_TYPE_LABEL.at(StellarType());                   break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE_PREV:                                  value = StellarTypePrev();                                      break;
@@ -1145,7 +1172,7 @@ double BaseStar::CalculateZetaNuclear(const double p_DeltaTime) {
  */
 double BaseStar::CalculateConvergedTimestepZetaNuclear() {
 
-    double timestep  = -ZETA_NUCLEAR_TIMESTEP;                                                                                  // timestep
+    double timestep  = ZETA_NUCLEAR_TIMESTEP;                                                                                   // timestep
     double tolerance = 1.0 - ZETA_NUCLEAR_TOLERANCE;                                                                            // max change allowed in zeta nuclear between iterations - signals convergence
 
     double thisZetaNuclear;                                                                                                     // value of mass-radius exponent calculated at current iteration
@@ -1205,8 +1232,7 @@ double BaseStar::CalculateZetaThermal(double p_PercentageMassChange) {
     double massAfterMassLoss   = starCopy->Mass() + deltaMass;                                                                  // mass after (just) fake mass change
     starCopy->UpdateAttributesAndAgeOneTimestep(starCopy->Mass() * p_PercentageMassChange / 100.0, 0.0, 0.0, false);            // apply fake mass change and recalculate attributes of star
     double radiusAfterMassLoss = starCopy->m_Radius;                                                                            // radius after fake mass change
-
-    delete starCopy; starCopy = nullptr;
+    delete starCopy; starCopy  = nullptr;
 
     SHOW_ERROR_IF(utils::Compare(radiusAfterMassLoss, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "After fake mass change");    // show error if radius <= 0
     SHOW_ERROR_IF(utils::Compare(massAfterMassLoss,   0.0) <= 0, ERROR::MASS_NOT_POSITIVE_ONCE,   "After fake mass change");    // show error if mass <= 0
@@ -1306,6 +1332,7 @@ double BaseStar::CalculateZadiabaticSPH(const double p_CoreMass) {
  * @param   [IN]    p_EnvMass                   Envelope mass of the star (Msol)
  */
 void BaseStar::CalculateLambdas(const double p_EnvMass) {
+
     m_Lambdas.fixed          = OPTIONS->CommonEnvelopeLambda();
 	m_Lambdas.nanjing        = CalculateLambdaNanjing();
 	m_Lambdas.loveridge      = CalculateLambdaLoveridgeEnergyFormalism(p_EnvMass, false);     // JR: todo: (1) arg 2 (ismassloss) is ignored
@@ -1950,7 +1977,6 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
 void BaseStar::ResolveMassLoss() {
 
     if (OPTIONS->UseMassLoss()) {
-
         m_Mass = CalculateMassLossValues(true, true);                           // calculate new values assuming mass loss applied
 
         UpdateInitialMass();                                                    // update initial mass (MS, HG & HeMS)  JR: todo: fix this kludge one day - mass0 is overloaded, and isn't always "initial mass"
@@ -2826,8 +2852,6 @@ double BaseStar::DrawSNKickVelocity(const double p_Sigma,
 
         case KICK_VELOCITY_DISTRIBUTION::MULLER2016:                                            // MULLER2016
             kickVelocity = DrawRemnantKickMuller(p_COCoreMass);
-
-        return kickVelocity;
             break;
 
         case KICK_VELOCITY_DISTRIBUTION::MULLER2016MAXWELLIAN: {                                // MULLER2016-MAXWELLIAN
@@ -2859,62 +2883,77 @@ double BaseStar::DrawSNKickVelocity(const double p_Sigma,
  * @return                                      Kick velocity
  */
 double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass) {
-
     ERROR error = ERROR::NONE;
-
-    double sigma;
-    switch (m_SupernovaDetails.events.now) {                                                    // what type of supernova event happening now?
-
-		case SN_EVENT::ECSN:                                                                    // ALEJANDRO - 04/05/2017 - Allow for ECSN to have kicks different than zero. Still, should be low kicks. Default set to zero.  (JR: todo: check default = 30.0?)
-			sigma = OPTIONS->KickVelocityDistributionSigmaForECSN();
-            break;
-
-		case SN_EVENT::USSN:                                                                    // ALEJANDRO - 25/08/2017 - Allow for USSN to have a separate kick.
-			sigma = OPTIONS->KickVelocityDistributionSigmaForUSSN();
-            break;
-
-		case SN_EVENT::SN:                                                                      // draw a random kick velocity from the user selected distribution - sigma based on whether compact object is a NS or BH
-
-            switch (m_StellarType) {                                                            // which stellar type?
-                case STELLAR_TYPE::NEUTRON_STAR:
-                    sigma = OPTIONS->KickVelocityDistributionSigmaCCSN_NS();
-                    break;
-
-                case STELLAR_TYPE::BLACK_HOLE:
-                    sigma = OPTIONS->KickVelocityDistributionSigmaCCSN_BH();
-                    break;
-
-                default:                                                                        // unknown stellar type - shouldn't happen
-                    error = ERROR::UNKNOWN_STELLAR_TYPE;
-            }
-            break;
-
-        case SN_EVENT::NONE:                                                                    // no supernova event - shouldn't be here...
-            error = ERROR::EXPECTED_SN_EVENT;
-            break;
-
-		default:                                                                                // unknown supernova event - shouldn't happen
-            error = ERROR::UNKNOWN_SN_EVENT;
-	}
-
 	double vK;
-	if (error == ERROR::NONE) {                                                                 // check for errors
-                                                                                                // no errors - draw kick velocity
-        vK = DrawSNKickVelocity(sigma, m_SupernovaDetails.COCoreMassAtCOFormation, m_SupernovaDetails.uRand, p_EjectaMass, p_RemnantMass);
-        m_SupernovaDetails.drawnKickVelocity = vK;                                              // drawn kick velocity
 
-        if (m_SupernovaDetails.events.now == SN_EVENT::SN) {                                    // vanilla supernova event this timestep?
-            vK = ApplyBlackHoleKicks(vK, m_SupernovaDetails.fallbackFraction, m_Mass);          // re-weight kicks by mass of remnant according to user specified black hole kicks option
-        }
-        else {                                                                                  // otherwise
-            m_SupernovaDetails.fallbackFraction = 0.0;                                          // set fallback fraction to zero
-        }
-        m_SupernovaDetails.kickVelocity = vK;                                                   // updated kick velocity
+    if (m_SupernovaDetails.initialKickParameters.size() > 0) {                                      // check for user-supplied kick parameters
+        vK = m_SupernovaDetails.initialKickParameters[0];                                           // have it - use it     JR todo: vector index '0' should be a constant
     }
-    else {                                                                                      // error occurred
-        vK = 0.0;                                                                               // set kick velocity to zero
-        m_Error = error;                                                                        // set error value
-        SHOW_WARN(m_Error);                                                                     // warn that an error occurred
+    else {
+    
+        double sigma;
+        switch (utils::SNEventType(m_SupernovaDetails.events.current)) {                            // what type of supernova event happening now?
+
+		    case SN_EVENT::ECSN:                                                                    // ALEJANDRO - 04/05/2017 - Allow for ECSN to have kicks different than zero. Still, should be low kicks. Default set to zero.  (JR: todo: check default = 30.0?)
+			    sigma = OPTIONS->KickVelocityDistributionSigmaForECSN();
+                break;
+
+		    case SN_EVENT::USSN:                                                                    // ALEJANDRO - 25/08/2017 - Allow for USSN to have a separate kick.
+			    sigma = OPTIONS->KickVelocityDistributionSigmaForUSSN();
+                break;
+
+		    case SN_EVENT::CCSN:                                                                    // draw a random kick velocity from the user selected distribution - sigma based on whether compact object is a NS or BH
+
+                switch (m_StellarType) {                                                            // which stellar type?
+                    case STELLAR_TYPE::NEUTRON_STAR:
+                        sigma = OPTIONS->KickVelocityDistributionSigmaCCSN_NS();
+                        break;
+
+                    case STELLAR_TYPE::BLACK_HOLE:
+                        sigma = OPTIONS->KickVelocityDistributionSigmaCCSN_BH();
+                        break;
+
+                    default:                                                                        // unknown stellar type - shouldn't happen
+                        error = ERROR::UNKNOWN_STELLAR_TYPE;
+                }
+
+                break;
+
+            case SN_EVENT::PISN:                                                                    // not expected here
+            case SN_EVENT::PPISN:                                                                   // not expected here
+                error = ERROR::UNEXPECTED_SN_EVENT;
+                break;
+
+            case SN_EVENT::NONE:                                                                    // no supernova event - shouldn't be here...
+                error = ERROR::EXPECTED_SN_EVENT;
+                break;
+
+		    default:                                                                                // unknown supernova event - shouldn't happen
+                error = ERROR::UNKNOWN_SN_EVENT;
+	    }
+    
+	    if (error == ERROR::NONE) {                                                                 // check for errors
+                                                                                                    // no errors - draw kick velocity
+            vK = DrawSNKickVelocity(sigma, m_SupernovaDetails.COCoreMassAtCOFormation, m_SupernovaDetails.uRand, p_EjectaMass, p_RemnantMass);
+        }
+    }
+
+	if (error == ERROR::NONE) {                                                                     // check for errors
+
+        m_SupernovaDetails.drawnKickVelocity = vK;                                                  // drawn kick velocity
+
+        if (utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::CCSN) {              // core-collapse supernova event this timestep?
+            vK = ApplyBlackHoleKicks(vK, m_SupernovaDetails.fallbackFraction, m_Mass);              // re-weight kicks by mass of remnant according to user specified black hole kicks option
+        }
+        else {                                                                                      // otherwise
+            m_SupernovaDetails.fallbackFraction = 0.0;                                              // set fallback fraction to zero
+        }
+        m_SupernovaDetails.kickVelocity = vK;                                                       // updated kick velocity
+    }
+    else {                                                                                          // error occurred
+        vK = 0.0;                                                                                   // set kick velocity to zero
+        m_Error = error;                                                                            // set error value
+        SHOW_WARN(m_Error);                                                                         // warn that an error occurred
     }
 
     return vK;
@@ -2953,7 +2992,7 @@ DBL_DBL BaseStar::DrawKickDirection() {
     switch (OPTIONS->KickDirectionDistribution()) {                                                             // which kick direction distribution?
 
         case KICK_DIRECTION_DISTRIBUTION::ISOTROPIC:                                                            // ISOTROPIC: Draw theta and phi isotropically
-            theta = acos(1.0 - (2.0 * RAND->Random())) - M_PI_2;
+            theta = acos(1.0 - (2.0 * RAND->Random())) - (4*std::atan(1.0) / 2.0);//M_PI_2;
             phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
             break;
 
@@ -3006,23 +3045,6 @@ DBL_DBL BaseStar::DrawKickDirection() {
     }
 
     return std::make_tuple(theta, phi);
-}
-
-
-/*
- * Check whether the star is a runaway companion to a supernova
- * (only for stars that are constituents of binary stars)
- *
- * For stellar types up to and including HeGB
- *
- *
- * void CheckRunaway(const bool p_Disbound, const bool p_Survived)
- *
- * @param   [IN]    p_Disbound                  Indicates whether the binary star is disbound
- * @param   [IN]    p_Survived                  Indicates whether this star survived the supernova event
- */
-void BaseStar::CheckRunaway(const bool p_Disbound, const bool p_Survived) {
-    if (p_Disbound && !p_Survived) m_SupernovaDetails.events.past.push_back(SN_EVENT::RUNAWAY);            // flag that remains true for the history of the star
 }
 
 
@@ -3223,7 +3245,6 @@ double BaseStar::CalculateTimestep() {
     CalculateTimescales();                                                              // calculate timescales
 
     double dt = ChooseTimestep(m_Age);
-
     if (utils::Compare(TIMESTEP_REDUCTION_FACTOR, 1.0) != 0) {                          // timestep reduction factor == 1.0?
         if (!IsOneOf({ STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07 })) {            // no - check stellar type
             dt /= TIMESTEP_REDUCTION_FACTOR;                                            // apply timestep reduction factor
@@ -3240,10 +3261,10 @@ double BaseStar::CalculateTimestep() {
  * Will apply mass changes to m_Mass and/or m_Mass0.  Note discussion in documentation for
  * UpdateAttributes() in Star.cpp - changing m_Mass0 is a bit of a kludge and should be fixed.
  *
- * If the timestep (p_DeltaTime) is > 0 then m_Mass and m_Radius will be saved as m_MassPrev and m_rediusPrev respectively.
+ * If the timestep (p_DeltaTime) is > 0 then m_Mass and m_Radius will be saved as m_MassPrev and m_RadiusPrev respectively.
  *
  *
- * void UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMass, const double p_DeltaMass0)
+ * void UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMass, const double p_DeltaMass0, const double p_DeltaTime)
  *
  * @param   [IN]    p_DeltaMass                 The change in mass to apply in Msol
  * @param   [IN]    p_DeltaMass0                The change in mass0 to apply in Msol
@@ -3255,7 +3276,7 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
     if (utils::Compare(p_DeltaMass0, 0.0) != 0) { m_Mass0 = max(0.0, m_Mass0 + p_DeltaMass0); }     // update mass0 as required (only change if delta != 0 with tolerance) and prevent -ve
 
     // record some current values before they are (possibly) changed by evolution
-    if (utils::Compare(p_DeltaTime, 0.0) > 0 ) {                                                    // only record if dt > 0 with tolerance - be careful here, dt can be very small  JR: todo: think about not using Compare() here
+    if (p_DeltaTime > 0.0) {                                                                        // don't use utils::Compare() here
         m_StellarTypePrev = m_StellarType;
         m_DtPrev          = m_Dt;
         m_MassPrev        = m_Mass;
@@ -3339,13 +3360,13 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
                                                          const bool   p_ForceRecalculate) {
     STELLAR_TYPE stellarType = m_StellarType;                                               // default is no change
 
+
     UpdateAttributesAndAgeOneTimestepPreamble(p_DeltaMass, p_DeltaMass0, p_DeltaTime);      // apply mass changes and save current values if required
 
     if (ShouldBeMasslessRemnant()) {                                                        // ALEJANDRO - 02/12/2016 - Attempt to fix updating the star if it lost all of its mass
-        stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
+        stellarType = STELLAR_TYPE::MASSLESS_REMNANT;                                       // JR: should also pik up already massless remnant
     }
     else {
-
         stellarType = ResolveSupernova();                                                   // handle supernova     JR: moved this to start of timestep
         if (stellarType == m_StellarType) {                                                 // still on phase?
 
@@ -3384,7 +3405,7 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
  */
 void BaseStar::AgeOneTimestepPreamble(const double p_DeltaTime) {
 
-    if (p_DeltaTime > 0.0) {                        // if dt > 0
+    if (p_DeltaTime > 0.0) {                        // if dt > 0    (don't use utils::Compare() here)
         m_Time += p_DeltaTime;                      // advance physical simulation time
         m_Age  += p_DeltaTime;                      // advance age of star
         m_Dt    = p_DeltaTime;                      // set timestep
@@ -3406,7 +3427,7 @@ STELLAR_TYPE BaseStar::EvolveOnPhase() {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (ShouldEvolveOnPhase()) {                                // Evolve timestep on phase
+    if (ShouldEvolveOnPhase()) {                                                    // Evolve timestep on phase
 
         m_Tau         = CalculateTauOnPhase();
 
@@ -3415,7 +3436,8 @@ STELLAR_TYPE BaseStar::EvolveOnPhase() {
         m_HeCoreMass  = CalculateHeCoreMassOnPhase();
 
         m_Luminosity  = CalculateLuminosityOnPhase();
-        m_Radius      = CalculateRadiusOnPhase();
+
+        std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // Radius and possibly new stellar type
 
         ResolveEnvelopeMassOnPhase(m_Tau);
 
@@ -3425,7 +3447,10 @@ STELLAR_TYPE BaseStar::EvolveOnPhase() {
 
         m_Temperature = CalculateTemperatureOnPhase();
 
-        stellarType   = ResolveEnvelopeLoss();                  // Resolve envelope loss if it occurs
+        STELLAR_TYPE thisStellarType = ResolveEnvelopeLoss();                       // Resolve envelope loss if it occurs - possibly new stellar type
+        if (thisStellarType != m_StellarType) {                                     // thisStellarType overrides stellarType (from CalculateRadiusAndStellarTypeOnPhase())
+            stellarType = thisStellarType;
+        }
     }
 
     return stellarType;

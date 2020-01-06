@@ -56,7 +56,6 @@ void HeHG::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
  */
 void HeHG::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) {
 #define gbParams(x) p_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
-
     GiantBranch::CalculateGBParams(p_Mass, p_GBParams);                         // calculate common values (actually, all)
 
     // recalculate HeHG specific values
@@ -64,10 +63,76 @@ void HeHG::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) {
 	gbParams(B)      = CalculateCoreMass_Luminosity_B_Static();
 	gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass);
 
+    gbParams(Mx)     = GiantBranch::CalculateCoreMass_Luminosity_Mx_Static(p_GBParams);      // depends on B, D, p & q - recalculate if any of those are changed
+    gbParams(Lx)     = GiantBranch::CalculateCoreMass_Luminosity_Lx_Static(p_GBParams);      // JR: Added this - depends on B, D, p, q & Mx - recalculate if any of those are changed
+
 	gbParams(McBAGB) = CalculateCoreMassAtBAGB();
 	gbParams(McBGB)  = CalculateCoreMassAtBGB(p_Mass, p_GBParams);
 
     gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));   // JR: Added this
+
+#undef gbParams
+}
+
+
+/*
+ * Calculate Giant Branch (GB) parameters per Hurley et al. 2000
+ *
+ * Giant Branch Parameters depend on a star's mass, so this needs to be called at least each timestep
+ *
+ * Vectors are passed by reference here for performance - preference would be to pass const& and
+ * pass modified value back by functional return, but this way is faster - and this function is
+ * called many, many times.
+ *
+ *
+ * This function exists to facilitate the calculation of gbParams in EAGB::ResolveEnvelopeLoss() for the
+ * stellar type to which the star will evolve.  The calculations of some of the stellar attributes there
+ * depend on new gbParams.  
+ * JR: This really needs to be revisited one day - these calculations should really be performed after
+ *     switching to the new stellar type, but other calculations are done (in the legacy code) before the 
+ *     switch (see evolveOneTimestep() in star.cpp for EAGB stars in the legacy code).
+ *
+ *
+ * void CalculateGBParams_Static(const double      p_Mass0, 
+ *                               const double      p_Mass, 
+ *                               const double      p_LogMetallicityXi, 
+ *                               const DBL_VECTOR &p_MassCutoffs, 
+ *                               const DBL_VECTOR &p_AnCoefficients, 
+ *                               const DBL_VECTOR &p_BnCoefficients,
+ *                                     DBL_VECTOR &p_GBParams)
+ *
+ * @param   [IN]        p_Mass0                 Mass0 in Msol
+ * @param   [IN]        p_Mass                  Mass in Msol
+ * @param   [IN]        p_LogMetallicityXi      log10(Metallicity / Zsol) - called xi in Hurley et al 2000
+ * @param   [IN]        p_MassCutoffs           Mass cutoffs
+ * @param   [IN]        p_AnCoefficients        a(n) coefficients
+ * @param   [IN]        p_BnCoefficients        b(n) coefficients
+ * @param   [IN/OUT]    p_GBParams              Giant Branch Parameters - calculated here
+ */
+void HeHG::CalculateGBParams_Static(const double      p_Mass0, 
+                                    const double      p_Mass, 
+                                    const double      p_LogMetallicityXi, 
+                                    const DBL_VECTOR &p_MassCutoffs, 
+                                    const DBL_VECTOR &p_AnCoefficients, 
+                                    const DBL_VECTOR &p_BnCoefficients, 
+                                          DBL_VECTOR &p_GBParams) {
+
+#define gbParams(x) p_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
+
+    GiantBranch::CalculateGBParams_Static(p_Mass, p_LogMetallicityXi, p_MassCutoffs, p_AnCoefficients, p_BnCoefficients, p_GBParams);                                     // calculate common values (actually, all)
+
+    // recalculate HeHG specific values
+
+	gbParams(B)      = CalculateCoreMass_Luminosity_B_Static();
+	gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass);
+
+    gbParams(Mx)     = GiantBranch::CalculateCoreMass_Luminosity_Mx_Static(p_GBParams);      // depends on B, D, p & q - recalculate if any of those are changed
+    gbParams(Lx)     = GiantBranch::CalculateCoreMass_Luminosity_Lx_Static(p_GBParams);      // JR: Added this - depends on B, D, p, q & Mx - recalculate if any of those are changed
+
+	gbParams(McBAGB) = p_Mass0;
+	gbParams(McBGB)  = GiantBranch::CalculateCoreMassAtBGB_Static(p_Mass, p_MassCutoffs, p_AnCoefficients, p_GBParams);
+
+    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));               // JR: Added this
 
 #undef gbParams
 }
@@ -107,7 +172,40 @@ double HeHG::CalculateRadiusOnPhase() {
     double R1, R2;
     std::tie(R1, R2) = HeGB::CalculateRadiusOnPhase_Static(m_Mass, m_Luminosity);
 
-    return (utils::Compare(R1, R2) < 0) ? R1 : R2;
+    return std::min(R1, R2);
+}
+
+
+/*
+ * Calculate the giant branch radius for a helium star and determine new stellar type
+ *
+ * Hurley at al. 2000, eqs 85, 86, 87 & 88
+ *
+ * Calls CalculateRadiusOnPhase_Static() and returns the minimum of R1 and R2.  
+ * Returns stellar type to which star should evolve based on radius calculated.
+ *
+ *
+ * std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity)
+ *
+ * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_Luminosity                Luminosity in Lsol
+ * @return                                      Radius on the helium giant branch / post-HeMs
+ */
+std::tuple <double, STELLAR_TYPE> HeHG::CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity) {
+
+    double       radius;
+    STELLAR_TYPE stellarType = m_StellarType;
+
+    double R1, R2;
+    std::tie(R1, R2) = HeGB::CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity);
+
+    radius = std::min(R1, R2);
+    
+    if (utils::Compare(R1, R2) >= 0) {
+        stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH;
+    }
+
+   return std::make_tuple(radius, stellarType);
 }
 
 
@@ -282,8 +380,12 @@ double HeHG::ChooseTimestep(const double p_Time) {
  * @return                                      Boolean flag: true if evolution on this phase should continue, false if not
  */
 bool HeHG::ShouldEvolveOnPhase() {
+#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
+
     double McMax = CalculateMaximumCoreMass(m_Mass);
-    return utils::Compare(m_COCoreMass, McMax) <= 0 || utils::Compare(McMax, CalculateMaximumCoreMassSN()) >= 0;    // Evolve on HeHG phase if McCO <= McMax or McMax >= McSN
+    return utils::Compare(m_COCoreMass, McMax) <= 0 || utils::Compare(McMax, gbParams(McSN)) >= 0;    // Evolve on HeHG phase if McCO <= McMax or McMax >= McSN
+
+#undef gbParams
 }
 
 
@@ -295,7 +397,7 @@ bool HeHG::ShouldEvolveOnPhase() {
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
  *
- * @return                                      Stellar Type to which star shoule evolve after losing envelope
+ * @return                                      Stellar Type to which star should evolve after losing envelope
  */
 STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
 

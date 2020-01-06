@@ -23,17 +23,21 @@ public:
 
     BaseBinaryStar(const AIS &p_AIS, const long int p_Id = -1l);
 
-    BaseBinaryStar(const AIS     &p_AIS,
-                   const double   p_Mass1,
-                   const double   p_Mass2,
-                   const double   p_Metallicity1,
-                   const double   p_Metallicity2,
-                   const double   p_SemiMajorAxis,
-                   const double   p_Eccentricity,
-                   const long int p_Id = -1l);
+    BaseBinaryStar(const AIS       &p_AIS,
+                   const double     p_Mass1,
+                   const double     p_Mass2,
+                   const double     p_Metallicity1,
+                   const double     p_Metallicity2,
+                   const double     p_SemiMajorAxis,
+                   const double     p_Eccentricity,
+                   const DBL_VECTOR p_KickParameters1,
+                   const DBL_VECTOR p_KickParameters2,
+                   const long int   p_Id = -1l);
 
 
     void CopyMemberVariables(const BaseBinaryStar& p_Star) {
+
+        m_Id                               = p_Star.m_Id;
 
         m_Error                            = p_Star.m_Error;
 
@@ -52,7 +56,7 @@ public:
 
         m_CEDetails                        = p_Star.m_CEDetails;
 
-        m_Disbound                         = p_Star.m_Disbound;
+        m_Unbound                          = p_Star.m_Unbound;
 
         m_Dt                               = p_Star.m_Dt;
 
@@ -130,8 +134,6 @@ public:
         m_StellarMergerAtBirth             = p_Star.m_StellarMergerAtBirth;
 
         m_SupernovaState                   = p_Star.m_SupernovaState;
-
-        m_Survived                         = p_Star.m_Survived;
 
         m_SynchronizationTimescale         = p_Star.m_SynchronizationTimescale;
 
@@ -218,6 +220,7 @@ public:
     OBJECT_ID           ObjectId() const                            { return m_ObjectId; }
     OBJECT_TYPE         ObjectType() const                          { return m_ObjectType; }
     STELLAR_TYPE        StellarType() const                         { return m_StellarType; }
+    long int            Id() const                                  { return m_Id; }
 
 
     // getters - alphabetically
@@ -227,7 +230,7 @@ public:
     unsigned int        CEEventCount() const                        { return m_CEDetails.CEEcount; }
 	double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
 	unsigned int        CommonEnvelopeEventCount() const            { return m_CEDetails.CEEcount; }
-    bool                Disbound() const                            { return m_Disbound; }
+    bool                Unbound() const                             { return m_Unbound; }
     bool                DoubleCoreCE() const                        { return m_CEDetails.doubleCoreCE; }
     double              Dt() const                                  { return m_Dt; }
     double              Eccentricity() const                        { return m_Eccentricity; }
@@ -300,7 +303,6 @@ public:
     STELLAR_TYPE        StellarType2PostCEE() const                 { return m_Star2->StellarTypePostCEE(); }
     STELLAR_TYPE        StellarType2PreCEE() const                  { return m_Star2->StellarTypePreCEE(); }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
-    bool                SurvivedSNEvent() const                     { return m_Survived; }
 	double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
     double              SystemicVelocity() const                    { return m_SystemicVelocity; }
     double              Time() const                                { return m_Time; }
@@ -319,7 +321,7 @@ public:
 
     static  double              CalculateRocheLobeRadius_Static(const double p_MassPrimary, const double p_MassSecondary);
 
-            EVOLUTION_STATUS    Evolve(const int p_Index);
+            EVOLUTION_STATUS    Evolve();
 
             COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
 
@@ -331,6 +333,7 @@ private:
     OBJECT_ID    m_ObjectId;                                                                // Instantiated object's unique object id
     OBJECT_TYPE  m_ObjectType;                                                              // Instantiated object's object type
     STELLAR_TYPE m_StellarType;                                                             // Stellar type defined in Hurley et al. 2000
+    long int     m_Id;                                                                      // Id used to name detailed output file - uses p_Id as passed (usually the index number of multiple binaries are being produced)
 
     ERROR m_Error;                                                                          // Records most recent error encountered for this binary
 
@@ -348,7 +351,7 @@ private:
 
 	double              m_CircularizationTimescale;
 
-    bool                m_Disbound;                                                         // Binary disbound?
+    bool                m_Unbound;                                                          // Binary unbound?
 
     double              m_Dt;                                                               // Timestep
 
@@ -427,8 +430,6 @@ private:
 
     SN_STATE            m_SupernovaState;                                                   // Indicates which star (or stars) are undergoing / hove undergone a supernova event
 
-    bool                m_Survived;
-
 	double              m_SynchronizationTimescale;
 
     double              m_SystemicVelocity;                                                 // Post supernova systemic velocity
@@ -488,7 +489,7 @@ private:
     // JR: todo: note in the orginal code the binary orbital velicity was passed in as a parameter but never used - I removed it
 
     void    SetInitialCommonValues(const AIS &p_AIS, const long int p_Id);
-    void    SetRemainingCommonValues(const long int p_Id);
+    void    SetRemainingCommonValues();
 
 
     double  CalculateAngularMomentum(const double p_SemiMajorAxis,
@@ -600,7 +601,7 @@ private:
     void    EvaluateBinary(const double p_Dt);
     void    EvaluateBinaryPreamble();
 
-    void    EvaluateSupernovae();
+    void    EvaluateSupernovae(const bool p_Resolve2ndSN);
 
     void    EvolveOneTimestep(const double p_Dt);
     void    EvolveOneTimestepPreamble(const double p_Dt);
