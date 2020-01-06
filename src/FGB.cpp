@@ -208,8 +208,8 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
             m_Mass       = m_CoreMass;
             m_Mass0      = m_Mass;
             m_COCoreMass = 0.0;
-//            m_Age        = 0.0;
-            m_Age        = ((m_Age - timescales(tHeI)) / timescales(tHe)) * timescales(tHeMS);       // JR: see Hurley et al. 2000, eq 76 and following discussion
+            m_Age        = 0.0;
+//            m_Age        = ((m_Age - timescales(tHeI)) / timescales(tHe)) * timescales(tHeMS);       // JR: see Hurley et al. 2000, eq 76 and following discussion
             m_Radius     = HeMS::CalculateRadiusAtZAMS_Static(m_Mass);
         }
 

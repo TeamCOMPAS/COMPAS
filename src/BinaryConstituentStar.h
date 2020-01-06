@@ -194,7 +194,7 @@ public:
     bool            ExperiencedRLOF() const                                             { return m_RLOFDetails.experiencedRLOF; }
     bool            FastPhaseCaseA() const                                              { return m_FastPhaseCaseA ; }
     bool            IsPrimary() const                                                   { return m_IsPrimary; }
-    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsUSSN(); }
+    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsUSSN() || IsPISN() || IsPPISN(); }
     bool            IsRLOF() const                                                      { return m_RLOFDetails.isRLOF; }
     double          MassLossDiff() const                                                { return m_MassLossDiff; }
     MT_CASE         MassTransferCaseInitial() const                                     { return m_MassTransferCaseInitial; }

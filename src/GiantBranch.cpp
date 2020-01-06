@@ -1145,7 +1145,7 @@ double GiantBranch::CalculateBaryonicRemnantMass(const double p_ProtoMass, doubl
 double GiantBranch::CalculateGravitationalRemnantMass(const double p_BaryonicRemnantMass) {
     // decide whether to calculate GravitationalRemnantMass from Fryer+2012, Eq.13 for Neutron Star or Black Hole 
     // then calculate GravitationalRemnantMass 
-    return (utils::Compare(p_BaryonicRemnantMass, m_baryonicMassOfMaximumNeutronStarMass) < 0) 
+    return (utils::Compare(p_BaryonicRemnantMass, m_BaryonicMassOfMaximumNeutronStarMass) < 0) 
             ? utils::SolveQuadratic(0.075, 1.0, -p_BaryonicRemnantMass)                 // Neutron Star
             : 0.9 * p_BaryonicRemnantMass;                                              // Black Hole
 }
@@ -1386,7 +1386,7 @@ double GiantBranch::CalculateRemnantMassByBelczynski2002(const double p_Mass, co
  *
  * At the end of this function we set the following parameters which are (so far) independent of the
  * ccSN prescriptions (but do depend on the parameters above):
- *      Luminosity, Radius, Temperature, supernova events: now = SN, past = CCSN
+ *      Luminosity, Radius, Temperature, supernova events: current = SN, past = CCSN
  *
  *
  * STELLAR_TYPE IsCoreCollapseSN(const SNE SNEngine)
@@ -1453,7 +1453,7 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
         stellarType = STELLAR_TYPE::NEUTRON_STAR;
     }
 
-    SetSNCurrentEvent(SN_EVENT::CCSN);                                                                      // core-collapse SN happening now
+    SetSNCurrentEvent(SN_EVENT::CCSN);                                                                      // flag core-collapse SN happening now
     SetSNPastEvent(SN_EVENT::CCSN);                                                                         // ... and will be a past event
 
     return stellarType;
@@ -1479,9 +1479,9 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
  */
 STELLAR_TYPE GiantBranch::IsElectronCaptureSN() {
 
-    m_Mass              = MECS_REM;                                                 // defined in constant.h
-    m_Radius            = NS::CalculateRadiusOnPhase_Static(m_Mass) * KM_TO_RSOL;   // neutronStarRadius in km      JR: todo: isn't this actually the radius in RSOL?
-    m_Luminosity        = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);
+    m_Mass       = MECS_REM;                                                        // defined in constant.h
+    m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                       // neutronStarRadius in Rsol
+    m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);
 
     SetSNCurrentEvent(SN_EVENT::ECSN);                                              // electron capture SN happening now
     SetSNPastEvent(SN_EVENT::ECSN);                                                 // ... and will be a past event

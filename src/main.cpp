@@ -939,7 +939,7 @@ void EvolveBinaryStars() {
 
         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                // still good?
 
-            EVOLUTION_STATUS binaryStatus = binary->Evolve(index);                                                          // evolve the binary
+            EVOLUTION_STATUS binaryStatus = binary->Evolve();                                                               // evolve the binary
 
             // announce result of evolving the binary
             if (!OPTIONS->Quiet()) {
