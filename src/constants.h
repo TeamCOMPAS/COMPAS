@@ -87,7 +87,7 @@
 // 02.03.04      FSB - Dec 04, 2019 - Defect repairs:
 //                                       fixed bug in Fryer+2012 CalculateGravitationalRemnantMassadded() function to compare baryon mass of star remnant with
 //										 baryon mass of MaximumNeutronStarMass instead of just MaximumNeutronStarMass. 
-//                                       added m_baryonicMassOfMaximumNeutronStarMass to BaseStar.h and BaseStar.cpp
+//                                       added m_BaryonicMassOfMaximumNeutronStarMass to BaseStar.h and BaseStar.cpp
 // 02.03.05      JR - Dec 05, 2019 - Defect repairs:
 //                                       fixed EvolveSingleStars() in main.cpp to print correct initial mass
 //                                       fixed TPAGB::CalculateCOCoreMassAtPhaseEnd() - added conditional
@@ -130,8 +130,25 @@
 //                                       Removed initialisation of m_Age (to 0.0) from COWD::Initialise() in COWD.h
 //                                   Changed behaviour:  
 //                                       Changed binary star "disbound" flag to "unbound" flag.  Changed all occurences of "disbound" to "unbound".  Changed "unbound" header flag to "Unbound"
+// 02.04.02      JR - Jan 06, 2020 - Defect repairs:
+//                                       Added IsPISN() & IsPPISN() to IsSNEvent()
+//                                       Fixed check for SN event at top of BaseBinaryStar::ResolveSupenova()
+//                                       Changed BaseBinaryStar::EvaluateSupernovae() to more closely match legacy code behaviour (see notes in function description):
+//                                          Added p_Calculate2ndSN parameter to determine if 2nd supernova needs to be resolved
+//                                          Clear star2 current SN event if necessary
+//                                          Check m_SemiMajorAxisPrime value prior to SN events (viz. new aPrime variable)
+//                                       Fixed timestep initialisation in BaseStar::CalculateConvergedTimestepZetaNuclear()  (was negative)
+//                                       Fixed m_Age calculation in FGB::ResolveEnvelopeLoss()
+//                                       Added CalculateInitialSupernovaMass() to NS.h - was setting M = 5.0 for >= ONeWD, should be ONeWD only (introduced in fix in v04.02.00)
+//                                       Changed NS functions to return Radius in Rsol instead of km:
+//                                          Added function NS:CalculateRadiusOnPhaseInKM_Static() (returns radius in km)
+//                                          Changed NS:CalculateRadiusOnPhase_Static() to return Rsol
+//                                          Added CalculateRadiusOnPhase() for NS (ns.h) - returns Rsol 
+//                                   Changed behaviour:  
+//                                       Print detailed output record whenever stellartype changes (after star 2 if both change)
 
-const std::string VERSION_STRING = "02.04.01";
+
+const std::string VERSION_STRING = "02.04.02";
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
@@ -369,7 +386,7 @@ constexpr double MASS_LOSS_ETA                          = 0.5;                  
 constexpr double LBV_LUMINOSITY_LIMIT_STARTRACK         = 6.0E5;                                                    // STARTRACK LBV luminosity limit
 constexpr double LBV_LUMINOSITY_LIMIT_VANBEVEREN        = 3.0E5;                                                    // VANBEVEREN LBV luminosity limit
 
-constexpr double ABSOLUTE_MINIMUM_TIMESTEP              = 100.0 / SECONDS_IN_MYR;                                   // 100 seconds expressed in Myr
+constexpr double ABSOLUTE_MINIMUM_TIMESTEP              = 100.0 / SECONDS_IN_MYR;                                   // 100 seconds expressed in Myr (3.1688765E-12 Myr)
 constexpr double NUCLEAR_MINIMUM_TIMESTEP               = 1.0E-4;                                                   // Minimum time step for nuclear evolution = 100 years expressed in Myr
 constexpr double TIMESTEP_REDUCTION_FACTOR              = 1.0;                                                      // JR: todo: descriotion.  Should make this a program option
 
@@ -1081,7 +1098,7 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 // To match the legacy code usage of these flags, here the "is" and "experienced" conditions 
 // ("current" and "past" SN events) are implemented as bit maps - different values can be
 // ORed or ANDed into the bit map (that way the USSN and CCSN flags can be set at the same
-// time - necessary for the code flow (form the legacy code) - which we should probably one
+// time - necessary for the code flow (from the legacy code) - which we should probably one
 // day look at and rewrite).
 //
 // The RUNAWAY, RECYCLED_NS, and RLOF_ONTO_NS valuies are used to track history and are set
