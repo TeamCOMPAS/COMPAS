@@ -1,5 +1,5 @@
 #include "Star.h"
-
+#include <algorithm>
 
 // Default constructor
 Star::Star() : m_Star(new BaseStar()) {
