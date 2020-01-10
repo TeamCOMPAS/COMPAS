@@ -8,6 +8,7 @@
 
 typedef std::tuple<bool, COMPAS_VARIABLE_TYPE>                                      COMPAS_VARIABLE;
 typedef std::initializer_list<STELLAR_TYPE>                                         STELLAR_TYPE_LIST;
+typedef std::initializer_list<SN_EVENT>                                             SN_EVENT_LIST;
 typedef std::tuple<int, std::string, ANY_PROPERTY_VECTOR, std::vector<std::string>> LOGFILE_DETAILS;
 
 
@@ -24,9 +25,12 @@ struct KickVelocityParams {
 };
 
 
+// struct for supernova events:
+//  CCSN, ECSN, PISN, PPSIN, USSN, RUNAWAY, RECYCLED_NS, RLOF_ONTO_NS
+
 typedef struct SNEvents {
-    SN_EVENT              now;                              // Supernova status at the current timestep: NONE if no supernova event happening
-    std::vector<SN_EVENT> past;                             // Supernova status at any past timestep   : NONE if no supernova event happened in any past timestep
+    SN_EVENT current;                                       // Supernova event at the current timestep: NONE if no supernova event happening
+    SN_EVENT past;                                          // Supernova event at any past timestep   : NONE if no supernova event happened in any past timestep
 } SNEventsT;
 
 // struct for supernova attributes of the base star
@@ -35,6 +39,9 @@ typedef struct SNEvents {
 // keep all SN-related attributes in the same place
 
 typedef struct SupernovaDetails {                           // Holds attributes, flags - if the star went supernova
+
+    DBL_VECTOR       initialKickParameters;                 // User-supplied initial kick parameters - if present used in place of drawing randomly/from distributions
+    
     double           coreMassAtCOFormation;                 // Core mass of this star when it formed a compact object
     double           COCoreMassAtCOFormation;               // Carbon Oxygen core mass of the star when it goes supernova and forms a compact object
     double           drawnKickVelocity;                     // Kick velocity the system received during the supernova (km s^-1)

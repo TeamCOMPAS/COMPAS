@@ -44,7 +44,7 @@ protected:
 
     void Initialise() {
         m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                                                                                                                 // Set stellar type
-        CalculateTimescales();                                                                                                                                              // Initialise timescales
+        CalculateTimescales();
         // JR: Age for HeMS is partially calculated before switching -
         // can get here from various places in ResolveEnvelopeLoss(),
         // and Age is calculated differently in those cases
@@ -64,6 +64,8 @@ protected:
 
             double          CalculateHeCoreMassOnPhase()                                         { return m_Mass; }                                                      // McHe(HeMS) = Mass
             double          CalculateHeCoreMassAtPhaseEnd()                                      { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
+
+            double          CalculateInitialSupernovaMass()                                      { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch
 
             double          CalculateLambdaDewi()                                                { return 0.5; }
             double          CalculateLambdaNanjing()                                             { return BaseStar::CalculateLambdaNanjing(); }                          // Not supported - use BaseStar

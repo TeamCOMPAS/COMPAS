@@ -89,6 +89,7 @@ public:
     string operator()(const STELLAR_TYPE       v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const MT_CASE            v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const MT_TRACKING        v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const SN_EVENT           v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const SN_STATE           v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
 };
 
@@ -265,7 +266,7 @@ private:
 
             logRecord = logRecord.substr(0, logRecord.size()-1);                                                                        // remove the last character - extraneous delimiter
 
-            if (!Put_(fileId, logRecord)) DBG_WARN(ERR_MSG(ERROR::FILE_WRITE_ERROR));                                                   // write the record - show warning if failure
+            if (!Put_(fileId, logRecord)) DBG_WARN(ERR_MSG(ERROR::FILE_WRITE_ERROR) + ": Log Record");                                  // write the record - show warning if failure
         }
     }
 
@@ -324,7 +325,7 @@ public:
 
     // standard logfile logging functions
     template <class T>
-    void LogSingleStarParameters(const T* const p_Star, const int p_Id)  { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PARAMETERS)), 0, LOGFILE::SSE_PARAMETERS, p_Star, "_" + std::to_string(p_Id)); }
+    void LogSingleStarParameters(const T* const p_Star, const int p_Id)  { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PARAMETERS)), 0, LOGFILE::SSE_PARAMETERS, p_Star, "_" + std::to_string(abs(p_Id))); }
     template <class T>
     void LogBinarySystemParameters(const T* const p_Binary)              { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS)), 0, LOGFILE::BSE_SYSTEM_PARAMETERS, p_Binary); }
     template <class T>
@@ -336,13 +337,13 @@ public:
     template <class T>
     void LogBeBinary(const T* const p_Binary)                            { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES)), 0, LOGFILE::BSE_BE_BINARIES, p_Binary); }
     template <class T>
-    void LogDetailedOutput(const T* const p_Binary, const int p_Id)      { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT)), 0, LOGFILE::BSE_DETAILED_OUTPUT, p_Binary, "_" + std::to_string(p_Id)); }
+    void LogDetailedOutput(const T* const p_Binary, const int p_Id)      { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT)), 0, LOGFILE::BSE_DETAILED_OUTPUT, p_Binary, "_" + std::to_string(abs(p_Id))); }
     template <class T>
     void LogPulsarEvolutionParameters(const T* const p_Binary)           { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)), 0, LOGFILE::BSE_PULSAR_EVOLUTION, p_Binary); }
     template <class T>
     void LogSupernovaDetails(const T* const p_Binary)                    { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE)), 0, LOGFILE::BSE_SUPERNOVAE, p_Binary); }
 
-    bool CloseStandardFile(const LOGFILE p_LogFile);
+    bool CloseStandardFile(const LOGFILE p_LogFile, const bool p_Erase = true);
     bool CloseAllStandardFiles();
 
 };

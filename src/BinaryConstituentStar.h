@@ -22,11 +22,12 @@ public:
     };
 
 
-    BinaryConstituentStar(const unsigned long int            p_RandomSeed,
-                          const double                       p_Mass,
-                          const double                       p_Metallicity,
-                          const double                       p_LBVfactor,
-                          const double                       p_WolfRayetFactor) : Star(p_RandomSeed, p_Mass, p_Metallicity, p_LBVfactor, p_WolfRayetFactor) {
+    BinaryConstituentStar(const unsigned long int p_RandomSeed,
+                          const double            p_Mass,
+                          const double            p_Metallicity,
+                          const DBL_VECTOR        p_KickParameters,
+                          const double            p_LBVfactor,
+                          const double            p_WolfRayetFactor) : Star(p_RandomSeed, p_Mass, p_Metallicity, p_KickParameters, p_LBVfactor, p_WolfRayetFactor) {
 
         m_ObjectId                 = globalObjectId++;
         m_ObjectType               = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;
@@ -193,7 +194,7 @@ public:
     bool            ExperiencedRLOF() const                                             { return m_RLOFDetails.experiencedRLOF; }
     bool            FastPhaseCaseA() const                                              { return m_FastPhaseCaseA ; }
     bool            IsPrimary() const                                                   { return m_IsPrimary; }
-    bool            IsSNevent() const                                                   { return IsSN() || IsECSN(); }
+    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsUSSN() || IsPISN() || IsPPISN(); }
     bool            IsRLOF() const                                                      { return m_RLOFDetails.isRLOF; }
     double          MassLossDiff() const                                                { return m_MassLossDiff; }
     MT_CASE         MassTransferCaseInitial() const                                     { return m_MassTransferCaseInitial; }

@@ -69,8 +69,8 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
 
         // binary star contains two instances of star to hold masses, radii and luminosities.
         // star 1 initially more massive
-        m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, m_LBVfactor, m_WolfRayetFactor);
-        m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, m_LBVfactor, m_WolfRayetFactor);
+        m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, {}, m_LBVfactor, m_WolfRayetFactor);
+        m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, {}, m_LBVfactor, m_WolfRayetFactor);
 
         double factor            = m_SemiMajorAxis * (1.0 - m_Eccentricity);
         double rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass1, mass2));
@@ -90,11 +90,15 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
 
             // create new stars with equal masses - eveything else is recalculated
             delete m_Star1;
-            m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, m_LBVfactor, m_WolfRayetFactor);
+            m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, {}, m_LBVfactor, m_WolfRayetFactor);
             delete m_Star2;
-            m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, m_LBVfactor, m_WolfRayetFactor);
+            m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, {}, m_LBVfactor, m_WolfRayetFactor);
+        
+            rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass1, mass2));
+            rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass2, mass1));
         }
-        else rlof = utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0;
+
+        rlof = utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0;
 
         m_Star1->SetCompanion(m_Star2);
         m_Star2->SetCompanion(m_Star1);
@@ -113,19 +117,21 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
         }
     } while (rlof || (!OPTIONS->AllowTouchingAtBirth() && merger) || secondarySmallerThanMinimumMass || initialParametersOutsideParameterSpace);
 
-    SetRemainingCommonValues(p_Id);                                                                                                             // complete the construction of the binary
+    SetRemainingCommonValues();                                                                                                             // complete the construction of the binary
 }
 
 
 // binary is generated according to parameters passed
-BaseBinaryStar::BaseBinaryStar(const AIS     &p_AIS,
-                               const double   p_Mass1,
-                               const double   p_Mass2,
-                               const double   p_Metallicity1,
-                               const double   p_Metallicity2,
-                               const double   p_SemiMajorAxis,
-                               const double   p_Eccentricity,
-                               const long int p_Id) {
+BaseBinaryStar::BaseBinaryStar(const AIS       &p_AIS,
+                               const double     p_Mass1,
+                               const double     p_Mass2,
+                               const double     p_Metallicity1,
+                               const double     p_Metallicity2,
+                               const double     p_SemiMajorAxis,
+                               const double     p_Eccentricity,
+                               const DBL_VECTOR p_KickParameters1,
+                               const DBL_VECTOR p_KickParameters2,
+                               const long int   p_Id) {
 
     SetInitialCommonValues(p_AIS, p_Id);                                                                                                        // start construction of the binary
 
@@ -144,8 +150,8 @@ BaseBinaryStar::BaseBinaryStar(const AIS     &p_AIS,
 
     // binary star contains two instances of star to hold masses, radii and luminosities.
     // star 1 initially more massive (JR: todo: this is not guaranteed...)
-    m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, m_LBVfactor, m_WolfRayetFactor);
-    m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, m_LBVfactor, m_WolfRayetFactor);
+    m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, p_KickParameters1, m_LBVfactor, m_WolfRayetFactor);
+    m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, p_KickParameters2, m_LBVfactor, m_WolfRayetFactor);
 
     m_Star1->SetCompanion(m_Star2);
     m_Star2->SetCompanion(m_Star1);
@@ -167,11 +173,11 @@ BaseBinaryStar::BaseBinaryStar(const AIS     &p_AIS,
         m_Eccentricity       = 0.0;                                                                                                             // now circular
 
         // equilibrate masses - recalculate everything else
-        m_Star1->UpdateAttributesAndAgeOneTimestep(newMass1 - mass1, newMass1 - mass1, 0.0, true);
-        m_Star2->UpdateAttributesAndAgeOneTimestep(newMass2 - mass2, newMass2 - mass2, 0.0, true);
+        (void)m_Star1->UpdateAttributesAndAgeOneTimestep(newMass1 - mass1, newMass1 - mass1, 0.0, true);
+        (void)m_Star2->UpdateAttributesAndAgeOneTimestep(newMass2 - mass2, newMass2 - mass2, 0.0, true);
     }
 
-    SetRemainingCommonValues(p_Id);                                                                                                             // complete the construction of the binary
+    SetRemainingCommonValues();                                                                                                             // complete the construction of the binary
 }
 
 
@@ -191,6 +197,7 @@ void BaseBinaryStar::SetInitialCommonValues(const AIS &p_AIS, const long int p_I
     m_ObjectId    = globalObjectId++;
     m_ObjectType  = OBJECT_TYPE::BASE_BINARY_STAR;
     m_StellarType = STELLAR_TYPE::BINARY_STAR;
+    m_Id          = p_Id;
 
 
     // binary stars generate their own random seed, and pass that to their constituent stars
@@ -222,11 +229,9 @@ void BaseBinaryStar::SetInitialCommonValues(const AIS &p_AIS, const long int p_I
  * Complete the construction of the binary - remaining common values
  *
  *
- * void SetRemainingCommonValues(const long int p_Id)
- *
- * @param   [IN]    p_Id                        Ordinal value of binary - see constructor notes above
+ * void SetRemainingCommonValues()
  */
-void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
+void BaseBinaryStar::SetRemainingCommonValues() {
 
     // Initialise other parameters
 
@@ -408,10 +413,9 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
 
     m_SupernovaState                             = SN_STATE::NONE;
 
-    m_Survived                                   = true;
     m_Merged                                     = false;
     m_MergesInHubbleTime                         = false;
-    m_Disbound                                   = false;
+    m_Unbound                                    = false;
 
     m_SystemicVelocity                           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
@@ -588,7 +592,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE:                        value = CEAtLeastOnce();                                                    break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT:                          value = CommonEnvelopeEventCount();                                         break;
         case BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY:                          value = UK();                                                               break;
-        case BINARY_PROPERTY::DISBOUND:                                             value = Disbound();                                                         break;
+        case BINARY_PROPERTY::UNBOUND:                                              value = Unbound();                                                         break;
         case BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE:                          value = DoubleCoreCE();                                                     break;
         case BINARY_PROPERTY::DT:                                                   value = Dt();                                                               break;
         case BINARY_PROPERTY::ECCENTRICITY:                                         value = Eccentricity();                                                     break;
@@ -681,7 +685,6 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE:             value = STELLAR_TYPE_LABEL.at(StellarType2PostCEE());                       break;
         case BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE:              value = STELLAR_TYPE_LABEL.at(StellarType2PreCEE());                        break;
         case BINARY_PROPERTY::SUPERNOVA_STATE:                                      value = SN_State();                                                         break;
-        case BINARY_PROPERTY::SURVIVED_SUPERNOVA_EVENT:                             value = SurvivedSNEvent();                                                  break;
         case BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE:                            value = SynchronizationTimescale();                                         break;
         case BINARY_PROPERTY::SYSTEMIC_VELOCITY:                                    value = SystemicVelocity();                                                 break;
         case BINARY_PROPERTY::TIME:                                                 value = Time();                                                             break;
@@ -949,6 +952,103 @@ double BaseBinaryStar::SampleQDistribution() {
 
 //JR: todo: talk to Floor about using utils::Compare() in this function
 /*
+ * Calculate the value of the CDF of the Kroupa (2001) IMF at p_Mass
+ *
+ *
+ * double CalculateCDFKroupa(const double p_Mass)
+ *
+ * @param   [IN]    p_Mass                      Mass value (in Msol) at which to calculate the CDF
+ * @return                                      CDF value
+ */
+double BaseBinaryStar::CalculateCDFKroupa(const double p_Mass) {
+
+    double CDF = 0.0;
+
+    if (OPTIONS->InitialMassFunctionMin() <= KROUPA_BREAK_1 &&
+        OPTIONS->InitialMassFunctionMax() >  KROUPA_BREAK_1 &&
+        OPTIONS->InitialMassFunctionMax() <= KROUPA_BREAK_2) {
+
+        double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+        double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+
+        double C1 = 1.0 / (term1 + term2);
+        double C2 = C1 * KROUPA_BREAK_1_POWER_1_2;
+
+        if (p_Mass >= OPTIONS->InitialMassFunctionMin() && p_Mass < KROUPA_BREAK_1) {
+
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (pow(p_Mass, KROUPA_POWER_PLUS1_1) - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+        }
+        else if (p_Mass >= KROUPA_BREAK_1 && p_Mass < KROUPA_BREAK_2) {
+
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
+                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (pow(p_Mass, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+        }
+        else {
+            SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Using CDF = 0.0 (1)");
+        }
+
+    }
+    else if (OPTIONS->InitialMassFunctionMin() <= KROUPA_BREAK_1 &&
+             OPTIONS->InitialMassFunctionMax() >  KROUPA_BREAK_2) {
+
+        double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+        double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
+        double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+
+        double C1 = 1.0 / (term1 + term2 + term3);
+        double C2 = C1 * KROUPA_BREAK_1_POWER_1_2;
+        double C3 = C2 * KROUPA_BREAK_2_POWER_2_3;
+
+        if (p_Mass >= OPTIONS->InitialMassFunctionMin() && p_Mass < KROUPA_BREAK_1) {
+
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (pow(p_Mass, KROUPA_POWER_PLUS1_1) - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+        }
+        else if (p_Mass >= KROUPA_BREAK_1 && p_Mass < KROUPA_BREAK_2) {
+
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
+                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (pow(p_Mass, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+        }
+        else if (p_Mass >= KROUPA_BREAK_2 && p_Mass < OPTIONS->InitialMassFunctionMax()) {
+
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
+                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2) +
+                  ONE_OVER_KROUPA_POWER_3_PLUS1 * C3 * (pow(p_Mass, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+        }
+        else {
+            SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Using CDF = 0.0 (2)");
+        }
+
+    }
+    else if (OPTIONS->InitialMassFunctionMin() >  KROUPA_BREAK_1 &&
+             OPTIONS->InitialMassFunctionMin() <= KROUPA_BREAK_2 &&
+             OPTIONS->InitialMassFunctionMax() >  KROUPA_BREAK_2) {
+
+        double term1 = ONE_OVER_KROUPA_POWER_2_PLUS1 * (KROUPA_BREAK_2_PLUS1_2 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
+        double term2 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+
+        double C2 = 1.0 / (term1 + term2);
+        double C3 = C2 * KROUPA_BREAK_2_POWER_2_3;
+
+        if (p_Mass >= OPTIONS->InitialMassFunctionMin() && p_Mass < KROUPA_BREAK_2) {
+
+            CDF = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (pow(p_Mass, KROUPA_POWER_PLUS1_2) - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
+        }
+        else if (p_Mass >= KROUPA_BREAK_2 && p_Mass < OPTIONS->InitialMassFunctionMax()) {
+
+            CDF = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2)) +
+                  ONE_OVER_KROUPA_POWER_3_PLUS1 * C3 * (pow(p_Mass, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+        }
+        else {
+            SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Using CDF = 0.0 (3)");
+        }
+    }
+
+    return CDF;
+}
+
+
+//JR: todo: talk to Floor about using utils::Compare() in this function
+/*
  * Draw mass from the distribution specified by the user
  * (InitialMassFunction program option; will use AIS distribution if specified (AIS.DrawingFromAISDistributions))
  *
@@ -983,70 +1083,70 @@ double BaseBinaryStar::SampleInitialMassDistribution() {
             case INITIAL_MASS_FUNCTION::KROUPA:                                                                                                         // KROUPA
 
                 // find out where the user specificed their minimum and maximum masses to generate
-                if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak1()) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak1()) <= 0) {
-                    thisMass = utils::InverseSampleFromPowerLaw(m_AIS.KroupaPower1(), OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
+                if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_1) <= 0) {
+                    thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER_1, OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
                 }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak1()) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak2()) <= 0 &&
-                         utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak1()) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak2()) <= 0) {
+                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_2) <= 0 &&
+                         utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_1) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2) <= 0) {
 
-                    thisMass = utils::InverseSampleFromPowerLaw(m_AIS.KroupaPower2(), OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
+                    thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER_2, OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
                 }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak2()) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak2()) > 0) {
+                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_2) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2) > 0) {
 
-                    thisMass = utils::InverseSampleFromPowerLaw(m_AIS.KroupaPower3(), OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
+                    thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER_3, OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
                 }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak1()) <= 0 &&
-                         utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak1())  > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak2()) <= 0) {
+                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1) <= 0 &&
+                         utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_1)  > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2) <= 0) {
 
-                    double term1 = m_AIS.OneOverKroupaPower1Plus1() * (m_AIS.KroupaBreak1_Plus1_1() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()));
-                    double term2 = m_AIS.OneOverKroupaPower2Plus1() * m_AIS.KroupaBreak1_Power1_2() * (pow(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaPowerPlus1_2()) - m_AIS.KroupaBreak1_Plus1_2());
+                    double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+                    double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
 
                     double C1    = 1.0 / (term1 + term2);
-                    double C2    = C1 * m_AIS.KroupaBreak1_Power1_2();
-                    double A     = m_AIS.OneOverKroupaPower1Plus1() * C1 * (m_AIS.KroupaBreak1_Plus1_1() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()));
+                    double C2    = C1 * KROUPA_BREAK_1_POWER_1_2;
+                    double A     = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
 
                     double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
-                    thisMass = utils::Compare(rand, m_AIS.CalculateCDFKroupa(m_AIS.KroupaBreak1())) < 0
-                                ? pow(rand * (m_AIS.KroupaPowerPlus1_1() / C1) + pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()), m_AIS.OneOverKroupaPower1Plus1())
-                                : pow((rand - A) * (m_AIS.KroupaPowerPlus1_2() / C2) + m_AIS.KroupaBreak1_Plus1_2(), m_AIS.OneOverKroupaPower2Plus1());
+                    thisMass = utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_1)) < 0
+                                ? pow(rand * (KROUPA_POWER_PLUS1_1 / C1) + pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1), ONE_OVER_KROUPA_POWER_1_PLUS1)
+                                : pow((rand - A) * (KROUPA_POWER_PLUS1_2 / C2) + KROUPA_BREAK_1_PLUS1_2, ONE_OVER_KROUPA_POWER_2_PLUS1);
                 }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak1()) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak2()) > 0) {
+                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2_POWER_2_3) > 0) {
 
-                    double term1 = m_AIS.OneOverKroupaPower1Plus1() * (m_AIS.KroupaBreak1_Plus1_1() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()));
-                    double term2 = m_AIS.OneOverKroupaPower2Plus1() * m_AIS.KroupaBreak1_Power1_2() * (m_AIS.KroupaBreak2_Plus1_2() - m_AIS.KroupaBreak1_Plus1_2());
-                    double term3 = m_AIS.OneOverKroupaPower3Plus1() * m_AIS.KroupaBreak1_Power1_2() * m_AIS.KroupaBreak2_Power2_3() * (pow(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaPowerPlus1_3()) - m_AIS.KroupaBreak2_Plus1_3());
+                    double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+                    double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
+                    double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2_POWER_2_3) - KROUPA_BREAK_2_PLUS1_3);
 
                     double C1    = 1.0 / (term1 + term2 + term3);
-                    double C2    = C1 * m_AIS.KroupaBreak1_Power1_2();
-                    double C3    = C2 * m_AIS.KroupaBreak2_Power2_3();
+                    double C2    = C1 * KROUPA_BREAK_1_POWER_1_2;
+                    double C3    = C2 * KROUPA_BREAK_2_POWER_2_3;
 
-                    double A     = m_AIS.OneOverKroupaPower1Plus1() * C1 * (m_AIS.KroupaBreak1_Plus1_1() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()));
-                    double B     = m_AIS.OneOverKroupaPower2Plus1() * C2 * (m_AIS.KroupaBreak2_Plus1_2() - m_AIS.KroupaBreak1_Plus1_2());
+                    double A     = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+                    double B     = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
 
                     double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
 
-                    if (utils::Compare(rand, m_AIS.CalculateCDFKroupa(m_AIS.KroupaBreak1())) < 0)
-                        thisMass = pow(rand * (m_AIS.KroupaPowerPlus1_1() / C1) + pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_1()), m_AIS.OneOverKroupaPower1Plus1());
-                    else if (utils::Compare(rand, m_AIS.CalculateCDFKroupa(m_AIS.KroupaBreak2())) < 0)
-                        thisMass = pow((rand - A) * (m_AIS.KroupaPowerPlus1_2() / C2) + m_AIS.KroupaBreak1_Plus1_2(), m_AIS.OneOverKroupaPower2Plus1());
+                    if (utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_1)) < 0)
+                        thisMass = pow(rand * (KROUPA_POWER_PLUS1_1 / C1) + pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1), ONE_OVER_KROUPA_POWER_1_PLUS1);
+                    else if (utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_2)) < 0)
+                        thisMass = pow((rand - A) * (KROUPA_POWER_PLUS1_2 / C2) + KROUPA_BREAK_1_PLUS1_2, ONE_OVER_KROUPA_POWER_2_PLUS1);
                     else
-                        thisMass = pow((rand - A - B) * (m_AIS.KroupaPowerPlus1_3() / C3) + m_AIS.KroupaBreak2_Plus1_3(), m_AIS.OneOverKroupaPower3Plus1());
+                        thisMass = pow((rand - A - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
                 }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak1())  > 0 &&
-                         utils::Compare(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaBreak2()) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaBreak2()) > 0) {
+                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1)  > 0 &&
+                         utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_2) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2) > 0) {
 
-                    double term1 = m_AIS.OneOverKroupaPower2Plus1() * (m_AIS.KroupaBreak2_Plus1_2() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_2()));
-                    double term2 = m_AIS.OneOverKroupaPower3Plus1() * m_AIS.KroupaBreak2_Power2_3() * (pow(OPTIONS->InitialMassFunctionMax(), m_AIS.KroupaPowerPlus1_3()) - m_AIS.KroupaBreak2_Plus1_3());
+                    double term1 = ONE_OVER_KROUPA_POWER_2_PLUS1 * (KROUPA_BREAK_2_PLUS1_2 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
+                    double term2 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
 
                     double C2    = 1.0 / (term1 + term2);
-                    double C3    = C2 * m_AIS.KroupaBreak2_Power2_3();
-                    double B     = m_AIS.OneOverKroupaPower2Plus1() * C2 * (m_AIS.KroupaBreak2_Plus1_2() - pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_2()));
+                    double C3    = C2 * KROUPA_BREAK_2_POWER_2_3;
+                    double B     = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
 
                     double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
 
-                    thisMass = utils::Compare(rand, m_AIS.CalculateCDFKroupa(m_AIS.KroupaBreak2())) < 0
-                                ? pow(rand * (m_AIS.KroupaPowerPlus1_2() / C2) + pow(OPTIONS->InitialMassFunctionMin(), m_AIS.KroupaPowerPlus1_2()), m_AIS.OneOverKroupaPower2Plus1())
-                                : pow((rand - B) * (m_AIS.KroupaPowerPlus1_3() / C3) + m_AIS.KroupaBreak2_Plus1_3(), m_AIS.OneOverKroupaPower3Plus1());
+                    thisMass = utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_2)) < 0
+                                ? pow(rand * (KROUPA_POWER_PLUS1_2 / C2) + pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2), ONE_OVER_KROUPA_POWER_2_PLUS1)
+                                : pow((rand - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
                 }
                 // JR: no other case possible - as long as OPTIONS->InitialMassFunctionMin() < OPTIONS->InitialMassFunctionMax() (currently enforced in Options.cpp)
                 break;
@@ -1599,6 +1699,9 @@ void BaseBinaryStar::ResolveCoalescence() {
  */
 void BaseBinaryStar::ResolveTides() {
 
+    if (m_Star1->IsOneOf({ STELLAR_TYPE::BLACK_HOLE, STELLAR_TYPE::MASSLESS_REMNANT }) ||
+        m_Star2->IsOneOf({ STELLAR_TYPE::BLACK_HOLE, STELLAR_TYPE::MASSLESS_REMNANT })) return;
+
     m_aTidesDiff     = 0.0;
 	m_OmegaTidesDiff = 0.0;
 
@@ -1942,15 +2045,14 @@ double BaseBinaryStar::CalculateOrbitalEccentricityPostSupernova(const double p_
 
     // calculate orbital eccentricity
     double quadraticTerm         = 1.0 + (2.0 * ukCosThetaCosPhi) + uk_2;
-    double firstSquareBrackets   = (uk_2 * sinTheta * sinTheta) + (((ukCosTheta * sinPhi * cosBeta) - (sinBeta * ukCosThetaCosPhiPlus1)) * (ukCosTheta * sinPhi * cosBeta - sinBeta * ukCosThetaCosPhiPlus1));
+    double firstSquareBrackets   = (uk_2 * sinTheta * sinTheta) + (((ukCosTheta * sinPhi * cosBeta) - (sinBeta * ukCosThetaCosPhiPlus1)) * ((ukCosTheta * sinPhi * cosBeta) - (sinBeta * ukCosThetaCosPhiPlus1)));
     double secondSquareBrackets  = (2.0 / m_Radius) - (mOverMprime * _2_r_Minus_1_a * quadraticTerm);
-    double oneMinusESquared      = m_Radius * m_Radius * mOverMprime * _2_r_Minus_1_a * firstSquareBrackets*secondSquareBrackets;
+    double oneMinusESquared      = m_Radius * m_Radius * mOverMprime * _2_r_Minus_1_a * firstSquareBrackets * secondSquareBrackets;
     double eSquared              = 1.0 - oneMinusESquared;
 
     if(eSquared < 1E-8) eSquared = 0.0;     // Deal with small number rounding problems - don't use utils::Compare() here      JR: todo: this should be fixed
 
     return sqrt(eSquared);
-
 }
 
 
@@ -1978,6 +2080,7 @@ double BaseBinaryStar::CalculateSemiMajorAxisPostSupernova(const double p_KickVe
                                                            const double p_TotalMassPostSN,
                                                            const double p_KickTheta,
                                                            const double p_KickPhi) {
+
     double r_2           = 2.0 / m_Radius;
     double quadraticTerm = 1.0 + (2.0 * p_KickVelocity * cos(p_KickTheta) * cos(p_KickPhi)) + (p_KickVelocity * p_KickVelocity);
 
@@ -1999,16 +2102,18 @@ double BaseBinaryStar::CalculateSemiMajorAxisPostSupernova(const double p_KickVe
  */
 bool BaseBinaryStar::ResolveSupernova() {
 
-    if (!m_Supernova->IsSN() && !m_Supernova->IsECSN() && !m_Supernova->IsUSSN()) return false;                                 // not a supernova event - bail out (or bale out depending whence you hail...) passively
+    // check for supernova event
+    // USSN on its own is not considered an SN event here (only), because it is subsumed (later, if that makes sense) by CCSN and handled then
+    // Need to check PISN and PPISN here - they are now independent
+    if (!m_Supernova->IsSNevent() || (m_Supernova->IsUSSN() && !m_Supernova->IsCCSN())) return false;                               // not a supernova event - bail out (or bale out depending whence you hail...) passively
 
 	// Masses should already be correct, mass before SN given by star.m_MassPrev
     // Generate true anomaly - (for e=0, should be a flat distribution) - updates Eccentric anomaly and True anomaly automatically
     // ALEJANDRO - 09/05/2018 - If statement to avoid solving Kepler's equation for an unbound orbit; it may be of interest to have SN of unbound stars in the supernovae.txt file.
 
     if (IsUnbound()) {      // JR: todo: check this - was just "if (m_SemiMajorAxisPrime > 0.0)"
-        // ALEJANDRO - 09/05/2018 - Following 3 lines copied from else statement in the end.                                    // JR: todo: are these going to be executed twice...? (I removed one... not required)
-        m_Disbound = true;
-        m_Survived = false;
+        // ALEJANDRO - 09/05/2018 - Following 3 lines copied from else statement in the end.                                        // JR: todo: are these going to be executed twice...? (I removed one... not required)
+        m_Unbound = true;
     }
     else {
         m_Supernova->CalculateSNAnomalies(m_Eccentricity);
@@ -2021,6 +2126,7 @@ bool BaseBinaryStar::ResolveSupernova() {
 	double totalMassPrime   = m_Supernova->Mass() + m_Companion->Mass();                                                            // total mass of binary after supernova event
 	double reducedMassPrime = (m_Supernova->Mass() * m_Companion->Mass()) / totalMassPrime;                                         // reduced mass after supernova event
 
+    // JR todo - check whether m_Beta needs to be a class variable
     #define a m_SemiMajorAxisPrime  // for convenience - undefined below
     #define e m_Eccentricity        // for convenience - undefined below
     #define r m_Radius              // for convenience - undefined below
@@ -2062,8 +2168,8 @@ bool BaseBinaryStar::ResolveSupernova() {
     m_SemiMajorAxisPre2ndSN = m_SemiMajorAxisPrime;
     m_EccentricityPre2ndSN  = m_Eccentricity;
 
-    m_SemiMajorAxisPrime    = CalculateSemiMajorAxisPostSupernova(m_uK, totalMass, totalMassPrime, m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
     double ePrime           = CalculateOrbitalEccentricityPostSupernova(m_uK, totalMass, totalMassPrime, m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
+    m_SemiMajorAxisPrime    = CalculateSemiMajorAxisPostSupernova(m_uK, totalMass, totalMassPrime, m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
 
     m_Supernova->SetPostSNeOrbitalEnergy(CalculateOrbitalEnergy(reducedMassPrime, totalMassPrime, m_SemiMajorAxisPrime));           // post-SN orbital energy, check if still bound
     double epsilon     = -m_Supernova->PostSNeOrbitalEnergy() / m_Supernova->PreSNeOrbitalEnergy();                                 // dimensionless post-SN orbital energy
@@ -2073,14 +2179,12 @@ bool BaseBinaryStar::ResolveSupernova() {
     m_SystemicVelocity = 0.0;
 
     if (utils::Compare(epsilon, 0.0) < 0) {		                                                                                    // still bound?
-                                                                                                                                    // yes
-        m_Survived = true;                                                                                                          // it survived
 
         // Calculate post-SN orbital inclination using the equation for arbitrary eccentricity orbits
         m_CosIPrime   = CalculateCosFinalPlaneTilt(m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
         m_IPrime      = acos(m_CosIPrime);
 
-        std::tie(m_Theta1_i, m_Theta2_i) = CalculateMisalignments();                                                                // assign the spins.  TODO: I think this function is currently broken for two supernovae -- check!!  JR: todo" check this
+        std::tie(m_Theta1_i, m_Theta2_i) = CalculateMisalignments();                                                                // assign the spins.  TODO: I think this function is currently broken for two supernovae -- check!!  JR: todo: check this
 
         // variables to evolve
         m_Theta1 = m_Theta1_i;
@@ -2096,11 +2200,10 @@ bool BaseBinaryStar::ResolveSupernova() {
         m_SystemicVelocity /= KM;                                                                                                   // convert to km s^-1
     }
     else {                                                                                                                          // no longer bound
-        m_Disbound = true;
-        m_Survived = false;                                                                                                         // it did not survive
+        m_Unbound = true;
     }
 
-    m_Companion->CheckRunaway(m_Disbound, m_Survived);                                                                              // flag companion if runaway
+    m_Companion->CheckRunaway(m_Unbound);                                                                                           // flag companion if runaway
 
 
     // update some binary parameters
@@ -2125,31 +2228,68 @@ bool BaseBinaryStar::ResolveSupernova() {
 /*
  * Determine if one or both of the stars are undergoing a supernova event,
  * and if so resolve the event(s) by calling ResolveSupernova() for each of
- * the stars as appropriate
+ * the stars as appropriate.
+ * 
+ * p_Resolve2ndSN parameter added in v02.04.02:
+ * 
+ *    The legacy code has this code (almost) duplicated in BinaryStar::evaluateBinary():
+ * 
+ *       The first instance of the code in BinaryStar::evaluateBinary() checks m_SemiMajorAxisPrime > 0
+ *       only for the case where both stars undergo an SN event - the check is not performed in the case(s)
+ *       where only a single star undergoes an SN event.  In this (first) instance, if both stars undergo
+ *       an SN event, both events are always processed.
+ * 
+ *       The second instance of the code in BinaryStar::evaluateBinary() checks m_SemiMajorAxisPrime > 0
+ *       for all cases - i.e. where both stars undergo a SN event and either of the constituent stars undergo
+ *       a SN event.  In this (second) instance, if both stars undergo an SN event, the SN event for star2
+ *       is only processed if the binary survives the SN event for star1.
  *
+ *    The p_Resolve2ndSN parameter was added to more closely replicate the behaviour of the legacy code:
+ *       If p_Resolve2ndSN is true this code behaves the same as the first instance described above.
+ *       If p_Resolve2ndSN is false this code behaves the same as the second instance described above.
  *
- * void EvaluateSupernovae()
+ * aPrime variable added in v02.04.02 - more closely matches legacy code functionality
+ * 
+ * 
+ * void EvaluateSupernovae(const bool p_Calculate2ndSN)
+ * 
+ * @param   [IN]    p_Resolve2ndSN              Indicates whether 2nd supernova should be evaluated regardless of bound/unbound status
  */
-void BaseBinaryStar::EvaluateSupernovae() {
+void BaseBinaryStar::EvaluateSupernovae(const bool p_Resolve2ndSN) {
 
-    m_SupernovaState = SN_STATE::NONE;                                                                                                  // not yet determined
+    m_SupernovaState = SN_STATE::NONE;                                                                                  // not yet determined
 
-    if (m_Star1->IsSNevent()) {                                                                                                         // star1 supernova
-        m_SupernovaState = m_Star2->IsSNevent() && utils::Compare(m_SemiMajorAxisPrime, 0.0) > 0 ? SN_STATE::BOTH : SN_STATE::STAR1;    // star1 or both
+    double aPrime = m_SemiMajorAxisPrime;                                                                               // prior to processing SN events
+
+    if (m_Star1->IsSNevent() && (p_Resolve2ndSN || (utils::Compare(aPrime, 0.0) > 0))) {                                // star1 supernova
+        m_SupernovaState = SN_STATE::STAR1;                                                                             // star1
 
         // resolve star1 supernova
-        m_Supernova = m_Star1;                                                                                                          // supernova
-        m_Companion = m_Star2;                                                                                                          // companion
-        (void)ResolveSupernova();                                                                                                       // resolve supernova
+        m_Supernova = m_Star1;                                                                                          // supernova
+        m_Companion = m_Star2;                                                                                          // companion
+        (void)ResolveSupernova();                                                                                       // resolve supernova
     }
 
-    if (m_Star2->IsSNevent()) {                                                                                                         // star2 supernova
-        m_SupernovaState = m_SupernovaState == SN_STATE::NONE ? SN_STATE::STAR2 : SN_STATE::BOTH;                                       // star2 or both
+    if (m_Star2->IsSNevent() && (p_Resolve2ndSN || (utils::Compare(aPrime, 0.0) > 0))) {                                // star2 supernova                                                                                                        // star2 supernova
+        m_SupernovaState = m_SupernovaState == SN_STATE::NONE || (utils::Compare(aPrime, 0.0) <= 0)                     // star1 not supernova or binary unbound?
+                            ? SN_STATE::STAR2                                                                           // yes - just star2
+                            : SN_STATE::BOTH;                                                                           // no - both 
 
-        // resolve star2 supernova
-        m_Supernova = m_Star2;                                                                                                          // supernova
-        m_Companion = m_Star1;                                                                                                          // companion
-        (void)ResolveSupernova();                                                                                                       // resolve supernova
+        bool resolveStar2SN = true;                                                                                     // resolve star2 SN event
+        if (m_SupernovaState == SN_STATE::BOTH && utils::Compare(m_EPrime, 0.0) > 0) {                                  // both stars supernova & still bound
+            resolveStar2SN = p_Resolve2ndSN;                                                                            // only resolve star 2 supernova if required ...
+            if (!resolveStar2SN) {                                                                                      // ... and if not required
+                m_Star2->ClearCurrentSNEvent();                                                                         // ... clear current SN event
+            }
+        }
+
+        if (resolveStar2SN) {                                                                                           // need to resolve star 2 SN?
+                                                                                                                        // yes
+            // resolve star2 supernova
+            m_Supernova = m_Star2;                                                                                      // supernova
+            m_Companion = m_Star1;                                                                                      // companion
+            (void)ResolveSupernova();                                                                                   // resolve supernova
+        }
     }
 }
 
@@ -2180,9 +2320,11 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     double semiMajorAxis = m_SemiMajorAxisPrime;                                                                        // current semi-major axis in default units, AU (before CEE)
 	double eccentricity  = m_EccentricityPrime;								                                            // current eccentricity (before CEE)
 
+    bool donorMS = false;                                                                                               // check for main sequence donor
     if (OPTIONS->AllowMainSequenceStarToSurviveCommonEnvelope()) {                                                      // allow main sequence stars to survive CEE?
         if (m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) {                                                                      // yes - star1 MS_LTE_07, MS_GT_07 or NAKED_HELIUM_STAR_MS?
-            m_Mass1Final = m_Star1->Mass();                                                                             // yes - set mass
+            donorMS      = donorMS || m_Star1->IsRLOF();                                                                // yes - donor MS?
+            m_Mass1Final = m_Star1->Mass();                                                                             // set mass
             m_MassEnv1   = 0.0;                                                                                         // no envelope
         }
         else {                                                                                                          // no, star1 not MS_LTE_07, MS_GT_07 or NAKED_HELIUM_STAR_MS
@@ -2191,6 +2333,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         }
 
         if (m_Star2->IsOneOf(ALL_MAIN_SEQUENCE)) {                                                                      // star2 MS_LTE_07, MS_GT_07 or NAKED_HELIUM_STAR_MS?
+            donorMS      = donorMS || m_Star2->IsRLOF();                                                                // yes - donor MS?
             m_Mass2Final = m_Star2->Mass();                                                                             // yes - set mass
             m_MassEnv2   = 0.0;                                                                                         // no envelope
         }
@@ -2272,13 +2415,16 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
     // update stellar type after losing its envelope. Star1, Star2 or both if double CEE.
 	// Alejandro - 18/02018 - Calculate tidal timescales
-    if (!envelopeFlag1 && !envelopeFlag2) {                                                                             // stellar merger
+
+    if (donorMS || (!envelopeFlag1 && !envelopeFlag2)) {                                                                // stellar merger
         m_MassTransferTrackerHistory = HasTwoOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_MS }) ? MT_TRACKING::CE_BOTH_MS : MT_TRACKING::CE_MS_WITH_CO; // Here MS-WD systems are flagged as CE_BOTH_MS
-        m_StellarMerger              = true;                                                                            // JR: todo: need to set false for conditions below?
+        m_StellarMerger              = true;
     }
 	else {
-        double periastronRsol = semiMajorAxis * AU_TO_RSOL* (1.0 - eccentricity);                                       // periatsron in Rsol
+        double periastronRsol = semiMajorAxis * AU_TO_RSOL* (1.0 - eccentricity);                                       // periastron in Rsol
 
+        STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                             // star 1 stellar type before resolving envelope loss
+        STELLAR_TYPE stellarType2 = m_Star2->StellarType();                                                             // star 2 stellar type before resolving envelope loss
         if (envelopeFlag1) {                                                                                            // star1 donor
             m_Star1->ResolveEnvelopeLossAndSwitch();                                                                    // resolve envelope loss for star1 and switch to new stellar type
 
@@ -2299,6 +2445,10 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             m_SynchronizationTimescale   = star2Copy->CalculateSynchronisationTimescale(periastronRsol);
             m_CircularizationTimescale   = m_SynchronizationTimescale;
             m_MassTransferTrackerHistory = MT_TRACKING::CE_FROM_2_TO_1;                                                 // record history - star2 -> star1
+        }
+
+        if (m_Star1->StellarType() != stellarType1 || m_Star2->StellarType() != stellarType2) {                         // stellar type change?
+            PrintDetailedOutput(m_Id);                                                                                  // yes - print detailed output record
         }
 
         m_Star1->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 1 - update default values
@@ -2943,7 +3093,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                             if (m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH })) {
 
                                 if (m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-                                    m_Donor->SetSNCurrentEvent(SN_EVENT::USSN);                                                                             // donor ultra-stripped SN
+                                    m_Donor->SetSNCurrentEvent(SN_EVENT::USSN);                                                                             // donor ultra-stripped SN happening now
+                                    m_Donor->SetSNPastEvent(SN_EVENT::USSN);                                                                                // ... and will be a past event
                                 }                                                                                                                           // JR: todo: check "else false"
 
                                 // Hard code stability
@@ -2960,7 +3111,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                         // ALEJANDRO - 07/08/2018 - Added m_zetaStarCompare for CE study.       JR: todo: is this still required?
                         m_ZetaStarCompare = zetaCompare;                                                                                                    // beware as this variable may have different values, e.g. fixed for MS, fixed for HG, different for Soberman, '1' for case BB.
 
-                        if (zetaCompare > ZlobAna) {                                                                                                        // stable Mass Transfer
+                        if (utils::Compare(zetaCompare, ZlobAna) > 0) {                                                                                     // stable Mass Transfer
 
                             // Check for conservative or non-conservative MT
                             double envMassDonor  = donorCopy->Mass() - donorCopy->CoreMass();
@@ -2970,7 +3121,13 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                             m_Donor->SetMassTransferDiff(-envMassDonor);
                             m_Accretor->SetMassTransferDiff(mdEnvAccreted);
 
+                            STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                                         // donor stellar type before resolving envelope loss
+                            
                             m_Donor->ResolveEnvelopeLossAndSwitch();                                                                                        // only other interaction that adds/removes mass is winds. So, think its safe to update star here.
+                            
+                            if (m_Donor->StellarType() != stellarTypeDonor) {                                                                               // stellar type change?
+                                PrintDetailedOutput(m_Id);                                                                                                  // yes - print detailed output record
+                            }
 
                             m_MassTransferTrackerHistory = m_Donor->IsPrimary() ? MT_TRACKING::STABLE_FROM_1_TO_2 : MT_TRACKING::STABLE_FROM_2_TO_1;
 
@@ -2987,7 +3144,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                             }
                         }
                         else {                                                                                                                              // Unstable Mass Transfer
-                            if (m_Donor->IsOneOf( MAIN_SEQUENCE )) {                                                                                        // How to deal with CEE here? Just worry about donor?
+                           if (m_Donor->IsOneOf( MAIN_SEQUENCE )) {                                                                                        // How to deal with CEE here? Just worry about donor?
                                 m_StellarMerger    = true;
                                 isCEE              = true;
                             }
@@ -2998,6 +3155,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                         }
 
                         delete donorCopy; donorCopy = nullptr;
+                        delete accretorCopy; accretorCopy = nullptr;
 
                         } break;
 
@@ -3025,8 +3183,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
 	// Check for recycled pulsars. Not considering CEE as a way of recycling NSs.
 	if (!isCEE && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {                                                                                    // accretor is a neutron star
-            m_Donor->SetSNPastEvent(SN_EVENT::RLOF_ONTO_NS);                                                                                                // donor donated mass to a neutron star
-            m_Accretor->SetSNPastEvent(SN_EVENT::RECYCLED_NS);                                                                                              // accretor is (was) a recycled NS
+        m_Donor->SetSNPastEvent(SN_EVENT::RLOF_ONTO_NS);                                                                                                    // donor donated mass to a neutron star
+        m_Accretor->SetSNPastEvent(SN_EVENT::RECYCLED_NS);                                                                                                  // accretor is (was) a recycled NS
 	}
 }
 
@@ -3044,29 +3202,57 @@ void BaseBinaryStar::InitialiseMassTransfer() {
     m_Star1->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxisPrime, m_Eccentricity);                                  // initialise mass transfer for star1
     m_Star2->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxisPrime, m_Eccentricity);                                  // initialise mass transfer for star2
 
-    m_MassTransfer     = false;                                                                                                 // initially - check below
-    m_CEDetails.CEEnow = false;                                                                                                 // no common envelope
-
     if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {                                                                               // either star overflowing its Roche Lobe?
-		m_MassTransfer = true;                                                                                                  // yes - mass transfer
+                                                                                                                                // yes - mass transfer if not both CH
+        if (OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS})) {                    // CHE enabled and both stars CH?
+                                                                                                                                // yes
+            // equilibrate masses, circularise, and check for merger
 
-		if (OPTIONS->CirculariseBinaryDuringMassTransfer()) {                                                                   // circularise binary to the periapsis separation?
-            m_SemiMajorAxisPrime *= OPTIONS->AngularMomentumConservationDuringCircularisation()                                 // yes - conserve angular momentum?
+            STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                                 // star 1 stellar type before updating attributes
+            STELLAR_TYPE stellarType2 = m_Star2->StellarType();                                                                 // star 2 stellar type before updating attributes
+
+            double mass = (m_Star1->Mass() + m_Star2->Mass()) / 2.0;                                                            // share mass equally
+            if ((m_Star1->UpdateAttributes(mass - m_Star1->Mass(), mass - m_Star1->Mass0(), true) != stellarType1) ||           // set new mass, mass0 for star 1
+                (m_Star2->UpdateAttributes(mass - m_Star2->Mass(), mass - m_Star2->Mass0(), true) != stellarType2)) {           // set new mass, mass0 for star 2
+                PrintDetailedOutput(m_Id);                                                                                      // print detailed output record if stellar type changed
+            }
+
+            m_MassesEquilibrated = true;                                                                                        // record that we've equilbrated
+
+            m_SemiMajorAxis *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                       // circularise; conserve angular momentum
+            m_Eccentricity   = 0.0;                                                                                             // now circular
+
+            m_Star1->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxisPrime, m_Eccentricity);                          // re-initialise mass transfer for star1
+            m_Star2->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxisPrime, m_Eccentricity);                          // re-initialise mass transfer for star2
+
+            m_MassTransfer     = false;                                                                                         // no mass transfer
+            m_CEDetails.CEEnow = false;                                                                                         // no common envelope
+        }
+        else {                                                                                                                  // not both CH, so ...
+		    m_MassTransfer = true;                                                                                              // ... mass transfer
+            m_CEDetails.CEEnow = false;                                                                                         // no common envelope
+
+		    if (OPTIONS->CirculariseBinaryDuringMassTransfer()) {                                                               // circularise binary to the periapsis separation?
+                m_SemiMajorAxisPrime *= OPTIONS->AngularMomentumConservationDuringCircularisation()                             // yes - conserve angular momentum?
                                         ? (1.0 - (m_Eccentricity * m_Eccentricity))                                             // yes - conserve angular momentum
                                         : (1.0 - m_Eccentricity);                                                               // no - angular momentum not coneserved
 
-			m_Eccentricity        = 0.0;			                                                                            // ALEJANDRO - 22/11/2016 - Think shouldn't use m_Eccentricity but m_EccentrictyPrime. Right now setting both. Check later.     JR: todo: check this
-			m_EccentricityPrime   = 0.0;                                                                                        // JR: todo: check comment above
+			    m_Eccentricity        = 0.0;			                                                                        // ALEJANDRO - 22/11/2016 - Think shouldn't use m_Eccentricity but m_EccentrictyPrime. Right now setting both. Check later.     JR: todo: check this
+			    m_EccentricityPrime   = 0.0;                                                                                    // JR: todo: check comment above
 
-			// ALEJANDRO - 23/11/2016 - Bug fix for systems which enter MT being eccentric.
-			// Previous values have to be the ones for periastron as later orbit is modified according to previous values.
-			// If you don't do this, you end up modifying pre-MT pre-circularisation orbit
-			// JR: todo: check that this is proper functionality, or just a kludge - if kludge, resolve it
-			m_SemiMajorAxisPrev   = m_SemiMajorAxisPrime;
-			m_EccentricityPrev    = m_EccentricityPrime;
-			m_OrbitalVelocityPrev = m_OrbitalVelocityPrime;
-		}
-
+			    // ALEJANDRO - 23/11/2016 - Bug fix for systems which enter MT being eccentric.
+			    // Previous values have to be the ones for periastron as later orbit is modified according to previous values.
+			    // If you don't do this, you end up modifying pre-MT pre-circularisation orbit
+			    // JR: todo: check that this is proper functionality, or just a kludge - if kludge, resolve it
+			    m_SemiMajorAxisPrev   = m_SemiMajorAxisPrime;
+			    m_EccentricityPrev    = m_EccentricityPrime;
+			    m_OrbitalVelocityPrev = m_OrbitalVelocityPrime;
+		    }
+        }
+    }
+    else {
+        m_MassTransfer     = false;                                                                                             // no mass transfer
+        m_CEDetails.CEEnow = false;                                                                                             // no common envelope
     }
 
     m_aMassTransferDiff     = 0.0;                                                                                              // iniitially - no changle to orbit (semi-major axis) due to mass transfer
@@ -3085,16 +3271,20 @@ void BaseBinaryStar::InitialiseMassTransfer() {
  */
 void BaseBinaryStar::CheckMassTransfer(const double p_Dt) {
 
+    InitialiseMassTransfer();                                                                                                   // initialise - even if not using mass transfer (sets some flags we might need)
 
-    if (OPTIONS->UseMassTransfer()) {                                   // only if using mass transfer (program option)
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}) && HasStarsTouching()) {  // CHE enabled and both stars CH?
+        m_StellarMerger = true;                                                                                                 // just merge
+    }
+    else {                                                                                                                      // not both CH
+        if (OPTIONS->UseMassTransfer()) {                                                                                       // only if using mass transfer (program option)
 
-        InitialiseMassTransfer();                                       // initialise
-
-        if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                   // both stars overflowing their Roche Lobe?
-			m_CEDetails.CEEnow = true;                                  // yes - common envelope event - no mass transfer
-        }
-        else if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {              // either star overflowing its Roche Lobe?
-            CalculateMassTransfer(p_Dt);                                // yes - mass transfer
+            if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                                                                       // both stars overflowing their Roche Lobe?
+			    m_CEDetails.CEEnow = true;                                                                                      // yes - common envelope event - no mass transfer
+            }
+            else if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {                                                                  // either star overflowing its Roche Lobe?
+                CalculateMassTransfer(p_Dt);                                                                                    // yes - mass transfer
+            }
         }
     }
 }
@@ -3237,6 +3427,8 @@ double BaseBinaryStar::CalculateAngularMomentum(const double p_SemiMajorAxis,
  */
 void BaseBinaryStar::CalculateEnergyAndAngularMomentum() {
 
+    if (m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) return;
+
     // ALEJANDRO - 16/11/2016 - calculate orbital energy and angular momentum
     m_TotalMassPrev                    = m_TotalMassPrime;
     m_ReducedMassPrev                  = m_ReducedMassPrime;
@@ -3268,17 +3460,24 @@ void BaseBinaryStar::CalculateEnergyAndAngularMomentum() {
  */
 void BaseBinaryStar::ResolveMassChanges() {
 
+    STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                 // star 1 stellar type before updating attributes
+    STELLAR_TYPE stellarType2 = m_Star2->StellarType();                                                 // star 2 stellar type before updating attributes
+
     // update mass of star1 according to mass loss and mass transfer, then update age accordingly
-    (void)m_Star1->UpdateAttributes(m_Star1->MassPrev() - m_Star1->Mass() + m_Star1->MassLossDiff() + m_Star1->MassTransferDiff(), 0.0);        // update mass for star1
+    (void)m_Star1->UpdateAttributes(m_Star1->MassPrev() - m_Star1->Mass() + m_Star1->MassLossDiff() + m_Star1->MassTransferDiff(), 0.0);    // update mass for star1
     m_Star1->UpdateInitialMass();                                                                       // update initial mass of star1 (MS, HG & HeMS)  JR: todo: fix this kludge one day - mass0 is overloaded, and isn't always "initial mass"
     m_Star1->UpdateAgeAfterMassLoss();                                                                  // update age of star1
     m_Star1->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star1
 
     // rinse and repeat for star2
-    (void)m_Star2->UpdateAttributes(m_Star2->MassPrev() - m_Star2->Mass() +m_Star2->MassLossDiff() + m_Star2->MassTransferDiff(), 0.0);        // update mass for star2
+    (void)m_Star2->UpdateAttributes(m_Star2->MassPrev() - m_Star2->Mass() + m_Star2->MassLossDiff() + m_Star2->MassTransferDiff(), 0.0);    // update mass for star2
     m_Star2->UpdateInitialMass();                                                                       // update initial mass of star 2 (MS, HG & HeMS)  JR: todo: fix this kludge one day - mass0 is overloaded, and isn't always "initial mass"
     m_Star2->UpdateAgeAfterMassLoss();                                                                  // update age of star2
     m_Star2->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star2
+
+    if ((m_Star1->StellarType() != stellarType1) || (m_Star2->StellarType() != stellarType2)) {         // stellar type change?
+        PrintDetailedOutput(m_Id);                                                                      // yes - print detailed output record
+    }
 
     // update binary
     m_OrbitalVelocityPrime = m_OrbitalVelocityPrev + m_OmegaMassLossDiff + m_OmegaMassTransferDiff;     // should here be a diff quantity because of MB?    JR: todo: ?
@@ -3348,21 +3547,38 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     CheckMassTransfer(p_Dt);                                                                                                // calculate mass transfer if necessary
 
-    CalculateWindsMassLoss();                                                                                               // calculate mass loss dues to winds
+    if (!(OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {                 // CHE enabled and both stars CH
+                                                                                                                            // no - proceed
+        CalculateWindsMassLoss();                                                                                           // calculate mass loss dues to winds
 
-         if (m_CEDetails.CEEnow   || m_StellarMerger     ) ResolveCommonEnvelopeEvent();                                    // resolve CEE - immediate event
-    else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) EvaluateSupernovae();                                            // evaluate supernovae (both stars) - immediate event
-    else                                                   ResolveMassChanges();                                            // apply mass loss and mass transfer as necessary
+        if ((m_CEDetails.CEEnow || m_StellarMerger) &&                                                                      // CEE or merger?
+           !(OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {              // yes - avoid CEE if CH+CH
+            ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
+        }
+        else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) {
+            EvaluateSupernovae(true);                                                                                       // evaluate supernovae (both stars) - immediate event
+        }
+        else {
+            ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
+        }
 
-    (void)m_Star1->UpdateAttributes(0.0, 0.0, true);                                                                        // recalculate stellar attributes for star1
-    (void)m_Star2->UpdateAttributes(0.0, 0.0, true);                                                                        // recalculate stellar attributes for star2
+        STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                                 // star 1 stellar type before updating attributes
+        STELLAR_TYPE stellarType2 = m_Star2->StellarType();                                                                 // star 2 stellar type before updating attributes
 
-    EvaluateSupernovae();                                                                                                   // evaluate supernovae (both stars)   JR: todo: ?
-    ResolveTides();                                                                                                         // resolve tides
-    CalculateEnergyAndAngularMomentum();                                                                                    // perform energy and angular momentum calculations
+        if ((m_Star1->UpdateAttributes(0.0, 0.0, true) != stellarType1) ||                                                  // recalculate stellar attributes for star 1
+            (m_Star2->UpdateAttributes(0.0, 0.0, true) != stellarType2)) {                                                  // recalculate stellar attributes for star 2
+            PrintDetailedOutput(m_Id);                                                                                      // print detailed output record if stellar type changed
+        }
 
-    m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);          // update pulsar parameters for star1
-    m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);          // update pulsar parameters for star2
+        EvaluateSupernovae(false);                                                                                          // evaluate supernovae (both stars)   JR: todo: ?
+        ResolveTides();                                                                                                     // resolve tides
+        CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
+
+        if (!(m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })))
+            m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);  // update pulsar parameters for star1
+        if (!(m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })))
+            m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);  // update pulsar parameters for star2
+    }
 }
 
 
@@ -3392,6 +3608,7 @@ double BaseBinaryStar::CalculateDt(const double p_Dt, const Star* const p_Primar
     // JR: todo: this code is broken in the original code
     //
     // JR: todo: NOTE: m_FastPhaseCaseA (binary variable, not stellar) is NEVER set TRUE.  cf STELLAR value
+
     if (utils::Compare(RLRatio, MASS_TRANSFER_THRESHOLD) >= 0) {                                                            // should be done in this or in previous timestep values?
         if (p_Primary->DetermineEnvelopeType() == ENVELOPE::RADIATIVE) {
             newDt = m_FastPhaseCaseA ? p_Primary->CalculateThermalTimescale() : p_Primary->CalculateDynamicalTimescale();   // should only do this for fastPhase aRLOF, just one timestep.
@@ -3412,7 +3629,7 @@ double BaseBinaryStar::CalculateDt(const double p_Dt, const Star* const p_Primar
 
 
 /*
- * Calculate the timestepbased on:
+ * Calculate the timestep based on:
  *
  *    stellar nuclear timescales,
  *    angular momentum loss timescales, or
@@ -3485,9 +3702,11 @@ double BaseBinaryStar::CalculateTimestep(const double p_Dt) {
  */
 void BaseBinaryStar::EvolveOneTimestepPreamble(const double p_Dt) {
 
-    m_TimePrev = m_Time;    // Remember current simulation time
-    m_Time    += p_Dt;      // Advance physical simulation time
-    m_Dt       = p_Dt;      // Set timestep
+    if (p_Dt > 0.0) {           // if dt > 0    (don't use utils::Compare() here)
+        m_TimePrev = m_Time;    // Remember current simulation time
+        m_Time    += p_Dt;      // Advance physical simulation time
+        m_Dt       = p_Dt;      // Set timestep
+    }
 }
 
 
@@ -3520,12 +3739,11 @@ void BaseBinaryStar::EvolveOneTimestep(const double p_Dt) {
  * JR: todo: flesh-out this documentation
  *
  *
- * EVOLUTION_STATUS Evolve(const int p_Index)
+ * EVOLUTION_STATUS Evolve()
  *
- * @param   [IN]    p_Index                     The ordinal number of the binary
  * @return                                      Status of the evolution (EVOLUTION_STATUS)
  */
-EVOLUTION_STATUS BaseBinaryStar::Evolve(const int p_Index) {
+EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
     EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
 
@@ -3540,17 +3758,16 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve(const int p_Index) {
         evolutionStatus        = EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH;                                                                 // binary components are touching - merger at birth
     }
 
-    PrintDetailedOutput(p_Index);                                                                                                           // print (log) detailed output for binary
+    PrintDetailedOutput(m_Id);                                                                                                              // print (log) detailed output for binary
 
     if (OPTIONS->PopulationDataPrinting()) {                                                                                                // JR: todo: what is the aim of PopulationDataPrinting?
-        SAY("\nGenerating a new binary - " << p_Index);
+        SAY("\nGenerating a new binary - " << m_Id);
         SAY("Binary has masses " << m_Star1->Mass() << " & " << m_Star2->Mass());
         SAY("Binary has initial separation " << m_SemiMajorAxisPrime);
         SAY("RandomSeed " << m_RandomSeed);
     }
 
     if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                                    // continue evolution
-
         // evolve the current binary up to the maximum evolution time (and number of steps)
         double dt      = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) / 1000.0;                                     // initialise the timestep
         int    stepNum = 1;                                                                                                                 // initialise step number
@@ -3563,12 +3780,23 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve(const int p_Index) {
             StashPreviousRLOFProperties();                                                                                                  // stash RLOF properties
 
             // check for problems
-                 if (m_Error != ERROR::NONE)                                        evolutionStatus = EVOLUTION_STATUS::SSE_ERROR;          // SSE error for either constituent star
-            else if (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }))                  evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;   // at least one massless remnant has been formed
-            else if (HasStarsTouching())                                            evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;     // binary components are touching (should usually be avoided as MT or CE should happen prior to this)
-            else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems())               evolutionStatus = EVOLUTION_STATUS::UNBOUND;            // binary is unbound and we don't want unbound systems
-            else if (!IsGravitationallyBound() && !OPTIONS->EvolveUnboundSystems()) evolutionStatus = EVOLUTION_STATUS::UNBOUND;            // binary is not gravitationally bound and we don't want unbound systems
+            if (m_Error != ERROR::NONE) {                                                                                                   // SSE error for either constituent star?
+                evolutionStatus = EVOLUTION_STATUS::SSE_ERROR;                                                                              // yes - stop evolution
+            }
+            else if (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                                                        // at least one massless remnant?
+                evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;                                                                       // yes - stop evolution
+            }
+            else if (HasStarsTouching()) {                                                                                                  // binary components touching? (should usually be avoided as MT or CE should happen prior to this)
+                evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                         // yes - stop evolution
+            }
+            else if ((IsUnbound() && !OPTIONS->EvolveUnboundSystems()) ||                                                                   // binary is unbound and we don't want unbound systems?
+                    (!IsGravitationallyBound() && !OPTIONS->EvolveUnboundSystems())) {                                                      // binary is not gravitationally bound and we don't want unbound systems?
+                m_Unbound      = true;                                                                                                      // yes - set the unbound flag (should already be set)
+                evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                                // stop evolution
+            }
             else {                                                                                                                          // continue evolution
+
+                PrintDetailedOutput(m_Id);                                                                                                  // print (log) detailed output for binary
 
                 EvaluateBinary(dt);                                                                                                         // evaluate the binary at this timestep
 
@@ -3579,12 +3807,15 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve(const int p_Index) {
                 PrintRLOFParameters();                                                                                                      // print (log) RLOF parameters
 
                 // check for problems
-                     if (HasStarsTouching())                              evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;               // binary components are touching (should usually be avoided as MT or CE should happen prior to this)
-                else if (!OPTIONS->EvolveUnboundSystems() && IsUnbound()) evolutionStatus = EVOLUTION_STATUS::UNBOUND;                      // we're not evolving unbound systems and binary is unbound
+                if (HasStarsTouching()) {                                                                                                   // binary components touching? (should usually be avoided as MT or CE should happen prior to this)
+                    evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                     // yes - stop evolution
+                }
+                else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                 // binary is unbound and we don't want unbound systems?
+                    m_Unbound      = true;                                                                                                  // yes - set the unbound flag (should already be set)
+                    evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                            // stop evolution
+                }
 
                 if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                        // continue evolution?
-
-                    PrintDetailedOutput(p_Index);                                                                                           // print (log) detailed output for binary
 
                     // check for problems
                          if (m_Error != ERROR::NONE) evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR;                                      // error in binary evolution
@@ -3618,13 +3849,12 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve(const int p_Index) {
             if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                            // continue evolution?
 
                 dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep());                                                  // new timestep
-                                                                                                                                            // yes - prepare for next timestep
+
                 stepNum++;                                                                                                                  // increment stepNum
                 dt = CalculateTimestep(ChooseTimestep(dt));                                                                                 // calculate next timestep
             }
-
-
         }
+        PrintDetailedOutput(m_Id);                                                                                                          // print (log) detailed output for binary
 
         if (evolutionStatus == EVOLUTION_STATUS::STEPS_UP) {                                                                                // stopped because max timesteps reached?
             SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED);                                                                                    // show error
