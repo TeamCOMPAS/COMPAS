@@ -366,9 +366,9 @@ void EvolveSingleStars() {
             else evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                   // must have been a problem
         }
         else {                                                                                                                  // no grid file - use user-specified values
-            initialMass = index * massIncrement;                                                                                // for status message
+            initialMass = OPTIONS->SingleStarMassMin() + (index * massIncrement);                                               // for status message
             delete star;
-            star = new Star(randomSeed, OPTIONS->SingleStarMassMin() + initialMass, OPTIONS->Metallicity());                    // create a star with required mass and metallicity, and...
+            star = new Star(randomSeed, initialMass, OPTIONS->Metallicity());                                                   // create a star with required mass and metallicity, and...
         }
 
         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // still good?
@@ -443,119 +443,176 @@ void EvolveSingleStars() {
  */
 std::tuple<int, std::vector<std::string>> OpenBSEGridFile(std::ifstream &p_Grid, const std::string p_Filename) {
 
-    std::vector<std::string> gridHeaders = {};                                                                  // grid file headers
+    std::vector<std::string> gridHeaders = {};                                                                                  // grid file headers
 
-    int mass1        = 0;                                                                                       // count 'Mass_1" occurrences
-    int mass2        = 0;                                                                                       // count 'Mass_2" occurrences
-    int metallicity1 = 0;                                                                                       // count 'Metallicity_1" occurrences
-    int metallicity2 = 0;                                                                                       // count 'Metallicity_2" occurrences
-    int separation   = 0;                                                                                       // count 'Separation" occurrences
-    int eccentricity = 0;                                                                                       // count 'Eccentricity" occurrences
-    int period       = 0;                                                                                       // count 'Period" occurrences
+    int mass1            = 0;                                                                                                   // count 'Mass_1" occurrences
+    int mass2            = 0;                                                                                                   // count 'Mass_2" occurrences
+    int metallicity1     = 0;                                                                                                   // count 'Metallicity_1" occurrences
+    int metallicity2     = 0;                                                                                                   // count 'Metallicity_2" occurrences
+    int separation       = 0;                                                                                                   // count 'Separation" occurrences
+    int eccentricity     = 0;                                                                                                   // count 'Eccentricity" occurrences
+    int period           = 0;                                                                                                   // count 'Period" occurrences
 
-    int lineNo = 1;                                                                                             // line number - for error messages
+    int kickVelocity1    = 0;                                                                                                   // count 'Kick_Velocity_1" occurrences
+    int kickTheta1       = 0;                                                                                                   // count 'Kick_Theta_1" occurrences
+    int kickPhi1         = 0;                                                                                                   // count 'Kick_Phi_1" occurrences
+    int kickMeanAnomaly1 = 0;                                                                                                   // count 'Kick_Mean_Anomaly_1" occurrences
+    int kickVelocity2    = 0;                                                                                                   // count 'Kick_Velocity_2" occurrences
+    int kickTheta2       = 0;                                                                                                   // count 'Kick_Theta_2" occurrences
+    int kickPhi2         = 0;                                                                                                   // count 'Kick_Phi_2" occurrences
+    int kickMeanAnomaly2 = 0;                                                                                                   // count 'Kick_Mean_Anomaly_2" occurrences
 
-    if (!OPTIONS->GridFilename().empty()) {                                                                     // have grid filename?
+    int lineNo = 1;                                                                                                             // line number - for error messages
 
-        p_Grid.open(OPTIONS->GridFilename());                                                                   // yes - open the file
-        if (p_Grid.fail()) {                                                                                    // open ok?
-            SAY(ERR_MSG(ERROR::FILE_OPEN_ERROR) << " " << OPTIONS->GridFilename());                             // no - show error
+    if (!OPTIONS->GridFilename().empty()) {                                                                                     // have grid filename?
+
+        p_Grid.open(OPTIONS->GridFilename());                                                                                   // yes - open the file
+        if (p_Grid.fail()) {                                                                                                    // open ok?
+            SAY(ERR_MSG(ERROR::FILE_OPEN_ERROR) << " " << OPTIONS->GridFilename());                                             // no - show error
         }
-        else {                                                                                                  // file open ok
+        else {                                                                                                                  // file open ok
 
             bool emptyRecord = true;
             std::string record;
-            while (emptyRecord && std::getline(p_Grid, record)) {                                               // read the header - first non-empty record
+            while (emptyRecord && std::getline(p_Grid, record)) {                                                               // read the header - first non-empty record
 
-                size_t hashPos = record.find("#");                                                              // find first occurrence of "#"
-                if (hashPos != std::string::npos) record.erase(hashPos, record.size() - hashPos);               // if "#" found, prune it and everything after it (ignore comments)
+                size_t hashPos = record.find("#");                                                                              // find first occurrence of "#"
+                if (hashPos != std::string::npos) record.erase(hashPos, record.size() - hashPos);                               // if "#" found, prune it and everything after it (ignore comments)
 
-                while (record.size() > 0 && record[0] == ' ') record.erase(0, 1);                               // strip any leading ' ' characters from the record
+                while (record.size() > 0 && record[0] == ' ') record.erase(0, 1);                                               // strip any leading ' ' characters from the record
 
                 while (record.size() > 0               &&
                       (record[record.size()-1] == '\r' ||
                        record[record.size()-1] == '\n' ||
-                       record[record.size()-1] == ' '  )) record.erase(record.size()-1, 1);                     // strip any trailing '\r', '\n' and ' ' characters from the record
+                       record[record.size()-1] == ' '  )) record.erase(record.size()-1, 1);                                     // strip any trailing '\r', '\n' and ' ' characters from the record
 
                 if (record.empty()) {
-                    lineNo++;                                                                                   // increment line number
-                    continue;                                                                                   // skip empty record
+                    lineNo++;                                                                                                   // increment line number
+                    continue;                                                                                                   // skip empty record
                 }
 
-                emptyRecord = false;                                                                            // have non-empty record
+                emptyRecord = false;                                                                                            // have non-empty record
 
-                record = utils::ToUpper(record);                                                                // upshift
+                record = utils::ToUpper(record);                                                                                // upshift
 
-                std::stringstream recordSS(record);                                                             // open stream on record
+                std::stringstream recordSS(record);                                                                             // open stream on record
                 std::string token;
-                while (std::getline(recordSS, token, ',')) {                                                    // get token from record read
+                while (std::getline(recordSS, token, ',')) {                                                                    // get token from record read
 
-                    while (token.size() > 0 && token[0] == ' ') token.erase(0, 1);                              // strip any leading ' ' characters from the token
+                    while (token.size() > 0 && token[0] == ' ') token.erase(0, 1);                                              // strip any leading ' ' characters from the token
 
                     while (token.size() > 0              &&
                           (token[token.size()-1] == '\r' ||
                            token[token.size()-1] == '\n' ||
-                           token[token.size()-1] == ' ')) token.erase(token.size()-1, 1);                       // strip any trailing '\r', '\n' and ' ' characters from the token
+                           token[token.size()-1] == ' ')) token.erase(token.size()-1, 1);                                       // strip any trailing '\r', '\n' and ' ' characters from the token
 
-                    if (token.empty()) {                                                                        // empty token?
-                        SAY(ERR_MSG(ERROR::GRID_FILE_EMPTY_HEADER));                                            // show error
-                        continue;                                                                               // next token
+                    if (token.empty()) {                                                                                        // empty token?
+                        SAY(ERR_MSG(ERROR::GRID_FILE_EMPTY_HEADER));                                                            // show error
+                        continue;                                                                                               // next token
                     }
 
-                    switch (_(token.c_str())) {                                                                 // which column header?
+                    switch (_(token.c_str())) {                                                                                 // which column header?
 
-                        case _("MASS_1")       : mass1++;        gridHeaders.push_back(token); break;           // Mass_1
-                        case _("MASS_2")       : mass2++;        gridHeaders.push_back(token); break;           // Mass_2
+                        case _("MASS_1")             : mass1++;             gridHeaders.push_back(token); break;                // Star 1 Mass
+                        case _("MASS_2")             : mass2++;             gridHeaders.push_back(token); break;                // Star 2 Mass
 
-                        case _("METALLICITY_1"): metallicity1++; gridHeaders.push_back(token); break;           // Metallicity_1
-                        case _("METALLICITY_2"): metallicity2++; gridHeaders.push_back(token); break;           // Metallicity_2
+                        case _("METALLICITY_1")      : metallicity1++;      gridHeaders.push_back(token); break;                // Star 1 Metallicity
+                        case _("METALLICITY_2")      : metallicity2++;      gridHeaders.push_back(token); break;                // Star 2 Metallicity
 
-                        case _("SEPARATION")   : separation++;   gridHeaders.push_back(token); break;           // Separation
+                        case _("SEPARATION")         : separation++;        gridHeaders.push_back(token); break;                // Separation
 
-                        case _("ECCENTRICITY") : eccentricity++; gridHeaders.push_back(token); break;           // Eccentricity
+                        case _("ECCENTRICITY")       : eccentricity++;      gridHeaders.push_back(token); break;                // Eccentricity
 
-                        case _("PERIOD")       : period++;       gridHeaders.push_back(token); break;           // Period
+                        case _("PERIOD")             : period++;            gridHeaders.push_back(token); break;                // Period
 
-                        default:                                                                                // unknown column header
-                            SAY(ERR_MSG(ERROR::GRID_FILE_UNKNOWN_HEADER) << " " << token);                      // show error
+                        case _("KICK_VELOCITY_1")    : kickVelocity1++;     gridHeaders.push_back(token); break;                // Star 1 Kick velocity
+
+                        case _("KICK_THETA_1")       : kickTheta1++;        gridHeaders.push_back(token); break;                // Star 1 Kick theta
+
+                        case _("KICK_PHI_1")         : kickPhi1++;          gridHeaders.push_back(token); break;                // Star 1 Kick phi
+
+                        case _("KICK_MEAN_ANOMALY_1"): kickMeanAnomaly1++;  gridHeaders.push_back(token); break;                // Star 1 Kick mean anomaly
+
+                        case _("KICK_VELOCITY_2")    : kickVelocity2++;     gridHeaders.push_back(token); break;                // Star 2 Kick velocity
+
+                        case _("KICK_THETA_2")       : kickTheta2++;        gridHeaders.push_back(token); break;                // Star 2 Kick theta
+
+                        case _("KICK_PHI_2")         : kickPhi2++;          gridHeaders.push_back(token); break;                // Star 2 Kick phi
+
+                        case _("KICK_MEAN_ANOMALY_2"): kickMeanAnomaly2++;  gridHeaders.push_back(token); break;                // Star 2 Kick mean anomaly
+
+                        default:                                                                                                // unknown column header
+                            SAY(ERR_MSG(ERROR::GRID_FILE_UNKNOWN_HEADER) << " " << token);                                      // show error
                     }
                 }
 
-                if (mass1 < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Mass_1")                       // no 'Mass_1'
-                else if (mass1 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Mass_1");               // duplicate 'Mass_1'
+                if (mass1 < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Mass_1")                                       // no 'Mass_1'
+                else if (mass1 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Mass_1");                               // duplicate 'Mass_1'
 
-                if (mass2 < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Mass_2")                       // no 'Mass_2'
-                else if (mass2 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Mass_2");               // duplicate 'Mass_2'
+                if (mass2 < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Mass_2")                                       // no 'Mass_2'
+                else if (mass2 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Mass_2");                               // duplicate 'Mass_2'
 
-                if (metallicity1 < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Metallicity_1")         // no 'Metallicity_1'
-                else if (metallicity1 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Metallicity_1"); // duplicate 'Metallicity_1'
+                if (metallicity1 < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Metallicity_1")                         // no 'Metallicity_1'
+                else if (metallicity1 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Metallicity_1");                 // duplicate 'Metallicity_1'
 
-                if (metallicity2 < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Metallicity_2")         // no 'Metallicity_2'
-                else if (metallicity2 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Metallicity_2"); // duplicate 'Metallicity_2'
+                if (metallicity2 < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Metallicity_2")                         // no 'Metallicity_2'
+                else if (metallicity2 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Metallicity_2");                 // duplicate 'Metallicity_2'
 
-                if (eccentricity < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Eccentricity")          // no 'Eccentricity'
-                else if (eccentricity > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Eccentricity");  // duplicate 'Eccentricity'
+                if (eccentricity < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Eccentricity")                          // no 'Eccentricity'
+                else if (eccentricity > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Eccentricity");                  // duplicate 'Eccentricity'
 
-                if (separation < 1 && period < 1) {                                                             // neither 'Separation' nor 'Period'
+                if (separation < 1 && period < 1) {                                                                             // neither 'Separation' nor 'Period'
                     SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " One of {Separation, Period}");
                 }
                 else {
-                    if (separation > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Separation");       // duplicate 'Separation'
-                    if (period > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Period");               // duplicate 'Period'
+                    if (separation > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Separation");                       // duplicate 'Separation'
+                    if (period > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Period");                               // duplicate 'Period'
                 }
 
-                lineNo++;                                                                                       // increment line number
+                if ((kickVelocity1 + kickTheta1 + kickPhi1 + kickMeanAnomaly1 + 
+                     kickVelocity2 + kickTheta2 + kickPhi2 + kickMeanAnomaly2) > 0) {                                           // at least one kick* header present, so all are required
+
+                    if (kickVelocity1 < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Kick_Velocity_1")                  // no 'Kick_Velocity_1'
+                    else if (kickVelocity1 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Kick_Velocity_1");          // duplicate 'Kick_Velocity_1'
+
+                    if (kickTheta1 < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Kick_Theta_1")                        // no 'Kick_Theta_1'
+                    else if (kickTheta1 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Kick_Theta_1");                // duplicate 'Kick_Theta_1'
+
+                    if (kickPhi1 < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Kick_Phi_1")                            // no 'Kick_Phi_1'
+                    else if (kickPhi1 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Kick_Phi_1");                    // duplicate 'Kick_Phi_1'
+
+                    if (kickMeanAnomaly1 < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Kick_Mean_Anomaly_1")           // no 'Kick_Mean_Anomaly_1'
+                    else if (kickMeanAnomaly1 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Kick_Mean_Anomaly_1");   // duplicate 'Kick_Mean_Anomaly_1'
+
+                    if (kickVelocity2 < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Kick_Velocity_2")                  // no 'Kick_Velocity_2'
+                    else if (kickVelocity2 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Kick_Velocity_2");          // duplicate 'Kick_Velocity_2'
+
+                    if (kickTheta2 < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Kick_Theta_2")                        // no 'Kick_Theta_2'
+                    else if (kickTheta2 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Kick_Theta_2");                // duplicate 'Kick_Theta_2'
+
+                    if (kickPhi2 < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Kick_Phi_2")                            // no 'Kick_Phi_2'
+                    else if (kickPhi2 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Kick_Phi_2");                    // duplicate 'Kick_Phi_2'
+
+                    if (kickMeanAnomaly2 < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << " Kick_Mean_Anomaly_2")           // no 'Kick_Mean_Anomaly_2'
+                    else if (kickMeanAnomaly2 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << " Kick_Mean_Anomaly_2");   // duplicate 'Kick_Mean_Anomaly_2'
+                }
+
+                lineNo++;                                                                                                       // increment line number
             }
         }
     }
 
     // check we have all the headers we need, and in the right numbers
-    if (!(mass1                == 1 && mass2        == 1 &&
-          metallicity1         == 1 && metallicity2 == 1 &&
-          separation           <= 1 && period       <= 1 &&
-         (separation + period) >  0 && eccentricity == 1)) {
+    if (!(mass1                == 1 && mass2        == 1                                  &&
+          metallicity1         == 1 && metallicity2 == 1                                  &&
+          separation           <= 1 && period       <= 1                                  &&
+         (separation + period) >  0 && eccentricity == 1)                                 &&
+        ((kickVelocity1 + kickTheta1 + kickPhi1 + kickMeanAnomaly1 + 
+          kickVelocity2 + kickTheta2 + kickPhi2 + kickMeanAnomaly2) == 0                  ||
+         (kickVelocity1 == 1 && kickTheta1 == 1 && kickPhi1 == 1 && kickMeanAnomaly1 == 1 && 
+          kickVelocity2 == 1 && kickTheta2 == 1 && kickPhi2 == 1 && kickMeanAnomaly2 == 1))) {
 
-        if (p_Grid.is_open()) p_Grid.close();                                                                   // we don't - must have been a problem - close the grid file
+        if (p_Grid.is_open()) p_Grid.close();                                                                                   // we don't - must have been a problem - close the grid file
     }
 
     return std::make_tuple(lineNo, gridHeaders);
@@ -565,9 +622,32 @@ std::tuple<int, std::vector<std::string>> OpenBSEGridFile(std::ifstream &p_Grid,
 /*
  * Read and parse the next record from the BSE grid file
  *
+ * Expects the following units:
+ * 
+ *    Mass      : Msol
+ *    Separation: AU
+ *    Period    : Days
+ *    Velocity  : kms^-1
+ *    Theta, Phi: radians
+ *    Anomaly   : radians (?)
+ * 
+ * 
  * Returns the following data values from the Grid file in the following order:
  *
- *    <Mass_1, Mass_2, Metallicity_1, Metallicity_2, Separation, Eccentricity>
+ *    <Mass_1,
+ *     Mass_2,
+ *     Metallicity_1, 
+ *     Metallicity_2, 
+ *     Separation, 
+ *     Eccentricity, 
+ *     Kick_Velocity_1, 
+ *     Kick_Theta_1, 
+ *     Kick_Phi_1,
+ *     Kick_Mean_Anomaly_1, 
+ *     Kick_Velocity_2, 
+ *     Kick_Theta_2, 
+ *     Kick_Phi_2,
+ *     Kick_Mean_Anomaly_2>
  *
  * If the user specifies Period rather than Separation, the separation is calculated using the masses and the orbital period
  * If the user specifies both Separation and Period, Separation is used in preference to Period
@@ -575,8 +655,11 @@ std::tuple<int, std::vector<std::string>> OpenBSEGridFile(std::ifstream &p_Grid,
  * Missing values are treated as zero (0.0) - a warning will be issued, and reading of the Grid file continues
  * (A value is considered missing only if there is a header for the column, but no data value in the column)
  * Invalid values are treated as errors - an error will be issued and reading of the Grid file stopped
- * Negative values are treated as errors - an error will be issued and reading of the Grid file stopped
+ * Negative values for Mass, Metallicity, Separation and Eccentricity are treated as errors - an error will be issued and reading of the Grid file stopped
  *
+ * JR todo: there are some hard-coded numbers here (e.g. size of p_Headers vector) that should be made constants one day
+ * 
+ * 
  * std::tuple<int, std::vector<double>> ReadBSEGridRecord(std::ifstream &p_Grid, const std::vector<std::string> p_GridHeaders, const int p_LineNo)
  *
  * @param   [IN/OUT]    p_Grid                  The Grid file (std::ifstream)
@@ -588,7 +671,11 @@ std::tuple<int, std::vector<double>> ReadBSEGridRecord(std::ifstream &p_Grid, co
 
     bool error = false;
 
-    std::vector<double> gridValues = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};                                                    // grid record values
+    std::vector<double> gridValues;                                                                                     // grid record values
+    if (p_GridHeaders.size() == 6)
+        gridValues = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    else
+        gridValues = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
     int lineNo = p_LineNo;                                                                                              // line number - for error messages
 
@@ -646,26 +733,76 @@ std::tuple<int, std::vector<double>> ReadBSEGridRecord(std::ifstream &p_Grid, co
                     error = true;                                                                                       // set error flag
                     SAY(ERR_MSG(ERROR::GRID_FILE_INVALID_DATA) << "at line " << lineNo << ": " << token);               // show error
                 }
-                else if (value < 0.0) {                                                                                 // value < 0?
-                    error = true;                                                                                       // set error flag
-                    SAY(ERR_MSG(ERROR::GRID_FILE_NEGATIVE_DATA) << " at line " << lineNo << ": " << token);             // show error
-                }
 
                 if (!error) {
                     std::string columnName = p_GridHeaders[column];                                                     // get column name for value
                     switch (_(columnName.c_str())) {                                                                    // which column?
 
-                        case _("MASS_1")       : gridValues[0] = value; break;                                          // Mass_1
-                        case _("MASS_2")       : gridValues[1] = value; break;                                          // Mass_2
+                        case _("MASS_1"):                                                                               // Star 1 Mass
+                            if (value < 0.0) {                                                                          // value < 0?
+                                error = true;                                                                           // yes - set error flag
+                                SAY(ERR_MSG(ERROR::GRID_FILE_NEGATIVE_DATA) << " at line " << lineNo << ": " << token); // show error
+                            }
+                            else gridValues[0] = value;                                                                 // no - proceed
+                            break;
 
-                        case _("METALLICITY_1"): gridValues[2] = value; break;                                          // Metallicity_1
-                        case _("METALLICITY_2"): gridValues[3] = value; break;                                          // Metallicity_2
+                        case _("MASS_2"):                                                                               // Star 2 Mass
+                            if (value < 0.0) {                                                                          // value < 0?
+                                error = true;                                                                           // yes - set error flag
+                                SAY(ERR_MSG(ERROR::GRID_FILE_NEGATIVE_DATA) << " at line " << lineNo << ": " << token); // show error
+                            }
+                            else gridValues[1] = value;                                                                 // no - proceed
+                            break;
 
-                        case _("SEPARATION")   : gridValues[4] = value; break;                                          // Separation
+                        case _("METALLICITY_1"):                                                                        // Star 1 Metallicity
+                            if (value < 0.0) {                                                                          // value < 0?
+                                error = true;                                                                           // yes - set error flag
+                                SAY(ERR_MSG(ERROR::GRID_FILE_NEGATIVE_DATA) << " at line " << lineNo << ": " << token); // show error
+                            }
+                            else gridValues[2] = value;                                                                 // no - proceed
+                            break;
 
-                        case _("ECCENTRICITY") : gridValues[5] = value; break;                                          // Eccentricity
+                        case _("METALLICITY_2"):                                                                        // Star 2 Metallicity
+                            if (value < 0.0) {                                                                          // value < 0?
+                                error = true;                                                                           // yes - set error flag
+                                SAY(ERR_MSG(ERROR::GRID_FILE_NEGATIVE_DATA) << " at line " << lineNo << ": " << token); // show error
+                            }
+                            else gridValues[3] = value;                                                                 // no - proceed
+                            break;
 
-                        case _("PERIOD")       : period        = value; break;                                          // Period
+                        case _("SEPARATION"):                                                                           // Separation
+                            if (value < 0.0) {                                                                          // value < 0?
+                                error = true;                                                                           // yes - set error flag
+                                SAY(ERR_MSG(ERROR::GRID_FILE_NEGATIVE_DATA) << " at line " << lineNo << ": " << token); // show error
+                            }
+                            else gridValues[4] = value;                                                                 // no - proceed
+                            break;
+
+                        case _("ECCENTRICITY"):                                                                         // Eccentricity
+                            if (value < 0.0) {                                                                          // value < 0?
+                                error = true;                                                                           // yes - set error flag
+                                SAY(ERR_MSG(ERROR::GRID_FILE_NEGATIVE_DATA) << " at line " << lineNo << ": " << token); // show error
+                            }
+                            else gridValues[5] = value;                                                                 // no - proceed
+                            break;
+
+                        case _("PERIOD")             : period         = value; break;                                   // Period
+
+                        case _("KICK_VELOCITY_1")    : gridValues[6]  = value; break;                                   // Star 1 Kick velocity
+
+                        case _("KICK_THETA_1")       : gridValues[7]  = value; break;                                   // Star 1 Kick theta
+
+                        case _("KICK_PHI_1")         : gridValues[8]  = value; break;                                   // Star 1 Kick phi
+
+                        case _("KICK_MEAN_ANOMALY_1"): gridValues[9]  = value; break;                                   // Star 1 Kick mean anomaly
+
+                        case _("KICK_VELOCITY_2")    : gridValues[10] = value; break;                                   // Star 2 Kick velocity
+
+                        case _("KICK_THETA_2")       : gridValues[11] = value; break;                                   // Star 2 Kick theta
+
+                        case _("KICK_PHI_2")         : gridValues[12] = value; break;                                   // Star 2 Kick phi
+
+                        case _("KICK_MEAN_ANOMALY_2"): gridValues[13] = value; break;                                   // Star 2 Kick mean anomaly
 
                         default:                                                                                        // unknown - this shouldn't happen
                             SAY(ERR_MSG(ERROR::GRID_FILE_UNKNOWN_HEADER) << " " << columnName);                         // show error
@@ -682,8 +819,9 @@ std::tuple<int, std::vector<double>> ReadBSEGridRecord(std::ifstream &p_Grid, co
                 }
             }
 
-            if (gridValues[4] <= 0.0 && period > 0.0 && gridValues[0] > 0.0 && gridValues[1] > 0.0) {                   // already have sparation? Have required values to calculate from period?
-                SAY(ERR_MSG(ERROR::GRID_FILE_USING_PERIOD));                                                            // let the user know we're using Period
+            if (gridValues[4] <= 0.0 && period > 0.0 && gridValues[0] > 0.0 && gridValues[1] > 0.0) {                   // already have separation? Have required values to calculate from period?
+// JR: change the next line to a warning that can be suppressed            
+//                SAY(ERR_MSG(ERROR::GRID_FILE_USING_PERIOD));                                                            // let the user know we're using Period
                 gridValues[4] = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(gridValues[0], gridValues[1], period);    // calculate separation from period
             }
         }
@@ -748,7 +886,12 @@ void EvolveBinaryStars() {
                 else {                                                                                                      // no
                     nBinaries++;                                                                                            // not done yet...
                     delete binary;
-                    binary = new BinaryStar(ais, gV[0], gV[1], gV[2], gV[3], gV[4], gV[5], index);                          // generate a binary according to specified values in grid file
+                    if (gridHeaders.size() == 6)
+                        binary = new BinaryStar(ais, gV[0], gV[1], gV[2], gV[3], gV[4], gV[5], {}, {}, index);              // generate a binary according to specified values in grid file
+                    else
+                        binary = new BinaryStar(ais, gV[0], gV[1], gV[2], gV[3], gV[4], gV[5], 
+                                                   { gV[6], gV[7], gV[8], gV[9] }, 
+                                                   { gV[10], gV[11], gV[12], gV[13] }, index);                              // generate a binary according to specified values in grid file
                 }
             }
             else evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                               // must have been a problem
@@ -784,6 +927,8 @@ void EvolveBinaryStars() {
                                         OPTIONS->InitialSecondaryMetallicity(),
                                         separation,
                                         OPTIONS->BinaryEccentricity(),
+                                        {},
+                                        {},
                                         index);                                                                             // generate a binary according to user-specified values
             }
             else {
@@ -794,7 +939,7 @@ void EvolveBinaryStars() {
 
         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                // still good?
 
-            EVOLUTION_STATUS binaryStatus = binary->Evolve(index);                                                          // evolve the binary
+            EVOLUTION_STATUS binaryStatus = binary->Evolve();                                                               // evolve the binary
 
             // announce result of evolving the binary
             if (!OPTIONS->Quiet()) {

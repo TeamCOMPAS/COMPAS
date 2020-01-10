@@ -36,7 +36,7 @@ protected:
 
 
    // member functions - alphabetically
-            double          CalculateCOCoreMassAtPhaseEnd()                                                  { return m_Mass; }
+            double          CalculateCOCoreMassAtPhaseEnd()                                                  { return (utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0) ? m_COCoreMass : m_Mass; }
             double          CalculateCOCoreMassOnPhase()                                                     { return CalculateCoreMassOnPhase(m_Mass0, m_Age); }                                            // McCO(TPAGB) = Mc(TPAGB)Same as on phase
 
             double          CalculateCoreMassAtPhaseEnd()                                                    { return m_CoreMass; }                                                                          // NO-OP
@@ -49,8 +49,6 @@ protected:
 
             double          CalculateHeCoreMassAtPhaseEnd()                                                  { return m_HeCoreMass; }                                                                        // NO-OP
             double          CalculateHeCoreMassOnPhase()                                                     { return m_HeCoreMass; }                                                                        // NO-OP
-
-            double          CalculateInitialSupernovaMass()                                                  { return m_GBParams[static_cast<int>(GBP::McBAGB)]; }                                           // For TPAGB we use the mass at Base Asymptotic Giant Branch to determine SN type
 
             double          CalculateLambdaDewi();
             double          CalculateLambdaNanjing();
