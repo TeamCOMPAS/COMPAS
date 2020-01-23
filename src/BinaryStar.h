@@ -37,26 +37,26 @@ public:
 
     BinaryStar(const AIS &p_AIS, const long int p_Id = -1l);
 
-    BinaryStar(const AIS       &p_AIS,
-               const double     p_Mass1,
-               const double     p_Mass2,
-               const double     p_Metallicity1,
-               const double     p_Metallicity2,
-               const double     p_SemiMajorAxis,
-               const double     p_Eccentricity,
-               const DBL_VECTOR p_KickParameters1,
-               const DBL_VECTOR p_KickParameters2,
-               const long int   p_Id = -1l);
+    BinaryStar(const AIS           &p_AIS,
+               const double         p_Mass1,
+               const double         p_Mass2,
+               const double         p_Metallicity1,
+               const double         p_Metallicity2,
+               const double         p_SemiMajorAxis,
+               const double         p_Eccentricity,
+               const KickParameters p_KickParameters1,
+               const KickParameters p_KickParameters2,
+               const long int       p_Id = -1l);
 
 
     // Copy constructor
     BinaryStar(const BinaryStar& p_Star) {
 
-        m_ObjectId                       = globalObjectId++;                                // get unique object id (don't copy source)
-        m_ObjectType                     = OBJECT_TYPE::BINARY_STAR;                        // can only copy from BINARY_STAR
+        m_ObjectId   = globalObjectId++;                                                        // get unique object id (don't copy source)
+        m_ObjectType = OBJECT_TYPE::BINARY_STAR;                                                // can only copy from BINARY_STAR
 
-        m_BinaryStar     = new BaseBinaryStar(*(p_Star.m_BinaryStar));                      // copy underlying BaseBinaryStar
-        m_SaveBinaryStar = new BaseBinaryStar(*(p_Star.m_SaveBinaryStar));                  // copy underlying Saved BaseBinaryStar
+        m_BinaryStar     = new BaseBinaryStar(*(p_Star.m_BinaryStar));                          // copy underlying BaseBinaryStar
+        m_SaveBinaryStar = new BaseBinaryStar(*(p_Star.m_SaveBinaryStar));                      // copy underlying Saved BaseBinaryStar
     }
 
 
@@ -81,9 +81,9 @@ public:
 
 
     // object identifiers - all classes have these
-    OBJECT_ID           ObjectId() const                            { return m_ObjectId; }
-    OBJECT_TYPE         ObjectType() const                          { return m_ObjectType; }
-    STELLAR_TYPE        StellarType() const                         { return m_StellarType; }
+    OBJECT_ID           ObjectId() const            { return m_ObjectId; }
+    OBJECT_TYPE         ObjectType() const          { return m_ObjectType; }
+    STELLAR_TYPE        StellarType() const         { return m_StellarType; }
 
 
     // member functions

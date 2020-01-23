@@ -847,13 +847,13 @@ STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_NoCheck) {
             m_Radius     = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
             m_Age        = 0.0;                                                 // JR: see Hurley et al. 2000, discussion after eq 76
         }
-        else {                                                                   // star evolves to Zero age Naked Helium Main Star
+        else {                                                                  // star evolves to Zero age Naked Helium Main Star
 
             stellarType  = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;
 
             m_Mass       = m_CoreMass;
             m_Mass0      = m_Mass;
-            m_Radius     = HeMS::CalculateRadiusAtZAMS_Static(m_Mass);
+            m_Radius     = HeMS::CalculateRadiusAtZAMS_Static(m_Mass);          
             m_Luminosity = HeMS::CalculateLuminosityAtZAMS_Static(m_Mass);
             m_Age        = 0.0;                                                 // JR: can't use Hurley et al. 2000, eq 76 here - timescales(tHe) not calculated yet
         }

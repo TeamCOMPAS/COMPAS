@@ -87,10 +87,6 @@ public:
 
     bool                                        BeBinaries() const                                                      { return beBinaries; }
 
-    double                                      BinaryEccentricity() const                                              { return binaryEccentricity; }
-    double                                      BinaryOrbitalPeriod() const                                             { return binaryOrbitalPeriod; }
-    double                                      BinarySeparation() const                                                { return binarySeparation; }
-
     BLACK_HOLE_KICK_OPTION                      BlackHoleKicksOption() const                                            { return blackHoleKicksOption; }
 
     CHE_OPTION                                  CHE_Option() const                                                      { return cheOption; }
@@ -132,15 +128,10 @@ public:
 
     string                                      GridFilename() const                                                    { return gridFilename; }
 
-    bool                                        IndividualSystem() const                                                { return individualSystem; }
-
     INITIAL_MASS_FUNCTION                       InitialMassFunction() const                                             { return initialMassFunction; }
     double                                      InitialMassFunctionMin() const                                          { return initialMassFunctionMin; }
     double                                      InitialMassFunctionMax() const                                          { return initialMassFunctionMax; }
     double                                      InitialMassFunctionPower() const                                        { return initialMassFunctionPower; }
-
-    double                                      InitialPrimaryMetallicity() const                                       { return initialPrimaryMetallicity; }
-    double                                      InitialSecondaryMetallicity() const                                     { return initialSecondaryMetallicity; }
 
     KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return kickDirectionDistribution; }
     double                                      KickDirectionPower() const                                              { return kickDirectionPower; }
@@ -236,7 +227,6 @@ public:
     double                                      PeriodDistributionMin() const                                           { return periodDistributionMin; }
 
     bool                                        PopulationDataPrinting() const                                          { return populationDataPrinting; }
-    double                                      PrimaryMass() const                                                     { return primaryMass; }
     bool                                        PrintBoolAsString() const                                               { return printBoolAsString; }
     PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION    PulsarBirthMagneticFieldDistribution() const                            { return pulsarBirthMagneticFieldDistribution; }
     double                                      PulsarBirthMagneticFieldDistributionMax() const                         { return pulsarBirthMagneticFieldDistributionMax; }
@@ -275,8 +265,6 @@ public:
     bool                                        SampleWolfRayetMultiplier() const                                       { return sampleWolfRayetMultiplier; }
     double                                      SampleWolfRayetMultiplierMax() const                                    { return sampleWolfRayetMultiplierMax; }
     double                                      SampleWolfRayetMultiplierMin() const                                    { return sampleWolfRayetMultiplierMin; }
-
-    double                                      SecondaryMass() const                                                   { return secondaryMass; }
 
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return semiMajorAxisDistribution; }
     double                                      SemiMajorAxisDistributionMax() const                                    { return semiMajorAxisDistributionMax; }
@@ -320,7 +308,6 @@ private:
     bool                                        debugToFile;                                                    // flag used to determine whether debug statements should also be written to a log file
     bool                                        errorsToFile;                                                   // flag used to determine whether error statements should also be written to a log file
 
-    bool                                        individualSystem;                                               // Flag for whether we are running population synthesis (many binaries or a single binary drawn randomly from the initial distributions) or a specific individual system
     bool                                        singleStar;                                                     // Whether to evolve a single star or a binary
 
 	bool                                        lambdaCalculationEveryTimeStep;							        // Flag indicates if lambda is calculated at each timestep or no
@@ -343,17 +330,6 @@ private:
 
     int                                         nBatchesUsed;                                                   // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
 
-
-    // Individual system variables
-    double                                      primaryMass;                                                    // Initial primary mass in solar masses
-    double                                      secondaryMass;                                                  // Initial secondary mass in solar masses
-
-    double                                      initialPrimaryMetallicity;                                      // Initial metallicity of the primary
-    double                                      initialSecondaryMetallicity;                                    // Initial metallicity of the secondary
-
-    double                                      binarySeparation;                                               // Initial separation in AU
-    double                                      binaryOrbitalPeriod;                                            // Initial orbital period in day
-    double                                      binaryEccentricity;                                             // Initial eccentricity
 
     // Variables required to restart a binary/star halfway through
 //    int                                         primaryStellarType;                                             // Initial primary stellar type (not yet implemented)
