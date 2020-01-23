@@ -23,16 +23,16 @@ public:
 
     BaseBinaryStar(const AIS &p_AIS, const long int p_Id = -1l);
 
-    BaseBinaryStar(const AIS       &p_AIS,
-                   const double     p_Mass1,
-                   const double     p_Mass2,
-                   const double     p_Metallicity1,
-                   const double     p_Metallicity2,
-                   const double     p_SemiMajorAxis,
-                   const double     p_Eccentricity,
-                   const DBL_VECTOR p_KickParameters1,
-                   const DBL_VECTOR p_KickParameters2,
-                   const long int   p_Id = -1l);
+    BaseBinaryStar(const AIS           &p_AIS,
+                   const double         p_Mass1,
+                   const double         p_Mass2,
+                   const double         p_Metallicity1,
+                   const double         p_Metallicity2,
+                   const double         p_SemiMajorAxis,
+                   const double         p_Eccentricity,
+                   const KickParameters p_KickParameters1,
+                   const KickParameters p_KickParameters2,
+                   const long int       p_Id = -1l);
 
 
     void CopyMemberVariables(const BaseBinaryStar& p_Star) {
