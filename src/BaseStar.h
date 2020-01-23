@@ -21,7 +21,7 @@ public:
     BaseStar(const unsigned long int p_RandomSeed, 
              const double            p_MZAMS, 
              const double            p_Metallicity, 
-             const DBL_VECTOR        p_KickParameters = {},
+             const KickParameters    p_KickParameters,
              const double            p_LBVfactor = 0.0, 
              const double            p_WolfRayetFactor = 0.0);
 
@@ -79,6 +79,7 @@ public:
             double              Lambda_Loveridge() const                                        { return m_Lambdas.loveridge; }
             double              Lambda_LoveridgeWinds() const                                   { return m_Lambdas.loveridgeWinds; }
             double              Lambda_Nanjing() const                                          { return m_Lambdas.nanjing; }
+            bool                LBV_Phase_Flag() const                                          { return m_LBVphaseFlag; }
             double              Luminosity() const                                              { return m_Luminosity; }
             double              Mass() const                                                    { return m_Mass; }
             double              Mass0() const                                                   { return m_Mass0; }
@@ -117,7 +118,7 @@ public:
             double              SN_TrueAnomaly() const                                          { return m_SupernovaDetails.trueAnomaly; }
             double              SN_Theta() const                                                { return m_SupernovaDetails.theta; }
             SN_EVENT            SN_Type() const                                                 { return utils::SNEventType(m_SupernovaDetails.events.current); }
-            double              SN_URand() const                                                { return m_SupernovaDetails.uRand; }
+            double              SN_KickVelocityRandom() const                                   { return m_SupernovaDetails.kickVelocityRandom; }
             COMPAS_VARIABLE     StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
             double              Tau() const                                                     { return m_Tau; }
             double              Temperature() const                                             { return m_Temperature; }
@@ -244,7 +245,7 @@ protected:
     bool                    m_CHE;                                      // CHE flag - true if the star spent entire MS as a CH star; false if evolved CH->MS
 
     // Stellar variables - values passed as parameters to constructor
-    double                  m_LBVfactor;                                // Luminous Blue Varaible factor
+    double                  m_LBVfactor;                                // Luminous Blue Variable factor
     unsigned long int       m_RandomSeed;                               // Seeds the random number generator for this star
     double                  m_WolfRayetFactor;                          // Wolf Rayet factor
 
