@@ -122,16 +122,16 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
 
 
 // binary is generated according to parameters passed
-BaseBinaryStar::BaseBinaryStar(const AIS       &p_AIS,
-                               const double     p_Mass1,
-                               const double     p_Mass2,
-                               const double     p_Metallicity1,
-                               const double     p_Metallicity2,
-                               const double     p_SemiMajorAxis,
-                               const double     p_Eccentricity,
-                               const DBL_VECTOR p_KickParameters1,
-                               const DBL_VECTOR p_KickParameters2,
-                               const long int   p_Id) {
+BaseBinaryStar::BaseBinaryStar(const AIS           &p_AIS,
+                               const double         p_Mass1,
+                               const double         p_Mass2,
+                               const double         p_Metallicity1,
+                               const double         p_Metallicity2,
+                               const double         p_SemiMajorAxis,
+                               const double         p_Eccentricity,
+                               const KickParameters p_KickParameters1,
+                               const KickParameters p_KickParameters2,
+                               const long int       p_Id) {
 
     SetInitialCommonValues(p_AIS, p_Id);                                                                                                        // start construction of the binary
 
@@ -3543,42 +3543,39 @@ void BaseBinaryStar::EvaluateBinaryPreamble() {
  */
 void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
-    EvaluateBinaryPreamble();                                                                                               // get things ready - do some house-keeping
+    EvaluateBinaryPreamble();                                                                                           // get things ready - do some house-keeping
 
-    CheckMassTransfer(p_Dt);                                                                                                // calculate mass transfer if necessary
+    CheckMassTransfer(p_Dt);                                                                                            // calculate mass transfer if necessary
 
-    if (!(OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {                 // CHE enabled and both stars CH
-                                                                                                                            // no - proceed
-        CalculateWindsMassLoss();                                                                                           // calculate mass loss dues to winds
+    CalculateWindsMassLoss();                                                                                           // calculate mass loss dues to winds
 
-        if ((m_CEDetails.CEEnow || m_StellarMerger) &&                                                                      // CEE or merger?
-           !(OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {              // yes - avoid CEE if CH+CH
-            ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
-        }
-        else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) {
-            EvaluateSupernovae(true);                                                                                       // evaluate supernovae (both stars) - immediate event
-        }
-        else {
-            ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
-        }
-
-        STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                                 // star 1 stellar type before updating attributes
-        STELLAR_TYPE stellarType2 = m_Star2->StellarType();                                                                 // star 2 stellar type before updating attributes
-
-        if ((m_Star1->UpdateAttributes(0.0, 0.0, true) != stellarType1) ||                                                  // recalculate stellar attributes for star 1
-            (m_Star2->UpdateAttributes(0.0, 0.0, true) != stellarType2)) {                                                  // recalculate stellar attributes for star 2
-            PrintDetailedOutput(m_Id);                                                                                      // print detailed output record if stellar type changed
-        }
-
-        EvaluateSupernovae(false);                                                                                          // evaluate supernovae (both stars)   JR: todo: ?
-        ResolveTides();                                                                                                     // resolve tides
-        CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
-
-        if (!(m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })))
-            m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);  // update pulsar parameters for star1
-        if (!(m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })))
-            m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);  // update pulsar parameters for star2
+    if ((m_CEDetails.CEEnow || m_StellarMerger) &&                                                                      // CEE or merger?
+       !(OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {              // yes - avoid CEE if CH+CH
+        ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
     }
+    else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) {
+        EvaluateSupernovae(true);                                                                                       // evaluate supernovae (both stars) - immediate event
+    }
+    else {
+        ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
+    }
+
+    STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                                 // star 1 stellar type before updating attributes
+    STELLAR_TYPE stellarType2 = m_Star2->StellarType();                                                                 // star 2 stellar type before updating attributes
+
+    if ((m_Star1->UpdateAttributes(0.0, 0.0, true) != stellarType1) ||                                                  // recalculate stellar attributes for star 1
+        (m_Star2->UpdateAttributes(0.0, 0.0, true) != stellarType2)) {                                                  // recalculate stellar attributes for star 2
+        PrintDetailedOutput(m_Id);                                                                                      // print detailed output record if stellar type changed
+    }
+
+    EvaluateSupernovae(false);                                                                                          // evaluate supernovae (both stars)   JR: todo: ?
+    ResolveTides();                                                                                                     // resolve tides
+    CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
+
+    if (!(m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })))
+        m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);  // update pulsar parameters for star1
+    if (!(m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })))
+        m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);  // update pulsar parameters for star2
 }
 
 
