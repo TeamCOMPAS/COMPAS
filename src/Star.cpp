@@ -1,5 +1,5 @@
 #include "Star.h"
-
+#include <algorithm>
 
 // Default constructor
 Star::Star() : m_Star(new BaseStar()) {
@@ -15,7 +15,7 @@ Star::Star() : m_Star(new BaseStar()) {
 Star::Star(const unsigned long int p_RandomSeed,
            const double            p_MZAMS,
            const double            p_Metallicity,
-           const DBL_VECTOR        p_KickParameters,
+           const KickParameters    p_KickParameters,
            const double            p_LBVfactor,
            const double            p_WolfRayetFactor) {
 

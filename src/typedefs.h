@@ -18,6 +18,7 @@ struct RotationalVelocityParams {                           // Structure contain
     double u;                                               // Value of CDF, draw in U(0,1)
 };
 
+
 // KickVelocityParams struct for gsl root solver
 struct KickVelocityParams {
     double y;       // Value of CDF, should be drawn as U(0,1)
@@ -25,8 +26,41 @@ struct KickVelocityParams {
 };
 
 
+// struct for SSE grid file parameters
+
+typedef struct SSEGridParameters {
+    double mass;
+    double metallicity;
+} SSEGridParameters;
+
+
+// structs for binary stars and BSE grid file parameters
+
+typedef struct KickParameters {
+    bool   supplied;
+    bool   useVelocityRandom;
+    double velocityRandom;
+    double velocity;
+    double theta;
+    double phi;
+    double meanAnomaly;
+} KickParameters;
+
+typedef struct BSEGridParameters {
+    double mass1;
+    double mass2;
+    double metallicity1; 
+    double metallicity2;
+    double separation;
+    double eccentricity;
+
+    KickParameters star1KickParameters;
+    KickParameters star2KickParameters;
+} BSEGridParameters;
+
+
 // struct for supernova events:
-//  CCSN, ECSN, PISN, PPSIN, USSN, RUNAWAY, RECYCLED_NS, RLOF_ONTO_NS
+// CCSN, ECSN, PISN, PPSIN, USSN, RUNAWAY, RECYCLED_NS, RLOF_ONTO_NS
 
 typedef struct SNEvents {
     SN_EVENT current;                                       // Supernova event at the current timestep: NONE if no supernova event happening
@@ -40,7 +74,7 @@ typedef struct SNEvents {
 
 typedef struct SupernovaDetails {                           // Holds attributes, flags - if the star went supernova
 
-    DBL_VECTOR       initialKickParameters;                 // User-supplied initial kick parameters - if present used in place of drawing randomly/from distributions
+    KickParameters   initialKickParameters;                 // User-supplied initial kick parameters - if present used in place of drawing randomly/from distributions
     
     double           coreMassAtCOFormation;                 // Core mass of this star when it formed a compact object
     double           COCoreMassAtCOFormation;               // Carbon Oxygen core mass of the star when it goes supernova and forms a compact object
@@ -51,13 +85,13 @@ typedef struct SupernovaDetails {                           // Holds attributes,
     double           HeCoreMassAtCOFormation;               // Helium core mass of the star when it goes supernova and forms a compact objec
     HYDROGEN_CONTENT hydrogenContent;                       // Hydrogen content of the exploding star. We consider an H-rich star all SN progenitors that have an H envelope, otherwise H-poor
     double           kickVelocity;                          // Kick velocity the system received during the supernova (km s^-1)
+    double           kickVelocityRandom;                    // Random number U(0,1) for choosing the supernova kick velocity magnitude - drawn once at star creation
     double           meanAnomaly;                           // Mean anomaly at instantaneous time of the SN - uniform in [0, 2pi]
     double           phi;                                   // Angle between 'x' and 'y', both in the orbital plane of supernovae vector (rad)
     SN_STATE         supernovaState;                        // indicates which star (or stars) are undergoing / hove undergone a supernova event
     double           theta;                                 // Angle between the orbital plane and the 'z' axis of supernovae vector (rad)
     double           totalMassAtCOFormation;                // Total mass of the star when it goes supernova and forms a compact object
     double           trueAnomaly;                           // True anomaly at instantaneous time of the SN
-    double           uRand;                                 // Random number U(0,1) for choosing the supernova kick velocity magnitude - drawn once at star creation
 } SupernovaDetailsT;
 
 
