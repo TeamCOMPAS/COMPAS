@@ -146,9 +146,27 @@
 //                                          Added CalculateRadiusOnPhase() for NS (ns.h) - returns Rsol 
 //                                   Changed behaviour:  
 //                                       Print detailed output record whenever stellartype changes (after star 2 if both change)
+// (Unchanged)   LK - Jan 10, 2020 - Defect repairs:
+//                                       Added missing includes to Star.cpp, utils.h and utils.cpp (required for some compiler versions)
+// 02.05.00      JR - Jan 23, 2020 - New functionality:
+//                                       Grid files:
+//                                          Added kick velocity magnitude random number to BSE grid file - see docs re Grids
+//                                          Added range check for Kick_Mean_Anomaly_1 and Kick_Mean_Anomaly_2 ([0.0, 2pi)) in BSE grid file
+//                                          Cleaned up SSE & BSE grid file code
+//                                       Added m_LBVphaseFlag variable to BaseStar class; also added ANY_STAR_PROPERTY::LBV_PHASE_FLAG print variable.
+//                                   Deleted functionality:  
+//                                       Removed IndividualSystem option and related options - this can now be achieved via a grid file
+//                                          Update pythonSubmitDefault.py to remove individual system related parameters
+//                                   Changed behaviour:
+//                                       Removed check for Options->Quiet() around simulation ended and cpu/wall time displays at end of EvolveSingleStars() and EvolveBinaryStars() in main.cpp
+//                                   Defect repairs:
+//                                       Removed erroneous check for CH stars in BaseBinaryStar::EvaluateBinary()
+//                                       Fix for issue #46 (lower the minimum value of McSN in star.cpp from Mch to 1.38)
+//                                          Changed 'MCH' to 'MECS' in 
+//                                             BaseStar::CalculateMaximumCoreMassSN()
+//                                             GiantBranch::CalculateCoreMassAtSupernova_Static()
 
-
-const std::string VERSION_STRING = "02.04.02";
+const std::string VERSION_STRING = "02.05.00";
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
@@ -1530,6 +1548,7 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     LAMBDA_LOVERIDGE,                                \
     LAMBDA_LOVERIDGE_WINDS,                          \
     LAMBDA_NANJING,                                  \
+    LBV_PHASE_FLAG,                                  \
     LUMINOSITY,                                      \
     LUMINOSITY_POST_COMMON_ENVELOPE,                 \
     LUMINOSITY_PRE_COMMON_ENVELOPE,                  \
@@ -1656,6 +1675,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::LAMBDA_LOVERIDGE,                                "LAMBDA_LOVERIDGE" },
     { STAR_PROPERTY::LAMBDA_LOVERIDGE_WINDS,                          "LAMBDA_LOVERIDGE_WINDS" },
     { STAR_PROPERTY::LAMBDA_NANJING,                                  "LAMBDA_NANJING" },
+    { STAR_PROPERTY::LBV_PHASE_FLAG,                                  "LBV_PHASE_FLAG" },
     { STAR_PROPERTY::LUMINOSITY,                                      "LUMINOSITY" },
     { STAR_PROPERTY::LUMINOSITY_POST_COMMON_ENVELOPE,                 "LUMINOSITY_POST_COMMON_ENVELOPE" },
     { STAR_PROPERTY::LUMINOSITY_PRE_COMMON_ENVELOPE,                  "LUMINOSITY_PRE_COMMON_ENVELOPE" },
@@ -2121,6 +2141,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE,                                  { TYPENAME::DOUBLE,         "Loveridge",            "",                 14, 6 }},
     { ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE_WINDS,                            { TYPENAME::DOUBLE,         "Loveridge_Winds",      "",                 14, 6 }},
     { ANY_STAR_PROPERTY::LAMBDA_NANJING,                                    { TYPENAME::DOUBLE,         "Lambda_Nanjing",       "",                 14, 6 }},
+    { ANY_STAR_PROPERTY::LBV_PHASE_FLAG,                                    { TYPENAME::BOOL,           "LBV_Phase_Flag",       "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::LUMINOSITY,                                        { TYPENAME::DOUBLE,         "Luminosity",           "Lsol",             14, 6 }},
     { ANY_STAR_PROPERTY::LUMINOSITY_POST_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Luminosity>CE",        "Lsol",             14, 6 }},
     { ANY_STAR_PROPERTY::LUMINOSITY_PRE_COMMON_ENVELOPE,                    { TYPENAME::DOUBLE,         "Luminosity<CE",        "Lsol",             14, 6 }},

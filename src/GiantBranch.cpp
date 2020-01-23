@@ -389,7 +389,7 @@ void GiantBranch::PerturbLuminosityAndRadius() {
         double s = CalculatePerturbationS(m_Mu, m_Mass);
         double r = CalculatePerturbationR(m_Mu, m_Mass, m_Radius, Rc);
 
-        m_Luminosity = Lc * pow((m_Luminosity / Lc), s);
+        m_Luminosity = Lc * pow((m_Luminosity / Lc), s);        
         m_Radius     = Rc * pow((m_Radius / Rc), r);
     }
 }
@@ -864,7 +864,7 @@ double GiantBranch::CalculateCoreMassAtBGB_Static(const double      p_Mass,
  * @return                                      Maximum core mass before supernova on the Asymptotic Giant Branch
  */
 double GiantBranch::CalculateCoreMassAtSupernova_Static(const double p_McBAGB) {
-    return std::max(MCH, (0.773 * p_McBAGB) - 0.35);
+    return std::max(MECS, (0.773 * p_McBAGB) - 0.35);
 }
 
 
@@ -1618,11 +1618,10 @@ STELLAR_TYPE GiantBranch::IsPulsationalPairInstabilitySN() {
         SetSNPastEvent(SN_EVENT::PPISN);                                                                // ... and will be a past event
 
         stellarType   = STELLAR_TYPE::BLACK_HOLE;                                                       // -> black hole
-
+        
         m_Luminosity  = BH::CalculateLuminosityOnPhase_Static();                                        // black hole luminosity
         m_Radius      = BH::CalculateRadiusOnPhase_Static(m_Mass);                                      // Schwarzschild radius (not correct for rotating BH)
         m_Temperature = CalculateTemperatureOnPhase(m_Luminosity, m_Radius);
-
         m_SupernovaDetails.fallbackFraction = 1.0;                                                      // fraction of mass that falls back
     }
 
