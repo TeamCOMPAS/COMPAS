@@ -172,7 +172,7 @@
 										// - added some comments in the default printing below for headers that we might want to remove in the near future
 
 
-const std::string VERSION_STRING = "02.05.00";
+const std::string VERSION_STRING = "02.05.01";
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
