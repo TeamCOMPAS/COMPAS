@@ -559,7 +559,7 @@ private:
 
     double  CalculateAdaptiveRocheLobeOverFlow(const double p_JLoss);
     double  CalculateNumericalZRocheLobe(const double p_jLoss);
-    double  CalculateZRocheLobe();
+    double  CalculateZRocheLobe(const double p_jLoss);
 
     double  CalculateSemiMajorAxisPostSupernova(const double p_KickVelocity,
                                                 const double p_TotalMassPreSN,

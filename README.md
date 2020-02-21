@@ -78,9 +78,11 @@ The purpose of this document is to outline a consistent workflow for COMPAS deve
 
 `git checkout -b new-branch`
 
-- To set the upstream parent 
+- To set the upstream parent (tells git from what branch to git pull, git fetch etc.)
 
-`git push --set-upstream <remote-repo> <name-of-branch-on-remote>` 
+`git push --set-upstream-to <remote-repo> <name-of-branch-on-remote>` 
+
+an example: git push --set-upstream-to dev new-branch
 
 ### 6. Delete branches locally
 
