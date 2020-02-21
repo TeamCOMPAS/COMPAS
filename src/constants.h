@@ -174,9 +174,11 @@
 //                                       - fixed issue #31: zRocheLobe function does not use angular momentum loss
 //                                       - fixed default logfile path (defaulted to '/' instead of './')
 //                                       - changed default CE_ZETA_PRESCRIPTION to SOBERMAN (was STARTRACK which is no longer supported)
+// 02.05.03      JR - Feb 21, 2020 - Defect repairs:
+//                                       - removed extraneous debug print statement from Log.cpp
 
 
-const std::string VERSION_STRING = "02.05.02";
+const std::string VERSION_STRING = "02.05.03";
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
