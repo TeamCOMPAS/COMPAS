@@ -176,9 +176,13 @@
 //                                       - changed default CE_ZETA_PRESCRIPTION to SOBERMAN (was STARTRACK which is no longer supported)
 // 02.05.03      JR - Feb 21, 2020 - Defect repairs:
 //                                       - removed extraneous debug print statement from Log.cpp
+// 02.05.04      JR - Feb 23, 2020 - Defect repairs:
+//                                       - fixed regression introduced in v02.05.00 that incread DNS rate ten-fold
+//                                           - changed parameter from m_SupernovaDetails.initialKickParameters.velocityRandom to m_SupernovaDetails.kickVelocityRandom in call to DrawSNKickVelocity() in BaseStar::CalculateSNKickVelocity()
+//                                       - reinstated STAR_1_PROPERTY::STELLAR_TYPE and STAR_2_PROPERTY::STELLAR_TYPE in BSE_SYSTEM_PARAMETERS_REC
 
 
-const std::string VERSION_STRING = "02.05.03";
+const std::string VERSION_STRING = "02.05.04";
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
@@ -2411,9 +2415,9 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
     BINARY_PROPERTY::STELLAR_MERGER,
     BINARY_PROPERTY::STELLAR_MERGER_AT_BIRTH,
     STAR_1_PROPERTY::INITIAL_STELLAR_TYPE,
-    // STAR_1_PROPERTY::STELLAR_TYPE,
+    STAR_1_PROPERTY::STELLAR_TYPE,
     STAR_2_PROPERTY::INITIAL_STELLAR_TYPE,
-    // STAR_2_PROPERTY::STELLAR_TYPE,
+    STAR_2_PROPERTY::STELLAR_TYPE,
     BINARY_PROPERTY::ERROR
 };
 
