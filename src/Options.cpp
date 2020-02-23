@@ -177,7 +177,7 @@ void Options::InitialiseMemberVariables(void) {
     kickDirectionPower                                              = 0.0;                                                                              // Power law power for the "power" SN kick direction choice
 
     // Get default output path
-    outputPathString                                                = "";                                                                               // String to hold the output directory
+    outputPathString                                                = ".";                                                                               // String to hold the output directory
     defaultOutputPath                                               = boost::filesystem::current_path();                                                // Default output location
     outputPath                                                      = defaultOutputPath;                                                                // Desired output location (default = CWD)
 
@@ -313,17 +313,13 @@ void Options::InitialiseMemberVariables(void) {
 	commonEnvelopeSlopeKruckow                                      = -4.0/5.0;								                                            // Common envelope power factor for Kruckow fit normalized according to Kruckow+2016, Fig. 1
 
 	// Which prescription to use for calculating zetas
-	commonEnvelopeZetaPrescription                                  = CE_ZETA_PRESCRIPTION::STARTRACK;					                                // Which prescription to use for calculating CE zetas (default = ZETA_ADIABATIC)
+	commonEnvelopeZetaPrescription                                  = CE_ZETA_PRESCRIPTION::SOBERMAN;					                                // Which prescription to use for calculating CE zetas (default = ZETA_ADIABATIC)
 	commonEnvelopeZetaPrescriptionString                            = CE_ZETA_PRESCRIPTION_LABEL.at(commonEnvelopeZetaPrescription);				    // String containing which prescription to use for calculating CE zetas (default = STARTRACK)
 
 	zetaAdiabaticArbitrary                                          = 0.0;
 	zetaThermalArbitrary                                            = 0.0;
     zetaMainSequence 	                                            = 2.0;
 	zetaHertzsprungGap	                                            = 6.5;
-
-	// Which prescription to use for calculating zetas
-	commonEnvelopeZetaPrescription                                  = CE_ZETA_PRESCRIPTION::STARTRACK;					                                // Which prescription to use for calculating CE zetas (default = ZETA_ADIABATIC)
-	commonEnvelopeZetaPrescriptionString                            = CE_ZETA_PRESCRIPTION_LABEL.at(commonEnvelopeZetaPrescription);				    // String containing which prescription to use for calculating CE zetas (default = STARTRACK)
 
 
     // Afaptive Importance Sampling options
@@ -744,7 +740,7 @@ void Options::SetToFiducialValues(void) {
 
 
 	// Which prescription to use for calculating zetas
-	commonEnvelopeZetaPrescription                                  = CE_ZETA_PRESCRIPTION::STARTRACK;					                                // Which prescription to use for calculating CE zetas (default = ZETA_ADIABATIC)
+	commonEnvelopeZetaPrescription                                  = CE_ZETA_PRESCRIPTION::SOBERMAN;					                                // Which prescription to use for calculating CE zetas (default = ZETA_ADIABATIC)
 	commonEnvelopeZetaPrescriptionString                            = CE_ZETA_PRESCRIPTION_LABEL.at(commonEnvelopeZetaPrescription);					// String containing which prescription to use for calculating CE zetas (default = STARTRACK)
 
 

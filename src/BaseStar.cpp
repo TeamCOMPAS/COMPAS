@@ -1528,7 +1528,7 @@ double BaseStar::CalculateMaximumCoreMass(double p_Mass) {
 double BaseStar::CalculateMaximumCoreMassSN() {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]        // for convenience and readability - undefined at end of function
 
-    return max((MECS), ((0.773 * gbParams(McBAGB)) - 0.35));    // Mch constant in constants.h
+    return max(MECS, (0.773 * gbParams(McBAGB)) - 0.35);        // Mch constant in constants.h
 
 #undef gbParams
 }
@@ -2935,7 +2935,7 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
                                                                                                     // no errors - draw kick velocity
             vK = DrawSNKickVelocity(sigma, 
                                     m_SupernovaDetails.COCoreMassAtCOFormation, 
-                                    m_SupernovaDetails.initialKickParameters.velocityRandom, 
+                                    m_SupernovaDetails.kickVelocityRandom,
                                     p_EjectaMass, 
                                     p_RemnantMass);
         }
