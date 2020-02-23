@@ -2861,7 +2861,7 @@ double BaseBinaryStar::CalculateMassTransferOrbit(BinaryConstituentStar& p_Donor
  *
  * double CalculateNumericalZRocheLobe(const double p_jLoss)
  *
- * @param   [IN]    p_JLoss                     Specific angular momentum with which mass is lost during non-conservative mass transfer
+ * @param   [IN]    p_jLoss                     Specific angular momentum with which mass is lost during non-conservative mass transfer
  *                                              (Podsiadlowski et al. 1992, Beta: specific angular momentum of matter [2Pia^2/P])
  * @return                                      Roche Lobe response
  */
@@ -2893,25 +2893,25 @@ double BaseBinaryStar::CalculateNumericalZRocheLobe(const double p_jLoss) {
  * Sluys 2013, eq 60, Woods et al., 2012
  * Formula from M. Sluys notes "Binary evolution in a nutshell"
  *
- * JR: todo: What does "ZRocheLobe" mean?  Why don't we call this function "CalculateRocheLobResponseToMasslossSluys" (or something)?
- *
  *
  * double CalculateZRocheLobe()
+ *
+ * @param   [IN]    p_jLoss                     Specific angular momentum with which mass is lost during non-conservative mass transfer
+ *                                              (Podsiadlowski et al. 1992, Beta: specific angular momentum of matter [2Pia^2/P])
+ * @return                                      Roche Lobe response
  */
-double BaseBinaryStar::CalculateZRocheLobe() {
+double BaseBinaryStar::CalculateZRocheLobe(const double p_jLoss) {
 
     double donorMass    = m_Donor->Mass();                  // donor mass
     double accretorMass = m_Accretor->Mass();               // accretor mass
     double beta         = m_FractionAccreted;               // fraction of mass accreted by accretor
+    double gamma        = p_jLoss;
 
     double q = donorMass / accretorMass;
 
-    double massAplusMassD = accretorMass + donorMass;
-    double massAtimeMassD = accretorMass * donorMass;
-
     double q_1_3 = pow(q, 1.0 / 3.0);
 
-    double k1 = ((2.0 * donorMass * donorMass)-(2.0 * accretorMass * accretorMass) - (massAtimeMassD * (1.0 - beta))) / (accretorMass * massAplusMassD);
+    double k1 = -2.0 * (1.0 - (beta * q) - (1.0 - beta) * (gamma + 0.5) * (q / (1.0 + q)));
     double k2 = (2.0 / 3.0) - ((q_1_3 * ((1.2 * q_1_3) + (1.0 / (1.0 + q_1_3)))) / (3.0 * ((0.6 * pow(q, 2.0 / 3.0)) + (log(1.0 + q_1_3)))));
     double k3 = 1.0 + (beta * q);
 
@@ -3044,7 +3044,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                     jLoss = CalculateGammaAngularMomentumLoss();                                                                                            // no - re-calculate angular momentum
                 }
 
-                double ZlobAna      = CalculateZRocheLobe();
+                double ZlobAna      = CalculateZRocheLobe(jLoss);
                 m_ZetaRLOFNumerical = CalculateNumericalZRocheLobe(jLoss);
                 m_ZetaRLOFAnalytic  = ZlobAna;                                                                                                              // addition by Coen 18-10-2017 for zeta study.  ALEJANDRO - 04/10/2017 - Moved this to calculate it for deMink MT.
 
