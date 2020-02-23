@@ -100,7 +100,7 @@ private:
 
     Log() {                                                                         // constructor - initialise variables
         m_Enabled = false;                                                          // logging disabled initially
-        m_LogBasePath = "";                                                         // default log file base path
+        m_LogBasePath = ".";                                                        // default log file base path
         m_LogNamePrefix = "";                                                       // default log file name prefix
         m_Delimiter = DELIMITERValue.at(DELIMITER::TAB);                            // default delimiter is TAB
         m_LogLevel = 0;                                                             // default log level - log everything
