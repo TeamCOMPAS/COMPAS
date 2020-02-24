@@ -7,17 +7,16 @@
 [//]: ## (Outline features)
 COMPAS is a publicly available rapid binary population synthesis code (https://compas.science/) that is developed for easily adjustable evolution prescriptions and model parameters. COMPAS draws binary properties from a set of initial distributions, and evolves a binary star from zero-age main sequence to the end of its life as a compact remnant. It has been used for inference from observations of gravitational wave mergers, Galactic double neutron stars, and radio pulsars.
 
-
 ## Documentation
 [Getting started](https://github.com/TeamCOMPAS/COMPAS/tree/master/docs/getting_started.md)  
 [Specifications](https://github.com/TeamCOMPAS/COMPAS/tree/master/docs/COMPAS_Doc.pdf)  
 [Post-processing](https://github.com/TeamCOMPAS/COMPAS/tree/master/postProcessing)  
 
 ## Contact
-Please email your queries to XXX@gmail.com. You are also welcome to join the [COMPAS User Google Group](https://groups.google.com/forum/#!members/compas-user) to engage in discussions with COMPAS users and developers.
+Please email your queries to compas-user@googlegroups.com. You are also welcome to join the [COMPAS User Google Group](https://groups.google.com/forum/#!members/compas-user) to engage in discussions with COMPAS users and developers.
 
 ## Acknowledgements
-If you use this code or parts of this code for results presented in a scientific publication, we would greatly appreciate if you send us your paper reference and make your output data publicly available by uploading it to the [COMPAS Zenodo community](https://zenodo.org/communities/compas/). Please also kindly include citations to the two following papers:
+If you use this code or parts of this code for results presented in a scientific publication, we would greatly appreciate if you send us your paper reference and make your input settings and output data publicly available by uploading it to the [COMPAS Zenodo community](https://zenodo.org/communities/compas/). Please also kindly include citations to the two following papers:
 
 1. Stevenson S., Vigna-Gómez A., Mandel I., Barrett J. W., Neijssel C. J., Perkins D., de Mink S. E., 2017, [Nature Communications, 8, 14906](https://ui.adsabs.harvard.edu/abs/2017NatCo...814906S/abstract)
 2. Vigna-Gómez A., Neijssel C. J., Stevenson S., Barrett J. W., Belczynski K., Justham S., de Mink S., M&uuml;ller B., Podsiadlowski Ph., Renzo M., Szécsi D., Mandel I., 2018, [MNRAS, 481, 4009](https://ui.adsabs.harvard.edu/abs/2018MNRAS.481.4009V/abstract)
@@ -27,18 +26,21 @@ We anticipate releasing a more detailed and comprehensive methods paper in the f
 >_Simulations in this paper made use of the COMPAS rapid binary population synthesis code which is freely available at http://github.com/TeamCOMPAS/COMPAS_.
 
 Furthermore,
-  * if you use COMPAS's importance sampling algorithm STROOPWAFEL, please cite 
+  * If you use COMPAS's importance sampling algorithm STROOPWAFEL, please cite 
 
      Broekgaarden F. S., Justham S., de Mink S. E., Gair J., Mandel I., Stevenson S., Barrett J. W., Vigna-Gómez A., Neijssel C. J., 2019, [MNRAS, 490, 5528](https://ui.adsabs.harvard.edu/abs/2019MNRAS.490.5228B/abstract)
 
-  * Regarding gravitational wave selection effects, please cite 
+  * If using the COMPAS model of gravitational wave selection effects, please cite
 
      Barrett J. W., Gaebel S. M., Neijssel C. J., Vigna-Gómez A., Stevenson S., Berry C. P. L., Farr W. M., Mandel I., 2018, [MNRAS, 477, 4685](https://ui.adsabs.harvard.edu/abs/2018MNRAS.477.4685B/abstract)
 
-  * For integration over cosmic history, please cite 
+  * If using COMPAS integration over cosmic star formation history, please cite 
 
      Neijssel C. J., Vigna-Gómez A., Stevenson S., Barrett J. W., Gaebel S. M., Broekgaarden F. S., de Mink S. E., Szécsi D., Vinciguerra S., Mandel I., 2019, [MNRAS, 490, 3740](https://ui.adsabs.harvard.edu/abs/2019MNRAS.490.3740N/abstract)
 
-  * For pair instability supernova, please cite 
+  * If using the COMPAS model of (pulsationa) pair instability supernova, please cite 
 
      Stevenson S., Sampson M., Powell J., Vigna-Gómez A., Neijssel C. J., Szécsi D., Mandel I., 2019, [ApJ, 882, 121](https://ui.adsabs.harvard.edu/abs/2019ApJ...882..121S/abstract)
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
