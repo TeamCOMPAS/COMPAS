@@ -100,7 +100,7 @@ The python script pythonSubmitDefault.py specifies all the program options (phys
 To start, make a copy of pythonSubmitDefault.py to preserve the original script:
 
     cd $COMPAS_ROOT_DIR/src
-    cp pythonSubmit.py pythonSubmit_your_name.py
+    cp pythonSubmitDefault.py pythonSubmit_your_name.py
 
 By default, the output data will be written in your current working directory when you run pythonSubmit.py. If you want to change the output directory, set a different path behind output= in line 28 of the python submit: `output = os.getcwd()`.
 
