@@ -32,7 +32,6 @@ void Options::InitialiseMemberVariables(void) {
     debugToFile                                                     = false;                                                                            // default is do not log debug statements to a log file
     errorsToFile                                                    = false;                                                                            // default is do not log error messages to a log file
 
-    individualSystem                                                = false;                                                                            // Flag to evolve a specific individual system which you can specify initial parameters of
     singleStar                                                      = false;                                                                            // Flag to evolve a single star
 
 	lambdaCalculationEveryTimeStep                                  = false;
@@ -54,19 +53,6 @@ void Options::InitialiseMemberVariables(void) {
 //    useMCMC                                                         = false;
 
     nBatchesUsed                                                    = -1;                                                                               // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
-
-
-	// Individual system variables
-    primaryMass                                                     = 20.0;                                                                             // Initial primary mass in solar masses
-    secondaryMass                                                   = 10.0;                                                                             // Initial secondary mass in solar masses
-
-    initialPrimaryMetallicity                                       = 0.02;                                                                             // Initial metallicity of the primary
-    initialSecondaryMetallicity                                     = 0.02;                                                                             // Initial metallicity of the secondary
-
-    binarySeparation                                                = -1.0;                                                                             // Initial separation in AU
-    binaryOrbitalPeriod                                             = -1.0;                                                                             // Initial orbital period in day
-    binaryEccentricity                                              = 0.0;                                                                              // Initial eccentricity
-
 
     // Variables required to restart a binary/star part-way through
 //    primaryStellarType                                              = -1;                                                                               // Initial primary stellar type (not yet implemented)
@@ -191,7 +177,7 @@ void Options::InitialiseMemberVariables(void) {
     kickDirectionPower                                              = 0.0;                                                                              // Power law power for the "power" SN kick direction choice
 
     // Get default output path
-    outputPathString                                                = "";                                                                               // String to hold the output directory
+    outputPathString                                                = ".";                                                                               // String to hold the output directory
     defaultOutputPath                                               = boost::filesystem::current_path();                                                // Default output location
     outputPath                                                      = defaultOutputPath;                                                                // Desired output location (default = CWD)
 
@@ -327,17 +313,13 @@ void Options::InitialiseMemberVariables(void) {
 	commonEnvelopeSlopeKruckow                                      = -4.0/5.0;								                                            // Common envelope power factor for Kruckow fit normalized according to Kruckow+2016, Fig. 1
 
 	// Which prescription to use for calculating zetas
-	commonEnvelopeZetaPrescription                                  = CE_ZETA_PRESCRIPTION::STARTRACK;					                                // Which prescription to use for calculating CE zetas (default = ZETA_ADIABATIC)
+	commonEnvelopeZetaPrescription                                  = CE_ZETA_PRESCRIPTION::SOBERMAN;					                                // Which prescription to use for calculating CE zetas (default = ZETA_ADIABATIC)
 	commonEnvelopeZetaPrescriptionString                            = CE_ZETA_PRESCRIPTION_LABEL.at(commonEnvelopeZetaPrescription);				    // String containing which prescription to use for calculating CE zetas (default = STARTRACK)
 
 	zetaAdiabaticArbitrary                                          = 0.0;
 	zetaThermalArbitrary                                            = 0.0;
     zetaMainSequence 	                                            = 2.0;
 	zetaHertzsprungGap	                                            = 6.5;
-
-	// Which prescription to use for calculating zetas
-	commonEnvelopeZetaPrescription                                  = CE_ZETA_PRESCRIPTION::STARTRACK;					                                // Which prescription to use for calculating CE zetas (default = ZETA_ADIABATIC)
-	commonEnvelopeZetaPrescriptionString                            = CE_ZETA_PRESCRIPTION_LABEL.at(commonEnvelopeZetaPrescription);				    // String containing which prescription to use for calculating CE zetas (default = STARTRACK)
 
 
     // Afaptive Importance Sampling options
@@ -456,7 +438,6 @@ void Options::SetToFiducialValues(void) {
     debugToFile                                                     = false;                                                                            // default is do not log debug statements to a log file
     errorsToFile                                                    = false;                                                                            // default is do not log error messages to a log file
 
-    individualSystem                                                = false;                                                                            // Flag to evolve a specific individual system which you can specify initial parameters of
     singleStar                                                      = false;                                                                            // Flag to evolve a single star
 
 	lambdaCalculationEveryTimeStep                                  = false;
@@ -478,18 +459,6 @@ void Options::SetToFiducialValues(void) {
 //    useMCMC                                                         = false;
 
     nBatchesUsed                                                    = -1;                                                                               // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
-
-
-    // Individual system variables
-    primaryMass                                                     = 96.2;                                                                             // Initial primary mass in solar masses
-    secondaryMass                                                   = 60.2;                                                                             // Initial secondary mass in solar masses
-
-    initialPrimaryMetallicity                                       = 0.02;                                                                             // Initial metallicity of the primary
-    initialSecondaryMetallicity                                     = 0.02;                                                                             // Initial metallicity of the secondary
-
-    binarySeparation                                                = 11.5;                                                                             // Initial separation in AU
-    binaryOrbitalPeriod                                             = -1.0;                                                                             // Initial orbital period in day
-    binaryEccentricity                                              = 0.0;                                                                              // Initial eccentricity
 
 
     // Variables required to restart a binary/star halfway through
@@ -771,7 +740,7 @@ void Options::SetToFiducialValues(void) {
 
 
 	// Which prescription to use for calculating zetas
-	commonEnvelopeZetaPrescription                                  = CE_ZETA_PRESCRIPTION::STARTRACK;					                                // Which prescription to use for calculating CE zetas (default = ZETA_ADIABATIC)
+	commonEnvelopeZetaPrescription                                  = CE_ZETA_PRESCRIPTION::SOBERMAN;					                                // Which prescription to use for calculating CE zetas (default = ZETA_ADIABATIC)
 	commonEnvelopeZetaPrescriptionString                            = CE_ZETA_PRESCRIPTION_LABEL.at(commonEnvelopeZetaPrescription);					// String containing which prescription to use for calculating CE zetas (default = STARTRACK)
 
 
@@ -938,7 +907,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 			("evolve-unbound-systems",                              "Keeps evolving stars even if the binary is disrupted")
             ("forceCaseBBBCStabilityFlag",                          "Force case BB/BC mass transfer to be only stable or unstable (default = True)")
 		    ("help,h",                                              "Print this help message")
-		    ("individual-system",                                   "Run an individual system")
 			("lambda-calculation-every-timeStep",                   "Calculate all values of lambda at each timestep")
    		   	("massTransfer",                                        "Enable mass transfer")
 //			("mcmc",                                                "Use MCMC sampling (Not yet implemented. default = false)")
@@ -969,8 +937,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		    // int
 			("debug-level",                                                 po::value<int>(&debugLevel),                                                        "Determines which print statements are displayed for debugging")
-//		    ("individual-initial-primary-type",                             po::value<int>(&primaryStellarType),                                                "Initial stellar type for primary (not yet implemented) (default ZAMS from mass)")
-//		    ("individual-initial-secondary-type",                           po::value<int>(&secondaryStellarType),                                              "Initial stellar type for secondary (not yet implemented) (default ZAMS from mass)")
 		    ("log-level",                                                   po::value<int>(&logLevel),                                                          "Determines which print statements are included in the logfile")
 		    ("maximum-number-iterations",                                   po::value<int>(&maxNumberOfTimestepIterations),                                     "Maximum number of timesteps to evolve binary before giving up (default = 99999)")
 			("number-of-binaries,n",                                        po::value<int>(&nBinaries),                                                         "Specify the number of binaries to simulate (default = 1000000)")
@@ -1009,21 +975,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
    		    ("fix-dimensionless-kick-velocity",                             po::value<double>(&fixedUK),                                                        "Fix dimensionless kick velocity uk to this value (default = -1, -ve values false, +ve values true)")
 
-//		    ("individual-effective-initial-primary-mass",                   po::value<double>(&primaryEffectiveInitialMass),                                    "Effective initial mass for primary in Msol (default = Mass)")
-//		    ("individual-effective-initial-secondary-mass",                 po::value<double>(&secondaryEffectiveInitialMass),                                  "Effective initial mass for secondary in Msol (default = Mass)")
-		    ("individual-initial-orbital-eccentricity",                     po::value<double>(&binaryEccentricity),                                             "Initial orbital eccentricity (default = 0.0)")
-		    ("individual-initial-orbital-period",                           po::value<double>(&binaryOrbitalPeriod),                                            "Initial orbital period in days (default from masses and separation)")
-		    ("individual-initial-orbital-separation",                       po::value<double>(&binarySeparation),                                               "Initial orbital separation in AU (default = 1.0)")
-//		    ("individual-initial-primary-age",                              po::value<double>(&primaryAge),                                                     "Initial age for primary in Myrs (default = 0.0)")
-//		    ("individual-initial-primary-core-mass",                        po::value<double>(&primaryCoreMass),                                                "Initial core mass for primary in Msol (default = 0.0)")
-		    ("individual-initial-primary-mass",                             po::value<double>(&primaryMass),                                                    "Initial mass for primary in Msol (default = 20.0)")
-		    ("individual-initial-primary-metallicity",                      po::value<double>(&initialPrimaryMetallicity),                                      "Initial metallicity for primary (default = 0.02)")
-//		    ("individual-initial-primary-rotational-velocity",              po::value<double>(&primaryRotationalVelocity),                                      "Initial rotational velocity for primary (not yet implemented) (default = 0.0)")
-//		    ("individual-initial-secondary-age",                            po::value<double>(&secondaryAge),                                                   "Initial age for secondary in Myrs (default = 0.0)")
-//		    ("individual-initial-secondary-core-mass",                      po::value<double>(&secondaryCoreMass),                                              "Initial core mass for secondary in Msol (default = 0.0)")
-		    ("individual-initial-secondary-mass",                           po::value<double>(&secondaryMass),                                                  "Initial mass for secondary in Msol (default = 10.0)")
-		    ("individual-initial-secondary-metallicity",                    po::value<double>(&initialSecondaryMetallicity),                                    "Initial metallicity for secondary (default = 0.02)")
-//		    ("individual-initial-secondary-rotational-velocity",            po::value<double>(&secondaryRotationalVelocity),                                    "Initial rotational velocity for secondary (not yet implemented) (default = 0.0)")
 		    ("initial-mass-max",                                            po::value<double>(&initialMassFunctionMax),                                         "Maximum mass (in Msol) to generate using given IMF (default = 100)")
 		    ("initial-mass-min",                                            po::value<double>(&initialMassFunctionMin),                                         "Minimum mass (in Msol) to generate using given IMF (default = 8)")
 		    ("initial-mass-power",                                          po::value<double>(&initialMassFunctionPower),                                       "Single power law power to generate primary mass using given IMF")
@@ -1209,8 +1160,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             fixedMetallicity                                = vm.count("metallicity") ? true : fixedMetallicity;                        // user-specified a metallicity value?  Retain previous (default) value
 
             fixedRandomSeed                                 = fixedRandomSeed || vm.count("random-seed");                               // user-specified random seed?  Do not retain previous (default) value
-
-            individualSystem                                = vm.count("individual-system");                                            // run an individual system or do population synthesis?  Do not retain previous (default) value
 
 			lambdaCalculationEveryTimeStep                  = vm.count("lambda-calculation-every-timeStep");                            // calculate lambdas at every timestep?  Do not retain previous (default) value if not specified
 
@@ -1504,8 +1453,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             COMPLAIN_IF(eccentricityDistributionMin < 0.0 || eccentricityDistributionMin > 1.0, "Minimum eccentricity (--eccentricity-min) must be between 0 and 1");
             COMPLAIN_IF(eccentricityDistributionMax < 0.0 || eccentricityDistributionMax > 1.0, "Maximum eccentricity (--eccentricity-max) must be between 0 and 1");
             COMPLAIN_IF(eccentricityDistributionMax <= eccentricityDistributionMin, "Maximum eccentricity (--eccentricity-max) must be > Minimum eccentricity (--eccentricity-min)");
-
-            if (individualSystem && !gridFilename.empty()) individualSystem = false;                                                    // ignore individual-system if have a grid filename
 
             COMPLAIN_IF(initialMassFunctionMin < 0.0, "Minimum initial mass (--initial-mass-min) < 0");
             COMPLAIN_IF(initialMassFunctionMax < 0.0, "Maximum initial mass (--initial-mass-max) < 0");

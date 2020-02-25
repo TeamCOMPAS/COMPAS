@@ -27,7 +27,7 @@ BaseStar::BaseStar() {
 BaseStar::BaseStar(const unsigned long int p_RandomSeed, 
                    const double            p_MZAMS, 
                    const double            p_Metallicity, 
-                   const DBL_VECTOR        p_KickParameters,
+                   const KickParameters    p_KickParameters,
                    const double            p_LBVfactor, 
                    const double            p_WolfRayetFactor) {
 
@@ -159,7 +159,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_DtPrev                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_OmegaPrev                                = m_OmegaZAMS;
 
-
     // Lambdas
 	m_Lambdas.dewi                             = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_Lambdas.fixed                            = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -209,16 +208,16 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     m_SupernovaDetails.supernovaState          = SN_STATE::NONE;
 
-    if (p_KickParameters.size() == 0) {
-        m_SupernovaDetails.uRand               = RAND->Random();
-        std::tie(m_SupernovaDetails.theta, m_SupernovaDetails.phi) = DrawKickDirection();
-        m_SupernovaDetails.meanAnomaly         = RAND->Random(0.0, _2_PI);
+    if (p_KickParameters.supplied) {
+        m_SupernovaDetails.kickVelocityRandom  = p_KickParameters.useVelocityRandom ? p_KickParameters.velocityRandom : DEFAULT_INITIAL_DOUBLE_VALUE;
+        m_SupernovaDetails.theta               = p_KickParameters.theta;
+        m_SupernovaDetails.phi                 = p_KickParameters.phi;
+        m_SupernovaDetails.meanAnomaly         = p_KickParameters.meanAnomaly;
     }
     else {
-        m_SupernovaDetails.uRand               = DEFAULT_INITIAL_DOUBLE_VALUE;
-        m_SupernovaDetails.theta               = p_KickParameters[1];           // JR todo: vector index '1' should be a constant
-        m_SupernovaDetails.phi                 = p_KickParameters[2];           // JR todo: vector index '2' should be a constant
-        m_SupernovaDetails.meanAnomaly         = p_KickParameters[3];           // JR todo: vector index '3' should be a constant
+        m_SupernovaDetails.kickVelocityRandom  = RAND->Random();
+        std::tie(m_SupernovaDetails.theta, m_SupernovaDetails.phi) = DrawKickDirection();
+        m_SupernovaDetails.meanAnomaly         = RAND->Random(0.0, _2_PI);
     }
 
     // Calculates the Baryonic mass for which the GravitationalRemnantMass will be equal to the maximumNeutronStarMass (inverse of SolveQuadratic())
@@ -346,6 +345,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE:                                   value = Lambda_Loveridge();                                     break;
             case ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE_WINDS:                             value = Lambda_LoveridgeWinds();                                break;
             case ANY_STAR_PROPERTY::LAMBDA_NANJING:                                     value = Lambda_Nanjing();                                       break;
+            case ANY_STAR_PROPERTY::LBV_PHASE_FLAG:                                     value = LBV_Phase_Flag();                                       break;
             case ANY_STAR_PROPERTY::LUMINOSITY:                                         value = Luminosity();                                           break;
             case ANY_STAR_PROPERTY::MASS:                                               value = Mass();                                                 break;
             case ANY_STAR_PROPERTY::MASS_0:                                             value = Mass0();                                                break;
@@ -373,7 +373,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::STELLAR_TYPE_NAME:                                  value = STELLAR_TYPE_LABEL.at(StellarType());                   break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE_PREV:                                  value = StellarTypePrev();                                      break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE_PREV_NAME:                             value = STELLAR_TYPE_LABEL.at(StellarTypePrev());               break;
-            case ANY_STAR_PROPERTY::SUPERNOVA_KICK_VELOCITY_MAGNITUDE_RANDOM_NUMBER:    value = SN_URand();                                             break;
+            case ANY_STAR_PROPERTY::SUPERNOVA_KICK_VELOCITY_MAGNITUDE_RANDOM_NUMBER:    value = SN_KickVelocityRandom();                                break;
             case ANY_STAR_PROPERTY::SUPERNOVA_PHI:                                      value = SN_Phi();                                               break;
             case ANY_STAR_PROPERTY::SUPERNOVA_THETA:                                    value = SN_Theta();                                             break;
             case ANY_STAR_PROPERTY::TEMPERATURE:                                        value = Temperature();                                          break;
@@ -1528,7 +1528,7 @@ double BaseStar::CalculateMaximumCoreMass(double p_Mass) {
 double BaseStar::CalculateMaximumCoreMassSN() {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]        // for convenience and readability - undefined at end of function
 
-    return max((MCH), ((0.773 * gbParams(McBAGB)) - 0.35));    // Mch constant in constants.h
+    return max(MECS, (0.773 * gbParams(McBAGB)) - 0.35);        // Mch constant in constants.h
 
 #undef gbParams
 }
@@ -1825,7 +1825,7 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
  * @return                                      Mass loss rate in Msol per year
  */
 double BaseStar::CalculateMassLossRateHurley() {
-    return (utils::Compare(m_Luminosity, 4.0E3) > 0) ? CalculateMassLossRateNieuwenhuijzenDeJager() : 0.0;
+    return (utils::Compare(m_Luminosity, 4.0E3) > 0) ? CalculateMassLossRateNieuwenhuijzenDeJager() : 0.0;          // JR: todo: make this a constant
 }
 
 
@@ -1841,15 +1841,15 @@ double BaseStar::CalculateMassLossRateVink() {
     double rate;
 
     double tmp = m_Radius * sqrt(m_Luminosity) * 1.0E-5;
-    if ((utils::Compare(m_Luminosity, LBV_LUMINOSITY_LIMIT_STARTRACK) > 0) && (utils::Compare(tmp, 1.0) > 0)) { // luminous blue variable
-		m_LBVphaseFlag = true;                                                                                  // ... is true
+    if ((utils::Compare(m_Luminosity, LBV_LUMINOSITY_LIMIT_STARTRACK) > 0) && (utils::Compare(tmp, 1.0) > 0)) {     // luminous blue variable
+		m_LBVphaseFlag = true;                                                                                      // ... is true
 
-        rate = CalculateMassLossRateLBV2(m_LBVfactor);                                                          // calculate mass loss rate
+        rate = CalculateMassLossRateLBV2(m_LBVfactor);                                                              // calculate mass loss rate
     }
     else {
         double teff = m_Temperature * TSOL;                                                                         // change to Kelvin so it can be compared with values as stated in Vink prescription
 
-        if (utils::Compare(teff, 12500.0) < 0) {                                                                    // cool stars, use Hurley et al 2000 winds
+        if (utils::Compare(teff, 12500.0) < 0) {                                                                    // cool stars, use Hurley et al 2000 winds  JR: todo: make this a constant
             rate = CalculateMassLossRateHurley();
         }
         else  {                                                                                                     // hot stars, use Vink et al. 2001 winds (ignoring bistability jump)
@@ -2886,11 +2886,10 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
     ERROR error = ERROR::NONE;
 	double vK;
 
-    if (m_SupernovaDetails.initialKickParameters.size() > 0) {                                      // check for user-supplied kick parameters
-        vK = m_SupernovaDetails.initialKickParameters[0];                                           // have it - use it     JR todo: vector index '0' should be a constant
-    }
-    else {
-    
+    if (!m_SupernovaDetails.initialKickParameters.supplied ||                                       // user did not supply kick parameters, or
+        (m_SupernovaDetails.initialKickParameters.supplied &&                                       // user did supply kick parameters but ...
+         m_SupernovaDetails.initialKickParameters.useVelocityRandom)) {                             // ... wants to draw velocity using supplied random number
+
         double sigma;
         switch (utils::SNEventType(m_SupernovaDetails.events.current)) {                            // what type of supernova event happening now?
 
@@ -2934,9 +2933,17 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
     
 	    if (error == ERROR::NONE) {                                                                 // check for errors
                                                                                                     // no errors - draw kick velocity
-            vK = DrawSNKickVelocity(sigma, m_SupernovaDetails.COCoreMassAtCOFormation, m_SupernovaDetails.uRand, p_EjectaMass, p_RemnantMass);
+            vK = DrawSNKickVelocity(sigma, 
+                                    m_SupernovaDetails.COCoreMassAtCOFormation, 
+                                    m_SupernovaDetails.kickVelocityRandom,
+                                    p_EjectaMass, 
+                                    p_RemnantMass);
         }
     }
+    else {                                                                                          // user supplied kick parameters and wants tu use supplied kick velocity, so ...
+        vK = m_SupernovaDetails.initialKickParameters.velocity;                                     // ... use it 
+    }
+
 
 	if (error == ERROR::NONE) {                                                                     // check for errors
 
@@ -3481,6 +3488,7 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase() {
             m_HeCoreMass  = CalculateHeCoreMassAtPhaseEnd();
 
             m_Luminosity  = CalculateLuminosityAtPhaseEnd();
+            
             m_Radius      = CalculateRadiusAtPhaseEnd();
 
             ResolveEnvelopeMassAtPhaseEnd(m_Tau);

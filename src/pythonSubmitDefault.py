@@ -5,6 +5,7 @@ import os
 import itertools
 import pickle
 from subprocess import call
+import argparse as ap
 
 class pythonProgramOptions:
     """
@@ -38,24 +39,6 @@ class pythonProgramOptions:
 
     #-- set inidividual system parameters
     single_star = False
-    individual_system = False
-    individual_initial_primary_mass = 15.0  #  [Msol]
-    individual_initial_secondary_mass = 1.0  #  [Msol]
-    individual_initial_primary_metallicity = 0.02
-    individual_initial_secondary_metallicity = 0.0142 #0.02
-#    individual_initial_primary_type = 1                            # not yet implemented
-#    individual_initial_secondary_type = 1                          # not yet implemented
-#    individual_initial_primary_rotational_velocity = 0.0           # not yet implemented
-#    individual_initial_secondary_rotational_velocity = 0.0         # not yet implemented
-    individual_initial_orbital_separation = -1  #  [AU]
-    individual_initial_orbital_period = 1400.0  #  [days]
-    individual_initial_orbital_eccentricity = 0.0
-#    individual_initial_primary_core_mass = 0                       # not yet implemented
-#    individual_initial_secondary_core_mass = 0                     # not yet implemented
-#    individual_effective_initial_primary_mass = 0                  # not yet implemented
-#    individual_effective_initial_secondary_mass = 0                # not yet implemented
-#    individual_initial_primary_age = 0                             # not yet implemented
-#    individual_initial_secondary_age = 0                           # not yet implemented
 
     grid_filename = ''
 
@@ -255,6 +238,8 @@ class pythonProgramOptions:
 
     logfile_name_prefix = 'Compas_Log_'
     logfile_delimiter   = 'COMMA'
+    logfile_BSE_system_parameters = None
+    logfile_BSE_double_compact_objects = None
 
     debug_to_file  = False
     errors_to_file = False
@@ -277,7 +262,6 @@ class pythonProgramOptions:
     def booleanChoices(self):
         booleanChoices = [
             self.single_star,
-            self.individual_system,
             self.use_mass_loss,
             self.mass_transfer,
             self.post_newtonian_evolution,
@@ -319,7 +303,6 @@ class pythonProgramOptions:
     def booleanCommands(self):
         booleanCommands = [
             '--single-star',
-            '--individual-system',
             '--use-mass-loss',
             '--massTransfer',
             '--PNEcc',
@@ -361,23 +344,6 @@ class pythonProgramOptions:
     def numericalChoices(self):
         numericalChoices = [
             self.number_of_binaries,
-            self.individual_initial_primary_mass,
-            self.individual_initial_secondary_mass,
-            self.individual_initial_primary_metallicity,
-            self.individual_initial_secondary_metallicity,
-#            self.individual_initial_primary_type,
-#            self.individual_initial_secondary_type,
-#            self.individual_initial_primary_rotational_velocity,
-#            self.individual_initial_secondary_rotational_velocity,
-            self.individual_initial_orbital_separation,
-            self.individual_initial_orbital_period,
-            self.individual_initial_orbital_eccentricity,
-#            self.individual_initial_primary_core_mass,
-#            self.individual_initial_secondary_core_mass,
-#            self.individual_effective_initial_primary_mass,
-#            self.individual_effective_initial_secondary_mass,
-#            self.individual_initial_primary_age,
-#            self.individual_initial_secondary_age,
             self.metallicity,
             self.common_envelope_alpha,
             self.common_envelope_lambda,
@@ -473,23 +439,6 @@ class pythonProgramOptions:
     def numericalCommands(self):
         numericalCommands = [
             '--number-of-binaries',
-            '--individual-initial-primary-mass',
-            '--individual-initial-secondary-mass',
-            '--individual-initial-primary-metallicity',
-            '--individual-initial-secondary-metallicity',
-#            '--individual-initial-primary-type',
-#            '--individual-initial-secondary-type',
-#            '--individual-initial-primary-rotational-velocity',
-#            '--individual-initial-secondary-rotational-velocity',
-            '--individual-initial-orbital-separation',
-            '--individual-initial-orbital-period',
-            '--individual-initial-orbital-eccentricity',
-#            '--individual-initial-primary-core-mass',
-#            '--individual-initial-secondary-core-mass',
-#            '--individual-effective-initial-primary-mass',
-#            '--individual-effective-initial-secondary-mass',
-#            '--individual-initial-primary-age',
-#            '--individual-initial-secondary-age',
             '--metallicity',
             '--common-envelope-alpha',
             '--common-envelope-lambda',
@@ -615,7 +564,9 @@ class pythonProgramOptions:
             self.logfile_name_prefix,
             self.logfile_delimiter,
             self.logfile_definitions,
-            self.grid_filename
+            self.grid_filename,
+            self.logfile_BSE_system_parameters,
+            self.logfile_BSE_double_compact_objects
         ]
 
         return stringChoices
@@ -654,7 +605,9 @@ class pythonProgramOptions:
             '--logfile-name-prefix',
             '--logfile-delimiter',
             '--logfile-definitions',
-            '--grid'
+            '--grid',
+            '--logfile-BSE-system-parameters',
+            '--logfile-BSE-double-compact-objects'
         ]
 
         return stringCommands
@@ -674,6 +627,13 @@ class pythonProgramOptions:
         ]
 
         return listCommands
+
+def addArgumentsFromCommandLine(commands, choices):
+    for index, command in enumerate(commands):
+        parser = ap.ArgumentParser()
+        parser.add_argument(command, default=choices[index])
+        (args, extras) = parser.parse_known_args()
+        choices[index] = next(iter(vars(args).values()))
 
 
 def specifyCommandLineOptions(programOptions):
@@ -702,6 +662,10 @@ def specifyCommandLineOptions(programOptions):
 
     listChoices = programOptions.listChoices()
     listCommands = programOptions.listCommands()
+
+    addArgumentsFromCommandLine(booleanCommands, booleanChoices)
+    addArgumentsFromCommandLine(numericalCommands, numericalChoices)
+    addArgumentsFromCommandLine(stringCommands, stringChoices)
 
     if programOptions.hyperparameterGrid == True:
         command = hyperparameterGridCommand(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,programOptions.shareSeeds)
