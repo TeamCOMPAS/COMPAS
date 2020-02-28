@@ -6,8 +6,7 @@
 ## 1. Installing COMPAS and Dependencies
 First change to the directory within which you wish to store your copy of COMPAS. In the rest of this document, we use as an example `$HOME/codes`:
 
-    mkdir ~/codes
-    cd ~/codes
+    cd $HOME/codes
 
 Use `git clone` to download the COMPAS repository. If you do not have git installed, you may follow the instructions on https://www.atlassian.com/git/tutorials/install-git.
  
@@ -83,7 +82,7 @@ If the compilation was unsuccessful, it is likely that you have to edit `Makefil
     /usr/local/Cellar/boost/1.72.0 (14,466 files, 648.5MB) *
     ...
 
-Copy the path, which in this case is `/usr/local/Cellar/boost/1.72.0`, and add it to the relevant line of the Makefile:
+Copy the path, which in this case is `/usr/local/Cellar/boost/1.72.0`, and add it to the appropriate line of the Makefile:
 
     BOOST = /usr/local/Cellar/boost/1.72.0
  
