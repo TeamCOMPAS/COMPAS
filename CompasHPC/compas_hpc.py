@@ -50,6 +50,10 @@ from compas_hpc_input import *
 
 ###############################################
 
+# Check if we are using python 3
+python_version = sys.version_info[0]
+print("python_version =", python_version)
+
 ###############################################
 #
 # Check number of batches is sensible
@@ -683,7 +687,8 @@ elif cluster in slurm_cluster_list:
 
 		ppString = chpc.GenerateSlurmJobString(ppName, number_of_nodes, number_of_cores, ppOutputFile, ppErrorFile, ppWalltime, ppMemory, user_email=user_email, run_directory=AISExploratoryDir, command=ppCommand)
 
-		sbatchPPCommand = 'sbatch --dependency=afterok:' + str(main_job_id)
+		sbatchPPCommand = chpc.sbatchCommandDependency(dependencyString='afterok', dependencyID=main_job_id)
+		#sbatchPPCommand = 'sbatch --dependency=afterok:' + str(main_job_id)
 
 	else:
 
@@ -699,7 +704,8 @@ elif cluster in slurm_cluster_list:
 
 		ppString = chpc.GenerateSlurmJobString(ppName, number_of_nodes, number_of_cores, ppOutputFile, ppErrorFile, ppWalltime, ppMemory, user_email=user_email, run_directory=rootOutputDir, command=ppCommand)
 
-		sbatchPPCommand = 'sbatch --dependency=afterok:' + str(main_job_id)
+		sbatchPPCommand = chpc.sbatchCommandDependency(dependencyString='afterok', dependencyID=main_job_id)
+		#sbatchPPCommand = 'sbatch --dependency=afterok:' + str(main_job_id)
 
 	print(ppString)
 
@@ -720,7 +726,10 @@ elif cluster in slurm_cluster_list:
 		proc.stdin.write(ppString)
 	
 	ppOut, err = proc.communicate()
-
+	
+	print("ppOut = ", ppOut)
+	print("err = ", err)
+	
 	ppJobID = ppOut.split()[-1]
 
 	print("Post-processing job ID = ", ppJobID)
@@ -744,7 +753,8 @@ elif cluster in slurm_cluster_list:
 
 		AISStep2SlurmString = chpc.GenerateSlurmJobString(AISstep2Name, number_of_nodes, number_of_cores, AISStep2OutputFile, AISStep2ErrorFile, ppWalltime, ppMemory, user_email=user_email, run_directory=newMasterFolderDir, command=AISstep2Command)
 
-		sbatchCommand = 'sbatch --dependency=afterok:' + str(ppJobID)
+		sbatchCommand = chpc.sbatchCommandDependency(dependencyString='afterok', dependencyID=ppJobID)
+		#sbatchCommand = 'sbatch --dependency=afterok:' + str(ppJobID)
 
 		# Open a pipe to the sbatch command.
 		proc = Popen(sbatchCommand, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=True)
@@ -779,6 +789,9 @@ elif cluster in slurm_cluster_list:
 		sbatchFile.write(job_string)
 		sbatchFile.close()
 
+		if (sys.version_info > (3, 0)):
+                    AISStep2JobID = AISStep2JobID.decode('utf-8')
+		
 		sbatchArrayCommand = 'sbatch --array=0-' + str(nBatches-1) + '%' + str(maxNumJobsRun) + ' ' + '--dependency=afterok:' + str(AISStep2JobID) + ' ' + os.path.join(AISSamplingDir, 'AISstep3.sbatch')
 		print(sbatchArrayCommand)
 
@@ -795,7 +808,8 @@ elif cluster in slurm_cluster_list:
 		time.sleep(0.5)
 
 		print("out = ", out)
-
+		print("err = ", err)
+		
 		AISStep3JobID = out.split()[-1]
 
 		print("AIS step 3 job ID = ", AISStep3JobID)
@@ -818,7 +832,9 @@ elif cluster in slurm_cluster_list:
 
 		print(ppString)
 		
-		sbatchPPCommand = 'sbatch --dependency=afterok:' + str(AISStep3JobID)
+		sbatchPPCommand = chpc.sbatchCommandDependency(dependencyString='afterok', dependencyID=jobID)
+
+		#sbatchPPCommand = 'sbatch --dependency=afterok:' + str(AISStep3JobID)
 
 		print(sbatchPPCommand)
 
@@ -832,6 +848,9 @@ elif cluster in slurm_cluster_list:
 			proc.stdin.write(ppString)
 		
 		pp2Out, err = proc.communicate()
+
+		print("pp2Out = ", pp2Out)
+		print("err = ", err)
 
 		pp2JobID = pp2Out.split()[-1]
 
@@ -852,7 +871,9 @@ elif cluster in slurm_cluster_list:
 		#-- Run bash file using Slurm
 		AISUpdateWeightsSlurmString = chpc.GenerateSlurmJobString(AISPostProcessingName, number_of_nodes, number_of_cores, AISUpdateWeightsOutputFile, AISUpdateWeightsErrorFile, ppWalltime, ppMemory, user_email=user_email, run_directory=newMasterFolderDir, command=AISUpdateWeightsCommand)
 
-		sbatchCommand = 'sbatch --dependency=afterok:' + str(pp2JobID)
+		
+		sbatchCommand = chpc.sbatchCommandDependency(dependencyString='afterok', dependencyID=pp2JobID)
+		#sbatchCommand = 'sbatch --dependency=afterok:' + str(pp2JobID)
 
 		# Open a pipe to the sbatch command.
 		proc = Popen(sbatchCommand, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=True)
@@ -880,7 +901,8 @@ elif cluster in slurm_cluster_list:
 
 		AISCombineString = chpc.GenerateSlurmJobString(AISCombineName, number_of_nodes, number_of_cores, AISCombineOutputFile, AISCombineErrorFile, AISCombineWalltime, AISCombineMemory, send_email, user_email=user_email, run_directory=AISCombinedDir, command=AISCombineCommand)
 
-		sbatchAISCommand = 'sbatch --dependency=afterok:' + str(AISUpdateWeightsJobID)
+		sbatchAISCommand = chpc.sbatchCommandDependency(dependencyString='afterok', dependencyID=AISUpdateWeightsJobID)
+		#sbatchAISCommand = 'sbatch --dependency=afterok:' + str(AISUpdateWeightsJobID)
 
 		# Open a pipe to the sbatch command.
 		proc = Popen(sbatchAISCommand, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=True)
