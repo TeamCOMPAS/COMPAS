@@ -105,7 +105,6 @@ def cleanUpOutputFolders():
 
     return
 
-# Taken from Coen's csv_to_hdf5 converter. Should make it so file names are generated using user specified option from pythonSubmit - left as enhancement.
 fileNames = {1:'Compas_Log_BSE_Common_Envelopes.csv',\
              2:'Compas_Log_BSE_Double_Compact_Objects.csv',\
              3:'Compas_Log_BSE_Supernovae.csv',\
@@ -301,7 +300,6 @@ def createH5file(baseDirectoryData='.', groups=[1,2,3,4], h5FilePath='COMPAS_out
     hf.close()
 
     return
-    
 
 def cleanUpInIsleNumber2Please(baseDirectoryData='.', groups=[1,2,3,4]):
     
@@ -309,10 +307,13 @@ def cleanUpInIsleNumber2Please(baseDirectoryData='.', groups=[1,2,3,4]):
         fileName   = 'Combine_' + fileNames[groupNumber]
         filePath   = os.path.join(baseDirectoryData, fileName)
         command    = 'rm ' + filePath
-	print("Removing ", filePath)
-	print(command)
+
+        print("fileName = ", fileName)
+        print("filePath = ", filePath)
+        print("Removing ", filePath)
+        print(command)
         proc = sp.Popen(command, shell=True, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE, executable='/bin/bash')
-	
+        
         ## Execute command
         if (sys.version_info > (3, 0)):
             proc.stdin.write(command.encode('utf-8'))
