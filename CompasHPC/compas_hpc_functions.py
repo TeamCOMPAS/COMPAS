@@ -94,6 +94,12 @@ cd $PBS_O_WORKDIR
 
 #####################################################
 
+# Check if we are using python 3
+python_version = sys.version_info[0]
+print("python_version =", python_version)
+
+#####################################################
+
 def runBashCommand(bashCommand, verbose=True):
 	"""
 	Run bash command
@@ -354,3 +360,26 @@ def write_dag_retry_line(dag, job_name, nRetries):
 	dag.write('RETRY ' + job_name + ' ' + str(nRetries) + '\n')
 	dag.write('\n')
 	return 
+
+def sbatchCommandDependency(dependencyString='afterok', dependencyID=''):
+	"""
+	Write an sbatch command for a job with a dependency
+
+	Parameters
+	-----------
+	dependencyString : str
+		Type of job dependency. Default = 'afterok'
+	dependencyID : str 
+		ID of job to be dependent on
+	
+	Returns
+	---------
+	"""
+	# Check if we are using python 3
+	if python_version >= 3:
+		dependencyID = dependencyID.decode("utf-8")
+		print("Dependency ID =", dependencyID)
+
+	sbatchCommand = 'sbatch --dependency=afterok:' + str(dependencyID)
+
+	return sbatchCommand
