@@ -4,9 +4,10 @@
 # Getting Started
 
 ## 1. Installing COMPAS and Dependencies
-First go to the directory that you wish to store your copy of the COMPAS repository. As an example, say this directory is `$HOME/codes`:
+First go to the directory that you wish to store your copy of the COMPAS repository. As an example, say this directory is `~/codes`:
 
-    cd $HOME/codes
+    mkdir ~/codes
+    cd ~/codes
 
  Use `git clone` to download the COMPAS repository. If you do not have git installed, you may follow the instructions on https://www.atlassian.com/git/tutorials/install-git.
  
@@ -20,8 +21,8 @@ With SSH configured, you can clone with
 
 COMPAS requires a C++ compiller, and the libraries gsl and boost. We include installation instructions for Linux/Ubuntu OS and macOS. 
 
-### 1.1 Instructions for Linux/Ubuntu OS
-[//]: ## (Jeff, Reinhold and other Linux/Ubuntu users should check if instructions are correct)
+### 1.1 Instructions for Ubuntu Linux (other Linux distros will be similar, but consult your documentation if you are unsure of which package manager to use)
+
 If you do not have a C++ compiler, you may download the g++ compiler using
 
     sudo apt-get install g++
@@ -32,11 +33,7 @@ To download, install, and compile boost,
 
 To download, install, and compile gsl,
 
-    sudo apt-get install libgsl0ldbl
-
-[//]: ## (What is this?)
-
-N.B. Installing `libgsl0ldbl` often gives weird error messages. Instead of `libgsl0ldbl` installing, the following two libraries worked consistently: `libgsl-dev`, `lib32z1-dev`.
+    sudo apt-get install libgsl-dev
 
 ### 1.2 Instructions for macOS
 [//]: ## (Ilya, Floor, Alejandro, and other Mac users should check if instructions are correct)
@@ -66,9 +63,9 @@ Now install gsl and boost by using Homebrew by running
 ### 1.3 Setting up the Makefile and Compiling
 Time to actually install COMPAS. We first need to define an environment variable for the root directory of COMPAS in your shell start-up file for COMPAS to run properly. For example, if you use bash as your shell, open `~/.bashrc` with a text editor and put in the following:
 
-    export COMPAS_ROOT_DIR=$/HOME/codes/COMPAS
+    export COMPAS_ROOT_DIR=~/codes/COMPAS
 
-where `$HOME/codes` should be replaced with the path to the directory where you cloned the COMPAS repository. For this to take effect, either restart your bash session or run
+where `~/codes` should be replaced with the path to the directory where you cloned the COMPAS repository. For this to take effect, either restart your bash session or run
 
     source ~/.bashrc
     
