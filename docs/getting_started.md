@@ -1,7 +1,16 @@
 [//]: ## (grip -b getting_started.md)
 
-
 # Getting Started
+
+  * [1. Installing COMPAS and Dependencies](#1-installing-compas-and-dependencies)
+    + [1.1 Instructions for Ubuntu Linux](#11-instructions-for-ubuntu-linux--other-linux-distros-will-be-similar--but-consult-your-documentation-if-you-are-unsure-of-which-package-manager-to-use-)
+    + [1.2 Instructions for macOS](#12-instructions-for-macos)
+    + [1.3 Setting up the Makefile and Compiling](#13-setting-up-the-makefile-and-compiling)
+    + [1.4 Installing Python](#14-installing-python)
+  * [2. Evolving your first binary](#2-evolving-your-first-binary)
+    + [2.1 Running COMPAS from a grid file](#21-running-compas-from-a-grid-file)
+    + [2.2 Examining detailed output](#22-examining-detailed-output)
+  * [3. Further queries](#3-further-queries)
 
 ## 1. Installing COMPAS and Dependencies
 First change to the directory within which you wish to store your copy of COMPAS. In the rest of this document, we use as an example `$HOME/codes`:
@@ -20,7 +29,7 @@ With SSH configured, you can clone with
 
 COMPAS requires a C++ compiller, and the libraries gsl and boost. We include installation instructions for Linux/Ubuntu OS and macOS. 
 
-### 1.1 Instructions for Ubuntu Linux (other Linux distros will be similar, but consult your documentation if you are unsure of which package manager to use)
+### 1.1 Instructions for Linux/Ubuntu OS
 
 If you do not have a C++ compiler, you may download the g++ compiler using
 
@@ -174,3 +183,9 @@ This should produce the following plot:
 ![demo_plot](demo/demo_plot.png)
 
 COMPAS provides many tools for analysing and post-processing the data. Please view the post-processing documentation in `COMPAS/postProcessing`. 
+
+
+## 3. Further queries
+If you have any queries unanswered by this document, your best bet is to consult our more detailed [Specifications Document](https://github.com/TeamCOMPAS/COMPAS/tree/master/docs/COMPAS_Doc.pdf), which is included in your installation at `$COMPAS_ROOT_DIR/docs/COMPAS_Doc.pdf`.
+
+If this still doesn't answer your question, you can join the [COMPAS User Google Group](https://groups.google.com/forum/#!members/compas-user) to engage in discussions with COMPAS users and developers, or email your queries to compas-user@googlegroups.com.
