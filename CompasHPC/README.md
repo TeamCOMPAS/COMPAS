@@ -4,23 +4,22 @@ Here are some basic instructions for setting up and running COMPAS_HPC. COMPAS i
 
 Supported HPC Facilities
 -------------------------
-`OzSTAR <https://supercomputing.swin.edu.au>`_ (Swinburne) - Slurm
+[OzSTAR](https://supercomputing.swin.edu.au) (Swinburne) - Slurm
 
 Tsunami (Birmingham) - Condor
 
 Requirements
 --------------
-I will assume here a basic knowledge of linux commands, a working COMPAS installation and access to one of the above HPC facilities.
-
+A basic knowledge of linux commands is assumed, as well as access to one of the above HPC facilities. You will also need a working COMPAS installation, meaning the source code has been compiled and you can run `./COMPAS` in the `src/` directory without error.
 In addition to the standard COMPAS prerequisites, COMPAS_HPC requires:
+
 python version 3.x
 numpy version ..
 
 
 Instructions
 ---------------
-COMPAS is hosted on github here:
-https://github.com/TeamCOMPAS/COMPAS/
+COMPAS is [hosted on github:](https://github.com/TeamCOMPAS/COMPAS/)
  
 1) CompasHPC
  
