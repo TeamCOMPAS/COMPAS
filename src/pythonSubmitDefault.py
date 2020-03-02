@@ -15,8 +15,7 @@ class pythonProgramOptions:
     # Do './COMPAS --help' to see all options
     #-- Define variables
     git_directory = os.environ.get('COMPAS_ROOT_DIR')
-    compas_executable = os.path.join(git_directory, 'COMPAS')
-#os.path.join(git_directory, 'COMPAS/COMPAS')
+    compas_executable = os.path.join(git_directory, 'src/COMPAS')
     number_of_binaries = 10  #number of binaries per batch
     populationPrinting = False
 
