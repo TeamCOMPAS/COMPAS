@@ -946,7 +946,7 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     DBG_WARN(ERR_MSG(ERROR::UNKNOWN_LOGFILE) + ": Logging disabled for this file");                                             // show warning
             }
 
-            if (!recordProperties.empty()) {                                                                                                    // have properties?
+            if (!filename.empty() && !recordProperties.empty()) {                                                                               // have filename and properties?
 
                 filename += p_FileSuffix;                                                                                                       // add suffix to filename
                 id = Open(filename, false, false, false);                                                                                       // open the log file - new file, no timestamps, no record labels (all same type here)
