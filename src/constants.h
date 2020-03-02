@@ -185,7 +185,6 @@
 const std::string VERSION_STRING = "02.05.04";
 
 
-
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
 
 typedef std::vector<double>                                             DBL_VECTOR;
