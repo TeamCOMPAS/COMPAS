@@ -76,17 +76,18 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
         double rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass1, mass2));
         double rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass2, mass1));
 
-        m_MassesEquilibrated = false;                                                                                                           // default
+        m_MassesEquilibrated        = false;                                                                                                    // default
+        m_MassesEquilibratedAtBirth = false;                                                                                                    // default
 
         if ((OPTIONS->CHE_Option() != CHE_OPTION::NONE || OPTIONS->AllowRLOFAtBirth()) &&                                                       // CHE enabled or over-contact binaries at birth allowed?
            (utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0)) {                                        // either star overflowing Roche Lobe?
-            rlof                 = false;                                                                                                       // over-contact at birth allowed - set this false
-            m_MassesEquilibrated = true;                                                                                                        // record that we've equilbrated
+            rlof                        = false;                                                                                                // over-contact at birth allowed - set this false
+            m_MassesEquilibratedAtBirth = true;                                                                                                 // record that we've equilbrated at birth
 
-            mass1                = (mass1 + mass2) / 2.0;                                                                                       // equilibrate masses
-            mass2                = mass1;                                                                                                       // ditto
-            m_SemiMajorAxis     *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                                   // circularise; conserve angular momentum
-            m_Eccentricity       = 0.0;                                                                                                         // now circular
+            mass1                       = (mass1 + mass2) / 2.0;                                                                                // equilibrate masses
+            mass2                       = mass1;                                                                                                // ditto
+            m_SemiMajorAxis            *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                            // circularise; conserve angular momentum
+            m_Eccentricity              = 0.0;                                                                                                  // now circular
 
             // create new stars with equal masses - eveything else is recalculated
             delete m_Star1;
@@ -160,17 +161,18 @@ BaseBinaryStar::BaseBinaryStar(const AIS           &p_AIS,
     double rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass1, mass2));
     double rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (factor * CalculateRocheLobeRadius_Static(mass2, mass1));
 
-    m_MassesEquilibrated = false;                                                                                                               // default
+    m_MassesEquilibrated        = false;                                                                                                        // default
+    m_MassesEquilibratedAtBirth = false;                                                                                                        // default
 
     if ((OPTIONS->CHE_Option() != CHE_OPTION::NONE || OPTIONS->AllowRLOFAtBirth()) &&                                                           // CHE enabled or over-contact binaries at birth allowed?
        (utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0)) {                                            // either star overflowing Roche Lobe?
 
-        m_MassesEquilibrated = true;                                                                                                            // record that we've equilbrated
+        m_MassesEquilibratedAtBirth = true;                                                                                                     // record that we've equilbrated
 
-        double newMass1      = (mass1 + mass2) / 2.0;                                                                                           // equilibrate masses
-        double newMass2      = newMass1;                                                                                                        // ditto
-        m_SemiMajorAxis     *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                                       // circularise; conserve angular momentum
-        m_Eccentricity       = 0.0;                                                                                                             // now circular
+        double newMass1             = (mass1 + mass2) / 2.0;                                                                                    // equilibrate masses
+        double newMass2             = newMass1;                                                                                                 // ditto
+        m_SemiMajorAxis            *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                                // circularise; conserve angular momentum
+        m_Eccentricity              = 0.0;                                                                                                      // now circular
 
         // equilibrate masses - recalculate everything else
         (void)m_Star1->UpdateAttributesAndAgeOneTimestep(newMass1 - mass1, newMass1 - mass1, 0.0, true);
@@ -615,6 +617,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::MASS_ENV_1:                                           value = MassEnv1();                                                         break;
         case BINARY_PROPERTY::MASS_ENV_2:                                           value = MassEnv2();                                                         break;
         case BINARY_PROPERTY::MASSES_EQUILIBRATED:                                  value = MassesEquilibrated();                                               break;
+        case BINARY_PROPERTY::MASSES_EQUILIBRATED_AT_BIRTH:                         value = MassesEquilibratedAtBirth();                                        break;
         case BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY:                        value = MassTransferTrackerHistory();                                       break;
         case BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME:                                value = MergesInHubbleTime();                                               break;
         case BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE:                           value = OptimisticCommonEnvelope();                                         break;
