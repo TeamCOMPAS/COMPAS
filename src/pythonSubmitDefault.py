@@ -5,7 +5,6 @@ import os
 import itertools
 import pickle
 from subprocess import call
-import argparse as ap
 
 class pythonProgramOptions:
     """
@@ -238,8 +237,6 @@ class pythonProgramOptions:
 
     logfile_name_prefix = 'Compas_Log_'
     logfile_delimiter   = 'COMMA'
-    logfile_BSE_system_parameters = None
-    logfile_BSE_double_compact_objects = None
 
     debug_to_file  = False
     errors_to_file = False
@@ -564,9 +561,7 @@ class pythonProgramOptions:
             self.logfile_name_prefix,
             self.logfile_delimiter,
             self.logfile_definitions,
-            self.grid_filename,
-            self.logfile_BSE_system_parameters,
-            self.logfile_BSE_double_compact_objects
+            self.grid_filename
         ]
 
         return stringChoices
@@ -605,9 +600,7 @@ class pythonProgramOptions:
             '--logfile-name-prefix',
             '--logfile-delimiter',
             '--logfile-definitions',
-            '--grid',
-            '--logfile-BSE-system-parameters',
-            '--logfile-BSE-double-compact-objects'
+            '--grid'
         ]
 
         return stringCommands
@@ -627,13 +620,6 @@ class pythonProgramOptions:
         ]
 
         return listCommands
-
-def addArgumentsFromCommandLine(commands, choices):
-    for index, command in enumerate(commands):
-        parser = ap.ArgumentParser()
-        parser.add_argument(command, default=choices[index])
-        (args, extras) = parser.parse_known_args()
-        choices[index] = next(iter(vars(args).values()))
 
 
 def specifyCommandLineOptions(programOptions):
@@ -662,10 +648,6 @@ def specifyCommandLineOptions(programOptions):
 
     listChoices = programOptions.listChoices()
     listCommands = programOptions.listCommands()
-
-    addArgumentsFromCommandLine(booleanCommands, booleanChoices)
-    addArgumentsFromCommandLine(numericalCommands, numericalChoices)
-    addArgumentsFromCommandLine(stringCommands, stringChoices)
 
     if programOptions.hyperparameterGrid == True:
         command = hyperparameterGridCommand(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,programOptions.shareSeeds)
