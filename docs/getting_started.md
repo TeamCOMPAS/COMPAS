@@ -80,7 +80,7 @@ Now go to the COMPAS source code directory:
 
 Try to compile the Makefile:
 
-    make
+    make -f Makefile
 
 If the compilation was unsuccessful, it is likely that you have to edit `Makefile` to point to your boost library. If you installed boost using Homebrew, find the path to the boost libraries using
 
@@ -95,7 +95,7 @@ Copy the path, which in this case is `/usr/local/Cellar/boost/1.72.0`, and add i
 
     BOOST = /usr/local/Cellar/boost/1.72.0
  
- Then, compile again by running `make`.
+Then, compile again by running `make -f Makefile`.
 
 ### 1.4 Installing Python
 Python and some selected libraries are required for interfacing with the code, and also for post-processing. We recommend using python3. The matplotlib and numpy libraries should also be installed. The libraries scipy, astropy, and pandas are also used in some other scripts.
