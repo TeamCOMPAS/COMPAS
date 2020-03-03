@@ -3,7 +3,7 @@
 # Getting Started
 
   * [1. Installing COMPAS and Dependencies](#1-installing-compas-and-dependencies)
-    + [1.1 Instructions for Ubuntu Linux](#11-instructions-for-ubuntu-linux--other-linux-distros-will-be-similar--but-consult-your-documentation-if-you-are-unsure-of-which-package-manager-to-use-)
+    + [1.1 Instructions for Ubuntu](#11-instructions-for-ubuntu-linux--other-linux-distros-will-be-similar--but-consult-your-documentation-if-you-are-unsure-of-which-package-manager-to-use-)
     + [1.2 Instructions for macOS](#12-instructions-for-macos)
     + [1.3 Setting up the Makefile and Compiling](#13-setting-up-the-makefile-and-compiling)
     + [1.4 Installing Python](#14-installing-python)
@@ -13,9 +13,9 @@
   * [3. Further queries](#3-further-queries)
 
 ## 1. Installing COMPAS and Dependencies
-First change to the directory within which you wish to store your copy of COMPAS. In the rest of this document, we use as an example `$HOME/codes`:
+First change to the directory within which you wish to store your copy of COMPAS. In the rest of this document, we use as an example `~/codes`:
 
-    cd $HOME/codes
+    cd $~/codes
 
 Use `git clone` to download the COMPAS repository. If you do not have git installed, you may follow the instructions on https://www.atlassian.com/git/tutorials/install-git.
  
@@ -27,9 +27,10 @@ With SSH configured, you can clone with
 
     git clone git@github.com:TeamCOMPAS/COMPAS.git
 
-COMPAS requires a C++ compiller, and the libraries gsl and boost. We include installation instructions for Linux/Ubuntu OS and macOS. 
+COMPAS requires a C++ compiller, and the libraries gsl and boost. We include installation instructions for Ubuntu/Linux OS and macOS. 
 
-### 1.1 Instructions for Linux/Ubuntu OS
+### 1.1 Instructions for Ubuntu
+While we provide instructions for Ubuntu, other Linux distros will be similar; consult your documentation if you are unsure of which package manager to use.
 
 If you do not have a C++ compiler, you may download the g++ compiler using
 
@@ -100,7 +101,7 @@ Then, compile again by running `make -f Makefile`.
 ### 1.4 Installing Python
 Python and some selected libraries are required for interfacing with the code, and also for post-processing. We recommend using python3. The matplotlib and numpy libraries should also be installed. The libraries scipy, astropy, and pandas are also used in some other scripts.
 
-First check if you have python3 installed. If you you do, the following should give you the version number:
+First check if you have python3 installed. If you do, the following should give you the version number:
 
     python3 --version
 
