@@ -25,7 +25,7 @@ import pickle
 #
 #################################################
 
-nBatches = 10 #3 #-- Choose how many batches to split the run into
+nBatches = 3 #-- Choose how many batches to split the run into
 maxRandomSeed = int(2**32-1)
 venvActivatePath = None # path to source or None
 
