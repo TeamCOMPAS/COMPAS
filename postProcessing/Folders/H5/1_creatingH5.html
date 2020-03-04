@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>Overview</title>
+<title>1_creatingH5</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13073,7 +13073,114 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="./Folders/Development/logo.png"></p>
+<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h1><p>Here we show an example of how to combine the data of a COMPAS simulation into a single h5 file.</p>
+<p>Note that the script can also be called from terminal (for more info read the script).
+Here we show how to call it from another script such as an ipython notebook.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Imports">Imports<a class="anchor-link" href="#Imports">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>   <span class="c1"># for adding path python Script to python environment</span>
+<span class="kn">import</span> <span class="nn">os</span>    <span class="c1"># for handling paths</span>
+<span class="c1">#Note that the script has its own imports</span>
+
+<span class="n">pathNoteBook</span>     <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+<span class="n">pathPythonScript</span> <span class="o">=</span> <span class="n">pathNoteBook</span> <span class="o">+</span> <span class="s1">&#39;/PythonScripts/&#39;</span>
+
+<span class="c1">#custom scripts</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pathPythonScript</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">data_to_H5</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Paths-to-set">Paths to set<a class="anchor-link" href="#Paths-to-set">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The data can usually comes in two formats.</p>
+<p>1 - A single run on a single core which creates 
+    one folder with outputfiles. Then put the path to this folder</p>
+<p>2 - A single run on multiple cores. In which case there is a parentdirectory
+    having X subdirectories where X is the number of cores used for the run.
+    Each subdirectory has part of the data of the entire run. Set the path to the parent folder.
+    A 'tree walker' will grab and collect the data in the subdirectories
+.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Test was run for format 2 above</span>
+<span class="n">pathData</span>         <span class="o">=</span> <span class="s1">&#39;/home/cneijssel/Desktop/Test&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Additional-information-needed">Additional information needed<a class="anchor-link" href="#Additional-information-needed">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Besides the path to the data we need additional information in order for the script to recognise the data.</p>
+<p>1 - Define the prefix used for naming the data files.
+    This is found in the pythonSubmit of the simulation.</p>
+<p>2 - The filetype/extension of the data files.</p>
+<p>3 - The files that you want to use in the h5 file. 
+    This is passed as a list of numbers, the numbers relate 
+    to the following files</p>
+
+<pre><code>1:Prefix_Common_Envelopes.xxx
+2:Prefix_Double_Compact_Objects.xxx
+3:Prefix_Supernovae.xxx
+4:Prefix_System_Parameters.xxx
+5:Prefix_RLOF.txt</code></pre>
 
 </div>
 </div>
@@ -13081,18 +13188,13 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="COMPAS">COMPAS<a class="anchor-link" href="#COMPAS">&#182;</a></h1>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><font size="+1"></p>
-<p><a href=http://compas.science>
-COMPAS website : http://compas.science
-</a></p>
-<p><font/></p>
+<h1 id="Remarks">Remarks<a class="anchor-link" href="#Remarks">&#182;</a></h1><p>The script first collects and combines the data in new txt files.
+This means that if you have a large run you need a similar amount  of available space
+in order to create these files.
+They will automatically be removed after the h5 file is createde</p>
+<p>The H5 file will be placed in the same directory as the path given
+and named COMPASOutput.h5</p>
+<p>The final h5 file groups and contents are printed to terminal/output</p>
 
 </div>
 </div>
@@ -13100,62 +13202,322 @@ COMPAS website : http://compas.science
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h2><p>Welcome to the post-processing documentation of the COMPAS code. In here you will the additional material outside the source code used to manipulate the data and/or calculate rates/weights/samples to place the results of the simulation in different scientific contexts.</p>
-<p>We provide a series of jupyter/ipython notebooks and 'raw' python scripts. The notebooks show how to call the python scripts and the involved syntax. All notebooks are made ito html pages for easy reading and indexing of available material.</p>
-<h2 id="How-to-reference:">How to reference:<a class="anchor-link" href="#How-to-reference:">&#182;</a></h2><p>If you use source-code/data/post-processing pipelines for your
-study we would appreciate if you acknowledge it accordingly.</p>
-<p>For source-code and data please see XXX</p>
-<p>For the pipelines XXX</p>
-<h2 id="Other-documentation-is-available:">Other documentation is available:<a class="anchor-link" href="#Other-documentation-is-available:">&#182;</a></h2><p>For source code documentation please see XXX</p>
-<p>For source code installation documentation please see XXX</p>
-<p>For git documentation please see XXX</p>
-<h2 id="Material">Material<a class="anchor-link" href="#Material">&#182;</a></h2>
+<h1 id="Example">Example<a class="anchor-link" href="#Example">&#182;</a></h1>
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<ol>
-<font size="+3"> 
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Test was run for a run on multiple cores</span>
+<span class="n">pathToData</span>   <span class="o">=</span> <span class="s1">&#39;/home/cneijssel/Desktop/Test&#39;</span>
+<span class="c1">#</span>
+<span class="n">prefix</span>     <span class="o">=</span> <span class="s1">&#39;BSE&#39;</span>
+<span class="c1">#</span>
+<span class="n">extension</span>  <span class="o">=</span> <span class="s1">&#39;txt&#39;</span>
+<span class="c1">#</span>
+<span class="n">files</span>      <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
 
-<li>
-    <a href="./Folders/H5/0_H5Overview.html" style="text-decoration:none;"> 
-        H5 files:   <br/>  <br/>
-        <font size="+2"> 
-        compiling, reading, rewriting
-        </font>
-    </a>
-</li>
-
-
-<br/>
-
-<li>
-    <a href="./Folders/BasicsPython/0_BasicsOverview.html" style="text-decoration:none;"> 
-        Basics Python:   <br/>  <br/>
-        <font size="+2"> 
-        slicing, binning, plotting
-        </font>
-    </a>
-</li>
-
-
-<br/>
-
-
-<li>
-    <a href="./Folders/Development/DevelopmentOverview.html" style="text-decoration:none;"> 
-        Development:    <br/> <br/>
-        <font size="+2"> 
-            log, todo, maintenance
-        </font>
-    </a>
-</li>
-</font>
-</ol>
+    </div>
 </div>
 </div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data_to_H5</span><span class="o">.</span><span class="n">combineCreateH5file</span><span class="p">(</span><span class="n">pathToData</span> <span class="o">=</span> <span class="n">pathToData</span><span class="p">,</span>\
+                               <span class="n">prefix</span>     <span class="o">=</span> <span class="n">prefix</span><span class="p">,</span>\
+                               <span class="n">extension</span>  <span class="o">=</span> <span class="n">extension</span><span class="p">,</span>\
+                               <span class="n">files</span>      <span class="o">=</span> <span class="n">files</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Combining csv files from subdirectories
+Creating H5 file
+Clean up the combined CSV files
+Done, :smiling_imp:
+
+#---------------------------#
+#---------------------------#
+#------contents H5 file-----#
+#---------------------------#
+#---------------------------#
+
+Filename = CommonEnvelopes
+----------------------
+	   column name                             unit                length
+	   --------------------------------------------------------------------
+	   BE_Fixed_1                              ergs                159535
+	   BE_Fixed_2                              ergs                159535
+	   BE_Kruckow_1                            ergs                159535
+	   BE_Kruckow_2                            ergs                159535
+	   BE_Loveridge_1                          ergs                159535
+	   --------------------------------------------------------------------
+	   BE_Loveridge_2                          ergs                159535
+	   BE_Loveridge_Winds_1                    ergs                159535
+	   BE_Loveridge_Winds_2                    ergs                159535
+	   BE_Nanjing_1                            ergs                159535
+	   BE_Nanjing_2                            ergs                159535
+	   --------------------------------------------------------------------
+	   Binding_Energy&lt;CE_1                     ergs                159535
+	   Binding_Energy&lt;CE_2                     ergs                159535
+	   CE_Event_Count                          Count               159535
+	   Core_Mass_1                             Msol                159535
+	   Core_Mass_2                             Msol                159535
+	   --------------------------------------------------------------------
+	   Double_Core_CE                          Event               159535
+	   Eccentricity&lt;CE                                             159535
+	   Eccentricity&gt;CE                                             159535
+	   ID                                                          159535
+	   Immediate_RLOF&gt;CE                       Event               159535
+	   --------------------------------------------------------------------
+	   Kruckow_1                                                   159535
+	   Kruckow_2                                                   159535
+	   Lambda@CE_1                                                 159535
+	   Lambda@CE_2                                                 159535
+	   Lambda_Fixed_1                                              159535
+	   --------------------------------------------------------------------
+	   Lambda_Fixed_2                                              159535
+	   Lambda_Nanjing_1                                            159535
+	   Lambda_Nanjing_2                                            159535
+	   Loveridge_1                                                 159535
+	   Loveridge_2                                                 159535
+	   --------------------------------------------------------------------
+	   Loveridge_Winds_1                                           159535
+	   Loveridge_Winds_2                                           159535
+	   Luminosity&lt;CE_1                         Lsol                159535
+	   Luminosity&lt;CE_2                         Lsol                159535
+	   MT_History                                                  159535
+	   --------------------------------------------------------------------
+	   Mass_1&lt;CE                               Msol                159535
+	   Mass_2&lt;CE                               Msol                159535
+	   Mass_Env_1                              Msol                159535
+	   Mass_Env_2                              Msol                159535
+	   Merger                                  Event               159535
+	   --------------------------------------------------------------------
+	   Optimistic_CE                           State               159535
+	   RLOF_1                                  State               159535
+	   RLOF_2                                  State               159535
+	   Radius_1&lt;CE                             Rsol                159535
+	   Radius_1&gt;CE                             Rsol                159535
+	   --------------------------------------------------------------------
+	   Radius_2&lt;CE                             Rsol                159535
+	   Radius_2&gt;CE                             Rsol                159535
+	   RocheLobe_1&lt;CE                          Rsol                159535
+	   RocheLobe_1&gt;CE                          Rsol                159535
+	   RocheLobe_2&lt;CE                          Rsol                159535
+	   --------------------------------------------------------------------
+	   RocheLobe_2&gt;CE                          Rsol                159535
+	   SEED                                                        159535
+	   Separation&lt;CE                           AU                  159535
+	   Separation&gt;CE                           AU                  159535
+	   Simultaneous_RLOF                       Event               159535
+	   --------------------------------------------------------------------
+	   Stellar_Type_1                                              159535
+	   Stellar_Type_1&lt;CE                                           159535
+	   Stellar_Type_2                                              159535
+	   Stellar_Type_2&lt;CE                                           159535
+	   Tau_Circ                                Myr                 159535
+	   --------------------------------------------------------------------
+	   Tau_Dynamical&lt;CE_1                      Myr                 159535
+	   Tau_Dynamical&lt;CE_2                      Myr                 159535
+	   Tau_Nuclear&lt;CE_1                        Myr                 159535
+	   Tau_Nuclear&lt;CE_2                        Myr                 159535
+	   Tau_Radial&lt;CE_1                         Myr                 159535
+	   --------------------------------------------------------------------
+	   Tau_Radial&lt;CE_2                         Myr                 159535
+	   Tau_Sync                                Myr                 159535
+	   Tau_Thermal&lt;CE_1                        Myr                 159535
+	   Tau_Thermal&lt;CE_2                        Myr                 159535
+	   Teff&lt;CE_1                               Tsol                159535
+	   --------------------------------------------------------------------
+	   Teff&lt;CE_2                               Tsol                159535
+	   Time                                    Myr                 159535
+	   Zeta_RLOF_Analytic                                          159535
+	   Zeta_Star_Compare                                           159535
+Filename = DoubleCompactObjects
+----------------------
+	   column name                             unit                length
+	   --------------------------------------------------------------------
+	   Coalescence_Time                        Myr                 2750
+	   Eccentricity@DCO                                            2750
+	   ID                                                          2750
+	   MT_Case_1                                                   2750
+	   MT_Case_2                                                   2750
+	   --------------------------------------------------------------------
+	   Mass_1                                  Msol                2750
+	   Mass_2                                  Msol                2750
+	   Merges_Hubble_Time                      State               2750
+	   Recycled_NS_1                           Event               2750
+	   Recycled_NS_2                           Event               2750
+	   --------------------------------------------------------------------
+	   SEED                                                        2750
+	   Separation@DCO                          AU                  2750
+	   Stellar_Type_1                                              2750
+	   Stellar_Type_2                                              2750
+	   Time                                    Myr                 2750
+	   --------------------------------------------------------------------
+Filename = RLOF
+----------------------
+	   column name                             unit                length
+	   --------------------------------------------------------------------
+	   CEE                                     State               154803
+	   EventCounter_Prev                       Count               154803
+	   Event_Counter                           Count               154803
+	   ID                                                          154803
+	   Mass_1                                  Msol                154803
+	   --------------------------------------------------------------------
+	   Mass_1_Prev                             Msol                154803
+	   Mass_2                                  Msol                154803
+	   Mass_2_Prev                             Msol                154803
+	   RLOF_1                                  State               154803
+	   RLOF_1_Prev                             Event               154803
+	   --------------------------------------------------------------------
+	   RLOF_2                                  State               154803
+	   RLOF_2_Prev                             Event               154803
+	   Radius_1                                Rsol                154803
+	   Radius_1_Prev                           Rsol                154803
+	   Radius_2                                Rsol                154803
+	   --------------------------------------------------------------------
+	   Radius_2_Prev                           Rsol                154803
+	   SEED                                                        154803
+	   Separation                              Rsol                154803
+	   Separation_Prev                         Rsol                154803
+	   Time                                    Myr                 154803
+	   --------------------------------------------------------------------
+	   Time_Prev                               Myr                 154803
+	   Type_1                                                      154803
+	   Type_1_Prev                                                 154803
+	   Type_2                                                      154803
+	   Type_2_Prev                                                 154803
+	   --------------------------------------------------------------------
+	   Zeta_Hurley_1                                               154803
+	   Zeta_Hurley_2                                               154803
+	   Zeta_Hurley_He_1                                            154803
+	   Zeta_Hurley_He_2                                            154803
+	   Zeta_Nuclear_1                                              154803
+	   --------------------------------------------------------------------
+	   Zeta_Nuclear_2                                              154803
+	   Zeta_RLOF_Analytic                                          154803
+	   Zeta_RLOF_Numerical                                         154803
+	   Zeta_SoberMan_He_1                                          154803
+	   Zeta_SoberMan_He_2                                          154803
+	   --------------------------------------------------------------------
+	   Zeta_Soberman_1                                             154803
+	   Zeta_Soberman_2                                             154803
+	   Zeta_Thermal_1                                              154803
+	   Zeta_Thermal_2                                              154803
+Filename = Supernovae
+----------------------
+	   column name                             unit                length
+	   --------------------------------------------------------------------
+	   Applied_Kick_Velocity_SN                kms^-1              107445
+	   Drawn_Kick_Velocity_SN                  kms^-1              107445
+	   Eccentricity                                                107445
+	   Eccentricity&lt;2ndSN                                          107445
+	   Experienced_RLOF_SN                     Event               107445
+	   --------------------------------------------------------------------
+	   Fallback_Fraction_SN                                        107445
+	   Hydrogen_Poor_SN                        State               107445
+	   Hydrogen_Rich_SN                        State               107445
+	   ID                                                          107445
+	   Kick_Velocity(uK)                                           107445
+	   --------------------------------------------------------------------
+	   Mass_CO_Core@CO_SN                      Msol                107445
+	   Mass_CP                                 Msol                107445
+	   Mass_Core@CO_SN                         Msol                107445
+	   Mass_He_Core@CO_SN                      Msol                107445
+	   Mass_SN                                 Msol                107445
+	   --------------------------------------------------------------------
+	   Mass_Total@CO_SN                        Msol                107445
+	   Orb_Velocity&lt;2ndSN                      kms^-1              107445
+	   Runaway_CP                              Event               107445
+	   SEED                                                        107445
+	   SN_Kick_Phi_SN                                              107445
+	   --------------------------------------------------------------------
+	   SN_Kick_Theta_SN                                            107445
+	   SN_Type_SN                                                  107445
+	   Separation                              Rsol                107445
+	   Separation&lt;2ndSN                        Rsol                107445
+	   Stellar_Type_Prev_CP                                        107445
+	   --------------------------------------------------------------------
+	   Stellar_Type_Prev_SN                                        107445
+	   Stellar_Type_SN                                             107445
+	   Supernova_State                         State               107445
+	   Systemic_Velocity                       kms^-1              107445
+	   Time                                    Myr                 107445
+	   --------------------------------------------------------------------
+	   True_Anomaly(psi)_SN                                        107445
+	   Unbound                                 State               107445
+Filename = SystemParameters
+----------------------
+	   column name                             unit                length
+	   --------------------------------------------------------------------
+	   CE_Alpha                                                    300000
+	   Eccentricity@ZAMS                                           300000
+	   Error                                                       300000
+	   ID                                                          300000
+	   LBV_Multiplier                                              300000
+	   --------------------------------------------------------------------
+	   Mass@ZAMS_1                             Msol                300000
+	   Mass@ZAMS_2                             Msol                300000
+	   Merger                                  Event               300000
+	   Merger_At_Birth                         Event               300000
+	   Metallicity@ZAMS_1                                          300000
+	   --------------------------------------------------------------------
+	   Metallicity@ZAMS_2                                          300000
+	   Omega@ZAMS_1                            yr^-1               300000
+	   Omega@ZAMS_2                            yr^-1               300000
+	   SEED                                                        300000
+	   SN_Kick_Magnitude_Random_Number_1                           300000
+	   --------------------------------------------------------------------
+	   SN_Kick_Magnitude_Random_Number_2                           300000
+	   SN_Kick_Mean_Anomaly_1                                      300000
+	   SN_Kick_Mean_Anomaly_2                                      300000
+	   SN_Kick_Phi_1                                               300000
+	   SN_Kick_Phi_2                                               300000
+	   --------------------------------------------------------------------
+	   SN_Kick_Theta_1                                             300000
+	   SN_Kick_Theta_2                                             300000
+	   Separation@ZAMS                         AU                  300000
+	   Sigma_Kick_CCSN_BH                      kms^-1              300000
+	   Sigma_Kick_CCSN_NS                      kms^-1              300000
+	   --------------------------------------------------------------------
+	   Sigma_Kick_ECSN                         kms^-1              300000
+	   Sigma_Kick_USSN                         kms^-1              300000
+	   Stellar_Type@ZAMS_1                                         300000
+	   Stellar_Type@ZAMS_2                                         300000
+	   Stellar_Type_1                                              300000
+	   --------------------------------------------------------------------
+	   Stellar_Type_2                                              300000
+	   Unbound                                 State               300000
+	   WR_Multiplier                                               300000
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
