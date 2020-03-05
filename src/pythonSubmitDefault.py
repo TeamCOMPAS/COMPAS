@@ -42,7 +42,6 @@ class pythonProgramOptions:
 
     use_mass_loss = True
     mass_transfer = True
-    post_newtonian_evolution = False
     detailed_output = False                         # WARNING: this creates a data heavy file
     RLOFPrinting = True
     only_double_compact_objects = False             # Delete when STROOPWAFEL fully implemented
@@ -260,7 +259,6 @@ class pythonProgramOptions:
             self.single_star,
             self.use_mass_loss,
             self.mass_transfer,
-            self.post_newtonian_evolution,
             self.detailed_output,
             self.only_double_compact_objects,
             self.evolve_unbound_systems,
@@ -301,7 +299,6 @@ class pythonProgramOptions:
             '--single-star',
             '--use-mass-loss',
             '--massTransfer',
-            '--PNEcc',
             '--detailedOutput',
             '--only-double-compact-objects',
             '--evolve-unbound-systems',
