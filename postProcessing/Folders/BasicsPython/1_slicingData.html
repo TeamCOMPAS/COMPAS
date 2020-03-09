@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>Overview</title>
+<title>1_slicingData</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13073,7 +13073,97 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="./Folders/Development/logo.png"></p>
+<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h1><p>The most important number in the COMPAS data is the seed. The seed represents the unique identifier to a specific system in a simulation. Therefore the properties of a single system can be recovered by looking at seeds in different types of files.</p>
+<p>Here we introduce the basics of manipulating the data using the seeds. For example how we get the initial parameters of systems that ended up forming double compact objects</p>
+<p>Most often we start using python with 'for loops' and add the systems of interest to a list. However, such loops might take long.
+Here we present how we can more efficiently 'slice' the data using boolean masks. These are slightly more demanding but are quick and use intuitive logic.</p>
+<p>We assume you already have a h5file with data, if not see in section 1 how you can create the h5file using the csv data of your simulation, or download some data from compas.science.</p>
+<h1 id="careful-these-cells-show-examples-which--take-long-if-you-test-them-on-large-data.">careful these cells show examples which  take long if you test them on large data.<a class="anchor-link" href="#careful-these-cells-show-examples-which--take-long-if-you-test-them-on-large-data.">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Path-to-be-set-by-user">Path to be set by user<a class="anchor-link" href="#Path-to-be-set-by-user">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pathToData</span> <span class="o">=</span> <span class="s1">&#39;/home/cneijssel/Desktop/Test/COMPAS_output.h5&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Imports">Imports<a class="anchor-link" href="#Imports">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#python libraries</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>               <span class="c1">#for handling arrays</span>
+<span class="kn">import</span> <span class="nn">h5py</span> <span class="k">as</span> <span class="nn">h5</span>                <span class="c1">#for reading the COMPAS data</span>
+<span class="kn">import</span> <span class="nn">time</span>                      <span class="c1">#for timeing computation time</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Data</span>  <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">pathToData</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">Data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="n">nrSystems</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()])</span>
+<span class="n">Data</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>&lt;KeysViewHDF5 [&#39;CommonEnvelopes&#39;, &#39;DoubleCompactObjects&#39;, &#39;RLOF&#39;, &#39;Supernovae&#39;, &#39;SystemParameters&#39;]&gt;
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The print statement shows the different types of files that are combined in your h5file.
+Now the seed is the number that links the information of say the supernovae to the information in the SystemParameters</p>
 
 </div>
 </div>
@@ -13081,18 +13171,179 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="COMPAS">COMPAS<a class="anchor-link" href="#COMPAS">&#182;</a></h1>
+<h3 id="Question:-What-were-the-initial-total-masses-of-the-double-compact-objects">Question: What were the initial total masses of the double compact objects<a class="anchor-link" href="#Question:-What-were-the-initial-total-masses-of-the-double-compact-objects">&#182;</a></h3>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><font size="+1"></p>
-<p><a href=http://compas.science>
-COMPAS website : http://compas.science
-</a></p>
-<p><font/></p>
+<h3 id="The-classic-way-when-starting-with-python">The classic way when starting with python<a class="anchor-link" href="#The-classic-way-when-starting-with-python">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">returnTotalMasses</span><span class="p">(</span><span class="n">pathData</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">Data</span>  <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">pathToData</span><span class="p">)</span>
+    
+    <span class="n">totalMasses</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1">#for syntax see section 1 with basic syntax</span>
+    <span class="n">seedsDCOs</span>     <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;DoubleCompactObjects&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()]</span>
+    
+    <span class="c1">#get info from ZAMS</span>
+    <span class="n">seedsSystems</span>  <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()]</span>
+    <span class="n">M1ZAMSs</span>       <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;Mass@ZAMS_1&#39;</span><span class="p">][()]</span>
+    <span class="n">M2ZAMSs</span>       <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;Mass@ZAMS_2&#39;</span><span class="p">][()]</span>
+
+    
+    
+    <span class="k">for</span> <span class="n">seedDCO</span> <span class="ow">in</span> <span class="n">seedsDCOs</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">nrseed</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">seedsSystems</span><span class="p">)):</span>
+            <span class="n">seedSystem</span> <span class="o">=</span> <span class="n">seedsSystems</span><span class="p">[</span><span class="n">nrseed</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">seedSystem</span> <span class="o">==</span> <span class="n">seedDCO</span><span class="p">:</span>
+                <span class="n">M1</span> <span class="o">=</span> <span class="n">M1ZAMSs</span><span class="p">[</span><span class="n">nrseed</span><span class="p">]</span>
+                <span class="n">M2</span> <span class="o">=</span> <span class="n">M2ZAMSs</span><span class="p">[</span><span class="n">nrseed</span><span class="p">]</span>
+                <span class="n">Mtot</span> <span class="o">=</span> <span class="n">M1</span><span class="o">+</span><span class="n">M2</span>
+                <span class="n">totalMasses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Mtot</span><span class="p">)</span>
+    <span class="n">Data</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">totalMasses</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span>   <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">MtotOld</span> <span class="o">=</span> <span class="n">returnTotalMasses</span><span class="p">(</span><span class="n">pathData</span><span class="o">=</span><span class="n">pathToData</span><span class="p">)</span>
+<span class="n">end</span>     <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="s1">&#39;seconds for </span><span class="si">%s</span><span class="s1"> systems&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">nrSystems</span><span class="p">))</span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>120.01296210289001 seconds for 300000 systems
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Steps-of-optimising-the-above-loop">Steps of optimising the above loop<a class="anchor-link" href="#Steps-of-optimising-the-above-loop">&#182;</a></h1><h2 id="1---using-boolean-masks-in-one-file">1 - using boolean masks in one file<a class="anchor-link" href="#1---using-boolean-masks-in-one-file">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>an array and a list are both series of input. 
+However, when you work with arrays you can use numpy to do some optimsed tricks
+for example. Adding the entries of two lists</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Data</span>  <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">pathToData</span><span class="p">)</span>
+
+<span class="n">M1ZAMS</span>  <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;Mass@ZAMS_1&#39;</span><span class="p">][()]</span>
+<span class="n">M2ZAMS</span>  <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;Mass@ZAMS_2&#39;</span><span class="p">][()]</span>
+<span class="n">Mtotal</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">M1ZAMS</span><span class="p">,</span> <span class="n">M2ZAMS</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>A useful trick is when you want elements based on a condition.
+Where in the classic way we put the condition in a for loop and if statement,
+now we will work with an array of booleans or so called masks</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#mask which gives total masses below or equal to 40</span>
+<span class="n">maskMtot</span> <span class="o">=</span> <span class="n">Mtotal</span> <span class="o">&lt;=</span><span class="mi">40</span>
+<span class="c1">#apply mask to get the masses</span>
+<span class="n">MtotalBelow40</span> <span class="o">=</span> <span class="n">Mtotal</span><span class="p">[</span><span class="n">maskMtot</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The crucial trick is that you can apply this mask to other columns in the same file 
+as long as you keep the length of the mask the same to the column that you apply it to.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># seeds of systems with total masses below 40</span>
+<span class="n">seeds</span>  <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()]</span>
+<span class="n">seedsMtotBelow40</span> <span class="o">=</span> <span class="n">seeds</span><span class="p">[</span><span class="n">maskMtot</span><span class="p">]</span>
+
+<span class="n">Data</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Note that this works because the order of the two columns (seeds and total masses) are
+the same. Rephrased, the total mass at the third entry corresponds to the seed at the third entry.</p>
 
 </div>
 </div>
@@ -13100,60 +13351,242 @@ COMPAS website : http://compas.science
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h2><p>Welcome to the post-processing documentation of the COMPAS code. In here you will the additional material outside the source code used to manipulate the data and/or calculate rates/weights/samples to place the results of the simulation in different scientific contexts.</p>
-<p>We provide a series of jupyter/ipython notebooks and 'raw' python scripts. The notebooks show how to call the python scripts and the involved syntax. All notebooks are made ito html pages for easy reading and indexing of available material.</p>
-<h2 id="How-to-reference:">How to reference:<a class="anchor-link" href="#How-to-reference:">&#182;</a></h2><p>If you use source-code/data/post-processing pipelines for your
-study we would appreciate if you acknowledge it accordingly.</p>
-<p>For source-code and data please see XXX</p>
-<p>For the pipelines XXX</p>
-<h2 id="Other-documentation-is-available:">Other documentation is available:<a class="anchor-link" href="#Other-documentation-is-available:">&#182;</a></h2><p>For source code documentation please see XXX</p>
-<p>For source code installation documentation please see XXX</p>
-<p>For git documentation please see XXX</p>
-<h2 id="Material">Material<a class="anchor-link" href="#Material">&#182;</a></h2>
+<h2 id="2---using-seeds-as-mask-between-files">2 - using seeds as mask between files<a class="anchor-link" href="#2---using-seeds-as-mask-between-files">&#182;</a></h2>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<ol>
-<font size="+3"> 
+<p>Before we continue it is useful to realise how the COMPAS-popsynth printing works.
+Every time you simulate a system the output is printed in different files. 
+Hence if you have four systems with seedds 1,2,3,4 then COMPAS will evolve seed 1, print the output, and then continue to evolve system 2 etc.</p>
+<p>If all four systems each had one supernova and one double compact object, then the array 'SEED' in each group would always look like [1,2,3,4]. Hence, if you create a mask based on information in one group (like the example above), you could immediately apply it to a column in the order group because they are ordered the same AND of the SAME LENGTH.
+However this is usually not the case.</p>
+<p>A system might not form a double compact object, maybe only seed 2 and 4.
+The trick is that the order in which the seeds are evaluated in COMPAS remains the same.
+Hence if you can create a mask that shows all the systems that became a DCO in the SystemParameters file, then after applying the mask the information between the two files
+is both ordered the same and of the same length.</p>
 
-<li>
-    <a href="./Folders/H5/0_H5Overview.html" style="text-decoration:none;"> 
-        H5 files:   <br/>  <br/>
-        <font size="+2"> 
-        compiling, reading, rewriting
-        </font>
-    </a>
-</li>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#small example</span>
+<span class="n">SystemSeeds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+<span class="n">SystemMass1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">45</span><span class="p">])</span>
+<span class="n">DCOSeeds</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+
+<span class="c1">#compare which element of 1-d array are in other</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">SystemSeeds</span><span class="p">,</span> <span class="n">DCOSeeds</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">SystemSeeds</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">SystemMass1</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
 
 
-<br/>
+<div class="output_area">
 
-<li>
-    <a href="./Folders/BasicsPython/0_BasicsOverview.html" style="text-decoration:none;"> 
-        Basics Python:   <br/>  <br/>
-        <font size="+2"> 
-        slicing, binning, plotting
-        </font>
-    </a>
-</li>
+    <div class="prompt"></div>
 
 
-<br/>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[False  True False  True]
+[2 4]
+[20 45]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The above shows how you can get the initial masses of DCO with seeds 2 and 4</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Optimised-loop">Optimised loop<a class="anchor-link" href="#Optimised-loop">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">returnTotalMasses2</span><span class="p">(</span><span class="n">pathData</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">Data</span>  <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">pathToData</span><span class="p">)</span>
+    
+    <span class="n">totalMasses</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1">#for syntax see section 1 with basic syntax</span>
+    <span class="n">seedsDCOs</span>     <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;DoubleCompactObjects&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()]</span>
+    <span class="c1">#get info from ZAMS</span>
+    <span class="n">seedsSystems</span>  <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()]</span>
+    <span class="n">M1ZAMSs</span>       <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;Mass@ZAMS_1&#39;</span><span class="p">][()]</span>
+    <span class="n">M2ZAMSs</span>       <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;Mass@ZAMS_2&#39;</span><span class="p">][()]</span>
+    
+    <span class="n">MZAMStotal</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">M1ZAMS</span><span class="p">,</span> <span class="n">M2ZAMS</span><span class="p">)</span>
+    
+    <span class="n">maskSeedsBecameDCO</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">seedsSystems</span><span class="p">,</span> <span class="n">seedsDCOs</span><span class="p">)</span>
+    <span class="n">totalMassZAMSDCO</span>    <span class="o">=</span> <span class="n">MZAMStotal</span><span class="p">[</span><span class="n">maskSeedsBecameDCO</span><span class="p">]</span>
+    
+    <span class="n">Data</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">totalMassZAMSDCO</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span>   <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">MtotNew</span> <span class="o">=</span> <span class="n">returnTotalMasses2</span><span class="p">(</span><span class="n">pathData</span><span class="o">=</span><span class="n">pathToData</span><span class="p">)</span>
+<span class="n">end</span>     <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="s1">&#39;seconds for </span><span class="si">%s</span><span class="s1"> systems&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">nrSystems</span><span class="p">))</span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
 
 
-<li>
-    <a href="./Folders/Development/DevelopmentOverview.html" style="text-decoration:none;"> 
-        Development:    <br/> <br/>
-        <font size="+2"> 
-            log, todo, maintenance
-        </font>
-    </a>
-</li>
-</font>
-</ol>
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>0.038631439208984375 seconds for 300000 systems
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># test if I was lying (need to turn list into array)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">MtotOld</span><span class="p">),</span> <span class="n">MtotNew</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>True
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Note that the above loop can easily be expanded with more conditions.
+If you do not want all the DCO initial total masses but only of the double neutron stars, then you just need to reduce the seedsDCO to those only becoming a double neutron star.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">returnTotalMassesDNS</span><span class="p">(</span><span class="n">pathData</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">Data</span>  <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">pathToData</span><span class="p">)</span>
+    
+    <span class="n">totalMasses</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1">#for syntax see section 1 with basic syntax</span>
+    <span class="n">seedsDCOs</span>     <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;DoubleCompactObjects&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()]</span>
+    <span class="n">type1</span>         <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;DoubleCompactObjects&#39;</span><span class="p">][</span><span class="s1">&#39;Stellar_Type_1&#39;</span><span class="p">][()]</span>
+    <span class="n">type2</span>         <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;DoubleCompactObjects&#39;</span><span class="p">][</span><span class="s1">&#39;Stellar_Type_2&#39;</span><span class="p">][()]</span>
+    <span class="n">maskDNS</span>       <span class="o">=</span> <span class="p">(</span><span class="n">type1</span> <span class="o">==</span> <span class="mi">13</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">type2</span> <span class="o">==</span> <span class="mi">13</span><span class="p">)</span>
+    <span class="n">seedsDNS</span>      <span class="o">=</span> <span class="n">seedsDCOs</span><span class="p">[</span><span class="n">maskDNS</span><span class="p">]</span>
+    
+    <span class="c1">#get info from ZAMS</span>
+    <span class="n">seedsSystems</span>  <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()]</span>
+    <span class="n">M1ZAMSs</span>       <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;Mass@ZAMS_1&#39;</span><span class="p">][()]</span>
+    <span class="n">M2ZAMSs</span>       <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;Mass@ZAMS_2&#39;</span><span class="p">][()]</span>
+    
+    <span class="n">MZAMStotal</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">M1ZAMS</span><span class="p">,</span> <span class="n">M2ZAMS</span><span class="p">)</span>
+    
+    
+    <span class="n">maskSeedsBecameDNS</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">seedsSystems</span><span class="p">,</span> <span class="n">seedsDNS</span><span class="p">)</span>
+    <span class="n">totalMassZAMSDNS</span>    <span class="o">=</span> <span class="n">MZAMStotal</span><span class="p">[</span><span class="n">maskSeedsBecameDNS</span><span class="p">]</span>
+    
+    <span class="n">Data</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">totalMassZAMSDNS</span>
+<span class="c1">#returnTotalMassesDNS(pathData=pathToData)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Warning,-not-all-files-have-zero-or-one-line-per-seed">Warning, not all files have zero or one line per seed<a class="anchor-link" href="#Warning,-not-all-files-have-zero-or-one-line-per-seed">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Sometimes a system can have multiple lines in a file. For example a system can experience 2 supernovae. The trick is then to think of a condition which is unique to the system.</p>
+<p>For example:</p>
+<p>If you want to link the double compact objects to the stellar types of the systems before their supernovae, then it is ill-phrased sice you van have multiple. The slicing will then not work since the SN array can have multiple instances of the seed.</p>
+<p>However, if you ask what were the stellar types of the primaries that went supernova, then the slicing works. Since a star can only go supernova once.</p>
+
 </div>
 </div>
 </div>
