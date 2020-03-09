@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>Overview</title>
+<title>3_rewritingH5</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13073,7 +13073,18 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="./Folders/Development/logo.png"></p>
+<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h1><p>The COMPAS simulations might be very large in data size
+while the actual data you need to reproduce your results could
+be small. Hence it might make sense to only publish a reduced number
+of files and columns based on some criteria.</p>
+<p>Here we show how you can reduce your data.
+The main things you need are:</p>
+<p>1 - the seeds you want to have in your data</p>
+<p>2 - the files you want in your data</p>
+<p>3 - the columns you want for each file</p>
+<p>The plain python script to do this is placed in the H5 folder 
+in postProcessing. Here we just show an example of how to reduce the data and call
+the script</p>
 
 </div>
 </div>
@@ -13081,81 +13092,306 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="COMPAS">COMPAS<a class="anchor-link" href="#COMPAS">&#182;</a></h1>
+<h1 id="Paths-needed">Paths needed<a class="anchor-link" href="#Paths-needed">&#182;</a></h1>
 </div>
 </div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pathToData</span> <span class="o">=</span> <span class="s1">&#39;/home/cneijssel/Desktop/Test/COMPAS_output.h5&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><font size="+1"></p>
-<p><a href=http://compas.science>
-COMPAS website : http://compas.science
-</a></p>
-<p><font/></p>
+<h1 id="Imports">Imports<a class="anchor-link" href="#Imports">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">h5py</span>  <span class="k">as</span> <span class="nn">h5</span>   <span class="c1">#for handling data format</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>  <span class="c1">#for array handling</span>
+<span class="kn">import</span> <span class="nn">os</span>           <span class="c1">#For checking existence data</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 
+<span class="n">pathNoteBook</span>     <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+<span class="n">pathPythonScript</span> <span class="o">=</span> <span class="n">pathNoteBook</span> <span class="o">+</span> <span class="s1">&#39;/PythonScripts/&#39;</span>
+<span class="c1">#custom scripts</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pathPythonScript</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">rewrite_H5</span>
+</pre></div>
+
+    </div>
 </div>
 </div>
+
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h2><p>Welcome to the post-processing documentation of the COMPAS code. In here you will the additional material outside the source code used to manipulate the data and/or calculate rates/weights/samples to place the results of the simulation in different scientific contexts.</p>
-<p>We provide a series of jupyter/ipython notebooks and 'raw' python scripts. The notebooks show how to call the python scripts and the involved syntax. All notebooks are made ito html pages for easy reading and indexing of available material.</p>
-<h2 id="How-to-reference:">How to reference:<a class="anchor-link" href="#How-to-reference:">&#182;</a></h2><p>If you use source-code/data/post-processing pipelines for your
-study we would appreciate if you acknowledge it accordingly.</p>
-<p>For source-code and data please see XXX</p>
-<p>For the pipelines XXX</p>
-<h2 id="Other-documentation-is-available:">Other documentation is available:<a class="anchor-link" href="#Other-documentation-is-available:">&#182;</a></h2><p>For source code documentation please see XXX</p>
-<p>For source code installation documentation please see XXX</p>
-<p>For git documentation please see XXX</p>
-<h2 id="Material">Material<a class="anchor-link" href="#Material">&#182;</a></h2>
+<h1 id="1--Loading-Data">1  Loading Data<a class="anchor-link" href="#1--Loading-Data">&#182;</a></h1>
 </div>
 </div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Data</span>  <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">pathToData</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The main files I have at my disposal are:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span><span class="nb">list</span><span class="p">(</span><span class="n">Data</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<span class="c1">#Say you want only the double neutron stars which</span>
+<span class="c1">#But you do want masses of all the initial systems (i.e. different seeds per file)</span>
+<span class="c1">#but for some reason want systems in which one or more systems had a USSN </span>
+<span class="c1">#and you dont want the CommonEnvelopes file</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>The main files I have at my disposal are:
+ [&#39;CommonEnvelopes&#39;, &#39;DoubleCompactObjects&#39;, &#39;RLOF&#39;, &#39;Supernovae&#39;, &#39;SystemParameters&#39;]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<ol>
-<font size="+3"> 
+<h1 id="2-Files/Columns-per-file-do-I-want?">2 Files/Columns per file do I want?<a class="anchor-link" href="#2-Files/Columns-per-file-do-I-want?">&#182;</a></h1><p>We use dictionaries to specifically link all the entries</p>
 
-<li>
-    <a href="./Folders/H5/0_H5Overview.html" style="text-decoration:none;"> 
-        H5 files:   <br/>  <br/>
-        <font size="+2"> 
-        compiling, reading, rewriting
-        </font>
-    </a>
-</li>
-
-
-<br/>
-
-<li>
-    <a href="./Folders/BasicsPython/0_BasicsOverview.html" style="text-decoration:none;"> 
-        Basics Python:   <br/>  <br/>
-        <font size="+2"> 
-        slicing, binning, plotting
-        </font>
-    </a>
-</li>
-
-
-<br/>
-
-
-<li>
-    <a href="./Folders/Development/DevelopmentOverview.html" style="text-decoration:none;"> 
-        Development:    <br/> <br/>
-        <font size="+2"> 
-            log, todo, maintenance
-        </font>
-    </a>
-</li>
-</font>
-</ol>
 </div>
 </div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Which Files do I want?</span>
+<span class="n">filesOfInterest</span>   <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="s1">&#39;DoubleCompactObjects&#39;</span><span class="p">,</span>\
+                     <span class="mi">2</span><span class="p">:</span><span class="s1">&#39;Supernovae&#39;</span><span class="p">,</span>\
+                     <span class="mi">3</span><span class="p">:</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">}</span>
+
+<span class="c1">#Give a list of columns you want, if you want all, say [&#39;All&#39;]</span>
+<span class="n">columnsOfInterest</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:[</span><span class="s1">&#39;All&#39;</span><span class="p">],</span>\
+                     <span class="mi">2</span><span class="p">:[</span><span class="s1">&#39;All&#39;</span><span class="p">],</span>\
+                     <span class="mi">3</span><span class="p">:[</span><span class="s1">&#39;SEED&#39;</span><span class="p">,</span> <span class="s1">&#39;Mass@ZAMS_1&#39;</span><span class="p">,</span> <span class="s1">&#39;Mass@ZAMS_2&#39;</span><span class="p">]}</span>
+
+<span class="c1">#example of the seeds dictionary the actual one will be defined later</span>
+<span class="n">seedsOfInterest</span>   <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span>\
+                     <span class="mi">2</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span>\
+                     <span class="mi">3</span><span class="p">:</span><span class="kc">None</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="3-Which-seeds-do-I-want-per-file?">3 Which seeds do I want per file?<a class="anchor-link" href="#3-Which-seeds-do-I-want-per-file?">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">##### I want all the systems</span>
+
+<span class="n">seedsSystems</span> <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()]</span>
+
+
+
+<span class="c1">#### Of the double COMPCt objects only the DNSs</span>
+
+<span class="n">DCOs</span> <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;DoubleCompactObjects&#39;</span><span class="p">]</span>
+
+<span class="n">typePrimary</span>   <span class="o">=</span>  <span class="n">DCOs</span><span class="p">[</span><span class="s1">&#39;Stellar_Type_1&#39;</span><span class="p">][()]</span>
+<span class="n">typeSecondary</span> <span class="o">=</span>  <span class="n">DCOs</span><span class="p">[</span><span class="s1">&#39;Stellar_Type_1&#39;</span><span class="p">][()]</span>
+<span class="n">seeds</span>         <span class="o">=</span>  <span class="n">DCOs</span><span class="p">[</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()]</span>
+
+<span class="n">DNSs</span>          <span class="o">=</span>  <span class="p">(</span><span class="n">typePrimary</span> <span class="o">==</span> <span class="mi">13</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">typeSecondary</span> <span class="o">==</span> <span class="mi">13</span><span class="p">)</span>
+<span class="n">seedsDNS</span>      <span class="o">=</span>  <span class="n">seeds</span><span class="p">[</span><span class="n">DNSs</span><span class="p">]</span>
+
+
+
+<span class="c1">######## Only disrupted SN </span>
+
+<span class="n">SNe</span>  <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;Supernovae&#39;</span><span class="p">]</span>
+
+<span class="n">seeds</span>     <span class="o">=</span> <span class="n">SNe</span><span class="p">[</span><span class="s1">&#39;SEED&#39;</span><span class="p">]</span>
+<span class="n">USSN</span>      <span class="o">=</span> <span class="n">SNe</span><span class="p">[</span><span class="s1">&#39;Unbound&#39;</span><span class="p">][()]</span> <span class="o">==</span> <span class="kc">True</span>
+<span class="n">seedsUSSN</span> <span class="o">=</span> <span class="n">seeds</span><span class="p">[</span><span class="n">USSN</span><span class="p">]</span>
+
+
+
+<span class="c1">####put in dictionary (DOUBLE CHECK ORDER :) )</span>
+
+<span class="n">seedsOfInterest</span>   <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="n">seedsDNS</span><span class="p">,</span>\
+                     <span class="mi">2</span><span class="p">:</span><span class="n">seedsUSSN</span><span class="p">,</span>\
+                     <span class="mi">3</span><span class="p">:</span><span class="n">seedsSystems</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="4-Call-the-function-which-creates-the-h5-file">4 Call the function which creates the h5 file<a class="anchor-link" href="#4-Call-the-function-which-creates-the-h5-file">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pathToNewData</span> <span class="o">=</span> <span class="s1">&#39;/home/cneijssel/Desktop/Test/COMPAS_outputNew.h5&#39;</span>
+
+<span class="n">rewrite_H5</span><span class="o">.</span><span class="n">reduceH5</span><span class="p">(</span><span class="n">pathToOld</span> <span class="o">=</span> <span class="n">pathToData</span><span class="p">,</span> <span class="n">pathToNew</span> <span class="o">=</span> <span class="n">pathToNewData</span><span class="p">,</span>\
+                     <span class="n">dictFiles</span><span class="o">=</span><span class="n">filesOfInterest</span><span class="p">,</span> <span class="n">dictColumns</span><span class="o">=</span><span class="n">columnsOfInterest</span><span class="p">,</span> <span class="n">dictSeeds</span><span class="o">=</span><span class="n">seedsOfInterest</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rewrite_H5</span><span class="o">.</span><span class="n">printAllColumnsInH5</span><span class="p">(</span><span class="n">pathToNewData</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Filename = DoubleCompactObjects
+----------------------
+	   column name                             unit                length
+	   --------------------------------------------------------------------
+	   Coalescence_Time                        Myr                 107
+	   Eccentricity@DCO                                            107
+	   ID                                                          107
+	   MT_Case_1                                                   107
+	   MT_Case_2                                                   107
+	   --------------------------------------------------------------------
+	   Mass_1                                  Msol                107
+	   Mass_2                                  Msol                107
+	   Merges_Hubble_Time                      State               107
+	   Recycled_NS_1                           Event               107
+	   Recycled_NS_2                           Event               107
+	   --------------------------------------------------------------------
+	   SEED                                                        107
+	   Separation@DCO                          AU                  107
+	   Stellar_Type_1                                              107
+	   Stellar_Type_2                                              107
+	   Time                                    Myr                 107
+	   --------------------------------------------------------------------
+Filename = Supernovae
+----------------------
+	   column name                             unit                length
+	   --------------------------------------------------------------------
+	   Applied_Kick_Velocity_SN                kms^-1              97159
+	   Drawn_Kick_Velocity_SN                  kms^-1              97159
+	   Eccentricity                                                97159
+	   Eccentricity&lt;2ndSN                                          97159
+	   Experienced_RLOF_SN                     Event               97159
+	   --------------------------------------------------------------------
+	   Fallback_Fraction_SN                                        97159
+	   Hydrogen_Poor_SN                        State               97159
+	   Hydrogen_Rich_SN                        State               97159
+	   ID                                                          97159
+	   Kick_Velocity(uK)                                           97159
+	   --------------------------------------------------------------------
+	   Mass_CO_Core@CO_SN                      Msol                97159
+	   Mass_CP                                 Msol                97159
+	   Mass_Core@CO_SN                         Msol                97159
+	   Mass_He_Core@CO_SN                      Msol                97159
+	   Mass_SN                                 Msol                97159
+	   --------------------------------------------------------------------
+	   Mass_Total@CO_SN                        Msol                97159
+	   Orb_Velocity&lt;2ndSN                      kms^-1              97159
+	   Runaway_CP                              Event               97159
+	   SEED                                                        97159
+	   SN_Kick_Phi_SN                                              97159
+	   --------------------------------------------------------------------
+	   SN_Kick_Theta_SN                                            97159
+	   SN_Type_SN                                                  97159
+	   Separation                              Rsol                97159
+	   Separation&lt;2ndSN                        Rsol                97159
+	   Stellar_Type_Prev_CP                                        97159
+	   --------------------------------------------------------------------
+	   Stellar_Type_Prev_SN                                        97159
+	   Stellar_Type_SN                                             97159
+	   Supernova_State                         State               97159
+	   Systemic_Velocity                       kms^-1              97159
+	   Time                                    Myr                 97159
+	   --------------------------------------------------------------------
+	   True_Anomaly(psi)_SN                                        97159
+	   Unbound                                 State               97159
+Filename = SystemParameters
+----------------------
+	   column name                             unit                length
+	   --------------------------------------------------------------------
+	   Mass@ZAMS_1                             Msol                300000
+	   Mass@ZAMS_2                             Msol                300000
+	   SEED                                                        300000
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
