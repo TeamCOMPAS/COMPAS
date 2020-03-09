@@ -38,7 +38,7 @@ void Options::InitialiseMemberVariables(void) {
 	beBinaries                                                      = false;
     evolvePulsars                                                   = false;                                                                            // Whether to evolve pulsars
 	evolveUnboundSystems                                            = false;                                                                            // Allow unbound syetms to evolve
-    onlyDoubleCompactObjects                                        = false;                                                                            // Flag to turn on some shortcuts to only evolve systems which may form double compact objects
+//    onlyDoubleCompactObjects                                        = false;                                                                            // Flag to turn on some shortcuts to only evolve systems which may form double compact objects
 
     detailedOutput                                                  = false;                                                                            // Detailed output
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
@@ -458,7 +458,7 @@ void Options::SetToFiducialValues(void) {
 	beBinaries                                                      = false;
     evolvePulsars                                                   = false;                                                                            // Whether to evolve pulsars
 	evolveUnboundSystems                                            = false;                                                                            // Allow unbound syetms to evolve
-    onlyDoubleCompactObjects                                        = false;                                                                            // Flag to turn on some shortcuts to only evolve systems which may form double compact objects
+//    onlyDoubleCompactObjects                                        = false;                                                                            // Flag to turn on some shortcuts to only evolve systems which may form double compact objects
 
     detailedOutput                                                  = false;                                                                            // Detailed output
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
@@ -932,7 +932,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 			("lambda-calculation-every-timeStep",                   "Calculate all values of lambda at each timestep")
    		   	("massTransfer",                                        "Enable mass transfer")
 //			("mcmc",                                                "Use MCMC sampling (Not yet implemented. default = false)")
-		    ("only-double-compact-objects",                         "Only evolve binaries which may form double compact objects")
+//		    ("only-double-compact-objects",                         "Only evolve binaries which may form double compact objects")
 		    ("pair-instability-supernovae",                         "Enable pair instability supernovae (PISN)")
             ("populationDataPrinting",                              "Print details of population")
 		    ("print-bool-as-string",                                "Print boolean properties as 'TRUE' or 'FALSE'")
@@ -1233,7 +1233,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                                                               massTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor >= 0.0 &&
                                                               massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor    >= 0.0;      // Do not retain previous (default) value
 
-            onlyDoubleCompactObjects                        = vm.count("only-double-compact-objects");                                  // only evolve DCOs?  Do not retain previous (default) value
+//            onlyDoubleCompactObjects                        = vm.count("only-double-compact-objects");                                  // only evolve DCOs?  Do not retain previous (default) value
 
             populationDataPrinting                          = vm.count("populationDataPrinting");                                       // print certain values while running a population?  Do not retain previous (default) valued
 

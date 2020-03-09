@@ -221,7 +221,7 @@ public:
 
     NS_EOS                                      NeutronStarEquationOfState() const                                      { return neutronStarEquationOfState; }
 
-    bool                                        OnlyDoubleCompactObjects() const                                        { return onlyDoubleCompactObjects; }
+//    bool                                        OnlyDoubleCompactObjects() const                                        { return onlyDoubleCompactObjects; }
 
     bool                                        OptimisticCHE() const                                                   { return cheOption == CHE_OPTION::OPTIMISTIC; }
 
@@ -324,7 +324,7 @@ private:
 	bool                                        beBinaries;													    // Flag if we want to print BeBinaries (main.cpp)
     bool                                        evolvePulsars;                                                  // Whether to evolve pulsars or not
 	bool                                        evolveUnboundSystems;							                // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
-    bool                                        onlyDoubleCompactObjects;                                       // A bunch of shortcuts to only evolve systems which are likely to form double compact objects.
+//    bool                                        onlyDoubleCompactObjects;                                       // A bunch of shortcuts to only evolve systems which are likely to form double compact objects.
 
     bool                                        detailedOutput;                                                 // Print detailed output details to file (default = false)
     bool                                        populationDataPrinting;                                         // Print certain data for small populations, but not for larger one
