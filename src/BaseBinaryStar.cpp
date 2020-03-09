@@ -3481,9 +3481,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve(const int p_Index) {
 
     EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
 
-    if (OPTIONS->OnlyDoubleCompactObjects() && m_Star2->Mass() < MINIMUM_MASS_SECONDARY)                                                    // check size of secondary
-        evolutionStatus = EVOLUTION_STATUS::SECONDARY_TOO_SMALL;                                                                            // too small - don't bother - no possibility of forming a double compact object
-    else if (HasStarsTouching())                                                                                                            // check if stars are touching
+    if (HasStarsTouching())                                                                                                            // check if stars are touching
         evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                                 // binary components are touching (should usually be avoided as MT or CE should happen prior to this)
 
     PrintDetailedOutput(p_Index);                                                                                                           // print (log) detailed output for binary
