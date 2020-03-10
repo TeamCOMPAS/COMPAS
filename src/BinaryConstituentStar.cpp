@@ -402,7 +402,7 @@ void BinaryConstituentStar::DetermineInitialMassTransferCase() {
  * Initial calculations for mass transfer resolution
  *
  * Calculates the Roche Lobe radius based on mass of both stars
- * Sets Roche Log flags for the star
+ * Sets Roche Lobe flags for the star
  * Set class member variable m_MassTransferDiff = 0.0
  *
  * void InitialiseMassTransfer(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity)

@@ -40,7 +40,7 @@ class pythonProgramOptions:
     #-- set inidividual system parameters
     single_star = False
 
-    grid_filename = ''
+    grid_filename = None
 
     use_mass_loss = True
     mass_transfer = True
@@ -234,12 +234,27 @@ class pythonProgramOptions:
     debug_level       = 0
     debug_classes     = []
 
-    logfile_definitions = ''
+    logfile_definitions = None
 
     logfile_name_prefix = 'Compas_Log_'
     logfile_delimiter   = 'COMMA'
     logfile_BSE_system_parameters = None
     logfile_BSE_double_compact_objects = None
+
+    # set the logfile names here
+    #
+    # set to None (e.g. logfile_BSE_supernovae = None) to use the default filename
+    # set to a string (e.g. logfile_BSE_supernovae = 'mySNfilename') to use that string as the filename 
+    # set to empty string (e.g. logfile_BSE_supernovae = '""') to disable logging for that file (the file will not be created)
+
+    logfile_BSE_be_binaries = None
+    logfile_BSE_common_envelopes = None
+    logfile_BSE_detailed_output = None
+    logfile_BSE_double_compact_objects = None
+    logfile_BSE_pulsar_evolution = None
+    logfile_BSE_rlof_parameters = None
+    logfile_BSE_supernovae = None
+    logfile_BSE_system_parameters = None
 
     debug_to_file  = False
     errors_to_file = False
@@ -565,8 +580,14 @@ class pythonProgramOptions:
             self.logfile_delimiter,
             self.logfile_definitions,
             self.grid_filename,
-            self.logfile_BSE_system_parameters,
-            self.logfile_BSE_double_compact_objects
+            self.logfile_BSE_be_binaries,
+            self.logfile_BSE_common_envelopes,
+            self.logfile_BSE_detailed_output,
+            self.logfile_BSE_double_compact_objects,
+            self.logfile_BSE_pulsar_evolution,
+            self.logfile_BSE_rlof_parameters,
+            self.logfile_BSE_supernovae,
+            self.logfile_BSE_system_parameters
         ]
 
         return stringChoices
@@ -606,8 +627,14 @@ class pythonProgramOptions:
             '--logfile-delimiter',
             '--logfile-definitions',
             '--grid',
-            '--logfile-BSE-system-parameters',
-            '--logfile-BSE-double-compact-objects'
+            '--logfile-BSE-be-binaries',
+            '--logfile-BSE-common-envelopes',
+            '--logfile-BSE-detailed-output',
+            '--logfile-BSE-double-compact-objects',
+            '--logfile-BSE-pulsar-evolution',
+            '--logfile-BSE-rlof-parameters',
+            '--logfile-BSE-supernovae',
+            '--logfile-BSE-system-parameters'
         ]
 
         return stringCommands
