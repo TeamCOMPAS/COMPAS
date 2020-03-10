@@ -336,10 +336,6 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
     m_TimePrev                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // Differential quantities
-// AVG    m_aTidesDiff                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
-// AVG    m_OmegaTidesDiff                             = DEFAULT_INITIAL_DOUBLE_VALUE;
-// AVG    m_OmegaTides                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
-
     m_aMassLossDiff                              = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_OmegaMassLossDiff                          = DEFAULT_INITIAL_DOUBLE_VALUE;
 
@@ -1512,184 +1508,6 @@ void BaseBinaryStar::ResolveCoalescence() {
 
     PrintDoubleCompactObjects();                                                                                                                // print (log) double compact object details
 }
-
-
-/*
- * Resolve tidal interactions
- *
- * Created by Alejandro Vigna-Gomez on 11/2015.
- *
- * Tides function was initially developed comparing the previous timestep to the new timestep and evolving
- * the system using our simple tides prescription (see COMPAS notes). We later noticed this created some
- * problems when we had events such as CE or MT. The way to implement tides now is to solve them at the end of
- * binary evolution, tidally locking them. This is still work in progress. ALEJANDRO - 04/10/2016
- *
- *
- * void ResolveTides()
- */
-
-// AVG
-/*
-void BaseBinaryStar::ResolveTides() {
-
-    m_aTidesDiff     = 0.0;
-	m_OmegaTidesDiff = 0.0;
-
-	// assign new values to "previous" values, for following timestep
-    m_EccentricityPrev	  = m_EccentricityPrime;
-    m_SemiMajorAxisPrev   = m_SemiMajorAxisPrime;
-    m_OrbitalVelocityPrev = m_OrbitalVelocityPrime;
-
-	m_Star1->CalculateOmegaTidesIndividualDiff(m_Star1->OmegaPrev());                                                                                       // set star1 m_OmegaTidesIndividualDiff = 0.0
-	m_Star2->CalculateOmegaTidesIndividualDiff(m_Star2->OmegaPrev());                                                                                       // set star2 m_OmegaTidesIndividualDiff = 0.0
-
-    if (utils::Compare(m_OrbitalVelocityPrime, 0.0) <= 0) return;                                                                                           // nothing to do
-	if (utils::Compare(m_SemiMajorAxisPrime, 0.0)   <= 0) return;                                                                                           // nothing to do
-	if (m_StellarMerger)                                  return;                                                                                           // nothing to do
-
-    switch (OPTIONS->TidesPrescription()) {                                                                                                                 // which tides prescription?
-
-        case TIDES_PRESCRIPTION::NONE: break;                                                                                                               // NONE - nothing to do
-
-        case TIDES_PRESCRIPTION::HUT:                                                                                                                       // HUT - not supported              JR: todo: added this - why don't we just remove this option?
-        case TIDES_PRESCRIPTION::LOCKED_ENERGY:                                                                                                             // LOCKED_ENERGY - not supported    JR: todo: why don't we just remove this option?
-
-            SHOW_WARN(ERROR::UNSUPPORTED_TIDES_PRESCRIPTION, "Prescription: " + TIDES_PRESCRIPTION_LABEL.at(OPTIONS->TidesPrescription()));                 // show warning
-            break;
-
-        case TIDES_PRESCRIPTION::LOCKED_ANG_MOMENTUM: {
-
-            double totalMass = m_Star1->Mass() + m_Star2->Mass();                                                                                           // total mass of binary in Msol
-            double mu 		 = (m_Star1->Mass() * m_Star2->Mass()) / totalMass;                                                                             // reduced mass in Msol
-
-            double star1AngularVelocity = m_Star1->Omega();                                                                                                 // angular velocity in yr-1 units of star1
-            double star2AngularVelocity	= m_Star2->Omega();                                                                                                 // angular velocity in yr-1 units of star2
-
-            BinaryConstituentStar* star1Copy = new BinaryConstituentStar(*m_Star1);
-            BinaryConstituentStar* star2Copy = new BinaryConstituentStar(*m_Star2);
-            star1Copy->SetCompanion(star2Copy);
-            star2Copy->SetCompanion(star1Copy);
-
-            star1Copy->ResolveRemnantAfterEnvelopeLossAndSwitch();
-            star2Copy->ResolveRemnantAfterEnvelopeLossAndSwitch();
-
-            // calculate moments of inertia
-            double star1MomentOfInertia = m_Star1->CalculateMomentOfInertiaAU(star1Copy->Radius());
-            double star2MomentOfInertia = m_Star2->CalculateMomentOfInertiaAU(star2Copy->Radius());
-
-            delete star1Copy; star1Copy = nullptr;
-            delete star2Copy; star2Copy = nullptr;
-
-            // define gyration radius 'k' using fit from de Mink et al. 2013
-            double star1GyrationRadius = m_Star1->CalculateGyrationRadius();
-            double star2GyrationRadius = m_Star2->CalculateGyrationRadius();
-
-            double L = CalculateAngularMomentumPrime();
-            double E = CalculateTotalEnergyPrime();                                                                                                         // JR: todo: note original code passed star1.m_Radius * RSOL_TO_AU and star2.m_Radius * RSOL_TO_AU, but CalculateTotalEnergy() multiplies by RSOL_TO_AU internally
-
-            // solve polynomial of form: ax^4 + bx^3 + cx^2 + dx + e = 0
-            // number of coefficients (is order of polynomial + 1)
-            constexpr size_t polynomialOrder   = 4;
-            constexpr size_t nCoefficients     = polynomialOrder + 1;
-            constexpr size_t nSolutions        = 2 * polynomialOrder;                                                                                       // real part + imaginary part for each solution
-
-            double coefficients[nCoefficients] = {0.0, 0.0, 0.0, 0.0, 0.0};                                                                                 // initialise coefficients {e, d, c, b, a}
-
-            // calculate coefficients
-            coefficients[0] = (star1MomentOfInertia * sqrt(G1 * totalMass)) + (star2MomentOfInertia * sqrt(G1 * totalMass));                                // e
-
-            double spin1    = star1MomentOfInertia * star1AngularVelocity;                                                                                  // Initial spin angular momenta of object 1
-            double spin2    = star2MomentOfInertia * star2AngularVelocity;                                                                                  // Initial spin angular momenta of object 2
-            coefficients[3] = (m_OrbitalVelocityPrime * m_SemiMajorAxisPrime * m_SemiMajorAxisPrime * mu) + spin1 + spin2;                                  // b
-
-            coefficients[4] = sqrt(G1 * totalMass) * mu;                                                                                                    // a
-
-            // do GSL rootfinding magic - solutions in 'solutions' array
-            double solutions[nSolutions];
-            gsl_poly_complex_workspace *workspace = gsl_poly_complex_workspace_alloc (nCoefficients);
-            gsl_poly_complex_solve(coefficients, nCoefficients, workspace, solutions);
-            gsl_poly_complex_workspace_free(workspace);
-
-            // now solve for values required
-            // JR: todo: the following arrays were declared with dimension [3] but the dimension should
-            // be [polynomialOrder], otherwise the loops below could walk off the end of the arrays...
-            // Setting the dimension at [3] relies on the first loop ending due to the check condition
-            // and 'haveSolution' being set true - not guaranteed, especially since there is a catch for
-            // that not happening after the first loop...
-
-            double aSolution[polynomialOrder];                                                                                                              // semi-major axes
-            double wsync[polynomialOrder];                                                                                                                  // synchronised orbital velocities
-            double E1[polynomialOrder];                                                                                                                     // total energies
-            double L1[polynomialOrder];                                                                                                                     // angular momenta
-            double deltaE1[polynomialOrder];                                                                                                                // energy differences
-            double deltaL1[polynomialOrder];                                                                                                                // angular momenta differences
-
-            constexpr double errorPermitted = 0.5;                                                                                                          // how much slop we'll accept...
-
-            bool haveSolution = false;
-            unsigned int  i   = 0;
-            do {
-                aSolution[i] = solutions[2 * i] * solutions[2 * i];
-                wsync[i]     = sqrt(totalMass * G1 / (aSolution[i] * aSolution[i] * aSolution[i]));
-                E1[i]	     = CalculateTotalEnergy(aSolution[i], wsync[i], wsync[i], wsync[i], star1GyrationRadius, star2GyrationRadius);
-                L1[i]	     = CalculateAngularMomentum(aSolution[i], m_EccentricityPrime, wsync[i], wsync[i], star1GyrationRadius, star2GyrationRadius);   // to verify for conservation of angular momentum
-                deltaE1[i]   = std::abs(E - E1[i]);
-                deltaL1[i]   = std::abs(L - L1[i]);
-
-                if (deltaE1[i] < (errorPermitted * std::abs(E)) && utils::Compare(solutions[(2 * i) + 1], 0.0) == 0) {                                      // JR: todo: don't use utils::Compare() for the error epsilon?  That's not really an epsilon...
-                    m_Star1->CalculateOmegaTidesIndividualDiff(wsync[i]);
-                    m_Star2->CalculateOmegaTidesIndividualDiff(wsync[i]);
-                    m_aTidesDiff     = aSolution[i] - m_SemiMajorAxisPrev;
-                    m_OmegaTidesDiff = wsync[i] - m_OrbitalVelocityPrev;
-                    m_OmegaTides     = wsync[i];
-
-                    haveSolution     = true;
-                }
-            } while (++i < polynomialOrder && !haveSolution);
-
-            if (!haveSolution) {                                                                                                                            // didn't converge - check for solutions which maybe not be exact, but close to instant tidal locking
-                i = 0;
-                do {
-                    if (deltaL1[i] < (errorPermitted * L) && utils::Compare(solutions[(2 * i) + 1], 0.0) == 0) {                                            // JR: todo: don't use utils::Compare() for the error epsilon?  That's not really an epsilon...
-                        m_Star1->CalculateOmegaTidesIndividualDiff(wsync[i]);
-                        m_Star2->CalculateOmegaTidesIndividualDiff(wsync[i]);
-                        m_aTidesDiff     = aSolution[i] - m_SemiMajorAxisPrev;
-                        m_OmegaTidesDiff = wsync[i] - m_OrbitalVelocityPrev;
-                        m_OmegaTides     = wsync[i];
-
-                        haveSolution     = true;
-                    }
-                } while (++i < polynomialOrder && !haveSolution);
-
-                if (!haveSolution) {                                                                                                                        // still didn't converge
-                    m_Error = ERROR::NO_CONVERGENCE;                                                                                                        // set error
-                    SHOW_ERROR(m_Error);                                                                                                                    // show error
-                }
-            }
-            } break;
-
-        default:                                                                                                                                            // unknown prescription
-            m_Error = ERROR::UNKNOWN_TIDES_PRESCRIPTION;                                                                                                    // set error
-            SHOW_ERROR(m_Error);                                                                                                                            // show error
-    }
-
-    // update values for star rotation
-    m_Star1->CalculateAngularMomentum();                                                                                                                    // calculate angular momentum for star1
-    m_Star2->CalculateAngularMomentum();                                                                                                                    // calculate angular momentum for star2
-
-    m_Star1->IncrementOmega(m_Star1->OmegaTidesIndividualDiff());                                                                                           // update star1 omega for tides difference
-    m_Star2->IncrementOmega(m_Star2->OmegaTidesIndividualDiff());                                                                                           // update star2 omega for tides difference
-
-    // update binary
-    m_OrbitalVelocityPrime += m_OmegaTidesDiff;                                                                                                             // should here be a diff quantity because of MB?     JR: todo: ?
-    m_SemiMajorAxisPrime   += m_aTidesDiff;
-
-    // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
-    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star1->SetOmega(m_OrbitalVelocityPrime);
-    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star2->SetOmega(m_OrbitalVelocityPrime);
-}
-*/
-
 
 /*
  * Assign misalignments to S1 and S2 based on assumptions for spin study
@@ -3314,7 +3132,6 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
     (void)m_Star2->UpdateAttributes(0.0, 0.0, true);                                                                        // recalculate stellar attributes for star2
 
     EvaluateSupernovae();                                                                                                   // evaluate supernovae (both stars)   JR: todo: ?
-// AVG    ResolveTides();                                                                                                         // resolve tides
     CalculateEnergyAndAngularMomentum();                                                                                    // perform energy and angular momentum calculations
 
     m_Star1->UpdateMagneticFieldAndSpin(m_CommonEnvelope, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);            // update pulsar parameters for star1

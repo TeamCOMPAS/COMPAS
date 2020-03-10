@@ -167,10 +167,6 @@ public:
         m_Theta1                           = p_Star.m_Theta1;
         m_Theta2                           = p_Star.m_Theta2;
 
-// AVG        m_aTidesDiff                       = p_Star.m_aTidesDiff;
-// AVG        m_OmegaTidesDiff                   = p_Star.m_OmegaTidesDiff;
-// AVG        m_OmegaTides                       = p_Star.m_OmegaTides;
-
         m_Time                             = p_Star.m_Time;
         m_TimePrev                         = p_Star.m_TimePrev;
         m_TimeToCoalescence                = p_Star.m_TimeToCoalescence;
@@ -481,10 +477,6 @@ private:
     double              m_Theta1;                                                           // By default, aligned
     double              m_Theta2;                                                           // By default, aligned
 
-// AVG    double              m_aTidesDiff;
-// AVG    double              m_OmegaTidesDiff;
-// AVG    double              m_OmegaTides;
-
     double              m_Time;                                                             // Physical simulation time
     double              m_TimePrev;                                                         // Previous simulation time
     double              m_TimeToCoalescence;                                                // Coalescence time
@@ -653,7 +645,6 @@ private:
     void    ResolveCommonEnvelopeEvent();
     void    ResolveMassChanges();
     bool    ResolveSupernova();
-// AVG    void    ResolveTides();
 
     bool    RLOFCheckMonitorEndCaseA();
 

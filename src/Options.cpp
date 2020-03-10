@@ -199,12 +199,6 @@ void Options::InitialiseMemberVariables(void) {
     spinAssumption                                                  = SPIN_ASSUMPTION::ALIGNED;
     spinAssumptionString                                            = SPIN_ASSUMPTION_LABEL.at(spinAssumption);
 
-
-// AVG    // Tides options
-// AVG   tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
-// AVG   tidesPrescriptionString                                         = TIDES_PRESCRIPTION_LABEL.at(tidesPrescription);                                   // String containing which tides prescription to use (default = "None")
-
-
     // Mass loss options
     useMassLoss                                                     = true;                                                                             // Whether to use mass loss
 
@@ -624,12 +618,6 @@ void Options::SetToFiducialValues(void) {
 
     spinAssumption                                                  = SPIN_ASSUMPTION::ALIGNED;
     spinAssumptionString                                            = SPIN_ASSUMPTION_LABEL.at(spinAssumption);
-
-
-// AVG    // Tides options
-// AVG    tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
-// AVG    tidesPrescriptionString                                         = TIDES_PRESCRIPTION_LABEL.at(tidesPrescription);                                   // String containing which tides prescription to use (default = "None")
-
 
     // Mass loss options
     useMassLoss                                                     = true;                                                                             // Whether to use mass loss
@@ -1136,9 +1124,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("spin-assumption",                                             po::value<string>(&spinAssumptionString),                                           "Which assumption of misalignedments to use (default = bothAligned)")
 		    ("spin-distribution",                                           po::value<string>(&spinDistributionString),                                         "Which distribution of spins to use (default = 0)")
 
-// AVG		    ("tides-prescription",                                          po::value<string>(&tidesPrescriptionString),                                        "Tides prescription to use (options: default = None)")
-
-
             // vector (list) options - alphabetically
             ("debug-classes",                                               po::value<vector<string>>(&debugClasses)->multitoken(),                             "Debug classes enabled")
             ("log-classes",                                                 po::value<vector<string>>(&logClasses)->multitoken(),                               "Logging classes enabled")
@@ -1457,12 +1442,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 std::tie(found, spinDistribution) = utils::GetMapKey(spinDistributionString, SPIN_DISTRIBUTION_LABEL, spinDistribution);
                 COMPLAIN_IF(!found, "Unknown Spin Assumption");
 			}
-
-// AVG           if (vm.count("tides-prescription")) {                                                                                       // tides prescription
-// AVG               std::tie(found, tidesPrescription) = utils::GetMapKey(tidesPrescriptionString, TIDES_PRESCRIPTION_LABEL, tidesPrescription);
-// AVG               COMPLAIN_IF(!found, "Unknown Tides Prescription");
-// AVG           }
-
 
             // constraint/value/range checks - alphabetically (where possible)
 

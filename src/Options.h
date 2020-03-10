@@ -289,8 +289,6 @@ public:
     double                                      SpinDistributionMax() const                                             { return spinDistributionMax; }
     double                                      SpinDistributionMin() const                                             { return spinDistributionMin; }
 
-// AVG    TIDES_PRESCRIPTION                          TidesPrescription() const                                               { return tidesPrescription; }
-
     bool                                        UseFixedUK() const                                                      { return useFixedUK; }
     bool                                        UseMassLoss() const                                                     { return useMassLoss; }
     bool                                        UseMassTransfer() const                                                 { return useMassTransfer; }
@@ -467,11 +465,6 @@ private:
 
     SPIN_ASSUMPTION spinAssumption;
     string spinAssumptionString;                                                                                // What assumption to make in our spin study (default = both spins aligned)
-
-
-// AVG    // Tides options
-// AVG    TIDES_PRESCRIPTION                          tidesPrescription;                                              // Which tides prescription will be used by the code. (default = TIDES_PRESCRIPTION_NONE)
-// AVG    string                                      tidesPrescriptionString;                                        // String containing which tides prescription to use (default = "None")
 
     // Mass loss options
     bool                                        useMassLoss;                                                    // Whether to activate mass loss (default = True)
