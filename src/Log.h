@@ -158,7 +158,6 @@ private:
     ANY_PROPERTY_VECTOR m_BSE_DCO_Rec         = BSE_DOUBLE_COMPACT_OBJECTS_REC;     // default specification
     ANY_PROPERTY_VECTOR m_BSE_SNE_Rec         = BSE_SUPERNOVAE_REC;                 // default specification
     ANY_PROPERTY_VECTOR m_BSE_CEE_Rec         = BSE_COMMON_ENVELOPES_REC;           // default specification
-    ANY_PROPERTY_VECTOR m_BSE_RLOF_Rec        = BSE_RLOF_PARAMETERS_REC;            // default specification
     ANY_PROPERTY_VECTOR m_BSE_BE_Binaries_Rec = BSE_BE_BINARIES_REC;                // default specification
     ANY_PROPERTY_VECTOR m_BSE_Pulsars_Rec     = BSE_PULSAR_EVOLUTION_REC;           // default specification
     ANY_PROPERTY_VECTOR m_BSE_Detailed_Rec    = BSE_DETAILED_OUTPUT_REC;            // default specification
@@ -328,8 +327,6 @@ public:
     void LogSingleStarParameters(const T* const p_Star, const int p_Id)  { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PARAMETERS)), 0, LOGFILE::SSE_PARAMETERS, p_Star, "_" + std::to_string(abs(p_Id))); }
     template <class T>
     void LogBinarySystemParameters(const T* const p_Binary)              { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS)), 0, LOGFILE::BSE_SYSTEM_PARAMETERS, p_Binary); }
-    template <class T>
-    void LogRLOFParameters(const T* const p_Binary)                      { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS)), 0, LOGFILE::BSE_RLOF_PARAMETERS, p_Binary); }
     template <class T>
     void LogDoubleCompactObject(const T* const p_Binary)                 { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS)), 0, LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, p_Binary); }
     template <class T>

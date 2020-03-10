@@ -47,7 +47,6 @@ void Options::InitialiseMemberVariables(void) {
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
     printBoolAsString                                               = false;                                                                            // default is do not print bool as string
     quiet                                                           = false;                                                                            // Suppress some of the printing
-    rlofPrinting                                                    = false;
 
     useImportanceSampling                                           = false;
 //    useMCMC                                                         = false;
@@ -422,7 +421,6 @@ void Options::InitialiseMemberVariables(void) {
     logfileBSEDoubleCompactObjects                                  = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS));               // get default filename from constants.h
     logfileBSESupernovae                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));                           // get default filename from constants.h
     logfileBSECommonEnvelopes                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));                     // get default filename from constants.h
-    logfileBSERLOFParameters                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS));                      // get default filename from constants.h
     logfileBSEBeBinaries                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));                          // get default filename from constants.h
     logfileBSEPulsarEvolution                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION));                     // get default filename from constants.h
 }
@@ -453,7 +451,6 @@ void Options::SetToFiducialValues(void) {
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
     printBoolAsString                                               = false;                                                                            // default is do not print bool as string
     quiet                                                           = false;                                                                            // Suppress some of the printing
-    rlofPrinting                                                    = false;
 
     useImportanceSampling                                           = false;
 //    useMCMC                                                         = false;
@@ -850,7 +847,6 @@ void Options::SetToFiducialValues(void) {
     logfileBSEDoubleCompactObjects                                  = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS));               // get default filename from constants.h
     logfileBSESupernovae                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));                           // get default filename from constants.h
     logfileBSECommonEnvelopes                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));                     // get default filename from constants.h
-    logfileBSERLOFParameters                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS));                      // get default filename from constants.h
     logfileBSEBeBinaries                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));                          // get default filename from constants.h
     logfileBSEPulsarEvolution                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION));                     // get default filename from constants.h
 }
@@ -918,7 +914,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("pulsational-pair-instability",                        "Enable mass loss due to pulsational-pair-instability (PPI)")
 		    ("quiet",                                               "Suppress printing")
 			("revised-energy-formalism-Nandez-Ivanova",             "Enable revised energy formalism")
-            ("RLOFPrinting",                                        "Enable output parameters before/after RLOF ")
 			("sample-common-envelope-alpha",                        "Sample over common envelope alpha")
 			("sample-kick-direction-power",                         "Sample over kick direction powerlaw exponent")
 			("sample-kick-velocity-sigma",                          "Sample over Kick Velocity Sigma")
@@ -1070,7 +1065,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             ("logfile-BSE-detailed-output",                                 po::value<string>(&logfileBSEDetailedOutput),                                       "Filename for BSE Detailed Output logfile")
             ("logfile-BSE-double-compact-objects",                          po::value<string>(&logfileBSEDoubleCompactObjects),                                 "Filename for BSE Double Compact Objects logfile")
             ("logfile-BSE-pulsar-evolution",                                po::value<string>(&logfileBSEPulsarEvolution),                                      "Filename for BSE Pulsar Evolution logfile")
-            ("logfile-BSE-rlof-parameters",                                 po::value<string>(&logfileBSERLOFParameters),                                       "Filename for BSE RLOF Parameters logfile")
             ("logfile-BSE-supernovae",                                      po::value<string>(&logfileBSESupernovae),                                           "Filename for BSE Supernovae logfile")
             ("logfile-BSE-system-parameters",                               po::value<string>(&logfileBSESystemParameters),                                     "Filename for BSE System Parameters logfile")
             ("logfile-definitions",                                         po::value<string>(&logfileDefinitionsFilename)->implicit_value(""),                 "Filename for logfile record definitions")
@@ -1214,8 +1208,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             quiet                                           = vm.count("quiet");                                                        // verbose or quiet mode?  Do not retain previous (default) value
 
             revisedEnergyFormalismNandezIvanova             = vm.count("revised-energy-formalism-Nandez-Ivanova");                      // Do not retain previous (default) value
-
-            rlofPrinting                                    = vm.count("RLOFPrinting");                                                 // print Roche Lobe overflow details?  Do not retain previous (default) value
 
 			sampleCommonEnvelopeAlpha                       = vm.count("sample-common-envelope-alpha");                                 // sample CE alpha?  Do not retain previous (default) value
 			sampleKickDirectionPower                        = vm.count("sample-kick-direction-power");                                  // sample kick direction power?  Do not retain previous (default) value

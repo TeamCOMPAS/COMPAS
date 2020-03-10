@@ -922,11 +922,6 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     recordProperties = m_BSE_CEE_Rec;
                     break;
 
-                case LOGFILE::BSE_RLOF_PARAMETERS:                                                                                              // BSE_RLOF_PARAMETERS
-                    filename         = OPTIONS->LogfileBSERLOFParameters();
-                    recordProperties = m_BSE_RLOF_Rec;
-                    break;
-
                 case LOGFILE::BSE_BE_BINARIES:                                                                                                  // BSE_BE_BINARIES
                     filename         = OPTIONS->LogfileBSEBeBinaries();
                     recordProperties = m_BSE_BE_Binaries_Rec;
@@ -1235,7 +1230,6 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
             case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: baseProps = m_BSE_DCO_Rec;         break;
             case LOGFILE::BSE_SUPERNOVAE            : baseProps = m_BSE_SNE_Rec;         break;
             case LOGFILE::BSE_COMMON_ENVELOPES      : baseProps = m_BSE_CEE_Rec;         break;
-            case LOGFILE::BSE_RLOF_PARAMETERS       : baseProps = m_BSE_RLOF_Rec;        break;
             case LOGFILE::BSE_BE_BINARIES           : baseProps = m_BSE_BE_Binaries_Rec; break;
             case LOGFILE::BSE_PULSAR_EVOLUTION      : baseProps = m_BSE_Pulsars_Rec;     break;
             case LOGFILE::BSE_DETAILED_OUTPUT       : baseProps = m_BSE_Detailed_Rec;    break;
@@ -1304,7 +1298,6 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
         case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: m_BSE_DCO_Rec         = newProps; break;
         case LOGFILE::BSE_SUPERNOVAE            : m_BSE_SNE_Rec         = newProps; break;
         case LOGFILE::BSE_COMMON_ENVELOPES      : m_BSE_CEE_Rec         = newProps; break;
-        case LOGFILE::BSE_RLOF_PARAMETERS       : m_BSE_RLOF_Rec        = newProps; break;
         case LOGFILE::BSE_BE_BINARIES           : m_BSE_BE_Binaries_Rec = newProps; break;
         case LOGFILE::BSE_PULSAR_EVOLUTION      : m_BSE_Pulsars_Rec     = newProps; break;
         case LOGFILE::BSE_DETAILED_OUTPUT       : m_BSE_Detailed_Rec    = newProps; break;
@@ -1348,7 +1341,6 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *                  "BSE_DCO_REC"         |				# BSE only
  *                  "BSE_SNE_REC"         |				# BSE only
  *                  "BSE_CEE_REC"         |				# BSE only
- *                  "BSE_RLOF_REC"        |				# BSE only
  *                  "BSE_BE_BINARIES_REC" |				# BSE only
  *                  "BSE_PULSARS_REC"     |				# BSE only
  *                  "BSE_DETAILED_REC"					# BSE only

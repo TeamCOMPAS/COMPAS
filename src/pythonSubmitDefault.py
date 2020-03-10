@@ -45,7 +45,6 @@ class pythonProgramOptions:
     mass_transfer = True
     post_newtonian_evolution = False
     detailed_output = False                         # WARNING: this creates a data heavy file
-    RLOFPrinting = True
     only_double_compact_objects = False             # Delete when STROOPWAFEL fully implemented
     evolve_unbound_systems = False
     lambda_calculation_every_timestep = False
@@ -249,7 +248,6 @@ class pythonProgramOptions:
     logfile_BSE_detailed_output = None
     logfile_BSE_double_compact_objects = None
     logfile_BSE_pulsar_evolution = None
-    logfile_BSE_rlof_parameters = None
     logfile_BSE_supernovae = None
     logfile_BSE_system_parameters = None
 
@@ -298,7 +296,6 @@ class pythonProgramOptions:
             self.AIS_RLOF,
             self.AIS_Pessimistic,
             self.AIS_refinement_phase,
-            self.RLOFPrinting,
             self.pair_instability_supernovae,
             self.pulsation_pair_instability,
             self.quiet,
@@ -339,7 +336,6 @@ class pythonProgramOptions:
             '--AIS-RLOF',
             '--AIS-Pessimistic',
             '--AIS-refinement-phase',
-            '--RLOFPrinting',
             '--pair-instability-supernovae',
             '--pulsational-pair-instability',
             '--quiet',
@@ -582,7 +578,6 @@ class pythonProgramOptions:
             self.logfile_BSE_detailed_output,
             self.logfile_BSE_double_compact_objects,
             self.logfile_BSE_pulsar_evolution,
-            self.logfile_BSE_rlof_parameters,
             self.logfile_BSE_supernovae,
             self.logfile_BSE_system_parameters
         ]
@@ -629,7 +624,6 @@ class pythonProgramOptions:
             '--logfile-BSE-detailed-output',
             '--logfile-BSE-double-compact-objects',
             '--logfile-BSE-pulsar-evolution',
-            '--logfile-BSE-rlof-parameters',
             '--logfile-BSE-supernovae',
             '--logfile-BSE-system-parameters'
         ]
