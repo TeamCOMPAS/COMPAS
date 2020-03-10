@@ -1091,7 +1091,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("kick-direction",                                              po::value<string>(&kickDirectionDistributionString),                                "Distribution for natal kick direction (options: ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW, WEDGE, POLES. Default = ISOTROPIC)")
 		    ("kick-velocity-distribution",                                  po::value<string>(&kickVelocityDistributionString),                                 "Natal kick velocity distribution (options: ZERO, FLAT, MAXWELLIAN, MUELLER2016, MUELLER2016MAXWELLIAN, BRAYELDRIDGE. Default = MAXWELLIAN)")
 
-            ("logfile-BSE-be-binaries",                                     po::value<string>(&logfileBSEBeBinaries),                                           "Filename for BSE Be Binaries logfile")
+//            ("logfile-BSE-be-binaries",                                     po::value<string>(&logfileBSEBeBinaries),                                           "Filename for BSE Be Binaries logfile")
             ("logfile-BSE-common-envelopes",                                po::value<string>(&logfileBSECommonEnvelopes),                                      "Filename for BSE Common Envelopes logfile")
             ("logfile-BSE-detailed-output",                                 po::value<string>(&logfileBSEDetailedOutput),                                       "Filename for BSE Detailed Output logfile")
             ("logfile-BSE-double-compact-objects",                          po::value<string>(&logfileBSEDoubleCompactObjects),                                 "Filename for BSE Double Compact Objects logfile")
