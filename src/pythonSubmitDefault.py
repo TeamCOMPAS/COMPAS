@@ -111,7 +111,7 @@ class pythonProgramOptions:
     critical_mass_ratio_white_dwarf_non_degenerate_accretor = -1.0 #0.0
     critical_mass_ratio_white_dwarf_degenerate_accretor = -1.0 #1.6
 
-    maximum_evolution_time = 13700.0
+    maximum_evolution_time = 13700.0    # Maximum physical time a system can be evolved [Myrs]
     maximum_number_iterations = 99999
 
     #  STROOPWAFEL algorithm for COMPAS cf Broekgaarden+18
