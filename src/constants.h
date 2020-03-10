@@ -192,6 +192,8 @@
 //                                             - set grid_filename = None (was '' which worked, but None is correct)
 //                                             - set logfile_definitions = None (was '' which worked, but None is correct)
 //                                             - added logfile names - set to None (COMPAS commandline arguments already exist for these - introduced in v02.00.00)
+// 02.05.07      JR - Mar 08, 2020 - Defect repair:
+//                                       - fixed circularisation equation in BaseBinaryStar::InitialiseMassTransfer() - now takes new mass values into account
 // 02.06.00      JR - Mar 10, 2020 - Changed functionality:
 //                                       - removed RLOF printing code & associated pythonSubmitDefault.py options
 
