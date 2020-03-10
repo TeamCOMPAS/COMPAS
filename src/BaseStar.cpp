@@ -129,7 +129,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Time                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Dt                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Tau                                      = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Age                                      = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_Age                                      = 0.0;           // ensure age = 0.0 at construction (rather than default initial value)
     m_Mass                                     = m_MZAMS;
     m_Mass0                                    = m_MZAMS;
     m_Luminosity                               = m_LZAMS;
