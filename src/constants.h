@@ -216,7 +216,7 @@ constexpr double ZETA_NUCLEAR_TIMESTEP                  = 1.0E-3;               
 constexpr double ZETA_NUCLEAR_TOLERANCE                 = 1.0E-3;                                                   // Tolerance between iterations when calculating zeta nuclear
 constexpr int    ZETA_NUCLEAR_ITERATIONS                = 10;                                                       // Maximum number of iterations to use when calculating zeta nuclear
 
-constexpr int    DEMINK_ORBIT_ITERATIONS                = 1000;                                                     // Number of iterations for solving mass transfer orbit for de Mink mass transfer prescription
+constexpr int    HURLEY_MASS_TRANSFER_ORBIT_ITERATIONS  = 1000;                                                     // Number of iterations for solving mass transfer orbit for HURLEY mass transfer prescription
 
 constexpr double LAMBDA_NANJING_ZLIMIT                  = 0.0105;                                                   // Metallicity cutoff for Nanjing lambda calculations
 
@@ -737,10 +737,10 @@ const COMPASUnorderedMap<MT_CASE, std::string> MT_CASE_LABEL = {
 
 
 // Mass transfer prescriptions
-enum class MT_PRESCRIPTION: int { DEMINK, BELCZYNSKI, NONE };
+enum class MT_PRESCRIPTION: int { HURLEY, BELCZYNSKI, NONE };
 const COMPASUnorderedMap<MT_PRESCRIPTION, std::string> MT_PRESCRIPTION_LABEL = {
     { MT_PRESCRIPTION::NONE,       "NONE" },
-    { MT_PRESCRIPTION::DEMINK,     "DEMINK" },
+    { MT_PRESCRIPTION::HURLEY,     "HURLEY" },
     { MT_PRESCRIPTION::BELCZYNSKI, "BELCZYNSKI" }
 };
 

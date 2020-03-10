@@ -216,7 +216,7 @@ void Options::InitialiseMemberVariables(void) {
 	forceCaseBBBCStabilityFlag                                      = true;									                                            // Whether if all case BB/BC systems are forced to be stable or unstable
 	alwaysStableCaseBBBCFlag                                        = true;									                                            // Whether if case BB/BC is always stable
 
-    massTransferPrescription                                        = MT_PRESCRIPTION::DEMINK;
+    massTransferPrescription                                        = MT_PRESCRIPTION::HURLEY;
 	massTransferPrescriptionString                                  = MT_PRESCRIPTION_LABEL.at(massTransferPrescription);
 
 
@@ -640,7 +640,7 @@ void Options::SetToFiducialValues(void) {
 
 
     // Mass transfer prescription options
-    massTransferPrescription                                        = MT_PRESCRIPTION::DEMINK;
+    massTransferPrescription                                        = MT_PRESCRIPTION::HURLEY;
     massTransferPrescriptionString                                  = MT_PRESCRIPTION_LABEL.at(massTransferPrescription);
 
 
@@ -1108,7 +1108,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("mass-ratio-distribution,q",                                   po::value<string>(&massRatioDistributionString),                                    "Initial mass ratio distribution for q=m2/m1 (options: FLAT, DuquennoyMayor1991, SANA2012. Default = FLAT)")
 		    ("mass-transfer-accretion-efficiency-prescription",             po::value<string>(&massTransferAccretionEfficiencyPrescriptionString),              "Mass Transfer Accretion Efficiency prescription to use (options: THERMAL, FIXED, CENTRIFUGAL. Default = THERMAL)")
 		    ("mass-transfer-angular-momentum-loss-prescription",            po::value<string>(&massTransferAngularMomentumLossPrescriptionString),              "Mass Transfer Angular Momentum Loss prescription to use (options: JEANS, ISOTROPIC, CIRCUMBINARY, ARBITRARY. Default = ISOTROPIC)")
-		    ("mass-transfer-prescription",                                  po::value<string>(&massTransferPrescriptionString),                                 "Mass Transfer prescription to use (default = DEMINK)")
+		    ("mass-transfer-prescription",                                  po::value<string>(&massTransferPrescriptionString),                                 "Mass Transfer prescription to use (default = HURLEY)")
 		    ("mass-transfer-rejuvenation-prescription",                     po::value<string>(&massTransferRejuvenationPrescriptionString),                     "Mass Transfer Rejuvenation prescription to use (options: NONE, STARTRACK. Default = NONE)")
 			("mass-transfer-thermal-limit-accretor",                        po::value<string>(&massTransferThermallyLimitedVariationString),                    "Mass Transfer Thermal Accretion limit to use (default = CFACTOR)")
 

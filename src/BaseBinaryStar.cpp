@@ -2357,7 +2357,7 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
 /*
  * Calculate new semi-major axis due to angular momentum loss
  *
- * Belczynski et al. 2008, eq 32, 33, de Mink ????          JR: todo: find deMink reference
+ * Belczynski et al. 2008, eq 32, 33, de Mink ????          JR: todo: find deMink reference AVG: I think its de Mink 2013
  *
  * Calculation based on user-specified Mass Loss prescription
  *
@@ -2383,12 +2383,13 @@ double BaseBinaryStar::CalculateMassTransferOrbit(BinaryConstituentStar& p_Donor
     // default is the prescription specified by the program options,
     // but we also choose to use BELCZYNSKI if the donor has a RADIATIVE envelope
 
+    // AVG - 10/03/2020 - Verify if the following if statement leads to systems go to MT_PRESCRIPTION::BELCZYNSKI, which should be soon deprecated.
     MT_PRESCRIPTION prescription = p_Donor.DetermineEnvelopeType() == ENVELOPE::RADIATIVE ? MT_PRESCRIPTION::BELCZYNSKI : OPTIONS->MassTransferPrescription();
 
     // calculate new semi-major axis value using the chosen prescription
     switch (prescription) {                                                                                     // which mass transfer prescription?
 
-        case MT_PRESCRIPTION::DEMINK: {                                                                         // using de Mink mass transfer prescription
+        case MT_PRESCRIPTION::HURLEY: {                                                                         // using de Mink mass transfer prescription
                                                                                                                 // degenerate and non-degenerate accretor solutions same for de Mink
             double jPrime;
             double aPrime;
@@ -2396,9 +2397,9 @@ double BaseBinaryStar::CalculateMassTransferOrbit(BinaryConstituentStar& p_Donor
             double fractionAccreted    = m_FractionAccreted;
             double thermalRateAccretor = p_Accretor.CalculateThermalMassLossRate();
             double thermalRateDonor    = p_Donor.CalculateThermalMassLossRate();
-            double dt                  = p_Dt / DEMINK_ORBIT_ITERATIONS;                                        // delta t per iteration
+            double dt                  = p_Dt / HURLEY_MASS_TRANSFER_ORBIT_ITERATIONS;                                        // delta t per iteration
 
-            for(int i = 0; i < DEMINK_ORBIT_ITERATIONS ; i++) {
+            for(int i = 0; i < HURLEY_MASS_TRANSFER_ORBIT_ITERATIONS ; i++) {
 
                 jPrime = jOrb + ((jLoss * jOrb * (1.0 - fractionAccreted) * p_MDotDonor / massAplusMassD) * dt);
                 aPrime = semiMajorAxis + (((-2.0 * (p_MDotDonor / massD)) * (1.0 - (fractionAccreted * (massD / massA)) - ((1.0 - fractionAccreted) * (jLoss + 0.5) * (massD / massAplusMassD)))) * semiMajorAxis * dt);
@@ -2636,7 +2637,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 		// Begin Mass Transfer
         switch (OPTIONS->MassTransferPrescription()) {                                                                                                      // which mass transfer prescription?
 
-            case MT_PRESCRIPTION::DEMINK: {                                                                                                                 // de Mink
+            case MT_PRESCRIPTION::HURLEY: {                                                                                                                 // de Mink
 
                 switch (m_Donor->DetermineMassTransferCase()) {                                                                                             // which MT case?
 
