@@ -200,7 +200,7 @@ int Log::Open(const string p_LogFileName, const bool p_Append, const bool p_Time
         string basename = m_LogBasePath + "/" + m_LogNamePrefix + p_LogFileName;                                // base filename with path ("/" works on Uni*x and Windows)
         string fileext  = m_Logfiles[id].delimiter == "," ? ".csv" : ".txt";                                    // filename extension
         string filename = basename + fileext;                                                                   // full filename
-std::cout << "JRPRINT, m_LogBasePath = [" << m_LogBasePath << "] , filename = [" << filename << "]\n";
+
         int version = 0;                                                                                        // logfile version number if required - start at 1
         while (utils::FileExists(filename) && !p_Append) {                                                      // file already exists - and we don't want to append?
             filename = basename + "_" + std::to_string(++version) + fileext;                                    // yes - add a version number and generate new filename
