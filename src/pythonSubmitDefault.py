@@ -111,11 +111,8 @@ class pythonProgramOptions:
     critical_mass_ratio_white_dwarf_non_degenerate_accretor = -1.0 #0.0
     critical_mass_ratio_white_dwarf_degenerate_accretor = -1.0 #1.6
 
-
-    BeBinaries  = False
     maximum_evolution_time = 13700.0
     maximum_number_iterations = 99999
-
 
     #  STROOPWAFEL algorithm for COMPAS cf Broekgaarden+18
     #  For doumentation see the COMPAS/COMPAS/AdaptiveImportanceSampling folder on gitlab
@@ -271,7 +268,6 @@ class pythonProgramOptions:
             self.force_case_BB_BC_stability,
             self.always_stable_case_BB_BC,
             self.angular_momentum_conservation_during_circularisation,
-            self.BeBinaries,
             self.AIS_exploratory_phase,
             self.AIS_Hubble,
             self.AIS_RLOF,
@@ -310,7 +306,6 @@ class pythonProgramOptions:
             '--forceCaseBBBCStabilityFlag',
             '--alwaysStableCaseBBBCFlag',
             '--angularMomentumConservationDuringCircularisation',
-            '--BeBinaries',
             '--AIS-exploratory-phase',
             '--AIS-Hubble',
             '--AIS-RLOF',
