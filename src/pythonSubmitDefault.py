@@ -77,7 +77,7 @@ class pythonProgramOptions:
 
     circularise_binary_during_mass_transfer = False
     angular_momentum_conservation_during_circularisation = False
-    mass_transfer_prescription = 'DEMINK'           # Remove after cleaning MT function
+    mass_transfer_prescription = 'HURLEY'           # Remove after cleaning MT function
     mass_transfer_angular_momentum_loss_prescription = 'ISOTROPIC'
     mass_transfer_accretion_efficiency_prescription = 'THERMAL'
     mass_transfer_fa = 0.5  # Only if using mass_transfer_accretion_efficiency_prescription = 'FIXED'
