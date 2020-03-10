@@ -135,16 +135,16 @@ class pythonProgramOptions:
     eccentricity_max = 1.0
 
     pulsar_birth_magnetic_field_distribution = 'ZERO'
-    pulsar_birth_magnetic_field_min = 11.0
-    pulsar_birth_magnetic_field_max = 13.0
+    pulsar_birth_magnetic_field_min = 11.0              # [log10(B/G)]
+    pulsar_birth_magnetic_field_max = 13.0              # [log10(B/G)]
 
     pulsar_birth_spin_period_distribution = "ZERO"
-    pulsar_birth_spin_period_min = 10.0
-    pulsar_birth_spin_period_max = 100.0
+    pulsar_birth_spin_period_min = 10.0                 # [ms]
+    pulsar_birth_spin_period_max = 100.0                # [ms]
 
-    pulsar_magnetic_field_decay_timescale = 1000.0
-    pulsar_magnetic_field_decay_massscale = 0.025
-    pulsar_minimum_magnetic_field = 8.0
+    pulsar_magnetic_field_decay_timescale = 1000.0      # [Myrs]
+    pulsar_magnetic_field_decay_massscale = 0.025       # [Msol]
+    pulsar_minimum_magnetic_field = 8.0                 # [log10(B/G)]
 
     evolvePulsars = False
 
