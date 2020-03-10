@@ -192,8 +192,11 @@
 //                                             - set grid_filename = None (was '' which worked, but None is correct)
 //                                             - set logfile_definitions = None (was '' which worked, but None is correct)
 //                                             - added logfile names - set to None (COMPAS commandline arguments already exist for these - introduced in v02.00.00)
+// 02.05.07      JR - Mar 08, 2020 - Defect repair:
+//                                       - fixed circularisation equation in BaseBinaryStar::InitialiseMassTransfer() - now takes new mass values into account
 
-const std::string VERSION_STRING = "02.05.06";
+
+const std::string VERSION_STRING = "02.05.07";
 
 
 
