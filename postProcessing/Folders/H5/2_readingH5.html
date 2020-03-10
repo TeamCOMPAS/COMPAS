@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>Overview</title>
+<title>2_readingH5</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13073,7 +13073,10 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="./Folders/Development/logo.png"></p>
+<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h1><p>Here we show the basic syntax on how to:</p>
+<p>1 - load the data</p>
+<p>2 - Common h5 syntax</p>
+<p>3 - close the data</p>
 
 </div>
 </div>
@@ -13081,81 +13084,258 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="COMPAS">COMPAS<a class="anchor-link" href="#COMPAS">&#182;</a></h1>
+<h1 id="Paths-needed">Paths needed<a class="anchor-link" href="#Paths-needed">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pathToData</span> <span class="o">=</span> <span class="s1">&#39;/home/cneijssel/Desktop/Test/COMPAS_output.h5&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Imports">Imports<a class="anchor-link" href="#Imports">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">h5py</span>  <span class="k">as</span> <span class="nn">h5</span>   <span class="c1">#for handling data format</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>  <span class="c1">#for array handling</span>
+<span class="kn">import</span> <span class="nn">os</span>           <span class="c1">#For checking existence data</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="1---Load-the-data">1 - Load the data<a class="anchor-link" href="#1---Load-the-data">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Data</span>  <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">pathToData</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="2---The-main-commands/syntax">2 - The main commands/syntax<a class="anchor-link" href="#2---The-main-commands/syntax">&#182;</a></h1>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><font size="+1"></p>
-<p><a href=http://compas.science>
-COMPAS website : http://compas.science
-</a></p>
-<p><font/></p>
+<h3 id="To-show-which-files-you-have">To show which files you have<a class="anchor-link" href="#To-show-which-files-you-have">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># WHat files do we have in our data</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">Data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>&lt;KeysViewHDF5 [&#39;CommonEnvelopes&#39;, &#39;DoubleCompactObjects&#39;, &#39;RLOF&#39;, &#39;Supernovae&#39;, &#39;SystemParameters&#39;]&gt;
+</pre>
+</div>
+</div>
 
 </div>
 </div>
+
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h2><p>Welcome to the post-processing documentation of the COMPAS code. In here you will the additional material outside the source code used to manipulate the data and/or calculate rates/weights/samples to place the results of the simulation in different scientific contexts.</p>
-<p>We provide a series of jupyter/ipython notebooks and 'raw' python scripts. The notebooks show how to call the python scripts and the involved syntax. All notebooks are made ito html pages for easy reading and indexing of available material.</p>
-<h2 id="How-to-reference:">How to reference:<a class="anchor-link" href="#How-to-reference:">&#182;</a></h2><p>If you use source-code/data/post-processing pipelines for your
-study we would appreciate if you acknowledge it accordingly.</p>
-<p>For source-code and data please see XXX</p>
-<p>For the pipelines XXX</p>
-<h2 id="Other-documentation-is-available:">Other documentation is available:<a class="anchor-link" href="#Other-documentation-is-available:">&#182;</a></h2><p>For source code documentation please see XXX</p>
-<p>For source code installation documentation please see XXX</p>
-<p>For git documentation please see XXX</p>
-<h2 id="Material">Material<a class="anchor-link" href="#Material">&#182;</a></h2>
+<h3 id="To-the-columns-in-a-file">To the columns in a file<a class="anchor-link" href="#To-the-columns-in-a-file">&#182;</a></h3>
 </div>
 </div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Access a specific file and show the keys</span>
+<span class="c1">#print(Data[&#39;SystemParameters&#39;].keys())</span>
+
+<span class="c1">#It is a pain to write the entire group each time so redefine</span>
+<span class="n">Systems</span> <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">Systems</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="c1">#The number of members means the number of columns</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>&lt;KeysViewHDF5 [&#39;CE_Alpha&#39;, &#39;Eccentricity@ZAMS&#39;, &#39;Error&#39;, &#39;ID&#39;, &#39;LBV_Multiplier&#39;, &#39;Mass@ZAMS_1&#39;, &#39;Mass@ZAMS_2&#39;, &#39;Merger&#39;, &#39;Merger_At_Birth&#39;, &#39;Metallicity@ZAMS_1&#39;, &#39;Metallicity@ZAMS_2&#39;, &#39;Omega@ZAMS_1&#39;, &#39;Omega@ZAMS_2&#39;, &#39;SEED&#39;, &#39;SN_Kick_Magnitude_Random_Number_1&#39;, &#39;SN_Kick_Magnitude_Random_Number_2&#39;, &#39;SN_Kick_Mean_Anomaly_1&#39;, &#39;SN_Kick_Mean_Anomaly_2&#39;, &#39;SN_Kick_Phi_1&#39;, &#39;SN_Kick_Phi_2&#39;, &#39;SN_Kick_Theta_1&#39;, &#39;SN_Kick_Theta_2&#39;, &#39;Separation@ZAMS&#39;, &#39;Sigma_Kick_CCSN_BH&#39;, &#39;Sigma_Kick_CCSN_NS&#39;, &#39;Sigma_Kick_ECSN&#39;, &#39;Sigma_Kick_USSN&#39;, &#39;Stellar_Type@ZAMS_1&#39;, &#39;Stellar_Type@ZAMS_2&#39;, &#39;Stellar_Type_1&#39;, &#39;Stellar_Type_2&#39;, &#39;Unbound&#39;, &#39;WR_Multiplier&#39;]&gt;
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<ol>
-<font size="+3"> 
-
-<li>
-    <a href="./Folders/H5/0_H5Overview.html" style="text-decoration:none;"> 
-        H5 files:   <br/>  <br/>
-        <font size="+2"> 
-        compiling, reading, rewriting
-        </font>
-    </a>
-</li>
-
-
-<br/>
-
-<li>
-    <a href="./Folders/BasicsPython/0_BasicsOverview.html" style="text-decoration:none;"> 
-        Basics Python:   <br/>  <br/>
-        <font size="+2"> 
-        slicing, binning, plotting
-        </font>
-    </a>
-</li>
-
-
-<br/>
-
-
-<li>
-    <a href="./Folders/Development/DevelopmentOverview.html" style="text-decoration:none;"> 
-        Development:    <br/> <br/>
-        <font size="+2"> 
-            log, todo, maintenance
-        </font>
-    </a>
-</li>
-</font>
-</ol>
+<h3 id="To-find-the-unit-of-the-column">To find the unit of the column<a class="anchor-link" href="#To-find-the-unit-of-the-column">&#182;</a></h3>
 </div>
 </div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">Systems</span><span class="p">[</span><span class="s1">&#39;Mass@ZAMS_1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Msol
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="To-access-a-the-values-of-a-column">To access a the values of a column<a class="anchor-link" href="#To-access-a-the-values-of-a-column">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Giving me the actual array</span>
+<span class="n">MZAMS1</span> <span class="o">=</span> <span class="n">Systems</span><span class="p">[</span><span class="s1">&#39;Mass@ZAMS_1&#39;</span><span class="p">][()]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">MZAMS1</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">MZAMS1</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>(300000,)
+[ 7.620014  6.393724 30.13584  ... 54.52556  16.45882   8.235462]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="3---Closing-the-Data">3 - Closing the Data<a class="anchor-link" href="#3---Closing-the-Data">&#182;</a></h1><p>Accessing a single h5file from multiple scripts is not always possible.
+With notebooks, sometimes closing the notebook is not enough to have it 
+close the h5data. Therefore we recommend to close the h5file explicitly after
+the calculations are done</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Data</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
