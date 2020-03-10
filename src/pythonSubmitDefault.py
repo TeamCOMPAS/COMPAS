@@ -71,7 +71,6 @@ class pythonProgramOptions:
     common_envelope_mass_accretion_min = 0.04           # For 'MACLEOD+2014' [Msol]
     common_envelope_mass_accretion_max = 0.10           # For 'MACLEOD+2014' [Msol]
 
-    tides_prescription = 'NONE'
     mass_loss_prescription = 'VINK'
     luminous_blue_variable_multiplier = 1.5
     wolf_rayet_multiplier = 1.0
@@ -523,7 +522,6 @@ class pythonProgramOptions:
     def stringChoices(self):
         stringChoices = [
             self.chemically_homogeneous_evolution,
-            self.tides_prescription,
             self.mass_loss_prescription,
             self.mass_transfer_prescription,
             self.mass_transfer_angular_momentum_loss_prescription,
@@ -562,7 +560,6 @@ class pythonProgramOptions:
     def stringCommands(self):
         stringCommands = [
             '--chemically-homogeneous-evolution',
-            '--tides-prescription',
             '--mass-loss-prescription',
             '--mass-transfer-prescription',
             '--mass-transfer-angular-momentum-loss-prescription',
