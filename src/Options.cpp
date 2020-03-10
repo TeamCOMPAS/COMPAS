@@ -200,9 +200,9 @@ void Options::InitialiseMemberVariables(void) {
     spinAssumptionString                                            = SPIN_ASSUMPTION_LABEL.at(spinAssumption);
 
 
-    // Tides options
-    tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
-    tidesPrescriptionString                                         = TIDES_PRESCRIPTION_LABEL.at(tidesPrescription);                                   // String containing which tides prescription to use (default = "None")
+// AVG    // Tides options
+// AVG   tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
+// AVG   tidesPrescriptionString                                         = TIDES_PRESCRIPTION_LABEL.at(tidesPrescription);                                   // String containing which tides prescription to use (default = "None")
 
 
     // Mass loss options
@@ -626,9 +626,9 @@ void Options::SetToFiducialValues(void) {
     spinAssumptionString                                            = SPIN_ASSUMPTION_LABEL.at(spinAssumption);
 
 
-    // Tides options
-    tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
-    tidesPrescriptionString                                         = TIDES_PRESCRIPTION_LABEL.at(tidesPrescription);                                   // String containing which tides prescription to use (default = "None")
+// AVG    // Tides options
+// AVG    tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
+// AVG    tidesPrescriptionString                                         = TIDES_PRESCRIPTION_LABEL.at(tidesPrescription);                                   // String containing which tides prescription to use (default = "None")
 
 
     // Mass loss options
@@ -1136,7 +1136,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("spin-assumption",                                             po::value<string>(&spinAssumptionString),                                           "Which assumption of misalignedments to use (default = bothAligned)")
 		    ("spin-distribution",                                           po::value<string>(&spinDistributionString),                                         "Which distribution of spins to use (default = 0)")
 
-		    ("tides-prescription",                                          po::value<string>(&tidesPrescriptionString),                                        "Tides prescription to use (options: default = None)")
+// AVG		    ("tides-prescription",                                          po::value<string>(&tidesPrescriptionString),                                        "Tides prescription to use (options: default = None)")
 
 
             // vector (list) options - alphabetically
@@ -1458,10 +1458,10 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 COMPLAIN_IF(!found, "Unknown Spin Assumption");
 			}
 
-            if (vm.count("tides-prescription")) {                                                                                       // tides prescription
-                std::tie(found, tidesPrescription) = utils::GetMapKey(tidesPrescriptionString, TIDES_PRESCRIPTION_LABEL, tidesPrescription);
-                COMPLAIN_IF(!found, "Unknown Tides Prescription");
-            }
+// AVG           if (vm.count("tides-prescription")) {                                                                                       // tides prescription
+// AVG               std::tie(found, tidesPrescription) = utils::GetMapKey(tidesPrescriptionString, TIDES_PRESCRIPTION_LABEL, tidesPrescription);
+// AVG               COMPLAIN_IF(!found, "Unknown Tides Prescription");
+// AVG           }
 
 
             // constraint/value/range checks - alphabetically (where possible)

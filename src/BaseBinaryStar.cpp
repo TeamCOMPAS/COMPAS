@@ -336,9 +336,9 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
     m_TimePrev                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // Differential quantities
-    m_aTidesDiff                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_OmegaTidesDiff                             = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_OmegaTides                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
+// AVG    m_aTidesDiff                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
+// AVG    m_OmegaTidesDiff                             = DEFAULT_INITIAL_DOUBLE_VALUE;
+// AVG    m_OmegaTides                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_aMassLossDiff                              = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_OmegaMassLossDiff                          = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -1527,6 +1527,9 @@ void BaseBinaryStar::ResolveCoalescence() {
  *
  * void ResolveTides()
  */
+
+// AVG
+/*
 void BaseBinaryStar::ResolveTides() {
 
     m_aTidesDiff     = 0.0;
@@ -1685,6 +1688,7 @@ void BaseBinaryStar::ResolveTides() {
     if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star1->SetOmega(m_OrbitalVelocityPrime);
     if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star2->SetOmega(m_OrbitalVelocityPrime);
 }
+*/
 
 
 /*
@@ -3310,7 +3314,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
     (void)m_Star2->UpdateAttributes(0.0, 0.0, true);                                                                        // recalculate stellar attributes for star2
 
     EvaluateSupernovae();                                                                                                   // evaluate supernovae (both stars)   JR: todo: ?
-    ResolveTides();                                                                                                         // resolve tides
+// AVG    ResolveTides();                                                                                                         // resolve tides
     CalculateEnergyAndAngularMomentum();                                                                                    // perform energy and angular momentum calculations
 
     m_Star1->UpdateMagneticFieldAndSpin(m_CommonEnvelope, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);            // update pulsar parameters for star1

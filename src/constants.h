@@ -349,13 +349,13 @@ enum class ERROR: int {
     UNKNOWN_SPIN_DISTRIBUTION,                                      // unknown spin distribution
     UNKNOWN_STELLAR_PROPERTY,                                       // unknown stellar property
     UNKNOWN_STELLAR_TYPE,                                           // unknown stellar type
-    UNKNOWN_TIDES_PRESCRIPTION,                                     // unknown tides prescription
+// AVG    UNKNOWN_TIDES_PRESCRIPTION,                                     // unknown tides prescription
     UNKNOWN_VROT_PRESCRIPTION,                                      // unknown rorational velocity prescription
     UNSUPPORTED_CE_ZETA_PRESCRIPTION,                               // unsupported common envelope Zeta prescription
     UNSUPPORTED_ECCENTRICITY_DISTRIBUTION,                          // unsupported eccentricity distribution
     UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,           // unsupported pulsar birth magnetic field distribution
     UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,              // unsupported pulsar birth spin period distribution
-    UNSUPPORTED_TIDES_PRESCRIPTION,                                 // unsupported tides prescription
+// AVG    UNSUPPORTED_TIDES_PRESCRIPTION,                                 // unsupported tides prescription
     UNSUPPORTED_MT_PRESCRIPTION,                                    // unsupported mass transfer prescription
     WARNING                                                         // unspecified warning
 };
@@ -464,14 +464,14 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_SPIN_DISTRIBUTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown spin distribution" }},
     { ERROR::UNKNOWN_STELLAR_PROPERTY,                              { ERROR_SCOPE::ALWAYS,              "Unknown stellar property - property details not found" }},
     { ERROR::UNKNOWN_STELLAR_TYPE,                                  { ERROR_SCOPE::ALWAYS,              "Unknown stellar type" }},
-    { ERROR::UNKNOWN_TIDES_PRESCRIPTION,                            { ERROR_SCOPE::ALWAYS,              "Unknown tides prescription" }},
+// AVG    { ERROR::UNKNOWN_TIDES_PRESCRIPTION,                            { ERROR_SCOPE::ALWAYS,              "Unknown tides prescription" }},
     { ERROR::UNKNOWN_VROT_PRESCRIPTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown rotational velocity prescription" }},
     { ERROR::UNSUPPORTED_ECCENTRICITY_DISTRIBUTION,                 { ERROR_SCOPE::ALWAYS,              "Unsupported eccentricity distribution" }},
     { ERROR::UNSUPPORTED_CE_ZETA_PRESCRIPTION,                      { ERROR_SCOPE::ALWAYS,              "Unsupported common envelope Zeta prescription" }},
     { ERROR::UNSUPPORTED_MT_PRESCRIPTION,                           { ERROR_SCOPE::ALWAYS,              "Unsupported mass transfer prescription" }},
     { ERROR::UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,  { ERROR_SCOPE::ALWAYS,              "Unsupported pulsar birth magnetic field distribution" }},
     { ERROR::UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,     { ERROR_SCOPE::ALWAYS,              "Unsupported pulsar birth spin period distribution" }},
-    { ERROR::UNSUPPORTED_TIDES_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unsupported tides prescription" }},
+// AVG    { ERROR::UNSUPPORTED_TIDES_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unsupported tides prescription" }},
     { ERROR::WARNING,                                               { ERROR_SCOPE::ALWAYS,              "Warning!" }}
 };
 
@@ -909,6 +909,8 @@ const COMPASUnorderedMap<SPIN_DISTRIBUTION, std::string> SPIN_DISTRIBUTION_LABEL
 };
 
 
+// AVG
+/*
 // Tides prescriptions
 enum class TIDES_PRESCRIPTION: int { NONE, LOCKED_ENERGY, LOCKED_ANG_MOMENTUM, HUT };
 const COMPASUnorderedMap<TIDES_PRESCRIPTION, std::string> TIDES_PRESCRIPTION_LABEL = {
@@ -917,7 +919,7 @@ const COMPASUnorderedMap<TIDES_PRESCRIPTION, std::string> TIDES_PRESCRIPTION_LAB
     { TIDES_PRESCRIPTION::LOCKED_ANG_MOMENTUM, "LOCKED_ANGMOMENTUM" },
     { TIDES_PRESCRIPTION::HUT,                 "HUT" }
 };
-
+*/
 
 
 // enum class L_CONSTANTS
