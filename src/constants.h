@@ -180,9 +180,20 @@
 //                                       - fixed regression introduced in v02.05.00 that incread DNS rate ten-fold
 //                                           - changed parameter from m_SupernovaDetails.initialKickParameters.velocityRandom to m_SupernovaDetails.kickVelocityRandom in call to DrawSNKickVelocity() in BaseStar::CalculateSNKickVelocity()
 //                                       - reinstated STAR_1_PROPERTY::STELLAR_TYPE and STAR_2_PROPERTY::STELLAR_TYPE in BSE_SYSTEM_PARAMETERS_REC
+// 02.05.05      JR - Feb 27, 2020 - Defect repair:
+//                                       - fixed age resetting to 0.0 for MS_GT_07 stars after CH star spins down and switches to MS_GT_07
+//                                           - ensure m_Age = 0.0 in constructor for BasteStar
+//                                           - remove m_Age = 0.0 from Initialise() in MS_gt.07.h 
+// 02.05.06      JR - Mar 02, 2020 - Defect repair:
+//                                       - fixed m_MassesEquilibrated and associated functions - was erroneously typed as DOUBLE - now BOOL
+//                                   Added/changed functionality:
+//                                       - added m_MassesEquilibratedAtBirth variable to class BaseBinaryStar and associated property BINARY_PROPERTY::MASSES_EQUILIBRATED_AT_BIRTH
+//                                       - tidied up pythonSubmitDefault.py a little:
+//                                             - set grid_filename = None (was '' which worked, but None is correct)
+//                                             - set logfile_definitions = None (was '' which worked, but None is correct)
+//                                             - added logfile names - set to None (COMPAS commandline arguments already exist for these - introduced in v02.00.00)
 
-
-const std::string VERSION_STRING = "02.05.04";
+const std::string VERSION_STRING = "02.05.06";
 
 
 
@@ -1826,6 +1837,7 @@ enum class BINARY_PROPERTY: int {
     MASS_ENV_1,
     MASS_ENV_2,
     MASSES_EQUILIBRATED,
+    MASSES_EQUILIBRATED_AT_BIRTH,
     MASS_TRANSFER_TRACKER_HISTORY,
     MERGES_IN_HUBBLE_TIME,
     OPTIMISTIC_COMMON_ENVELOPE,
@@ -1951,6 +1963,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::MASS_ENV_1,                                         "MASS_ENV_1" },
     { BINARY_PROPERTY::MASS_ENV_2,                                         "MASS_ENV_2" },
     { BINARY_PROPERTY::MASSES_EQUILIBRATED,                                "MASSES_EQUILIBRATED" },
+    { BINARY_PROPERTY::MASSES_EQUILIBRATED_AT_BIRTH,                       "MASSES_EQUILIBRATED_AT_BIRTH" },
     { BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,                      "MASS_TRANSFER_TRACKER_HISTORY" },
     { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                              "MERGES_IN_HUBBLE_TIME" },
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                         "OPTIMISTIC_COMMON_ENVELOPE" },
@@ -2261,6 +2274,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::MASS_ENV_1,                                          { TYPENAME::DOUBLE,         "Mass_Env_1",           "Msol",             14, 6 }},
     { BINARY_PROPERTY::MASS_ENV_2,                                          { TYPENAME::DOUBLE,         "Mass_Env_2",           "Msol",             14, 6 }},
     { BINARY_PROPERTY::MASSES_EQUILIBRATED,                                 { TYPENAME::BOOL,           "Equilibrated",         "Event",             0, 0 }},
+    { BINARY_PROPERTY::MASSES_EQUILIBRATED_AT_BIRTH,                        { TYPENAME::BOOL,           "Equilibrated_At_Birth","Event",             0, 0 }},
     { BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,                       { TYPENAME::MT_TRACKING,    "MT_History",           "",                  4, 1 }},
     { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                               { TYPENAME::BOOL,           "Merges_Hubble_Time",   "State",             0, 0 }},
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                          { TYPENAME::BOOL,           "Optimistic_CE",        "State",             0, 0 }},
