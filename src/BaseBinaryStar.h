@@ -615,8 +615,6 @@ private:
     bool    ResolveSupernova();
     void    ResolveTides();
 
-    bool    RLOFCheckMonitorEndCaseA();
-
     double  SampleSemiMajorAxisDistribution(const double p_Mass1, const double p_Mass2);
     double  SampleEccentricityDistribution();
     double  SampleInitialMassDistribution();
@@ -634,16 +632,10 @@ private:
                             const double p_RocheLobe1to2,
                             const double p_RocheLobe2to1);
 
-    bool    ShouldPrintRLOFParameters();
-
     void    StashBeBinaryProperties();
-    void    StashCurrentRLOFProperties();
-    void    StashPreviousRLOFProperties();
-    void    StashRLOFProperties(RLOFProperties &p_RLOFProperties);
 
 
     // printing functions
-    void PrintRLOFParameters();
     void PrintBinarySystemParameters()          {                                   LOGGING->LogBinarySystemParameters(this); }
     void PrintDetailedOutput(const int p_Id)    { if (OPTIONS->DetailedOutput())    LOGGING->LogDetailedOutput(this, p_Id); }
     void PrintDoubleCompactObjects()            {                                   LOGGING->LogDoubleCompactObject(this); }
