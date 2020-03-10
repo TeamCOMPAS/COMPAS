@@ -93,26 +93,8 @@ class pythonProgramOptions:
     zeta_Main_Sequence = 2.0
     zeta_Hertzsprung_Gap = 6.5
 
-    #-- Critical mass ratios for MT. 0.0 for always stable, < 0.0 to disable
-    critical_mass_ratio_MS_low_mass_non_degenerate_accretor = -1.0 #1.44
-    critical_mass_ratio_MS_low_mass_degenerate_accretor = -1.0 #1.0
-    critical_mass_ratio_MS_high_mass_non_degenerate_accretor = -1.0 #0.625
-    critical_mass_ratio_MS_high_mass_degenerate_accretor = -1.0 #0.0
-    critical_mass_ratio_HG_non_degenerate_accretor = -1.0 #0.25
-    critical_mass_ratio_HG_degenerate_accretor = -1.0 #0.21
-    critical_mass_ratio_giant_non_degenerate_accretor = -1.0 #0.0
-    critical_mass_ratio_giant_degenerate_accretor = -1.0 #0.87
-    critical_mass_ratio_helium_MS_non_degenerate_accretor = -1.0 #0.625
-    critical_mass_ratio_helium_MS_degenerate_accretor = -1.0 #0.0
-    critical_mass_ratio_helium_HG_non_degenerate_accretor = -1.0 #0.25
-    critical_mass_ratio_helium_HG_degenerate_accretor = -1.0 #0.21
-    critical_mass_ratio_helium_giant_non_degenerate_accretor = -1.0 #1.28
-    critical_mass_ratio_helium_giant_degenerate_accretor = -1.0 #0.87
-    critical_mass_ratio_white_dwarf_non_degenerate_accretor = -1.0 #0.0
-    critical_mass_ratio_white_dwarf_degenerate_accretor = -1.0 #1.6
-
     maximum_evolution_time = 13700.0    # Maximum physical time a system can be evolved [Myrs]
-    maximum_number_iterations = 99999
+    maximum_number_timesteps = 99999
 
     #  STROOPWAFEL algorithm for COMPAS cf Broekgaarden+18
     #  For doumentation see the COMPAS/COMPAS/AdaptiveImportanceSampling folder on gitlab
@@ -339,7 +321,7 @@ class pythonProgramOptions:
             self.mass_transfer_fa,
             self.mass_transfer_jloss,
             self.maximum_evolution_time,
-            self.maximum_number_iterations,
+            self.maximum_number_timesteps,
             self.kappa_gaussians,
             self.initial_mass_min,
             self.initial_mass_max,
@@ -377,22 +359,6 @@ class pythonProgramOptions:
             self.sample_luminous_blue_variable_multiplier_min,
             self.sample_luminous_blue_variable_multiplier_max,
             self.random_seed,
-            self.critical_mass_ratio_MS_low_mass_non_degenerate_accretor,
-            self.critical_mass_ratio_MS_low_mass_degenerate_accretor,
-            self.critical_mass_ratio_MS_high_mass_non_degenerate_accretor,
-            self.critical_mass_ratio_MS_high_mass_degenerate_accretor,
-            self.critical_mass_ratio_HG_non_degenerate_accretor,
-            self.critical_mass_ratio_HG_degenerate_accretor,
-            self.critical_mass_ratio_giant_non_degenerate_accretor,
-            self.critical_mass_ratio_giant_degenerate_accretor,
-            self.critical_mass_ratio_helium_MS_non_degenerate_accretor,
-            self.critical_mass_ratio_helium_MS_degenerate_accretor,
-            self.critical_mass_ratio_helium_HG_non_degenerate_accretor,
-            self.critical_mass_ratio_helium_HG_degenerate_accretor,
-            self.critical_mass_ratio_helium_giant_non_degenerate_accretor,
-            self.critical_mass_ratio_helium_giant_degenerate_accretor,
-            self.critical_mass_ratio_white_dwarf_non_degenerate_accretor,
-            self.critical_mass_ratio_white_dwarf_degenerate_accretor,
             self.mass_transfer_thermal_limit_C,
             self.eddington_accretion_factor,
             self.PISN_lower_limit,
@@ -472,22 +438,6 @@ class pythonProgramOptions:
             '--sample-luminous-blue-variable-multiplier-min',
             '--sample-luminous-blue-variable-multiplier-max',
             '--random-seed',
-            '--critical-mass-ratio-MS-low-mass-non-degenerate-accretor',
-            '--critical-mass-ratio-MS-low-mass-degenerate-accretor',
-            '--critical-mass-ratio-MS-high-mass-non-degenerate-accretor',
-            '--critical-mass-ratio-MS-high-mass-degenerate-accretor',
-            '--critical-mass-ratio-HG-non-degenerate-accretor',
-            '--critical-mass-ratio-HG-degenerate-accretor',
-            '--critical-mass-ratio-giant-non-degenerate-accretor',
-            '--critical-mass-ratio-giant-degenerate-accretor',
-            '--critical-mass-ratio-helium-MS-non-degenerate-accretor',
-            '--critical-mass-ratio-helium-MS-degenerate-accretor',
-            '--critical-mass-ratio-helium-HG-non-degenerate-accretor',
-            '--critical-mass-ratio-helium-HG-degenerate-accretor',
-            '--critical-mass-ratio-helium-giant-non-degenerate-accretor',
-            '--critical-mass-ratio-helium-giant-degenerate-accretor',
-            '--critical-mass-ratio-white-dwarf-non-degenerate-accretor',
-            '--critical-mass-ratio-white-dwarf-degenerate-accretor',
             '--mass-transfer-thermal-limit-C',
             '--eddington-accretion-factor',
             '--PISN-lower-limit',
