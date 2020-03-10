@@ -2618,6 +2618,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     m_Donor->CalculateZetas();                                                                                                                              // calculate Zetas for donor
     m_Accretor->CalculateZetas();                                                                                                                           // calculate Zetas for accretor
 
+    // AVG - 10/03/2020 - Check if mass ratio stability criteria works
 	// Check for stability
 	bool qCritFlag = OPTIONS->MassTransferCriticalMassRatioMSLowMass()   || OPTIONS->MassTransferCriticalMassRatioMSHighMass()  ||
 	                 OPTIONS->MassTransferCriticalMassRatioHG()          || OPTIONS->MassTransferCriticalMassRatioGiant()       ||

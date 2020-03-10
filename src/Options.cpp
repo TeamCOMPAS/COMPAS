@@ -960,6 +960,9 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("common-envelope-mass-accretion-min",                          po::value<double>(&commonEnvelopeMassAccretionMin),                                 "Minimum amount of mass accreted by NS/BHs during common envelope evolution in solar masses (default = 0.04)")
 		    ("common-envelope-recombination-energy-density",                po::value<double>(&commonEnvelopeRecombinationEnergyDensity),                       "Recombination energy density in ergs/g (default = 1.5x10^13)")
 		    ("common-envelope-slope-Kruckow",                               po::value<double>(&commonEnvelopeSlopeKruckow),                                     "Common Envelope slope for Kruckow lambda (default = -4/5)")
+
+// AVG - 10/03/2020 - Commented until implemented
+/*
             ("critical-mass-ratio-giant-degenerate-accretor",               po::value<double>(&massTransferCriticalMassRatioGiantDegenerateAccretor),           "Critical mass ratio for MT from a giant star (default = 0.87 from Claeys+ 2014) Specify both giant flags to use. 0 is always stable, <0 is disabled")
             ("critical-mass-ratio-giant-non-degenerate-accretor",           po::value<double>(&massTransferCriticalMassRatioGiantNonDegenerateAccretor),        "Critical mass ratio for MT from a giant star (default = not implemented from Claeys+ 2014) Specify both giant flags to use. 0 is always stable, <0 is disabled")
             ("critical-mass-ratio-helium-giant-degenerate-accretor",        po::value<double>(&massTransferCriticalMassRatioHeliumGiantDegenerateAccretor),     "Critical mass ratio for MT from a helium giant star (default = 0.87 from Claeys+ 2014) Specify both helium giant flags to use. 0 is always stable, <0 is disabled")
@@ -976,7 +979,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             ("critical-mass-ratio-MS-low-mass-non-degenerate-accretor",     po::value<double>(&massTransferCriticalMassRatioMSLowMassNonDegenerateAccretor),    "Critical mass ratio for MT from a MS star (default = 1.44, Claeys+ 2014). Specify both MS low mass flags to use. 0 is always stable, <0 is disabled")
             ("critical-mass-ratio-white-dwarf-degenerate-accretor",         po::value<double>(&massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor),      "Critical mass ratio for MT from a white dwarf (default = 1.6 from Claeys+ 2014) Specify both white dwarf flags to use. 0 is always stable, <0 is disabled")
             ("critical-mass-ratio-white-dwarf-non-degenerate-accretor",     po::value<double>(&massTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor),   "Critical mass ratio for MT from a white dwarf (default = 0.0) Specify both white dwarf flags to use. 0 is always stable, <0 is disabled")
-
+*/
 		    ("eccentricity-max",                                            po::value<double>(&eccentricityDistributionMax),                                    "Maximum eccentricity to generate (default = 1.0)")
 		    ("eccentricity-min",                                            po::value<double>(&eccentricityDistributionMin),                                    "Minimum eccentricity to generate (default = 0.0)")
 			("eddington-accretion-factor",                                  po::value<double>(&eddingtonAccretionFactor),                                       "Multiplication factor for eddington accretion for NS & BH, i.e. >1 is super-eddington and 0. is no accretion")
@@ -1242,8 +1245,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             useMassTransfer                                 = vm.count("massTransfer") ? true : useMassTransfer;                        // use mass transfer?  Retain previous (default) value
 
             useMassLoss                                     = vm.count("use-mass-loss");                                                // use mass loss?  Do not retain previous (default) value
-
-//			useMCMC                                         = vm.count("mcmc");			                                                // Simon Stevenson - 15/03/2018 - adding MCMC functionality.  Do not retain previous (default) value
 
             usePairInstabilitySupernovae                    = vm.count("pair-instability-supernovae");                                  // pair instability supernovae?  Do not retain previous (default) value
 
