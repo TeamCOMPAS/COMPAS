@@ -98,16 +98,16 @@ class pythonProgramOptions:
 
     #  STROOPWAFEL algorithm for COMPAS cf Broekgaarden+18
     #  For doumentation see the COMPAS/COMPAS/AdaptiveImportanceSampling folder on gitlab
-    AIS_exploratory_phase =  False  # If TRUE COMPAS will run the STROOPWAFEL/Adaptive Importance Sampling algorithm
+#    AIS_exploratory_phase =  False  # If TRUE COMPAS will run the STROOPWAFEL/Adaptive Importance Sampling algorithm
     #  parameters to select the DCOs of interest
-    AIS_DCOtype = 'BBH'         # select "ALL", "BBH", "BHNS" or "BNS"
-    AIS_Hubble = True           # focus on DCOs that merge within a Hubble time
-    AIS_RLOF = True             # Focus on DCOs that have RLOF flag True
-    AIS_Pessimistic = False         # Focus on only Pessimistic binaries
-
-    kappa_gaussians = 2  # scaling factor for width of Gaussian distributions |  default = 2
+#    AIS_DCOtype = 'BBH'         # select "ALL", "BBH", "BHNS" or "BNS"
+#    AIS_Hubble = True           # focus on DCOs that merge within a Hubble time
+#    AIS_RLOF = True             # Focus on DCOs that have RLOF flag True
+#    AIS_Pessimistic = False         # Focus on only Pessimistic binaries
+#
+#    kappa_gaussians = 2  # scaling factor for width of Gaussian distributions |  default = 2
     #  Run Refinement phase. This is automatically set to True after end exploratory phase:
-    AIS_refinement_phase = False   # Only set True in case you want to reproduce binaries refinement phase
+#    AIS_refinement_phase = False   # Only set True in case you want to reproduce binaries refinement phase
 
     initial_mass_function = 'KROUPA'
     initial_mass_min = 5.0          # Use 1.0 for LRNe, 5.0 for DCOs  [Msol]
@@ -217,13 +217,13 @@ class pythonProgramOptions:
 
 
     # read in nBatces for STROOPWAFEL if running Adaptive Sampling (AIS algorithm)  # you should not change this
-    if AIS_exploratory_phase == True:
-        compashpc_directory =  git_directory + "/CompasHPC/"
-        sys.path.append(compashpc_directory)
-        from compas_hpc_input import nBatches
-        nbatches_used = nBatches
-    else:
-        nbatches_used = -1
+#    if AIS_exploratory_phase == True:
+#        compashpc_directory =  git_directory + "/CompasHPC/"
+#        sys.path.append(compashpc_directory)
+#        from compas_hpc_input import nBatches
+#        nbatches_used = nBatches
+#    else:
+#    nbatches_used = -1
 
 
     def booleanChoices(self):
@@ -245,11 +245,11 @@ class pythonProgramOptions:
             self.force_case_BB_BC_stability,
             self.always_stable_case_BB_BC,
             self.angular_momentum_conservation_during_circularisation,
-            self.AIS_exploratory_phase,
-            self.AIS_Hubble,
-            self.AIS_RLOF,
-            self.AIS_Pessimistic,
-            self.AIS_refinement_phase,
+#            self.AIS_exploratory_phase,
+#            self.AIS_Hubble,
+#            self.AIS_RLOF,
+#            self.AIS_Pessimistic,
+#            self.AIS_refinement_phase,
             self.RLOFPrinting,
             self.pair_instability_supernovae,
             self.pulsation_pair_instability,
@@ -283,11 +283,11 @@ class pythonProgramOptions:
             '--forceCaseBBBCStabilityFlag',
             '--alwaysStableCaseBBBCFlag',
             '--angularMomentumConservationDuringCircularisation',
-            '--AIS-exploratory-phase',
-            '--AIS-Hubble',
-            '--AIS-RLOF',
-            '--AIS-Pessimistic',
-            '--AIS-refinement-phase',
+#            '--AIS-exploratory-phase',
+#            '--AIS-Hubble',
+#            '--AIS-RLOF',
+#            '--AIS-Pessimistic',
+#            '--AIS-refinement-phase',
             '--RLOFPrinting',
             '--pair-instability-supernovae',
             '--pulsational-pair-instability',
@@ -317,7 +317,7 @@ class pythonProgramOptions:
             self.mass_transfer_jloss,
             self.maximum_evolution_time,
             self.maximum_number_timesteps,
-            self.kappa_gaussians,
+#            self.kappa_gaussians,
             self.initial_mass_min,
             self.initial_mass_max,
             self.initial_mass_power,
@@ -359,7 +359,7 @@ class pythonProgramOptions:
             self.PPI_lower_limit,
             self.PPI_upper_limit,
             self.maximum_neutron_star_mass,
-            self.nbatches_used,
+#            self.nbatches_used,
             self.kick_velocity_sigma_ECSN,
             self.kick_velocity_sigma_USSN,
             self.kick_scaling_factor,
@@ -394,7 +394,7 @@ class pythonProgramOptions:
             '--mass-transfer-jloss',
             '--maximum-evolution-time',
             '--maximum-number-iterations',
-            '--kappa-gaussians',
+#            '--kappa-gaussians',
             '--initial-mass-min',
             '--initial-mass-max',
             '--initial-mass-power',
@@ -435,7 +435,7 @@ class pythonProgramOptions:
             '--PISN-upper-limit','--PPI-lower-limit',
             '--PPI-upper-limit',
             '--maximum-neutron-star-mass',
-            '--nbatches-used',
+#            '--nbatches-used',
             '--kick-velocity-sigma-ECSN',
             '--kick-velocity-sigma-USSN',
             '--kick-scaling-factor',
@@ -463,7 +463,7 @@ class pythonProgramOptions:
             self.mass_transfer_angular_momentum_loss_prescription,
             self.mass_transfer_accretion_efficiency_prescription,
             self.mass_transfer_rejuvenation_prescription,
-            self.AIS_DCOtype,
+#            self.AIS_DCOtype,
             self.initial_mass_function,
             self.semi_major_axis_distribution,
             self.mass_ratio_distribution,
@@ -499,7 +499,7 @@ class pythonProgramOptions:
             '--mass-transfer-angular-momentum-loss-prescription',
             '--mass-transfer-accretion-efficiency-prescription',
             '--mass-transfer-rejuvenation-prescription',
-            '--AIS-DCOtype',
+#            '--AIS-DCOtype',
             '--initial-mass-function',
             '--semi-major-axis-distribution',
             '--mass-ratio-distribution',
@@ -626,7 +626,8 @@ def generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,
 
     return command
 
-def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
+
+#def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
     """This function allows for a range of hyperparameter values to be specified in a single run, if the hyperparameterGrid boolean is set to True in the
     specifyCommandLineOptions() function.
 
@@ -637,7 +638,7 @@ def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,n
     the output folders and return a command line command to run all of the populations back to back
 
     """
-
+"""
     # Load up the dictionary from gridRun.py
     with open('pickledGrid.pkl') as pg:
         commandsAndValues = pickle.load(pg)
@@ -698,10 +699,10 @@ def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,n
         bashCommands.append(bashCommand)
 
     return bashCommands
+"""    
 
-def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
-    """
-    """
+#def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
+"""
     # Load up the dictionary from gridRun.py
     with open('pickledList.pkl') as pl:
         commandsAndValues = pickle.load(pl)
@@ -772,6 +773,7 @@ def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,n
         bashCommands.append(bashCommand)
 
     return bashCommands
+"""
 
 def runCompas(programOptions):
     """
