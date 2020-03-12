@@ -5,6 +5,7 @@ import os
 import itertools
 import pickle
 from subprocess import call
+import argparse as ap
 
 class pythonProgramOptions:
     """
@@ -15,6 +16,7 @@ class pythonProgramOptions:
     #-- Define variables
     git_directory = os.environ.get('COMPAS_ROOT_DIR')
     compas_executable = os.path.join(git_directory, 'src/COMPAS')
+#os.path.join(git_directory, 'COMPAS/COMPAS')
     number_of_binaries = 10  #number of binaries per batch
     populationPrinting = False
 
@@ -38,12 +40,13 @@ class pythonProgramOptions:
     #-- set inidividual system parameters
     single_star = False
 
-    grid_filename = None
+    grid_filename = 'BSE_Grid_demo.txt'
 
     use_mass_loss = True
     mass_transfer = True
     post_newtonian_evolution = False
-    detailed_output = False                         # WARNING: this creates a data heavy file
+    detailed_output = True                         # WARNING: this creates a data heavy file
+    RLOFPrinting = True
     only_double_compact_objects = False             # Delete when STROOPWAFEL fully implemented
     evolve_unbound_systems = False
     lambda_calculation_every_timestep = False
@@ -231,24 +234,12 @@ class pythonProgramOptions:
     debug_level       = 0
     debug_classes     = []
 
-    logfile_definitions = None
+    logfile_definitions = ''
 
     logfile_name_prefix = 'Compas_Log_'
     logfile_delimiter   = 'COMMA'
-
-    # set the logfile names here
-    #
-    # set to None (e.g. logfile_BSE_supernovae = None) to use the default filename
-    # set to a string (e.g. logfile_BSE_supernovae = 'mySNfilename') to use that string as the filename 
-    # set to empty string (e.g. logfile_BSE_supernovae = '""') to disable logging for that file (the file will not be created)
-
-    logfile_BSE_be_binaries = None
-    logfile_BSE_common_envelopes = None
-    logfile_BSE_detailed_output = None
-    logfile_BSE_double_compact_objects = None
-    logfile_BSE_pulsar_evolution = None
-    logfile_BSE_supernovae = None
     logfile_BSE_system_parameters = None
+    logfile_BSE_double_compact_objects = None
 
     debug_to_file  = False
     errors_to_file = False
@@ -295,6 +286,7 @@ class pythonProgramOptions:
             self.AIS_RLOF,
             self.AIS_Pessimistic,
             self.AIS_refinement_phase,
+            self.RLOFPrinting,
             self.pair_instability_supernovae,
             self.pulsation_pair_instability,
             self.quiet,
@@ -335,6 +327,7 @@ class pythonProgramOptions:
             '--AIS-RLOF',
             '--AIS-Pessimistic',
             '--AIS-refinement-phase',
+            '--RLOFPrinting',
             '--pair-instability-supernovae',
             '--pulsational-pair-instability',
             '--quiet',
@@ -572,13 +565,8 @@ class pythonProgramOptions:
             self.logfile_delimiter,
             self.logfile_definitions,
             self.grid_filename,
-            self.logfile_BSE_be_binaries,
-            self.logfile_BSE_common_envelopes,
-            self.logfile_BSE_detailed_output,
-            self.logfile_BSE_double_compact_objects,
-            self.logfile_BSE_pulsar_evolution,
-            self.logfile_BSE_supernovae,
-            self.logfile_BSE_system_parameters
+            self.logfile_BSE_system_parameters,
+            self.logfile_BSE_double_compact_objects
         ]
 
         return stringChoices
@@ -618,13 +606,8 @@ class pythonProgramOptions:
             '--logfile-delimiter',
             '--logfile-definitions',
             '--grid',
-            '--logfile-BSE-be-binaries',
-            '--logfile-BSE-common-envelopes',
-            '--logfile-BSE-detailed-output',
-            '--logfile-BSE-double-compact-objects',
-            '--logfile-BSE-pulsar-evolution',
-            '--logfile-BSE-supernovae',
-            '--logfile-BSE-system-parameters'
+            '--logfile-BSE-system-parameters',
+            '--logfile-BSE-double-compact-objects'
         ]
 
         return stringCommands
@@ -644,6 +627,13 @@ class pythonProgramOptions:
         ]
 
         return listCommands
+
+def addArgumentsFromCommandLine(commands, choices):
+    for index, command in enumerate(commands):
+        parser = ap.ArgumentParser()
+        parser.add_argument(command, default=choices[index])
+        (args, extras) = parser.parse_known_args()
+        choices[index] = next(iter(vars(args).values()))
 
 
 def specifyCommandLineOptions(programOptions):
@@ -672,6 +662,10 @@ def specifyCommandLineOptions(programOptions):
 
     listChoices = programOptions.listChoices()
     listCommands = programOptions.listCommands()
+
+    addArgumentsFromCommandLine(booleanCommands, booleanChoices)
+    addArgumentsFromCommandLine(numericalCommands, numericalChoices)
+    addArgumentsFromCommandLine(stringCommands, stringChoices)
 
     if programOptions.hyperparameterGrid == True:
         command = hyperparameterGridCommand(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,programOptions.shareSeeds)

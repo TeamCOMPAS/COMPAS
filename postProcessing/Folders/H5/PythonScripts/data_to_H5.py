@@ -19,23 +19,35 @@ The steps:
 
 * - set the path to the data
 * - create a list with the number of each file you want
-    i.e. giveMeFiles=[1,2,3,4]
+    i.e. giveMeFiles=[1,2,3,4,5]
 
     The numbers relate to
-    1:Compas_Log_BSE_Common_Envelopes.csv'
-    2:Compas_Log_BSE_Double_Compact_Objects.csv'
-    3:Compas_Log_BSE_Supernovae.csv'
-    4:Compas_Log_BSE_System_Parameters.csv
 
-3 - run the script from terminal (commands are executed at the bottom of this file)
+    1:Prefix_Common_Envelopes.xxx
+    2:Prefix_Double_Compact_Objects.xxx
+    3:Prefix_Supernovae.xxx
+    4:Prefix_System_Parameters.xxx
+    5:Prefix_RLOF.txt
 
-The output will be in the same folder as the path
+    where both the prefix and the extension xxx
+    are set in the python submit
+
+* - run the script from terminal in which case you can
+    set the prefix/extension/path/files below
+
+  - Or pass the parameters through combineCreateH5file() function
+    from notebook or terminal see postProcessing/H5/1_creatingH5.html
+
+The output will be in the same folder as the path or the folder 
+the script is placed in.
 
 """
 
-pathToData  = '/home/cneijssel/Desktop/IlyaData/VignaGomezRepeat'
-giveMeFiles = [1,2,3,4]
-pathData    = '.' #absolute path :)
+prefix      = None
+extension   = None
+
+pathToData  = './'
+giveMeFiles = [1,2,3,4,5]
 
 
 
@@ -57,10 +69,11 @@ pathData    = '.' #absolute path :)
 
 
 
-fileNames = {1:'Compas_Log_BSE_Common_Envelopes.csv',\
-             2:'Compas_Log_BSE_Double_Compact_Objects.csv',\
-             3:'Compas_Log_BSE_Supernovae.csv',\
-             4:'Compas_Log_BSE_System_Parameters.csv'}
+fileNames = {1:'_Common_Envelopes.',\
+             2:'_Double_Compact_Objects.',\
+             3:'_Supernovae.',\
+             4:'_System_Parameters.',\
+             5:'_RLOF.'}
 #Future implementations
 #             5:'Compas_Log_BSE_RLOF.csv',\  
 #             6:'errorfile',\
@@ -74,12 +87,14 @@ fileNames = {1:'Compas_Log_BSE_Common_Envelopes.csv',\
 groupNames = {1:'CommonEnvelopes',\
               2:'DoubleCompactObjects',\
               3:'Supernovae',\
-              4:'SystemParameters'}
+              4:'SystemParameters',\
+              5:'RLOF'}
 #Future implementations
 #             5:'RLOF',\  
 #             6:'errors',\
 #             7:'output'}
-def combineOutputsOfFile(baseDirectoryData='.', groups=[1,2,3,4]):
+def combineOutputsOfFile(baseDirectoryData='.', groups=[1,2,3,4], \
+    prefix=None, extension=None):
     """
     For a simulation in folder baseDirectory
     1 - write a new file name=Combined_'filename'
@@ -88,20 +103,24 @@ def combineOutputsOfFile(baseDirectoryData='.', groups=[1,2,3,4]):
         and write the data to Combined_'filename'
     4 - Of other files with filename, copy the data
     5 - close the newly written file
+
+    The numbers listed above are also comments in code here
+    #x----
+
     
-    input = filename , string(with extension)
     
     COMPAS has a strict header format which is assumed here
     
     1st line = type data (INT, FLOAT BOOL etc)
     2nd line = unit data (Msol, ergs,Tsol etc)
     3th line = column name
+    4th ++++ = data
     """
     for group in groups:
-        filename       = fileNames[group]
-                         
+        #add prefix and extension
+        filename       = prefix+fileNames[group]+extension
         #1-------
-        combinedOutput = open(baseDirectoryData+'/Combine_'+filename, 'w')
+        combinedOutput = open(baseDirectoryData+'/Combine'+fileNames[group]+'txt', 'w')
         #boolean to see if we have written the header
         headersWritten = False
         nHeaders       = 3
@@ -123,9 +142,18 @@ def combineOutputsOfFile(baseDirectoryData='.', groups=[1,2,3,4]):
                         for i in range(nHeaders):
                             line = outputFile.readline()
 
-
+                            #clear whitespace
                             line  = line.replace(" ", "")
-                            line  = line.replace(",", "\t")
+                            #break line on special character an turn into tab
+                            if extension == 'txt':
+                                #tab is already special character
+                                pass
+                            elif extension == 'csv':
+                                line  = line.replace(",", "\t")
+                            else:
+                                raise ValueError("extension is not recognized (csv, txt)")
+                            
+                            # check number of columns 
                             nCols = len(line.split('\t'))
                             if i ==0: #set the column number check for first line
                                 nColumnCheck = nCols
@@ -139,8 +167,16 @@ def combineOutputsOfFile(baseDirectoryData='.', groups=[1,2,3,4]):
 
                     #4 -----------
                     for line in outputFile:
-                        nCols = len(line.split(','))
-                        line  = line.replace(",", "\t")
+                        #break line on special character an turn into tab
+                        if extension == 'txt':
+                            #tab is already special character
+                            pass
+                        elif extension == 'csv':
+                            line  = line.replace(",", "\t")
+                        else:
+                            raise ValueError("extension is not recognized (csv, txt)")
+                        # check number of columns 
+                        nCols = len(line.split('\t'))    
                         if(nCols != nColumnCheck):
                             raise ValueError('wrong number of columns in data')
                         combinedOutput.write(line)
@@ -247,7 +283,7 @@ def createH5file(baseDirectoryData='.', groups=[1,2,3,4], h5Name='COMPAS_output.
     #the H5file name group. Each of these we will fill with the header and data
     for groupNumber in groups:
         groupName  = groupNames[groupNumber]
-        fileName   = '/Combine_'+fileNames[groupNumber]
+        fileName   = '/Combine'+fileNames[groupNumber]+'txt'
         filePath   = baseDirectoryData+fileName
         hf.create_group(groupName)
         addHdf5HeadersAndAttributes(hf, groupName, filePath)
@@ -259,16 +295,85 @@ def createH5file(baseDirectoryData='.', groups=[1,2,3,4], h5Name='COMPAS_output.
 def cleanUpInIsleNumber2Please(baseDirectoryData='.', groups=[1,2,3,4]):
     
     for groupNumber in groups:
-        fileName   = '/Combine_'+fileNames[groupNumber]
+        fileName   = '/Combine'+fileNames[groupNumber]+'txt'
         filePath   = baseDirectoryData+fileName
         command    = 'rm '+filePath
         sp.Popen(command, shell=True, executable='/bin/bash')
 
 
-combineOutputsOfFile(baseDirectoryData=pathToData, groups=giveMeFiles)
-print('Combining csv files from subdirectories')
-createH5file(baseDirectoryData=pathToData, groups=giveMeFiles)
-print('Creating H5 file')
-cleanUpInIsleNumber2Please(baseDirectoryData=pathToData, groups=giveMeFiles)
-print('Clean up the combined CSV files')
-print('Done, :smiling_imp:')
+
+
+def printAllColumnsInH5(pathToData):
+    """
+    Function to print all files with their column names/length/unit
+    Returns nothing, just prints to cell/terminal
+    Most of the function is for nice spacing
+
+    """
+
+    #Check if a correct path is given
+    if not  os.path.isfile(pathToData):
+        raise ValueError("h5 file not found. Wrong path given?")
+    elif os.path.isfile(pathToData):
+        Data  = h5.File(pathToData)
+
+
+    Files  = Data.keys()
+
+    for File in Files:
+        print('Filename = %s' %(File))
+        print('----------------------')
+
+        #Everytime you see Xr*' '
+        #It means I add X spaces to line it
+        print('\t   column name%sunit%slength'%(29*' ',16*' '))
+        print('\t   '+'-----------------'*4)
+        
+        #In this file give me all the column names
+        columns = Data[File].keys()
+        
+        #for every column in the columns
+        for nrc,column in enumerate(columns):
+            #always want the column name printed in 40 char
+            spaces = ' '*(40 - len(column))
+            length = Data[File][column].shape[0]
+            #always want the unit name printed over 20 chars
+            unit   = Data[File][column].attrs['units']
+            spaces2 = ' '*(20 - len(unit))
+            #--
+            length = Data[File][column].shape[0]
+
+            print('\t   %s%s%s%s%s'%(column,spaces, unit,spaces2, length))
+            #Every 4 lines print a dashed line to read output easier
+            if (nrc%5==4):
+                print('\t   '+'-----------------'*4)
+    Data.close()
+
+
+
+
+def combineCreateH5file(pathToData=None, files=None, prefix=None, extension=None):
+    print('Combining csv files from subdirectories')
+    combineOutputsOfFile(baseDirectoryData=pathToData, groups=giveMeFiles, \
+                         prefix=prefix, extension=extension)
+    print('Creating H5 file')
+    createH5file(baseDirectoryData=pathToData, groups=giveMeFiles)
+    print('Clean up the combined CSV files')
+    cleanUpInIsleNumber2Please(baseDirectoryData=pathToData, groups=giveMeFiles)
+    print('Done, :smiling_imp:')
+    print()
+    i = 0
+    while i < 5:
+        i+=1
+        if i == 3:
+            print('#------contents H5 file-----#')
+        else:
+            print('#---------------------------#')
+    print()
+    printAllColumnsInH5(pathToData+'/COMPAS_output.h5')
+
+
+
+if __name__ == "__main__":
+    
+    combineCreateH5file(pathToData=pathToData, files=giveMeFiles, prefix=prefix, extension=extension)
