@@ -162,10 +162,13 @@ public:
 
         m_SystemicVelocity                 = p_Star.m_SystemicVelocity;
 
+        // AVG - 12/03/2020 - Removing post newtonian spin evolution
+        /*
         m_Theta1_i                         = p_Star.m_Theta1_i;
         m_Theta2_i                         = p_Star.m_Theta2_i;
         m_Theta1                           = p_Star.m_Theta1;
         m_Theta2                           = p_Star.m_Theta2;
+        */
 
         m_Time                             = p_Star.m_Time;
         m_TimePrev                         = p_Star.m_TimePrev;
@@ -472,10 +475,13 @@ private:
 
     double              m_SystemicVelocity;                                                 // Post supernova systemic velocity
 
+    // AVG - 12/03/2020 - Removing post newtonian spin evolution
+    /*
     double              m_Theta1_i;                                                         // Initial misalignment of star1
     double              m_Theta2_i;                                                         // Initial misalignment of star2
     double              m_Theta1;                                                           // By default, aligned
     double              m_Theta2;                                                           // By default, aligned
+    */
 
     double              m_Time;                                                             // Physical simulation time
     double              m_TimePrev;                                                         // Previous simulation time
@@ -568,7 +574,8 @@ private:
     void    CheckMassTransfer(const double p_Dt);
     void    InitialiseMassTransfer();
 
-    DBL_DBL CalculateMisalignments();
+    // AVG - 12/03/2020 - Removing post newtonian spin evolution
+    // DBL_DBL CalculateMisalignments();
 
     double  CalculateOrbitalAngularMomentum(const double p_Mu,
                                             const double p_Mass,
@@ -653,7 +660,9 @@ private:
     double  SampleInitialMassDistribution();
     double  SampleMetallicityDistribution();
     double  SampleQDistribution();
-    double  SampleSpinDistribution();
+
+    // AVG - 12/03/2020 - Removing post newtonian spin evolution    
+    //    double  SampleSpinDistribution();
 
     bool    ShouldPrintRLOFParameters();
 

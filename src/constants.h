@@ -41,8 +41,7 @@
 // 02.02.06      JR - Oct 11, 2019 - Renamed class "CHE" - now class "CH"
 //                                   Updated CHE documentation
 //                                   Added m_MassesEquilibrated variable to BaseBinaryStar
-// 02.02.07		AVG - Mar 12, 2020 - Removed deprecated options from COMPAS_legacy, such as:
-//								   		 tides
+// 02.02.07		AVG - Mar 12, 2020 - Removed deprecated options from COMPAS_legacy: tides and spin
 
 const std::string VERSION_STRING = "02.02.06";
 
@@ -346,8 +345,8 @@ enum class ERROR: int {
     UNKNOWN_REMNANT_MASS_PRESCRIPTION,                              // unknown remnant mass prescription
     UNKNOWN_SN_ENGINE,                                              // unknown supernova engine
     UNKNOWN_SN_EVENT,                                               // unknown supernova event encountered
-    UNKNOWN_SPIN_ASSUMPTION,                                        // unknown spin assumption
-    UNKNOWN_SPIN_DISTRIBUTION,                                      // unknown spin distribution
+// AVG    UNKNOWN_SPIN_ASSUMPTION,                                        // unknown spin assumption
+// AVG    UNKNOWN_SPIN_DISTRIBUTION,                                      // unknown spin distribution
     UNKNOWN_STELLAR_PROPERTY,                                       // unknown stellar property
     UNKNOWN_STELLAR_TYPE,                                           // unknown stellar type
     UNKNOWN_VROT_PRESCRIPTION,                                      // unknown rorational velocity prescription
@@ -459,8 +458,8 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_REMNANT_MASS_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown remnant mass prescription" }},
     { ERROR::UNKNOWN_SN_ENGINE,                                     { ERROR_SCOPE::ALWAYS,              "Unknown supernova engine" }},
     { ERROR::UNKNOWN_SN_EVENT,                                      { ERROR_SCOPE::ALWAYS,              "Unknown supernova event" }},
-    { ERROR::UNKNOWN_SPIN_ASSUMPTION,                               { ERROR_SCOPE::ALWAYS,              "Unknown spin assumption" }},
-    { ERROR::UNKNOWN_SPIN_DISTRIBUTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown spin distribution" }},
+// AVG    { ERROR::UNKNOWN_SPIN_ASSUMPTION,                               { ERROR_SCOPE::ALWAYS,              "Unknown spin assumption" }},
+// AVG    { ERROR::UNKNOWN_SPIN_DISTRIBUTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown spin distribution" }},
     { ERROR::UNKNOWN_STELLAR_PROPERTY,                              { ERROR_SCOPE::ALWAYS,              "Unknown stellar property - property details not found" }},
     { ERROR::UNKNOWN_STELLAR_TYPE,                                  { ERROR_SCOPE::ALWAYS,              "Unknown stellar type" }},
     { ERROR::UNKNOWN_VROT_PRESCRIPTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown rotational velocity prescription" }},
@@ -886,6 +885,8 @@ const COMPASUnorderedMap<SN_STATE, std::string> SN_STATE_LABEL = {
 };
 
 
+// AVG - 12/03/2020 - Removing post newtonian spin evolution
+/*
 // Spin assumption constants
 enum class SPIN_ASSUMPTION: int { SAME, ALIGNED, MISALIGNED, ISOTROPIC, GEROSA };
 const COMPASUnorderedMap<SPIN_ASSUMPTION, std::string> SPIN_ASSUMPTION_LABEL = {
@@ -897,6 +898,7 @@ const COMPASUnorderedMap<SPIN_ASSUMPTION, std::string> SPIN_ASSUMPTION_LABEL = {
 };
 
 
+
 // Spin distribution
 enum class SPIN_DISTRIBUTION: int { ZERO, FLAT, FIXED };
 const COMPASUnorderedMap<SPIN_DISTRIBUTION, std::string> SPIN_DISTRIBUTION_LABEL = {
@@ -904,7 +906,7 @@ const COMPASUnorderedMap<SPIN_DISTRIBUTION, std::string> SPIN_DISTRIBUTION_LABEL
     { SPIN_DISTRIBUTION::FLAT,  "FLAT" },
     { SPIN_DISTRIBUTION::FIXED, "FIXED" }
 };
-
+*/
 
 // enum class L_CONSTANTS
 // symbolic names for the Luminosity Constants

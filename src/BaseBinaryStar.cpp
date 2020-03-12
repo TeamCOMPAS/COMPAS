@@ -396,11 +396,14 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
     m_ZetaRLOFNumerical                          = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_ZetaStarCompare	                         = DEFAULT_INITIAL_DOUBLE_VALUE;
 
+    // AVG - 12/03/2020 - post newtonian spin evolution
+    /*
     // Misalignments
     m_Theta1_i                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Theta2_i                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Theta1                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Theta2                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
+    */
 
     // Initialise other parameters to 0
     m_MSN                                        = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -1142,7 +1145,7 @@ double BaseBinaryStar::SampleEccentricityDistribution() {
     return eccentricity;
 }
 
-
+// AVG - 12/03/2020 - Removing post newtonian spin evolution
 /*
  * Draw spin from the distribution specified by the user
  * (SpinDistribution program option; will use AIS distribution if specified (AIS.DrawingFromAISDistributions))
@@ -1152,6 +1155,7 @@ double BaseBinaryStar::SampleEccentricityDistribution() {
  *
  * @return                                      Spin
  */
+/*
 double BaseBinaryStar::SampleSpinDistribution() {
 
     double spin;
@@ -1180,6 +1184,7 @@ double BaseBinaryStar::SampleSpinDistribution() {
 
     return spin;
 }
+*/
 
 
 /*
@@ -1509,6 +1514,7 @@ void BaseBinaryStar::ResolveCoalescence() {
     PrintDoubleCompactObjects();                                                                                                                // print (log) double compact object details
 }
 
+// AVG - 12/03/2020 - Removing post newtonian spin evolution
 /*
  * Assign misalignments to S1 and S2 based on assumptions for spin study
  *
@@ -1520,6 +1526,7 @@ void BaseBinaryStar::ResolveCoalescence() {
  *
  * @return                                      Tuple containing misalignment angles theta1 & theta2
  */
+/*
 DBL_DBL BaseBinaryStar::CalculateMisalignments() {
 
     double theta1;
@@ -1567,7 +1574,7 @@ DBL_DBL BaseBinaryStar::CalculateMisalignments() {
 
     return std::make_tuple(theta1, theta2);
 }
-
+*/
 
 /*
  * Calculate the systemic velocity (centre-of-mass velocity) of the binary after the supernova
@@ -1832,11 +1839,14 @@ bool BaseBinaryStar::ResolveSupernova() {
         m_CosIPrime   = CalculateCosFinalPlaneTilt(m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
         m_IPrime      = acos(m_CosIPrime);
 
+        // AVG - 12/03/2020 - Removing post newtonian spin evolution
+        /*
         std::tie(m_Theta1_i, m_Theta2_i) = CalculateMisalignments();                                                                // assign the spins.  TODO: I think this function is currently broken for two supernovae -- check!!  JR: todo" check this
 
         // variables to evolve
         m_Theta1 = m_Theta1_i;
         m_Theta2 = m_Theta2_i;
+        */
 
         m_SystemicVelocity = CalculatePostSNSystemicVelocity(m_Supernova->Mass(),                                                   // post-SN systemic (center-of-mass) velocity in ms s^-1
                                                              m_Supernova->MassPrev() - m_Supernova->Mass(),

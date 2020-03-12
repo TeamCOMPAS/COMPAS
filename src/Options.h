@@ -284,10 +284,13 @@ public:
     double                                      SingleStarMassMin() const                                               { return singleStarMassMin; }
     double                                      SingleStarMassMax() const                                               { return singleStarMassMax; }
 
+    // AVG - 12/03/2020 - Removing post newtonian spin evolution
+    /*
     SPIN_ASSUMPTION                             SpinAssumption() const                                                  { return spinAssumption; }
     SPIN_DISTRIBUTION                           SpinDistribution() const                                                { return spinDistribution; }
     double                                      SpinDistributionMax() const                                             { return spinDistributionMax; }
     double                                      SpinDistributionMin() const                                             { return spinDistributionMin; }
+    */
 
     bool                                        UseFixedUK() const                                                      { return useFixedUK; }
     bool                                        UseMassLoss() const                                                     { return useMassLoss; }
@@ -457,6 +460,8 @@ private:
     boost::filesystem::path                     defaultOutputPath;                                              // Default output location
     boost::filesystem::path                     outputPath;                                                     // Desired output location
 
+    // AVG - 12/03/2020 - Removing post newtonian spin evolution
+    /*
     // Spin options
     SPIN_DISTRIBUTION                           spinDistribution;                                               // Which spin distribution to use ( all spins = 0.7)
     string                                      spinDistributionString;                                         // Which spin distribution to use ( all spins = 0.7)
@@ -465,7 +470,8 @@ private:
 
     SPIN_ASSUMPTION spinAssumption;
     string spinAssumptionString;                                                                                // What assumption to make in our spin study (default = both spins aligned)
-
+    */
+    
     // Mass loss options
     bool                                        useMassLoss;                                                    // Whether to activate mass loss (default = True)
     // Can also have options for modifying strength of winds etc here
