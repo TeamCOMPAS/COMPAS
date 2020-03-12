@@ -44,6 +44,10 @@ To download, install, and compile gsl,
 
     sudo apt-get install libgsl-dev
 
+For RHEL family OSs, Red Hat, Fedora, and related distributions, use the yum package manager:
+
+    sudo yum install gcc boost-devel gsl gsl-devel   
+
 ### 1.2 Instructions for macOS
 We suggest you first update to the latest version of macOS through the App Store. You can find what macOS version you are using by clicking on the Apple symbol on the top left of your screen and clicking "About This Mac".
 
@@ -74,6 +78,10 @@ Time to actually install COMPAS. We first need to define an environment variable
 where `~/codes` should be replaced with the path to the directory where you cloned the COMPAS repository. For this to take effect, either restart your bash session or run
 
     source ~/.bashrc
+
+For csh shell, the environment variable may be set by
+
+    setenv COMPAS_ROOT_DIR ~/codes/COMPAS
     
 Now go to the COMPAS source code directory:
 
