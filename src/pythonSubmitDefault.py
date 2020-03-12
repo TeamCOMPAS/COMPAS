@@ -96,19 +96,6 @@ class pythonProgramOptions:
     maximum_evolution_time = 13700.0    # Maximum physical time a system can be evolved [Myrs]
     maximum_number_timesteps = 99999
 
-    #  STROOPWAFEL algorithm for COMPAS cf Broekgaarden+18
-    #  For doumentation see the COMPAS/COMPAS/AdaptiveImportanceSampling folder on gitlab
-#    AIS_exploratory_phase =  False  # If TRUE COMPAS will run the STROOPWAFEL/Adaptive Importance Sampling algorithm
-    #  parameters to select the DCOs of interest
-#    AIS_DCOtype = 'BBH'         # select "ALL", "BBH", "BHNS" or "BNS"
-#    AIS_Hubble = True           # focus on DCOs that merge within a Hubble time
-#    AIS_RLOF = True             # Focus on DCOs that have RLOF flag True
-#    AIS_Pessimistic = False         # Focus on only Pessimistic binaries
-#
-#    kappa_gaussians = 2  # scaling factor for width of Gaussian distributions |  default = 2
-    #  Run Refinement phase. This is automatically set to True after end exploratory phase:
-#    AIS_refinement_phase = False   # Only set True in case you want to reproduce binaries refinement phase
-
     initial_mass_function = 'KROUPA'
     initial_mass_min = 5.0          # Use 1.0 for LRNe, 5.0 for DCOs  [Msol]
     initial_mass_max = 150.0        # Stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
@@ -216,16 +203,6 @@ class pythonProgramOptions:
     single_star_mass_max   = 75.0
 
 
-    # read in nBatces for STROOPWAFEL if running Adaptive Sampling (AIS algorithm)  # you should not change this
-#    if AIS_exploratory_phase == True:
-#        compashpc_directory =  git_directory + "/CompasHPC/"
-#        sys.path.append(compashpc_directory)
-#        from compas_hpc_input import nBatches
-#        nbatches_used = nBatches
-#    else:
-#    nbatches_used = -1
-
-
     def booleanChoices(self):
         booleanChoices = [
             self.single_star,
@@ -245,11 +222,6 @@ class pythonProgramOptions:
             self.force_case_BB_BC_stability,
             self.always_stable_case_BB_BC,
             self.angular_momentum_conservation_during_circularisation,
-#            self.AIS_exploratory_phase,
-#            self.AIS_Hubble,
-#            self.AIS_RLOF,
-#            self.AIS_Pessimistic,
-#            self.AIS_refinement_phase,
             self.RLOFPrinting,
             self.pair_instability_supernovae,
             self.pulsation_pair_instability,
@@ -283,11 +255,6 @@ class pythonProgramOptions:
             '--forceCaseBBBCStabilityFlag',
             '--alwaysStableCaseBBBCFlag',
             '--angularMomentumConservationDuringCircularisation',
-#            '--AIS-exploratory-phase',
-#            '--AIS-Hubble',
-#            '--AIS-RLOF',
-#            '--AIS-Pessimistic',
-#            '--AIS-refinement-phase',
             '--RLOFPrinting',
             '--pair-instability-supernovae',
             '--pulsational-pair-instability',
@@ -317,7 +284,6 @@ class pythonProgramOptions:
             self.mass_transfer_jloss,
             self.maximum_evolution_time,
             self.maximum_number_timesteps,
-#            self.kappa_gaussians,
             self.initial_mass_min,
             self.initial_mass_max,
             self.initial_mass_power,
@@ -359,7 +325,6 @@ class pythonProgramOptions:
             self.PPI_lower_limit,
             self.PPI_upper_limit,
             self.maximum_neutron_star_mass,
-#            self.nbatches_used,
             self.kick_velocity_sigma_ECSN,
             self.kick_velocity_sigma_USSN,
             self.kick_scaling_factor,
@@ -394,7 +359,6 @@ class pythonProgramOptions:
             '--mass-transfer-jloss',
             '--maximum-evolution-time',
             '--maximum-number-iterations',
-#            '--kappa-gaussians',
             '--initial-mass-min',
             '--initial-mass-max',
             '--initial-mass-power',
@@ -435,7 +399,6 @@ class pythonProgramOptions:
             '--PISN-upper-limit','--PPI-lower-limit',
             '--PPI-upper-limit',
             '--maximum-neutron-star-mass',
-#            '--nbatches-used',
             '--kick-velocity-sigma-ECSN',
             '--kick-velocity-sigma-USSN',
             '--kick-scaling-factor',
@@ -463,7 +426,6 @@ class pythonProgramOptions:
             self.mass_transfer_angular_momentum_loss_prescription,
             self.mass_transfer_accretion_efficiency_prescription,
             self.mass_transfer_rejuvenation_prescription,
-#            self.AIS_DCOtype,
             self.initial_mass_function,
             self.semi_major_axis_distribution,
             self.mass_ratio_distribution,
@@ -499,7 +461,6 @@ class pythonProgramOptions:
             '--mass-transfer-angular-momentum-loss-prescription',
             '--mass-transfer-accretion-efficiency-prescription',
             '--mass-transfer-rejuvenation-prescription',
-#            '--AIS-DCOtype',
             '--initial-mass-function',
             '--semi-major-axis-distribution',
             '--mass-ratio-distribution',
@@ -626,154 +587,6 @@ def generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,
 
     return command
 
-
-#def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
-    """This function allows for a range of hyperparameter values to be specified in a single run, if the hyperparameterGrid boolean is set to True in the
-    specifyCommandLineOptions() function.
-
-    This works by constructing nested output directories in the current working directory, and running a population at each combination of parameter values.
-    nBinaries from specifyCommandLineOptions() is divided equally amoungst these.
-
-    The user should follow the pattern in adding items to the commandsAndValues dictionary, the code will then handle production of
-    the output folders and return a command line command to run all of the populations back to back
-
-    """
-"""
-    # Load up the dictionary from gridRun.py
-    with open('pickledGrid.pkl') as pg:
-        commandsAndValues = pickle.load(pg)
-
-    # set up lists for recursion
-    keys = commandsAndValues.keys()
-
-    valuesLists = []
-    nSimulations = 1
-    for key in keys:
-        nSimulations *= len(commandsAndValues[key])
-        valuesLists.append(commandsAndValues[key])
-
-    # Make folders for the messy outputs
-    outPaths = []
-    for i in range(nSimulations):
-        path = 'gridOutputs/output-'+str(i)
-        outPaths.append(path)
-
-    #edit number of binaries per population
-    for index,command in enumerate(numericalCommands):
-        if command == '--number-of-binaries':
-            break
-    nBinariesPerSimulation = numericalChoices[index]/nSimulations
-    numericalChoices[index] = nBinariesPerSimulation
-
-    bashCommands = []
-
-    # itertools.product recurses through all combinations of the lists in valuesLists
-    for en,combination in enumerate(itertools.product(*valuesLists)):
-
-        bashCommand = ''
-
-        pathName = outPaths[en]
-
-        for i, val in enumerate(combination):
-
-            for index,command in enumerate(numericalCommands):
-                if command == keys[i]:
-                    break
-            numericalChoices[index] = val
-
-        #change the random seed if need be
-        if not shareSeeds:
-            for index,command in enumerate(numericalCommands):
-                if command == '--random-seed':
-                    break
-            numericalChoices[index] += nBinariesPerSimulation
-        #setup output arguments
-        for index,command in enumerate(stringCommands):
-            if command == '--output':
-                break
-        stringChoices[index] = pathName + '/.'
-
-        bashCommand += generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands)
-        bashCommand += '; '
-
-        bashCommands.append(bashCommand)
-
-    return bashCommands
-"""    
-
-#def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
-"""
-    # Load up the dictionary from gridRun.py
-    with open('pickledList.pkl') as pl:
-        commandsAndValues = pickle.load(pl)
-
-    # set up lists for recursion
-    keys = commandsAndValues.keys()
-
-    #work how many things there are in the list
-    nSimulations = len(commandsAndValues[keys[0]])
-
-    print("nSimulations = ", nSimulations)
-
-    #make the directories
-    outPaths = []
-    for i in range(nSimulations):
-        path = 'listOutputs/output-'+str(i)
-        outPaths.append(path)
-
-
-    #grab all the values out of the dictionary for syntactic ease later
-    valuesLists = []
-    for key in keys:
-        valuesLists.append(commandsAndValues[key])
-    valuesLists =np.array(valuesLists).T
-
-    #edit number of binaries per population
-    for index,command in enumerate(numericalCommands):
-        if command == '--number-of-binaries':
-            break
-    nBinariesPerSimulation = numericalChoices[index]/nSimulations
-    numericalChoices[index] = nBinariesPerSimulation
-
-    print("index, nBinariesPerSimulation")
-    print(index, nBinariesPerSimulation)
-
-    bashCommands = []
-
-    for en in range(nSimulations):
-
-        bashCommand = ''
-
-        combination = valuesLists[en]
-
-        pathName = outPaths[en]
-
-        for i, val in enumerate(combination):
-
-            for index,command in enumerate(numericalCommands):
-                if command == keys[i]:
-                    break
-            numericalChoices[index] = val
-
-        #change the random seed if need be
-        if not shareSeeds:
-            for index,command in enumerate(numericalCommands):
-                if command == '--random-seed':
-                    break
-            numericalChoices[index] += nBinariesPerSimulation
-        #setup output arguments
-        for index,command in enumerate(stringCommands):
-            if command == '--output':
-                break
-        stringChoices[index] = pathName + '/.'
-
-        bashCommand += generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands)
-        bashCommand += '; '
-
-        bashCommands.append(bashCommand)
-
-    return bashCommands
-"""
 
 def runCompas(programOptions):
     """
