@@ -190,18 +190,6 @@ void Options::InitialiseMemberVariables(void) {
     defaultOutputPath                                               = boost::filesystem::current_path();                                                // Default output location
     outputPath                                                      = defaultOutputPath;                                                                // Desired output location (default = CWD)
 
-    // AVG - 12/03/2020 - Removing post newtonian spin evolution
-    /*
-    // Spin options
-    spinDistribution                                                = SPIN_DISTRIBUTION::FIXED;
-    spinDistributionString                                          = SPIN_DISTRIBUTION_LABEL.at(spinDistribution);
-    spinDistributionMin                                             = 0.60;
-    spinDistributionMax                                             = 0.98;
-
-    spinAssumption                                                  = SPIN_ASSUMPTION::ALIGNED;
-    spinAssumptionString                                            = SPIN_ASSUMPTION_LABEL.at(spinAssumption);
-    */
-
     // Mass loss options
     useMassLoss                                                     = true;                                                                             // Whether to use mass loss
 
@@ -612,18 +600,6 @@ void Options::SetToFiducialValues(void) {
     outputPathString                                                = ".";                                                                              // String to hold the output directory
     defaultOutputPath                                               = boost::filesystem::current_path();                                                // Default output location
     outputPath                                                      = defaultOutputPath;                                                                // Desired output location (default = CWD)
-
-    // AVG - 12/03/2020 - Removing post newtonian spin evolution
-    /*
-    // Spin options
-    spinDistribution                                                = SPIN_DISTRIBUTION::ZERO;
-    spinDistributionString                                          = SPIN_DISTRIBUTION_LABEL.at(spinDistribution);
-    spinDistributionMin                                             = 0.0;
-    spinDistributionMax                                             = 1.0;
-
-    spinAssumption                                                  = SPIN_ASSUMPTION::ALIGNED;
-    spinAssumptionString                                            = SPIN_ASSUMPTION_LABEL.at(spinAssumption);
-    */
 
     // Mass loss options
     useMassLoss                                                     = true;                                                                             // Whether to use mass loss
@@ -1064,8 +1040,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("semi-major-axis-min",                                         po::value<double>(&semiMajorAxisDistributionMin),                                   "Minimum semi major axis in AU to generate (default = 0.1)")
 		    ("single-star-mass-max",                                        po::value<double>(&singleStarMassMax),                                              "Maximum mass (in Msol) for single star evolution (default = 100.0)")
             ("single-star-mass-min",                                        po::value<double>(&singleStarMassMin),                                              "Minimum mass (in Msol) for single star evolution (default = 5.0)")
-// AVG		    ("spin-mag-max",                                                po::value<double>(&spinDistributionMax),                                            "Maximum magnitude of spin (default = )")
-// AVG		    ("spin-mag-min",                                                po::value<double>(&spinDistributionMin),                                            "Minimum magnitude of spin (default = )")
 
 		    ("wolf-rayet-multiplier",                                       po::value<double>(&wolfRayetFactor),                                                "Multiplicitive constant for WR winds (default = 1.0)")
 
@@ -1130,8 +1104,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("rotational-velocity-distribution",                            po::value<string>(&rotationalVelocityDistributionString),                           "Initial rotational velocity distribution (options: ZERO, HURLEY, VLTFLAMES. Default = ZERO)")
 
 		    ("semi-major-axis-distribution,a",                              po::value<string>(&semiMajorAxisDistributionString),                                "Initial semi-major axis distribution, a (options: FLATINLOG, CUSTOM, DuquennoyMayor1991, SANA2012. default = FLATINLOG)")
-// AVG		    ("spin-assumption",                                             po::value<string>(&spinAssumptionString),                                           "Which assumption of misalignedments to use (default = bothAligned)")
-// AVG		    ("spin-distribution",                                           po::value<string>(&spinDistributionString),                                         "Which distribution of spins to use (default = 0)")
 
             // vector (list) options - alphabetically
             ("debug-classes",                                               po::value<vector<string>>(&debugClasses)->multitoken(),                             "Debug classes enabled")
@@ -1439,19 +1411,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 std::tie(found, semiMajorAxisDistribution) = utils::GetMapKey(semiMajorAxisDistributionString, SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL, semiMajorAxisDistribution);
                 COMPLAIN_IF(!found, "Unknown Semi-Major Axis Distribution");
             }
-
-    // AVG - 12/03/2020 - Removing post newtonian spin evolution
-    /*
-			if (vm.count("spin-assumption")) {                                                                                          // spin assumption
-                std::tie(found, spinAssumption) = utils::GetMapKey(spinAssumptionString, SPIN_ASSUMPTION_LABEL, spinAssumption);
-                COMPLAIN_IF(!found, "Unknown Spin Assumption");
-			}
-
-			if (vm.count("spin-distribution")) {                                                                                        // spin distribution
-                std::tie(found, spinDistribution) = utils::GetMapKey(spinDistributionString, SPIN_DISTRIBUTION_LABEL, spinDistribution);
-                COMPLAIN_IF(!found, "Unknown Spin Assumption");
-			}
-    */
 
             // constraint/value/range checks - alphabetically (where possible)
 

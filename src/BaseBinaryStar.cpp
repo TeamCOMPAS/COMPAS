@@ -396,15 +396,6 @@ void BaseBinaryStar::SetRemainingCommonValues(const long int p_Id) {
     m_ZetaRLOFNumerical                          = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_ZetaStarCompare	                         = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    // AVG - 12/03/2020 - post newtonian spin evolution
-    /*
-    // Misalignments
-    m_Theta1_i                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Theta2_i                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Theta1                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Theta2                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
-    */
-
     // Initialise other parameters to 0
     m_MSN                                        = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_MSNPrime                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -1145,47 +1136,6 @@ double BaseBinaryStar::SampleEccentricityDistribution() {
     return eccentricity;
 }
 
-// AVG - 12/03/2020 - Removing post newtonian spin evolution
-/*
- * Draw spin from the distribution specified by the user
- * (SpinDistribution program option; will use AIS distribution if specified (AIS.DrawingFromAISDistributions))
- *
- *
- * double SampleSpinDistribution()
- *
- * @return                                      Spin
- */
-/*
-double BaseBinaryStar::SampleSpinDistribution() {
-
-    double spin;
-
-    switch (OPTIONS->SpinDistribution()) {                                          // which distribution? .
-
-        case SPIN_DISTRIBUTION::ZERO:                                               // ZERO
-
-            spin = 0.0;
-            break;
-
-        case SPIN_DISTRIBUTION::FLAT:                                               // FLAT
-
-            spin = RAND->Random(OPTIONS->SpinDistributionMin(), OPTIONS->SpinDistributionMax());
-            break;
-
-        case SPIN_DISTRIBUTION::FIXED:                                              // FIXED
-
-            spin = 0.7;                                                             // could have this set by the user - check bounds if so
-            break;
-
-        default:                                                                    // unknown distribution
-            SHOW_WARN(ERROR::UNKNOWN_SPIN_DISTRIBUTION, "Using spin = 0.0");        // show warning
-            spin = 0.0;
-    }
-
-    return spin;
-}
-*/
-
 
 /*
  * Choose metallicity based on program option (not really drawing from a distribution here...)
@@ -1514,67 +1464,6 @@ void BaseBinaryStar::ResolveCoalescence() {
     PrintDoubleCompactObjects();                                                                                                                // print (log) double compact object details
 }
 
-// AVG - 12/03/2020 - Removing post newtonian spin evolution
-/*
- * Assign misalignments to S1 and S2 based on assumptions for spin study
- *
- * Set spin misalignment angles - will need some model switch here depending on what you are running -
- * either as given by code for both primary and secondary, secondary given by code and primary = 0,
- * or secondary given by code and primary isotropic (uniform in cos(theta))  JR: todo: get clarity on this description from Alejandro
- *
- * DBL_DBL BaseBinaryStar::CalculateMisalignments()
- *
- * @return                                      Tuple containing misalignment angles theta1 & theta2
- */
-/*
-DBL_DBL BaseBinaryStar::CalculateMisalignments() {
-
-    double theta1;
-    double theta2;
-
-    switch (OPTIONS->SpinAssumption()) {                                                // which spin assumption?
-
-        case SPIN_ASSUMPTION::SAME:                                                     // both same
-            theta1 = m_IPrime;
-            theta2 = m_IPrime;
-            break;
-
-        case SPIN_ASSUMPTION::ALIGNED:                                                  // both aligned
-            theta1 = 0.0;
-            theta2 = 0.0;
-            break;
-
-        case SPIN_ASSUMPTION::MISALIGNED:                                               // secondary misaligned
-            theta1 = 0.0;
-            theta2 = m_IPrime;
-            break;
-
-        case SPIN_ASSUMPTION::ISOTROPIC:                                                // both isotropic
-            theta1 = acos((RAND->Random() * 2.0) - 1.0);                                // initial misalignment of star 1 uniform in cos(theta)
-            theta2 = acos((RAND->Random() * 2.0) - 1.0);                                // initial misalignment of star 2 uniform in cos(theta)
-            break;
-
-         case SPIN_ASSUMPTION::GEROSA:                                                  // Gerosa inspired
-
-            // inspired by Gerosa et al. 2013 who assume that after the 1st SN, the secondary is realigned but the primary is not
-            // after the second SN, the secondary is therefore slightly misaligned whilst the primary is misaligned as a function of both kicks
-            // to model this, we choose the primary misalignment isotropically, whilst the secondary is given from my code          // JR: todo:  whose code?
-
-            theta1 = acos((RAND->Random() * 2.0) - 1.0);
-            theta2 = m_IPrime;
-            break;
-
-        default:                                                                        // unknown spin assumption
-
-            SHOW_WARN(ERROR::UNKNOWN_SPIN_ASSUMPTION, "Using theta1 = theta2 = 0.0");   // show warning
-
-            theta1  = 0;                                                                // initial misalignment of star 1
-            theta2  = 0;                                                                // initial misalignment of star 2
-    }
-
-    return std::make_tuple(theta1, theta2);
-}
-*/
 
 /*
  * Calculate the systemic velocity (centre-of-mass velocity) of the binary after the supernova
@@ -1838,15 +1727,6 @@ bool BaseBinaryStar::ResolveSupernova() {
         // Calculate post-SN orbital inclination using the equation for arbitrary eccentricity orbits
         m_CosIPrime   = CalculateCosFinalPlaneTilt(m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
         m_IPrime      = acos(m_CosIPrime);
-
-        // AVG - 12/03/2020 - Removing post newtonian spin evolution
-        /*
-        std::tie(m_Theta1_i, m_Theta2_i) = CalculateMisalignments();                                                                // assign the spins.  TODO: I think this function is currently broken for two supernovae -- check!!  JR: todo" check this
-
-        // variables to evolve
-        m_Theta1 = m_Theta1_i;
-        m_Theta2 = m_Theta2_i;
-        */
 
         m_SystemicVelocity = CalculatePostSNSystemicVelocity(m_Supernova->Mass(),                                                   // post-SN systemic (center-of-mass) velocity in ms s^-1
                                                              m_Supernova->MassPrev() - m_Supernova->Mass(),
