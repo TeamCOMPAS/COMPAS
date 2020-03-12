@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>Overview</title>
+<title>0_H5Overview</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13073,42 +13073,9 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="./Folders/Development/logo.png"></p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="COMPAS">COMPAS<a class="anchor-link" href="#COMPAS">&#182;</a></h1>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><font size="+1"></p>
-<p><a href=http://compas.science>
-COMPAS website : http://compas.science
-</a></p>
-<p><font/></p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h2><p>Welcome to the post-processing documentation of the COMPAS code. In here you will the additional material outside the source code used to manipulate the data and/or calculate rates/weights/samples to place the results of the simulation in different scientific contexts.</p>
-<p>We provide a series of jupyter/ipython notebooks and 'raw' python scripts. The notebooks show how to call the python scripts and the involved syntax. All notebooks are made ito html pages for easy reading and indexing of available material.</p>
-<h2 id="How-to-reference:">How to reference:<a class="anchor-link" href="#How-to-reference:">&#182;</a></h2><p>If you use source-code/data/post-processing pipelines for your
-study we would appreciate if you acknowledge it accordingly.</p>
-<p>For source-code and data please see XXX</p>
-<p>For the pipelines XXX</p>
-<h2 id="Other-documentation-is-available:">Other documentation is available:<a class="anchor-link" href="#Other-documentation-is-available:">&#182;</a></h2><p>For source code documentation please see XXX</p>
-<p>For source code installation documentation please see XXX</p>
-<p>For git documentation please see XXX</p>
+<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h1><p>The COMPAS core code gives a collection of human-readable CSV/txt files with 
+data. Each file represents a type of data/physics and containts a series of columns.</p>
+<p>We convert it into a single non-human-readable h5 file which is more compact and easier to share upload and handle in a memory efficient way</p>
 <h2 id="Material">Material<a class="anchor-link" href="#Material">&#182;</a></h2>
 </div>
 </div>
@@ -13120,10 +13087,10 @@ study we would appreciate if you acknowledge it accordingly.</p>
 <font size="+3"> 
 
 <li>
-    <a href="./Folders/H5/0_H5Overview.html" style="text-decoration:none;"> 
-        H5 files:   <br/>  <br/>
+    <a href="./1_creatingH5.html" style="text-decoration:none;"> 
+        Creating h5 file:   <br/>  <br/>
         <font size="+2"> 
-        compiling, reading, rewriting
+        how to combine the raw data into a single h5 file.
         </font>
     </a>
 </li>
@@ -13132,10 +13099,10 @@ study we would appreciate if you acknowledge it accordingly.</p>
 <br/>
 
 <li>
-    <a href="./Folders/BasicsPython/0_BasicsOverview.html" style="text-decoration:none;"> 
-        Basics Python:   <br/>  <br/>
+    <a href="./2_readingH5.html" style="text-decoration:none;"> 
+        Reading h5 file:   <br/>  <br/>
         <font size="+2"> 
-        slicing, binning, plotting
+        the basics of loading a h5 file and the syntax involved
         </font>
     </a>
 </li>
@@ -13145,10 +13112,10 @@ study we would appreciate if you acknowledge it accordingly.</p>
 
 
 <li>
-    <a href="./Folders/Development/DevelopmentOverview.html" style="text-decoration:none;"> 
-        Development:    <br/> <br/>
+    <a href="./3_rewritingH5.html" style="text-decoration:none;"> 
+        (Re-)writing h5 file:    <br/> <br/>
         <font size="+2"> 
-            log, todo, maintenance
+            how to rewrite/reduce the h5 data to share  or upload.
         </font>
     </a>
 </li>

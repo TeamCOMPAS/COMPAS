@@ -81,6 +81,7 @@ public:
         m_LBVfactor                        = p_Star.m_LBVfactor;
 
         m_MassesEquilibrated               = p_Star.m_MassesEquilibrated;
+        m_MassesEquilibratedAtBirth        = p_Star.m_MassesEquilibratedAtBirth;
 
         m_Mass1Final                       = p_Star.m_Mass1Final;
         m_Mass2Final                       = p_Star.m_Mass2Final;
@@ -264,7 +265,8 @@ public:
     double              Mass2PreCEE() const                         { return m_Star2->MassPreCEE(); }
     double              MassEnv1() const                            { return m_MassEnv1; }
     double              MassEnv2() const                            { return m_MassEnv2; }
-    double              MassesEquilibrated() const                  { return m_MassesEquilibrated; }
+    bool                MassesEquilibrated() const                  { return m_MassesEquilibrated; }
+    bool                MassesEquilibratedAtBirth() const           { return m_MassesEquilibratedAtBirth; }
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
     bool                MergesInHubbleTime() const                  { return m_MergesInHubbleTime; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
@@ -375,7 +377,8 @@ private:
 
     double              m_LBVfactor;
 
-    double              m_MassesEquilibrated;                                               // Indicates whether CH stars had masses equilbrated at birth
+    bool                m_MassesEquilibrated;                                               // Indicates whether stars had masses equilbrated at some stage after birth
+    bool                m_MassesEquilibratedAtBirth;                                        // Indicates whether stars had masses equilbrated at birth
 
 	double              m_Mass1Final;                                                       // Star1 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
     double              m_Mass2Final;                                                       // Star2 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
@@ -612,8 +615,6 @@ private:
     bool    ResolveSupernova();
     void    ResolveTides();
 
-    bool    RLOFCheckMonitorEndCaseA();
-
     double  SampleSemiMajorAxisDistribution(const double p_Mass1, const double p_Mass2);
     double  SampleEccentricityDistribution();
     double  SampleInitialMassDistribution();
@@ -631,16 +632,10 @@ private:
                             const double p_RocheLobe1to2,
                             const double p_RocheLobe2to1);
 
-    bool    ShouldPrintRLOFParameters();
-
     void    StashBeBinaryProperties();
-    void    StashCurrentRLOFProperties();
-    void    StashPreviousRLOFProperties();
-    void    StashRLOFProperties(RLOFProperties &p_RLOFProperties);
 
 
     // printing functions
-    void PrintRLOFParameters();
     void PrintBinarySystemParameters()          {                                   LOGGING->LogBinarySystemParameters(this); }
     void PrintDetailedOutput(const int p_Id)    { if (OPTIONS->DetailedOutput())    LOGGING->LogDetailedOutput(this, p_Id); }
     void PrintDoubleCompactObjects()            {                                   LOGGING->LogDoubleCompactObject(this); }
