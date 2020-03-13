@@ -264,16 +264,6 @@ public:
 
     ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return rotationalVelocityDistribution; }
 
-// AVG    bool                                        SampleCommonEnvelopeAlpha() const                                       { return sampleCommonEnvelopeAlpha; }
-// AVG    double                                      SampleCommonEnvelopeAlphaMax() const                                    { return sampleCommonEnvelopeAlphaMax; }
-// AVG    double                                      SampleCommonEnvelopeAlphaMin() const                                    { return sampleCommonEnvelopeAlphaMin; }
-// AVG    bool                                        SampleLuminousBlueVariableMultiplier() const                            { return sampleLuminousBlueVariableMultiplier; }
-// AVG    double                                      SampleLuminousBlueVariableMultiplierMax() const                         { return sampleLuminousBlueVariableMultiplierMax; }
-// AVG    double                                      SampleLuminousBlueVariableMultiplierMin() const                         { return sampleLuminousBlueVariableMultiplierMin; }
-// AVG    bool                                        SampleWolfRayetMultiplier() const                                       { return sampleWolfRayetMultiplier; }
-// AVG    double                                      SampleWolfRayetMultiplierMax() const                                    { return sampleWolfRayetMultiplierMax; }
-// AVG    double                                      SampleWolfRayetMultiplierMin() const                                    { return sampleWolfRayetMultiplierMin; }
-
     double                                      SecondaryMass() const                                                   { return secondaryMass; }
 
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return semiMajorAxisDistribution; }
@@ -325,7 +315,6 @@ private:
     bool                                        rlofPrinting;
 
     bool                                        useImportanceSampling;                                          // Options for importance sampling
-//    bool                                        useMCMC;                                                        // Simon Stevenson - 15/03/2018 - begining to add MCMC functionality (not yet implemented)
 
     // AVG - 13/03/2020 - Will just comment this as Floor might uncomment them when they are available
     int                                         nBatchesUsed;                                                   // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
@@ -612,29 +601,6 @@ private:
     // Rotational Velocity distribution options
     ROTATIONAL_VELOCITY_DISTRIBUTION            rotationalVelocityDistribution;
     string                                      rotationalVelocityDistributionString;                           // Which rotational velocity distribution to use (default = "ZERO")
-
-// AVG
-    /*
-	bool                                        sampleCommonEnvelopeAlpha;
-	double                                      sampleCommonEnvelopeAlphaMax;
-	double                                      sampleCommonEnvelopeAlphaMin;
-
-	bool                                        sampleKickDirectionPower;
-	double                                      sampleKickDirectionPowerMax;
-	double                                      sampleKickDirectionPowerMin;
-
-	bool                                        sampleKickVelocitySigma;
-	double                                      sampleKickVelocitySigmaMax;
-	double                                      sampleKickVelocitySigmaMin;
-
-	bool                                        sampleLuminousBlueVariableMultiplier;
-	double                                      sampleLuminousBlueVariableMultiplierMax;
-	double                                      sampleLuminousBlueVariableMultiplierMin;
-
-	bool                                        sampleWolfRayetMultiplier;
-	double                                      sampleWolfRayetMultiplierMax;
-	double                                      sampleWolfRayetMultiplierMin;
-*/
 
 	// grids
 

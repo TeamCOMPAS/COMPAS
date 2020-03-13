@@ -28,20 +28,6 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
 
     SetInitialCommonValues(p_AIS, p_Id);          
 
-    // AVG                                                                                               // start construction of the binary
-    /*
-    m_CommonEnvelopeAlpha = OPTIONS->SampleCommonEnvelopeAlpha()
-                                ? RAND->Random(OPTIONS->SampleCommonEnvelopeAlphaMin(), OPTIONS->SampleCommonEnvelopeAlphaMax())
-                                : OPTIONS->CommonEnvelopeAlpha();
-
-    m_LBVfactor           = OPTIONS->SampleLuminousBlueVariableMultiplier()
-                                ? RAND->Random(OPTIONS->SampleLuminousBlueVariableMultiplierMin(), OPTIONS->SampleLuminousBlueVariableMultiplierMax())
-                                : OPTIONS->LuminousBlueVariableFactor();
-
-    m_WolfRayetFactor     = OPTIONS->SampleWolfRayetMultiplier()
-                                ? RAND->Random(OPTIONS->SampleWolfRayetMultiplierMin(), OPTIONS->SampleWolfRayetMultiplierMax())
-                                : OPTIONS->WolfRayetFactor();
-    */
     m_CommonEnvelopeAlpha = OPTIONS->CommonEnvelopeAlpha();
 
     m_LBVfactor           = OPTIONS->LuminousBlueVariableFactor();

@@ -364,31 +364,6 @@ void Options::InitialiseMemberVariables(void) {
     rotationalVelocityDistribution                                  = ROTATIONAL_VELOCITY_DISTRIBUTION::ZERO;
     rotationalVelocityDistributionString                            = ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL.at(rotationalVelocityDistribution);
 
-
-    // AVG
-	//JIM BARRETT -- 06/07/2016 -- adding options to sample over some hyperparameters
-    /*
-	sampleKickVelocitySigma                                         = false;
-	sampleKickVelocitySigmaMin                                      = 0.0;
-	sampleKickVelocitySigmaMax                                      = 400.0;
-
-	sampleKickDirectionPower                                        = false;
-	sampleKickDirectionPowerMin                                     = -10.0;
-	sampleKickDirectionPowerMax                                     = 10.0;
-
-	sampleCommonEnvelopeAlpha                                       = false;
-	sampleCommonEnvelopeAlphaMin                                    = 0.0;
-	sampleCommonEnvelopeAlphaMax                                    = 5.0;
-
-	sampleWolfRayetMultiplier                                       = false;
-	sampleWolfRayetMultiplierMin                                    = 0.0;
-	sampleWolfRayetMultiplierMax                                    = 5.0;
-
-	sampleLuminousBlueVariableMultiplier                            = false;
-	sampleLuminousBlueVariableMultiplierMin                         = 1.0;
-	sampleLuminousBlueVariableMultiplierMax                         = 12.0;
-    */
-
 	// grids
 
 	gridFilename                                                    = "";                                                                               // default is no grid file
@@ -788,31 +763,6 @@ void Options::SetToFiducialValues(void) {
     rotationalVelocityDistribution                                  = ROTATIONAL_VELOCITY_DISTRIBUTION::ZERO;
     rotationalVelocityDistributionString                            = ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL.at(rotationalVelocityDistribution);
 
-
-    // AVG
-    /*
-	//JIM BARRETT -- 06/07/2016 -- adding options to sample over some hyperparameters
-	sampleKickVelocitySigma                                         = false;
-	sampleKickVelocitySigmaMin                                      = 0.0;
-	sampleKickVelocitySigmaMax                                      = 400.0;
-
-	sampleKickDirectionPower                                        = false;
-	sampleKickDirectionPowerMin                                     = -10.0;
-	sampleKickDirectionPowerMax                                     = 10.0;
-
-	sampleCommonEnvelopeAlpha                                       = false;
-	sampleCommonEnvelopeAlphaMin                                    = 0.0;
-	sampleCommonEnvelopeAlphaMax                                    = 5.0;
-
-	sampleWolfRayetMultiplier                                       = false;
-	sampleWolfRayetMultiplierMin                                    = 0.0;
-	sampleWolfRayetMultiplierMax                                    = 5.0;
-
-	sampleLuminousBlueVariableMultiplier                            = false;
-	sampleLuminousBlueVariableMultiplierMin                         = 1.0;
-	sampleLuminousBlueVariableMultiplierMax                         = 12.0;
-    */
-
 	// grids
 
 	gridFilename                                                    = "";                                                                               // default is no grid file
@@ -908,8 +858,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("individual-system",                                   "Run an individual system")
 			("lambda-calculation-every-timeStep",                   "Calculate all values of lambda at each timestep")
    		   	("massTransfer",                                        "Enable mass transfer")
-// AVG			("mcmc",                                                "Use MCMC sampling (Not yet implemented. default = false)")
-// AVG		    ("only-double-compact-objects",                         "Only evolve binaries which may form double compact objects")
 		    ("pair-instability-supernovae",                         "Enable pair instability supernovae (PISN)")
             ("populationDataPrinting",                              "Print details of population")
 		    ("print-bool-as-string",                                "Print boolean properties as 'TRUE' or 'FALSE'")
@@ -917,11 +865,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("quiet",                                               "Suppress printing")
 			("revised-energy-formalism-Nandez-Ivanova",             "Enable revised energy formalism")
             ("RLOFPrinting",                                        "Enable output parameters before/after RLOF ")
-// AVG			("sample-common-envelope-alpha",                        "Sample over common envelope alpha")
-// AVG			("sample-kick-direction-power",                         "Sample over kick direction powerlaw exponent")
-// AVG			("sample-kick-velocity-sigma",                          "Sample over Kick Velocity Sigma")
-// AVG			("sample-luminous-blue-variable-multiplier",            "Sample over multiplicative constant from LBV mass loss")
-// AVG		("sample-wolf-rayet-multiplier",                        "Sample over WR winds multiplicative constant")
             ("single-star",                                         "Evolve single star(s)")
 		    ("use-mass-loss",                                       "Enable mass loss")
 			("zeta-calculation-every-time-Step",                    "Calculate all values of MT zetas at each timestep")
@@ -1037,19 +980,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("pulsar-magnetic-field-decay-timescale",                       po::value<double>(&pulsarMagneticFieldDecayTimescale),                              "Timescale on which magnetic field decays in Myrs (default = 1000.0)")
 		    ("pulsar-minimum-magnetic-field",                               po::value<double>(&pulsarLog10MinimumMagneticField),                                "log10 of the minimum pulsar magnetic field in Gauss (default = 8.0)")
 
-// AVG
-            /*
-			("sample-common-envelope-alpha-max",                            po::value<double>(&sampleCommonEnvelopeAlphaMax),                                   "Maximum for Uniform sampling over common envelope alpha")
-			("sample-common-envelope-alpha-min",                            po::value<double>(&sampleCommonEnvelopeAlphaMin),                                   "Minimum for Uniform sampling over common envelope alpha")
-			("sample-kick-direction-power-max",                             po::value<double>(&sampleKickDirectionPowerMax),                                    "Maximum for Uniform sampling over kick direction powerlaw exponent")
-			("sample-kick-direction-power-min",                             po::value<double>(&sampleKickDirectionPowerMin),                                    "Minimum for Uniform sampling over kick direction powerlaw exponent")
-			("sample-kick-velocity-sigma-max",                              po::value<double>(&sampleKickVelocitySigmaMax),                                     "Maximum for Uniform sampling over kick velocity sigma")
-			("sample-kick-velocity-sigma-min",                              po::value<double>(&sampleKickVelocitySigmaMin),                                     "Minimum for Uniform sampling over kick velocity sigma")
-			("sample-luminous-blue-variable-multiplier-max",                po::value<double>(&sampleLuminousBlueVariableMultiplierMax),                        "Maximum for Uniform sampling over multiplicative constant for LBV mass loss")
-			("sample-luminous-blue-variable-multiplier-min",                po::value<double>(&sampleLuminousBlueVariableMultiplierMin),                        "Minimum for Uniform sampling over multiplicative constant for LBV mass loss")
-			("sample-wolf-rayet-multiplier-max",                            po::value<double>(&sampleWolfRayetMultiplierMax),                                   "Maximum for Uniform sampling over multiplicative constant for WR winds")
-			("sample-wolf-rayet-multiplier-min",                            po::value<double>(&sampleWolfRayetMultiplierMin),                                   "Minimum for Uniform sampling over multiplicative constant for WR winds")
-		    */
             ("semi-major-axis-max",                                         po::value<double>(&semiMajorAxisDistributionMax),                                   "Maximum semi major axis in AU to generate (default = 1000)")
 		    ("semi-major-axis-min",                                         po::value<double>(&semiMajorAxisDistributionMin),                                   "Minimum semi major axis in AU to generate (default = 0.1)")
 		    ("single-star-mass-max",                                        po::value<double>(&singleStarMassMax),                                              "Maximum mass (in Msol) for single star evolution (default = 100.0)")
@@ -1063,7 +993,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 
 		    // string options - alphabetically
-// AVG            ("AIS-DCOtype",                                                 po::value<string>(&AISDCOtypeString),                                               "DCO type selection in exploratory phase of STROOPWAFEL, select ALL, BBH, BNS or BHNS")
+            // AVG - 13/03/2020 - Will just comment this as Floor might uncomment them when they are available
+//          ("AIS-DCOtype",                                                 po::value<string>(&AISDCOtypeString),                                               "DCO type selection in exploratory phase of STROOPWAFEL, select ALL, BBH, BNS or BHNS")
 
 		  	("black-hole-kicks",                                            po::value<string>(&blackHoleKicksString),                                           "Black hole kicks relative to NS kicks (options: FULL, REDUCED, ZERO, FALLBACK. Default = FALLBACK)")
 
@@ -1223,14 +1154,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
             rlofPrinting                                    = vm.count("RLOFPrinting");                                                 // print Roche Lobe overflow details?  Do not retain previous (default) value
 
-// AVG
-            /*
-			sampleCommonEnvelopeAlpha                       = vm.count("sample-common-envelope-alpha");                                 // sample CE alpha?  Do not retain previous (default) value
-			sampleKickDirectionPower                        = vm.count("sample-kick-direction-power");                                  // sample kick direction power?  Do not retain previous (default) value
-			sampleKickVelocitySigma                         = vm.count("sample-kick-velocity-sigma");                                   // sample over some hyperparameters? - JIM BARRETT -- 06/07/2016.  Do not retain previous (default) value
-			sampleLuminousBlueVariableMultiplier            = vm.count("sample-luminous-blue-variable-multiplier");                     // sample LBV multiplier?  Do not retain previous (default) value
-			sampleWolfRayetMultiplier                       = vm.count("sample-wolf-rayet-multiplier");                                 // sample wolf-rayet multiplier?  Do not retain previous (default) valued
-            */
             singleStar                                      = vm.count("single-star");                                                  // evolve a single star?  Do not retain previous (default) valued
 
             useFixedUK                                      = vm.count("fix-dimensionless-kick-velocity") && (utils::Compare(fixedUK, 0.0) >= 0);   // fix the dimensionless kick velocity?  Do not retain previous (default) value

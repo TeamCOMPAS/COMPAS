@@ -41,7 +41,7 @@
 // 02.02.06      JR - Oct 11, 2019 - Renamed class "CHE" - now class "CH"
 //                                   Updated CHE documentation
 //                                   Added m_MassesEquilibrated variable to BaseBinaryStar
-// 02.02.07		AVG - Mar 12, 2020 - Removed deprecated options from COMPAS_legacy: tides, post-newtonian spin evolution, hyperparameter sampling options
+// 02.02.07		AVG - Mar 12, 2020 - Removed deprecated options from COMPAS_legacy: tides, post-newtonian spin evolution and hyperparameter sampling options
 
 const std::string VERSION_STRING = "02.02.06";
 
