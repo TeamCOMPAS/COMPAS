@@ -26,8 +26,10 @@
 // binary is generated according to distributions specified in program options
 BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
 
-    SetInitialCommonValues(p_AIS, p_Id);                                                                                                        // start construction of the binary
+    SetInitialCommonValues(p_AIS, p_Id);          
 
+    // AVG                                                                                               // start construction of the binary
+    /*
     m_CommonEnvelopeAlpha = OPTIONS->SampleCommonEnvelopeAlpha()
                                 ? RAND->Random(OPTIONS->SampleCommonEnvelopeAlphaMin(), OPTIONS->SampleCommonEnvelopeAlphaMax())
                                 : OPTIONS->CommonEnvelopeAlpha();
@@ -39,6 +41,12 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
     m_WolfRayetFactor     = OPTIONS->SampleWolfRayetMultiplier()
                                 ? RAND->Random(OPTIONS->SampleWolfRayetMultiplierMin(), OPTIONS->SampleWolfRayetMultiplierMax())
                                 : OPTIONS->WolfRayetFactor();
+    */
+    m_CommonEnvelopeAlpha = OPTIONS->CommonEnvelopeAlpha();
+
+    m_LBVfactor           = OPTIONS->LuminousBlueVariableFactor();
+
+    m_WolfRayetFactor     = OPTIONS->WolfRayetFactor();
 
 
     // generate initial properties of binary

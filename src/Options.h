@@ -71,6 +71,7 @@ public:
     COMMANDLINE_STATUS Initialise(int argc, char *argv[]);
     void SetToFiducialValues(void);
 
+    // AVG - 13/03/2020 - Will just comment this as Floor might uncomment them when they are available
     AIS_DCO                                     AIS_DCOType() const                                                     { return AISDCOtype; }
     string                                      AIS_DCOTypeString() const                                               { return AISDCOtypeString; }
     bool                                        AIS_ExploratoryPhase() const                                            { return AISexploratoryPhase; }
@@ -78,7 +79,7 @@ public:
     bool                                        AIS_Pessimistic() const                                                 { return AISpessimistic; }
     bool                                        AIS_RefinementPhase() const                                             { return AISrefinementPhase; }
     bool                                        AIS_RLOF() const                                                        { return AISrlof; }
-
+    
     bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return allowMainSequenceStarToSurviveCommonEnvelope; }
     bool                                        AlwaysStableCaseBBBCFlag() const                                        { return alwaysStableCaseBBBCFlag; }
     bool                                        AngularMomentumConservationDuringCircularisation() const                { return angularMomentumConservationDuringCircularisation; }
@@ -213,6 +214,7 @@ public:
     double                                      MinimumMassSecondary() const                                            { return minimumMassSecondary; }
     double                                      MaximumNeutronStarMass() const                                          { return maximumNeutronStarMass; }
 
+    // AVG - 13/03/2020 - Will just comment this as Floor might uncomment them when they are available
     int                                         NBatchesUsed() const                                                    { return nBatchesUsed; }
     int                                         NBinaries() const                                                       { return nBinaries; }
 
@@ -262,15 +264,15 @@ public:
 
     ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return rotationalVelocityDistribution; }
 
-    bool                                        SampleCommonEnvelopeAlpha() const                                       { return sampleCommonEnvelopeAlpha; }
-    double                                      SampleCommonEnvelopeAlphaMax() const                                    { return sampleCommonEnvelopeAlphaMax; }
-    double                                      SampleCommonEnvelopeAlphaMin() const                                    { return sampleCommonEnvelopeAlphaMin; }
-    bool                                        SampleLuminousBlueVariableMultiplier() const                            { return sampleLuminousBlueVariableMultiplier; }
-    double                                      SampleLuminousBlueVariableMultiplierMax() const                         { return sampleLuminousBlueVariableMultiplierMax; }
-    double                                      SampleLuminousBlueVariableMultiplierMin() const                         { return sampleLuminousBlueVariableMultiplierMin; }
-    bool                                        SampleWolfRayetMultiplier() const                                       { return sampleWolfRayetMultiplier; }
-    double                                      SampleWolfRayetMultiplierMax() const                                    { return sampleWolfRayetMultiplierMax; }
-    double                                      SampleWolfRayetMultiplierMin() const                                    { return sampleWolfRayetMultiplierMin; }
+// AVG    bool                                        SampleCommonEnvelopeAlpha() const                                       { return sampleCommonEnvelopeAlpha; }
+// AVG    double                                      SampleCommonEnvelopeAlphaMax() const                                    { return sampleCommonEnvelopeAlphaMax; }
+// AVG    double                                      SampleCommonEnvelopeAlphaMin() const                                    { return sampleCommonEnvelopeAlphaMin; }
+// AVG    bool                                        SampleLuminousBlueVariableMultiplier() const                            { return sampleLuminousBlueVariableMultiplier; }
+// AVG    double                                      SampleLuminousBlueVariableMultiplierMax() const                         { return sampleLuminousBlueVariableMultiplierMax; }
+// AVG    double                                      SampleLuminousBlueVariableMultiplierMin() const                         { return sampleLuminousBlueVariableMultiplierMin; }
+// AVG    bool                                        SampleWolfRayetMultiplier() const                                       { return sampleWolfRayetMultiplier; }
+// AVG    double                                      SampleWolfRayetMultiplierMax() const                                    { return sampleWolfRayetMultiplierMax; }
+// AVG    double                                      SampleWolfRayetMultiplierMin() const                                    { return sampleWolfRayetMultiplierMin; }
 
     double                                      SecondaryMass() const                                                   { return secondaryMass; }
 
@@ -325,6 +327,7 @@ private:
     bool                                        useImportanceSampling;                                          // Options for importance sampling
 //    bool                                        useMCMC;                                                        // Simon Stevenson - 15/03/2018 - begining to add MCMC functionality (not yet implemented)
 
+    // AVG - 13/03/2020 - Will just comment this as Floor might uncomment them when they are available
     int                                         nBatchesUsed;                                                   // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
 
 
@@ -560,6 +563,7 @@ private:
 	double                                      commonEnvelopeRecombinationEnergyDensity;					    // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 ergs/g)
 
 
+    // AVG - 13/03/2020 - Will just comment this as Floor might uncomment them when they are available
     //  Adaptive Importance Sampling options
     bool                                        AISexploratoryPhase;                                            // Flag if we want to run Exploratory phase of Adaptive Importance Sampling // Floor
     AIS_DCO                                     AISDCOtype;                                                     // Which prescription to use for DCO type (default = ALL)
@@ -569,7 +573,6 @@ private:
     bool                                        AISrefinementPhase;                                             // Flag if we want to run refinement phase of Adaptive Importance Sampling
     bool                                        AISrlof;                                                        // whether to exclude binaries that have RLOFSecondaryZAMS
     double                                      kappaGaussians;                                                 // Scaling factor for the width of the Gaussian distributions in AIS main sampling phase [should be in [0,1]]
-
 
     // Which prescription to use for calculating zetas
     CE_ZETA_PRESCRIPTION                        commonEnvelopeZetaPrescription;                                 // Which prescription to use for calculating CE zetas (default = ZETA_ADIABATIC)
@@ -610,7 +613,8 @@ private:
     ROTATIONAL_VELOCITY_DISTRIBUTION            rotationalVelocityDistribution;
     string                                      rotationalVelocityDistributionString;                           // Which rotational velocity distribution to use (default = "ZERO")
 
-
+// AVG
+    /*
 	bool                                        sampleCommonEnvelopeAlpha;
 	double                                      sampleCommonEnvelopeAlphaMax;
 	double                                      sampleCommonEnvelopeAlphaMin;
@@ -630,7 +634,7 @@ private:
 	bool                                        sampleWolfRayetMultiplier;
 	double                                      sampleWolfRayetMultiplierMax;
 	double                                      sampleWolfRayetMultiplierMin;
-
+*/
 
 	// grids
 

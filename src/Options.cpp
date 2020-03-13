@@ -48,7 +48,8 @@ void Options::InitialiseMemberVariables(void) {
     useImportanceSampling                                           = false;
 //    useMCMC                                                         = false;
 
-    nBatchesUsed                                                    = -1;                                                                               // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
+    // AVG - 13/03/2020 - Will just comment this as Floor might uncomment them when they are available
+    //    nBatchesUsed                                                    = -1;                                                                               // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
 
 
 	// Individual system variables
@@ -320,7 +321,8 @@ void Options::InitialiseMemberVariables(void) {
 	commonEnvelopeZetaPrescriptionString                            = CE_ZETA_PRESCRIPTION_LABEL.at(commonEnvelopeZetaPrescription);				    // String containing which prescription to use for calculating CE zetas (default = STARTRACK)
 
 
-    // Afaptive Importance Sampling options
+    // AVG - 13/03/2020 - Will just comment this as Floor might uncomment them when they are available
+    // Adaptive Importance Sampling options
     AISexploratoryPhase                                             = false;                                                                            // Flag for whether to run the AIS exploratory phase
     AISDCOtype                                                      = AIS_DCO::ALL;                                                                     // Which prescription to use for DCO type (default = ALL)
     AISDCOtypeString                                                = AIS_DCO_LABEL.at(AIS_DCO::ALL);                                                   // String containing which type of DCOs to focus on (default = "ALL")
@@ -329,7 +331,6 @@ void Options::InitialiseMemberVariables(void) {
     AISpessimistic                                                  = false;                                                                            // Flag for excluding DCOs that are Optmistic
     AISrefinementPhase                                              = false;                                                                            // Flag for whether to run the AIS refinement phase (step 2)
     kappaGaussians                                                  = 2;                                                                                // scaling factor for the width of the Gaussian distributions in AIS main sampling phase
-
 
     // Metallicity options
     metallicity                                                     = ZSOL;
@@ -364,7 +365,9 @@ void Options::InitialiseMemberVariables(void) {
     rotationalVelocityDistributionString                            = ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL.at(rotationalVelocityDistribution);
 
 
+    // AVG
 	//JIM BARRETT -- 06/07/2016 -- adding options to sample over some hyperparameters
+    /*
 	sampleKickVelocitySigma                                         = false;
 	sampleKickVelocitySigmaMin                                      = 0.0;
 	sampleKickVelocitySigmaMax                                      = 400.0;
@@ -384,7 +387,7 @@ void Options::InitialiseMemberVariables(void) {
 	sampleLuminousBlueVariableMultiplier                            = false;
 	sampleLuminousBlueVariableMultiplierMin                         = 1.0;
 	sampleLuminousBlueVariableMultiplierMax                         = 12.0;
-
+    */
 
 	// grids
 
@@ -452,6 +455,7 @@ void Options::SetToFiducialValues(void) {
     useImportanceSampling                                           = false;
 //    useMCMC                                                         = false;
 
+    // AVG - 13/03/2020 - Will just comment this as Floor might uncomment them when they are available
     nBatchesUsed                                                    = -1;                                                                               // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
 
 
@@ -741,6 +745,7 @@ void Options::SetToFiducialValues(void) {
 	zetaHertzsprungGap	                                            = 2.0;
 
 
+    // AVG - 13/03/2020 - Will just comment this as Floor might uncomment them when they are available
     // Adaptive Importance Sampling Exploratory phase
     AISexploratoryPhase                                             = false;  // Floor
     AISDCOtype                                                      = AIS_DCO::ALL;                                                                     // Which prescription to use for DCO type (default = ALL)
@@ -750,7 +755,6 @@ void Options::SetToFiducialValues(void) {
     AISpessimistic                                                  = false;                                                                            // Flag for excluding DCOs that are Optmistic
     AISrefinementPhase                                              = false;                                                                            // Flag for whether to run the AIS refinement phase (step 2)
     kappaGaussians                                                  = 2;                                                                                // scaling factor for the width of the Gaussian distributions in AIS main sampling phase
-
 
     // Metallicity options
     metallicity                                                     = ZSOL;
@@ -785,6 +789,8 @@ void Options::SetToFiducialValues(void) {
     rotationalVelocityDistributionString                            = ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL.at(rotationalVelocityDistribution);
 
 
+    // AVG
+    /*
 	//JIM BARRETT -- 06/07/2016 -- adding options to sample over some hyperparameters
 	sampleKickVelocitySigma                                         = false;
 	sampleKickVelocitySigmaMin                                      = 0.0;
@@ -805,7 +811,7 @@ void Options::SetToFiducialValues(void) {
 	sampleLuminousBlueVariableMultiplier                            = false;
 	sampleLuminousBlueVariableMultiplierMin                         = 1.0;
 	sampleLuminousBlueVariableMultiplierMax                         = 12.0;
-
+    */
 
 	// grids
 
@@ -879,11 +885,14 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		    // boolean options (flags) - alphabetically
 
+            // AVG - 13/03/2020 - Will just comment this as Floor might uncomment them when they are available
+            /*
             ("AIS-exploratory-phase",                               "Run exploratory phase of STROOPWAFEL") // Floor
 		    ("AIS-Hubble",                                          "Excluding not in Hubble time mergers selection in exploratory phase of STROOPWAFEL")
 		    ("AIS-Pessimistic",                                     "Optimistic or Pessimistic selection in exploratory phase of STROOPWAFEL")
 		    ("AIS-refinement-phase",                                "If true: run main sampling phase (step2) of STROOPWAFEL")
 		    ("AIS-RLOF",                                            "RLOFSecondaryZAMS selection in exploratory phase of STROOPWAFEL")
+            */
 			("alwaysStableCaseBBBCFlag",                            "Choose case BB/BC mass transfer to be always stable (default = True)")
 			("angularMomentumConservationDuringCircularisation",    "Conserve angular momentum when binary is circularised when entering a Mass Transfer episode (default = False)")
 			("BeBinaries",                                          "Enable Be Binaries study")
@@ -899,8 +908,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("individual-system",                                   "Run an individual system")
 			("lambda-calculation-every-timeStep",                   "Calculate all values of lambda at each timestep")
    		   	("massTransfer",                                        "Enable mass transfer")
-//			("mcmc",                                                "Use MCMC sampling (Not yet implemented. default = false)")
-//		    ("only-double-compact-objects",                         "Only evolve binaries which may form double compact objects")
+// AVG			("mcmc",                                                "Use MCMC sampling (Not yet implemented. default = false)")
+// AVG		    ("only-double-compact-objects",                         "Only evolve binaries which may form double compact objects")
 		    ("pair-instability-supernovae",                         "Enable pair instability supernovae (PISN)")
             ("populationDataPrinting",                              "Print details of population")
 		    ("print-bool-as-string",                                "Print boolean properties as 'TRUE' or 'FALSE'")
@@ -908,11 +917,11 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("quiet",                                               "Suppress printing")
 			("revised-energy-formalism-Nandez-Ivanova",             "Enable revised energy formalism")
             ("RLOFPrinting",                                        "Enable output parameters before/after RLOF ")
-			("sample-common-envelope-alpha",                        "Sample over common envelope alpha")
-			("sample-kick-direction-power",                         "Sample over kick direction powerlaw exponent")
-			("sample-kick-velocity-sigma",                          "Sample over Kick Velocity Sigma")
-			("sample-luminous-blue-variable-multiplier",            "Sample over multiplicative constant from LBV mass loss")
-			("sample-wolf-rayet-multiplier",                        "Sample over WR winds multiplicative constant")
+// AVG			("sample-common-envelope-alpha",                        "Sample over common envelope alpha")
+// AVG			("sample-kick-direction-power",                         "Sample over kick direction powerlaw exponent")
+// AVG			("sample-kick-velocity-sigma",                          "Sample over Kick Velocity Sigma")
+// AVG			("sample-luminous-blue-variable-multiplier",            "Sample over multiplicative constant from LBV mass loss")
+// AVG		("sample-wolf-rayet-multiplier",                        "Sample over WR winds multiplicative constant")
             ("single-star",                                         "Evolve single star(s)")
 		    ("use-mass-loss",                                       "Enable mass loss")
 			("zeta-calculation-every-time-Step",                    "Calculate all values of MT zetas at each timestep")
@@ -987,7 +996,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("initial-mass-min",                                            po::value<double>(&initialMassFunctionMin),                                         "Minimum mass (in Msol) to generate using given IMF (default = 8)")
 		    ("initial-mass-power",                                          po::value<double>(&initialMassFunctionPower),                                       "Single power law power to generate primary mass using given IMF")
 
-		    ("kappa-gaussians",                                             po::value<double>(&kappaGaussians),                                                 "Scaling factor for the width of the Gaussian distributions in STROOPWAFEL main sampling phase" )
+// AVG - 13/03/2020 - Will just comment this as Floor might uncomment them when they are available
+//		    ("kappa-gaussians",                                             po::value<double>(&kappaGaussians),                                                 "Scaling factor for the width of the Gaussian distributions in STROOPWAFEL main sampling phase" )
 		    ("kick-direction-power",                                        po::value<double>(&kickDirectionPower),                                             "Power for power law kick direction distribution (default = 0.0 = isotropic, +ve = polar, -ve = in plane)")
 			("kick-scaling-factor",                                         po::value<double>(&kickScalingFactor),                                              "Arbitrary factor used to scale kicks (default = 1.0 )")
 		    ("kick-velocity-max",                                           po::value<double>(&kickVelocityDistributionMaximum),                                "Maximum drawn kick velocity in km s^-1. Ignored if < 0. Must be > 0 if using kick-velocity-distribution=FLAT")
@@ -1009,7 +1019,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             ("metallicity,z",                                               po::value<double>(&metallicity),                                                    "Metallicity to use (default 0.02 is Zsol)")
 		    ("minimum-secondary-mass",                                      po::value<double>(&minimumMassSecondary),                                           "Minimum mass of secondary to generate in Msol (default = 0.0)")
 
-			("nbatches-used",                                               po::value<int>(&nBatchesUsed),                                                      "nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed) sets itself automatically in pythonSubmit")
+// AVG - 13/03/2020 - Will just comment this as Floor might uncomment them when they are available
+//			("nbatches-used",                                               po::value<int>(&nBatchesUsed),                                                      "nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed) sets itself automatically in pythonSubmit")
 
 		    ("orbital-period-max",                                          po::value<double>(&periodDistributionMax),                                          "Maximum period in days to generate (default = 1000)")
 		   	("orbital-period-min",                                          po::value<double>(&periodDistributionMin),                                          "Minimum period in days to generate (default = 1.1)")
@@ -1026,6 +1037,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("pulsar-magnetic-field-decay-timescale",                       po::value<double>(&pulsarMagneticFieldDecayTimescale),                              "Timescale on which magnetic field decays in Myrs (default = 1000.0)")
 		    ("pulsar-minimum-magnetic-field",                               po::value<double>(&pulsarLog10MinimumMagneticField),                                "log10 of the minimum pulsar magnetic field in Gauss (default = 8.0)")
 
+// AVG
+            /*
 			("sample-common-envelope-alpha-max",                            po::value<double>(&sampleCommonEnvelopeAlphaMax),                                   "Maximum for Uniform sampling over common envelope alpha")
 			("sample-common-envelope-alpha-min",                            po::value<double>(&sampleCommonEnvelopeAlphaMin),                                   "Minimum for Uniform sampling over common envelope alpha")
 			("sample-kick-direction-power-max",                             po::value<double>(&sampleKickDirectionPowerMax),                                    "Maximum for Uniform sampling over kick direction powerlaw exponent")
@@ -1036,7 +1049,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 			("sample-luminous-blue-variable-multiplier-min",                po::value<double>(&sampleLuminousBlueVariableMultiplierMin),                        "Minimum for Uniform sampling over multiplicative constant for LBV mass loss")
 			("sample-wolf-rayet-multiplier-max",                            po::value<double>(&sampleWolfRayetMultiplierMax),                                   "Maximum for Uniform sampling over multiplicative constant for WR winds")
 			("sample-wolf-rayet-multiplier-min",                            po::value<double>(&sampleWolfRayetMultiplierMin),                                   "Minimum for Uniform sampling over multiplicative constant for WR winds")
-		    ("semi-major-axis-max",                                         po::value<double>(&semiMajorAxisDistributionMax),                                   "Maximum semi major axis in AU to generate (default = 1000)")
+		    */
+            ("semi-major-axis-max",                                         po::value<double>(&semiMajorAxisDistributionMax),                                   "Maximum semi major axis in AU to generate (default = 1000)")
 		    ("semi-major-axis-min",                                         po::value<double>(&semiMajorAxisDistributionMin),                                   "Minimum semi major axis in AU to generate (default = 0.1)")
 		    ("single-star-mass-max",                                        po::value<double>(&singleStarMassMax),                                              "Maximum mass (in Msol) for single star evolution (default = 100.0)")
             ("single-star-mass-min",                                        po::value<double>(&singleStarMassMin),                                              "Minimum mass (in Msol) for single star evolution (default = 5.0)")
@@ -1049,7 +1063,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 
 		    // string options - alphabetically
-            ("AIS-DCOtype",                                                 po::value<string>(&AISDCOtypeString),                                               "DCO type selection in exploratory phase of STROOPWAFEL, select ALL, BBH, BNS or BHNS")
+// AVG            ("AIS-DCOtype",                                                 po::value<string>(&AISDCOtypeString),                                               "DCO type selection in exploratory phase of STROOPWAFEL, select ALL, BBH, BNS or BHNS")
 
 		  	("black-hole-kicks",                                            po::value<string>(&blackHoleKicksString),                                           "Black hole kicks relative to NS kicks (options: FULL, REDUCED, ZERO, FALLBACK. Default = FALLBACK)")
 
@@ -1129,6 +1143,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
             // boolean options (flags) - alphabetically (where possible - dependencies)
 
+            // AVG - 13/03/2020 - Will just comment this as Floor might uncomment them when they are available
             AISexploratoryPhase                             = vm.count("AIS-exploratory-phase");                                        // exploratory phase of Adaptive Importance Sampling - Floor 24-04-2018.  Do not retain previous (default) value
             AIShubble                                       = vm.count("AIS-Hubble");                                                   // excluding binaries that merge outside Hubble time (exploratory phase AIS)?  Do not retain previous (default) value
             AISpessimistic                                  = vm.count("AIS-Pessimistic");                                              // excluding binaries that are Optimistic (exploratory phase AIS)?  Do not retain previous (default) value
@@ -1208,12 +1223,14 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
             rlofPrinting                                    = vm.count("RLOFPrinting");                                                 // print Roche Lobe overflow details?  Do not retain previous (default) value
 
+// AVG
+            /*
 			sampleCommonEnvelopeAlpha                       = vm.count("sample-common-envelope-alpha");                                 // sample CE alpha?  Do not retain previous (default) value
 			sampleKickDirectionPower                        = vm.count("sample-kick-direction-power");                                  // sample kick direction power?  Do not retain previous (default) value
 			sampleKickVelocitySigma                         = vm.count("sample-kick-velocity-sigma");                                   // sample over some hyperparameters? - JIM BARRETT -- 06/07/2016.  Do not retain previous (default) value
 			sampleLuminousBlueVariableMultiplier            = vm.count("sample-luminous-blue-variable-multiplier");                     // sample LBV multiplier?  Do not retain previous (default) value
 			sampleWolfRayetMultiplier                       = vm.count("sample-wolf-rayet-multiplier");                                 // sample wolf-rayet multiplier?  Do not retain previous (default) valued
-
+            */
             singleStar                                      = vm.count("single-star");                                                  // evolve a single star?  Do not retain previous (default) valued
 
             useFixedUK                                      = vm.count("fix-dimensionless-kick-velocity") && (utils::Compare(fixedUK, 0.0) >= 0);   // fix the dimensionless kick velocity?  Do not retain previous (default) value
@@ -1254,6 +1271,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
             bool found;
 
+            // AVG - 13/03/2020 - Will just comment this as Floor might uncomment them when they are available
             if (vm.count("AIS-DCOtype")) {                                                                                              // Adaptive Importance Sampling DCO type
                 std::tie(found, AISDCOtype) = utils::GetMapKey(AISDCOtypeString, AIS_DCO_LABEL, AISDCOtype);
                 COMPLAIN_IF(!found, "Unknown AIS DCO Type");
