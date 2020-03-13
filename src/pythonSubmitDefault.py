@@ -31,9 +31,9 @@ class pythonProgramOptions:
     #-- amoungst the grid points (as closely as possible). See the hyperparameterGrid method below
     #-- for more details. If this is set to True, some hyperparameter values defined in this method'gridOutputs/'+str(i)
     #-- will be overwritten
-    hyperparameterGrid = False
-    hyperparameterList = False
-    shareSeeds = False
+#    hyperparameterGrid = False
+#    hyperparameterList = False
+#    shareSeeds = False
 
     #-- set inidividual system parameters
     single_star = False
@@ -529,9 +529,14 @@ def specifyCommandLineOptions(programOptions):
     stringChoices = programOptions.stringChoices()
     stringCommands = programOptions.stringCommands()
 
-    listChoices = programOptions.listChoices()
-    listCommands = programOptions.listCommands()
+#    listChoices = programOptions.listChoices()
+#    listCommands = programOptions.listCommands()
+    
+    command = [generateCommandLineOptions(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands)]
 
+    return command
+
+    """
     if programOptions.hyperparameterGrid == True:
         command = hyperparameterGridCommand(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,programOptions.shareSeeds)
 
@@ -544,8 +549,9 @@ def specifyCommandLineOptions(programOptions):
         command = [generateCommandLineOptions(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
 
     return command
+    """
 
-def generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands):
+def generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands):
 
     nBoolean = len(booleanChoices)
     assert len(booleanCommands) == nBoolean
@@ -556,8 +562,8 @@ def generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,
     nString = len(stringChoices)
     assert len(stringCommands) == nString
 
-    nList = len(listChoices)
-    assert len(listCommands) == nList
+#    nList = len(listChoices)
+#    assert len(listCommands) == nList
 
     command = compas_executable + ' '
 
@@ -579,11 +585,11 @@ def generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,
 
             command += stringCommands[i] + ' ' + stringChoices[i] + ' '
 
-    for i in range(nList):
-
-        if listChoices[i]:
-
-            command += listCommands[i] + ' ' + ' '.join(map(str, listChoices[i]))
+#    for i in range(nList):
+#
+#        if listChoices[i]:
+#
+#            command += listCommands[i] + ' ' + ' '.join(map(str, listChoices[i]))
 
     return command
 
