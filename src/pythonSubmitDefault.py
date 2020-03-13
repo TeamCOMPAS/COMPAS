@@ -479,22 +479,6 @@ class pythonProgramOptions:
 
         return stringCommands
 
-    def listChoices(self):
-        listChoices = [
-            self.log_classes,
-            self.debug_classes
-        ]
-
-        return listChoices
-
-    def listCommands(self):
-        listCommands = [
-            '--log-classes',
-            '--debug-classes'
-        ]
-
-        return listCommands
-
 
 def specifyCommandLineOptions(programOptions):
     """
