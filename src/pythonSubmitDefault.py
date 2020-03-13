@@ -128,28 +128,6 @@ class pythonProgramOptions:
     orbital_period_min = 1.1
     orbital_period_max = 1000
 
-    """
-    sample_kick_velocity_sigma = False
-    sample_kick_velocity_sigma_min = 0.0
-    sample_kick_velocity_sigma_max = 400.0
-
-    sample_kick_direction_power = False
-    sample_kick_direction_power_min = -10.0
-    sample_kick_direction_power_max = 10.0
-
-    sample_common_envelope_alpha = False
-    sample_common_envelope_alpha_min = 0.0
-    sample_common_envelope_alpha_max = 5.0
-
-    sample_wolf_rayet_multiplier = False
-    sample_wolf_rayet_multiplier_min = 0.0
-    sample_wolf_rayet_multiplier_max = 10.0
-
-    sample_luminous_blue_variable_multiplier = False
-    sample_luminous_blue_variable_multiplier_min = 0.0
-    sample_luminous_blue_variable_multiplier_max = 10.0
-    """
-
     remnant_mass_prescription = 'FRYER2012'
     fryer_supernova_engine = 'DELAYED'
     black_hole_kicks = 'FALLBACK'
@@ -203,11 +181,6 @@ class pythonProgramOptions:
             self.mass_transfer,
             self.detailed_output,
             self.evolve_unbound_systems,
-#            self.sample_kick_velocity_sigma,
-#            self.sample_kick_direction_power,
-#            self.sample_common_envelope_alpha,
-#            self.sample_wolf_rayet_multiplier,
-#            self.sample_luminous_blue_variable_multiplier,
             self.populationPrinting,
             self.lambda_calculation_every_timestep,
             self.zeta_calculation_every_timestep,
@@ -236,11 +209,6 @@ class pythonProgramOptions:
             '--massTransfer',
             '--detailedOutput',
             '--evolve-unbound-systems',
-#            '--sample-kick-velocity-sigma',
-#            '--sample-kick-direction-power',
-#            '--sample-common-envelope-alpha',
-#            '--sample-wolf-rayet-multiplier',
-#            '--sample-luminous-blue-variable-multiplier',
             '--populationDataPrinting',
             '--lambda-calculation-every-timeStep',
             '--zeta-Calculation-Every-Time-Step',
@@ -300,16 +268,6 @@ class pythonProgramOptions:
             self.kick_velocity_sigma_CCSN_BH,
             self.fix_dimensionless_kick_velocity,
             self.kick_direction_power,
-#            self.sample_kick_velocity_sigma_min,
-#            self.sample_kick_velocity_sigma_max,
-#            self.sample_kick_direction_power_min,
-#            self.sample_kick_direction_power_max,
-#            self.sample_common_envelope_alpha_min,
-#            self.sample_common_envelope_alpha_max,
-#            self.sample_wolf_rayet_multiplier_min,
-#            self.sample_wolf_rayet_multiplier_max,
-#            self.sample_luminous_blue_variable_multiplier_min,
-#            self.sample_luminous_blue_variable_multiplier_max,
             self.random_seed,
             self.mass_transfer_thermal_limit_C,
             self.eddington_accretion_factor,
@@ -375,16 +333,6 @@ class pythonProgramOptions:
             '--kick-velocity-sigma-CCSN-BH',
             '--fix-dimensionless-kick-velocity',
             '--kick-direction-power',
-#            '--sample-kick-velocity-sigma-min',
-#            '--sample-kick-velocity-sigma-max',
-#            '--sample-kick-direction-power-min',
-#            '--sample-kick-direction-power-max',
-#            '--sample-common-envelope-alpha-min',
-#            '--sample-common-envelope-alpha-max',
-#            '--sample-wolf-rayet-multiplier-min',
-#            '--sample-wolf-rayet-multiplier-max',
-#            '--sample-luminous-blue-variable-multiplier-min',
-#            '--sample-luminous-blue-variable-multiplier-max',
             '--random-seed',
             '--mass-transfer-thermal-limit-C',
             '--eddington-accretion-factor',
