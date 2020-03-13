@@ -2,8 +2,6 @@ import numpy as np
 import subprocess
 import sys
 import os
-#import itertools
-#import pickle
 from subprocess import call
 
 class pythonProgramOptions:
@@ -27,6 +25,9 @@ class pythonProgramOptions:
     output = os.getcwd()
 
     single_star = False
+    single_star_mass_steps = 10
+    single_star_mass_min   = 1.0
+    single_star_mass_max   = 75.0
 
     grid_filename = ''
 
@@ -167,11 +168,6 @@ class pythonProgramOptions:
 
     debug_to_file  = False
     errors_to_file = False
-
-    single_star_mass_steps = 10
-    single_star_mass_min   = 1.0
-    single_star_mass_max   = 75.0
-
 
     def booleanChoices(self):
         booleanChoices = [
