@@ -2,8 +2,8 @@ import numpy as np
 import subprocess
 import sys
 import os
-import itertools
-import pickle
+#import itertools
+#import pickle
 from subprocess import call
 
 class pythonProgramOptions:
@@ -26,7 +26,6 @@ class pythonProgramOptions:
 
     output = os.getcwd()
 
-    #-- set inidividual system parameters
     single_star = False
 
     grid_filename = ''
@@ -79,8 +78,8 @@ class pythonProgramOptions:
     eddington_accretion_factor = 1    #multiplication Factor for eddington accretion onto NS&BH
 
     #-- Stability criteria for case BB/BC mass transfer (for BNS project)
-    force_case_BB_BC_stability = True               # Check redundancy
-    always_stable_case_BB_BC = True             # Check redundancy
+    force_case_BB_BC_stability = True               # Case BB/BC is either stable or unstable
+    always_stable_case_BB_BC = True                 # Stable = Ture, Unstable = False. Default = True
     zeta_Main_Sequence = 2.0
     zeta_Hertzsprung_Gap = 6.5
 
