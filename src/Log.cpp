@@ -59,6 +59,7 @@ void Log::Start(const string              p_LogBasePath,
                 const bool                p_DbgToLogfile,
                 const bool                p_ErrorsToLogfile,
                 const string              p_Delimiter) {
+
     if (!m_Enabled) {
         m_Enabled       = true;                                                                                     // logging enabled;
         m_LogBasePath   = p_LogBasePath;                                                                            // set base path

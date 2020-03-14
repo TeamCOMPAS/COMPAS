@@ -4,6 +4,8 @@
 #define OPTIONS Options::Instance()
 
 #include <iostream>
+#include <string>
+#include <sstream>
 
 #include <boost/algorithm/string.hpp>   // Boost string manipulation
 #include <boost/program_options.hpp>    // Boost command line options tools
@@ -51,6 +53,20 @@ using std::get;
 class Options {
 
 
+class MyOption {
+
+
+private:
+
+    string name;
+    boost::variant<int, double, bool> value;
+
+public:
+
+    void add(string p_Name, boost::variant<int, double, bool> p_Value) { };
+};
+
+
 private:
 
     Options() {};
@@ -63,6 +79,8 @@ private:
     void InitialiseMemberVariables(void);
     COMMANDLINE_STATUS CommandLineSorter(int argc, char * argv[]);
 
+
+std::vector<MyOption> myOptions;
 
 public:
 
@@ -321,27 +339,7 @@ private:
     bool                                        printBoolAsString;                                              // flag used to indicate that boolean properties should be printed as "TRUE" or "FALSE" (default is 1 or 0)
     bool                                        quiet;                                                          // suppress some output
 
-    bool                                        useImportanceSampling;                                          // Options for importance sampling
-//    bool                                        useMCMC;                                                        // Simon Stevenson - 15/03/2018 - begining to add MCMC functionality (not yet implemented)
-
     int                                         nBatchesUsed;                                                   // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
-
-
-    // Variables required to restart a binary/star halfway through
-//    int                                         primaryStellarType;                                             // Initial primary stellar type (not yet implemented)
-//    int                                         secondaryStellarType;                                           // Initial secondary stellar type (not yet implemented)
-
-//    double                                      primaryEffectiveInitialMass;                                    // Effective initial mass for the primary in solar masses (not yet implemented)
-//    double                                      secondaryEffectiveInitialMass;                                  // Effective initial mass for the secondary in solar masses (not yet implemented)
-
-//    double                                      primaryCoreMass;                                                // Initial primary core mass in solar masses (not yet implemented)
-//    double                                      secondaryCoreMass;                                              // Initial secondary core mass in solar masses (not yet implemented)
-
-//    double                                      primaryAge;                                                     // Effective age for the primary star in Myrs (not yet implemented)
-//    double                                      secondaryAge;                                                   // Effective age for the secondary star in Myrs (not yet implemented)
-
-//    double                                      primaryRotationalVelocity;                                      // Initial rotational velocity of the primary (not yet implemented)
-//    double                                      secondaryRotationalVelocity;                                    // Initial rotational velocity of the secondary (not yet implemented)
 
 
     // Code variables
