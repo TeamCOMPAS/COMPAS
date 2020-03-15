@@ -52,21 +52,6 @@ using std::get;
 
 class Options {
 
-
-class MyOption {
-
-
-private:
-
-    string name;
-    boost::variant<int, double, bool> value;
-
-public:
-
-    void add(string p_Name, boost::variant<int, double, bool> p_Value) { };
-};
-
-
 private:
 
     Options() {};
@@ -75,12 +60,12 @@ private:
 
     static Options* m_Instance;
 
+    string m_OptionsDetails;
 
     void InitialiseMemberVariables(void);
     COMMANDLINE_STATUS CommandLineSorter(int argc, char * argv[]);
 
-
-std::vector<MyOption> myOptions;
+    string ProgramOptionDetails(const boost::program_options::variables_map p_VM);
 
 public:
 
@@ -147,8 +132,8 @@ public:
     string                                      GridFilename() const                                                    { return gridFilename; }
 
     INITIAL_MASS_FUNCTION                       InitialMassFunction() const                                             { return initialMassFunction; }
-    double                                      InitialMassFunctionMin() const                                          { return initialMassFunctionMin; }
     double                                      InitialMassFunctionMax() const                                          { return initialMassFunctionMax; }
+    double                                      InitialMassFunctionMin() const                                          { return initialMassFunctionMin; }
     double                                      InitialMassFunctionPower() const                                        { return initialMassFunctionPower; }
 
     KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return kickDirectionDistribution; }
@@ -181,13 +166,17 @@ public:
     int                                         LogLevel() const                                                        { return logLevel; }
 
     double                                      LuminousBlueVariableFactor() const                                      { return luminousBlueVariableFactor; }
+
     MASS_LOSS_PRESCRIPTION                      MassLossPrescription() const                                            { return massLossPrescription; }
+
     MASS_RATIO_DISTRIBUTION                     MassRatioDistribution() const                                           { return massRatioDistribution; }
     double                                      MassRatioDistributionMax() const                                        { return massRatioDistributionMax; }
     double                                      MassRatioDistributionMin() const                                        { return massRatioDistributionMin; }
+
     MT_ACCRETION_EFFICIENCY_PRESCRIPTION        MassTransferAccretionEfficiencyPrescription() const                     { return massTransferAccretionEfficiencyPrescription; }
     MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION       MassTransferAngularMomentumLossPrescription() const                     { return massTransferAngularMomentumLossPrescription; }
     double                                      MassTransferCParameter() const                                          { return massTransferCParameter; }
+
     bool                                        MassTransferCriticalMassRatioGiant() const                              { return massTransferCriticalMassRatioGiant; }
     double                                      MassTransferCriticalMassRatioGiantDegenerateAccretor() const            { return massTransferCriticalMassRatioGiantDegenerateAccretor; }
     double                                      MassTransferCriticalMassRatioGiantNonDegenerateAccretor() const         { return massTransferCriticalMassRatioGiantNonDegenerateAccretor; }
@@ -210,6 +199,8 @@ public:
     double                                      MassTransferCriticalMassRatioMSLowMassDegenerateAccretor() const        { return massTransferCriticalMassRatioMSLowMassDegenerateAccretor; }
     double                                      MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor() const     { return massTransferCriticalMassRatioMSLowMassNonDegenerateAccretor; }
     bool                                        MassTransferCriticalMassRatioWhiteDwarf() const                         { return massTransferCriticalMassRatioWhiteDwarf; }
+
+    double                                      MassTransferFractionAccreted() const                                    { return massTransferFractionAccreted; }
     double                                      MassTransferJloss() const                                               { return massTransferJloss; }
     MT_PRESCRIPTION                             MassTransferPrescription() const                                        { return massTransferPrescription; }
     MT_REJUVENATION_PRESCRIPTION                MassTransferRejuvenationPrescription() const                            { return massTransferRejuvenationPrescription; }
@@ -235,7 +226,9 @@ public:
 
     bool                                        OptimisticCHE() const                                                   { return cheOption == CHE_OPTION::OPTIMISTIC; }
 
-    string                                      OutputPathString() const                                                { return outputPathString; }
+    string                                      OptionsDetails() const                                                  { return m_OptionsDetails; }
+
+    string                                      OutputPathString() const                                                { return outputPath.string(); }
 
     double                                      PairInstabilityLowerLimit() const                                       { return pairInstabilityLowerLimit; }
     double                                      PairInstabilityUpperLimit() const                                       { return pairInstabilityUpperLimit; }
@@ -245,6 +238,7 @@ public:
 
     bool                                        PopulationDataPrinting() const                                          { return populationDataPrinting; }
     bool                                        PrintBoolAsString() const                                               { return printBoolAsString; }
+
     PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION    PulsarBirthMagneticFieldDistribution() const                            { return pulsarBirthMagneticFieldDistribution; }
     double                                      PulsarBirthMagneticFieldDistributionMax() const                         { return pulsarBirthMagneticFieldDistributionMax; }
     double                                      PulsarBirthMagneticFieldDistributionMin() const                         { return pulsarBirthMagneticFieldDistributionMin; }
@@ -274,9 +268,11 @@ public:
     bool                                        SampleCommonEnvelopeAlpha() const                                       { return sampleCommonEnvelopeAlpha; }
     double                                      SampleCommonEnvelopeAlphaMax() const                                    { return sampleCommonEnvelopeAlphaMax; }
     double                                      SampleCommonEnvelopeAlphaMin() const                                    { return sampleCommonEnvelopeAlphaMin; }
+
     bool                                        SampleLuminousBlueVariableMultiplier() const                            { return sampleLuminousBlueVariableMultiplier; }
     double                                      SampleLuminousBlueVariableMultiplierMax() const                         { return sampleLuminousBlueVariableMultiplierMax; }
     double                                      SampleLuminousBlueVariableMultiplierMin() const                         { return sampleLuminousBlueVariableMultiplierMin; }
+
     bool                                        SampleWolfRayetMultiplier() const                                       { return sampleWolfRayetMultiplier; }
     double                                      SampleWolfRayetMultiplierMax() const                                    { return sampleWolfRayetMultiplierMax; }
     double                                      SampleWolfRayetMultiplierMin() const                                    { return sampleWolfRayetMultiplierMin; }
@@ -308,6 +304,7 @@ public:
     bool                                        ZetaCalculationEveryTimeStep() const                                    { return zetaCalculationEveryTimeStep; }
     double                                      ZetaHertzsprungGap() const                                              { return zetaHertzsprungGap; }
     double                                      ZetaMainSequence() const                                                { return zetaMainSequence; }
+    double                                      ZetaAdiabaticArbitrary() const                                          { return zetaAdiabaticArbitrary; }
     double                                      ZetaThermalArbitrary() const                                            { return zetaThermalArbitrary; }
 
 
