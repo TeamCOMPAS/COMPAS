@@ -59,6 +59,7 @@ void Log::Start(const string              p_LogBasePath,
                 const bool                p_DbgToLogfile,
                 const bool                p_ErrorsToLogfile,
                 const string              p_Delimiter) {
+
     if (!m_Enabled) {
         m_Enabled       = true;                                                                                     // logging enabled;
         m_LogBasePath   = p_LogBasePath;                                                                            // set base path
@@ -140,8 +141,10 @@ void Log::Stop() {
  *
  * New log file is created at path m_LogBasePath
  *
- * The file extension is based on the parameter p_Delimiter.
- * If the delimiter is TAB or SPACE, the file extension is ".txt"; if the delimiter is COMMA the file extension is ".csv"
+ * The file extension is based on the parameter p_Delimiter:
+ *     - if the delimiter is TAB   the file extension is ".tsv" (Tab Separated Variables)
+ *     - if the delimiter is COMMA the file extension is ".csv" (Comma Separated Variables)
+ *     - if the delimiter is SPACE the file extension is ".txt"
  *
  *
  * int Open(const string p_LogFileName, const bool p_Append, const bool p_TimeStamp, const bool p_Label)
@@ -198,7 +201,12 @@ int Log::Open(const string p_LogFileName, const bool p_Append, const bool p_Time
         m_Logfiles[id].delimiter = (p_Delimiter.empty()) ? m_Delimiter : p_Delimiter;                           // set field delimiter for this log file
 
         string basename = m_LogBasePath + "/" + m_LogNamePrefix + p_LogFileName;                                // base filename with path ("/" works on Uni*x and Windows)
-        string fileext  = m_Logfiles[id].delimiter == "," ? ".csv" : ".txt";                                    // filename extension
+
+        string fileext;                                                                                         // file extension
+             if (m_Logfiles[id].delimiter == DELIMITERValue.at(DELIMITER::COMMA)) fileext = ".csv";             // .csv for delimite = COMMA
+        else if (m_Logfiles[id].delimiter == DELIMITERValue.at(DELIMITER::TAB  )) fileext = ".tsv";             // .tsv for delimite = TAB
+        else                                                                      fileext = ".txt";             // .txt otherwise
+
         string filename = basename + fileext;                                                                   // full filename
 
         int version = 0;                                                                                        // logfile version number if required - start at 1

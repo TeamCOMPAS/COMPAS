@@ -360,9 +360,9 @@ void BaseBinaryStar::SetRemainingCommonValues() {
 	m_MassTransferTrackerHistory                 = MT_TRACKING::NO_MASS_TRANSFER;
     m_MassTransfer                               = false;
 
-    m_JLoss                                      = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_JLoss                                      = OPTIONS->MassTransferJloss();
 
-	m_FractionAccreted                           = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_FractionAccreted                           = OPTIONS->MassTransferFractionAccreted();
 
     m_FastPhaseCaseA                             = false;
 
@@ -2746,8 +2746,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 	bool qCritFlag = OPTIONS->MassTransferCriticalMassRatioMSLowMass()   || OPTIONS->MassTransferCriticalMassRatioMSHighMass()  ||
 	                 OPTIONS->MassTransferCriticalMassRatioHG()          || OPTIONS->MassTransferCriticalMassRatioGiant()       ||
 	                 OPTIONS->MassTransferCriticalMassRatioHeliumGiant() || OPTIONS->MassTransferCriticalMassRatioHeliumMS()    ||
-                     OPTIONS->MassTransferCriticalMassRatioHeliumHG()    || OPTIONS->MassTransferCriticalMassRatioHeliumGiant() ||
-                     OPTIONS->MassTransferCriticalMassRatioWhiteDwarf();
+                     OPTIONS->MassTransferCriticalMassRatioHeliumHG()    || OPTIONS->MassTransferCriticalMassRatioWhiteDwarf();
 
     if (m_Donor->IsMassRatioUnstable(m_Accretor->Mass(), m_Accretor->IsDegenerate()) && qCritFlag) {
         m_CEDetails.CEEnow = true;
