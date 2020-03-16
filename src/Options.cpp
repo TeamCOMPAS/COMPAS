@@ -184,7 +184,6 @@ void Options::InitialiseMemberVariables(void) {
     evolvePulsars                                                   = false;                                                                            // Whether to evolve pulsars
 	evolveUnboundSystems                                            = false;                                                                            // Allow unbound syetms to evolve
     onlyDoubleCompactObjects                                        = false;                                                                            // Flag to turn on some shortcuts to only evolve systems which may form double compact objects
-// AVG    PNevolution                                                     = false;
 
     detailedOutput                                                  = false;                                                                            // Detailed output
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
@@ -305,6 +304,8 @@ void Options::InitialiseMemberVariables(void) {
     outputPath                                                      = defaultOutputPath;                                                                // Desired output location
     outputContainerName                                             = DEFAULT_OUTPUT_CONTAINER_NAME;                                                    // Output container - this is a container (directory) created at outputPath to hold all output files
     
+    // AVG
+    /*
     // Spin options
     spinDistribution                                                = SPIN_DISTRIBUTION::FIXED;
     spinDistributionString                                          = SPIN_DISTRIBUTION_LABEL.at(spinDistribution);
@@ -313,7 +314,7 @@ void Options::InitialiseMemberVariables(void) {
 
     spinAssumption                                                  = SPIN_ASSUMPTION::ALIGNED;
     spinAssumptionString                                            = SPIN_ASSUMPTION_LABEL.at(spinAssumption);
-
+    */
 
     // Tides options
     tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
@@ -573,7 +574,6 @@ void Options::SetToFiducialValues(void) {
     evolvePulsars                                                   = false;                                                                            // Whether to evolve pulsars
 	evolveUnboundSystems                                            = false;                                                                            // Allow unbound syetms to evolve
     onlyDoubleCompactObjects                                        = false;                                                                            // Flag to turn on some shortcuts to only evolve systems which may form double compact objects
-// AVG    PNevolution                                                     = false;
 
     detailedOutput                                                  = false;                                                                            // Detailed output
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
@@ -701,6 +701,8 @@ void Options::SetToFiducialValues(void) {
     outputPath                                                      = defaultOutputPath;                                                                // Desired output location
     outputContainerName                                             = DEFAULT_OUTPUT_CONTAINER_NAME;                                                    // Output container - this is a container (directory) created at outputPath to hold all output files
 
+    // AVG
+    /*
     // Spin options
     spinDistribution                                                = SPIN_DISTRIBUTION::ZERO;
     spinDistributionString                                          = SPIN_DISTRIBUTION_LABEL.at(spinDistribution);
@@ -709,7 +711,7 @@ void Options::SetToFiducialValues(void) {
 
     spinAssumption                                                  = SPIN_ASSUMPTION::ALIGNED;
     spinAssumptionString                                            = SPIN_ASSUMPTION_LABEL.at(spinAssumption);
-
+    */
 
     // Tides options
     tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
@@ -1040,7 +1042,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
    		   	("massTransfer",                                                po::value<bool>(&useMassTransfer)->default_value(useMassTransfer)->implicit_value(true),                                                                    ("Enable mass transfer (default = " + std::string(useMassTransfer ? "TRUE" : "FALSE") + ")").c_str())
 		    ("only-double-compact-objects",                                 po::value<bool>(&onlyDoubleCompactObjects)->default_value(onlyDoubleCompactObjects)->implicit_value(true),                                                  ("Only evolve binaries which may form double compact objects (default = " + std::string(onlyDoubleCompactObjects ? "TRUE" : "FALSE") + ")").c_str())
 		    ("pair-instability-supernovae",                                 po::value<bool>(&usePairInstabilitySupernovae)->default_value(usePairInstabilitySupernovae)->implicit_value(true),                                          ("Enable pair instability supernovae (PISN) (default = " + std::string(usePairInstabilitySupernovae ? "TRUE" : "FALSE") + ")").c_str())
-// AVG			("PN",                                                          po::value<bool>(&PNevolution)->default_value(PNevolution)->implicit_value(true),                                                                            ("Enable post-newtonian evolution (default = " + std::string(PNevolution ? "TRUE" : "FALSE") + ")").c_str())
             ("populationDataPrinting",                                      po::value<bool>(&populationDataPrinting)->default_value(populationDataPrinting)->implicit_value(true),                                                      ("Print details of population (default = " + std::string(populationDataPrinting ? "TRUE" : "FALSE") + ")").c_str())
 		    ("print-bool-as-string",                                        po::value<bool>(&printBoolAsString)->default_value(printBoolAsString)->implicit_value(true),                                                                ("Print boolean properties as 'TRUE' or 'FALSE' (default = " + std::string(printBoolAsString ? "TRUE" : "FALSE") + ")").c_str())
 		    ("pulsational-pair-instability",                                po::value<bool>(&usePulsationalPairInstability)->default_value(usePulsationalPairInstability)->implicit_value(true),                                        ("Enable mass loss due to pulsational-pair-instability (PPI) (default = " + std::string(usePulsationalPairInstability ? "TRUE" : "FALSE") + ")").c_str())
@@ -1164,8 +1165,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("semi-major-axis-min",                                         po::value<double>(&semiMajorAxisDistributionMin)->default_value(semiMajorAxisDistributionMin),                                                              ("Minimum semi major axis in AU to generate (default = " + std::to_string(semiMajorAxisDistributionMin) + ")").c_str())
 		    ("single-star-mass-max",                                        po::value<double>(&singleStarMassMax)->default_value(singleStarMassMax),                                                                                    ("Maximum mass (in Msol) for single star evolution (default = " + std::to_string(singleStarMassMax) + ")").c_str())
             ("single-star-mass-min",                                        po::value<double>(&singleStarMassMin)->default_value(singleStarMassMin),                                                                                    ("Minimum mass (in Msol) for single star evolution (default = " + std::to_string(singleStarMassMin) + ")").c_str())
-		    ("spin-mag-max",                                                po::value<double>(&spinDistributionMax)->default_value(spinDistributionMax),                                                                                ("Maximum magnitude of spin (default = " + std::to_string(spinDistributionMax) + ")").c_str())
-		    ("spin-mag-min",                                                po::value<double>(&spinDistributionMin)->default_value(spinDistributionMin),                                                                                ("Minimum magnitude of spin (default = " + std::to_string(spinDistributionMin) + ")").c_str())
+// AVG		    ("spin-mag-max",                                                po::value<double>(&spinDistributionMax)->default_value(spinDistributionMax),                                                                                ("Maximum magnitude of spin (default = " + std::to_string(spinDistributionMax) + ")").c_str())
+// AVG		    ("spin-mag-min",                                                po::value<double>(&spinDistributionMin)->default_value(spinDistributionMin),                                                                                ("Minimum magnitude of spin (default = " + std::to_string(spinDistributionMin) + ")").c_str())
 
 		    ("wolf-rayet-multiplier",                                       po::value<double>(&wolfRayetFactor)->default_value(wolfRayetFactor),                                                                                        ("Multiplicitive constant for WR winds (default = " + std::to_string(wolfRayetFactor) + ")").c_str())
 
@@ -1234,8 +1235,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		    ("semi-major-axis-distribution,a",                              po::value<string>(&semiMajorAxisDistributionString)->default_value(semiMajorAxisDistributionString),                                                        ("Initial semi-major axis distribution, a (options: FLATINLOG, CUSTOM, DuquennoyMayor1991, SANA2012), default = " + semiMajorAxisDistributionString + ")").c_str())
 
-		    ("spin-assumption",                                             po::value<string>(&spinAssumptionString)->default_value(spinAssumptionString),                                                                              ("Misalignedments assumption (default = " + spinAssumptionString + ")").c_str())
-		    ("spin-distribution",                                           po::value<string>(&spinDistributionString)->default_value(spinDistributionString),                                                                          ("Spin distribution (default = " + spinDistributionString + ")").c_str())
+// AVG		    ("spin-assumption",                                             po::value<string>(&spinAssumptionString)->default_value(spinAssumptionString),                                                                              ("Misalignedments assumption (default = " + spinAssumptionString + ")").c_str())
+// AVG		    ("spin-distribution",                                           po::value<string>(&spinDistributionString)->default_value(spinDistributionString),                                                                          ("Spin distribution (default = " + spinDistributionString + ")").c_str())
 
 		    ("tides-prescription",                                          po::value<string>(&tidesPrescriptionString)->default_value(tidesPrescriptionString),                                                                        ("Tides prescription (options: default = " + tidesPrescriptionString + ")").c_str())
 
@@ -1426,6 +1427,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 COMPLAIN_IF(!found, "Unknown Semi-Major Axis Distribution");
             }
 
+            // AVG
+            /*
 			if (!vm["spin-assumption"].defaulted()) {                                                                                   // spin assumption
                 std::tie(found, spinAssumption) = utils::GetMapKey(spinAssumptionString, SPIN_ASSUMPTION_LABEL, spinAssumption);
                 COMPLAIN_IF(!found, "Unknown Spin Assumption");
@@ -1435,6 +1438,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 std::tie(found, spinDistribution) = utils::GetMapKey(spinDistributionString, SPIN_DISTRIBUTION_LABEL, spinDistribution);
                 COMPLAIN_IF(!found, "Unknown Spin Assumption");
 			}
+            */
 
             if (!vm["tides-prescription"].defaulted()) {                                                                                // tides prescription
                 std::tie(found, tidesPrescription) = utils::GetMapKey(tidesPrescriptionString, TIDES_PRESCRIPTION_LABEL, tidesPrescription);

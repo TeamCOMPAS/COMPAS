@@ -536,8 +536,6 @@ private:
     void    CheckMassTransfer(const double p_Dt);
     void    InitialiseMassTransfer();
 
-// AVG    DBL_DBL CalculateMisalignments();
-
     double  CalculateOrbitalAngularMomentum(const double p_Mu,
                                             const double p_Mass,
                                             const double p_SemiMajorAxis)   { return p_Mu * sqrt(G1 * p_Mass * p_SemiMajorAxis); }
@@ -620,7 +618,6 @@ private:
     double  SampleInitialMassDistribution();
     double  SampleMetallicityDistribution();
     double  SampleQDistribution();
-// AVG    double  SampleSpinDistribution();
 
     void    SetPostCEEValues(const double p_SemiMajorAxis,
                              const double p_Eccentricity,
