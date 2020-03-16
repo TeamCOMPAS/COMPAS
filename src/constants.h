@@ -232,9 +232,11 @@
 //                                                   - other parameters - calculated/determined - are recorded
 //                                   Defect repair:
 //                                       - changed "--outut" option name to "--outpuPath" in stringCommands in pythonSubmitDefault.py
+// 02.08.00		AVG - Mar 16, 2020 - Changed functionality:
+//										- removed post-newtonian spin evolution	code & associated pythonSubmitDefault.py options									
 
 
-const std::string VERSION_STRING = "02.07.00";
+const std::string VERSION_STRING = "02.08.00";
 
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)

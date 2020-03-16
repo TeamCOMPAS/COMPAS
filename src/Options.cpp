@@ -184,7 +184,7 @@ void Options::InitialiseMemberVariables(void) {
     evolvePulsars                                                   = false;                                                                            // Whether to evolve pulsars
 	evolveUnboundSystems                                            = false;                                                                            // Allow unbound syetms to evolve
     onlyDoubleCompactObjects                                        = false;                                                                            // Flag to turn on some shortcuts to only evolve systems which may form double compact objects
-    PNevolution                                                     = false;
+// AVG    PNevolution                                                     = false;
 
     detailedOutput                                                  = false;                                                                            // Detailed output
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
@@ -573,7 +573,7 @@ void Options::SetToFiducialValues(void) {
     evolvePulsars                                                   = false;                                                                            // Whether to evolve pulsars
 	evolveUnboundSystems                                            = false;                                                                            // Allow unbound syetms to evolve
     onlyDoubleCompactObjects                                        = false;                                                                            // Flag to turn on some shortcuts to only evolve systems which may form double compact objects
-    PNevolution                                                     = false;
+// AVG    PNevolution                                                     = false;
 
     detailedOutput                                                  = false;                                                                            // Detailed output
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
@@ -1040,7 +1040,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
    		   	("massTransfer",                                                po::value<bool>(&useMassTransfer)->default_value(useMassTransfer)->implicit_value(true),                                                                    ("Enable mass transfer (default = " + std::string(useMassTransfer ? "TRUE" : "FALSE") + ")").c_str())
 		    ("only-double-compact-objects",                                 po::value<bool>(&onlyDoubleCompactObjects)->default_value(onlyDoubleCompactObjects)->implicit_value(true),                                                  ("Only evolve binaries which may form double compact objects (default = " + std::string(onlyDoubleCompactObjects ? "TRUE" : "FALSE") + ")").c_str())
 		    ("pair-instability-supernovae",                                 po::value<bool>(&usePairInstabilitySupernovae)->default_value(usePairInstabilitySupernovae)->implicit_value(true),                                          ("Enable pair instability supernovae (PISN) (default = " + std::string(usePairInstabilitySupernovae ? "TRUE" : "FALSE") + ")").c_str())
-			("PN",                                                          po::value<bool>(&PNevolution)->default_value(PNevolution)->implicit_value(true),                                                                            ("Enable post-newtonian evolution (default = " + std::string(PNevolution ? "TRUE" : "FALSE") + ")").c_str())
+// AVG			("PN",                                                          po::value<bool>(&PNevolution)->default_value(PNevolution)->implicit_value(true),                                                                            ("Enable post-newtonian evolution (default = " + std::string(PNevolution ? "TRUE" : "FALSE") + ")").c_str())
             ("populationDataPrinting",                                      po::value<bool>(&populationDataPrinting)->default_value(populationDataPrinting)->implicit_value(true),                                                      ("Print details of population (default = " + std::string(populationDataPrinting ? "TRUE" : "FALSE") + ")").c_str())
 		    ("print-bool-as-string",                                        po::value<bool>(&printBoolAsString)->default_value(printBoolAsString)->implicit_value(true),                                                                ("Print boolean properties as 'TRUE' or 'FALSE' (default = " + std::string(printBoolAsString ? "TRUE" : "FALSE") + ")").c_str())
 		    ("pulsational-pair-instability",                                po::value<bool>(&usePulsationalPairInstability)->default_value(usePulsationalPairInstability)->implicit_value(true),                                        ("Enable mass loss due to pulsational-pair-instability (PPI) (default = " + std::string(usePulsationalPairInstability ? "TRUE" : "FALSE") + ")").c_str())
