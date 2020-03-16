@@ -15,7 +15,7 @@
 ## 1. Installing COMPAS and Dependencies
 First change to the directory within which you wish to store your copy of COMPAS. In the rest of this document, we use as an example `~/codes`:
 
-    cd $~/codes
+    cd ~/codes
 
 Use `git clone` to download the COMPAS repository. If you do not have git installed, you may follow the instructions on https://www.atlassian.com/git/tutorials/install-git.
  
@@ -43,6 +43,10 @@ To download, install, and compile boost,
 To download, install, and compile gsl,
 
     sudo apt-get install libgsl-dev
+
+For RHEL family OSs, Red Hat, Fedora, and related distributions, use the yum package manager:
+
+    sudo yum install gcc boost-devel gsl gsl-devel   
 
 ### 1.2 Instructions for macOS
 We suggest you first update to the latest version of macOS through the App Store. You can find what macOS version you are using by clicking on the Apple symbol on the top left of your screen and clicking "About This Mac".
@@ -74,6 +78,10 @@ Time to actually install COMPAS. We first need to define an environment variable
 where `~/codes` should be replaced with the path to the directory where you cloned the COMPAS repository. For this to take effect, either restart your bash session or run
 
     source ~/.bashrc
+
+For csh shell, the environment variable may be set by
+
+    setenv COMPAS_ROOT_DIR ~/codes/COMPAS
     
 Now go to the COMPAS source code directory:
 
