@@ -22,9 +22,10 @@ class pythonProgramOptions:
     if os.path.isfile(randomSeedFileName):
         random_seed = int(np.loadtxt(randomSeedFileName))
     else:
-        random_seed = 0 # If you want a random seed, use: np.random.randint(2,2**63-1)
+        random_seed = 0 # If you want a randome seed, use: np.random.randint(2,2**63-1)
 
     output = os.getcwd()
+    output_container = None                 # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
 
     #-- option to make a grid of hyperparameter values at which to produce populations.
     #-- If this is set to true, it will divide the number_of_binaries parameter equally
@@ -560,6 +561,7 @@ class pythonProgramOptions:
             self.kick_velocity_distribution,
             self.kick_direction,
             self.output,
+            self.output_container,
             self.common_envelope_lambda_prescription,
             self.common_envelope_zeta_prescription,
             self.mass_transfer_thermal_limit_accretor,
@@ -605,7 +607,8 @@ class pythonProgramOptions:
             '--black-hole-kicks',
             '--kick-velocity-distribution',
             '--kick-direction',
-            '--output',
+            '--outputPath',
+            '--output-container',
             '--common-envelope-lambda-prescription',
             '--common-envelope-zeta-prescription',
             '--mass-transfer-thermal-limit-accretor',
