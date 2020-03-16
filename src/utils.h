@@ -3,7 +3,7 @@
 
 #include "constants.h"
 #include "typedefs.h"
-#include <algorithm>
+#include <algorithm> 
 
 namespace utils {
 
@@ -76,7 +76,7 @@ namespace utils {
 
     double                      SolveQuadratic(const double p_A, const double p_B, double p_C);
 
-    void                        SplashScreen();
+    std::string                 SplashScreen();
 
 
     /*
