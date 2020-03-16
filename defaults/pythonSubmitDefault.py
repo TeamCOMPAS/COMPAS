@@ -2,8 +2,6 @@ import numpy as np
 import subprocess
 import sys
 import os
-import itertools
-import pickle
 from subprocess import call
 
 class pythonProgramOptions:
