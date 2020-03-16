@@ -22,7 +22,7 @@ class pythonProgramOptions:
     if os.path.isfile(randomSeedFileName):
         random_seed = int(np.loadtxt(randomSeedFileName))
     else:
-        random_seed = 0 # If you want a randome seed, use: np.random.randint(2,2**63-1)
+        random_seed = 0 # If you want a random seed, use: np.random.randint(2,2**63-1)
 
     output = os.getcwd()
 
