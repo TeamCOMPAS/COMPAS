@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>1_slicingData</title>
+<title>2_MSSFR</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13073,19 +13073,25 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h1><p>The most important number in the COMPAS data is the seed. The seed represents the unique identifier to a specific system in a simulation. Therefore the properties of a single system can be recovered by looking at seeds in different types of files.</p>
-<p>Here we introduce the basics of manipulating the data using the seeds. For example how we get the initial parameters of systems that ended up forming double compact objects</p>
-<p>Most often we start using python with 'for loops' and add the systems of interest to a list. However, such loops might take long.
-Here we present how we can more efficiently 'slice' the data using boolean masks. These are slightly more demanding but are quick and use intuitive logic.</p>
-<p>We assume you already have a h5file with data, if not see in section 1 how you can create the h5file using the csv data of your simulation, or download some data from compas.science.</p>
-<h1 id="careful-these-cells-show-examples-which--take-long-if-you-test-them-on-large-data.">careful these cells show examples which  take long if you test them on large data.<a class="anchor-link" href="#careful-these-cells-show-examples-which--take-long-if-you-test-them-on-large-data.">&#182;</a></h1>
+<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h1><p>The universe evolved over time and as such the star formation rate and the metallicity of the starforming gas change. The ClassMSSFR is a script which determines the amount of star formation that went into forming a system born at redshift z, in a metallicity bin dZ.</p>
+<p>For this script we assume that the SFR(z) and the metallicity distribution are independent of each other.
+Hence the SFR is simply a normalization to the PDF of the metallicity distribution. Note that these distributions are averages over all galaxies at a specific redshift z and hence do not apply to specific galaxies.</p>
+<p>The script allows for several combinations of distributions.
+To this end we have to define the following steps</p>
+<p>1 - Instance of the MSSFR class where we define constants</p>
+<p>2 - Pick a SFR distribution</p>
+<p>3 - Pick a metallicity distribution.</p>
+<p>Note that although this is meant to be used in the cosmic integration pipeline, 
+this class can be independently used to plot distributions or as input for other calculations</p>
+<p>4 - Example of plotting</p>
+
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Path-to-be-set-by-user">Path to be set by user<a class="anchor-link" href="#Path-to-be-set-by-user">&#182;</a></h1>
+<h1 id="Paths-needed">Paths needed<a class="anchor-link" href="#Paths-needed">&#182;</a></h1>
 </div>
 </div>
 </div>
@@ -13094,7 +13100,10 @@ Here we present how we can more efficiently 'slice' the data using boolean masks
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pathToData</span> <span class="o">=</span> <span class="s1">&#39;/home/cneijssel/Desktop/Test/COMPAS_output.h5&#39;</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">pathNoteBook</span>     <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+<span class="n">pathClassMSSFR</span>  <span class="o">=</span> <span class="n">pathNoteBook</span> <span class="o">+</span> <span class="s1">&#39;/PythonScripts/&#39;</span>
 </pre></div>
 
     </div>
@@ -13114,10 +13123,12 @@ Here we present how we can more efficiently 'slice' the data using boolean masks
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#python libraries</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>               <span class="c1">#for handling arrays</span>
-<span class="kn">import</span> <span class="nn">h5py</span> <span class="k">as</span> <span class="nn">h5</span>                <span class="c1">#for reading the COMPAS data</span>
-<span class="kn">import</span> <span class="nn">time</span>                      <span class="c1">#for timeing computation time</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="c1">#custom scripts</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pathClassMSSFR</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">ClassMSSFR</span>
 </pre></div>
 
     </div>
@@ -13125,15 +13136,101 @@ Here we present how we can more efficiently 'slice' the data using boolean masks
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="1---Instance-MSSFR-class">1 - Instance MSSFR class<a class="anchor-link" href="#1---Instance-MSSFR-class">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To create an instance we need to define the following parameters;</p>
+<p>Here are the possible parameters and their default values</p>
+
+<pre><code>verbose             =False,
+
+metallicityGrid     =None,
+
+binInLogSpace        =True,
+metallicityLowerLimit=1E-90, 
+metallicityUpperLimit=1.
+
+logOH12sun           =8.69,     
+solarMetallicity     =0.0142, 
+cosmo                =None</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>verbose:</p>
+
+<pre><code>If to print messages of intermediate during the calculation
+
+</code></pre>
+<p>metallicityGrid:</p>
+
+<pre><code>The grid assumed in order to create the metallicity bins dZ. By default set to None
+and in a pipeline it is automatically passed from the ClassCOMPAS file.
+
+
+</code></pre>
+<p>binInLogSpace:</p>
+
+<pre><code>To create the bin edges you can either choose the midpoint between Z1 and Z2 or 
+alternatively you can choose the midpoint between log(Z1) and log(Z2). Since most distributions
+work in the logZ space it seemed more appropriate. The difference is not large. Else it hints
+of having too few gridpoints in metallicity since the curve changes a lot between Z1 and Z2.
+
+</code></pre>
+<p>metallicityLowerLimit:</p>
+
+<pre><code>Since we integrate over dZ we need to define a lower limit 
+of the metallicity mass Fraction Z in our integral.
+We set it close to zero, but non-zero to avoid division by zero errors
+
+</code></pre>
+<p>metallicityUpperLimit:</p>
+
+<pre><code>Since we integrate over dZ we need to define a upper limit 
+of the metallicity mass Fraction Z in our integral. 
+Since a fraction cannot go higher than 1 we set it to 1.
+
+</code></pre>
+<p>logOH12sun:</p>
+
+<pre><code>The assumed solar oxygen abundance (Asplund)
+
+</code></pre>
+<p>solarMetallicity:</p>
+
+<pre><code>The assumed solar metallicity mass fraction (Asplund)
+
+</code></pre>
+<p>cosmo:</p>
+
+<pre><code>The assumed universe (omegaM, Omega Lambda etc) to translate between age/distance/time.
+If None it is set to WMAP9. In the cosmic integration pipeline the class is automatically is set by the
+ClassCosmicIntegrator.</code></pre>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Data</span>  <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">pathToData</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">Data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-<span class="n">nrSystems</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()])</span>
-<span class="n">Data</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#We use the defaults and for illustration purposes invent our own grid</span>
+
+<span class="c1">#Absolute metallicities</span>
+<span class="n">metallicityGrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.5</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="n">MSSFR</span> <span class="o">=</span> <span class="n">ClassMSSFR</span><span class="o">.</span><span class="n">MSSFR</span><span class="p">(</span><span class="n">metallicityGrid</span><span class="o">=</span><span class="n">metallicityGrid</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13150,7 +13247,8 @@ Here we present how we can more efficiently 'slice' the data using boolean masks
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>&lt;KeysViewHDF5 [&#39;CommonEnvelopes&#39;, &#39;DoubleCompactObjects&#39;, &#39;Supernovae&#39;, &#39;SystemParameters&#39;]&gt;
+<pre>ClassMSSFR: Remember to set self.SFRprescription() + subparts
+                            self.Zprescription()   +sub-parts
 </pre>
 </div>
 </div>
@@ -13162,23 +13260,7 @@ Here we present how we can more efficiently 'slice' the data using boolean masks
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The print statement shows the different types of files that are combined in your h5file.
-Now the seed is the number that links the information of say the supernovae to the information in the SystemParameters</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Question:-What-were-the-initial-total-masses-of-the-double-compact-objects">Question: What were the initial total masses of the double compact objects<a class="anchor-link" href="#Question:-What-were-the-initial-total-masses-of-the-double-compact-objects">&#182;</a></h3>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="The-classic-way-when-starting-with-python">The classic way when starting with python<a class="anchor-link" href="#The-classic-way-when-starting-with-python">&#182;</a></h3>
+<h1 id="2---Pick-a-SFR-distribution">2 - Pick a SFR distribution<a class="anchor-link" href="#2---Pick-a-SFR-distribution">&#182;</a></h1>
 </div>
 </div>
 </div>
@@ -13187,34 +13269,47 @@ Now the seed is the number that links the information of say the supernovae to t
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">returnTotalMasses</span><span class="p">(</span><span class="n">pathData</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">Data</span>  <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">pathToData</span><span class="p">)</span>
-    
-    <span class="n">totalMasses</span> <span class="o">=</span> <span class="p">[]</span>
-    
-    <span class="c1">#for syntax see section 1 with basic syntax</span>
-    <span class="n">seedsDCOs</span>     <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;DoubleCompactObjects&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()]</span>
-    
-    <span class="c1">#get info from ZAMS</span>
-    <span class="n">seedsSystems</span>  <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()]</span>
-    <span class="n">M1ZAMSs</span>       <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;Mass@ZAMS_1&#39;</span><span class="p">][()]</span>
-    <span class="n">M2ZAMSs</span>       <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;Mass@ZAMS_2&#39;</span><span class="p">][()]</span>
-
-    
-    
-    <span class="k">for</span> <span class="n">seedDCO</span> <span class="ow">in</span> <span class="n">seedsDCOs</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">nrseed</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">seedsSystems</span><span class="p">)):</span>
-            <span class="n">seedSystem</span> <span class="o">=</span> <span class="n">seedsSystems</span><span class="p">[</span><span class="n">nrseed</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">seedSystem</span> <span class="o">==</span> <span class="n">seedDCO</span><span class="p">:</span>
-                <span class="n">M1</span> <span class="o">=</span> <span class="n">M1ZAMSs</span><span class="p">[</span><span class="n">nrseed</span><span class="p">]</span>
-                <span class="n">M2</span> <span class="o">=</span> <span class="n">M2ZAMSs</span><span class="p">[</span><span class="n">nrseed</span><span class="p">]</span>
-                <span class="n">Mtot</span> <span class="o">=</span> <span class="n">M1</span><span class="o">+</span><span class="n">M2</span>
-                <span class="n">totalMasses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Mtot</span><span class="p">)</span>
-    <span class="n">Data</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">totalMasses</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">MSSFR</span><span class="o">.</span><span class="n">printSFRoptions</span><span class="p">())</span>
 </pre></div>
 
     </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+        Default instance:
+        self.SFRprescription       = None 
+
+        pass string
+        Current Options  = &#39;Madau et al. (2014)&#39;
+                           &#39;Madau et al. (2017)&#39;
+                           &#39;Strolger et al. (2004)&#39;
+                           &#39;Neijssel et al. (2019)&#39;
+                           &#39;Custom SFR&#39;
+
+        If you use Custom SFR also set the constants
+        you want to use
+
+        self.customSFR = [a,b,c,d] 
+        
+        which are used in a Madau et al like formula (see source code)
+
+        
+None
+</pre>
+</div>
+</div>
+
 </div>
 </div>
 
@@ -13224,62 +13319,48 @@ Now the seed is the number that links the information of say the supernovae to t
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span>   <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">MtotOld</span> <span class="o">=</span> <span class="n">returnTotalMasses</span><span class="p">(</span><span class="n">pathData</span><span class="o">=</span><span class="n">pathToData</span><span class="p">)</span>
-<span class="n">end</span>     <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="s1">&#39;seconds for </span><span class="si">%s</span><span class="s1"> systems&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">nrSystems</span><span class="p">))</span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Based on the options above lets pick the one of the paper</span>
+
+<span class="n">MSSFR</span><span class="o">.</span><span class="n">SFRprescription</span> <span class="o">=</span> <span class="s1">&#39;Neijssel et al. (2019)&#39;</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>118.17710280418396 seconds for 300000 systems
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Steps-of-optimising-the-above-loop">Steps of optimising the above loop<a class="anchor-link" href="#Steps-of-optimising-the-above-loop">&#182;</a></h1><h2 id="1---using-boolean-masks-in-one-file">1 - using boolean masks in one file<a class="anchor-link" href="#1---using-boolean-masks-in-one-file">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>an array and a list are both series of input. 
-However, when you work with arrays you can use numpy to do some optimsed tricks
-for example. Adding the entries of two lists</p>
+<h1 id="3-Pick-a-metallicity-distribution">3 Pick a metallicity distribution<a class="anchor-link" href="#3-Pick-a-metallicity-distribution">&#182;</a></h1><p>The metallicity distribution comes in two types of flavours.</p>
+<h3 id="3.1-Mass-metallicity-and-galaxy-stellar-mass-function">3.1 Mass metallicity and galaxy stellar mass function<a class="anchor-link" href="#3.1-Mass-metallicity-and-galaxy-stellar-mass-function">&#182;</a></h3><p>The first combines a densitity distribution of galaxy stellar masses (GSMF) 
+with a mass metallicity relation (MZ) relation in order to create a metallicity density function.
+In our code instead we translate from metallicity to mass to solve the integral hence we use the inverse
+ZM functions. The original MZ functions are still in the source code for plotting/testing purposes</p>
+<p>If you want to use these variations then first set the metallicity prescription to 'MZ_GSMF'</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Data</span>  <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">pathToData</span><span class="p">)</span>
-
-<span class="n">M1ZAMS</span>  <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;Mass@ZAMS_1&#39;</span><span class="p">][()]</span>
-<span class="n">M2ZAMS</span>  <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;Mass@ZAMS_2&#39;</span><span class="p">][()]</span>
-<span class="n">Mtotal</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">M1ZAMS</span><span class="p">,</span> <span class="n">M2ZAMS</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">MSSFR</span><span class="o">.</span><span class="n">Zprescription</span> <span class="o">=</span> <span class="s1">&#39;MZ_GSMF&#39;</span>
 </pre></div>
 
     </div>
@@ -13290,9 +13371,9 @@ for example. Adding the entries of two lists</p>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>A useful trick is when you want elements based on a condition.
-Where in the classic way we put the condition in a for loop and if statement,
-now we will work with an array of booleans or so called masks</p>
+<p>Then pick your favourite GSMF and MZ relation
+To look at the options. Please note that not all distributions are metallicity dependent
+and some rely on fits to the results of the original paper and therefore can behave poorly when pushed to extremes such as at high redshifts for example Furlong et al.</p>
 
 </div>
 </div>
@@ -13302,88 +13383,7 @@ now we will work with an array of booleans or so called masks</p>
 <div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#mask which gives total masses below or equal to 40</span>
-<span class="n">maskMtot</span> <span class="o">=</span> <span class="n">Mtotal</span> <span class="o">&lt;=</span><span class="mi">40</span>
-<span class="c1">#apply mask to get the masses</span>
-<span class="n">MtotalBelow40</span> <span class="o">=</span> <span class="n">Mtotal</span><span class="p">[</span><span class="n">maskMtot</span><span class="p">]</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The crucial trick is that you can apply this mask to other columns in the same file 
-as long as you keep the length of the mask the same to the column that you apply it to.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># seeds of systems with total masses below 40</span>
-<span class="n">seeds</span>  <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()]</span>
-<span class="n">seedsMtotBelow40</span> <span class="o">=</span> <span class="n">seeds</span><span class="p">[</span><span class="n">maskMtot</span><span class="p">]</span>
-
-<span class="n">Data</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Note that this works because the order of the two columns (seeds and total masses) are
-the same. Rephrased, the total mass at the third entry corresponds to the seed at the third entry.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="2---using-seeds-as-mask-between-files">2 - using seeds as mask between files<a class="anchor-link" href="#2---using-seeds-as-mask-between-files">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="example-1">example 1<a class="anchor-link" href="#example-1">&#182;</a></h2><p>Before we continue it is useful to realise how the COMPAS-popsynth printing works.
-Every time you simulate a system the output is printed in different files. 
-Hence if you have four systems with seeds 1,2,3,4 then COMPAS will evolve seed 1, print the output, and then continue to evolve system 2 etc.</p>
-<p>Therefore in the systemparameters file, which prints a single line for all the systems, you will find seeds 1,2,3,4 printed in order. However this is generally not the case for the other files.
-For example the double compact objects file. This file also prints a single line per system, but not all the systems form double compact objects. However the systems are still printed in the same order hence a simple
-mask will link the parameters without you having to order them too.</p>
-<p>Imagine only seeds 2 and 4 formed a double compact objec (DCO) and you want to recover the initial primary mass of the systems. Lets create a simple example outside the COMPAS data</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#small example mock data</span>
-<span class="n">SystemSeeds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span> <span class="p">,</span><span class="mi">2</span> <span class="p">,</span><span class="mi">3</span> <span class="p">,</span><span class="mi">4</span> <span class="p">])</span>
-<span class="n">SystemMass1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">45</span><span class="p">])</span>
-<span class="n">DCOSeeds</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>   <span class="mi">2</span> <span class="p">,</span>   <span class="mi">4</span> <span class="p">])</span>
-
-<span class="c1">#compare which element of 1-d array are in other</span>
-<span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">SystemSeeds</span><span class="p">,</span> <span class="n">DCOSeeds</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">SystemSeeds</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">SystemMass1</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">MSSFR</span><span class="o">.</span><span class="n">printGSMFoptions</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -13400,9 +13400,16 @@ mask will link the parameters without you having to order them too.</p>
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>[False  True False  True]
-[2 4]
-[20 45]
+<pre>
+        If you use MZ and GSMF relations
+        i.e. self.Zprescription    = &#39;MZ_GSMF&#39;
+
+        Default instance
+        self.GSMFprescription      = None
+        Current Options = Panter et al. (2004) Single, 
+                          Furlong et al. (2015) Single,
+                          Furlong et al. (2015) Double
+        
 </pre>
 </div>
 </div>
@@ -13411,53 +13418,12 @@ mask will link the parameters without you having to order them too.</p>
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Optimised-loop">Optimised loop<a class="anchor-link" href="#Optimised-loop">&#182;</a></h1>
-</div>
-</div>
-</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">returnTotalMasses2</span><span class="p">(</span><span class="n">pathData</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">Data</span>  <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">pathToData</span><span class="p">)</span>
-    
-    <span class="n">totalMasses</span> <span class="o">=</span> <span class="p">[]</span>
-    
-    <span class="c1">#for syntax see section 1 with basic syntax</span>
-    <span class="n">seedsDCOs</span>     <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;DoubleCompactObjects&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()]</span>
-    <span class="c1">#get info from ZAMS</span>
-    <span class="n">seedsSystems</span>  <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()]</span>
-    <span class="n">M1ZAMSs</span>       <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;Mass@ZAMS_1&#39;</span><span class="p">][()]</span>
-    <span class="n">M2ZAMSs</span>       <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;Mass@ZAMS_2&#39;</span><span class="p">][()]</span>
-    
-    <span class="n">MZAMStotal</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">M1ZAMS</span><span class="p">,</span> <span class="n">M2ZAMS</span><span class="p">)</span>
-    
-    <span class="n">maskSeedsBecameDCO</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">seedsSystems</span><span class="p">,</span> <span class="n">seedsDCOs</span><span class="p">)</span>
-    <span class="n">totalMassZAMSDCO</span>    <span class="o">=</span> <span class="n">MZAMStotal</span><span class="p">[</span><span class="n">maskSeedsBecameDCO</span><span class="p">]</span>
-    
-    <span class="n">Data</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">totalMassZAMSDCO</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span>   <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">MtotNew</span> <span class="o">=</span> <span class="n">returnTotalMasses2</span><span class="p">(</span><span class="n">pathData</span><span class="o">=</span><span class="n">pathToData</span><span class="p">)</span>
-<span class="n">end</span>     <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="s1">&#39;seconds for </span><span class="si">%s</span><span class="s1"> systems&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">nrSystems</span><span class="p">))</span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">MSSFR</span><span class="o">.</span><span class="n">printZMoptions</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -13474,7 +13440,109 @@ mask will link the parameters without you having to order them too.</p>
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>0.04909825325012207 seconds for 300000 systems
+<pre>
+        If you use MZ and GSMF relations
+        i.e. self.Zprescription    = &#39;MZ_GSMF&#39;
+
+        Default instance
+        self.ZMprescription        = None
+        Current Options = Ma et al. (2016),
+                      Langer et al. (2006)
+                      Langer et al. +offset (2006)
+        
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Set to our old default model Barrett et al</span>
+
+<span class="n">MSSFR</span><span class="o">.</span><span class="n">GSMFprescription</span> <span class="o">=</span> <span class="s1">&#39;Panter et al. (2004) Single&#39;</span>
+<span class="n">MSSFR</span><span class="o">.</span><span class="n">ZMprescription</span>   <span class="o">=</span> <span class="s1">&#39;Langer et al. (2006)&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="3.2-redshift-dependent-log-normal-distribution">3.2 redshift dependent log-normal distribution<a class="anchor-link" href="#3.2-redshift-dependent-log-normal-distribution">&#182;</a></h1><p>Instead of a MZ-relation and GSMF you can use a redshift dependent log-normal distribution (see paper)
+for more details.</p>
+<p>To use this method set the metallicity prescription to 'logNormal'</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">MSSFR</span><span class="o">.</span><span class="n">Zprescription</span> <span class="o">=</span> <span class="s1">&#39;logNormal&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Note that although the code should ignore any chose GSMF/ZM relation when using this option (or vice-versa)
+it is still nicer to set those to None just in case and for clarity :).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#then pick your favourite option for the logNormal</span>
+<span class="n">MSSFR</span><span class="o">.</span><span class="n">printLogNormaloptions</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+        If you use Log normal 
+        i.e. self.Zprescription    = &#39;logNormal&#39;
+
+        Default instance
+        self.logNormalPrescription      = None
+        Current Options = &#39;Neijssel Phenomenological&#39;
+                          &#39;Custom Phenomenological&#39;
+
+        If you use Custom Phenomenological remember to 
+        additionally set 
+
+        self.customLogNormal = [Z0, alpha, sigma]
+        
 </pre>
 </div>
 </div>
@@ -13488,29 +13556,12 @@ mask will link the parameters without you having to order them too.</p>
 <div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># test if I was lying (need to turn list into array)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">MtotOld</span><span class="p">),</span> <span class="n">MtotNew</span><span class="p">))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">MSSFR</span><span class="o">.</span><span class="n">logNormalPrescription</span> <span class="o">=</span><span class="s1">&#39;Neijssel Phenomenological&#39;</span>
+
+<span class="k">del</span> <span class="n">MSSFR</span>
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>True
-</pre>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -13518,8 +13569,22 @@ mask will link the parameters without you having to order them too.</p>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Note that the above loop can easily be expanded with more conditions.
-If you do not want all the DCO initial total masses but only of the double neutron stars, then you just need to reduce the seedsDCOs to those only becoming a double neutron star.</p>
+<h1 id="4-Example-of-accessing-function-/plotting">4 Example of accessing function /plotting<a class="anchor-link" href="#4-Example-of-accessing-function-/plotting">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The MSSFR class also has the function to return the fraction of SFR in a metallicity bin.</p>
+
+<pre><code>MSSFR.returnMSSFR(self, metallicity=None, agesBirth=None, redshiftBirth=None)
+
+</code></pre>
+<p>The code is constructed such that it calculates the MSSFR for all systems coming from a specific metallicity given that you know their agesBirth or redshiftBirth (depending on the chosen MSSFR you need one or the other)</p>
+<p>Note that if we define our own grid of metallicities and time at which we want to know the MSSFR 
+then we can use this same function to visualise our assumed distribution.
+Of course we can also directly calculate any subfunctions to plot them :)</p>
 
 </div>
 </div>
@@ -13529,32 +13594,7 @@ If you do not want all the DCO initial total masses but only of the double neutr
 <div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">returnTotalMassesDNS</span><span class="p">(</span><span class="n">pathData</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">Data</span>  <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">pathToData</span><span class="p">)</span>
-    
-    <span class="n">totalMasses</span> <span class="o">=</span> <span class="p">[]</span>
-    
-    <span class="c1">#for syntax see section 1 with basic syntax</span>
-    <span class="n">seedsDCOs</span>     <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;DoubleCompactObjects&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()]</span>
-    <span class="n">type1</span>         <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;DoubleCompactObjects&#39;</span><span class="p">][</span><span class="s1">&#39;Stellar_Type_1&#39;</span><span class="p">][()]</span>
-    <span class="n">type2</span>         <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;DoubleCompactObjects&#39;</span><span class="p">][</span><span class="s1">&#39;Stellar_Type_2&#39;</span><span class="p">][()]</span>
-    <span class="n">maskDNS</span>       <span class="o">=</span> <span class="p">(</span><span class="n">type1</span> <span class="o">==</span> <span class="mi">13</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">type2</span> <span class="o">==</span> <span class="mi">13</span><span class="p">)</span>
-    <span class="n">seedsDNS</span>      <span class="o">=</span> <span class="n">seedsDCOs</span><span class="p">[</span><span class="n">maskDNS</span><span class="p">]</span>
-    
-    <span class="c1">#get info from ZAMS</span>
-    <span class="n">seedsSystems</span>  <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;SEED&#39;</span><span class="p">][()]</span>
-    <span class="n">M1ZAMSs</span>       <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;Mass@ZAMS_1&#39;</span><span class="p">][()]</span>
-    <span class="n">M2ZAMSs</span>       <span class="o">=</span> <span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span><span class="p">][</span><span class="s1">&#39;Mass@ZAMS_2&#39;</span><span class="p">][()]</span>
-    
-    <span class="n">MZAMStotal</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">M1ZAMS</span><span class="p">,</span> <span class="n">M2ZAMS</span><span class="p">)</span>
-    
-    
-    <span class="n">maskSeedsBecameDNS</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">seedsSystems</span><span class="p">,</span> <span class="n">seedsDNS</span><span class="p">)</span>
-    <span class="n">totalMassZAMSDNS</span>    <span class="o">=</span> <span class="n">MZAMStotal</span><span class="p">[</span><span class="n">maskSeedsBecameDNS</span><span class="p">]</span>
-    
-    <span class="n">Data</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">totalMassZAMSDNS</span>
-<span class="c1">#returnTotalMassesDNS(pathData=pathToData)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#lets start from scratch</span>
 </pre></div>
 
     </div>
@@ -13562,40 +13602,20 @@ If you do not want all the DCO initial total masses but only of the double neutr
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="example-2">example 2<a class="anchor-link" href="#example-2">&#182;</a></h2><p>The previous example is relies on the fact that each file only prints at most one line per system.
-However there are events, such as supernovae (SNe), where the system could be printed 0,1,2 times depending on the masses of the stars.</p>
-<p>Now the aforementioned method will require some additional steps. Imagine again the 4 seeds of the previous example. Both 2 and 4 formed a DCO and hence both stars in both binaries went SN. Seeds 1 and 3 are low mass stars hence they did not go SN. The SN file prints one line per SN and therefore seeds 2 and 4 appear twice, but still in order.</p>
-<p>Imagine you want the primary masses of systems that experienced at any point a core collapse supernova (ccSN), (PPISN is pulsational pair instability SN). Lets reuse our mock data</p>
-
-</div>
-</div>
-</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#small example</span>
-<span class="n">SystemSeeds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span> <span class="p">,</span><span class="mi">2</span> <span class="p">,</span><span class="mi">3</span> <span class="p">,</span><span class="mi">4</span> <span class="p">])</span>
-<span class="n">SystemMass1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">45</span><span class="p">])</span>
-<span class="n">DCOSeeds</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span> <span class="p">,</span><span class="mi">4</span> <span class="p">])</span>
-<span class="n">SNSeeds</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span> <span class="p">,</span><span class="mi">2</span> <span class="p">,</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span> <span class="p">])</span>
-<span class="n">SNTypes</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s1">&#39;ccSN&#39;</span> <span class="p">,</span><span class="s1">&#39;ccSN&#39;</span> <span class="p">,</span><span class="s1">&#39;PPISN&#39;</span><span class="p">,</span> <span class="s1">&#39;ccSN&#39;</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">metallicityGrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.5</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
 
-<span class="c1">#get seeds which had a ccSN</span>
-<span class="n">maskCCSN</span>  <span class="o">=</span> <span class="n">SNTypes</span> <span class="o">==</span> <span class="s1">&#39;ccSN&#39;</span>
-<span class="n">seedsCCSN</span> <span class="o">=</span> <span class="n">SNSeeds</span><span class="p">[</span><span class="n">maskCCSN</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ccSN seeds =</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">seedsCCSN</span><span class="p">))</span>
-<span class="c1">#in principle you could directly compare to seedsCCSN</span>
-<span class="c1">#but I prefer to always be explicit and compare unique seeds</span>
-<span class="n">seedsCCSN</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">seedsCCSN</span><span class="p">)</span>
-<span class="c1">#compare which element of 1-d array are in other</span>
-<span class="c1">#this because in mroe complicated scenarios duplicate seeds might sometimes mess up your slicing</span>
-<span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">SystemSeeds</span><span class="p">,</span> <span class="n">seedsCCSN</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">SystemMass1</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+<span class="n">MSSFR</span> <span class="o">=</span> <span class="n">ClassMSSFR</span><span class="o">.</span><span class="n">MSSFR</span><span class="p">(</span><span class="n">metallicityGrid</span><span class="o">=</span><span class="n">metallicityGrid</span><span class="p">)</span>
+<span class="c1">#SFR</span>
+<span class="n">MSSFR</span><span class="o">.</span><span class="n">SFRprescription</span> <span class="o">=</span> <span class="s1">&#39;Neijssel et al. (2019)&#39;</span>
+
+<span class="c1">#metallicity</span>
+<span class="n">MSSFR</span><span class="o">.</span><span class="n">Zprescription</span> <span class="o">=</span> <span class="s1">&#39;logNormal&#39;</span>
+<span class="n">MSSFR</span><span class="o">.</span><span class="n">logNormalPrescription</span> <span class="o">=</span><span class="s1">&#39;Neijssel Phenomenological&#39;</span>
 </pre></div>
 
     </div>
@@ -13612,10 +13632,74 @@ However there are events, such as supernovae (SNe), where the system could be pr
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>ccSN seeds =[2 2 4]
-[20 45]
+<pre>ClassMSSFR: Remember to set self.SFRprescription() + subparts
+                            self.Zprescription()   +sub-parts
 </pre>
 </div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># What is our Z distribution at redshift 2</span>
+
+<span class="n">metallicityGrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.5</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+
+
+<span class="n">SFRrate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">metallicityGrid</span><span class="p">))</span>
+
+<span class="c1">#our prescriptions do not need agesBirth only </span>
+<span class="c1">#redshift but require dummy value</span>
+<span class="n">redshift</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">agesBirth</span> <span class="o">=</span> <span class="n">redshift</span>
+
+<span class="k">for</span> <span class="n">nrZ</span><span class="p">,</span> <span class="n">Z</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">metallicityGrid</span><span class="p">):</span>
+    <span class="n">SFRrate</span><span class="p">[</span><span class="n">nrZ</span><span class="p">]</span> <span class="o">=</span> <span class="n">MSSFR</span><span class="o">.</span><span class="n">returnMSSFR</span><span class="p">(</span> <span class="n">metallicity</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span>\
+                   <span class="n">agesBirth</span><span class="o">=</span><span class="n">agesBirth</span><span class="p">,</span> <span class="n">redshiftBirth</span><span class="o">=</span><span class="n">redshift</span><span class="p">)</span>
+    
+    
+<span class="n">bins</span>  <span class="o">=</span> <span class="n">MSSFR</span><span class="o">.</span><span class="n">metallicityBinEdges</span>
+<span class="n">dZ</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span>
+
+<span class="n">SFR_dZ</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">SFRrate</span><span class="p">,</span> <span class="n">dZ</span><span class="p">)</span>
+    
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">metallicityGrid</span><span class="p">),</span> <span class="n">SFR_dZ</span><span class="p">)</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;total SFR=</span><span class="si">%s</span><span class="s1">  Msun/dGpc3/dyr&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">SFRrate</span><span class="p">)))</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;log10(Z)&#39;</span><span class="p">)</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;SFR  Msun/dyr/dGpc3/dZ&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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
+"
+>
+</div>
+
 </div>
 
 </div>
