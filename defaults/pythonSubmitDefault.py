@@ -30,9 +30,9 @@ class pythonProgramOptions:
     #-- amoungst the grid points (as closely as possible). See the hyperparameterGrid method below
     #-- for more details. If this is set to True, some hyperparameter values defined in this method'gridOutputs/'+str(i)
     #-- will be overwritten
-    hyperparameterGrid = False
-    hyperparameterList = False
-    shareSeeds = False
+    # hyperparameterGrid = False
+    # hyperparameterList = False
+    # shareSeeds = False
 
     #-- set inidividual system parameters
     single_star = False
@@ -674,6 +674,7 @@ def specifyCommandLineOptions(programOptions):
     listChoices = programOptions.listChoices()
     listCommands = programOptions.listCommands()
 
+    """
     if programOptions.hyperparameterGrid == True:
         command = hyperparameterGridCommand(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,programOptions.shareSeeds)
 
@@ -684,6 +685,9 @@ def specifyCommandLineOptions(programOptions):
 
     else:
         command = [generateCommandLineOptions(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
+    """
+
+    command = [generateCommandLineOptions(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
 
     return command
 
@@ -729,7 +733,8 @@ def generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,
 
     return command
 
-def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
+
+#def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
     """This function allows for a range of hyperparameter values to be specified in a single run, if the hyperparameterGrid boolean is set to True in the
     specifyCommandLineOptions() function.
 
@@ -740,7 +745,7 @@ def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,n
     the output folders and return a command line command to run all of the populations back to back
 
     """
-
+    """
     # Load up the dictionary from gridRun.py
     with open('pickledGrid.pkl') as pg:
         commandsAndValues = pickle.load(pg)
@@ -801,7 +806,9 @@ def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,n
         bashCommands.append(bashCommand)
 
     return bashCommands
+    """
 
+    """
 def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
     """
     """
@@ -875,6 +882,7 @@ def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,n
         bashCommands.append(bashCommand)
 
     return bashCommands
+    """ 
 
 def runCompas(programOptions):
     """
