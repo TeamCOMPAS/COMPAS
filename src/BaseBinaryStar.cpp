@@ -3396,11 +3396,14 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
     EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
 
+    // AVG
+    /*
     if (OPTIONS->OnlyDoubleCompactObjects() && m_Star2->Mass() < MINIMUM_MASS_SECONDARY) {                                                  // check size of secondary
         m_SecondaryTooSmallForDCO = true;
         evolutionStatus           = EVOLUTION_STATUS::SECONDARY_TOO_SMALL_FOR_DCO;                                                          // too small - don't bother - no possibility of forming a double compact object
     }
-
+    */
+    
     if (HasStarsTouching()) {                                                                                                               // check if stars are touching
         m_StellarMerger        = true;
         m_StellarMergerAtBirth = true;
