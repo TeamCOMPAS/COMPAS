@@ -4,7 +4,10 @@
 #define LOGGING Log::Instance()
 
 #include <fstream>
+#include <ctime>
+#include <chrono>
 
+#include <boost/filesystem.hpp>
 #include <boost/variant.hpp>
 
 #include "constants.h"
@@ -101,6 +104,7 @@ private:
     Log() {                                                                         // constructor - initialise variables
         m_Enabled = false;                                                          // logging disabled initially
         m_LogBasePath = ".";                                                        // default log file base path
+        m_LogContainerName = DEFAULT_OUTPUT_CONTAINER_NAME;                         // default log file container name                        
         m_LogNamePrefix = "";                                                       // default log file name prefix
         m_Delimiter = DELIMITERValue.at(DELIMITER::TAB);                            // default delimiter is TAB
         m_LogLevel = 0;                                                             // default log level - log everything
@@ -123,6 +127,7 @@ private:
     bool                 m_Enabled;                                                 // is logging enabled?
 
     string               m_LogBasePath;                                             // base path for log files
+    string               m_LogContainerName;                                        // container (directory) name for log files
     string               m_LogNamePrefix;                                           // prefix for log files
 
     string               m_Delimiter;                                               // filed delimiter for logging
@@ -162,6 +167,11 @@ private:
     ANY_PROPERTY_VECTOR m_BSE_Pulsars_Rec     = BSE_PULSAR_EVOLUTION_REC;           // default specification
     ANY_PROPERTY_VECTOR m_BSE_Detailed_Rec    = BSE_DETAILED_OUTPUT_REC;            // default specification
 
+
+    std::ofstream                                      m_RunDetailsFile;            // run details file
+    std::chrono::time_point<std::chrono::system_clock> m_WallStart;                 // for run details file
+    std::chrono::time_point<std::chrono::system_clock> m_WallEnd;                   // for run details file
+    clock_t                                            m_ClockStart;                // for run details file
 
     // member functions
 
@@ -293,6 +303,7 @@ public:
 
     // member functions
     void   Start(const string              p_LogBasePath,
+                 const string              p_LogContainerName,
                  const string              p_LogNamePrefix,
                  const int                 p_LogLevel,
                  const std::vector<string> p_LogClasses,
