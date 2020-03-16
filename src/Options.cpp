@@ -144,9 +144,7 @@ string Options::ProgramOptionDetails(const boost::program_options::variables_map
 
         ss << "\n";
     }
-
-        // DON'T FORGET TO PRINT NON-COOMANDLINE OPTIONS (E.G. FIXEDRANDOMSEED, OUTPUTPATH) fixedMetallicity  - outputpath is rinted as option, but check that final value is printed in output file
-    
+  
     ss << "\n\nOTHER PARAMETERS\n----------------\n\n";
 
     ss << "fixedRandomSeed = " << (fixedRandomSeed ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";       // fixedRandomSeed
@@ -301,11 +299,12 @@ void Options::InitialiseMemberVariables(void) {
     kickDirectionDistributionString                                 = KICK_DIRECTION_DISTRIBUTION_LABEL.at(kickDirectionDistribution);		            // Which assumption for SN kicks: Possibilities: isotropic, inplane, perpendicular, powerlaw, wedge, poles
     kickDirectionPower                                              = 0.0;                                                                              // Power law power for the "power" SN kick direction choice
 
-    // Get default output path
+    // Output path
     outputPathString                                                = ".";                                                                              // String to hold the output directory
     defaultOutputPath                                               = boost::filesystem::current_path();                                                // Default output location
     outputPath                                                      = defaultOutputPath;                                                                // Desired output location
-
+    outputContainerName                                             = DEFAULT_OUTPUT_CONTAINER_NAME;                                                    // Output container - this is a container (directory) created at outputPath to hold all output files
+    
     // Spin options
     spinDistribution                                                = SPIN_DISTRIBUTION::FIXED;
     spinDistributionString                                          = SPIN_DISTRIBUTION_LABEL.at(spinDistribution);
@@ -696,10 +695,11 @@ void Options::SetToFiducialValues(void) {
     kickDirectionDistributionString                                 = KICK_DIRECTION_DISTRIBUTION_LABEL.at(kickDirectionDistribution);		            // Which assumption for SN kicks: Possibilities: isotropic, inplane, perpendicular, powerlaw, wedge, poles
     kickDirectionPower                                              = 0.0;                                                                              // Power law power for the "power" SN kick direction choice
 
-    // Get default output path
+    // Output path
     outputPathString                                                = ".";                                                                              // String to hold the output directory
     defaultOutputPath                                               = boost::filesystem::current_path();                                                // Default output location
     outputPath                                                      = defaultOutputPath;                                                                // Desired output location
+    outputContainerName                                             = DEFAULT_OUTPUT_CONTAINER_NAME;                                                    // Output container - this is a container (directory) created at outputPath to hold all output files
 
     // Spin options
     spinDistribution                                                = SPIN_DISTRIBUTION::ZERO;
@@ -1222,6 +1222,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		    ("neutron-star-equation-of-state",                              po::value<string>(&neutronStarEquationOfStateString)->default_value(neutronStarEquationOfStateString),                                                      ("Neutron star equation of state to use (options: SSE, ARP3), default = " + neutronStarEquationOfStateString + ")").c_str())
 
+   		    ("output-container,c",                                          po::value<string>(&outputContainerName)->default_value(outputContainerName)->implicit_value(""),                                                            ("Container (directory) name for output files (default = " + outputContainerName + ")").c_str())
    		    ("outputPath,o",                                                po::value<string>(&outputPathString)->default_value(outputPathString)->implicit_value(""),                                                                  ("Directory for output (default = " + outputPathString + ")").c_str())
 
 		    ("pulsar-birth-magnetic-field-distribution",                    po::value<string>(&pulsarBirthMagneticFieldDistributionString)->default_value(pulsarBirthMagneticFieldDistributionString),                                  ("Pulsar Birth Magnetic Field distribution (options: ZERO, FIXED, FLATINLOG, UNIFORM, LOGNORMAL), default = " + pulsarBirthMagneticFieldDistributionString + ")").c_str())
@@ -1497,7 +1498,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                     WARN("User-specified output path is not a valid directory. Using CWD.");                                            // show warning
                     outputPath = defaultOutputPath;                                                                                     // use default path = CWD
                 }
-
             }
 
             COMPLAIN_IF(periodDistributionMin < 0.0, "Minimum orbital period (--orbital-period-min) < 0");

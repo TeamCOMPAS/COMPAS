@@ -9,6 +9,7 @@
 
 #include <boost/variant.hpp>
 
+
 // JR: todo: this could do with some more tidying up and documentation
 
 // 02.00.00      JR - Sep 17, 2019 - Initial commit of new version
@@ -218,8 +219,22 @@
 //                                       - all options now have default values, and those values will be displayed in the help text (rather than string constants which may be incorrect)
 //                                       - boolean options can now be provided with an argument (e.g. --massTransfer false)
 //                                       - added ProgramOptionDetails() to Options.cpp and OPTIONS->OptionsDetails() in preparation for change in output functionality
+// 02.07.00      JR - Mar 16, 2020 - New/changed functionality:
+//                                       - COMPAS Logfiles are created in a (newly created) directory - this way they are all kept together
+//                                       - new command line option 'output-container' implemented (also in pythonSubmitDefault.py) - this option allows the user to specify the name of the log files container directory (default is 'COMPAS_Output')
+//                                       - if detailed log files are created they will be created in a directory named 'Detailed_Output' within the container directory
+//                                       - a run details file named 'Run_details' is created in the container directory.  The file records the run details:
+//                                             - COMPAS version
+//                                             - date & time of run
+//                                             - timing details (wall time, CPU seconds)
+//                                             - the command line options and parameters used:
+//                                                   - the value of options and an indication of whether the option was supplied by the user or the default value was used
+//                                                   - other parameters - calculated/determined - are recorded
+//                                   Defect repair:
+//                                       - changed "--outut" option name to "--outpuPath" in stringCommands in pythonSubmitDefault.py
 
-const std::string VERSION_STRING = "02.06.02";
+
+const std::string VERSION_STRING = "02.07.00";
 
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
@@ -493,6 +508,14 @@ constexpr int    MAX_KEPLER_ITERATIONS                  = 1000;                 
 constexpr double NEWTON_RAPHSON_EPSILON                 = 1.0E-5;                                                   // Accuracy for Newton-Raphson method
 
 constexpr double EPSILON_PULSAR                         = 1.0;                                                      // JR: todo: description
+
+
+// string constants
+
+const std::string DEFAULT_OUTPUT_CONTAINER_NAME         = "COMPAS_Output";                                          // Default name for output container (directory)
+const std::string DETAILED_OUTPUT_DIRECTORY_NAME        = "Detailed_Output";                                        // Name for detailed output directory within output container
+const std::string RUN_DETAILS_FILE_NAME                 = "Run_Details";                                            // Name for run details output file within output container
+
 
 // AIS constants
 constexpr double SALPETER_POWER                         = -2.35;                                                    // JR: todo; description (AIS)

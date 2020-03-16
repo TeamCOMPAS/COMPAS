@@ -228,6 +228,7 @@ public:
 
     string                                      OptionsDetails() const                                                  { return m_OptionsDetails; }
 
+    string                                      OutputContainerName() const                                             { return outputContainerName; }
     string                                      OutputPathString() const                                                { return outputPath.string(); }
 
     double                                      PairInstabilityLowerLimit() const                                       { return pairInstabilityLowerLimit; }
@@ -434,6 +435,7 @@ private:
     string                                      outputPathString;                                               // String to hold the output directory
     boost::filesystem::path                     defaultOutputPath;                                              // Default output location
     boost::filesystem::path                     outputPath;                                                     // Desired output location
+    string                                      outputContainerName;                                            // Name of output container (directory)
 
     // Spin options
     SPIN_DISTRIBUTION                           spinDistribution;                                               // Which spin distribution to use ( all spins = 0.7)
