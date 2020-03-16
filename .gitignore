@@ -18,5 +18,6 @@ Thumbs.db
 
 # Others
 .ipynb_checkpoints/
+__pycache__/
 COMPAS
 
