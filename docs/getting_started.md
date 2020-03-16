@@ -15,7 +15,7 @@
 ## 1. Installing COMPAS and Dependencies
 First change to the directory within which you wish to store your copy of COMPAS. In the rest of this document, we use as an example `~/codes`:
 
-    cd $~/codes
+    cd ~/codes
 
 Use `git clone` to download the COMPAS repository. If you do not have git installed, you may follow the instructions on https://www.atlassian.com/git/tutorials/install-git.
  
