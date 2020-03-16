@@ -33,7 +33,6 @@ class pythonProgramOptions:
     use_mass_loss = True
     mass_transfer = True
     detailed_output = False                         # WARNING: this creates a data heavy file
-    only_double_compact_objects = False             # Delete when STROOPWAFEL fully implemented
     evolve_unbound_systems = False
     lambda_calculation_every_timestep = False
     zeta_calculation_every_timestep = False
@@ -258,7 +257,6 @@ class pythonProgramOptions:
             self.use_mass_loss,
             self.mass_transfer,
             self.detailed_output,
-            self.only_double_compact_objects,
             self.evolve_unbound_systems,
             self.sample_kick_velocity_sigma,
             self.sample_kick_direction_power,
@@ -297,7 +295,6 @@ class pythonProgramOptions:
             '--use-mass-loss',
             '--massTransfer',
             '--detailedOutput',
-            '--only-double-compact-objects',
             '--evolve-unbound-systems',
             '--sample-kick-velocity-sigma',
             '--sample-kick-direction-power',
