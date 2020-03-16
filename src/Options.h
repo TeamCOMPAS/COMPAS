@@ -4,8 +4,6 @@
 #define OPTIONS Options::Instance()
 
 #include <iostream>
-#include <string>
-#include <sstream>
 
 #include <boost/algorithm/string.hpp>   // Boost string manipulation
 #include <boost/program_options.hpp>    // Boost command line options tools
@@ -52,6 +50,7 @@ using std::get;
 
 class Options {
 
+
 private:
 
     Options() {};
@@ -60,12 +59,10 @@ private:
 
     static Options* m_Instance;
 
-    string m_OptionsDetails;
 
     void InitialiseMemberVariables(void);
     COMMANDLINE_STATUS CommandLineSorter(int argc, char * argv[]);
 
-    string ProgramOptionDetails(const boost::program_options::variables_map p_VM);
 
 public:
 
@@ -132,8 +129,8 @@ public:
     string                                      GridFilename() const                                                    { return gridFilename; }
 
     INITIAL_MASS_FUNCTION                       InitialMassFunction() const                                             { return initialMassFunction; }
-    double                                      InitialMassFunctionMax() const                                          { return initialMassFunctionMax; }
     double                                      InitialMassFunctionMin() const                                          { return initialMassFunctionMin; }
+    double                                      InitialMassFunctionMax() const                                          { return initialMassFunctionMax; }
     double                                      InitialMassFunctionPower() const                                        { return initialMassFunctionPower; }
 
     KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return kickDirectionDistribution; }
@@ -166,17 +163,13 @@ public:
     int                                         LogLevel() const                                                        { return logLevel; }
 
     double                                      LuminousBlueVariableFactor() const                                      { return luminousBlueVariableFactor; }
-
     MASS_LOSS_PRESCRIPTION                      MassLossPrescription() const                                            { return massLossPrescription; }
-
     MASS_RATIO_DISTRIBUTION                     MassRatioDistribution() const                                           { return massRatioDistribution; }
     double                                      MassRatioDistributionMax() const                                        { return massRatioDistributionMax; }
     double                                      MassRatioDistributionMin() const                                        { return massRatioDistributionMin; }
-
     MT_ACCRETION_EFFICIENCY_PRESCRIPTION        MassTransferAccretionEfficiencyPrescription() const                     { return massTransferAccretionEfficiencyPrescription; }
     MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION       MassTransferAngularMomentumLossPrescription() const                     { return massTransferAngularMomentumLossPrescription; }
     double                                      MassTransferCParameter() const                                          { return massTransferCParameter; }
-
     bool                                        MassTransferCriticalMassRatioGiant() const                              { return massTransferCriticalMassRatioGiant; }
     double                                      MassTransferCriticalMassRatioGiantDegenerateAccretor() const            { return massTransferCriticalMassRatioGiantDegenerateAccretor; }
     double                                      MassTransferCriticalMassRatioGiantNonDegenerateAccretor() const         { return massTransferCriticalMassRatioGiantNonDegenerateAccretor; }
@@ -199,8 +192,6 @@ public:
     double                                      MassTransferCriticalMassRatioMSLowMassDegenerateAccretor() const        { return massTransferCriticalMassRatioMSLowMassDegenerateAccretor; }
     double                                      MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor() const     { return massTransferCriticalMassRatioMSLowMassNonDegenerateAccretor; }
     bool                                        MassTransferCriticalMassRatioWhiteDwarf() const                         { return massTransferCriticalMassRatioWhiteDwarf; }
-
-    double                                      MassTransferFractionAccreted() const                                    { return massTransferFractionAccreted; }
     double                                      MassTransferJloss() const                                               { return massTransferJloss; }
     MT_PRESCRIPTION                             MassTransferPrescription() const                                        { return massTransferPrescription; }
     MT_REJUVENATION_PRESCRIPTION                MassTransferRejuvenationPrescription() const                            { return massTransferRejuvenationPrescription; }
@@ -226,9 +217,7 @@ public:
 
     bool                                        OptimisticCHE() const                                                   { return cheOption == CHE_OPTION::OPTIMISTIC; }
 
-    string                                      OptionsDetails() const                                                  { return m_OptionsDetails; }
-
-    string                                      OutputPathString() const                                                { return outputPath.string(); }
+    string                                      OutputPathString() const                                                { return outputPathString; }
 
     double                                      PairInstabilityLowerLimit() const                                       { return pairInstabilityLowerLimit; }
     double                                      PairInstabilityUpperLimit() const                                       { return pairInstabilityUpperLimit; }
@@ -238,7 +227,6 @@ public:
 
     bool                                        PopulationDataPrinting() const                                          { return populationDataPrinting; }
     bool                                        PrintBoolAsString() const                                               { return printBoolAsString; }
-
     PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION    PulsarBirthMagneticFieldDistribution() const                            { return pulsarBirthMagneticFieldDistribution; }
     double                                      PulsarBirthMagneticFieldDistributionMax() const                         { return pulsarBirthMagneticFieldDistributionMax; }
     double                                      PulsarBirthMagneticFieldDistributionMin() const                         { return pulsarBirthMagneticFieldDistributionMin; }
@@ -268,11 +256,9 @@ public:
     bool                                        SampleCommonEnvelopeAlpha() const                                       { return sampleCommonEnvelopeAlpha; }
     double                                      SampleCommonEnvelopeAlphaMax() const                                    { return sampleCommonEnvelopeAlphaMax; }
     double                                      SampleCommonEnvelopeAlphaMin() const                                    { return sampleCommonEnvelopeAlphaMin; }
-
     bool                                        SampleLuminousBlueVariableMultiplier() const                            { return sampleLuminousBlueVariableMultiplier; }
     double                                      SampleLuminousBlueVariableMultiplierMax() const                         { return sampleLuminousBlueVariableMultiplierMax; }
     double                                      SampleLuminousBlueVariableMultiplierMin() const                         { return sampleLuminousBlueVariableMultiplierMin; }
-
     bool                                        SampleWolfRayetMultiplier() const                                       { return sampleWolfRayetMultiplier; }
     double                                      SampleWolfRayetMultiplierMax() const                                    { return sampleWolfRayetMultiplierMax; }
     double                                      SampleWolfRayetMultiplierMin() const                                    { return sampleWolfRayetMultiplierMin; }
@@ -304,7 +290,6 @@ public:
     bool                                        ZetaCalculationEveryTimeStep() const                                    { return zetaCalculationEveryTimeStep; }
     double                                      ZetaHertzsprungGap() const                                              { return zetaHertzsprungGap; }
     double                                      ZetaMainSequence() const                                                { return zetaMainSequence; }
-    double                                      ZetaAdiabaticArbitrary() const                                          { return zetaAdiabaticArbitrary; }
     double                                      ZetaThermalArbitrary() const                                            { return zetaThermalArbitrary; }
 
 
@@ -336,7 +321,27 @@ private:
     bool                                        printBoolAsString;                                              // flag used to indicate that boolean properties should be printed as "TRUE" or "FALSE" (default is 1 or 0)
     bool                                        quiet;                                                          // suppress some output
 
+    bool                                        useImportanceSampling;                                          // Options for importance sampling
+//    bool                                        useMCMC;                                                        // Simon Stevenson - 15/03/2018 - begining to add MCMC functionality (not yet implemented)
+
     int                                         nBatchesUsed;                                                   // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
+
+
+    // Variables required to restart a binary/star halfway through
+//    int                                         primaryStellarType;                                             // Initial primary stellar type (not yet implemented)
+//    int                                         secondaryStellarType;                                           // Initial secondary stellar type (not yet implemented)
+
+//    double                                      primaryEffectiveInitialMass;                                    // Effective initial mass for the primary in solar masses (not yet implemented)
+//    double                                      secondaryEffectiveInitialMass;                                  // Effective initial mass for the secondary in solar masses (not yet implemented)
+
+//    double                                      primaryCoreMass;                                                // Initial primary core mass in solar masses (not yet implemented)
+//    double                                      secondaryCoreMass;                                              // Initial secondary core mass in solar masses (not yet implemented)
+
+//    double                                      primaryAge;                                                     // Effective age for the primary star in Myrs (not yet implemented)
+//    double                                      secondaryAge;                                                   // Effective age for the secondary star in Myrs (not yet implemented)
+
+//    double                                      primaryRotationalVelocity;                                      // Initial rotational velocity of the primary (not yet implemented)
+//    double                                      secondaryRotationalVelocity;                                    // Initial rotational velocity of the secondary (not yet implemented)
 
 
     // Code variables
