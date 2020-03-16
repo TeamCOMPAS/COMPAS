@@ -32,7 +32,6 @@ class pythonProgramOptions:
 
     use_mass_loss = True
     mass_transfer = True
-    # post_newtonian_evolution = True
     detailed_output = False                         # WARNING: this creates a data heavy file
     only_double_compact_objects = False             # Delete when STROOPWAFEL fully implemented
     evolve_unbound_systems = False
@@ -131,11 +130,6 @@ class pythonProgramOptions:
     semi_major_axis_distribution = 'FLATINLOG'
     semi_major_axis_min = 0.01  #  [AU]
     semi_major_axis_max = 1000.0  #  [AU]
-
-    spin_distribution = 'ZERO'
-    spin_assumption = 'BOTHALIGNED'
-    spin_mag_min = 0.0
-    spin_mag_max = 1.0
 
     mass_ratio_distribution = 'FLAT'
     mass_ratio_min = 0.0
@@ -263,7 +257,6 @@ class pythonProgramOptions:
             self.single_star,
             self.use_mass_loss,
             self.mass_transfer,
-#            self.post_newtonian_evolution,
             self.detailed_output,
             self.only_double_compact_objects,
             self.evolve_unbound_systems,
@@ -303,7 +296,6 @@ class pythonProgramOptions:
             '--single-star',
             '--use-mass-loss',
             '--massTransfer',
-#            '--PNEcc',
             '--detailedOutput',
             '--only-double-compact-objects',
             '--evolve-unbound-systems',
@@ -359,8 +351,6 @@ class pythonProgramOptions:
             self.initial_mass_power,
             self.semi_major_axis_min,
             self.semi_major_axis_max,
-            self.spin_mag_min,
-            self.spin_mag_max,
             self.mass_ratio_min,
             self.mass_ratio_max,
             self.minimum_secondary_mass,
@@ -454,8 +444,6 @@ class pythonProgramOptions:
             '--initial-mass-power',
             '--semi-major-axis-min',
             '--semi-major-axis-max',
-            '--spin-mag-min',
-            '--spin-mag-max',
             '--mass-ratio-min',
             '--mass-ratio-max',
             '--minimum-secondary-mass',
@@ -539,8 +527,6 @@ class pythonProgramOptions:
             self.AIS_DCOtype,
             self.initial_mass_function,
             self.semi_major_axis_distribution,
-            self.spin_distribution,
-            self.spin_assumption,
             self.mass_ratio_distribution,
             self.eccentricity_distribution,
             self.rotational_velocity_distribution,
@@ -586,8 +572,6 @@ class pythonProgramOptions:
             '--AIS-DCOtype',
             '--initial-mass-function',
             '--semi-major-axis-distribution',
-            '--spin-distribution',
-            '--spin-assumption',
             '--mass-ratio-distribution',
             '--eccentricity-distribution',
             '--rotational-velocity-distribution',

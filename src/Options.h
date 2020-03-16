@@ -288,14 +288,6 @@ public:
     double                                      SingleStarMassMin() const                                               { return singleStarMassMin; }
     double                                      SingleStarMassMax() const                                               { return singleStarMassMax; }
 
-    // AVG
-    /*
-    SPIN_ASSUMPTION                             SpinAssumption() const                                                  { return spinAssumption; }
-    SPIN_DISTRIBUTION                           SpinDistribution() const                                                { return spinDistribution; }
-    double                                      SpinDistributionMax() const                                             { return spinDistributionMax; }
-    double                                      SpinDistributionMin() const                                             { return spinDistributionMin; }
-    */
-    
     TIDES_PRESCRIPTION                          TidesPrescription() const                                               { return tidesPrescription; }
 
     bool                                        UseFixedUK() const                                                      { return useFixedUK; }
@@ -438,18 +430,6 @@ private:
     boost::filesystem::path                     defaultOutputPath;                                              // Default output location
     boost::filesystem::path                     outputPath;                                                     // Desired output location
     string                                      outputContainerName;                                            // Name of output container (directory)
-
-    // AVG
-    /*
-    // Spin options
-    SPIN_DISTRIBUTION                           spinDistribution;                                               // Which spin distribution to use ( all spins = 0.7)
-    string                                      spinDistributionString;                                         // Which spin distribution to use ( all spins = 0.7)
-    double                                      spinDistributionMin;                                            // Minimum dimensionless spin magnitude
-    double                                      spinDistributionMax;                                            // Maximum dimensionless spin magnitude
-
-    SPIN_ASSUMPTION spinAssumption;
-    string spinAssumptionString;                                                                                // What assumption to make in our spin study (default = both spins aligned)
-    */
 
     // Tides options
     TIDES_PRESCRIPTION                          tidesPrescription;                                              // Which tides prescription will be used by the code. (default = TIDES_PRESCRIPTION_NONE)

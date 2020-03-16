@@ -304,18 +304,6 @@ void Options::InitialiseMemberVariables(void) {
     outputPath                                                      = defaultOutputPath;                                                                // Desired output location
     outputContainerName                                             = DEFAULT_OUTPUT_CONTAINER_NAME;                                                    // Output container - this is a container (directory) created at outputPath to hold all output files
     
-    // AVG
-    /*
-    // Spin options
-    spinDistribution                                                = SPIN_DISTRIBUTION::FIXED;
-    spinDistributionString                                          = SPIN_DISTRIBUTION_LABEL.at(spinDistribution);
-    spinDistributionMin                                             = 0.60;
-    spinDistributionMax                                             = 0.98;
-
-    spinAssumption                                                  = SPIN_ASSUMPTION::ALIGNED;
-    spinAssumptionString                                            = SPIN_ASSUMPTION_LABEL.at(spinAssumption);
-    */
-
     // Tides options
     tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
     tidesPrescriptionString                                         = TIDES_PRESCRIPTION_LABEL.at(tidesPrescription);                                   // String containing which tides prescription to use
@@ -700,18 +688,6 @@ void Options::SetToFiducialValues(void) {
     defaultOutputPath                                               = boost::filesystem::current_path();                                                // Default output location
     outputPath                                                      = defaultOutputPath;                                                                // Desired output location
     outputContainerName                                             = DEFAULT_OUTPUT_CONTAINER_NAME;                                                    // Output container - this is a container (directory) created at outputPath to hold all output files
-
-    // AVG
-    /*
-    // Spin options
-    spinDistribution                                                = SPIN_DISTRIBUTION::ZERO;
-    spinDistributionString                                          = SPIN_DISTRIBUTION_LABEL.at(spinDistribution);
-    spinDistributionMin                                             = 0.0;
-    spinDistributionMax                                             = 1.0;
-
-    spinAssumption                                                  = SPIN_ASSUMPTION::ALIGNED;
-    spinAssumptionString                                            = SPIN_ASSUMPTION_LABEL.at(spinAssumption);
-    */
 
     // Tides options
     tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
@@ -1165,8 +1141,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("semi-major-axis-min",                                         po::value<double>(&semiMajorAxisDistributionMin)->default_value(semiMajorAxisDistributionMin),                                                              ("Minimum semi major axis in AU to generate (default = " + std::to_string(semiMajorAxisDistributionMin) + ")").c_str())
 		    ("single-star-mass-max",                                        po::value<double>(&singleStarMassMax)->default_value(singleStarMassMax),                                                                                    ("Maximum mass (in Msol) for single star evolution (default = " + std::to_string(singleStarMassMax) + ")").c_str())
             ("single-star-mass-min",                                        po::value<double>(&singleStarMassMin)->default_value(singleStarMassMin),                                                                                    ("Minimum mass (in Msol) for single star evolution (default = " + std::to_string(singleStarMassMin) + ")").c_str())
-// AVG		    ("spin-mag-max",                                                po::value<double>(&spinDistributionMax)->default_value(spinDistributionMax),                                                                                ("Maximum magnitude of spin (default = " + std::to_string(spinDistributionMax) + ")").c_str())
-// AVG		    ("spin-mag-min",                                                po::value<double>(&spinDistributionMin)->default_value(spinDistributionMin),                                                                                ("Minimum magnitude of spin (default = " + std::to_string(spinDistributionMin) + ")").c_str())
 
 		    ("wolf-rayet-multiplier",                                       po::value<double>(&wolfRayetFactor)->default_value(wolfRayetFactor),                                                                                        ("Multiplicitive constant for WR winds (default = " + std::to_string(wolfRayetFactor) + ")").c_str())
 
@@ -1234,9 +1208,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("rotational-velocity-distribution",                            po::value<string>(&rotationalVelocityDistributionString)->default_value(rotationalVelocityDistributionString),                                              ("Initial rotational velocity distribution (options: ZERO, HURLEY, VLTFLAMES), default = " + rotationalVelocityDistributionString + ")").c_str())
 
 		    ("semi-major-axis-distribution,a",                              po::value<string>(&semiMajorAxisDistributionString)->default_value(semiMajorAxisDistributionString),                                                        ("Initial semi-major axis distribution, a (options: FLATINLOG, CUSTOM, DuquennoyMayor1991, SANA2012), default = " + semiMajorAxisDistributionString + ")").c_str())
-
-// AVG		    ("spin-assumption",                                             po::value<string>(&spinAssumptionString)->default_value(spinAssumptionString),                                                                              ("Misalignedments assumption (default = " + spinAssumptionString + ")").c_str())
-// AVG		    ("spin-distribution",                                           po::value<string>(&spinDistributionString)->default_value(spinDistributionString),                                                                          ("Spin distribution (default = " + spinDistributionString + ")").c_str())
 
 		    ("tides-prescription",                                          po::value<string>(&tidesPrescriptionString)->default_value(tidesPrescriptionString),                                                                        ("Tides prescription (options: default = " + tidesPrescriptionString + ")").c_str())
 
@@ -1426,19 +1397,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 std::tie(found, semiMajorAxisDistribution) = utils::GetMapKey(semiMajorAxisDistributionString, SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL, semiMajorAxisDistribution);
                 COMPLAIN_IF(!found, "Unknown Semi-Major Axis Distribution");
             }
-
-            // AVG
-            /*
-			if (!vm["spin-assumption"].defaulted()) {                                                                                   // spin assumption
-                std::tie(found, spinAssumption) = utils::GetMapKey(spinAssumptionString, SPIN_ASSUMPTION_LABEL, spinAssumption);
-                COMPLAIN_IF(!found, "Unknown Spin Assumption");
-			}
-
-			if (!vm["spin-distribution"].defaulted()) {                                                                                 // spin distribution
-                std::tie(found, spinDistribution) = utils::GetMapKey(spinDistributionString, SPIN_DISTRIBUTION_LABEL, spinDistribution);
-                COMPLAIN_IF(!found, "Unknown Spin Assumption");
-			}
-            */
 
             if (!vm["tides-prescription"].defaulted()) {                                                                                // tides prescription
                 std::tie(found, tidesPrescription) = utils::GetMapKey(tidesPrescriptionString, TIDES_PRESCRIPTION_LABEL, tidesPrescription);
