@@ -82,7 +82,6 @@ class pythonProgramOptions:
     zeta_Main_Sequence = 2.0
     zeta_Hertzsprung_Gap = 6.5
 
-    BeBinaries  = False
     maximum_evolution_time = 13700.0
     maximum_number_iterations = 99999
 
@@ -250,7 +249,6 @@ class pythonProgramOptions:
             self.force_case_BB_BC_stability,
             self.always_stable_case_BB_BC,
             self.angular_momentum_conservation_during_circularisation,
-            self.BeBinaries,
             self.AIS_exploratory_phase,
             self.AIS_Hubble,
             self.AIS_RLOF,
@@ -288,7 +286,6 @@ class pythonProgramOptions:
             '--forceCaseBBBCStabilityFlag',
             '--alwaysStableCaseBBBCFlag',
             '--angularMomentumConservationDuringCircularisation',
-            '--BeBinaries',
             '--AIS-exploratory-phase',
             '--AIS-Hubble',
             '--AIS-RLOF',
