@@ -542,7 +542,7 @@ elif cluster in slurm_cluster_list:
 
 		command = os.path.join(run_directory, 'compasHPC.bash') + ' > ' + logfile
 
-		job_string = chpc.GenerateSlurmJobString(job_name, number_of_nodes, number_of_cores, outfile, errfile, walltime, memory, user_email=user_email, run_directory=run_directory, command=command)
+		job_string = chpc.GenerateSlurmJobString(job_name, number_of_nodes, number_of_cores, outfile, errfile, walltime, memory, send_email=send_email, user_email=user_email, run_directory=run_directory, command=command)
 
 		print(job_string)
 
@@ -561,7 +561,7 @@ elif cluster in slurm_cluster_list:
 
 		command = os.path.join(run_directory, 'compasHPC.bash') + ' > ' + logfile
 
-		job_string = chpc.GenerateSlurmJobString(job_name, number_of_nodes, number_of_cores, outfile, errfile, walltime, memory, user_email=user_email, run_directory=run_directory, command=command)
+		job_string = chpc.GenerateSlurmJobString(job_name, number_of_nodes, number_of_cores, outfile, errfile, walltime, memory, send_email=send_email, user_email=user_email, run_directory=run_directory, command=command)
 		
 		print("run directory = ", run_directory)
 		print("command = ", command)
