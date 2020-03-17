@@ -2,6 +2,8 @@ import numpy as np
 import subprocess
 import sys
 import os
+import pickle
+import itertools 
 from subprocess import call
 
 class pythonProgramOptions:
@@ -24,6 +26,16 @@ class pythonProgramOptions:
 
     output = os.getcwd()
     output_container = None                 # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
+
+
+    #-- option to make a grid of hyperparameter values at which to produce populations.
+    #-- If this is set to true, it will divide the number_of_binaries parameter equally
+    #-- amoungst the grid points (as closely as possible). See the hyperparameterGrid method below
+    #-- for more details. If this is set to True, some hyperparameter values defined in this method'gridOutputs/'+str(i)
+    #-- will be overwritten
+    hyperparameterGrid = False
+    hyperparameterList = False
+    shareSeeds = False
 
     single_star = False
     single_star_mass_steps = 10
@@ -541,6 +553,120 @@ def generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,
             command += listCommands[i] + ' ' + ' '.join(map(str, listChoices[i]))
 
     return command
+
+def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
+    """This function allows for a range of hyperparameter values to be specified in a single run, if the hyperparameterGrid boolean is set to True in the
+    specifyCommandLineOptions() function.
+    This works by constructing nested output directories in the current working directory, and running a population at each combination of parameter values.
+    nBinaries from specifyCommandLineOptions() is divided equally amoungst these.
+    The user should follow the pattern in adding items to the commandsAndValues dictionary, the code will then handle production of
+    the output folders and return a command line command to run all of the populations back to back
+    """
+    
+    # Load up the dictionary from gridRun.py
+    with open('pickledGrid.pkl') as pg:
+        commandsAndValues = pickle.load(pg)
+    # set up lists for recursion
+    keys = commandsAndValues.keys()
+    valuesLists = []
+    nSimulations = 1
+    for key in keys:
+        nSimulations *= len(commandsAndValues[key])
+        valuesLists.append(commandsAndValues[key])
+    # Make folders for the messy outputs
+    outPaths = []
+    for i in range(nSimulations):
+        path = 'gridOutputs/output-'+str(i)
+        outPaths.append(path)
+    #edit number of binaries per population
+    for index,command in enumerate(numericalCommands):
+        if command == '--number-of-binaries':
+            break
+    nBinariesPerSimulation = numericalChoices[index]/nSimulations
+    numericalChoices[index] = nBinariesPerSimulation
+    bashCommands = []
+    # itertools.product recurses through all combinations of the lists in valuesLists
+    for en,combination in enumerate(itertools.product(*valuesLists)):
+        bashCommand = ''
+        pathName = outPaths[en]
+        for i, val in enumerate(combination):
+            for index,command in enumerate(numericalCommands):
+                if command == keys[i]:
+                    break
+            numericalChoices[index] = val
+        #change the random seed if need be
+        if not shareSeeds:
+            for index,command in enumerate(numericalCommands):
+                if command == '--random-seed':
+                    break
+            numericalChoices[index] += nBinariesPerSimulation
+        #setup output arguments
+        for index,command in enumerate(stringCommands):
+            if command == '--output':
+                break
+        stringChoices[index] = pathName + '/.'
+        bashCommand += generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands)
+        bashCommand += '; '
+        bashCommands.append(bashCommand)
+    return bashCommands
+    
+
+    
+def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
+    """
+    """
+    # Load up the dictionary from gridRun.py
+    with open('pickledList.pkl') as pl:
+        commandsAndValues = pickle.load(pl)
+    # set up lists for recursion
+    keys = commandsAndValues.keys()
+    #work how many things there are in the list
+    nSimulations = len(commandsAndValues[keys[0]])
+    print("nSimulations = ", nSimulations)
+    #make the directories
+    outPaths = []
+    for i in range(nSimulations):
+        path = 'listOutputs/output-'+str(i)
+        outPaths.append(path)
+    #grab all the values out of the dictionary for syntactic ease later
+    valuesLists = []
+    for key in keys:
+        valuesLists.append(commandsAndValues[key])
+    valuesLists =np.array(valuesLists).T
+    #edit number of binaries per population
+    for index,command in enumerate(numericalCommands):
+        if command == '--number-of-binaries':
+            break
+    nBinariesPerSimulation = numericalChoices[index]/nSimulations
+    numericalChoices[index] = nBinariesPerSimulation
+    print("index, nBinariesPerSimulation")
+    print(index, nBinariesPerSimulation)
+    bashCommands = []
+    for en in range(nSimulations):
+        bashCommand = ''
+        combination = valuesLists[en]
+        pathName = outPaths[en]
+        for i, val in enumerate(combination):
+            for index,command in enumerate(numericalCommands):
+                if command == keys[i]:
+                    break
+            numericalChoices[index] = val
+        #change the random seed if need be
+        if not shareSeeds:
+            for index,command in enumerate(numericalCommands):
+                if command == '--random-seed':
+                    break
+            numericalChoices[index] += nBinariesPerSimulation
+        #setup output arguments
+        for index,command in enumerate(stringCommands):
+            if command == '--output':
+                break
+        stringChoices[index] = pathName + '/.'
+        bashCommand += generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands)
+        bashCommand += '; '
+        bashCommands.append(bashCommand)
+    return bashCommands
+    
 
 def runCompas(programOptions):
     """
