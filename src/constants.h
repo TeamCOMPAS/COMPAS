@@ -238,6 +238,7 @@
 //										- removed tides code & associated pythonSubmitDefault.py options
 //										- removed deprecated options from pythonSubmitDefault.py options
 //										- renamed options: mass transfer, iterations -> timestep-iterations
+//										- commented AIS Options until fully implemented
 
 const std::string VERSION_STRING = "02.08.00";
 
