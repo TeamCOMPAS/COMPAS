@@ -346,11 +346,6 @@ void BaseBinaryStar::SetRemainingCommonValues() {
 
     m_SecondaryTooSmallForDCO                    = false;
 
-    // Differential quantities
-    m_aTidesDiff                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_OmegaTidesDiff                             = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_OmegaTides                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
-
     m_aMassLossDiff                              = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_OmegaMassLossDiff                          = DEFAULT_INITIAL_DOUBLE_VALUE;
 
@@ -391,12 +386,6 @@ void BaseBinaryStar::SetRemainingCommonValues() {
     m_ZetaRLOFAnalytic                           = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_ZetaRLOFNumerical                          = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_ZetaStarCompare	                         = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-    // Misalignments
-    m_Theta1_i                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Theta2_i                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Theta1                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Theta2                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // Initialise other parameters to 0
     m_MSN                                        = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -1164,46 +1153,6 @@ double BaseBinaryStar::SampleEccentricityDistribution() {
     return eccentricity;
 }
 
-
-/*
- * Draw spin from the distribution specified by the user
- * (SpinDistribution program option; will use AIS distribution if specified (AIS.DrawingFromAISDistributions))
- *
- *
- * double SampleSpinDistribution()
- *
- * @return                                      Spin
- */
-double BaseBinaryStar::SampleSpinDistribution() {
-
-    double spin;
-
-    switch (OPTIONS->SpinDistribution()) {                                          // which distribution? .
-
-        case SPIN_DISTRIBUTION::ZERO:                                               // ZERO
-
-            spin = 0.0;
-            break;
-
-        case SPIN_DISTRIBUTION::FLAT:                                               // FLAT
-
-            spin = RAND->Random(OPTIONS->SpinDistributionMin(), OPTIONS->SpinDistributionMax());
-            break;
-
-        case SPIN_DISTRIBUTION::FIXED:                                              // FIXED
-
-            spin = 0.7;                                                             // could have this set by the user - check bounds if so
-            break;
-
-        default:                                                                    // unknown distribution
-            SHOW_WARN(ERROR::UNKNOWN_SPIN_DISTRIBUTION, "Using spin = 0.0");        // show warning
-            spin = 0.0;
-    }
-
-    return spin;
-}
-
-
 /*
  * Choose metallicity based on program option (not really drawing from a distribution here...)
  *
@@ -1429,242 +1378,6 @@ void BaseBinaryStar::ResolveCoalescence() {
     }
 
     PrintDoubleCompactObjects();                                                                                                                // print (log) double compact object details
-}
-
-
-/*
- * Resolve tidal interactions
- *
- * Created by Alejandro Vigna-Gomez on 11/2015.
- *
- * Tides function was initially developed comparing the previous timestep to the new timestep and evolving
- * the system using our simple tides prescription (see COMPAS notes). We later noticed this created some
- * problems when we had events such as CE or MT. The way to implement tides now is to solve them at the end of
- * binary evolution, tidally locking them. This is still work in progress. ALEJANDRO - 04/10/2016
- *
- *
- * void ResolveTides()
- */
-void BaseBinaryStar::ResolveTides() {
-
-    if (m_Star1->IsOneOf({ STELLAR_TYPE::BLACK_HOLE, STELLAR_TYPE::MASSLESS_REMNANT }) ||
-        m_Star2->IsOneOf({ STELLAR_TYPE::BLACK_HOLE, STELLAR_TYPE::MASSLESS_REMNANT })) return;
-
-    m_aTidesDiff     = 0.0;
-	m_OmegaTidesDiff = 0.0;
-
-	// assign new values to "previous" values, for following timestep
-    m_EccentricityPrev	  = m_EccentricityPrime;
-    m_SemiMajorAxisPrev   = m_SemiMajorAxisPrime;
-    m_OrbitalVelocityPrev = m_OrbitalVelocityPrime;
-
-	m_Star1->CalculateOmegaTidesIndividualDiff(m_Star1->OmegaPrev());                                                                                       // set star1 m_OmegaTidesIndividualDiff = 0.0
-	m_Star2->CalculateOmegaTidesIndividualDiff(m_Star2->OmegaPrev());                                                                                       // set star2 m_OmegaTidesIndividualDiff = 0.0
-
-    if (utils::Compare(m_OrbitalVelocityPrime, 0.0) <= 0) return;                                                                                           // nothing to do
-	if (utils::Compare(m_SemiMajorAxisPrime, 0.0)   <= 0) return;                                                                                           // nothing to do
-	if (m_StellarMerger)                                  return;                                                                                           // nothing to do
-
-    switch (OPTIONS->TidesPrescription()) {                                                                                                                 // which tides prescription?
-
-        case TIDES_PRESCRIPTION::NONE: break;                                                                                                               // NONE - nothing to do
-
-        case TIDES_PRESCRIPTION::HUT:                                                                                                                       // HUT - not supported              JR: todo: added this - why don't we just remove this option?
-        case TIDES_PRESCRIPTION::LOCKED_ENERGY:                                                                                                             // LOCKED_ENERGY - not supported    JR: todo: why don't we just remove this option?
-
-            SHOW_WARN(ERROR::UNSUPPORTED_TIDES_PRESCRIPTION, "Prescription: " + TIDES_PRESCRIPTION_LABEL.at(OPTIONS->TidesPrescription()));                 // show warning
-            break;
-
-        case TIDES_PRESCRIPTION::LOCKED_ANG_MOMENTUM: {
-
-            double totalMass = m_Star1->Mass() + m_Star2->Mass();                                                                                           // total mass of binary in Msol
-            double mu 		 = (m_Star1->Mass() * m_Star2->Mass()) / totalMass;                                                                             // reduced mass in Msol
-
-            double star1AngularVelocity = m_Star1->Omega();                                                                                                 // angular velocity in yr-1 units of star1
-            double star2AngularVelocity	= m_Star2->Omega();                                                                                                 // angular velocity in yr-1 units of star2
-
-            BinaryConstituentStar* star1Copy = new BinaryConstituentStar(*m_Star1);
-            BinaryConstituentStar* star2Copy = new BinaryConstituentStar(*m_Star2);
-            star1Copy->SetCompanion(star2Copy);
-            star2Copy->SetCompanion(star1Copy);
-
-            star1Copy->ResolveRemnantAfterEnvelopeLossAndSwitch();
-            star2Copy->ResolveRemnantAfterEnvelopeLossAndSwitch();
-
-            // calculate moments of inertia
-            double star1MomentOfInertia = m_Star1->CalculateMomentOfInertiaAU(star1Copy->Radius());
-            double star2MomentOfInertia = m_Star2->CalculateMomentOfInertiaAU(star2Copy->Radius());
-
-            delete star1Copy; star1Copy = nullptr;
-            delete star2Copy; star2Copy = nullptr;
-
-            // define gyration radius 'k' using fit from de Mink et al. 2013
-            double star1GyrationRadius = m_Star1->CalculateGyrationRadius();
-            double star2GyrationRadius = m_Star2->CalculateGyrationRadius();
-
-            double L = CalculateAngularMomentumPrime();
-            double E = CalculateTotalEnergyPrime();                                                                                                         // JR: todo: note original code passed star1.m_Radius * RSOL_TO_AU and star2.m_Radius * RSOL_TO_AU, but CalculateTotalEnergy() multiplies by RSOL_TO_AU internally
-
-            // solve polynomial of form: ax^4 + bx^3 + cx^2 + dx + e = 0
-            // number of coefficients (is order of polynomial + 1)
-            constexpr size_t polynomialOrder   = 4;
-            constexpr size_t nCoefficients     = polynomialOrder + 1;
-            constexpr size_t nSolutions        = 2 * polynomialOrder;                                                                                       // real part + imaginary part for each solution
-
-            double coefficients[nCoefficients] = {0.0, 0.0, 0.0, 0.0, 0.0};                                                                                 // initialise coefficients {e, d, c, b, a}
-
-            // calculate coefficients
-            coefficients[0] = (star1MomentOfInertia * sqrt(G1 * totalMass)) + (star2MomentOfInertia * sqrt(G1 * totalMass));                                // e
-
-            double spin1    = star1MomentOfInertia * star1AngularVelocity;                                                                                  // Initial spin angular momenta of object 1
-            double spin2    = star2MomentOfInertia * star2AngularVelocity;                                                                                  // Initial spin angular momenta of object 2
-            coefficients[3] = (m_OrbitalVelocityPrime * m_SemiMajorAxisPrime * m_SemiMajorAxisPrime * mu) + spin1 + spin2;                                  // b
-
-            coefficients[4] = sqrt(G1 * totalMass) * mu;                                                                                                    // a
-
-            // do GSL rootfinding magic - solutions in 'solutions' array
-            double solutions[nSolutions];
-            gsl_poly_complex_workspace *workspace = gsl_poly_complex_workspace_alloc (nCoefficients);
-            gsl_poly_complex_solve(coefficients, nCoefficients, workspace, solutions);
-            gsl_poly_complex_workspace_free(workspace);
-
-            // now solve for values required
-            // JR: todo: the following arrays were declared with dimension [3] but the dimension should
-            // be [polynomialOrder], otherwise the loops below could walk off the end of the arrays...
-            // Setting the dimension at [3] relies on the first loop ending due to the check condition
-            // and 'haveSolution' being set true - not guaranteed, especially since there is a catch for
-            // that not happening after the first loop...
-
-            double aSolution[polynomialOrder];                                                                                                              // semi-major axes
-            double wsync[polynomialOrder];                                                                                                                  // synchronised orbital velocities
-            double E1[polynomialOrder];                                                                                                                     // total energies
-            double L1[polynomialOrder];                                                                                                                     // angular momenta
-            double deltaE1[polynomialOrder];                                                                                                                // energy differences
-            double deltaL1[polynomialOrder];                                                                                                                // angular momenta differences
-
-            constexpr double errorPermitted = 0.5;                                                                                                          // how much slop we'll accept...
-
-            bool haveSolution = false;
-            unsigned int  i   = 0;
-            do {
-                aSolution[i] = solutions[2 * i] * solutions[2 * i];
-                wsync[i]     = sqrt(totalMass * G1 / (aSolution[i] * aSolution[i] * aSolution[i]));
-                E1[i]	     = CalculateTotalEnergy(aSolution[i], wsync[i], wsync[i], wsync[i], star1GyrationRadius, star2GyrationRadius);
-                L1[i]	     = CalculateAngularMomentum(aSolution[i], m_EccentricityPrime, wsync[i], wsync[i], star1GyrationRadius, star2GyrationRadius);   // to verify for conservation of angular momentum
-                deltaE1[i]   = std::abs(E - E1[i]);
-                deltaL1[i]   = std::abs(L - L1[i]);
-
-                if (deltaE1[i] < (errorPermitted * std::abs(E)) && utils::Compare(solutions[(2 * i) + 1], 0.0) == 0) {                                      // JR: todo: don't use utils::Compare() for the error epsilon?  That's not really an epsilon...
-                    m_Star1->CalculateOmegaTidesIndividualDiff(wsync[i]);
-                    m_Star2->CalculateOmegaTidesIndividualDiff(wsync[i]);
-                    m_aTidesDiff     = aSolution[i] - m_SemiMajorAxisPrev;
-                    m_OmegaTidesDiff = wsync[i] - m_OrbitalVelocityPrev;
-                    m_OmegaTides     = wsync[i];
-
-                    haveSolution     = true;
-                }
-            } while (++i < polynomialOrder && !haveSolution);
-
-            if (!haveSolution) {                                                                                                                            // didn't converge - check for solutions which maybe not be exact, but close to instant tidal locking
-                i = 0;
-                do {
-                    if (deltaL1[i] < (errorPermitted * L) && utils::Compare(solutions[(2 * i) + 1], 0.0) == 0) {                                            // JR: todo: don't use utils::Compare() for the error epsilon?  That's not really an epsilon...
-                        m_Star1->CalculateOmegaTidesIndividualDiff(wsync[i]);
-                        m_Star2->CalculateOmegaTidesIndividualDiff(wsync[i]);
-                        m_aTidesDiff     = aSolution[i] - m_SemiMajorAxisPrev;
-                        m_OmegaTidesDiff = wsync[i] - m_OrbitalVelocityPrev;
-                        m_OmegaTides     = wsync[i];
-
-                        haveSolution     = true;
-                    }
-                } while (++i < polynomialOrder && !haveSolution);
-
-                if (!haveSolution) {                                                                                                                        // still didn't converge
-                    m_Error = ERROR::NO_CONVERGENCE;                                                                                                        // set error
-                    SHOW_ERROR(m_Error);                                                                                                                    // show error
-                }
-            }
-            } break;
-
-        default:                                                                                                                                            // unknown prescription
-            m_Error = ERROR::UNKNOWN_TIDES_PRESCRIPTION;                                                                                                    // set error
-            SHOW_ERROR(m_Error);                                                                                                                            // show error
-    }
-
-    // update values for star rotation
-    m_Star1->CalculateAngularMomentum();                                                                                                                    // calculate angular momentum for star1
-    m_Star2->CalculateAngularMomentum();                                                                                                                    // calculate angular momentum for star2
-
-    m_Star1->IncrementOmega(m_Star1->OmegaTidesIndividualDiff());                                                                                           // update star1 omega for tides difference
-    m_Star2->IncrementOmega(m_Star2->OmegaTidesIndividualDiff());                                                                                           // update star2 omega for tides difference
-
-    // update binary
-    m_OrbitalVelocityPrime += m_OmegaTidesDiff;                                                                                                             // should here be a diff quantity because of MB?     JR: todo: ?
-    m_SemiMajorAxisPrime   += m_aTidesDiff;
-
-    // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
-    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star1->SetOmega(m_OrbitalVelocityPrime);
-    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star2->SetOmega(m_OrbitalVelocityPrime);
-}
-
-
-/*
- * Assign misalignments to S1 and S2 based on assumptions for spin study
- *
- * Set spin misalignment angles - will need some model switch here depending on what you are running -
- * either as given by code for both primary and secondary, secondary given by code and primary = 0,
- * or secondary given by code and primary isotropic (uniform in cos(theta))  JR: todo: get clarity on this description from Alejandro
- *
- * DBL_DBL BaseBinaryStar::CalculateMisalignments()
- *
- * @return                                      Tuple containing misalignment angles theta1 & theta2
- */
-DBL_DBL BaseBinaryStar::CalculateMisalignments() {
-
-    double theta1;
-    double theta2;
-
-    switch (OPTIONS->SpinAssumption()) {                                                // which spin assumption?
-
-        case SPIN_ASSUMPTION::SAME:                                                     // both same
-            theta1 = m_IPrime;
-            theta2 = m_IPrime;
-            break;
-
-        case SPIN_ASSUMPTION::ALIGNED:                                                  // both aligned
-            theta1 = 0.0;
-            theta2 = 0.0;
-            break;
-
-        case SPIN_ASSUMPTION::MISALIGNED:                                               // secondary misaligned
-            theta1 = 0.0;
-            theta2 = m_IPrime;
-            break;
-
-        case SPIN_ASSUMPTION::ISOTROPIC:                                                // both isotropic
-            theta1 = acos((RAND->Random() * 2.0) - 1.0);                                // initial misalignment of star 1 uniform in cos(theta)
-            theta2 = acos((RAND->Random() * 2.0) - 1.0);                                // initial misalignment of star 2 uniform in cos(theta)
-            break;
-
-         case SPIN_ASSUMPTION::GEROSA:                                                  // Gerosa inspired
-
-            // inspired by Gerosa et al. 2013 who assume that after the 1st SN, the secondary is realigned but the primary is not
-            // after the second SN, the secondary is therefore slightly misaligned whilst the primary is misaligned as a function of both kicks
-            // to model this, we choose the primary misalignment isotropically, whilst the secondary is given from my code          // JR: todo:  whose code?
-
-            theta1 = acos((RAND->Random() * 2.0) - 1.0);
-            theta2 = m_IPrime;
-            break;
-
-        default:                                                                        // unknown spin assumption
-
-            SHOW_WARN(ERROR::UNKNOWN_SPIN_ASSUMPTION, "Using theta1 = theta2 = 0.0");   // show warning
-
-            theta1  = 0;                                                                // initial misalignment of star 1
-            theta2  = 0;                                                                // initial misalignment of star 2
-    }
-
-    return std::make_tuple(theta1, theta2);
 }
 
 
@@ -1931,12 +1644,6 @@ bool BaseBinaryStar::ResolveSupernova() {
         // Calculate post-SN orbital inclination using the equation for arbitrary eccentricity orbits
         m_CosIPrime   = CalculateCosFinalPlaneTilt(m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
         m_IPrime      = acos(m_CosIPrime);
-
-        std::tie(m_Theta1_i, m_Theta2_i) = CalculateMisalignments();                                                                // assign the spins.  TODO: I think this function is currently broken for two supernovae -- check!!  JR: todo: check this
-
-        // variables to evolve
-        m_Theta1 = m_Theta1_i;
-        m_Theta2 = m_Theta2_i;
 
         m_SystemicVelocity = CalculatePostSNSystemicVelocity(m_Supernova->Mass(),                                                   // post-SN systemic (center-of-mass) velocity in ms s^-1
                                                              m_Supernova->MassPrev() - m_Supernova->Mass(),
@@ -2512,7 +2219,7 @@ double BaseBinaryStar::CalculateMassTransferOrbit(BinaryConstituentStar& p_Donor
     // calculate new semi-major axis value using the chosen prescription
     switch (prescription) {                                                                                     // which mass transfer prescription?
 
-        case MT_PRESCRIPTION::DEMINK: {                                                                         // using de Mink mass transfer prescription
+        case MT_PRESCRIPTION::HURLEY: {                                                                         // using de Mink mass transfer prescription
                                                                                                                 // degenerate and non-degenerate accretor solutions same for de Mink
             double jPrime;
             double aPrime;
@@ -2520,9 +2227,9 @@ double BaseBinaryStar::CalculateMassTransferOrbit(BinaryConstituentStar& p_Donor
             double fractionAccreted    = m_FractionAccreted;
             double thermalRateAccretor = p_Accretor.CalculateThermalMassLossRate();
             double thermalRateDonor    = p_Donor.CalculateThermalMassLossRate();
-            double dt                  = p_Dt / DEMINK_ORBIT_ITERATIONS;                                        // delta t per iteration
+            double dt                  = p_Dt / HURLEY_MASS_TRANSFER_ORBIT_ITERATIONS;                                        // delta t per iteration
 
-            for(int i = 0; i < DEMINK_ORBIT_ITERATIONS ; i++) {
+            for(int i = 0; i < HURLEY_MASS_TRANSFER_ORBIT_ITERATIONS ; i++) {
 
                 jPrime = jOrb + ((jLoss * jOrb * (1.0 - fractionAccreted) * p_MDotDonor / massAplusMassD) * dt);
                 aPrime = semiMajorAxis + (((-2.0 * (p_MDotDonor / massD)) * (1.0 - (fractionAccreted * (massD / massA)) - ((1.0 - fractionAccreted) * (jLoss + 0.5) * (massD / massAplusMassD)))) * semiMajorAxis * dt);
@@ -2758,7 +2465,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 		// Begin Mass Transfer
         switch (OPTIONS->MassTransferPrescription()) {                                                                                                      // which mass transfer prescription?
 
-            case MT_PRESCRIPTION::DEMINK: {                                                                                                                 // de Mink
+            case MT_PRESCRIPTION::HURLEY: {                                                                                                                 // de Mink
 
                 switch (m_Donor->DetermineMassTransferCase()) {                                                                                             // which MT case?
 
@@ -2793,7 +2500,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
                 double ZlobAna      = CalculateZRocheLobe(jLoss);
                 m_ZetaRLOFNumerical = CalculateNumericalZRocheLobe(jLoss);
-                m_ZetaRLOFAnalytic  = ZlobAna;                                                                                                              // addition by Coen 18-10-2017 for zeta study.  ALEJANDRO - 04/10/2017 - Moved this to calculate it for deMink MT.
+                m_ZetaRLOFAnalytic  = ZlobAna;                                                                                                              // addition by Coen 18-10-2017 for zeta study.  ALEJANDRO - 04/10/2017 - Moved this to calculate it for HURLEY MT.
 
                 switch (m_Donor->DetermineEnvelopeType()) {                                                                                                 // which enveleope type?
 
@@ -3327,8 +3034,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         PrintDetailedOutput(m_Id);                                                                                      // print detailed output record if stellar type changed
     }
 
-    EvaluateSupernovae(false);                                                                                          // evaluate supernovae (both stars)   JR: todo: ?
-    ResolveTides();                                                                                                     // resolve tides
+    EvaluateSupernovae(false);                                                                                         // evaluate supernovae (both stars)   JR: todo: ?
     CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
 
     if (!(m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })))
@@ -3502,11 +3208,6 @@ void BaseBinaryStar::EvolveOneTimestep(const double p_Dt) {
 EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
     EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
-
-    if (OPTIONS->OnlyDoubleCompactObjects() && m_Star2->Mass() < MINIMUM_MASS_SECONDARY) {                                                  // check size of secondary
-        m_SecondaryTooSmallForDCO = true;
-        evolutionStatus           = EVOLUTION_STATUS::SECONDARY_TOO_SMALL_FOR_DCO;                                                          // too small - don't bother - no possibility of forming a double compact object
-    }
 
     if (HasStarsTouching()) {                                                                                                               // check if stars are touching
         m_StellarMerger        = true;

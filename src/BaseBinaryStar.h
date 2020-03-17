@@ -140,15 +140,6 @@ public:
 
         m_SystemicVelocity                 = p_Star.m_SystemicVelocity;
 
-        m_Theta1_i                         = p_Star.m_Theta1_i;
-        m_Theta2_i                         = p_Star.m_Theta2_i;
-        m_Theta1                           = p_Star.m_Theta1;
-        m_Theta2                           = p_Star.m_Theta2;
-
-        m_aTidesDiff                       = p_Star.m_aTidesDiff;
-        m_OmegaTidesDiff                   = p_Star.m_OmegaTidesDiff;
-        m_OmegaTides                       = p_Star.m_OmegaTides;
-
         m_Time                             = p_Star.m_Time;
         m_TimePrev                         = p_Star.m_TimePrev;
         m_TimeToCoalescence                = p_Star.m_TimeToCoalescence;
@@ -436,16 +427,7 @@ private:
 	double              m_SynchronizationTimescale;
 
     double              m_SystemicVelocity;                                                 // Post supernova systemic velocity
-
-    double              m_Theta1_i;                                                         // Initial misalignment of star1
-    double              m_Theta2_i;                                                         // Initial misalignment of star2
-    double              m_Theta1;                                                           // By default, aligned
-    double              m_Theta2;                                                           // By default, aligned
-
-    double              m_aTidesDiff;
-    double              m_OmegaTidesDiff;
-    double              m_OmegaTides;
-
+    
     double              m_Time;                                                             // Physical simulation time
     double              m_TimePrev;                                                         // Previous simulation time
     double              m_TimeToCoalescence;                                                // Coalescence time
@@ -536,8 +518,6 @@ private:
     void    CheckMassTransfer(const double p_Dt);
     void    InitialiseMassTransfer();
 
-    DBL_DBL CalculateMisalignments();
-
     double  CalculateOrbitalAngularMomentum(const double p_Mu,
                                             const double p_Mass,
                                             const double p_SemiMajorAxis)   { return p_Mu * sqrt(G1 * p_Mass * p_SemiMajorAxis); }
@@ -613,14 +593,12 @@ private:
     void    ResolveCommonEnvelopeEvent();
     void    ResolveMassChanges();
     bool    ResolveSupernova();
-    void    ResolveTides();
 
     double  SampleSemiMajorAxisDistribution(const double p_Mass1, const double p_Mass2);
     double  SampleEccentricityDistribution();
     double  SampleInitialMassDistribution();
     double  SampleMetallicityDistribution();
     double  SampleQDistribution();
-    double  SampleSpinDistribution();
 
     void    SetPostCEEValues(const double p_SemiMajorAxis,
                              const double p_Eccentricity,
