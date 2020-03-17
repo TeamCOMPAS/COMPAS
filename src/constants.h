@@ -232,9 +232,15 @@
 //                                                   - other parameters - calculated/determined - are recorded
 //                                   Defect repair:
 //                                       - changed "--outut" option name to "--outpuPath" in stringCommands in pythonSubmitDefault.py
+// 02.08.00		AVG - Mar 17, 2020 - Changed functionality:
+//										- removed post-newtonian spin evolution	code & associated pythonSubmitDefault.py options
+//										- removed only_double_compact_objects code & associated pythonSubmitDefault.py options
+//										- removed tides code & associated pythonSubmitDefault.py options
+//										- removed deprecated options from pythonSubmitDefault.py options
+//										- renamed options: mass transfer, iterations -> timestep-iterations
+//										- commented AIS Options until fully implemented
 
-
-const std::string VERSION_STRING = "02.07.00";
+const std::string VERSION_STRING = "02.08.00";
 
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
@@ -494,7 +500,7 @@ constexpr double ZETA_NUCLEAR_TIMESTEP                  = 1.0E-3;               
 constexpr double ZETA_NUCLEAR_TOLERANCE                 = 1.0E-3;                                                   // Tolerance between iterations when calculating zeta nuclear
 constexpr int    ZETA_NUCLEAR_ITERATIONS                = 10;                                                       // Maximum number of iterations to use when calculating zeta nuclear
 
-constexpr int    DEMINK_ORBIT_ITERATIONS                = 1000;                                                     // Number of iterations for solving mass transfer orbit for de Mink mass transfer prescription
+constexpr int    HURLEY_MASS_TRANSFER_ORBIT_ITERATIONS	= 1000;                                                     // Number of iterations for solving mass transfer orbit for HURLEY mass transfer prescription
 
 constexpr double LAMBDA_NANJING_ZLIMIT                  = 0.0105;                                                   // Metallicity cutoff for Nanjing lambda calculations
 
@@ -659,17 +665,13 @@ enum class ERROR: int {
     UNKNOWN_REMNANT_MASS_PRESCRIPTION,                              // unknown remnant mass prescription
     UNKNOWN_SN_ENGINE,                                              // unknown supernova engine
     UNKNOWN_SN_EVENT,                                               // unknown supernova event encountered
-    UNKNOWN_SPIN_ASSUMPTION,                                        // unknown spin assumption
-    UNKNOWN_SPIN_DISTRIBUTION,                                      // unknown spin distribution
     UNKNOWN_STELLAR_PROPERTY,                                       // unknown stellar property
     UNKNOWN_STELLAR_TYPE,                                           // unknown stellar type
-    UNKNOWN_TIDES_PRESCRIPTION,                                     // unknown tides prescription
     UNKNOWN_VROT_PRESCRIPTION,                                      // unknown rorational velocity prescription
     UNSUPPORTED_CE_ZETA_PRESCRIPTION,                               // unsupported common envelope Zeta prescription
     UNSUPPORTED_ECCENTRICITY_DISTRIBUTION,                          // unsupported eccentricity distribution
     UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,           // unsupported pulsar birth magnetic field distribution
     UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,              // unsupported pulsar birth spin period distribution
-    UNSUPPORTED_TIDES_PRESCRIPTION,                                 // unsupported tides prescription
     UNSUPPORTED_MT_PRESCRIPTION,                                    // unsupported mass transfer prescription
     WARNING                                                         // unspecified warning
 };
@@ -775,18 +777,14 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_REMNANT_MASS_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown remnant mass prescription" }},
     { ERROR::UNKNOWN_SN_ENGINE,                                     { ERROR_SCOPE::ALWAYS,              "Unknown supernova engine" }},
     { ERROR::UNKNOWN_SN_EVENT,                                      { ERROR_SCOPE::ALWAYS,              "Unknown supernova event" }},
-    { ERROR::UNKNOWN_SPIN_ASSUMPTION,                               { ERROR_SCOPE::ALWAYS,              "Unknown spin assumption" }},
-    { ERROR::UNKNOWN_SPIN_DISTRIBUTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown spin distribution" }},
     { ERROR::UNKNOWN_STELLAR_PROPERTY,                              { ERROR_SCOPE::ALWAYS,              "Unknown stellar property - property details not found" }},
     { ERROR::UNKNOWN_STELLAR_TYPE,                                  { ERROR_SCOPE::ALWAYS,              "Unknown stellar type" }},
-    { ERROR::UNKNOWN_TIDES_PRESCRIPTION,                            { ERROR_SCOPE::ALWAYS,              "Unknown tides prescription" }},
     { ERROR::UNKNOWN_VROT_PRESCRIPTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown rotational velocity prescription" }},
     { ERROR::UNSUPPORTED_ECCENTRICITY_DISTRIBUTION,                 { ERROR_SCOPE::ALWAYS,              "Unsupported eccentricity distribution" }},
     { ERROR::UNSUPPORTED_CE_ZETA_PRESCRIPTION,                      { ERROR_SCOPE::ALWAYS,              "Unsupported common envelope Zeta prescription" }},
     { ERROR::UNSUPPORTED_MT_PRESCRIPTION,                           { ERROR_SCOPE::ALWAYS,              "Unsupported mass transfer prescription" }},
     { ERROR::UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,  { ERROR_SCOPE::ALWAYS,              "Unsupported pulsar birth magnetic field distribution" }},
     { ERROR::UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,     { ERROR_SCOPE::ALWAYS,              "Unsupported pulsar birth spin period distribution" }},
-    { ERROR::UNSUPPORTED_TIDES_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unsupported tides prescription" }},
     { ERROR::WARNING,                                               { ERROR_SCOPE::ALWAYS,              "Warning!" }}
 };
 
@@ -1058,10 +1056,10 @@ const COMPASUnorderedMap<MT_CASE, std::string> MT_CASE_LABEL = {
 
 
 // Mass transfer prescriptions
-enum class MT_PRESCRIPTION: int { DEMINK, BELCZYNSKI, NONE };
+enum class MT_PRESCRIPTION: int { HURLEY, BELCZYNSKI, NONE };
 const COMPASUnorderedMap<MT_PRESCRIPTION, std::string> MT_PRESCRIPTION_LABEL = {
     { MT_PRESCRIPTION::NONE,       "NONE" },
-    { MT_PRESCRIPTION::DEMINK,     "DEMINK" },
+    { MT_PRESCRIPTION::HURLEY,     "HURLEY" },
     { MT_PRESCRIPTION::BELCZYNSKI, "BELCZYNSKI" }
 };
 
@@ -1245,38 +1243,6 @@ const COMPASUnorderedMap<SN_STATE, std::string> SN_STATE_LABEL = {
     { SN_STATE::STAR2, "Star2 only" },
     { SN_STATE::BOTH,  "Both stars" }
 };
-
-
-// Spin assumption constants
-enum class SPIN_ASSUMPTION: int { SAME, ALIGNED, MISALIGNED, ISOTROPIC, GEROSA };
-const COMPASUnorderedMap<SPIN_ASSUMPTION, std::string> SPIN_ASSUMPTION_LABEL = {
-    { SPIN_ASSUMPTION::SAME,       "useSame" },
-    { SPIN_ASSUMPTION::ALIGNED,    "bothAligned" },
-    { SPIN_ASSUMPTION::MISALIGNED, "secondaryMisaligned" },
-    { SPIN_ASSUMPTION::ISOTROPIC,  "bothIsotropic" },
-    { SPIN_ASSUMPTION::GEROSA,     "gerosaInspired" }
-};
-
-
-// Spin distribution
-enum class SPIN_DISTRIBUTION: int { ZERO, FLAT, FIXED };
-const COMPASUnorderedMap<SPIN_DISTRIBUTION, std::string> SPIN_DISTRIBUTION_LABEL = {
-    { SPIN_DISTRIBUTION::ZERO,  "ZERO" },
-    { SPIN_DISTRIBUTION::FLAT,  "FLAT" },
-    { SPIN_DISTRIBUTION::FIXED, "FIXED" }
-};
-
-
-// Tides prescriptions
-enum class TIDES_PRESCRIPTION: int { NONE, LOCKED_ENERGY, LOCKED_ANG_MOMENTUM, HUT };
-const COMPASUnorderedMap<TIDES_PRESCRIPTION, std::string> TIDES_PRESCRIPTION_LABEL = {
-    { TIDES_PRESCRIPTION::NONE,                "NONE" },
-    { TIDES_PRESCRIPTION::LOCKED_ENERGY,       "LOCKED_ENERGY" },
-    { TIDES_PRESCRIPTION::LOCKED_ANG_MOMENTUM, "LOCKED_ANGMOMENTUM" },
-    { TIDES_PRESCRIPTION::HUT,                 "HUT" }
-};
-
-
 
 // enum class L_CONSTANTS
 // symbolic names for the Luminosity Constants
