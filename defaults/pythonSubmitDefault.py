@@ -34,13 +34,13 @@ class pythonProgramOptions:
 
     use_mass_loss = True
     mass_transfer = True
-    detailed_output = False                         # WARNING: this creates a data heavy file
+    detailed_output = False                             # WARNING: this creates a data heavy file
     evolve_unbound_systems = False
     lambda_calculation_every_timestep = False
     zeta_calculation_every_timestep = False
     quiet = False
 
-    metallicity = 0.0142                            # Solar metallicity Asplund+2010
+    metallicity = 0.0142                                # Solar metallicity Asplund+2010
 
     allow_rlof_at_birth = False;                                            # allow binaries that have one or both stars in RLOF at birth to evolve?
     allow_touching_at_birth = False;                                        # allow binaries that have stars touching at birth to evolve?
@@ -79,29 +79,29 @@ class pythonProgramOptions:
     eddington_accretion_factor = 1    #multiplication Factor for eddington accretion onto NS&BH
 
     #-- Stability criteria for case BB/BC mass transfer (for BNS project)
-    force_case_BB_BC_stability = True               # Case BB/BC is either stable or unstable
-    always_stable_case_BB_BC = True                 # Stable = Ture, Unstable = False. Default = True
+    force_case_BB_BC_stability = True                   # Case BB/BC is either stable or unstable
+    always_stable_case_BB_BC = True                     # Stable = Ture, Unstable = False. Default = True
     zeta_Main_Sequence = 2.0
     zeta_Hertzsprung_Gap = 6.5
 
-    maximum_evolution_time = 13700.0        # [Myrs]
+    maximum_evolution_time = 13700.0                    # [Myrs]
     maximum_number_timesteps = 99999
 
     initial_mass_function = 'KROUPA'
-    initial_mass_min = 5.0          # Use 1.0 for LRNe, 5.0 for DCOs  [Msol]
-    initial_mass_max = 150.0        # Stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
+    initial_mass_min = 5.0                              # Use 1.0 for LRNe, 5.0 for DCOs  [Msol]
+    initial_mass_max = 150.0                            # Stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
 
     initial_mass_power = 0.0
 
     semi_major_axis_distribution = 'FLATINLOG'
-    semi_major_axis_min = 0.01  #  [AU]
-    semi_major_axis_max = 1000.0  #  [AU]
+    semi_major_axis_min = 0.01                          #  [AU]
+    semi_major_axis_max = 1000.0                        #  [AU]
 
     mass_ratio_distribution = 'FLAT'
     mass_ratio_min = 0.0
     mass_ratio_max = 1.0
 
-    minimum_secondary_mass = 0.1 # Brown dwarf limit  [Msol]
+    minimum_secondary_mass = 0.1                        # Brown dwarf limit  [Msol]
 
     eccentricity_distribution = 'ZERO'
     eccentricity_min = 0.0
@@ -128,38 +128,15 @@ class pythonProgramOptions:
     orbital_period_min = 1.1
     orbital_period_max = 1000
 
-    # AVG
-    """
-    sample_kick_velocity_sigma = True
-    sample_kick_velocity_sigma_min = 0.0
-    sample_kick_velocity_sigma_max = 400.0
-
-    sample_kick_direction_power = False
-    sample_kick_direction_power_min = -10.0
-    sample_kick_direction_power_max = 10.0
-
-    sample_common_envelope_alpha = False
-    sample_common_envelope_alpha_min = 0.0
-    sample_common_envelope_alpha_max = 5.0
-
-    sample_wolf_rayet_multiplier = False
-    sample_wolf_rayet_multiplier_min = 0.0
-    sample_wolf_rayet_multiplier_max = 10.0
-
-    sample_luminous_blue_variable_multiplier = False
-    sample_luminous_blue_variable_multiplier_min = 0.0
-    sample_luminous_blue_variable_multiplier_max = 10.0
-    """
-
     remnant_mass_prescription = 'FRYER2012'
     fryer_supernova_engine = 'DELAYED'
     black_hole_kicks = 'FALLBACK'
     kick_velocity_distribution = 'MAXWELLIAN'
 
-    kick_velocity_sigma_CCSN_NS = 265.0  #  [km/s]
-    kick_velocity_sigma_CCSN_BH = 265.0  #  [km/s]
-    kick_velocity_sigma_ECSN = 30.0  #  [km/s]
-    kick_velocity_sigma_USSN = 30.0  #  [km/s]
+    kick_velocity_sigma_CCSN_NS = 265.0                 #  [km/s]
+    kick_velocity_sigma_CCSN_BH = 265.0                 #  [km/s]
+    kick_velocity_sigma_ECSN = 30.0                     #  [km/s]
+    kick_velocity_sigma_USSN = 30.0                     #  [km/s]
 
     fix_dimensionless_kick_velocity = -1
     kick_direction = 'ISOTROPIC'
@@ -168,11 +145,11 @@ class pythonProgramOptions:
     kick_velocity_maximum = -1.0
 
     pair_instability_supernovae = True
-    PISN_lower_limit = 60.0     # Minimum core mass for PISN [Msol]
-    PISN_upper_limit = 135.0    # Maximum core mass for PISN [Msol]
+    PISN_lower_limit = 60.0                             # Minimum core mass for PISN [Msol]
+    PISN_upper_limit = 135.0                            # Maximum core mass for PISN [Msol]
     pulsation_pair_instability = True
-    PPI_lower_limit = 35.0      # Minimum core mass for PPI [Msol]
-    PPI_upper_limit = 60.0      # Maximum core mass for PPI [Msol]
+    PPI_lower_limit = 35.0                              # Minimum core mass for PPI [Msol]
+    PPI_upper_limit = 60.0                              # Maximum core mass for PPI [Msol]
 
     pulsational_pair_instability_prescription = 'MARCHANT'
 
@@ -213,11 +190,6 @@ class pythonProgramOptions:
             self.mass_transfer,
             self.detailed_output,
             self.evolve_unbound_systems,
-#            self.sample_kick_velocity_sigma,
-#            self.sample_kick_direction_power,
-#            self.sample_common_envelope_alpha,
-#            self.sample_wolf_rayet_multiplier,
-#            self.sample_luminous_blue_variable_multiplier,
             self.populationPrinting,
             self.lambda_calculation_every_timestep,
             self.zeta_calculation_every_timestep,
@@ -245,11 +217,6 @@ class pythonProgramOptions:
             '--massTransfer',
             '--detailedOutput',
             '--evolve-unbound-systems',
-#            '--sample-kick-velocity-sigma',
-#            '--sample-kick-direction-power',
-#            '--sample-common-envelope-alpha',
-#            '--sample-wolf-rayet-multiplier',
-#            '--sample-luminous-blue-variable-multiplier',
             '--populationDataPrinting',
             '--lambda-calculation-every-timeStep',
             '--zeta-Calculation-Every-Time-Step',
@@ -308,16 +275,6 @@ class pythonProgramOptions:
             self.kick_velocity_sigma_CCSN_BH,
             self.fix_dimensionless_kick_velocity,
             self.kick_direction_power,
-#            self.sample_kick_velocity_sigma_min,
-#            self.sample_kick_velocity_sigma_max,
-#            self.sample_kick_direction_power_min,
-#            self.sample_kick_direction_power_max,
-#            self.sample_common_envelope_alpha_min,
-#            self.sample_common_envelope_alpha_max,
-#            self.sample_wolf_rayet_multiplier_min,
-#            self.sample_wolf_rayet_multiplier_max,
-#            self.sample_luminous_blue_variable_multiplier_min,
-#            self.sample_luminous_blue_variable_multiplier_max,
             self.random_seed,
             self.mass_transfer_thermal_limit_C,
             self.eddington_accretion_factor,
@@ -383,16 +340,6 @@ class pythonProgramOptions:
             '--kick-velocity-sigma-CCSN-BH',
             '--fix-dimensionless-kick-velocity',
             '--kick-direction-power',
-#            '--sample-kick-velocity-sigma-min',
-#            '--sample-kick-velocity-sigma-max',
-#            '--sample-kick-direction-power-min',
-#            '--sample-kick-direction-power-max',
-#            '--sample-common-envelope-alpha-min',
-#            '--sample-common-envelope-alpha-max',
-#            '--sample-wolf-rayet-multiplier-min',
-#            '--sample-wolf-rayet-multiplier-max',
-#            '--sample-luminous-blue-variable-multiplier-min',
-#            '--sample-luminous-blue-variable-multiplier-max',
             '--random-seed',
             '--mass-transfer-thermal-limit-C',
             '--eddington-accretion-factor',
