@@ -222,8 +222,6 @@ public:
 
     NS_EOS                                      NeutronStarEquationOfState() const                                      { return neutronStarEquationOfState; }
 
-// AVG    bool                                        OnlyDoubleCompactObjects() const                                        { return onlyDoubleCompactObjects; }
-
     bool                                        OptimisticCHE() const                                                   { return cheOption == CHE_OPTION::OPTIMISTIC; }
 
     string                                      OptionsDetails() const                                                  { return m_OptionsDetails; }
@@ -288,8 +286,6 @@ public:
     double                                      SingleStarMassMin() const                                               { return singleStarMassMin; }
     double                                      SingleStarMassMax() const                                               { return singleStarMassMax; }
 
-// AVG    TIDES_PRESCRIPTION                          TidesPrescription() const                                               { return tidesPrescription; }
-
     bool                                        UseFixedUK() const                                                      { return useFixedUK; }
     bool                                        UseMassLoss() const                                                     { return useMassLoss; }
     bool                                        UseMassTransfer() const                                                 { return useMassTransfer; }
@@ -324,7 +320,6 @@ private:
 	bool                                        beBinaries;													    // Flag if we want to print BeBinaries (main.cpp)
     bool                                        evolvePulsars;                                                  // Whether to evolve pulsars or not
 	bool                                        evolveUnboundSystems;							                // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
-// AVG    bool                                        onlyDoubleCompactObjects;                                       // A bunch of shortcuts to only evolve systems which are likely to form double compact objects.
 
     bool                                        detailedOutput;                                                 // Print detailed output details to file (default = false)
     bool                                        populationDataPrinting;                                         // Print certain data for small populations, but not for larger one
@@ -431,13 +426,6 @@ private:
     boost::filesystem::path                     outputPath;                                                     // Desired output location
     string                                      outputContainerName;                                            // Name of output container (directory)
 
-    // AVG
-    /*
-    // Tides options
-    TIDES_PRESCRIPTION                          tidesPrescription;                                              // Which tides prescription will be used by the code. (default = TIDES_PRESCRIPTION_NONE)
-    string                                      tidesPrescriptionString;                                        // String containing which tides prescription to use (default = "None")
-    */
-    
     // Mass loss options
     bool                                        useMassLoss;                                                    // Whether to activate mass loss (default = True)
     // Can also have options for modifying strength of winds etc here

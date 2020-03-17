@@ -183,7 +183,6 @@ void Options::InitialiseMemberVariables(void) {
 	beBinaries                                                      = false;
     evolvePulsars                                                   = false;                                                                            // Whether to evolve pulsars
 	evolveUnboundSystems                                            = false;                                                                            // Allow unbound syetms to evolve
-// AVG    onlyDoubleCompactObjects                                        = false;                                                                            // Flag to turn on some shortcuts to only evolve systems which may form double compact objects
 
     detailedOutput                                                  = false;                                                                            // Detailed output
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
@@ -304,13 +303,6 @@ void Options::InitialiseMemberVariables(void) {
     outputPath                                                      = defaultOutputPath;                                                                // Desired output location
     outputContainerName                                             = DEFAULT_OUTPUT_CONTAINER_NAME;                                                    // Output container - this is a container (directory) created at outputPath to hold all output files
     
-    // AVG
-    /*
-    // Tides options
-    tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
-    tidesPrescriptionString                                         = TIDES_PRESCRIPTION_LABEL.at(tidesPrescription);                                   // String containing which tides prescription to use
-    */
-
     // Mass loss options
     useMassLoss                                                     = false;                                                                            // Whether to use mass loss
 
@@ -563,7 +555,6 @@ void Options::SetToFiducialValues(void) {
 	beBinaries                                                      = false;
     evolvePulsars                                                   = false;                                                                            // Whether to evolve pulsars
 	evolveUnboundSystems                                            = false;                                                                            // Allow unbound syetms to evolve
-// AVG    onlyDoubleCompactObjects                                        = false;                                                                            // Flag to turn on some shortcuts to only evolve systems which may form double compact objects
 
     detailedOutput                                                  = false;                                                                            // Detailed output
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
@@ -690,13 +681,6 @@ void Options::SetToFiducialValues(void) {
     defaultOutputPath                                               = boost::filesystem::current_path();                                                // Default output location
     outputPath                                                      = defaultOutputPath;                                                                // Desired output location
     outputContainerName                                             = DEFAULT_OUTPUT_CONTAINER_NAME;                                                    // Output container - this is a container (directory) created at outputPath to hold all output files
-
-    // AVG
-    /*
-    // Tides options
-    tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
-    tidesPrescriptionString                                         = TIDES_PRESCRIPTION_LABEL.at(tidesPrescription);                                   // String containing which tides prescription to use
-    */
 
     // Mass loss options
     useMassLoss                                                     = false;                                                                            // Whether to use mass loss
@@ -1020,7 +1004,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             ("forceCaseBBBCStabilityFlag",                                  po::value<bool>(&forceCaseBBBCStabilityFlag)->default_value(forceCaseBBBCStabilityFlag)->implicit_value(true),                                              ("Force case BB/BC mass transfer to be only stable or unstable (default = " + std::string(forceCaseBBBCStabilityFlag ? "TRUE" : "FALSE") + ")").c_str())
 			("lambda-calculation-every-timeStep",                           po::value<bool>(&lambdaCalculationEveryTimeStep)->default_value(lambdaCalculationEveryTimeStep)->implicit_value(true),                                      ("Calculate all values of lambda at each timestep (default = " + std::string(lambdaCalculationEveryTimeStep ? "TRUE" : "FALSE") + ")").c_str())
    		   	("massTransfer",                                                po::value<bool>(&useMassTransfer)->default_value(useMassTransfer)->implicit_value(true),                                                                    ("Enable mass transfer (default = " + std::string(useMassTransfer ? "TRUE" : "FALSE") + ")").c_str())
-// AVG		    ("only-double-compact-objects",                                 po::value<bool>(&onlyDoubleCompactObjects)->default_value(onlyDoubleCompactObjects)->implicit_value(true),                                                  ("Only evolve binaries which may form double compact objects (default = " + std::string(onlyDoubleCompactObjects ? "TRUE" : "FALSE") + ")").c_str())
 		    ("pair-instability-supernovae",                                 po::value<bool>(&usePairInstabilitySupernovae)->default_value(usePairInstabilitySupernovae)->implicit_value(true),                                          ("Enable pair instability supernovae (PISN) (default = " + std::string(usePairInstabilitySupernovae ? "TRUE" : "FALSE") + ")").c_str())
             ("populationDataPrinting",                                      po::value<bool>(&populationDataPrinting)->default_value(populationDataPrinting)->implicit_value(true),                                                      ("Print details of population (default = " + std::string(populationDataPrinting ? "TRUE" : "FALSE") + ")").c_str())
 		    ("print-bool-as-string",                                        po::value<bool>(&printBoolAsString)->default_value(printBoolAsString)->implicit_value(true),                                                                ("Print boolean properties as 'TRUE' or 'FALSE' (default = " + std::string(printBoolAsString ? "TRUE" : "FALSE") + ")").c_str())
@@ -1213,9 +1196,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		    ("semi-major-axis-distribution,a",                              po::value<string>(&semiMajorAxisDistributionString)->default_value(semiMajorAxisDistributionString),                                                        ("Initial semi-major axis distribution, a (options: FLATINLOG, CUSTOM, DuquennoyMayor1991, SANA2012), default = " + semiMajorAxisDistributionString + ")").c_str())
 
-// AVG		    ("tides-prescription",                                          po::value<string>(&tidesPrescriptionString)->default_value(tidesPrescriptionString),                                                                        ("Tides prescription (options: default = " + tidesPrescriptionString + ")").c_str())
-
-
             // vector (list) options - alphabetically
             ("debug-classes",                                               po::value<vector<string>>(&debugClasses)->multitoken()->default_value(debugClasses),                                                                        ("Debug classes enabled (default = " + defaultDebugClasses + ")").c_str())
             ("log-classes",                                                 po::value<vector<string>>(&logClasses)->multitoken()->default_value(logClasses),                                                                            ("Logging classes enabled (default = " + defaultLogClasses + ")").c_str())
@@ -1401,15 +1381,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 std::tie(found, semiMajorAxisDistribution) = utils::GetMapKey(semiMajorAxisDistributionString, SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL, semiMajorAxisDistribution);
                 COMPLAIN_IF(!found, "Unknown Semi-Major Axis Distribution");
             }
-
-            // AVG
-            /*
-            if (!vm["tides-prescription"].defaulted()) {                                                                                // tides prescription
-                std::tie(found, tidesPrescription) = utils::GetMapKey(tidesPrescriptionString, TIDES_PRESCRIPTION_LABEL, tidesPrescription);
-                COMPLAIN_IF(!found, "Unknown Tides Prescription");
-            }
-            */
-
 
             // constraint/value/range checks - alphabetically (where possible)
 
