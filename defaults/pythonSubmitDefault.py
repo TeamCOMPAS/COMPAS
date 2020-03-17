@@ -84,7 +84,7 @@ class pythonProgramOptions:
     zeta_Main_Sequence = 2.0
     zeta_Hertzsprung_Gap = 6.5
 
-    maximum_evolution_time = 13700.0                    # [Myrs]
+    maximum_evolution_time = 13700.0                    # Maximum physical time a system can be evolved [Myrs]
     maximum_number_timesteps = 99999
 
     initial_mass_function = 'KROUPA'
@@ -163,7 +163,7 @@ class pythonProgramOptions:
 
     logfile_definitions = None
 
-    logfile_name_prefix = 'Compas_Log_'
+    logfile_name_prefix = None
     logfile_delimiter   = 'COMMA'
 
     # set the logfile names here
