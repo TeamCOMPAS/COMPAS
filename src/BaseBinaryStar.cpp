@@ -346,10 +346,13 @@ void BaseBinaryStar::SetRemainingCommonValues() {
 
     m_SecondaryTooSmallForDCO                    = false;
 
+    // AVG
+    /*
     // Differential quantities
     m_aTidesDiff                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_OmegaTidesDiff                             = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_OmegaTides                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
+    */
 
     m_aMassLossDiff                              = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_OmegaMassLossDiff                          = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -392,11 +395,14 @@ void BaseBinaryStar::SetRemainingCommonValues() {
     m_ZetaRLOFNumerical                          = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_ZetaStarCompare	                         = DEFAULT_INITIAL_DOUBLE_VALUE;
 
+    // AVG
+    /*
     // Misalignments
     m_Theta1_i                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Theta2_i                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Theta1                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Theta2                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
+    */
 
     // Initialise other parameters to 0
     m_MSN                                        = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -1405,6 +1411,8 @@ void BaseBinaryStar::ResolveCoalescence() {
  *
  * void ResolveTides()
  */
+// AVG
+/*
 void BaseBinaryStar::ResolveTides() {
 
     if (m_Star1->IsOneOf({ STELLAR_TYPE::BLACK_HOLE, STELLAR_TYPE::MASSLESS_REMNANT }) ||
@@ -1566,6 +1574,7 @@ void BaseBinaryStar::ResolveTides() {
     if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star1->SetOmega(m_OrbitalVelocityPrime);
     if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star2->SetOmega(m_OrbitalVelocityPrime);
 }
+*/
 
 /*
  * Calculate the systemic velocity (centre-of-mass velocity) of the binary after the supernova
@@ -3220,8 +3229,8 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         PrintDetailedOutput(m_Id);                                                                                      // print detailed output record if stellar type changed
     }
 
-    EvaluateSupernovae(false);                                                                                          // evaluate supernovae (both stars)   JR: todo: ?
-    ResolveTides();                                                                                                     // resolve tides
+    EvaluateSupernovae(false);                                                                                         // evaluate supernovae (both stars)   JR: todo: ?
+// AVG    ResolveTides();                                                                                                     // resolve tides
     CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
 
     if (!(m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })))
@@ -3403,7 +3412,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
         evolutionStatus           = EVOLUTION_STATUS::SECONDARY_TOO_SMALL_FOR_DCO;                                                          // too small - don't bother - no possibility of forming a double compact object
     }
     */
-    
+
     if (HasStarsTouching()) {                                                                                                               // check if stars are touching
         m_StellarMerger        = true;
         m_StellarMergerAtBirth = true;

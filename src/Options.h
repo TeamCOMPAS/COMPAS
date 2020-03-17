@@ -288,7 +288,7 @@ public:
     double                                      SingleStarMassMin() const                                               { return singleStarMassMin; }
     double                                      SingleStarMassMax() const                                               { return singleStarMassMax; }
 
-    TIDES_PRESCRIPTION                          TidesPrescription() const                                               { return tidesPrescription; }
+// AVG    TIDES_PRESCRIPTION                          TidesPrescription() const                                               { return tidesPrescription; }
 
     bool                                        UseFixedUK() const                                                      { return useFixedUK; }
     bool                                        UseMassLoss() const                                                     { return useMassLoss; }
@@ -431,10 +431,13 @@ private:
     boost::filesystem::path                     outputPath;                                                     // Desired output location
     string                                      outputContainerName;                                            // Name of output container (directory)
 
+    // AVG
+    /*
     // Tides options
     TIDES_PRESCRIPTION                          tidesPrescription;                                              // Which tides prescription will be used by the code. (default = TIDES_PRESCRIPTION_NONE)
     string                                      tidesPrescriptionString;                                        // String containing which tides prescription to use (default = "None")
-
+    */
+    
     // Mass loss options
     bool                                        useMassLoss;                                                    // Whether to activate mass loss (default = True)
     // Can also have options for modifying strength of winds etc here

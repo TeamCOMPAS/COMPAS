@@ -304,10 +304,12 @@ void Options::InitialiseMemberVariables(void) {
     outputPath                                                      = defaultOutputPath;                                                                // Desired output location
     outputContainerName                                             = DEFAULT_OUTPUT_CONTAINER_NAME;                                                    // Output container - this is a container (directory) created at outputPath to hold all output files
     
+    // AVG
+    /*
     // Tides options
     tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
     tidesPrescriptionString                                         = TIDES_PRESCRIPTION_LABEL.at(tidesPrescription);                                   // String containing which tides prescription to use
-
+    */
 
     // Mass loss options
     useMassLoss                                                     = false;                                                                            // Whether to use mass loss
@@ -689,10 +691,12 @@ void Options::SetToFiducialValues(void) {
     outputPath                                                      = defaultOutputPath;                                                                // Desired output location
     outputContainerName                                             = DEFAULT_OUTPUT_CONTAINER_NAME;                                                    // Output container - this is a container (directory) created at outputPath to hold all output files
 
+    // AVG
+    /*
     // Tides options
     tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
     tidesPrescriptionString                                         = TIDES_PRESCRIPTION_LABEL.at(tidesPrescription);                                   // String containing which tides prescription to use
-
+    */
 
     // Mass loss options
     useMassLoss                                                     = false;                                                                            // Whether to use mass loss
@@ -1209,7 +1213,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		    ("semi-major-axis-distribution,a",                              po::value<string>(&semiMajorAxisDistributionString)->default_value(semiMajorAxisDistributionString),                                                        ("Initial semi-major axis distribution, a (options: FLATINLOG, CUSTOM, DuquennoyMayor1991, SANA2012), default = " + semiMajorAxisDistributionString + ")").c_str())
 
-		    ("tides-prescription",                                          po::value<string>(&tidesPrescriptionString)->default_value(tidesPrescriptionString),                                                                        ("Tides prescription (options: default = " + tidesPrescriptionString + ")").c_str())
+// AVG		    ("tides-prescription",                                          po::value<string>(&tidesPrescriptionString)->default_value(tidesPrescriptionString),                                                                        ("Tides prescription (options: default = " + tidesPrescriptionString + ")").c_str())
 
 
             // vector (list) options - alphabetically
@@ -1398,10 +1402,13 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 COMPLAIN_IF(!found, "Unknown Semi-Major Axis Distribution");
             }
 
+            // AVG
+            /*
             if (!vm["tides-prescription"].defaulted()) {                                                                                // tides prescription
                 std::tie(found, tidesPrescription) = utils::GetMapKey(tidesPrescriptionString, TIDES_PRESCRIPTION_LABEL, tidesPrescription);
                 COMPLAIN_IF(!found, "Unknown Tides Prescription");
             }
+            */
 
 
             // constraint/value/range checks - alphabetically (where possible)
