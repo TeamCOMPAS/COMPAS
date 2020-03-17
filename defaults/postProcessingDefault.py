@@ -92,7 +92,6 @@ def main(filesToCombine=None, dataRootDir=None, prefix=None,\
     print('Combining %s files from subdirectories' %(extension))
     setOfUsedDatafiles = combineOutputsOfFile(dataRootDir=dataRootDir, h5GroupDict=h5GroupDict,\
                          delimiter=delimiter) 
-    print(" Set of Used data files: ", setOfUsedDatafiles)
     
 
     ### Step 3: Create a single H5 file for all the data
