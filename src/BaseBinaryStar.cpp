@@ -2219,7 +2219,7 @@ double BaseBinaryStar::CalculateMassTransferOrbit(BinaryConstituentStar& p_Donor
     // calculate new semi-major axis value using the chosen prescription
     switch (prescription) {                                                                                     // which mass transfer prescription?
 
-        case MT_PRESCRIPTION::DEMINK: {                                                                         // using de Mink mass transfer prescription
+        case MT_PRESCRIPTION::HURLEY: {                                                                         // using de Mink mass transfer prescription
                                                                                                                 // degenerate and non-degenerate accretor solutions same for de Mink
             double jPrime;
             double aPrime;
@@ -2227,9 +2227,9 @@ double BaseBinaryStar::CalculateMassTransferOrbit(BinaryConstituentStar& p_Donor
             double fractionAccreted    = m_FractionAccreted;
             double thermalRateAccretor = p_Accretor.CalculateThermalMassLossRate();
             double thermalRateDonor    = p_Donor.CalculateThermalMassLossRate();
-            double dt                  = p_Dt / DEMINK_ORBIT_ITERATIONS;                                        // delta t per iteration
+            double dt                  = p_Dt / HURLEY_MASS_TRANSFER_ORBIT_ITERATIONS;                                        // delta t per iteration
 
-            for(int i = 0; i < DEMINK_ORBIT_ITERATIONS ; i++) {
+            for(int i = 0; i < HURLEY_MASS_TRANSFER_ORBIT_ITERATIONS ; i++) {
 
                 jPrime = jOrb + ((jLoss * jOrb * (1.0 - fractionAccreted) * p_MDotDonor / massAplusMassD) * dt);
                 aPrime = semiMajorAxis + (((-2.0 * (p_MDotDonor / massD)) * (1.0 - (fractionAccreted * (massD / massA)) - ((1.0 - fractionAccreted) * (jLoss + 0.5) * (massD / massAplusMassD)))) * semiMajorAxis * dt);
@@ -2465,7 +2465,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 		// Begin Mass Transfer
         switch (OPTIONS->MassTransferPrescription()) {                                                                                                      // which mass transfer prescription?
 
-            case MT_PRESCRIPTION::DEMINK: {                                                                                                                 // de Mink
+            case MT_PRESCRIPTION::HURLEY: {                                                                                                                 // de Mink
 
                 switch (m_Donor->DetermineMassTransferCase()) {                                                                                             // which MT case?
 
@@ -2500,7 +2500,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
                 double ZlobAna      = CalculateZRocheLobe(jLoss);
                 m_ZetaRLOFNumerical = CalculateNumericalZRocheLobe(jLoss);
-                m_ZetaRLOFAnalytic  = ZlobAna;                                                                                                              // addition by Coen 18-10-2017 for zeta study.  ALEJANDRO - 04/10/2017 - Moved this to calculate it for deMink MT.
+                m_ZetaRLOFAnalytic  = ZlobAna;                                                                                                              // addition by Coen 18-10-2017 for zeta study.  ALEJANDRO - 04/10/2017 - Moved this to calculate it for HURLEY MT.
 
                 switch (m_Donor->DetermineEnvelopeType()) {                                                                                                 // which enveleope type?
 

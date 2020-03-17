@@ -322,7 +322,7 @@ void Options::InitialiseMemberVariables(void) {
 	alwaysStableCaseBBBCFlag                                        = false;									                                        // Whether if case BB/BC is always stable
 	angularMomentumConservationDuringCircularisation                = false;		                                                                    // Whether to conserve angular momentum while circularising or circularise to periastron
 
-    massTransferPrescription                                        = MT_PRESCRIPTION::DEMINK;
+    massTransferPrescription                                        = MT_PRESCRIPTION::HURLEY;
 	massTransferPrescriptionString                                  = MT_PRESCRIPTION_LABEL.at(massTransferPrescription);
 
 
@@ -701,7 +701,7 @@ void Options::SetToFiducialValues(void) {
 	alwaysStableCaseBBBCFlag                                        = false;							                                                // Whether if case BB/BC is always stable
 	angularMomentumConservationDuringCircularisation                = false;		                                                                    // Whether to conserve angular momentum while circularising or circularise to periastron
 
-    massTransferPrescription                                        = MT_PRESCRIPTION::DEMINK;
+    massTransferPrescription                                        = MT_PRESCRIPTION::HURLEY;
     massTransferPrescriptionString                                  = MT_PRESCRIPTION_LABEL.at(massTransferPrescription);
 
 

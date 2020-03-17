@@ -60,14 +60,13 @@ class pythonProgramOptions:
     common_envelope_mass_accretion_min = 0.04           # For 'MACLEOD+2014' [Msol]
     common_envelope_mass_accretion_max = 0.10           # For 'MACLEOD+2014' [Msol]
 
-#    tides_prescription = 'NONE'
     mass_loss_prescription = 'VINK'
     luminous_blue_variable_multiplier = 1.5
     wolf_rayet_multiplier = 1.0
 
     circularise_binary_during_mass_transfer = False
     angular_momentum_conservation_during_circularisation = False
-    mass_transfer_prescription = 'DEMINK'           # Remove after cleaning MT function
+    mass_transfer_prescription = 'HURLEY'           # Remove after cleaning MT function
     mass_transfer_angular_momentum_loss_prescription = 'ISOTROPIC'
     mass_transfer_accretion_efficiency_prescription = 'THERMAL'
     mass_transfer_fa = 0.5  # Only if using mass_transfer_accretion_efficiency_prescription = 'FIXED'
