@@ -237,7 +237,7 @@
 //										- removed only_double_compact_objects code & associated pythonSubmitDefault.py options
 //										- removed tides code & associated pythonSubmitDefault.py options
 //										- removed deprecated options from pythonSubmitDefault.py options
-//										- renamed mass transfer options
+//										- renamed options: mass transfer, iterations -> timestep-iterations
 
 const std::string VERSION_STRING = "02.08.00";
 

@@ -82,8 +82,8 @@ class pythonProgramOptions:
     zeta_Main_Sequence = 2.0
     zeta_Hertzsprung_Gap = 6.5
 
-    maximum_evolution_time = 13700.0
-    maximum_number_iterations = 99999
+    maximum_evolution_time = 13700.0        # [Myrs]
+    maximum_number_timesteps = 99999
 
 
     #  STROOPWAFEL algorithm for COMPAS cf Broekgaarden+18
@@ -318,7 +318,7 @@ class pythonProgramOptions:
             self.mass_transfer_fa,
             self.mass_transfer_jloss,
             self.maximum_evolution_time,
-            self.maximum_number_iterations,
+            self.maximum_number_timesteps,
             self.kappa_gaussians,
             self.initial_mass_min,
             self.initial_mass_max,
@@ -395,7 +395,7 @@ class pythonProgramOptions:
             '--mass-transfer-fa',
             '--mass-transfer-jloss',
             '--maximum-evolution-time',
-            '--maximum-number-iterations',
+            '--maximum-number-timestep-iterations',
             '--kappa-gaussians',
             '--initial-mass-min',
             '--initial-mass-max',
