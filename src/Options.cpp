@@ -189,7 +189,8 @@ void Options::InitialiseMemberVariables(void) {
     printBoolAsString                                               = false;                                                                            // default is do not print bool as string
     quiet                                                           = false;                                                                            // Suppress some of the printing
 
-    nBatchesUsed                                                    = -1;                                                                               // Number of batches used, for STROOPWAFEL (AIS)
+    // AVG - 17/03/2020 - Floor will uncomment when tested.
+    //    nBatchesUsed                                                    = -1;                                                                               // Number of batches used, for STROOPWAFEL (AIS)
 
 
     // Public population synthesis variables
@@ -432,6 +433,8 @@ void Options::InitialiseMemberVariables(void) {
 	zetaHertzsprungGap	                                            = 6.5;
 
 
+    // AVG - 17/03/2020 - Floor will uncomment when tested.
+    /*
     // Adaptive Importance Sampling options
     AISexploratoryPhase                                             = false;                                                                            // Flag for whether to run the AIS exploratory phase
     AISDCOtype                                                      = AIS_DCO::ALL;                                                                     // Which prescription to use for DCO type
@@ -441,7 +444,7 @@ void Options::InitialiseMemberVariables(void) {
     AISrefinementPhase                                              = false;                                                                            // Flag for whether to run the AIS refinement phase (step 2)
     AISrlof                                                         = false;                                                                            // Flag for excluding DCOs that RLOFSecondaryZAMS
     kappaGaussians                                                  = 2;                                                                                // scaling factor for the width of the Gaussian distributions in AIS main sampling phase
-
+    */
 
     // Metallicity options
     metallicity                                                     = ZSOL;
@@ -561,7 +564,8 @@ void Options::SetToFiducialValues(void) {
     printBoolAsString                                               = false;                                                                            // default is do not print bool as string
     quiet                                                           = false;                                                                            // Suppress some of the printing
 
-    nBatchesUsed                                                    = -1;                                                                               // Number of batches used, for STROOPWAFEL (AIS)
+    // AVG - 17/03/2020 - Floor will uncomment when tested.
+    //    nBatchesUsed                                                    = -1;                                                                               // Number of batches used, for STROOPWAFEL (AIS)
 
 
     // Public population synthesis variables
@@ -817,7 +821,8 @@ void Options::SetToFiducialValues(void) {
     zetaMainSequence 	                                            = 6.5;
 	zetaHertzsprungGap	                                            = 2.0;
 
-
+    // AVG - 17/03/2020 - Floor will uncomment when tested.
+    /*
     // Adaptive Importance Sampling Exploratory phase
     AISexploratoryPhase                                             = false;                                                                            // Flag for whether to run the AIS exploratory phase
     AISDCOtype                                                      = AIS_DCO::ALL;                                                                     // Which prescription to use for DCO type
@@ -827,7 +832,7 @@ void Options::SetToFiducialValues(void) {
     AISrefinementPhase                                              = false;                                                                            // Flag for whether to run the AIS refinement phase (step 2)
     AISrlof                                                         = false;                                                                            // Flag for excluding DCOs that RLOFSecondaryZAMS
     kappaGaussians                                                  = 2;                                                                                // scaling factor for the width of the Gaussian distributions in AIS main sampling phase
-
+    */
 
     // Metallicity options
     metallicity                                                     = ZSOL;
@@ -979,18 +984,22 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		    // boolean options - alphabetically
 
+            // AVG - 17/03/2020 - Floor will uncomment when tested.
+            /*
             ("AIS-exploratory-phase",                                       po::value<bool>(&AISexploratoryPhase)->default_value(AISexploratoryPhase)->implicit_value(true),                                                            ("Run exploratory phase of STROOPWAFEL (default = " + std::string(AISexploratoryPhase ? "TRUE" : "FALSE") + ")").c_str())
 		    ("AIS-Hubble",                                                  po::value<bool>(&AIShubble)->default_value(AIShubble)->implicit_value(true),                                                                                ("Excluding not in Hubble time mergers selection in exploratory phase of STROOPWAFEL (default = " + std::string(AIShubble ? "TRUE" : "FALSE") + ")").c_str())
 		    ("AIS-Pessimistic",                                             po::value<bool>(&AISpessimistic)->default_value(AISpessimistic)->implicit_value(true),                                                                      ("Optimistic or Pessimistic selection in exploratory phase of STROOPWAFEL (default = " + std::string(AISpessimistic ? "TRUE" : "FALSE") + ")").c_str())
 		    ("AIS-refinement-phase",                                        po::value<bool>(&AISrefinementPhase)->default_value(AISrefinementPhase)->implicit_value(true),                                                              ("Run main sampling phase (step2) of STROOPWAFEL (default = " + std::string(AISrefinementPhase ? "TRUE" : "FALSE") + ")").c_str())
 		    ("AIS-RLOF",                                                    po::value<bool>(&AISrlof)->default_value(AISrlof)->implicit_value(true),                                                                                    ("RLOFSecondaryZAMS selection in exploratory phase of STROOPWAFEL (default = " + std::string(AISrlof ? "TRUE" : "FALSE") + ")").c_str())
+            */
 
 		    ("allow-rlof-at-birth",                                         po::value<bool>(&allowRLOFAtBirth)->default_value(allowRLOFAtBirth)->implicit_value(true),                                                                  ("Allow binaries that have one or both stars in RLOF at birth to evolve (default = " + std::string(allowRLOFAtBirth ? "TRUE" : "FALSE") + ")").c_str())
 		    ("allow-touching-at-birth",                                     po::value<bool>(&allowTouchingAtBirth)->default_value(allowTouchingAtBirth)->implicit_value(true),                                                          ("Allow binaries that are touching at birth to evolve (default = " + std::string(allowTouchingAtBirth ? "TRUE" : "FALSE") + ")").c_str())
 
 			("alwaysStableCaseBBBCFlag",                                    po::value<bool>(&alwaysStableCaseBBBCFlag)->default_value(alwaysStableCaseBBBCFlag)->implicit_value(true),                                                  ("Choose case BB/BC mass transfer to be always stable (default = " + std::string(alwaysStableCaseBBBCFlag ? "TRUE" : "FALSE") + ")").c_str())
 			("angularMomentumConservationDuringCircularisation",            po::value<bool>(&angularMomentumConservationDuringCircularisation)->default_value(angularMomentumConservationDuringCircularisation)->implicit_value(true),  ("Conserve angular momentum when binary is circularised when entering a Mass Transfer episode (default = " + std::string(angularMomentumConservationDuringCircularisation ? "TRUE" : "FALSE") + ")").c_str())
-			("BeBinaries",                                                  po::value<bool>(&beBinaries)->default_value(beBinaries)->implicit_value(true),                                                                              ("Enable Be Binaries study (default = " + std::string(beBinaries ? "TRUE" : "FALSE") + ")").c_str())
+			// AVG - 17/03/2020 - Serena will uncomment when tested.
+            // ("BeBinaries",                                                  po::value<bool>(&beBinaries)->default_value(beBinaries)->implicit_value(true),                                                                              ("Enable Be Binaries study (default = " + std::string(beBinaries ? "TRUE" : "FALSE") + ")").c_str())
 			("circulariseBinaryDuringMassTransfer",                         po::value<bool>(&circulariseBinaryDuringMassTransfer)->default_value(circulariseBinaryDuringMassTransfer)->implicit_value(true),                            ("Circularise binary when it enters a Mass Transfer episode (default = " + std::string(circulariseBinaryDuringMassTransfer ? "TRUE" : "FALSE") + ")").c_str())
 		    ("common-envelope-allow-main-sequence-survive",                 po::value<bool>(&allowMainSequenceStarToSurviveCommonEnvelope)->default_value(allowMainSequenceStarToSurviveCommonEnvelope)->implicit_value(true),          ("Allow main sequence stars to survive common envelope evolution (default = " + std::string(allowMainSequenceStarToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str())
 
@@ -1033,7 +1042,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 			("debug-level",                                                 po::value<int>(&debugLevel)->default_value(debugLevel),                                                                                                     ("Determines which print statements are displayed for debugging (default = " + std::to_string(debugLevel) + ")").c_str())
 		    ("log-level",                                                   po::value<int>(&logLevel)->default_value(logLevel),                                                                                                         ("Determines which print statements are included in the logfile (default = " + std::to_string(logLevel) + ")").c_str())
 		    ("maximum-number-timestep-iterations",                                   po::value<int>(&maxNumberOfTimestepIterations)->default_value(maxNumberOfTimestepIterations),                                                               ("Maximum number of timesteps to evolve binary before giving up (default = " + std::to_string(maxNumberOfTimestepIterations) + ")").c_str())
-			("nbatches-used",                                               po::value<int>(&nBatchesUsed)->default_value(nBatchesUsed),                                                                                                 ("Number of batches used, for STROOPWAFEL (AIS), -1 = not required (default = " + std::to_string(nBatchesUsed) + ")").c_str())
+			// AVG - 17/03/2020 - Floor will uncomment when tested.
+            // ("nbatches-used",                                               po::value<int>(&nBatchesUsed)->default_value(nBatchesUsed),                                                                                                 ("Number of batches used, for STROOPWAFEL (AIS), -1 = not required (default = " + std::to_string(nBatchesUsed) + ")").c_str())
 			("number-of-binaries,n",                                        po::value<int>(&nBinaries)->default_value(nBinaries),                                                                                                       ("Specify the number of binaries to simulate (default = " + std::to_string(nBinaries) + ")").c_str())
 			("single-star-mass-steps",                                      po::value<int>(&singleStarMassSteps)->default_value(singleStarMassSteps),                                                                                   ("Specify the number of mass steps for single star evolution (default = " + std::to_string(singleStarMassSteps) + ")").c_str())
 
@@ -1141,7 +1151,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 
 		    // string options - alphabetically
-            ("AIS-DCOtype",                                                 po::value<string>(&AISDCOtypeString)->default_value(AISDCOtypeString),                                                                                      ("DCO type selection in exploratory phase of STROOPWAFEL, (options: ALL, BBH, BNS or BHNS), default = " + AISDCOtypeString + ")").c_str())
+            // AVG - 17/03/2020 - Floor will uncomment when tested.
+            // ("AIS-DCOtype",                                                 po::value<string>(&AISDCOtypeString)->default_value(AISDCOtypeString),                                                                                      ("DCO type selection in exploratory phase of STROOPWAFEL, (options: ALL, BBH, BNS or BHNS), default = " + AISDCOtypeString + ")").c_str())
 
 		  	("black-hole-kicks",                                            po::value<string>(&blackHoleKicksString)->default_value(blackHoleKicksString),                                                                              ("Black hole kicks relative to NS kicks (options: FULL, REDUCED, ZERO, FALLBACK), default = " + blackHoleKicksString + ")").c_str())
 
@@ -1235,10 +1246,13 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
             bool found;
 
+            // AVG - 17/03/2020 - Floor will uncomment when tested.
+            /*
             if (!vm["AIS-DCOtype"].defaulted()) {                                                                                       // Adaptive Importance Sampling DCO type
                 std::tie(found, AISDCOtype) = utils::GetMapKey(AISDCOtypeString, AIS_DCO_LABEL, AISDCOtype);
                 COMPLAIN_IF(!found, "Unknown AIS DCO Type");
             }
+            */
 
             if (!vm["black-hole-kicks"].defaulted()) {                                                                                  // black hole kicks option
                 std::tie(found, blackHoleKicksOption) = utils::GetMapKey(blackHoleKicksString, BLACK_HOLE_KICK_OPTION_LABEL, blackHoleKicksOption);
