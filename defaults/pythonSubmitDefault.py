@@ -2,8 +2,8 @@ import numpy as np
 import subprocess
 import sys
 import os
-import itertools
 import pickle
+import itertools 
 from subprocess import call
 
 class pythonProgramOptions:
@@ -36,22 +36,22 @@ class pythonProgramOptions:
     hyperparameterList = False
     shareSeeds = False
 
-    #-- set inidividual system parameters
     single_star = False
+    single_star_mass_steps = 10
+    single_star_mass_min   = 1.0
+    single_star_mass_max   = 75.0    
 
     grid_filename = None
 
     use_mass_loss = True
     mass_transfer = True
-    post_newtonian_evolution = False
-    detailed_output = False                         # WARNING: this creates a data heavy file
-    only_double_compact_objects = False             # Delete when STROOPWAFEL fully implemented
+    detailed_output = False                             # WARNING: this creates a data heavy file
     evolve_unbound_systems = False
     lambda_calculation_every_timestep = False
     zeta_calculation_every_timestep = False
     quiet = False
 
-    metallicity = 0.0142                            # Solar metallicity Asplund+2010
+    metallicity = 0.0142                                # Solar metallicity Asplund+2010
 
     allow_rlof_at_birth = False;                                            # allow binaries that have one or both stars in RLOF at birth to evolve?
     allow_touching_at_birth = False;                                        # allow binaries that have stars touching at birth to evolve?
@@ -73,14 +73,13 @@ class pythonProgramOptions:
     common_envelope_mass_accretion_min = 0.04           # For 'MACLEOD+2014' [Msol]
     common_envelope_mass_accretion_max = 0.10           # For 'MACLEOD+2014' [Msol]
 
-    tides_prescription = 'NONE'
     mass_loss_prescription = 'VINK'
     luminous_blue_variable_multiplier = 1.5
     wolf_rayet_multiplier = 1.0
 
     circularise_binary_during_mass_transfer = False
     angular_momentum_conservation_during_circularisation = False
-    mass_transfer_prescription = 'DEMINK'           # Remove after cleaning MT function
+    mass_transfer_prescription = 'HURLEY'           # Remove after cleaning MT function
     mass_transfer_angular_momentum_loss_prescription = 'ISOTROPIC'
     mass_transfer_accretion_efficiency_prescription = 'THERMAL'
     mass_transfer_fa = 0.5  # Only if using mass_transfer_accretion_efficiency_prescription = 'FIXED'
@@ -91,84 +90,45 @@ class pythonProgramOptions:
     eddington_accretion_factor = 1    #multiplication Factor for eddington accretion onto NS&BH
 
     #-- Stability criteria for case BB/BC mass transfer (for BNS project)
-    force_case_BB_BC_stability = True               # Check redundancy
-    always_stable_case_BB_BC = True             # Check redundancy
+    force_case_BB_BC_stability = True                   # Case BB/BC is either stable or unstable
+    always_stable_case_BB_BC = True                     # Stable = Ture, Unstable = False. Default = True
     zeta_Main_Sequence = 2.0
     zeta_Hertzsprung_Gap = 6.5
 
-    #-- Critical mass ratios for MT. 0.0 for always stable, < 0.0 to disable
-    critical_mass_ratio_MS_low_mass_non_degenerate_accretor = -1.0 #1.44
-    critical_mass_ratio_MS_low_mass_degenerate_accretor = -1.0 #1.0
-    critical_mass_ratio_MS_high_mass_non_degenerate_accretor = -1.0 #0.625
-    critical_mass_ratio_MS_high_mass_degenerate_accretor = -1.0 #0.0
-    critical_mass_ratio_HG_non_degenerate_accretor = -1.0 #0.25
-    critical_mass_ratio_HG_degenerate_accretor = -1.0 #0.21
-    critical_mass_ratio_giant_non_degenerate_accretor = -1.0 #0.0
-    critical_mass_ratio_giant_degenerate_accretor = -1.0 #0.87
-    critical_mass_ratio_helium_MS_non_degenerate_accretor = -1.0 #0.625
-    critical_mass_ratio_helium_MS_degenerate_accretor = -1.0 #0.0
-    critical_mass_ratio_helium_HG_non_degenerate_accretor = -1.0 #0.25
-    critical_mass_ratio_helium_HG_degenerate_accretor = -1.0 #0.21
-    critical_mass_ratio_helium_giant_non_degenerate_accretor = -1.0 #1.28
-    critical_mass_ratio_helium_giant_degenerate_accretor = -1.0 #0.87
-    critical_mass_ratio_white_dwarf_non_degenerate_accretor = -1.0 #0.0
-    critical_mass_ratio_white_dwarf_degenerate_accretor = -1.0 #1.6
-
-
-    BeBinaries  = False
-    maximum_evolution_time = 13700.0
-    maximum_number_iterations = 99999
-
-
-    #  STROOPWAFEL algorithm for COMPAS cf Broekgaarden+18
-    #  For doumentation see the COMPAS/COMPAS/AdaptiveImportanceSampling folder on gitlab
-    AIS_exploratory_phase =  False  # If TRUE COMPAS will run the STROOPWAFEL/Adaptive Importance Sampling algorithm
-    #  parameters to select the DCOs of interest
-    AIS_DCOtype = 'BBH'         # select "ALL", "BBH", "BHNS" or "BNS"
-    AIS_Hubble = True           # focus on DCOs that merge within a Hubble time
-    AIS_RLOF = True             # Focus on DCOs that have RLOF flag True
-    AIS_Pessimistic = False         # Focus on only Pessimistic binaries
-
-    kappa_gaussians = 2  # scaling factor for width of Gaussian distributions |  default = 2
-    #  Run Refinement phase. This is automatically set to True after end exploratory phase:
-    AIS_refinement_phase = False   # Only set True in case you want to reproduce binaries refinement phase
+    maximum_evolution_time = 13700.0                    # Maximum physical time a system can be evolved [Myrs]
+    maximum_number_timesteps = 99999
 
     initial_mass_function = 'KROUPA'
-    initial_mass_min = 5.0          # Use 1.0 for LRNe, 5.0 for DCOs  [Msol]
-    initial_mass_max = 150.0        # Stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
+    initial_mass_min = 5.0                              # Use 1.0 for LRNe, 5.0 for DCOs  [Msol]
+    initial_mass_max = 150.0                            # Stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
 
     initial_mass_power = 0.0
 
     semi_major_axis_distribution = 'FLATINLOG'
-    semi_major_axis_min = 0.01  #  [AU]
-    semi_major_axis_max = 1000.0  #  [AU]
-
-    spin_distribution = 'ZERO'
-    spin_assumption = 'BOTHALIGNED'
-    spin_mag_min = 0.0
-    spin_mag_max = 1.0
+    semi_major_axis_min = 0.01                          #  [AU]
+    semi_major_axis_max = 1000.0                        #  [AU]
 
     mass_ratio_distribution = 'FLAT'
     mass_ratio_min = 0.0
     mass_ratio_max = 1.0
 
-    minimum_secondary_mass = 0.1 # Brown dwarf limit  [Msol]
+    minimum_secondary_mass = 0.1                        # Brown dwarf limit  [Msol]
 
     eccentricity_distribution = 'ZERO'
     eccentricity_min = 0.0
     eccentricity_max = 1.0
 
     pulsar_birth_magnetic_field_distribution = 'ZERO'
-    pulsar_birth_magnetic_field_min = 11.0
-    pulsar_birth_magnetic_field_max = 13.0
+    pulsar_birth_magnetic_field_min = 11.0              # [log10(B/G)]
+    pulsar_birth_magnetic_field_max = 13.0              # [log10(B/G)]
 
     pulsar_birth_spin_period_distribution = "ZERO"
-    pulsar_birth_spin_period_min = 10.0
-    pulsar_birth_spin_period_max = 100.0
+    pulsar_birth_spin_period_min = 10.0                 # [ms]
+    pulsar_birth_spin_period_max = 100.0                # [ms]
 
-    pulsar_magnetic_field_decay_timescale = 1000.0
-    pulsar_magnetic_field_decay_massscale = 0.025
-    pulsar_minimum_magnetic_field = 8.0
+    pulsar_magnetic_field_decay_timescale = 1000.0      # [Myrs]
+    pulsar_magnetic_field_decay_massscale = 0.025       # [Msol]
+    pulsar_minimum_magnetic_field = 8.0                 # [log10(B/G)]
 
     evolvePulsars = False
 
@@ -179,35 +139,15 @@ class pythonProgramOptions:
     orbital_period_min = 1.1
     orbital_period_max = 1000
 
-    sample_kick_velocity_sigma = False
-    sample_kick_velocity_sigma_min = 0.0
-    sample_kick_velocity_sigma_max = 400.0
-
-    sample_kick_direction_power = False
-    sample_kick_direction_power_min = -10.0
-    sample_kick_direction_power_max = 10.0
-
-    sample_common_envelope_alpha = False
-    sample_common_envelope_alpha_min = 0.0
-    sample_common_envelope_alpha_max = 5.0
-
-    sample_wolf_rayet_multiplier = False
-    sample_wolf_rayet_multiplier_min = 0.0
-    sample_wolf_rayet_multiplier_max = 10.0
-
-    sample_luminous_blue_variable_multiplier = False
-    sample_luminous_blue_variable_multiplier_min = 0.0
-    sample_luminous_blue_variable_multiplier_max = 10.0
-
     remnant_mass_prescription = 'FRYER2012'
     fryer_supernova_engine = 'DELAYED'
     black_hole_kicks = 'FALLBACK'
     kick_velocity_distribution = 'MAXWELLIAN'
 
-    kick_velocity_sigma_CCSN_NS = 265.0  #  [km/s]
-    kick_velocity_sigma_CCSN_BH = 265.0  #  [km/s]
-    kick_velocity_sigma_ECSN = 30.0  #  [km/s]
-    kick_velocity_sigma_USSN = 30.0  #  [km/s]
+    kick_velocity_sigma_CCSN_NS = 265.0                 #  [km/s]
+    kick_velocity_sigma_CCSN_BH = 265.0                 #  [km/s]
+    kick_velocity_sigma_ECSN = 30.0                     #  [km/s]
+    kick_velocity_sigma_USSN = 30.0                     #  [km/s]
 
     fix_dimensionless_kick_velocity = -1
     kick_direction = 'ISOTROPIC'
@@ -216,11 +156,11 @@ class pythonProgramOptions:
     kick_velocity_maximum = -1.0
 
     pair_instability_supernovae = True
-    PISN_lower_limit = 60.0     # Minimum core mass for PISN [Msol]
-    PISN_upper_limit = 135.0    # Maximum core mass for PISN [Msol]
+    PISN_lower_limit = 60.0                             # Minimum core mass for PISN [Msol]
+    PISN_upper_limit = 135.0                            # Maximum core mass for PISN [Msol]
     pulsation_pair_instability = True
-    PPI_lower_limit = 35.0      # Minimum core mass for PPI [Msol]
-    PPI_upper_limit = 60.0      # Maximum core mass for PPI [Msol]
+    PPI_lower_limit = 35.0                              # Minimum core mass for PPI [Msol]
+    PPI_upper_limit = 60.0                              # Maximum core mass for PPI [Msol]
 
     pulsational_pair_instability_prescription = 'MARCHANT'
 
@@ -234,7 +174,7 @@ class pythonProgramOptions:
 
     logfile_definitions = None
 
-    logfile_name_prefix = 'Compas_Log_'
+    logfile_name_prefix = None
     logfile_delimiter   = 'COMMA'
 
     # set the logfile names here
@@ -254,35 +194,13 @@ class pythonProgramOptions:
     debug_to_file  = False
     errors_to_file = False
 
-    single_star_mass_steps = 10
-    single_star_mass_min   = 1.0
-    single_star_mass_max   = 75.0
-
-
-    # read in nBatces for STROOPWAFEL if running Adaptive Sampling (AIS algorithm)  # you should not change this
-    if AIS_exploratory_phase == True:
-        compashpc_directory =  git_directory + "/CompasHPC/"
-        sys.path.append(compashpc_directory)
-        from compas_hpc_input import nBatches
-        nbatches_used = nBatches
-    else:
-        nbatches_used = -1
-
-
     def booleanChoices(self):
         booleanChoices = [
             self.single_star,
             self.use_mass_loss,
             self.mass_transfer,
-            self.post_newtonian_evolution,
             self.detailed_output,
-            self.only_double_compact_objects,
             self.evolve_unbound_systems,
-            self.sample_kick_velocity_sigma,
-            self.sample_kick_direction_power,
-            self.sample_common_envelope_alpha,
-            self.sample_wolf_rayet_multiplier,
-            self.sample_luminous_blue_variable_multiplier,
             self.populationPrinting,
             self.lambda_calculation_every_timestep,
             self.zeta_calculation_every_timestep,
@@ -290,12 +208,6 @@ class pythonProgramOptions:
             self.force_case_BB_BC_stability,
             self.always_stable_case_BB_BC,
             self.angular_momentum_conservation_during_circularisation,
-            self.BeBinaries,
-            self.AIS_exploratory_phase,
-            self.AIS_Hubble,
-            self.AIS_RLOF,
-            self.AIS_Pessimistic,
-            self.AIS_refinement_phase,
             self.pair_instability_supernovae,
             self.pulsation_pair_instability,
             self.quiet,
@@ -314,15 +226,8 @@ class pythonProgramOptions:
             '--single-star',
             '--use-mass-loss',
             '--massTransfer',
-            '--PNEcc',
             '--detailedOutput',
-            '--only-double-compact-objects',
             '--evolve-unbound-systems',
-            '--sample-kick-velocity-sigma',
-            '--sample-kick-direction-power',
-            '--sample-common-envelope-alpha',
-            '--sample-wolf-rayet-multiplier',
-            '--sample-luminous-blue-variable-multiplier',
             '--populationDataPrinting',
             '--lambda-calculation-every-timeStep',
             '--zeta-Calculation-Every-Time-Step',
@@ -330,12 +235,6 @@ class pythonProgramOptions:
             '--forceCaseBBBCStabilityFlag',
             '--alwaysStableCaseBBBCFlag',
             '--angularMomentumConservationDuringCircularisation',
-            '--BeBinaries',
-            '--AIS-exploratory-phase',
-            '--AIS-Hubble',
-            '--AIS-RLOF',
-            '--AIS-Pessimistic',
-            '--AIS-refinement-phase',
             '--pair-instability-supernovae',
             '--pulsational-pair-instability',
             '--quiet',
@@ -363,15 +262,12 @@ class pythonProgramOptions:
             self.mass_transfer_fa,
             self.mass_transfer_jloss,
             self.maximum_evolution_time,
-            self.maximum_number_iterations,
-            self.kappa_gaussians,
+            self.maximum_number_timesteps,
             self.initial_mass_min,
             self.initial_mass_max,
             self.initial_mass_power,
             self.semi_major_axis_min,
             self.semi_major_axis_max,
-            self.spin_mag_min,
-            self.spin_mag_max,
             self.mass_ratio_min,
             self.mass_ratio_max,
             self.minimum_secondary_mass,
@@ -390,33 +286,7 @@ class pythonProgramOptions:
             self.kick_velocity_sigma_CCSN_BH,
             self.fix_dimensionless_kick_velocity,
             self.kick_direction_power,
-            self.sample_kick_velocity_sigma_min,
-            self.sample_kick_velocity_sigma_max,
-            self.sample_kick_direction_power_min,
-            self.sample_kick_direction_power_max,
-            self.sample_common_envelope_alpha_min,
-            self.sample_common_envelope_alpha_max,
-            self.sample_wolf_rayet_multiplier_min,
-            self.sample_wolf_rayet_multiplier_max,
-            self.sample_luminous_blue_variable_multiplier_min,
-            self.sample_luminous_blue_variable_multiplier_max,
             self.random_seed,
-            self.critical_mass_ratio_MS_low_mass_non_degenerate_accretor,
-            self.critical_mass_ratio_MS_low_mass_degenerate_accretor,
-            self.critical_mass_ratio_MS_high_mass_non_degenerate_accretor,
-            self.critical_mass_ratio_MS_high_mass_degenerate_accretor,
-            self.critical_mass_ratio_HG_non_degenerate_accretor,
-            self.critical_mass_ratio_HG_degenerate_accretor,
-            self.critical_mass_ratio_giant_non_degenerate_accretor,
-            self.critical_mass_ratio_giant_degenerate_accretor,
-            self.critical_mass_ratio_helium_MS_non_degenerate_accretor,
-            self.critical_mass_ratio_helium_MS_degenerate_accretor,
-            self.critical_mass_ratio_helium_HG_non_degenerate_accretor,
-            self.critical_mass_ratio_helium_HG_degenerate_accretor,
-            self.critical_mass_ratio_helium_giant_non_degenerate_accretor,
-            self.critical_mass_ratio_helium_giant_degenerate_accretor,
-            self.critical_mass_ratio_white_dwarf_non_degenerate_accretor,
-            self.critical_mass_ratio_white_dwarf_degenerate_accretor,
             self.mass_transfer_thermal_limit_C,
             self.eddington_accretion_factor,
             self.PISN_lower_limit,
@@ -424,7 +294,6 @@ class pythonProgramOptions:
             self.PPI_lower_limit,
             self.PPI_upper_limit,
             self.maximum_neutron_star_mass,
-            self.nbatches_used,
             self.kick_velocity_sigma_ECSN,
             self.kick_velocity_sigma_USSN,
             self.kick_scaling_factor,
@@ -458,15 +327,12 @@ class pythonProgramOptions:
             '--mass-transfer-fa',
             '--mass-transfer-jloss',
             '--maximum-evolution-time',
-            '--maximum-number-iterations',
-            '--kappa-gaussians',
+            '--maximum-number-timestep-iterations',
             '--initial-mass-min',
             '--initial-mass-max',
             '--initial-mass-power',
             '--semi-major-axis-min',
             '--semi-major-axis-max',
-            '--spin-mag-min',
-            '--spin-mag-max',
             '--mass-ratio-min',
             '--mass-ratio-max',
             '--minimum-secondary-mass',
@@ -485,40 +351,13 @@ class pythonProgramOptions:
             '--kick-velocity-sigma-CCSN-BH',
             '--fix-dimensionless-kick-velocity',
             '--kick-direction-power',
-            '--sample-kick-velocity-sigma-min',
-            '--sample-kick-velocity-sigma-max',
-            '--sample-kick-direction-power-min',
-            '--sample-kick-direction-power-max',
-            '--sample-common-envelope-alpha-min',
-            '--sample-common-envelope-alpha-max',
-            '--sample-wolf-rayet-multiplier-min',
-            '--sample-wolf-rayet-multiplier-max',
-            '--sample-luminous-blue-variable-multiplier-min',
-            '--sample-luminous-blue-variable-multiplier-max',
             '--random-seed',
-            '--critical-mass-ratio-MS-low-mass-non-degenerate-accretor',
-            '--critical-mass-ratio-MS-low-mass-degenerate-accretor',
-            '--critical-mass-ratio-MS-high-mass-non-degenerate-accretor',
-            '--critical-mass-ratio-MS-high-mass-degenerate-accretor',
-            '--critical-mass-ratio-HG-non-degenerate-accretor',
-            '--critical-mass-ratio-HG-degenerate-accretor',
-            '--critical-mass-ratio-giant-non-degenerate-accretor',
-            '--critical-mass-ratio-giant-degenerate-accretor',
-            '--critical-mass-ratio-helium-MS-non-degenerate-accretor',
-            '--critical-mass-ratio-helium-MS-degenerate-accretor',
-            '--critical-mass-ratio-helium-HG-non-degenerate-accretor',
-            '--critical-mass-ratio-helium-HG-degenerate-accretor',
-            '--critical-mass-ratio-helium-giant-non-degenerate-accretor',
-            '--critical-mass-ratio-helium-giant-degenerate-accretor',
-            '--critical-mass-ratio-white-dwarf-non-degenerate-accretor',
-            '--critical-mass-ratio-white-dwarf-degenerate-accretor',
             '--mass-transfer-thermal-limit-C',
             '--eddington-accretion-factor',
             '--PISN-lower-limit',
             '--PISN-upper-limit','--PPI-lower-limit',
             '--PPI-upper-limit',
             '--maximum-neutron-star-mass',
-            '--nbatches-used',
             '--kick-velocity-sigma-ECSN',
             '--kick-velocity-sigma-USSN',
             '--kick-scaling-factor',
@@ -541,17 +380,13 @@ class pythonProgramOptions:
     def stringChoices(self):
         stringChoices = [
             self.chemically_homogeneous_evolution,
-            self.tides_prescription,
             self.mass_loss_prescription,
             self.mass_transfer_prescription,
             self.mass_transfer_angular_momentum_loss_prescription,
             self.mass_transfer_accretion_efficiency_prescription,
             self.mass_transfer_rejuvenation_prescription,
-            self.AIS_DCOtype,
             self.initial_mass_function,
             self.semi_major_axis_distribution,
-            self.spin_distribution,
-            self.spin_assumption,
             self.mass_ratio_distribution,
             self.eccentricity_distribution,
             self.rotational_velocity_distribution,
@@ -588,17 +423,13 @@ class pythonProgramOptions:
     def stringCommands(self):
         stringCommands = [
             '--chemically-homogeneous-evolution',
-            '--tides-prescription',
             '--mass-loss-prescription',
             '--mass-transfer-prescription',
             '--mass-transfer-angular-momentum-loss-prescription',
             '--mass-transfer-accretion-efficiency-prescription',
             '--mass-transfer-rejuvenation-prescription',
-            '--AIS-DCOtype',
             '--initial-mass-function',
             '--semi-major-axis-distribution',
-            '--spin-distribution',
-            '--spin-assumption',
             '--mass-ratio-distribution',
             '--eccentricity-distribution',
             '--rotational-velocity-distribution',
@@ -676,16 +507,7 @@ def specifyCommandLineOptions(programOptions):
     listChoices = programOptions.listChoices()
     listCommands = programOptions.listCommands()
 
-    if programOptions.hyperparameterGrid == True:
-        command = hyperparameterGridCommand(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,programOptions.shareSeeds)
-
-    elif programOptions.hyperparameterList == True:
-        if programOptions.hyperparameterGrid == True:
-            raise ValueError("You can't have both a list and a grid!")
-        command = hyperparameterListCommand(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,programOptions.shareSeeds)
-
-    else:
-        command = [generateCommandLineOptions(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
+    command = [generateCommandLineOptions(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
 
     return command
 
@@ -734,57 +556,43 @@ def generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,
 def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
     """This function allows for a range of hyperparameter values to be specified in a single run, if the hyperparameterGrid boolean is set to True in the
     specifyCommandLineOptions() function.
-
     This works by constructing nested output directories in the current working directory, and running a population at each combination of parameter values.
     nBinaries from specifyCommandLineOptions() is divided equally amoungst these.
-
     The user should follow the pattern in adding items to the commandsAndValues dictionary, the code will then handle production of
     the output folders and return a command line command to run all of the populations back to back
-
     """
-
+    
     # Load up the dictionary from gridRun.py
     with open('pickledGrid.pkl') as pg:
         commandsAndValues = pickle.load(pg)
-
     # set up lists for recursion
     keys = commandsAndValues.keys()
-
     valuesLists = []
     nSimulations = 1
     for key in keys:
         nSimulations *= len(commandsAndValues[key])
         valuesLists.append(commandsAndValues[key])
-
     # Make folders for the messy outputs
     outPaths = []
     for i in range(nSimulations):
         path = 'gridOutputs/output-'+str(i)
         outPaths.append(path)
-
     #edit number of binaries per population
     for index,command in enumerate(numericalCommands):
         if command == '--number-of-binaries':
             break
     nBinariesPerSimulation = numericalChoices[index]/nSimulations
     numericalChoices[index] = nBinariesPerSimulation
-
     bashCommands = []
-
     # itertools.product recurses through all combinations of the lists in valuesLists
     for en,combination in enumerate(itertools.product(*valuesLists)):
-
         bashCommand = ''
-
         pathName = outPaths[en]
-
         for i, val in enumerate(combination):
-
             for index,command in enumerate(numericalCommands):
                 if command == keys[i]:
                     break
             numericalChoices[index] = val
-
         #change the random seed if need be
         if not shareSeeds:
             for index,command in enumerate(numericalCommands):
@@ -796,69 +604,52 @@ def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,n
             if command == '--output':
                 break
         stringChoices[index] = pathName + '/.'
-
         bashCommand += generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands)
         bashCommand += '; '
-
         bashCommands.append(bashCommand)
-
     return bashCommands
+    
 
+    
 def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
     """
     """
     # Load up the dictionary from gridRun.py
     with open('pickledList.pkl') as pl:
         commandsAndValues = pickle.load(pl)
-
     # set up lists for recursion
     keys = commandsAndValues.keys()
-
     #work how many things there are in the list
     nSimulations = len(commandsAndValues[keys[0]])
-
     print("nSimulations = ", nSimulations)
-
     #make the directories
     outPaths = []
     for i in range(nSimulations):
         path = 'listOutputs/output-'+str(i)
         outPaths.append(path)
-
-
     #grab all the values out of the dictionary for syntactic ease later
     valuesLists = []
     for key in keys:
         valuesLists.append(commandsAndValues[key])
     valuesLists =np.array(valuesLists).T
-
     #edit number of binaries per population
     for index,command in enumerate(numericalCommands):
         if command == '--number-of-binaries':
             break
     nBinariesPerSimulation = numericalChoices[index]/nSimulations
     numericalChoices[index] = nBinariesPerSimulation
-
     print("index, nBinariesPerSimulation")
     print(index, nBinariesPerSimulation)
-
     bashCommands = []
-
     for en in range(nSimulations):
-
         bashCommand = ''
-
         combination = valuesLists[en]
-
         pathName = outPaths[en]
-
         for i, val in enumerate(combination):
-
             for index,command in enumerate(numericalCommands):
                 if command == keys[i]:
                     break
             numericalChoices[index] = val
-
         #change the random seed if need be
         if not shareSeeds:
             for index,command in enumerate(numericalCommands):
@@ -870,13 +661,11 @@ def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,n
             if command == '--output':
                 break
         stringChoices[index] = pathName + '/.'
-
         bashCommand += generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands)
         bashCommand += '; '
-
         bashCommands.append(bashCommand)
-
     return bashCommands
+    
 
 def runCompas(programOptions):
     """

@@ -183,15 +183,14 @@ void Options::InitialiseMemberVariables(void) {
 	beBinaries                                                      = false;
     evolvePulsars                                                   = false;                                                                            // Whether to evolve pulsars
 	evolveUnboundSystems                                            = false;                                                                            // Allow unbound syetms to evolve
-    onlyDoubleCompactObjects                                        = false;                                                                            // Flag to turn on some shortcuts to only evolve systems which may form double compact objects
-    PNevolution                                                     = false;
 
     detailedOutput                                                  = false;                                                                            // Detailed output
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
     printBoolAsString                                               = false;                                                                            // default is do not print bool as string
     quiet                                                           = false;                                                                            // Suppress some of the printing
 
-    nBatchesUsed                                                    = -1;                                                                               // Number of batches used, for STROOPWAFEL (AIS)
+    // AVG - 17/03/2020 - Floor will uncomment when tested.
+    //    nBatchesUsed                                                    = -1;                                                                               // Number of batches used, for STROOPWAFEL (AIS)
 
 
     // Public population synthesis variables
@@ -305,21 +304,6 @@ void Options::InitialiseMemberVariables(void) {
     outputPath                                                      = defaultOutputPath;                                                                // Desired output location
     outputContainerName                                             = DEFAULT_OUTPUT_CONTAINER_NAME;                                                    // Output container - this is a container (directory) created at outputPath to hold all output files
     
-    // Spin options
-    spinDistribution                                                = SPIN_DISTRIBUTION::FIXED;
-    spinDistributionString                                          = SPIN_DISTRIBUTION_LABEL.at(spinDistribution);
-    spinDistributionMin                                             = 0.60;
-    spinDistributionMax                                             = 0.98;
-
-    spinAssumption                                                  = SPIN_ASSUMPTION::ALIGNED;
-    spinAssumptionString                                            = SPIN_ASSUMPTION_LABEL.at(spinAssumption);
-
-
-    // Tides options
-    tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
-    tidesPrescriptionString                                         = TIDES_PRESCRIPTION_LABEL.at(tidesPrescription);                                   // String containing which tides prescription to use
-
-
     // Mass loss options
     useMassLoss                                                     = false;                                                                            // Whether to use mass loss
 
@@ -339,7 +323,7 @@ void Options::InitialiseMemberVariables(void) {
 	alwaysStableCaseBBBCFlag                                        = false;									                                        // Whether if case BB/BC is always stable
 	angularMomentumConservationDuringCircularisation                = false;		                                                                    // Whether to conserve angular momentum while circularising or circularise to periastron
 
-    massTransferPrescription                                        = MT_PRESCRIPTION::DEMINK;
+    massTransferPrescription                                        = MT_PRESCRIPTION::HURLEY;
 	massTransferPrescriptionString                                  = MT_PRESCRIPTION_LABEL.at(massTransferPrescription);
 
 
@@ -449,6 +433,8 @@ void Options::InitialiseMemberVariables(void) {
 	zetaHertzsprungGap	                                            = 6.5;
 
 
+    // AVG - 17/03/2020 - Floor will uncomment when tested.
+    /*
     // Adaptive Importance Sampling options
     AISexploratoryPhase                                             = false;                                                                            // Flag for whether to run the AIS exploratory phase
     AISDCOtype                                                      = AIS_DCO::ALL;                                                                     // Which prescription to use for DCO type
@@ -458,7 +444,7 @@ void Options::InitialiseMemberVariables(void) {
     AISrefinementPhase                                              = false;                                                                            // Flag for whether to run the AIS refinement phase (step 2)
     AISrlof                                                         = false;                                                                            // Flag for excluding DCOs that RLOFSecondaryZAMS
     kappaGaussians                                                  = 2;                                                                                // scaling factor for the width of the Gaussian distributions in AIS main sampling phase
-
+    */
 
     // Metallicity options
     metallicity                                                     = ZSOL;
@@ -572,15 +558,14 @@ void Options::SetToFiducialValues(void) {
 	beBinaries                                                      = false;
     evolvePulsars                                                   = false;                                                                            // Whether to evolve pulsars
 	evolveUnboundSystems                                            = false;                                                                            // Allow unbound syetms to evolve
-    onlyDoubleCompactObjects                                        = false;                                                                            // Flag to turn on some shortcuts to only evolve systems which may form double compact objects
-    PNevolution                                                     = false;
 
     detailedOutput                                                  = false;                                                                            // Detailed output
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
     printBoolAsString                                               = false;                                                                            // default is do not print bool as string
     quiet                                                           = false;                                                                            // Suppress some of the printing
 
-    nBatchesUsed                                                    = -1;                                                                               // Number of batches used, for STROOPWAFEL (AIS)
+    // AVG - 17/03/2020 - Floor will uncomment when tested.
+    //    nBatchesUsed                                                    = -1;                                                                               // Number of batches used, for STROOPWAFEL (AIS)
 
 
     // Public population synthesis variables
@@ -701,21 +686,6 @@ void Options::SetToFiducialValues(void) {
     outputPath                                                      = defaultOutputPath;                                                                // Desired output location
     outputContainerName                                             = DEFAULT_OUTPUT_CONTAINER_NAME;                                                    // Output container - this is a container (directory) created at outputPath to hold all output files
 
-    // Spin options
-    spinDistribution                                                = SPIN_DISTRIBUTION::ZERO;
-    spinDistributionString                                          = SPIN_DISTRIBUTION_LABEL.at(spinDistribution);
-    spinDistributionMin                                             = 0.0;
-    spinDistributionMax                                             = 1.0;
-
-    spinAssumption                                                  = SPIN_ASSUMPTION::ALIGNED;
-    spinAssumptionString                                            = SPIN_ASSUMPTION_LABEL.at(spinAssumption);
-
-
-    // Tides options
-    tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
-    tidesPrescriptionString                                         = TIDES_PRESCRIPTION_LABEL.at(tidesPrescription);                                   // String containing which tides prescription to use
-
-
     // Mass loss options
     useMassLoss                                                     = false;                                                                            // Whether to use mass loss
 
@@ -735,7 +705,7 @@ void Options::SetToFiducialValues(void) {
 	alwaysStableCaseBBBCFlag                                        = false;							                                                // Whether if case BB/BC is always stable
 	angularMomentumConservationDuringCircularisation                = false;		                                                                    // Whether to conserve angular momentum while circularising or circularise to periastron
 
-    massTransferPrescription                                        = MT_PRESCRIPTION::DEMINK;
+    massTransferPrescription                                        = MT_PRESCRIPTION::HURLEY;
     massTransferPrescriptionString                                  = MT_PRESCRIPTION_LABEL.at(massTransferPrescription);
 
 
@@ -851,7 +821,8 @@ void Options::SetToFiducialValues(void) {
     zetaMainSequence 	                                            = 6.5;
 	zetaHertzsprungGap	                                            = 2.0;
 
-
+    // AVG - 17/03/2020 - Floor will uncomment when tested.
+    /*
     // Adaptive Importance Sampling Exploratory phase
     AISexploratoryPhase                                             = false;                                                                            // Flag for whether to run the AIS exploratory phase
     AISDCOtype                                                      = AIS_DCO::ALL;                                                                     // Which prescription to use for DCO type
@@ -861,7 +832,7 @@ void Options::SetToFiducialValues(void) {
     AISrefinementPhase                                              = false;                                                                            // Flag for whether to run the AIS refinement phase (step 2)
     AISrlof                                                         = false;                                                                            // Flag for excluding DCOs that RLOFSecondaryZAMS
     kappaGaussians                                                  = 2;                                                                                // scaling factor for the width of the Gaussian distributions in AIS main sampling phase
-
+    */
 
     // Metallicity options
     metallicity                                                     = ZSOL;
@@ -1013,18 +984,22 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		    // boolean options - alphabetically
 
+            // AVG - 17/03/2020 - Floor will uncomment when tested.
+            /*
             ("AIS-exploratory-phase",                                       po::value<bool>(&AISexploratoryPhase)->default_value(AISexploratoryPhase)->implicit_value(true),                                                            ("Run exploratory phase of STROOPWAFEL (default = " + std::string(AISexploratoryPhase ? "TRUE" : "FALSE") + ")").c_str())
 		    ("AIS-Hubble",                                                  po::value<bool>(&AIShubble)->default_value(AIShubble)->implicit_value(true),                                                                                ("Excluding not in Hubble time mergers selection in exploratory phase of STROOPWAFEL (default = " + std::string(AIShubble ? "TRUE" : "FALSE") + ")").c_str())
 		    ("AIS-Pessimistic",                                             po::value<bool>(&AISpessimistic)->default_value(AISpessimistic)->implicit_value(true),                                                                      ("Optimistic or Pessimistic selection in exploratory phase of STROOPWAFEL (default = " + std::string(AISpessimistic ? "TRUE" : "FALSE") + ")").c_str())
 		    ("AIS-refinement-phase",                                        po::value<bool>(&AISrefinementPhase)->default_value(AISrefinementPhase)->implicit_value(true),                                                              ("Run main sampling phase (step2) of STROOPWAFEL (default = " + std::string(AISrefinementPhase ? "TRUE" : "FALSE") + ")").c_str())
 		    ("AIS-RLOF",                                                    po::value<bool>(&AISrlof)->default_value(AISrlof)->implicit_value(true),                                                                                    ("RLOFSecondaryZAMS selection in exploratory phase of STROOPWAFEL (default = " + std::string(AISrlof ? "TRUE" : "FALSE") + ")").c_str())
+            */
 
 		    ("allow-rlof-at-birth",                                         po::value<bool>(&allowRLOFAtBirth)->default_value(allowRLOFAtBirth)->implicit_value(true),                                                                  ("Allow binaries that have one or both stars in RLOF at birth to evolve (default = " + std::string(allowRLOFAtBirth ? "TRUE" : "FALSE") + ")").c_str())
 		    ("allow-touching-at-birth",                                     po::value<bool>(&allowTouchingAtBirth)->default_value(allowTouchingAtBirth)->implicit_value(true),                                                          ("Allow binaries that are touching at birth to evolve (default = " + std::string(allowTouchingAtBirth ? "TRUE" : "FALSE") + ")").c_str())
 
 			("alwaysStableCaseBBBCFlag",                                    po::value<bool>(&alwaysStableCaseBBBCFlag)->default_value(alwaysStableCaseBBBCFlag)->implicit_value(true),                                                  ("Choose case BB/BC mass transfer to be always stable (default = " + std::string(alwaysStableCaseBBBCFlag ? "TRUE" : "FALSE") + ")").c_str())
 			("angularMomentumConservationDuringCircularisation",            po::value<bool>(&angularMomentumConservationDuringCircularisation)->default_value(angularMomentumConservationDuringCircularisation)->implicit_value(true),  ("Conserve angular momentum when binary is circularised when entering a Mass Transfer episode (default = " + std::string(angularMomentumConservationDuringCircularisation ? "TRUE" : "FALSE") + ")").c_str())
-			("BeBinaries",                                                  po::value<bool>(&beBinaries)->default_value(beBinaries)->implicit_value(true),                                                                              ("Enable Be Binaries study (default = " + std::string(beBinaries ? "TRUE" : "FALSE") + ")").c_str())
+			// AVG - 17/03/2020 - Serena will uncomment when tested.
+            // ("BeBinaries",                                                  po::value<bool>(&beBinaries)->default_value(beBinaries)->implicit_value(true),                                                                              ("Enable Be Binaries study (default = " + std::string(beBinaries ? "TRUE" : "FALSE") + ")").c_str())
 			("circulariseBinaryDuringMassTransfer",                         po::value<bool>(&circulariseBinaryDuringMassTransfer)->default_value(circulariseBinaryDuringMassTransfer)->implicit_value(true),                            ("Circularise binary when it enters a Mass Transfer episode (default = " + std::string(circulariseBinaryDuringMassTransfer ? "TRUE" : "FALSE") + ")").c_str())
 		    ("common-envelope-allow-main-sequence-survive",                 po::value<bool>(&allowMainSequenceStarToSurviveCommonEnvelope)->default_value(allowMainSequenceStarToSurviveCommonEnvelope)->implicit_value(true),          ("Allow main sequence stars to survive common envelope evolution (default = " + std::string(allowMainSequenceStarToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str())
 
@@ -1038,20 +1013,21 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             ("forceCaseBBBCStabilityFlag",                                  po::value<bool>(&forceCaseBBBCStabilityFlag)->default_value(forceCaseBBBCStabilityFlag)->implicit_value(true),                                              ("Force case BB/BC mass transfer to be only stable or unstable (default = " + std::string(forceCaseBBBCStabilityFlag ? "TRUE" : "FALSE") + ")").c_str())
 			("lambda-calculation-every-timeStep",                           po::value<bool>(&lambdaCalculationEveryTimeStep)->default_value(lambdaCalculationEveryTimeStep)->implicit_value(true),                                      ("Calculate all values of lambda at each timestep (default = " + std::string(lambdaCalculationEveryTimeStep ? "TRUE" : "FALSE") + ")").c_str())
    		   	("massTransfer",                                                po::value<bool>(&useMassTransfer)->default_value(useMassTransfer)->implicit_value(true),                                                                    ("Enable mass transfer (default = " + std::string(useMassTransfer ? "TRUE" : "FALSE") + ")").c_str())
-		    ("only-double-compact-objects",                                 po::value<bool>(&onlyDoubleCompactObjects)->default_value(onlyDoubleCompactObjects)->implicit_value(true),                                                  ("Only evolve binaries which may form double compact objects (default = " + std::string(onlyDoubleCompactObjects ? "TRUE" : "FALSE") + ")").c_str())
 		    ("pair-instability-supernovae",                                 po::value<bool>(&usePairInstabilitySupernovae)->default_value(usePairInstabilitySupernovae)->implicit_value(true),                                          ("Enable pair instability supernovae (PISN) (default = " + std::string(usePairInstabilitySupernovae ? "TRUE" : "FALSE") + ")").c_str())
-			("PN",                                                          po::value<bool>(&PNevolution)->default_value(PNevolution)->implicit_value(true),                                                                            ("Enable post-newtonian evolution (default = " + std::string(PNevolution ? "TRUE" : "FALSE") + ")").c_str())
             ("populationDataPrinting",                                      po::value<bool>(&populationDataPrinting)->default_value(populationDataPrinting)->implicit_value(true),                                                      ("Print details of population (default = " + std::string(populationDataPrinting ? "TRUE" : "FALSE") + ")").c_str())
 		    ("print-bool-as-string",                                        po::value<bool>(&printBoolAsString)->default_value(printBoolAsString)->implicit_value(true),                                                                ("Print boolean properties as 'TRUE' or 'FALSE' (default = " + std::string(printBoolAsString ? "TRUE" : "FALSE") + ")").c_str())
 		    ("pulsational-pair-instability",                                po::value<bool>(&usePulsationalPairInstability)->default_value(usePulsationalPairInstability)->implicit_value(true),                                        ("Enable mass loss due to pulsational-pair-instability (PPI) (default = " + std::string(usePulsationalPairInstability ? "TRUE" : "FALSE") + ")").c_str())
 		    ("quiet",                                                       po::value<bool>(&quiet)->default_value(quiet)->implicit_value(true),                                                                                        ("Suppress printing (default = " + std::string(quiet ? "TRUE" : "FALSE") + ")").c_str())
 			("revised-energy-formalism-Nandez-Ivanova",                     po::value<bool>(&revisedEnergyFormalismNandezIvanova)->default_value(revisedEnergyFormalismNandezIvanova)->implicit_value(true),                            ("Enable revised energy formalism (default = " + std::string(revisedEnergyFormalismNandezIvanova ? "TRUE" : "FALSE") + ")").c_str())
 
+            // AVG
+            /*
 			("sample-common-envelope-alpha",                                po::value<bool>(&sampleCommonEnvelopeAlpha)->default_value(sampleCommonEnvelopeAlpha)->implicit_value(true),                                                ("Sample over common envelope alpha (default = " + std::string(sampleCommonEnvelopeAlpha ? "TRUE" : "FALSE") + ")").c_str())
 			("sample-kick-direction-power",                                 po::value<bool>(&sampleKickDirectionPower)->default_value(sampleKickDirectionPower)->implicit_value(true),                                                  ("Sample over kick direction powerlaw exponent (default = " + std::string(sampleKickDirectionPower ? "TRUE" : "FALSE") + ")").c_str())
 			("sample-kick-velocity-sigma",                                  po::value<bool>(&sampleKickVelocitySigma)->default_value(sampleKickVelocitySigma)->implicit_value(true),                                                    ("Sample over Kick Velocity Sigma (default = " + std::string(sampleKickVelocitySigma ? "TRUE" : "FALSE") + ")").c_str())
 			("sample-luminous-blue-variable-multiplier",                    po::value<bool>(&sampleLuminousBlueVariableMultiplier)->default_value(sampleLuminousBlueVariableMultiplier)->implicit_value(true),                          ("Sample over multiplicative constant from LBV mass loss (default = " + std::string(sampleLuminousBlueVariableMultiplier ? "TRUE" : "FALSE") + ")").c_str())
 			("sample-wolf-rayet-multiplier",                                po::value<bool>(&sampleWolfRayetMultiplier)->default_value(sampleWolfRayetMultiplier)->implicit_value(true),                                                ("Sample over WR winds multiplicative constant (default = " + std::string(sampleWolfRayetMultiplier ? "TRUE" : "FALSE") + ")").c_str())
+            */
 
             ("single-star",                                                 po::value<bool>(&singleStar)->default_value(singleStar)->implicit_value(true),                                                                              ("Evolve single star(s) (default = " + std::string(singleStar ? "TRUE" : "FALSE") + ")").c_str())
 
@@ -1068,8 +1044,9 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    // int
 			("debug-level",                                                 po::value<int>(&debugLevel)->default_value(debugLevel),                                                                                                     ("Determines which print statements are displayed for debugging (default = " + std::to_string(debugLevel) + ")").c_str())
 		    ("log-level",                                                   po::value<int>(&logLevel)->default_value(logLevel),                                                                                                         ("Determines which print statements are included in the logfile (default = " + std::to_string(logLevel) + ")").c_str())
-		    ("maximum-number-iterations",                                   po::value<int>(&maxNumberOfTimestepIterations)->default_value(maxNumberOfTimestepIterations),                                                               ("Maximum number of timesteps to evolve binary before giving up (default = " + std::to_string(maxNumberOfTimestepIterations) + ")").c_str())
-			("nbatches-used",                                               po::value<int>(&nBatchesUsed)->default_value(nBatchesUsed),                                                                                                 ("Number of batches used, for STROOPWAFEL (AIS), -1 = not required (default = " + std::to_string(nBatchesUsed) + ")").c_str())
+		    ("maximum-number-timestep-iterations",                                   po::value<int>(&maxNumberOfTimestepIterations)->default_value(maxNumberOfTimestepIterations),                                                               ("Maximum number of timesteps to evolve binary before giving up (default = " + std::to_string(maxNumberOfTimestepIterations) + ")").c_str())
+			// AVG - 17/03/2020 - Floor will uncomment when tested.
+            // ("nbatches-used",                                               po::value<int>(&nBatchesUsed)->default_value(nBatchesUsed),                                                                                                 ("Number of batches used, for STROOPWAFEL (AIS), -1 = not required (default = " + std::to_string(nBatchesUsed) + ")").c_str())
 			("number-of-binaries,n",                                        po::value<int>(&nBinaries)->default_value(nBinaries),                                                                                                       ("Specify the number of binaries to simulate (default = " + std::to_string(nBinaries) + ")").c_str())
 			("single-star-mass-steps",                                      po::value<int>(&singleStarMassSteps)->default_value(singleStarMassSteps),                                                                                   ("Specify the number of mass steps for single star evolution (default = " + std::to_string(singleStarMassSteps) + ")").c_str())
 
@@ -1084,6 +1061,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("common-envelope-recombination-energy-density",                po::value<double>(&commonEnvelopeRecombinationEnergyDensity)->default_value(commonEnvelopeRecombinationEnergyDensity),                                      ("Recombination energy density in ergs/g (default = " + std::to_string(commonEnvelopeRecombinationEnergyDensity) + ")").c_str())
 		    ("common-envelope-slope-Kruckow",                               po::value<double>(&commonEnvelopeSlopeKruckow)->default_value(commonEnvelopeSlopeKruckow),                                                                  ("Common Envelope slope for Kruckow lambda (default = " + std::to_string(commonEnvelopeSlopeKruckow) + ")").c_str())
 
+            // AVG - 17/03/2020 - Uncomment mass-ratio options when fully implemented
+            /*
             ("critical-mass-ratio-giant-degenerate-accretor",               po::value<double>(&massTransferCriticalMassRatioGiantDegenerateAccretor)->default_value(massTransferCriticalMassRatioGiantDegenerateAccretor),              ("Critical mass ratio for MT from a giant star (default = " + std::to_string(massTransferCriticalMassRatioGiantDegenerateAccretor) + ") Specify both giant flags to use. 0 is always stable, <0 is disabled").c_str())
             ("critical-mass-ratio-giant-non-degenerate-accretor",           po::value<double>(&massTransferCriticalMassRatioGiantNonDegenerateAccretor)->default_value(massTransferCriticalMassRatioGiantNonDegenerateAccretor),        ("Critical mass ratio for MT from a giant star (default = " + std::to_string(massTransferCriticalMassRatioGiantNonDegenerateAccretor) + ") Specify both giant flags to use. 0 is always stable, <0 is disabled").c_str())
             ("critical-mass-ratio-helium-giant-degenerate-accretor",        po::value<double>(&massTransferCriticalMassRatioHeliumGiantDegenerateAccretor)->default_value(massTransferCriticalMassRatioHeliumGiantDegenerateAccretor),  ("Critical mass ratio for MT from a helium giant star (default = " + std::to_string(massTransferCriticalMassRatioHeliumGiantDegenerateAccretor) + ") Specify both helium giant flags to use. 0 is always stable, <0 is disabled").c_str())
@@ -1100,6 +1079,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             ("critical-mass-ratio-MS-low-mass-non-degenerate-accretor",     po::value<double>(&massTransferCriticalMassRatioMSLowMassNonDegenerateAccretor)->default_value(massTransferCriticalMassRatioMSLowMassNonDegenerateAccretor),    ("Critical mass ratio for MT from a MS star (default = " + std::to_string(massTransferCriticalMassRatioMSLowMassNonDegenerateAccretor) + ") Specify both MS low mass flags to use. 0 is always stable, <0 is disabled").c_str())
             ("critical-mass-ratio-white-dwarf-degenerate-accretor",         po::value<double>(&massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor)->default_value(massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor),    ("Critical mass ratio for MT from a white dwarf (default = " + std::to_string(massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor) + ") Specify both white dwarf flags to use. 0 is always stable, <0 is disabled").c_str())
             ("critical-mass-ratio-white-dwarf-non-degenerate-accretor",     po::value<double>(&massTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor)->default_value(massTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor),  ("Critical mass ratio for MT from a white dwarf (default = " + std::to_string(massTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor) + ") Specify both white dwarf flags to use. 0 is always stable, <0 is disabled").c_str())
+            */
 
 		    ("eccentricity-max",                                            po::value<double>(&eccentricityDistributionMax)->default_value(eccentricityDistributionMax),                                                                ("Maximum eccentricity to generate (default = " + std::to_string(eccentricityDistributionMax) + ")").c_str())
 		    ("eccentricity-min",                                            po::value<double>(&eccentricityDistributionMin)->default_value(eccentricityDistributionMin),                                                                ("Minimum eccentricity to generate (default = " + std::to_string(eccentricityDistributionMin) + ")").c_str())
@@ -1111,7 +1091,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("initial-mass-min",                                            po::value<double>(&initialMassFunctionMin)->default_value(initialMassFunctionMin),                                                                          ("Minimum mass (in Msol) to generate using given IMF (default = " + std::to_string(initialMassFunctionMin) + ")").c_str())
 		    ("initial-mass-power",                                          po::value<double>(&initialMassFunctionPower)->default_value(initialMassFunctionPower),                                                                      ("Single power law power to generate primary mass using given IMF (default = " + std::to_string(initialMassFunctionPower) + ")").c_str())
 
-		    ("kappa-gaussians",                                             po::value<double>(&kappaGaussians)->default_value(kappaGaussians),                                                                                          ("Scaling factor for the width of the Gaussian distributions in STROOPWAFEL main sampling phase (default = " + std::to_string(kappaGaussians) + ")").c_str())
+            // AVG - 17/03/2020 - Floor will uncomment when tested.
+		    // ("kappa-gaussians",                                             po::value<double>(&kappaGaussians)->default_value(kappaGaussians),                                                                                          ("Scaling factor for the width of the Gaussian distributions in STROOPWAFEL main sampling phase (default = " + std::to_string(kappaGaussians) + ")").c_str())
 		    ("kick-direction-power",                                        po::value<double>(&kickDirectionPower)->default_value(kickDirectionPower),                                                                                  ("Power for power law kick direction distribution (default = " + std::to_string(kickDirectionPower) + " = isotropic, +ve = polar, -ve = in plane)").c_str())
 			("kick-scaling-factor",                                         po::value<double>(&kickScalingFactor)->default_value(kickScalingFactor),                                                                                    ("Arbitrary factor used to scale kicks (default = " + std::to_string(kickScalingFactor) + ")").c_str())
 		    ("kick-velocity-max",                                           po::value<double>(&kickVelocityDistributionMaximum)->default_value(kickVelocityDistributionMaximum),                                                        ("Maximum drawn kick velocity in km s^-1. Ignored if < 0. Must be > 0 if using kick-velocity-distribution=FLAT (default = " + std::to_string(kickVelocityDistributionMaximum) + ")").c_str())
@@ -1150,6 +1131,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("pulsar-magnetic-field-decay-timescale",                       po::value<double>(&pulsarMagneticFieldDecayTimescale)->default_value(pulsarMagneticFieldDecayTimescale),                                                    ("Timescale on which magnetic field decays in Myrs (default = " + std::to_string(pulsarMagneticFieldDecayTimescale) + ")").c_str())
 		    ("pulsar-minimum-magnetic-field",                               po::value<double>(&pulsarLog10MinimumMagneticField)->default_value(pulsarLog10MinimumMagneticField),                                                        ("log10 of the minimum pulsar magnetic field in Gauss (default = " + std::to_string(pulsarLog10MinimumMagneticField) + ")").c_str())
 
+            // AVG
+            /*
 			("sample-common-envelope-alpha-max",                            po::value<double>(&sampleCommonEnvelopeAlphaMax)->default_value(sampleCommonEnvelopeAlphaMax),                                                              ("Maximum for Uniform sampling over common envelope alpha (default = " + std::to_string(sampleCommonEnvelopeAlphaMax) + ")").c_str())
 			("sample-common-envelope-alpha-min",                            po::value<double>(&sampleCommonEnvelopeAlphaMin)->default_value(sampleCommonEnvelopeAlphaMin),                                                              ("Minimum for Uniform sampling over common envelope alpha (default = " + std::to_string(sampleCommonEnvelopeAlphaMin) + ")").c_str())
 			("sample-kick-direction-power-max",                             po::value<double>(&sampleKickDirectionPowerMax)->default_value(sampleKickDirectionPowerMax),                                                                ("Maximum for Uniform sampling over kick direction powerlaw exponent (default = " + std::to_string(sampleKickDirectionPowerMax) + ")").c_str())
@@ -1160,12 +1143,11 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 			("sample-luminous-blue-variable-multiplier-min",                po::value<double>(&sampleLuminousBlueVariableMultiplierMin)->default_value(sampleLuminousBlueVariableMultiplierMin),                                        ("Minimum for Uniform sampling over multiplicative constant for LBV mass loss (default = " + std::to_string(sampleLuminousBlueVariableMultiplierMin) + ")").c_str())
 			("sample-wolf-rayet-multiplier-max",                            po::value<double>(&sampleWolfRayetMultiplierMax)->default_value(sampleWolfRayetMultiplierMax),                                                              ("Maximum for Uniform sampling over multiplicative constant for WR winds (default = " + std::to_string(sampleWolfRayetMultiplierMax) + ")").c_str())
 			("sample-wolf-rayet-multiplier-min",                            po::value<double>(&sampleWolfRayetMultiplierMin)->default_value(sampleWolfRayetMultiplierMin),                                                              ("Minimum for Uniform sampling over multiplicative constant for WR winds (default = " + std::to_string(sampleWolfRayetMultiplierMin) + ")").c_str())
-		    ("semi-major-axis-max",                                         po::value<double>(&semiMajorAxisDistributionMax)->default_value(semiMajorAxisDistributionMax),                                                              ("Maximum semi major axis in AU to generate (default = " + std::to_string(semiMajorAxisDistributionMax) + ")").c_str())
+		    */
+            ("semi-major-axis-max",                                         po::value<double>(&semiMajorAxisDistributionMax)->default_value(semiMajorAxisDistributionMax),                                                              ("Maximum semi major axis in AU to generate (default = " + std::to_string(semiMajorAxisDistributionMax) + ")").c_str())
 		    ("semi-major-axis-min",                                         po::value<double>(&semiMajorAxisDistributionMin)->default_value(semiMajorAxisDistributionMin),                                                              ("Minimum semi major axis in AU to generate (default = " + std::to_string(semiMajorAxisDistributionMin) + ")").c_str())
 		    ("single-star-mass-max",                                        po::value<double>(&singleStarMassMax)->default_value(singleStarMassMax),                                                                                    ("Maximum mass (in Msol) for single star evolution (default = " + std::to_string(singleStarMassMax) + ")").c_str())
             ("single-star-mass-min",                                        po::value<double>(&singleStarMassMin)->default_value(singleStarMassMin),                                                                                    ("Minimum mass (in Msol) for single star evolution (default = " + std::to_string(singleStarMassMin) + ")").c_str())
-		    ("spin-mag-max",                                                po::value<double>(&spinDistributionMax)->default_value(spinDistributionMax),                                                                                ("Maximum magnitude of spin (default = " + std::to_string(spinDistributionMax) + ")").c_str())
-		    ("spin-mag-min",                                                po::value<double>(&spinDistributionMin)->default_value(spinDistributionMin),                                                                                ("Minimum magnitude of spin (default = " + std::to_string(spinDistributionMin) + ")").c_str())
 
 		    ("wolf-rayet-multiplier",                                       po::value<double>(&wolfRayetFactor)->default_value(wolfRayetFactor),                                                                                        ("Multiplicitive constant for WR winds (default = " + std::to_string(wolfRayetFactor) + ")").c_str())
 
@@ -1176,7 +1158,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 
 		    // string options - alphabetically
-            ("AIS-DCOtype",                                                 po::value<string>(&AISDCOtypeString)->default_value(AISDCOtypeString),                                                                                      ("DCO type selection in exploratory phase of STROOPWAFEL, (options: ALL, BBH, BNS or BHNS), default = " + AISDCOtypeString + ")").c_str())
+            // AVG - 17/03/2020 - Floor will uncomment when tested.
+            // ("AIS-DCOtype",                                                 po::value<string>(&AISDCOtypeString)->default_value(AISDCOtypeString),                                                                                      ("DCO type selection in exploratory phase of STROOPWAFEL, (options: ALL, BBH, BNS or BHNS), default = " + AISDCOtypeString + ")").c_str())
 
 		  	("black-hole-kicks",                                            po::value<string>(&blackHoleKicksString)->default_value(blackHoleKicksString),                                                                              ("Black hole kicks relative to NS kicks (options: FULL, REDUCED, ZERO, FALLBACK), default = " + blackHoleKicksString + ")").c_str())
 
@@ -1234,12 +1217,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		    ("semi-major-axis-distribution,a",                              po::value<string>(&semiMajorAxisDistributionString)->default_value(semiMajorAxisDistributionString),                                                        ("Initial semi-major axis distribution, a (options: FLATINLOG, CUSTOM, DuquennoyMayor1991, SANA2012), default = " + semiMajorAxisDistributionString + ")").c_str())
 
-		    ("spin-assumption",                                             po::value<string>(&spinAssumptionString)->default_value(spinAssumptionString),                                                                              ("Misalignedments assumption (default = " + spinAssumptionString + ")").c_str())
-		    ("spin-distribution",                                           po::value<string>(&spinDistributionString)->default_value(spinDistributionString),                                                                          ("Spin distribution (default = " + spinDistributionString + ")").c_str())
-
-		    ("tides-prescription",                                          po::value<string>(&tidesPrescriptionString)->default_value(tidesPrescriptionString),                                                                        ("Tides prescription (options: default = " + tidesPrescriptionString + ")").c_str())
-
-
             // vector (list) options - alphabetically
             ("debug-classes",                                               po::value<vector<string>>(&debugClasses)->multitoken()->default_value(debugClasses),                                                                        ("Debug classes enabled (default = " + defaultDebugClasses + ")").c_str())
             ("log-classes",                                                 po::value<vector<string>>(&logClasses)->multitoken()->default_value(logClasses),                                                                            ("Logging classes enabled (default = " + defaultLogClasses + ")").c_str())
@@ -1276,10 +1253,13 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
             bool found;
 
+            // AVG - 17/03/2020 - Floor will uncomment when tested.
+            /*
             if (!vm["AIS-DCOtype"].defaulted()) {                                                                                       // Adaptive Importance Sampling DCO type
                 std::tie(found, AISDCOtype) = utils::GetMapKey(AISDCOtypeString, AIS_DCO_LABEL, AISDCOtype);
                 COMPLAIN_IF(!found, "Unknown AIS DCO Type");
             }
+            */
 
             if (!vm["black-hole-kicks"].defaulted()) {                                                                                  // black hole kicks option
                 std::tie(found, blackHoleKicksOption) = utils::GetMapKey(blackHoleKicksString, BLACK_HOLE_KICK_OPTION_LABEL, blackHoleKicksOption);
@@ -1425,22 +1405,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 std::tie(found, semiMajorAxisDistribution) = utils::GetMapKey(semiMajorAxisDistributionString, SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL, semiMajorAxisDistribution);
                 COMPLAIN_IF(!found, "Unknown Semi-Major Axis Distribution");
             }
-
-			if (!vm["spin-assumption"].defaulted()) {                                                                                   // spin assumption
-                std::tie(found, spinAssumption) = utils::GetMapKey(spinAssumptionString, SPIN_ASSUMPTION_LABEL, spinAssumption);
-                COMPLAIN_IF(!found, "Unknown Spin Assumption");
-			}
-
-			if (!vm["spin-distribution"].defaulted()) {                                                                                 // spin distribution
-                std::tie(found, spinDistribution) = utils::GetMapKey(spinDistributionString, SPIN_DISTRIBUTION_LABEL, spinDistribution);
-                COMPLAIN_IF(!found, "Unknown Spin Assumption");
-			}
-
-            if (!vm["tides-prescription"].defaulted()) {                                                                                // tides prescription
-                std::tie(found, tidesPrescription) = utils::GetMapKey(tidesPrescriptionString, TIDES_PRESCRIPTION_LABEL, tidesPrescription);
-                COMPLAIN_IF(!found, "Unknown Tides Prescription");
-            }
-
 
             // constraint/value/range checks - alphabetically (where possible)
 
