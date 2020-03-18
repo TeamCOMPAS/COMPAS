@@ -339,9 +339,9 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::LAMBDA_DEWI:                                        value = Lambda_Dewi();                                          break;
             case ANY_STAR_PROPERTY::LAMBDA_FIXED:                                       value = Lambda_Fixed();                                         break;
             case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW:                                     value = Lambda_Kruckow();                                       break;
-            case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_BOTTOM:                              value = Lambda_Kruckow();                                       break;
-            case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_MIDDLE:                              value = Lambda_Kruckow();                                       break;
-            case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_TOP:                                 value = Lambda_Kruckow();                                       break;
+            case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_BOTTOM:                              value = Lambda_KruckowBottom();                                 break;
+            case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_MIDDLE:                              value = Lambda_KruckowMiddle();                                 break;
+            case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_TOP:                                 value = Lambda_KruckowTop();                                    break;
             case ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE:                                   value = Lambda_Loveridge();                                     break;
             case ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE_WINDS:                             value = Lambda_LoveridgeWinds();                                break;
             case ANY_STAR_PROPERTY::LAMBDA_NANJING:                                     value = Lambda_Nanjing();                                       break;
@@ -2969,24 +2969,10 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
 
  /*
   * Draw the angular components of the supernova kick theta and phi according to user specified options.
-
-    Parameters
-    -----------
-    options : programOptions
-        User specified options
-    r : gsl_rng
-        Used for the random number generation
-    theta : double
-        Polar angle for kick (pointer)
-    phi : double
-        Azimuthal angle for kick (pointer)
-    kickDirectionPower : double
-        Power law for the POWER angle distribution
-
-    Returns
-    --------
-    updates values of theta and phi
-    */
+  *
+  * 
+  * DBL_DBL DrawKickDirection()
+  */
 DBL_DBL BaseStar::DrawKickDirection() {
 
     double theta;                                                                                               // theta, angle out of the plane
