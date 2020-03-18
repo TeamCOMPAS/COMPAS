@@ -27,7 +27,6 @@ class pythonProgramOptions:
     output = os.getcwd()
     output_container = None                 # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
 
-
     #-- option to make a grid of hyperparameter values at which to produce populations.
     #-- If this is set to true, it will divide the number_of_binaries parameter equally
     #-- amoungst the grid points (as closely as possible). See the hyperparameterGrid method below
