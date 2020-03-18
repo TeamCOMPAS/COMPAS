@@ -239,8 +239,19 @@
 //										- removed deprecated options from pythonSubmitDefault.py options
 //										- renamed options: mass transfer, iterations -> timestep-iterations
 //										- commented AIS Options until fully implemented
+// 02.08.01      JR - Mar 18, 2020 - Defect repairs:
+//                                      - restored initialisation of AIS options in Options.cpp (AIS now defaults off instead of on)
+//                                      - fixed retrieval of values for:
+//                                            - ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_BOTTOM, 
+//                                            - ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_MIDDLE, and 
+//                                            - ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_TOP 
+//                                         in BaseStar::StellarPropertyValue().  Were all previously retrieving same value as ANY_STAR_PROPERTY::LAMBDA_KRUCKOW
+//                                      - fixed some comments in BAseBinaryStar.cpp (lines 2222 and 2468, "de Mink" -> "HURLEY")
+//                                      - fixed description (in comments) of BinaryConstituentStar::SetPostCEEValues() (erroneously had "pre" instead of "post" - in comments only, not code)
+//                                      - fixed description of BaseStar::DrawKickDirection()
 
-const std::string VERSION_STRING = "02.08.00";
+
+const std::string VERSION_STRING = "02.08.01";
 
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)

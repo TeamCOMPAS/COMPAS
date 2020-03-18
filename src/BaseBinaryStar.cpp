@@ -2219,7 +2219,7 @@ double BaseBinaryStar::CalculateMassTransferOrbit(BinaryConstituentStar& p_Donor
     // calculate new semi-major axis value using the chosen prescription
     switch (prescription) {                                                                                     // which mass transfer prescription?
 
-        case MT_PRESCRIPTION::HURLEY: {                                                                         // using de Mink mass transfer prescription
+        case MT_PRESCRIPTION::HURLEY: {                                                                         // using HURLEY mass transfer prescription
                                                                                                                 // degenerate and non-degenerate accretor solutions same for de Mink
             double jPrime;
             double aPrime;
@@ -2465,7 +2465,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 		// Begin Mass Transfer
         switch (OPTIONS->MassTransferPrescription()) {                                                                                                      // which mass transfer prescription?
 
-            case MT_PRESCRIPTION::HURLEY: {                                                                                                                 // de Mink
+            case MT_PRESCRIPTION::HURLEY: {                                                                                                                 // HURLEY
 
                 switch (m_Donor->DetermineMassTransferCase()) {                                                                                             // which MT case?
 
