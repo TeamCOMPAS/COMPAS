@@ -433,8 +433,6 @@ void Options::InitialiseMemberVariables(void) {
 	zetaHertzsprungGap	                                            = 6.5;
 
 
-    // AVG - 17/03/2020 - Floor will uncomment when tested.
-    /*
     // Adaptive Importance Sampling options
     AISexploratoryPhase                                             = false;                                                                            // Flag for whether to run the AIS exploratory phase
     AISDCOtype                                                      = AIS_DCO::ALL;                                                                     // Which prescription to use for DCO type
@@ -444,7 +442,6 @@ void Options::InitialiseMemberVariables(void) {
     AISrefinementPhase                                              = false;                                                                            // Flag for whether to run the AIS refinement phase (step 2)
     AISrlof                                                         = false;                                                                            // Flag for excluding DCOs that RLOFSecondaryZAMS
     kappaGaussians                                                  = 2;                                                                                // scaling factor for the width of the Gaussian distributions in AIS main sampling phase
-    */
 
     // Metallicity options
     metallicity                                                     = ZSOL;
@@ -821,8 +818,6 @@ void Options::SetToFiducialValues(void) {
     zetaMainSequence 	                                            = 6.5;
 	zetaHertzsprungGap	                                            = 2.0;
 
-    // AVG - 17/03/2020 - Floor will uncomment when tested.
-    /*
     // Adaptive Importance Sampling Exploratory phase
     AISexploratoryPhase                                             = false;                                                                            // Flag for whether to run the AIS exploratory phase
     AISDCOtype                                                      = AIS_DCO::ALL;                                                                     // Which prescription to use for DCO type
@@ -832,7 +827,6 @@ void Options::SetToFiducialValues(void) {
     AISrefinementPhase                                              = false;                                                                            // Flag for whether to run the AIS refinement phase (step 2)
     AISrlof                                                         = false;                                                                            // Flag for excluding DCOs that RLOFSecondaryZAMS
     kappaGaussians                                                  = 2;                                                                                // scaling factor for the width of the Gaussian distributions in AIS main sampling phase
-    */
 
     // Metallicity options
     metallicity                                                     = ZSOL;

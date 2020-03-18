@@ -188,7 +188,7 @@ void BinaryConstituentStar::SetPreCEEValues() {
 
 
 /*
- * Calculate (or set) pre common envelope values:
+ * Calculate (or set) post common envelope values:
  *
  *    m_CEDetails.postCEE.bindingEnergy
  *    m_CEDetails.postCEE.dynamicalTimescale
@@ -204,7 +204,7 @@ void BinaryConstituentStar::SetPreCEEValues() {
  *    m_CEDetails.postCEE.thermalTimescale
  *
  *
- * void SetPreCEEValues()
+ * void SetPostCEEValues()
  */
 void BinaryConstituentStar::SetPostCEEValues() {
 
