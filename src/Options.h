@@ -222,8 +222,6 @@ public:
 
     NS_EOS                                      NeutronStarEquationOfState() const                                      { return neutronStarEquationOfState; }
 
-    bool                                        OnlyDoubleCompactObjects() const                                        { return onlyDoubleCompactObjects; }
-
     bool                                        OptimisticCHE() const                                                   { return cheOption == CHE_OPTION::OPTIMISTIC; }
 
     string                                      OptionsDetails() const                                                  { return m_OptionsDetails; }
@@ -288,13 +286,6 @@ public:
     double                                      SingleStarMassMin() const                                               { return singleStarMassMin; }
     double                                      SingleStarMassMax() const                                               { return singleStarMassMax; }
 
-    SPIN_ASSUMPTION                             SpinAssumption() const                                                  { return spinAssumption; }
-    SPIN_DISTRIBUTION                           SpinDistribution() const                                                { return spinDistribution; }
-    double                                      SpinDistributionMax() const                                             { return spinDistributionMax; }
-    double                                      SpinDistributionMin() const                                             { return spinDistributionMin; }
-
-    TIDES_PRESCRIPTION                          TidesPrescription() const                                               { return tidesPrescription; }
-
     bool                                        UseFixedUK() const                                                      { return useFixedUK; }
     bool                                        UseMassLoss() const                                                     { return useMassLoss; }
     bool                                        UseMassTransfer() const                                                 { return useMassTransfer; }
@@ -329,8 +320,6 @@ private:
 	bool                                        beBinaries;													    // Flag if we want to print BeBinaries (main.cpp)
     bool                                        evolvePulsars;                                                  // Whether to evolve pulsars or not
 	bool                                        evolveUnboundSystems;							                // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
-    bool                                        onlyDoubleCompactObjects;                                       // A bunch of shortcuts to only evolve systems which are likely to form double compact objects.
-    bool                                        PNevolution;                                                    // Whether to integrate the spins using PN equations (default is no)
 
     bool                                        detailedOutput;                                                 // Print detailed output details to file (default = false)
     bool                                        populationDataPrinting;                                         // Print certain data for small populations, but not for larger one
@@ -436,20 +425,6 @@ private:
     boost::filesystem::path                     defaultOutputPath;                                              // Default output location
     boost::filesystem::path                     outputPath;                                                     // Desired output location
     string                                      outputContainerName;                                            // Name of output container (directory)
-
-    // Spin options
-    SPIN_DISTRIBUTION                           spinDistribution;                                               // Which spin distribution to use ( all spins = 0.7)
-    string                                      spinDistributionString;                                         // Which spin distribution to use ( all spins = 0.7)
-    double                                      spinDistributionMin;                                            // Minimum dimensionless spin magnitude
-    double                                      spinDistributionMax;                                            // Maximum dimensionless spin magnitude
-
-    SPIN_ASSUMPTION spinAssumption;
-    string spinAssumptionString;                                                                                // What assumption to make in our spin study (default = both spins aligned)
-
-
-    // Tides options
-    TIDES_PRESCRIPTION                          tidesPrescription;                                              // Which tides prescription will be used by the code. (default = TIDES_PRESCRIPTION_NONE)
-    string                                      tidesPrescriptionString;                                        // String containing which tides prescription to use (default = "None")
 
     // Mass loss options
     bool                                        useMassLoss;                                                    // Whether to activate mass loss (default = True)

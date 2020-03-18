@@ -13150,7 +13150,7 @@ Here we present how we can more efficiently 'slice' the data using boolean masks
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>&lt;KeysViewHDF5 [&#39;CommonEnvelopes&#39;, &#39;DoubleCompactObjects&#39;, &#39;RLOF&#39;, &#39;Supernovae&#39;, &#39;SystemParameters&#39;]&gt;
+<pre>&lt;KeysViewHDF5 [&#39;CommonEnvelopes&#39;, &#39;DoubleCompactObjects&#39;, &#39;Supernovae&#39;, &#39;SystemParameters&#39;]&gt;
 </pre>
 </div>
 </div>
@@ -13244,7 +13244,7 @@ Now the seed is the number that links the information of say the supernovae to t
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>120.01296210289001 seconds for 300000 systems
+<pre>118.17710280418396 seconds for 300000 systems
 </pre>
 </div>
 </div>
@@ -13358,15 +13358,13 @@ the same. Rephrased, the total mass at the third entry corresponds to the seed a
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Before we continue it is useful to realise how the COMPAS-popsynth printing works.
+<h2 id="example-1">example 1<a class="anchor-link" href="#example-1">&#182;</a></h2><p>Before we continue it is useful to realise how the COMPAS-popsynth printing works.
 Every time you simulate a system the output is printed in different files. 
-Hence if you have four systems with seedds 1,2,3,4 then COMPAS will evolve seed 1, print the output, and then continue to evolve system 2 etc.</p>
-<p>If all four systems each had one supernova and one double compact object, then the array 'SEED' in each group would always look like [1,2,3,4]. Hence, if you create a mask based on information in one group (like the example above), you could immediately apply it to a column in the order group because they are ordered the same AND of the SAME LENGTH.
-However this is usually not the case.</p>
-<p>A system might not form a double compact object, maybe only seed 2 and 4.
-The trick is that the order in which the seeds are evaluated in COMPAS remains the same.
-Hence if you can create a mask that shows all the systems that became a DCO in the SystemParameters file, then after applying the mask the information between the two files
-is both ordered the same and of the same length.</p>
+Hence if you have four systems with seeds 1,2,3,4 then COMPAS will evolve seed 1, print the output, and then continue to evolve system 2 etc.</p>
+<p>Therefore in the systemparameters file, which prints a single line for all the systems, you will find seeds 1,2,3,4 printed in order. However this is generally not the case for the other files.
+For example the double compact objects file. This file also prints a single line per system, but not all the systems form double compact objects. However the systems are still printed in the same order hence a simple
+mask will link the parameters without you having to order them too.</p>
+<p>Imagine only seeds 2 and 4 formed a double compact objec (DCO) and you want to recover the initial primary mass of the systems. Lets create a simple example outside the COMPAS data</p>
 
 </div>
 </div>
@@ -13376,10 +13374,10 @@ is both ordered the same and of the same length.</p>
 <div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#small example</span>
-<span class="n">SystemSeeds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#small example mock data</span>
+<span class="n">SystemSeeds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span> <span class="p">,</span><span class="mi">2</span> <span class="p">,</span><span class="mi">3</span> <span class="p">,</span><span class="mi">4</span> <span class="p">])</span>
 <span class="n">SystemMass1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">45</span><span class="p">])</span>
-<span class="n">DCOSeeds</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+<span class="n">DCOSeeds</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>   <span class="mi">2</span> <span class="p">,</span>   <span class="mi">4</span> <span class="p">])</span>
 
 <span class="c1">#compare which element of 1-d array are in other</span>
 <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">SystemSeeds</span><span class="p">,</span> <span class="n">DCOSeeds</span><span class="p">)</span>
@@ -13412,14 +13410,6 @@ is both ordered the same and of the same length.</p>
 </div>
 </div>
 
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The above shows how you can get the initial masses of DCO with seeds 2 and 4</p>
-
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
@@ -13484,7 +13474,7 @@ is both ordered the same and of the same length.</p>
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>0.038631439208984375 seconds for 300000 systems
+<pre>0.04909825325012207 seconds for 300000 systems
 </pre>
 </div>
 </div>
@@ -13529,7 +13519,7 @@ is both ordered the same and of the same length.</p>
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Note that the above loop can easily be expanded with more conditions.
-If you do not want all the DCO initial total masses but only of the double neutron stars, then you just need to reduce the seedsDCO to those only becoming a double neutron star.</p>
+If you do not want all the DCO initial total masses but only of the double neutron stars, then you just need to reduce the seedsDCOs to those only becoming a double neutron star.</p>
 
 </div>
 </div>
@@ -13575,20 +13565,62 @@ If you do not want all the DCO initial total masses but only of the double neutr
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Warning,-not-all-files-have-zero-or-one-line-per-seed">Warning, not all files have zero or one line per seed<a class="anchor-link" href="#Warning,-not-all-files-have-zero-or-one-line-per-seed">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Sometimes a system can have multiple lines in a file. For example a system can experience 2 supernovae. The trick is then to think of a condition which is unique to the system.</p>
-<p>For example:</p>
-<p>If you want to link the double compact objects to the stellar types of the systems before their supernovae, then it is ill-phrased sice you van have multiple. The slicing will then not work since the SN array can have multiple instances of the seed.</p>
-<p>However, if you ask what were the stellar types of the primaries that went supernova, then the slicing works. Since a star can only go supernova once.</p>
+<h2 id="example-2">example 2<a class="anchor-link" href="#example-2">&#182;</a></h2><p>The previous example is relies on the fact that each file only prints at most one line per system.
+However there are events, such as supernovae (SNe), where the system could be printed 0,1,2 times depending on the masses of the stars.</p>
+<p>Now the aforementioned method will require some additional steps. Imagine again the 4 seeds of the previous example. Both 2 and 4 formed a DCO and hence both stars in both binaries went SN. Seeds 1 and 3 are low mass stars hence they did not go SN. The SN file prints one line per SN and therefore seeds 2 and 4 appear twice, but still in order.</p>
+<p>Imagine you want the primary masses of systems that experienced at any point a core collapse supernova (ccSN), (PPISN is pulsational pair instability SN). Lets reuse our mock data</p>
 
 </div>
 </div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#small example</span>
+<span class="n">SystemSeeds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span> <span class="p">,</span><span class="mi">2</span> <span class="p">,</span><span class="mi">3</span> <span class="p">,</span><span class="mi">4</span> <span class="p">])</span>
+<span class="n">SystemMass1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">45</span><span class="p">])</span>
+<span class="n">DCOSeeds</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span> <span class="p">,</span><span class="mi">4</span> <span class="p">])</span>
+<span class="n">SNSeeds</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span> <span class="p">,</span><span class="mi">2</span> <span class="p">,</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span> <span class="p">])</span>
+<span class="n">SNTypes</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s1">&#39;ccSN&#39;</span> <span class="p">,</span><span class="s1">&#39;ccSN&#39;</span> <span class="p">,</span><span class="s1">&#39;PPISN&#39;</span><span class="p">,</span> <span class="s1">&#39;ccSN&#39;</span><span class="p">])</span>
+
+<span class="c1">#get seeds which had a ccSN</span>
+<span class="n">maskCCSN</span>  <span class="o">=</span> <span class="n">SNTypes</span> <span class="o">==</span> <span class="s1">&#39;ccSN&#39;</span>
+<span class="n">seedsCCSN</span> <span class="o">=</span> <span class="n">SNSeeds</span><span class="p">[</span><span class="n">maskCCSN</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ccSN seeds =</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">seedsCCSN</span><span class="p">))</span>
+<span class="c1">#in principle you could directly compare to seedsCCSN</span>
+<span class="c1">#but I prefer to always be explicit and compare unique seeds</span>
+<span class="n">seedsCCSN</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">seedsCCSN</span><span class="p">)</span>
+<span class="c1">#compare which element of 1-d array are in other</span>
+<span class="c1">#this because in mroe complicated scenarios duplicate seeds might sometimes mess up your slicing</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">SystemSeeds</span><span class="p">,</span> <span class="n">seedsCCSN</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">SystemMass1</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>ccSN seeds =[2 2 4]
+[20 45]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">

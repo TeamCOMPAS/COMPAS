@@ -13168,23 +13168,24 @@ Here we show how to call it from another script such as an ipython notebook.</p>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Besides the path to the data we need additional information in order for the script to recognise the data.</p>
-<p>1 - Define the prefix used for naming the data files.
-    This is found in the pythonSubmit of the simulation.</p>
-<p>2 - The filetype/extension of the data files.</p>
-<p>3 - The files that you want to use in the h5 file. 
-    This is passed as a list of numbers, the numbers relate 
-    to the following files</p>
-
-<pre><code>1:Prefix_Common_Envelopes.xxx
-2:Prefix_Double_Compact_Objects.xxx
-3:Prefix_Supernovae.xxx
-4:Prefix_System_Parameters.xxx
-5:Prefix_RLOF.txt</code></pre>
+<p>Besides the path to the data we need additional information in order for the script to recognise the data. You can find what you need at the top of the script. They are:</p>
 
 </div>
 </div>
-</div>
+</div>### User-defined parameters
+dataRootDir    = '.'    # Location of root directory of the data - 
+                        # user should change this if not running from root dir
+prefix         = ''     # Prefix of the data files shown here is default
+delimiter      = ','    # Delimeter used in the output csv files -
+                        # but can be set differently if desired
+extension      = 'csv'  # Extension of the data files
+
+ #Which files to combine current options are
+filesToCombine = ['SystemParameters'    ,'CommonEnvelopes',\
+                  'DoubleCompactObjects','Supernovae'       ]
+
+h5Name         =  'COMPAS_output.h5' #Name of the output file
+
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -13211,14 +13212,18 @@ and named COMPASOutput.h5</p>
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Test was run for a run on multiple cores</span>
-<span class="n">pathToData</span>   <span class="o">=</span> <span class="s1">&#39;/home/cneijssel/Desktop/Test&#39;</span>
-<span class="c1">#</span>
-<span class="n">prefix</span>     <span class="o">=</span> <span class="s1">&#39;BSE&#39;</span>
-<span class="c1">#</span>
-<span class="n">extension</span>  <span class="o">=</span> <span class="s1">&#39;txt&#39;</span>
-<span class="c1">#</span>
-<span class="n">files</span>      <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### User-defined parameters</span>
+<span class="n">dataRootDir</span>    <span class="o">=</span> <span class="n">pathData</span>   <span class="c1"># Location of root directory of the data - </span>
+                        <span class="c1"># user should change this if not running from root dir</span>
+<span class="n">prefix</span>         <span class="o">=</span> <span class="s1">&#39;BSE_&#39;</span> <span class="c1"># Prefix of the data files shown here is default</span>
+<span class="n">delimiter</span>      <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span>   
+<span class="n">extension</span>      <span class="o">=</span> <span class="s1">&#39;txt&#39;</span>  
+
+<span class="c1">#Which files to combine current options are</span>
+<span class="n">filesToCombine</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;SystemParameters&#39;</span>    <span class="p">,</span><span class="s1">&#39;CommonEnvelopes&#39;</span><span class="p">,</span>\
+                  <span class="s1">&#39;DoubleCompactObjects&#39;</span><span class="p">,</span><span class="s1">&#39;Supernovae&#39;</span>       <span class="p">]</span>
+
+<span class="n">h5Name</span>         <span class="o">=</span>  <span class="s1">&#39;COMPAS_output.h5&#39;</span> <span class="c1">#Name of the output file</span>
 </pre></div>
 
     </div>
@@ -13231,10 +13236,12 @@ and named COMPASOutput.h5</p>
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data_to_H5</span><span class="o">.</span><span class="n">combineCreateH5file</span><span class="p">(</span><span class="n">pathToData</span> <span class="o">=</span> <span class="n">pathToData</span><span class="p">,</span>\
-                               <span class="n">prefix</span>     <span class="o">=</span> <span class="n">prefix</span><span class="p">,</span>\
-                               <span class="n">extension</span>  <span class="o">=</span> <span class="n">extension</span><span class="p">,</span>\
-                               <span class="n">files</span>      <span class="o">=</span> <span class="n">files</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data_to_H5</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">filesToCombine</span><span class="o">=</span> <span class="n">filesToCombine</span><span class="p">,</span> 
+                <span class="n">dataRootDir</span>   <span class="o">=</span> <span class="n">dataRootDir</span><span class="p">,</span> \
+                <span class="n">prefix</span>        <span class="o">=</span> <span class="n">prefix</span><span class="p">,</span>\
+                <span class="n">delimiter</span>     <span class="o">=</span> <span class="n">delimiter</span><span class="p">,</span>\
+                <span class="n">extension</span>     <span class="o">=</span> <span class="n">extension</span><span class="p">,</span> \
+                <span class="n">h5Name</span>        <span class="o">=</span> <span class="n">h5Name</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13251,17 +13258,14 @@ and named COMPASOutput.h5</p>
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Combining csv files from subdirectories
-Creating H5 file
-Clean up the combined CSV files
-Done, :smiling_imp:
+<pre>Checking if directory and files to combine exist
+Combining txt files from subdirectories
+Creating H5 file COMPAS_output.h5
+Cleaning up the combined txt files
 
-#---------------------------#
-#---------------------------#
-#------contents H5 file-----#
-#---------------------------#
-#---------------------------#
-
+-------------------------
+--Overview of your data--
+-------------------------
 Filename = CommonEnvelopes
 ----------------------
 	   column name                             unit                length
@@ -13376,56 +13380,6 @@ Filename = DoubleCompactObjects
 	   Stellar_Type_2                                              2750
 	   Time                                    Myr                 2750
 	   --------------------------------------------------------------------
-Filename = RLOF
-----------------------
-	   column name                             unit                length
-	   --------------------------------------------------------------------
-	   CEE                                     State               154803
-	   EventCounter_Prev                       Count               154803
-	   Event_Counter                           Count               154803
-	   ID                                                          154803
-	   Mass_1                                  Msol                154803
-	   --------------------------------------------------------------------
-	   Mass_1_Prev                             Msol                154803
-	   Mass_2                                  Msol                154803
-	   Mass_2_Prev                             Msol                154803
-	   RLOF_1                                  State               154803
-	   RLOF_1_Prev                             Event               154803
-	   --------------------------------------------------------------------
-	   RLOF_2                                  State               154803
-	   RLOF_2_Prev                             Event               154803
-	   Radius_1                                Rsol                154803
-	   Radius_1_Prev                           Rsol                154803
-	   Radius_2                                Rsol                154803
-	   --------------------------------------------------------------------
-	   Radius_2_Prev                           Rsol                154803
-	   SEED                                                        154803
-	   Separation                              Rsol                154803
-	   Separation_Prev                         Rsol                154803
-	   Time                                    Myr                 154803
-	   --------------------------------------------------------------------
-	   Time_Prev                               Myr                 154803
-	   Type_1                                                      154803
-	   Type_1_Prev                                                 154803
-	   Type_2                                                      154803
-	   Type_2_Prev                                                 154803
-	   --------------------------------------------------------------------
-	   Zeta_Hurley_1                                               154803
-	   Zeta_Hurley_2                                               154803
-	   Zeta_Hurley_He_1                                            154803
-	   Zeta_Hurley_He_2                                            154803
-	   Zeta_Nuclear_1                                              154803
-	   --------------------------------------------------------------------
-	   Zeta_Nuclear_2                                              154803
-	   Zeta_RLOF_Analytic                                          154803
-	   Zeta_RLOF_Numerical                                         154803
-	   Zeta_SoberMan_He_1                                          154803
-	   Zeta_SoberMan_He_2                                          154803
-	   --------------------------------------------------------------------
-	   Zeta_Soberman_1                                             154803
-	   Zeta_Soberman_2                                             154803
-	   Zeta_Thermal_1                                              154803
-	   Zeta_Thermal_2                                              154803
 Filename = Supernovae
 ----------------------
 	   column name                             unit                length
@@ -13511,6 +13465,7 @@ Filename = SystemParameters
 	   Stellar_Type_2                                              300000
 	   Unbound                                 State               300000
 	   WR_Multiplier                                               300000
+Done, :smiling_imp:
 </pre>
 </div>
 </div>
