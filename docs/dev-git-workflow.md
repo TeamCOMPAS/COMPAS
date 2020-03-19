@@ -6,13 +6,15 @@
 
 ## Contents of this document
 
-- 1. Introduction
+ Introduction
 
-- 2. Getting Set Up
+ Getting Set Up
 
-- 3. Typical Workflow
+ Day to Day Commands
 
-- 4. Terminology
+ Typical Workflow
+
+ Terminology
 
 ---
 
@@ -87,7 +89,7 @@ If the clone finished without error, you should see as output:
 
 `* master`
 
-At this point, if you do not plan to do any COMPAS development, you're all set. See [getting_started.md](getting_started.md) to see how to compile and run COMPAS. If you run into issues or would like to see new features implemented, you can [contact us here.](compas-user@googlegroups.com)
+At this point, if you do not plan to do any COMPAS development, you're all set. See [getting_started.md](getting_started.md) to see how to compile and run COMPAS. If you run into issues or would like to see new features implemented, you can [contact us here.](compas-user@googlegroups.com). You should read on if you are curious, but if you are not invited to be a collaborator, you will only have read-access to the repository.
 
 
 ### *COMPAS Developers Only*
@@ -102,18 +104,23 @@ In order to contribute to COMPAS, you will need to be added as a collaborator. N
 
 ### Fork the main repo.
 
-While logged in, go to the TeamCOMPAS/COMPAS repo and click on `Fork` in the upper-right corner. This will create a copy of the current state of the TeamCOMPAS/COMPAS repo, including all branches and all commit histories, and place it in your profile as your personal Fork, identified as <your-username>/COMPAS.
+As a COMPAS developer, you are highly encouraged to create your own personal fork of the Main repo. This serves as a public-facing 'sandbox' of your current work, where you can share partially-developed ideas and projects with others who might be interested in assisting. 
 
-Since this is your personal repo, you can be as organized or scatter-brained as you wish here. If you work best with 50 branches, obscure names, and code scraps everywhere, have at it. You can also give or take away access to any other collaborators who you might wish to share your work with.
+On Github, go to the TeamCOMPAS/COMPAS repo and click on `Fork` in the upper-right corner. This will create a copy of the current state of the TeamCOMPAS/COMPAS repo, including all branches and all commit histories, and place it in your profile as your personal Fork, identified as <your-username>/COMPAS.
 
-### Clone from your remote repo locally
+Since this is your personal repo, you can be as organized or scatter-brained as you wish here. If you work best with 50 branches, obscure names, and code scraps everywhere, have at it. You can also give or take away access to any other collaborators who you might wish to contribute. Note that for public repositories, your code will still be read-only for everyone who is not a collaborator. 
 
+### Clone from your remote fork to your local repo
 
+Once your fork is created, you'll want to connect it to your local repository. In the terminal, navigate to your COMPAS git repo and type:
 
+`git remote add <fork-nickname> <remote-fork-url>`
 
+The <remote-fork-url> can be found on your remote repo under the same green 'Clone or Download' button as before. If you have ssh configured, it will be similar to `git@github.com:reinhold-willcox/COMPAS.git`. The <fork-nickname> is your choice, but should be informative, e.g `reinhold_fork`.
 
+---
 
-
+## 3. Day to Day commands
 
 ### Basic commands for navigating local git 
 
@@ -129,7 +136,42 @@ To view, create, and switch branches, use: (similar to `ls`, `mkdir`, and `cd`)
 
 *Note:* Many git commands require that you are on the correct branch before executing the command - using these 3 commands regularly before running more complicated commands will save you headaches down the road!
 
-### Making edits
+### Committing changes
+
+What git does best is to record all the small changes and edits that accumulate as we modify code. After many small changes, you might have a feature that you decide isn't actually what you want, and you want to get rid of it. Or you might have introduced a bug at some point that spans many files, and you need to remove it without undoing all the work you've accomplished since then. Git makes this incredibly easy by storing small edits as "commits". Commits, like branches, are incredibly versatile and powerful, but can be conceptually tricky to grasp at first. 
+
+Committing is the process of adding a selection of changes to the history of your branch. It is effectively saving your work, and should be done often (every time any small fix has been made). To perform a commit, you first need to add the relevant files to your "index", then submit the commit with a commit message. The message should describe every change you made in some detail, so that in the event that we decide to undo (or "revert") a previous commit, we can identify exactly when the mistake occured.
+
+`git branch` (check that you're on the correct branch)
+
+`git add <file1> <file2> <...>` (whatever files you've just edited)
+
+`git commit -m "really clear message indicating all the changes you made in this commit."`
+
+*Note:* A single commit should capture an entire "fix" of one kind. If, for example, you want to add a function to a C file and it's header, and you also want to update the internal contents of a completely different function in the same C file, you should do 2 commits. First, make the edits to the first function and header, then `git add file.C file.h`, `git commit -m "created function myFunction to do someStuff and added it to the header file"`. Then make the second edits for the contents of the existing function, and run `git add file.C`, `git commit -m "updated internal contents of thisOtherFunction to allow for specificUseCase"`. 
+
+You can undo a `git add` before you have done a `git commit` with:
+
+`git reset <file>` 
+
+- You can also use `git commit --amend` to substitute the previous commit with a new one:
+
+```
+git commit -m "first commit"
+git add <fogotten_file_name>
+git commit --amend
+```
+
+will open an editor and make it possible to modify the commit message. 
+
+### Status of the Index
+
+We can check the status of our git repository with:
+
+`git status`
+
+The printout is self explanatory and tells you which files have been added and which ones we need to add before committing
+
 
 ### F. Deleting branches 
 
@@ -147,7 +189,8 @@ If you followed the above workflow, you can verify that the COMPAS repo is a des
 
 `git remote -v` should output
 
-```origin	git@github.com:TeamCOMPAS/COMPAS.git (fetch)
+```
+origin	git@github.com:TeamCOMPAS/COMPAS.git (fetch)
 origin	git@github.com:TeamCOMPAS/COMPAS.git (push)
 ```
 
@@ -205,49 +248,17 @@ an example: git push --set-upstream-to dev new-branch
 
 ---
 
-## 3. Lifetime of a project 
+## 3. Typical Workflow
 
 ### New project idea 
 
-- When beginning a new project, you should start your first branch locally, branching off of your local Dev branch (which should ideally be identical to the upstream Dev branch on the Main Repo)
+When beginning a new project, you will typically want to branch off of the most updated version of the `dev` branch
 
-`git checkout dev`
+```git checkout dev 
+git pull
+git checkout -b <new-project>
+``` 
 
-`git pull` 
-
-`git checkout -b <new-project>`
-
-### Commit often and push/pull 
-
-- Committing is the process of adding a selection of changes to the history of your branch. It is effectively saving your work, and should be done often (every time any small fix has been made). To perform a commit, you first need to add the relevant files to your "index", then commit with a message. The message should describe every change you made in some detail, so that in the event that we decide we want to revert back to a previous commit, we know exactly what happened at each step.
-
-`git branch` (check that you're on the correct branch)
-
-`git add <file1> <file2> <...>`
-
-`git commit -m "really clear message indicating all the changes you made in this commit."`
-
--- Note: A single commit should capture an entire "fix" of one kind. If, for example, you want to add a function to a C file and it's header, and you also want to update the internal contents of a completely different function in the same C file, you should do 2 commits. First, make the edits to the first function and header, then `git add file.C file.h`, `git commit -m "created function myFunction to do someStuff and added it to the header file"`. Then make the second edits for the contents of the existing function, and run `git add file.C`, `git commit -m "updated internal contents of thisOtherFunction to allow for specificUseCase"`. 
-
-- You can undo a `git add` before you have done a `git commit` with:
-
-`git reset <file>` 
-
-- You can also use `git commit --amend` to substitute the previous commit with a new one:
-
-`git commit -m "first commit"`
-
-`git add <fogotten_file_name>`
-
-`git commit --amend`
-
-will open an editor and make it possible to modify the commit message. 
-
-- We can check the status of our git repository with:
-
-`git status`
-
-The printout is self explanatory and tells you which files have been added and which ones we need to add before committing
 
 - Pushing to your remote repository is a way to save all of your commits (i.e the history of edits) somewhere off your local computer. This is good practice because it acts as a backup in the event something happens to your local machine, and it also allows other collaborators to see your work (without having to give them access to your personal device). This should also be done often, but does not need to be as frequent as commits. A good rule of thumb is to push any updated branches at the end of every day. 
 
@@ -354,3 +365,4 @@ A mature branch will have to go through 3 rounds of Q&A review before it is read
 
 - **Revert**: A revert is used when the chain of commits that make up a branch has gone too far - you have decided that you don't like the latest edits and we want to remove them from the branch. In this case, you revert the HEAD of the branch (the latest commit) to an earlier commit, identified by it's unique SHA hash. This can get quite complicated though, so make sure to use this one with caution, and do lots of testing before you try anything. 
 
+- **Working Directory**
