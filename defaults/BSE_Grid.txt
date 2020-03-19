@@ -1,0 +1,22 @@
+
+# sample BSE Grid file
+
+# note the order of the columns is not significant
+
+
+Mass_2, Metallicity_1, Eccentricity, Mass_1, Metallicity_2, Separation, Period
+
+
+13.2, 0.001, 0.0, 145.0, 0.002, 3.5, 1400.0		# this is a complete, valid record - Period will be ignored
+
+13.2, 0.001, 0.0, 145.0, 0.002, , 1400.0		# this is a complete, valid record - Period will be used because Separation is missing
+
+1,,,2											# this record has missing values - a warning will be issued
+
+1,2												# this record has missing values - a warning will be issued
+
+#3.2, ABCD!4!X5.7, , 0.0142, 1.2				# this record has an invalid data field - processing would stop
+
+
+3.2, -13.2, , 0.0142, 1.2						# this record has an negative data field - processing would stop
+

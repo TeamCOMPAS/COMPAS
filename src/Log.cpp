@@ -31,6 +31,7 @@ Log* Log::Instance() {
  *
  *
  * Start(const string              p_LogBasePath,
+ *       const string              p_LogContainerName,
  *       const string              p_LogNamePrefix,
  *       const int                 p_LogLevel,
  *       const std::vector<string> p_LogClasses,
@@ -41,6 +42,7 @@ Log* Log::Instance() {
  *       const string              p_Delimiter)
  *
  * @param   [IN]    p_LogBasePath               The path at which log files should be created
+ * @param   [IN]    p_LogContainerName          The name of the directory that should be created at p_LogBasePath to hold all log files
  * @param   [IN]    p_LogNamePrefix             String to be prepended to logfile names - can be blank
  * @param   [IN]    p_LogLevel                  The application logging level
  * @param   [IN]    p_LogClasses                List of classes enabled for logging (vector<string>)
@@ -51,6 +53,7 @@ Log* Log::Instance() {
  * @param   [IN]    p_Delimiter                 Log record field delimiter
  */
 void Log::Start(const string              p_LogBasePath,
+                const string              p_LogContainerName,
                 const string              p_LogNamePrefix,
                 const int                 p_LogLevel,
                 const std::vector<string> p_LogClasses,
@@ -59,6 +62,7 @@ void Log::Start(const string              p_LogBasePath,
                 const bool                p_DbgToLogfile,
                 const bool                p_ErrorsToLogfile,
                 const string              p_Delimiter) {
+
     if (!m_Enabled) {
         m_Enabled       = true;                                                                                     // logging enabled;
         m_LogBasePath   = p_LogBasePath;                                                                            // set base path
@@ -76,25 +80,102 @@ void Log::Start(const string              p_LogBasePath,
         m_Enabled = UpdateAllLogfileRecordSpecs();                                                                  // update all logfile record specifications - disable logging upon failure
 
         if (m_Enabled) {
-            if (m_DbgToLogfile) {                                                                                   // write dubug output to a logfile?
-                string filename = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::DEBUG_LOG));                                // extract filename from descriptor
-                int id = Open(filename, false, true, false);                                                        // open the log file - new file, timestamps, no record labels, space delimited
-                if (id >= 0) {                                                                                      // success
-                    m_DbgLogfileId = id;                                                                            // record the file id
+
+            // first create the container at p_LogBasePath
+            // use boost filesystem here - easier...
+        
+            string containerName = m_LogBasePath + "/" + p_LogContainerName;                                        // container name with path ("/" works on Uni*x and Windows)
+            string dirName       = containerName;                                                                   // directory name to create
+
+            int version = 0;                                                                                        // container version number if required - start at 1
+            while (boost::filesystem::exists(dirName)) {                                                            // container already exists?
+                dirName = containerName + "_" + std::to_string(++version);                                          // yes - add a version number and generate new container name
+            }
+            m_LogContainerName = dirName;                                                                           // record actual container directory name
+
+            boost::system::error_code err;
+            try {
+                boost::filesystem::create_directory(m_LogContainerName, err);                                       // create container - let boost throw an exception if it fails
+                if (err.value() == 0) {                                                                             // ok?
+
+                    if (m_DbgToLogfile) {                                                                           // write dubug output to a logfile?
+                        string filename = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::DEBUG_LOG));                        // extract filename from descriptor
+                        int id = Open(filename, false, true, false);                                                // open the log file - new file, timestamps, no record labels, space delimited
+                        if (id >= 0) {                                                                              // success
+                            m_DbgLogfileId = id;                                                                    // record the file id
+                        }
+                        else {                                                                                      // failure
+                            Squawk("ERROR: Unable to create log file for debug output with file name " + filename); // announce error
+                            Squawk("Debug output logging disabled");                                                // show disabled warning
+                        }
+                    }
+
+                    if (m_ErrToLogfile) {                                                                           // write dubug output to a logfile?
+                        string filename = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::ERROR_LOG));                        // extract filename from descriptor
+                        int id = Open(filename, false, true, false);                                                // open the log file - new file, timestamps, no record labels, space delimited
+                        if (id >= 0) {                                                                              // success
+                            m_ErrLogfileId = id;                                                                    // record the file id
+                        }
+                        else {                                                                                      // failure
+                            Squawk("ERROR: Unable to create log file for error output with file name " + filename); // announce error
+                            Squawk("Error output logging disabled");                                                // show disabled warning
+                        }
+                    }
                 }
-                else {                                                                                              // failure
-                    Squawk("ERROR: Unable to create log file for debug output with file name " + filename);         // announce error
+                else  {                                                                                             // not ok...
+                    Squawk("ERROR: Unable to create log file container with name " + dirName);                      // announce error
+                    Squawk("Boost filesystem error = " + err.message());                                            // plus details
+                    Squawk("Logging disabled");                                                                     // show disabled warning
+                    m_Enabled = false;                                                                              // disable
                 }
+            
+            }
+            catch (...) {                                                                                           // unhandled problem...
+                Squawk("ERROR: Unable to create log file container with name " + dirName);                          // announce error
+                Squawk("Logging disabled");                                                                         // show disabled warning
+                m_Enabled = false;                                                                                  // disable
             }
 
-            if (m_ErrToLogfile) {                                                                                   // write dubug output to a logfile?
-                string filename = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::ERROR_LOG));                                // extract filename from descriptor
-                int id = Open(filename, false, true, false);                                                        // open the log file - new file, timestamps, no record labels, space delimited
-                if (id >= 0) {                                                                                      // success
-                    m_ErrLogfileId = id;                                                                            // record the file id
+            // create run details file if all ok
+            if (m_Enabled) {                                                                                        // ok?
+                                                                                                                    // yes
+                m_WallStart = std::chrono::system_clock::now();                                                     // start wall timer
+                m_ClockStart = clock();                                                                             // start CPU timer
+
+                string filename = m_LogContainerName + "/" + RUN_DETAILS_FILE_NAME;                                 // run details filename with container name
+                try {
+                    m_RunDetailsFile.open(filename, std::ios::out);                                                 // create run details file
+                    m_RunDetailsFile.exceptions(std::ofstream::failbit | std::ofstream::badbit);                    // enable exceptions on run details file
+
+                    // file should be open - write the run details
+
+                    try {                                                                                             
+
+                        m_RunDetailsFile << utils::SplashScreen() << std::endl;                                     // write splash string with version number to file
+
+                        std::time_t timeStart = std::chrono::system_clock::to_time_t(m_WallStart);                  // record start time
+
+                        // record start time and whether evolving single stars or binaries   
+                        if(OPTIONS->SingleStar())
+                            m_RunDetailsFile << "Start generating stars at " << std::ctime(&timeStart) << std::endl;
+                        else
+                            m_RunDetailsFile << "Start generating binaries at " << std::ctime(&timeStart) << std::endl;
+
+                        // run details file will be updated and closed in Log::Stop()
+                    }
+                    catch (const std::ofstream::failure &e) {                                                       // problem...
+                        Squawk("ERROR: Unable to write to run details file with name " + filename);                 // announce error
+                        Squawk(e.what());                                                                           // plus details
+                    }
                 }
-                else {                                                                                              // failure
-                    Squawk("ERROR: Unable to create log file for error output with file name " + filename);         // announce error
+                catch (const std::ofstream::failure &e) {                                                           // fs problem...
+                    Squawk("ERROR: Unable to create run details file with file name " + filename);                  // announce error
+                    Squawk(e.what());                                                                               // plus details
+                    Squawk("Run details will not be recorded");                                                     // show warning
+                }
+                catch (...) {                                                                                       // unhandled problem...
+                    Squawk("ERROR: Unable to create log file with file name " + filename);                          // announce error
+                    Squawk("Run details will not be recorded");                                                     // show warning
                 }
             }
         }
@@ -128,6 +209,47 @@ void Log::Stop() {
                 }
             }
         }
+
+        // update run details file
+        string filename = m_LogContainerName + "/" + RUN_DETAILS_FILE_NAME;                                     // run details filename with container name
+        try {  
+            double cpuSeconds = (clock() - m_ClockStart) / (double) CLOCKS_PER_SEC;                             // stop CPU timer and calculate seconds
+
+            m_WallEnd = std::chrono::system_clock::now();                                                       // stop wall timer
+            std::time_t timeEnd = std::chrono::system_clock::to_time_t(m_WallEnd);                              // get end time and date
+        
+            // record end time and whether evolving single stars or binaries   
+            if(OPTIONS->SingleStar())
+                m_RunDetailsFile << "End generating stars at " << std::ctime(&timeEnd) << std::endl;
+            else
+                m_RunDetailsFile << "End generating binaries at " << std::ctime(&timeEnd) << std::endl; 
+
+            m_RunDetailsFile << "Clock time = " << cpuSeconds << " CPU seconds" << std::endl;                   // record cpu second
+
+            std::chrono::duration<double> wallSeconds = m_WallEnd - m_WallStart;                                // elapsed seconds
+
+            int wallHH = (int)(wallSeconds.count() / 3600.0);                                                   // hours
+            int wallMM = (int)((wallSeconds.count() - ((double)wallHH * 3600.0)) / 60.0);                       // minutes
+            int wallSS = (int)(wallSeconds.count() - ((double)wallHH * 3600.0) - ((double)wallMM * 60.0));      // seconds
+
+            m_RunDetailsFile << "Wall time  = " << wallHH << ":" << wallMM << ":" << wallSS << " (hh:mm:ss)" << std::endl; 
+
+            m_RunDetailsFile << "\n\n" << OPTIONS->OptionsDetails() << std::endl;                               // record the options details string
+        }
+        catch (const std::ofstream::failure &e) {                                                               // problem...
+            Squawk("ERROR: Unable to update run details file with file name " + filename);                      // announce error
+            Squawk(e.what());                                                                                   // plus details
+        }
+
+        // flush and close the file
+        try {
+            m_RunDetailsFile.flush();
+            m_RunDetailsFile.close();
+        }
+        catch (const std::ofstream::failure &e) {                                                               // problem...
+            Squawk("ERROR: Unable to close run details file with file name " + filename);                       // announce error
+            Squawk(e.what());                                                                                   // plus details
+        }
     }
 
     m_Logfiles.clear();                                                                                         // clear all entries
@@ -140,8 +262,10 @@ void Log::Stop() {
  *
  * New log file is created at path m_LogBasePath
  *
- * The file extension is based on the parameter p_Delimiter.
- * If the delimiter is TAB or SPACE, the file extension is ".txt"; if the delimiter is COMMA the file extension is ".csv"
+ * The file extension is based on the parameter p_Delimiter:
+ *     - if the delimiter is TAB   the file extension is ".tsv" (Tab Separated Variables)
+ *     - if the delimiter is COMMA the file extension is ".csv" (Comma Separated Variables)
+ *     - if the delimiter is SPACE the file extension is ".txt"
  *
  *
  * int Open(const string p_LogFileName, const bool p_Append, const bool p_TimeStamp, const bool p_Label)
@@ -197,10 +321,15 @@ int Log::Open(const string p_LogFileName, const bool p_Append, const bool p_Time
         m_Logfiles[id].label     = p_Label;                                                                     // set label flag for this log file
         m_Logfiles[id].delimiter = (p_Delimiter.empty()) ? m_Delimiter : p_Delimiter;                           // set field delimiter for this log file
 
-        string basename = m_LogBasePath + "/" + m_LogNamePrefix + p_LogFileName;                                // base filename with path ("/" works on Uni*x and Windows)
-        string fileext  = m_Logfiles[id].delimiter == "," ? ".csv" : ".txt";                                    // filename extension
+        string basename = m_LogContainerName + "/" + m_LogNamePrefix + p_LogFileName;                           // base filename with path and container ("/" works on Uni*x and Windows)
+
+        string fileext;                                                                                         // file extension
+             if (m_Logfiles[id].delimiter == DELIMITERValue.at(DELIMITER::COMMA)) fileext = ".csv";             // .csv for delimite = COMMA
+        else if (m_Logfiles[id].delimiter == DELIMITERValue.at(DELIMITER::TAB  )) fileext = ".tsv";             // .tsv for delimite = TAB
+        else                                                                      fileext = ".txt";             // .txt otherwise
+
         string filename = basename + fileext;                                                                   // full filename
-std::cout << "JRPRINT, m_LogBasePath = [" << m_LogBasePath << "] , filename = [" << filename << "]\n";
+
         int version = 0;                                                                                        // logfile version number if required - start at 1
         while (utils::FileExists(filename) && !p_Append) {                                                      // file already exists - and we don't want to append?
             filename = basename + "_" + std::to_string(++version) + fileext;                                    // yes - add a version number and generate new filename
@@ -897,7 +1026,7 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
             switch (p_Logfile) {                                                                                                                // which logfile?
 
-                case LOGFILE::SSE_PARAMETERS            :                                                                                       // SSE_PARAMETERS
+                case LOGFILE::SSE_PARAMETERS:                                                                                                   // SSE_PARAMETERS
                     filename         = OPTIONS->LogfileSSEParameters();
                     recordProperties = m_SSE_Parms_Rec;
                     break;
@@ -922,11 +1051,6 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     recordProperties = m_BSE_CEE_Rec;
                     break;
 
-                case LOGFILE::BSE_RLOF_PARAMETERS:                                                                                              // BSE_RLOF_PARAMETERS
-                    filename         = OPTIONS->LogfileBSERLOFParameters();
-                    recordProperties = m_BSE_RLOF_Rec;
-                    break;
-
                 case LOGFILE::BSE_BE_BINARIES:                                                                                                  // BSE_BE_BINARIES
                     filename         = OPTIONS->LogfileBSEBeBinaries();
                     recordProperties = m_BSE_BE_Binaries_Rec;
@@ -937,10 +1061,43 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     recordProperties = m_BSE_Pulsars_Rec;
                     break;
 
-                case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                              // BSE_DETAILED_OUTPUT
-                    filename         = OPTIONS->LogfileBSEDetailedOutput();
-                    recordProperties = m_BSE_Detailed_Rec;
-                    break;
+                case LOGFILE::BSE_DETAILED_OUTPUT: {                                                                                            // BSE_DETAILED_OUTPUT
+
+                    // first check if create the detailed output directory exists - if not, create it
+                    // use boost filesystem here - easier...
+
+                    bool detailedOutputDirectoryExists = false;                                                                                 // detailed output directory exists?  Start with no
+
+                    string detailedDirName = m_LogContainerName + "/" + DETAILED_OUTPUT_DIRECTORY_NAME;                                         // directory name with path ("/" works on Uni*x and Windows)
+
+                    if (boost::filesystem::exists(detailedDirName)) {                                                                           // directory already exists?
+                        detailedOutputDirectoryExists = true;                                                                                   // yes
+                    }
+                    else {                                                                                                                      // no - create directory
+                        boost::system::error_code err;
+                        try {
+                            boost::filesystem::create_directory(detailedDirName, err);                                                          // create container - let boost throw an exception if it fails
+                            if (err.value() == 0) {                                                                                             // ok?
+                                detailedOutputDirectoryExists = true;                                                                           // yes
+                            }
+                            else  {                                                                                                             // not ok...
+                                Squawk("ERROR: Unable to create detailed output directory " + detailedDirName);                                 // announce error
+                                Squawk("Boost filesystem error = " + err.message());                                                            // plus details
+                                Squawk("Detailed Output logging disabled");                                                                     // show disabled warning
+                            }
+                        }
+                        catch (...) {                                                                                                           // unhandled problem...
+                                Squawk("ERROR: Unable to create detailed output directory " + detailedDirName);                                 // announce error
+                                Squawk("Detailed Output logging disabled");                                                                     // show disabled warning
+                        }
+                    }
+
+                    if (detailedOutputDirectoryExists) {                                                                                        // detailed output directory exists?
+                                                                                                                                                // yes
+                        filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileBSEDetailedOutput();                          // logfile filename wuth directory
+                        recordProperties = m_BSE_Detailed_Rec;                                                                                  // record properties
+                    }
+                    } break;
 
                 default:                                                                                                                        // unknown logfile
                     recordProperties = {};                                                                                                      // no record properties
@@ -1235,7 +1392,6 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
             case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: baseProps = m_BSE_DCO_Rec;         break;
             case LOGFILE::BSE_SUPERNOVAE            : baseProps = m_BSE_SNE_Rec;         break;
             case LOGFILE::BSE_COMMON_ENVELOPES      : baseProps = m_BSE_CEE_Rec;         break;
-            case LOGFILE::BSE_RLOF_PARAMETERS       : baseProps = m_BSE_RLOF_Rec;        break;
             case LOGFILE::BSE_BE_BINARIES           : baseProps = m_BSE_BE_Binaries_Rec; break;
             case LOGFILE::BSE_PULSAR_EVOLUTION      : baseProps = m_BSE_Pulsars_Rec;     break;
             case LOGFILE::BSE_DETAILED_OUTPUT       : baseProps = m_BSE_Detailed_Rec;    break;
@@ -1304,7 +1460,6 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
         case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: m_BSE_DCO_Rec         = newProps; break;
         case LOGFILE::BSE_SUPERNOVAE            : m_BSE_SNE_Rec         = newProps; break;
         case LOGFILE::BSE_COMMON_ENVELOPES      : m_BSE_CEE_Rec         = newProps; break;
-        case LOGFILE::BSE_RLOF_PARAMETERS       : m_BSE_RLOF_Rec        = newProps; break;
         case LOGFILE::BSE_BE_BINARIES           : m_BSE_BE_Binaries_Rec = newProps; break;
         case LOGFILE::BSE_PULSAR_EVOLUTION      : m_BSE_Pulsars_Rec     = newProps; break;
         case LOGFILE::BSE_DETAILED_OUTPUT       : m_BSE_Detailed_Rec    = newProps; break;
@@ -1348,7 +1503,6 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *                  "BSE_DCO_REC"         |				# BSE only
  *                  "BSE_SNE_REC"         |				# BSE only
  *                  "BSE_CEE_REC"         |				# BSE only
- *                  "BSE_RLOF_REC"        |				# BSE only
  *                  "BSE_BE_BINARIES_REC" |				# BSE only
  *                  "BSE_PULSARS_REC"     |				# BSE only
  *                  "BSE_DETAILED_REC"					# BSE only

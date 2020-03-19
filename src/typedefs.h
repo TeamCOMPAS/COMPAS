@@ -139,37 +139,6 @@ typedef struct BindingEnergies {
 } BindingEnergiesT;
 
 
-// RLOF properties
-typedef struct RLOFProperties {
-    OBJECT_ID     id;
-    unsigned long randomSeed;
-
-    STELLAR_TYPE  stellarType1;
-    STELLAR_TYPE  stellarType2;
-
-    double        mass1;
-    double        mass2;
-
-    double        radius1;
-    double        radius2;
-
-    double        separation;
-
-    unsigned int  eventCounter;
-
-    double        time;
-
-    bool          isRLOF1;
-    bool          isRLOF2;
-
-    bool          isCE;
-
-    bool          monitorMS1;
-    bool          monitorMS2;
-    bool          monitorHeMS1;
-    bool          monitorHeMS2;
-} RLOFPropertiesT;
-
 typedef struct BinaryRLOFDetails {                          // RLOF details pertinent to binaries
 
     bool experiencedRLOF;
@@ -177,10 +146,6 @@ typedef struct BinaryRLOFDetails {                          // RLOF details pert
     bool isRLOF;
     bool simultaneousRLOF;                                  // Here for now - maybe should be in Binary CEDetails struct?       JR: todo:
     bool stableRLOFPostCEE;                                 // Here for now - maybe should be in Binary CEDetails struct?       JR: todo:
-
-
-    RLOFPropertiesT currentProps;
-    RLOFPropertiesT previousProps;
 } BinaryRLOFDetailsT;
 
 typedef struct StellarRLOFDetails {                         // RLOF details pertinent to individual stars
