@@ -2,91 +2,138 @@
 
 # Git Workflow for COMPAS software developers
 
-## Introduction 
+---
 
-### 1. Git and Github
-For those who are unfamiliar, git and github are popular tools in the software development community for sharing and collaborating on software projects. Git is a light-weight command line tool for maintaining different versions of software locally, and distributing those versions to remote servers. Github is a website that centralizes for storage of git-managed projects. It is a big topic, and not worth getting into here, but if you are curious you can [read more](https://www.atlassian.com/git/tutorials/what-is-version-control).
+## Contents of this document
 
-### 2. Purpose
-The purpose of this document is to outline a consistent workflow for COMPAS developers in their day-to-day use of git, protocols for whenever new projects are started or completed, and the commands that are required for this workflow (git is very powerful, so this is only a very small subset of the availalbe git commands). This is, in some sense, a living document, meaning we are always open to [suggestions and criticism](mailto:reinhold.willcox@monash.edu) with the workflow, and seek only to find the best option for everybody. With that said, everyone should commit to learning the agreed upon workflow, to ensure consistency between developers and protect against user-error which may derail development.
+- 1. Introduction
 
-### 3. Outline
+- 2. Getting Set Up
 
-- The workflow here is based on the [Feature Branch Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow) in common use in industry, in which there are 2 permanent branches, Master and Dev. All other branches are considered "sub-branches", based on projects and/or concepts, whose purpose is to add a feature and then be deleted.
+- 3. Typical Workflow
 
-- The Main Repository (also called the Main Fork, or simply Main) is considered "pristine", and should only contain the Master and Dev branches, and any sub-branches that are nearly ready to be made public (more on this later). 
-
-- Developers should each have their own personal Forks of the Main Repository, and any work done locally (on their personal computers) should be pushed up through their personal Repository before being added to Main (more on this later). 
-
-### 4. Sections of this Document
-
-- Getting Set Up: Step-by-step directions for how to configure your personal local and remote git repos
-
-- Lifetime of a Project: Walkthrough of creating, committing, pushing/pulling, and setting parents of branches
-
-- Test and Release New Versions: **Important** The specific COMPAS workflow around merges, pull-requests, and updates to the Main Git Repo
-
-- Terminology: Important git keywords that may be unfamiliar
+- 4. Terminology
 
 ---
 
-## Getting Set Up 
+## 1. Introduction: Git & Github for COMPAS developers
 
-### 1. Join as a collaborator 
+### Git and Github
+For those who are unfamiliar, git and github are popular tools in the software development community for sharing and collaborating on software projects. 
 
-- If you have not already, go to [github.com](https://github.com/) and setup an account.
+Git is a light-weight command line tool for maintaining different versions of software locally, and sharing those versions to remote servers. Github is a website that stores git-managed projects and enables developers to collaborate centrally on many projects. 
 
-- The Repo is found at [TeamCOMPAS/COMPAS](https://github.com/TeamCOMPAS/COMPAS), however this will be hidden to you if you are not yet a Collaborator
+It is a bigger topic than we can get into here, but if you are curious you should [read more here.](https://www.atlassian.com/git/tutorials/what-is-version-control) 
 
-- Reach out to a member of the core developer team (see [COMPAS homepage](https://compas.science/) for an up-to-date list) to request Collaborator access.
+Learning git is somewhat similar to learning a new language, and it can be difficult to fully grasp the vocabulary when starting out (which makes searching the internet for help significantly more challenging!). Some of the most fundamental terms are [described below](#terminology) to assist new users.
 
-- You will receive an email notifying you that you have been added, at which point you can browse the Repo.
+### Purpose of this document
+The purpose of this document is to:
+- Help COMPAS users new to git to get setup,
+- Outline a consistent workflow for COMPAS developers in their day-to-day use of git, and
+- Provide some of the commands that are required for this workflow 
 
-### 2. Fork the Main Repo into your Personal Remote Repo
+Git is very powerful, so this is only a very small subset of the available git commands. 
 
-- While logged in, go to the TeamCOMPAS/COMPAS repo and click on `Fork` in the upper-right corner to create your personal Fork (found at user-name/COMPAS)
+This is, in some sense, a living document, meaning we are always open to [suggestions and criticism](mailto:reinhold.willcox@monash.edu) with the workflow, and seek only to find the best option for everybody. 
 
-- This is your personal, private Repo. You can be as organized or scatter-brained as you wish here. If you work best with 50 branches, all nested within each other, have at it. You can also give or take away access to any other collaborators who you might wish to share your work with, though you should not make your Repo public (only the Master branch should be public).
+With that said, all developers should commit to learning the agreed upon workflow, to ensure consistency and protect against conflicts which may derail development.
 
-### 3. Clone from your remote repo locally
+### Outline of the COMPAS code repository
 
-- If you have not yet configured [Github with ssh](https://help.github.com/en/articles/connecting-to-github-with-ssh), you can clone over http: 
+*Note:* If anything below doesn't make sense, try looking at the end of this document for relevant [Terminology.](#terminology)
 
-`git clone https://github.com/user-name/COMPAS.git`
+COMPAS Users who are not developers can download the source code from the Main Repository, found at [github.com/TeamCOMPAS/COMPAS](github.com/TeamCOMPAS/COMPAS) (details can be found below). You will only need the default `master` branch and do not need to worry about what branches are. 
 
-- With ssh configured, you can clone with: 
+For developers, this repository (or 'repo') is considered "pristine", meaning that any work done here should be in a mature stage. 
 
-`git clone git@github.com:user-name/COMPAS.git`
+The repository contains 2 permanent branches, `master` and `dev`. All other branches are either feature or hotfix branches, whose purpose is to either introduce some new functionality or fix a bug, respectively, and then be deleted. 
 
-### 4. Basic commands for navigating local git 
+Feature branches on the Main Repository (also called the Main Fork or simply Main) should be ready to be tested by others. The Main Fork is not a "sandbox" for new, experimental ideas. You should [create your own fork] off of the Main Repository if you want to have public-facing experimental work.
 
-- To view and switch to available local branches, (equivalent of `ls` and `cd`) (Note: many git commands require that you are on the correct branch before executing the command - using these 2 commands regularly will save you headaches down the road): 
+This approach to the repository and workflow below are based on the [Feature Branch Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow) which is in common use in industry.
+
+---
+
+## 2. Getting Set Up: Step-by-step directions for how to configure your local and remote git repositories
+
+### *COMPAS Users and Developers*
+
+### Setup a Github account and git
+
+If you have not already, go to [github.com](https://github.com/) and setup an account.
+
+Check that you have a [working install of git.](https://www.atlassian.com/git/tutorials/install-git)
+
+It is recommended, though not necessary, that you configure [Github with ssh](https://help.github.com/en/articles/connecting-to-github-with-ssh) as well.
+
+### Clone the COMPAS repository to your personal computer
+
+The COMPAS repo has a green button to clone your repository to your local computer. Alternatively, you can clone the repo with ssh (if configured, see above) or https by typing either of the following comands into a terminal window. First, go into the directory where you want to install COMPAS, e.g `cd ~/codes`, then type:
+
+- SSH: `git clone git@github.com:TeamCOMPAS/COMPAS.git`
+
+- HTTPS: `git clone https://github.com/TeamCOMPAS/COMPAS.git`
+
+### Confirm that it worked
+
+To test that cloning worked, run the following two commands:
+
+`cd COMPAS`
+
+`git branch`
+
+If the clone finished without error, you should see as output: 
+
+`* master`
+
+At this point, if you do not plan to do any COMPAS development, you're all set. See [getting_started.md](getting_started.md) to see how to compile and run COMPAS. If you run into issues or would like to see new features implemented, you can [contact us here.](compas-user@googlegroups.com)
+
+
+### *COMPAS Developers Only*
+
+*Note:* This section is very technical. Take a look at the section below on [Terminology.](#terminology) if you get stuck!
+
+### Join as a collaborator 
+
+In order to contribute to COMPAS, you will need to be added as a collaborator. Non-collaborators have read-only access to all of the branches.
+
+[Contact us here](compas-dev@googlegroups.com) to inquire about collaborating, or reach out to one of us directly (see the [COMPAS homepage](https://compas.science/) for an up-to-date list).
+
+### Fork the main repo.
+
+While logged in, go to the TeamCOMPAS/COMPAS repo and click on `Fork` in the upper-right corner. This will create a copy of the current state of the TeamCOMPAS/COMPAS repo, including all branches and all commit histories, and place it in your profile as your personal Fork, identified as <your-username>/COMPAS.
+
+Since this is your personal repo, you can be as organized or scatter-brained as you wish here. If you work best with 50 branches, obscure names, and code scraps everywhere, have at it. You can also give or take away access to any other collaborators who you might wish to share your work with.
+
+### Clone from your remote repo locally
+
+
+
+
+
+
+
+
+### Basic commands for navigating local git 
+
+Branches allow a developer to experiment with multiple new features simultaneously on the same code-base. In git, branches are very lightweight and easy to manage, making them incredibly useful.
+
+To view, create, and switch branches, use: (similar to `ls`, `mkdir`, and `cd`)
 
 `git branch` 
 
+`git checkout -b <newbranch>`
+
 `git checkout <branchname>`
 
-- To view which remote repositories you are tracking, and all the branches on those remotes:
+*Note:* Many git commands require that you are on the correct branch before executing the command - using these 3 commands regularly before running more complicated commands will save you headaches down the road!
 
-`git remote -v` 
+### Making edits
 
-`git branch -r` 
+### F. Deleting branches 
 
-### 5. Create new branches locally 
-
-- To create a new branch off of the current one (Note: you need to switch to the correct base branch first for this to work):
-
-`git checkout -b new-branch`
-
-- To set the upstream parent (tells git from what branch to git pull, git fetch etc.)
-
-`git push --set-upstream-to <remote-repo> <name-of-branch-on-remote>` 
-
-an example: git push --set-upstream-to dev new-branch
-
-### 6. Delete branches locally
-
-- You should be comfortable deleting branches, or else your repos might pile up with old branches that are no longer active. Branches are also very easy to manage in git (relative to other version control systems), so you should practice creating new branches, making quick edits, testing and updating, and deleting again without worry. To delete a branch, first navigate to any other branch, then:
+You should be comfortable deleting branches, or else your repos might pile up with old branches that are no longer active. Branches are also very easy to manage in git (relative to other version control systems), so you should practice creating new branches, making quick edits, testing and updating, and deleting again without worry. To delete a branch, first navigate to any other branch, then:
 
 `git branch -d <branch-name>`
 
@@ -94,10 +141,71 @@ an example: git push --set-upstream-to dev new-branch
 
 `git branch -D <branch-name>`
 
+### E. Fetch other branches from a remote
+
+If you followed the above workflow, you can verify that the COMPAS repo is a designated remote fork in your local repo, nicknamed `origin`. 
+
+`git remote -v` should output
+
+```origin	git@github.com:TeamCOMPAS/COMPAS.git (fetch)
+origin	git@github.com:TeamCOMPAS/COMPAS.git (push)
+```
+
+To see all of the other branches on this fork:
+
+`git branch -a` should output something similar to
+
+```
+* master
+  remotes/origin/HEAD -> origin/master
+  remotes/origin/dev
+  remotes/origin/hotfix-input-file-bug  
+  remotes/origin/master
+  remotes/origin/release
+```
+
+All of the branches found under `remotes/origin/` are available to be copied locally with:
+
+`git checkout -b <local-branch-name> origin/<remote-branch-name>`
+
+
+
+
+
+To view which remote repositories you are tracking, and all the branches on those remotes:
+
+`git remote -v` 
+
+`git branch -r` 
+
+
+
+""" Probably not useful now
+### E. Create new branches locally 
+- To create a new branch off of the current one (Note: you need to switch to the correct base branch first for this to work):
+`git checkout -b new-branch`
+"""
+
+
+
+- To set the upstream parent (tells git from what branch to git pull, git fetch etc.)
+
+`git push --set-upstream-to <remote-repo> <name-of-branch-on-remote>` 
+
+an example: git push --set-upstream-to dev new-branch
+
+
+
+
+
+
+
+
+
 
 ---
 
-## Lifetime of a project 
+## 3. Lifetime of a project 
 
 ### New project idea 
 
@@ -157,7 +265,7 @@ The printout is self explanatory and tells you which files have been added and w
 
 - The purpose of forks is to give you a place to work on projects privately and without stepping on the toes of other people (or letting anyone else step on your toes!). However, there will likely still be times when you want to check out a branch that someone else worked on. This may happen before the branch is polished enough to be sent to the Main repo, but they would still like feedback or edits. In this case, the other developer needs to add you as a collaborator on their personal repo (this is done on Github, in the settings menu of their repo). Once you are added, you can set up a local branch to point upstream to their remote branch.
 
-`git remote add <collaborator_name-repo> <url>` where \<url\> is the https or ssh url you can copy from Github, and \<name\> is the shorthand for what 
+`git remote add <collaborator_name-repo> <url>` where \<url\> is the https or ssh url you can copy from Github, and \<name\> is your nickname for that fork, e.g `reinhold_fork`. 
 
 `git checkout dev`
 
@@ -185,13 +293,14 @@ The printout is self explanatory and tells you which files have been added and w
 
 ---
 
-## Test and Release New Versions 
+## 3. Typical Workflow
+
 
 ### Overview 
 First, any and all changes to the main repo are done through pull-requests, not pushes (a pull-request really represents a push, with the added step of confirmation from a third party that the push meets certain standards). This is to ensure that the main repo is "clean" and contains code that has at least been somewhat tested. Branches will first be added into the main repo from the remote forks of a given collaborator, then (after further testing) added to the Dev branch. Finally, when sufficient sub-branches have been added to the Dev branch to warrant a new version release, the Dev branch will be added to the Master branch and published to the public. Ultimately, we should always be thinking of the next Version Release and which projects/concepts we would like to include in it, and define our timelines around those expectations.  
 
 ### Q&A Protocol
-A mature branch will have to through 3 rounds of Q&A review before it is ready for deployment in a new COMPAS version. The Primary Review occurs when a pull-request is sent to have the branch included as a sub-branch in the main repo. The Secondary Review occurs when a pull-request is sent to have that sub-branch merged into the Dev branch on the main repo. The Final Review occurs when a pull-request is sent to have the Dev branch (which might contain several sub-branches) merged into the Master branch. **Testing and validation of a branch should never be done by someone who worked on it extensively** (we can decide on a case-by-case basis who falls into that category). 
+A mature branch will have to go through 3 rounds of Q&A review before it is ready for deployment in a new COMPAS version. The Primary Review occurs when a pull-request is sent to have the branch included as a sub-branch in the main repo. The Secondary Review occurs when a pull-request is sent to have that sub-branch merged into the Dev branch on the main repo. The Final Review occurs when a pull-request is sent to have the Dev branch (which might contain several sub-branches) merged into the Master branch. **Testing and validation of a branch should never be done by someone who worked on it extensively** (we can decide on a case-by-case basis who falls into that category). 
 
 1. Primary Review: To be included as a sub-branch in the main repo, the branch must be reviewed by one person in the broader COMPAS collaboration. It must compile and run, producing somewhat sensible output (e.g output files should not be empty, but at this stage they may contain data which is "wrong", or physically inconsistent) 
 
@@ -225,7 +334,7 @@ A mature branch will have to through 3 rounds of Q&A review before it is ready f
 
 - **Branch**: Branches in git separate work-streams for different features (e.g front-end developers might have a branch for a fancy new button for their website, while back-end developers might have a branch to make database-entry easier). In our case, branches will distinguish different projects or concepts (e.g Supernova-Kicks, White-Dwarf-Accretion, etc.). Branches should _not_ be used to distinguish developers. As mentioned previously, only the Master and Dev branches are permanent, and any new branches should be created with the intention of contributing some new feature or physics, and being [deleted once that is done.](https://rickandmorty.fandom.com/wiki/Mr._Meeseeks)
 
-- **Repository**: A Repository (or Repo) is a collection of all the different branches of a given project which are kept in the same location. To be specific, a location might be your local computer or part of a remote server. A Repo can be public (often called Open Source) or private, with a select list of collaborators who have read and possibly write access. A single github user may have many Repos for all of their different projects, all of which might have any number of branches. Note: COMPAS development will be done in a private repo, but there will be a second public repo which will hold only a copy of the Master branch for the public to download.
+- **Repository**: A Repository (or Repo) is a collection of all the different branches of a given project which are kept in the same location. To be specific, a location might be your local computer or part of a remote server. A Repo can be public (often called Open Source) or private, with a selected list of collaborators who have read and possibly write access. A single github user may have many Repos for all of their different projects, all of which might have any number of branches. Note: COMPAS development will be done in a private repo, but there will be a second public repo which will hold only a copy of the Master branch for the public to download.
 
 - **Fork**: A Fork is a full copy of a Repo, including all its branches, to another location. Most of the time, "another location" will mean elsewhere on the github servers, since we will be Forking from the Main Repo to our Personal Repo when we are setting up. In our case, Forks will distinguish different users, or perhaps groups of users (e.g Copenhagen/COMPAS). All core developers should have a personal fork. If you are familiar with the `git clone` command, this is identical to Forking from a remote server onto your own personal computer. 
 
@@ -244,3 +353,4 @@ A mature branch will have to through 3 rounds of Q&A review before it is ready f
 - **Push, Pull, and Pull Request**: These commands form the backbone of file-sharing across repositories. They all pretty much cover the same action, to get a given branch on _this_ repo over to _that_ repo. Whether you use `push` or `pull` really depends on where you are in relation to the branch. If the branch is on your local repo, then you will want to `push` it somewhere else. If it is on a remote repository, you will want to `pull` it down. The confusing one, `pull request` is used when there is an extra step of validation on the receiver side. The donor is not allowed to simply `push` some possibly broken code, so they have to request that the receiver pull it, hence `pull request`. For our setup, we will almost exclusively require pull-requests onto Main, to maintain a high-quality of branches. 
 
 - **Revert**: A revert is used when the chain of commits that make up a branch has gone too far - you have decided that you don't like the latest edits and we want to remove them from the branch. In this case, you revert the HEAD of the branch (the latest commit) to an earlier commit, identified by it's unique SHA hash. This can get quite complicated though, so make sure to use this one with caution, and do lots of testing before you try anything. 
+
