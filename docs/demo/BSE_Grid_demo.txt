@@ -2,4 +2,4 @@
 
 Mass_1, Mass_2, Metallicity_1, Metallicity_2, Eccentricity, Separation
 
-63.6,   27.8,   0.002,         0.002,         0.0,          3.419
+63.6,   27.8,   0.002,         0.002,         0.0,          3.40
