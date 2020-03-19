@@ -1150,6 +1150,7 @@ int main(int argc, char * argv[]) {
 
         // start the logging service
         LOGGING->Start(OPTIONS->OutputPathString(),                                     // location of logfiles
+                       OPTIONS->OutputContainerName(),                                  // directory to be created for logfiles
                        OPTIONS->LogfileNamePrefix(),                                    // prefix for logfile names
                        OPTIONS->LogLevel(),                                             // log level - determines (in part) what is written to log file
                        OPTIONS->LogClasses(),                                           // log classes - determines (in part) what is written to log file
@@ -1159,7 +1160,7 @@ int main(int argc, char * argv[]) {
                        OPTIONS->ErrorsToFile(),                                         // should error messages also be written to logfile?
                        DELIMITERValue.at(OPTIONS->LogfileDelimiter()));                 // log record field delimiter
 
-        utils::SplashScreen();                                                          // announce ourselves
+        (void)utils::SplashScreen();                                                    // announce ourselves
 
         if (!LOGGING->Enabled()) programStatus = COMMANDLINE_STATUS::LOGGING_FAILED;    // logging failed to start
         else {

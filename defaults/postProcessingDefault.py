@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import h5py  as h5      # for reading and writing h5 format
 import numpy as np      # for handling arrays
-import os                   # for directory walking
+import os               # for directory walking
 import subprocess as sp # for executing terminal command from python
 
 """
@@ -15,29 +15,51 @@ be removed afterwards.
 """
 
 ### User-defined parameters
-dataRootDir    = '.'    # Location of root directory of the data - 
-                        # user should change this if not running from root dir
-prefix         = ''     # Prefix of the data files shown here is default
-delimiter      = ','    # Delimeter used in the output csv files -
-                        # but can be set differently if desired
-extension      = 'csv'  # Extension of the data files
+def setDefaults():
 
- #Which files to combine current options are
-filesToCombine = ['SystemParameters'    ,'CommonEnvelopes',\
-                  'DoubleCompactObjects','Supernovae'       ]
+    dataRootDir    = '.'                # Location of root directory of the data     # defaults to '.'            
+    prefix         = 'Compas_Log_BSE_'  # Prefix of the data files                   # defaults to 'Compas_Log_BSE_'  
+    delimiter      = ','                # Delimeter used in the output csv files     # defaults to ','        
+    extension      = 'csv'              # Extension of the data files                # defaults to 'csv'
+    
+    # To only combine a subset of the data files, specify them here    
+    filesToCombine = None    # default None means to use all of them (apologies if that's counterintuitive...)
+    #filesToCombine = [\
+    #    'SystemParameters',\
+    #    'CommonEnvelopes',\
+    #    'DoubleCompactObjects',\
+    #    'Supernovae',\
+    #    'RLOF',\
+    #    'errors',\            
+    #    'output'\
+    #]
+    
+    # Name of the output h5 file
+    h5Name         =  'COMPAS_output.h5' 
 
-h5Name         =  'COMPAS_output.h5' #Name of the output file
+    return filesToCombine, dataRootDir, prefix, delimiter, extension, h5Name
 
+
+
+
+
+
+###############################################################
 ###############################################################
 #
 #     Changing code below this line is at own risk
 # 
+###############################################################
 ################################################################
 
 
-# Number of lines in the data file headers - Probably will never change, 
-# but this avoids having "magic numbers" below
+### Global vars
+
+# Number of lines in the data file headers.
+#    Probably will never change, but
+#    this avoids having "magic numbers" below
 nLinesInHeader = 3            
+
 
 
 
@@ -68,7 +90,7 @@ def main(filesToCombine=None, dataRootDir=None, prefix=None,\
 
     ### Step 2: Create the combined CSV file for each output type
     print('Combining %s files from subdirectories' %(extension))
-    combineOutputsOfFile(dataRootDir=dataRootDir, h5GroupDict=h5GroupDict,\
+    setOfUsedDatafiles = combineOutputsOfFile(dataRootDir=dataRootDir, h5GroupDict=h5GroupDict,\
                          delimiter=delimiter) 
     
 
@@ -87,7 +109,12 @@ def main(filesToCombine=None, dataRootDir=None, prefix=None,\
 
     ### Step 5: Print columns in the h5 file
     printH5Columns(dataRootDir=dataRootDir, h5Name=h5Name)
-    print('Done, :smiling_imp:')
+
+    ### Step 6: Print out which data files were used
+    printUsedDataFiles(setOfUsedDatafiles)
+    print('Done, :smiling_imp:\n')
+
+
 
 ##################################################################
 ###
@@ -101,29 +128,28 @@ def createDictionaryGroupPaths(filesToCombine = None, prefix=None, \
     
     # The current groups we offer are 
     optionsDict = {
-
-    'CommonEnvelopes'     : str(prefix) + 'Common_Envelopes.' + str(extension),\
-    'DoubleCompactObjects': str(prefix) + 'Double_Compact_Objects.' + str(extension),\
-    'Supernovae'          : str(prefix) + 'Supernovae.' + str(extension),\
-    'SystemParameters'    : str(prefix) + 'System_Parameters.' + str(extension)
+        'CommonEnvelopes'      : str(prefix) + 'Common_Envelopes.' + str(extension),\
+        'DoubleCompactObjects' : str(prefix) + 'Double_Compact_Objects.' + str(extension),\
+        'Supernovae'           : str(prefix) + 'Supernovae.' + str(extension),\
+        'SystemParameters'     : str(prefix) + 'System_Parameters.' + str(extension),\
+        'RLOF'                 : str(prefix) + 'RLOF.' + str(extension),\
+        'errors'               : str(prefix) + 'errorfile.' + str(extension),\
+        'output'               : str(prefix) + 'output.' + str(extension)\
     }
-    ##Future implementation
-    #,
-    #    'RLOF'                    : str(prefix) + '_RLOF.' + str(extension),\
-    #    'errors'                : str(prefix) + 'errorfile.' + str(extension),\
-    #    'output'                : str(prefix) + 'output.' + str(extension)\
-    #    }
 
-    #Create empty dictionary
+    # Create empty dictionary
     h5GroupDict = {}
 
-    #Fill it in with only the files you want
-    for f in filesToCombine:
-        if f in optionsDict.keys():
-            h5GroupDict[f] = optionsDict[f]
-        else:
-            raise ValueError("%s is not a group that exists. \n\
-                             Currently we include %s "%(f, optionsDict.keys()))
+    # Fill it in with only the files you want
+    if filesToCombine == None:         # For default setting None, use all of the options
+        h5GroupDict = optionsDict
+    else:                             # If a subset of the data files is specified, use that
+        for f in filesToCombine:
+            if f in optionsDict.keys():
+                h5GroupDict[f] = optionsDict[f]
+            else:
+                raise ValueError("%s is not a group that exists. \n\
+                                 Currently we include %s "%(f, optionsDict.keys()))
 
 
     return h5GroupDict
@@ -134,35 +160,21 @@ def createDictionaryGroupPaths(filesToCombine = None, prefix=None, \
 
 ##################################################################
 ###
-### Step 1: Check that the rootDataDir exists and correct formatting if necessary
+### Step 1: Check that the rootDataDir exists 
+###         and correct formatting if necessary
 ###
 ##################################################################
 
 def verifyPathsFiles(dataRootDir=None, h5GroupDict=None):
 
-    #Test if root directory exists and ensure the path ends with a '/'
+    # Ensure the root directory path string ends with a '/'
     if dataRootDir[-1] != "/":
         dataRootDir = dataRootDir + "/"    
 
+    # Throw an error if root directory does not exist
     if not os.path.isdir(dataRootDir):
-            raise ValueError("directory not found with path: %s"%(dataRootDir))
+        raise ValueError("directory not found with path: %s"%(dataRootDir))
 
-
-    #Test if the files exist in any of the subdirectories
-
-    # for every file that you which to combine and create h5
-    for groupName in h5GroupDict.keys():
-        fileName = h5GroupDict[groupName]
-        # go through all the subdirectories and see if it exists
-        Exist  = False
-        for root,dirs,files in os.walk(dataRootDir):
-            for f in files:
-                if f == fileName:
-                    Exist = True
-        # If it does not exist inform user and stop, user should delete group
-        if not Exist:
-            raise ValueError("%s not found in rootDir: %s"\
-                              %(fileName, dataRootDir))  
     # Return updated dataRootDir
     return dataRootDir
         
@@ -189,27 +201,32 @@ def combineOutputsOfFile(dataRootDir=None, h5GroupDict = None, delimiter=None):
     in a CSV file with the correct header.
     """
 
+    # Keep track of which data files are picked up by the walker
+    setOfUsedDatafiles = set()     # Set of filenames found in output
+
     for compasDataFilename in h5GroupDict.values():
                          
         ################################################################
         # Initialize variables for safety checks
 
         isHeaderWritten = False        # Boolean to ensure header is 
-                                    # only written once
+                                       # only written once
         nColumnCheck    = None         # Check that column numbers are 
-                                    # consistent for each category
+                                       # consistent for each category
 
 
         ############################################################################
         # Iterate through each subdirectory to find all the relevant output files 
-        #- if none exists, no output file will be produced
+        #     if none exists, no output file will be produced
         for root,dirs,files in os.walk(dataRootDir):
             for f in files:
                 if f == compasDataFilename:
 
-                    path = os.path.join(root, f)
+                    # Add to set of discovered datafiles
+                    setOfUsedDatafiles.add(f)    
 
-                    #individual output file of run in subfolder
+                    # Open the file
+                    path = os.path.join(root, f)
                     compasData = open(path)
 
                     #######################################################################
@@ -234,7 +251,7 @@ def combineOutputsOfFile(dataRootDir=None, h5GroupDict = None, delimiter=None):
                             # Verify that the number of columns is consistent across rows
                             nCols = len(line.split(delimiter))
 
-                            if i == 0:                         # first row - set the required column number
+                            if i == 0:                       # first row - set the required column number
                                 nColumnCheck = nCols         
 
                             else:                            # later rows - verify the column number
@@ -273,6 +290,8 @@ def combineOutputsOfFile(dataRootDir=None, h5GroupDict = None, delimiter=None):
                         with open(dataRootDir + 'Combine_' + compasDataFilename, 'a') as combineWrite:
                             combineWrite.write(line)
 
+    # Return the set of all used datafiles to be printed at the end
+    return setOfUsedDatafiles
     
 
 
@@ -297,11 +316,11 @@ def createH5file(dataRootDir=None, h5GroupDict=None, h5Name='COMPAS_output.h5'):
         combineFilePath = dataRootDir + 'Combine_' + h5GroupDict[group]
 
     
-        # If combine file does not exist, skip it - 
-        #this happens if a category of output (e.g RLOF) does not occur in a given run
-        #this should not happen since we have checked for this before
+        # If combine file does not exist, skip it 
+        #     This happens if a category of output (e.g RLOF) does not occur in 
+        #     any systems of a given run
         if not os.path.isfile(combineFilePath):
-            raise ValueError("trying to read %s, but does not exist." %(combineFilePath))
+            continue
     
         # Create h5 group for the given category, and enter in the header and data
         hf.create_group(group)
@@ -402,7 +421,6 @@ def addHdf5Data(hf,  group, filePath):
                 dtype             = type(h5group[param][0])
                 h5group[param][chunkBegin:chunkEnd] = np.array(data[:,iParam],dtype=dtype)
         
-                
             # Leapfrog to the next chunk location
             chunkBegin = chunkEnd
     
@@ -414,7 +432,6 @@ def addHdf5Data(hf,  group, filePath):
 ### Step 4: Remove the temporary files 
 ###
 ##################################################################
-    
 
 def cleanUpInAisleNumber2Please(dataRootDir='./',h5GroupDict=None): 
     """
@@ -440,7 +457,6 @@ def cleanUpInAisleNumber2Please(dataRootDir='./',h5GroupDict=None):
 ### Step 5: Print columns in the h5 file
 ###
 ##################################################################
-    
 
 def printH5Columns(dataRootDir='./', h5Name="COMPAS_output.h5"):
     """
@@ -492,6 +508,29 @@ def printH5Columns(dataRootDir='./', h5Name="COMPAS_output.h5"):
     Data.close()
 
 
+##################################################################
+###
+### Step 6: Print out which data files were used
+###
+##################################################################
+
+def printUsedDataFiles(setOfUsedDatafiles={}):
+    """
+    Last step: print out the set of all data files
+    which were included in the H5. Explicitly, this is the
+    intersection of the set of desired data files specified
+    by the user and the set of outputted data files from 
+    COMPAS (since small runs may not produce all the desired
+    output files)
+    """
+
+    print("\n###########################################################################\n")
+    print("\tThe COMPAS datafiles combined into this HDF5 file are:\n")
+    [print("\t" + str(datafile)) for datafile in setOfUsedDatafiles]
+    print("\n###########################################################################\n")
+
+
+
 
 ##################################################################
 ### 
@@ -500,9 +539,14 @@ def printH5Columns(dataRootDir='./', h5Name="COMPAS_output.h5"):
 ##################################################################
 
 if __name__ == "__main__":
-    #If you run this script from a terminal
-    #Use the global parameters defined at start script
-    #Otherwise call it from your own script with the settings there
+    # If you run this script from a terminal
+    # Use the global parameters defined at the top
+    # Otherwise call it from your own script with the settings there
+
+    # Only pull the default settings above if this script is run from the command line
+    filesToCombine, dataRootDir, prefix, delimiter, extension, h5Name = setDefaults()
+
+    # Run the script above with the settings defined at the top    
     main(filesToCombine=filesToCombine, dataRootDir=dataRootDir, \
          prefix=prefix, delimiter=delimiter, extension=extension, \
          h5Name=h5Name)
