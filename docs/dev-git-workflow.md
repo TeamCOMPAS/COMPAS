@@ -128,11 +128,11 @@ Branches allow a developer to experiment with multiple new features simultaneous
 
 To view, create, and switch branches, use: (similar to `ls`, `mkdir`, and `cd`)
 
-`git branch` 
-
-`git checkout -b <newbranch>`
-
-`git checkout <branchname>`
+```
+git branch
+git checkout -b <newbranch>
+git checkout <branchname>
+```
 
 *Note:* Many git commands require that you are on the correct branch before executing the command - using these 3 commands regularly before running more complicated commands will save you headaches down the road!
 
@@ -150,11 +150,17 @@ Committing is the process of adding a selection of changes to the history of you
 
 *Note:* A single commit should capture an entire "fix" of one kind. If, for example, you want to add a function to a C file and it's header, and you also want to update the internal contents of a completely different function in the same C file, you should do 2 commits. First, make the edits to the first function and header, then `git add file.C file.h`, `git commit -m "created function myFunction to do someStuff and added it to the header file"`. Then make the second edits for the contents of the existing function, and run `git add file.C`, `git commit -m "updated internal contents of thisOtherFunction to allow for specificUseCase"`. 
 
+You can (and should) check the status of the current index regularly with:
+
+`git status`
+
+The printout is self explanatory and tells you which files have been added and files which have been changed and you might consider adding before committing.
+
 You can undo a `git add` before you have done a `git commit` with:
 
 `git reset <file>` 
 
-- You can also use `git commit --amend` to substitute the previous commit with a new one:
+You can also use `git commit --amend` to substitute the previous commit with a new one.
 
 ```
 git commit -m "first commit"
@@ -164,18 +170,27 @@ git commit --amend
 
 will open an editor and make it possible to modify the commit message. 
 
-### Status of the Index
+The takeaway message is that branches are made up of many commits strung together, one after another, forming a history of minor edits to a given branch. You can even view the commit history of a branch with:
 
-We can check the status of our git repository with:
+`git log`
 
-`git status`
+Looking through your git log, you may begin to appreciate the value of clear, detailed commit messages. If you ever have to go back through a git log to find a commit where something went wrong, it is indescribably helpful to have descriptive messages.
 
-The printout is self explanatory and tells you which files have been added and which ones we need to add before committing
+### Merging branches 
 
+Creating a branch for every new idea is great, but at some point you'll have two somewhat-finalized, distinct features on different branches that you will want to combine into one. To do that, you need to merge the branches. Merging a separate branch onto your current branch adds a 'merge commit' to the tip of your current branch, and leaves the other branch as it was. Typically, once you successfully merge, it is desirable to delete the separate branch to keep things tidy. 
+
+```
+git checkout branch1
+git merge branch2
+git branch -d branch2
+```
+
+Merging can be difficult at first because, unless you are very good at thinking ahead or very lucky, you probably have some overlap in the two branches that you were working on. If you try to merge two branches in which you edited the same line of the same file, you get, in git terminology, a merge conflict. You will have to manually edit the files to choose how to resolve the conflict. Git has several [ways to deal with merge conflicts,](https://www.atlassian.com/git/tutorials/using-branches/merge-conflicts) the best option for you may depend on the particular IDE you are using. 
 
 ### F. Deleting branches 
 
-You should be comfortable deleting branches, or else your repos might pile up with old branches that are no longer active. Branches are also very easy to manage in git (relative to other version control systems), so you should practice creating new branches, making quick edits, testing and updating, and deleting again without worry. To delete a branch, first navigate to any other branch, then:
+You should become comfortable deleting branches, or else your repos might pile up with old branches that are no longer active. Branches are also very easy to manage in git (relative to other version control systems), so you should practice creating new branches, making quick edits, committing, and deleting again without worry. To delete a branch, first navigate to any other branch, then:
 
 `git branch -d <branch-name>`
 
@@ -185,159 +200,166 @@ You should be comfortable deleting branches, or else your repos might pile up wi
 
 ### E. Fetch other branches from a remote
 
-If you followed the above workflow, you can verify that the COMPAS repo is a designated remote fork in your local repo, nicknamed `origin`. 
+If you followed the above workflow, you can verify that the COMPAS repo is a designated remote fork in your local repo, nicknamed `origin`. You can also see any other remote forks that you have linked from your local repo.
 
-`git remote -v` should output
+`git remote -v` should output something like:
 
 ```
 origin	git@github.com:TeamCOMPAS/COMPAS.git (fetch)
 origin	git@github.com:TeamCOMPAS/COMPAS.git (push)
+reinhold_fork	git@github.com:reinhold-willcox/COMPAS.git (fetch)
+reinhold_fork	git@github.com:reinhold-willcox/COMPAS.git (push)
+another_fork 	git@github.com:another-user/COMPAS.git (fetch)
+another_fork 	git@github.com:another-user/COMPAS.git (push)
 ```
 
-To see all of the other branches on this fork:
+To see all of the available branches across all your linked forks:
 
 `git branch -a` should output something similar to
 
 ```
 * master
+  remotes/another_fork/dev
+  remotes/another_fork/master
+  remotes/another_fork/pythonSubmit
   remotes/origin/HEAD -> origin/master
   remotes/origin/dev
-  remotes/origin/hotfix-input-file-bug  
   remotes/origin/master
   remotes/origin/release
+  remotes/reinhold_fork/dev
+  remotes/reinhold_fork/git_workflow
+  remotes/reinhold_fork/master
 ```
 
-All of the branches found under `remotes/origin/` are available to be copied locally with:
+*Note:* The branch named `origin/HEAD` is a pointer to the `origin/master` branch. HEAD, when used locally, is a pointer to the most recent commit, or "tip", of the current branch. [Read more.](https://stackoverflow.com/questions/2529971/what-is-the-head-in-git)
 
-`git checkout -b <local-branch-name> origin/<remote-branch-name>`
+All of the remote branches are available to be copied locally with:
 
+`git checkout -b <new-local-branch-name> <remote-name>/<remote-branch-name>`
 
-
-
-
-To view which remote repositories you are tracking, and all the branches on those remotes:
-
-`git remote -v` 
-
-`git branch -r` 
+e.g `git checkout -b myPySubmit another_fork/pythonSubmit`
 
 
+### Configuring upstream branches - pushing & pulling
 
-""" Probably not useful now
-### E. Create new branches locally 
-- To create a new branch off of the current one (Note: you need to switch to the correct base branch first for this to work):
-`git checkout -b new-branch`
-"""
+It's often useful, though not required, to point local branches to an 'upstream' branch, from which it will inherit changes. For example, when changes occur on the upstream `origin/dev`, you want to pull them into your local `dev` to keep up to date. 
 
+To see which local branches have upstreams and where they point, use:
 
+`git branch -vv`
 
-- To set the upstream parent (tells git from what branch to git pull, git fetch etc.)
+If you have a branch which is "behind" the upstream by some number of commits, yours is out of date, and you should update with 
 
-`git push --set-upstream-to <remote-repo> <name-of-branch-on-remote>` 
+`git pull`
 
-an example: git push --set-upstream-to dev new-branch
+A good rule of thumb is to pull every morning (at least on branches that might have multiple contributors)!
 
+Pushing to your remote repository is a way to save all of your commits (i.e the history of edits) somewhere off your local computer. This is good practice because it acts as a backup in the event something happens to your local machine, and it also allows other collaborators to see your work (without having to give them access to your personal device). This should also be done often, but does not need to be as frequent as commits. Another good rule of thumb is to push any updated branches at the end of every day. 
 
+`git push`
 
+Note that pushing and pulling, and also pull-requests (discussed later) all cover the same conceptual idea of "taking a branch and copying it over to a different branch on another repo." The difference is where you are relative to the target. You `pull` from a remote into your local, and you `push` from your local into a remote. For many remotes, there are protections in place to keep arbitrary users from pushing changes ad hoc. `Pull-requests` are the polite version of a `push` - instead of forcing your changes onto a remote, you are asking the manager of the remote to review your changes, and hopefully pull them into the remote if they approve.
 
+You can add or update a branch's upstream with:
 
+```
+git checkout <branch-to-update>`
+git branch --set-upstream-to=<remote-fork>/<remote-branch-to-track>
+```
 
-
-
-
+*Note:* The syntax may vary slightly depending on your version of git. `man git branch` should be able to shed some light.
 
 ---
 
-## 3. Typical Workflow
+## 3. Lifetime of a project
 
-### New project idea 
+### New projects
 
 When beginning a new project, you will typically want to branch off of the most updated version of the `dev` branch
 
-```git checkout dev 
+```
+git checkout dev 
 git pull
 git checkout -b <new-project>
 ``` 
 
+The name of your branch should *clearly* describe exactly the features implemented. Generic names make it harder for future testers to know the intended scope of the changes.
 
-- Pushing to your remote repository is a way to save all of your commits (i.e the history of edits) somewhere off your local computer. This is good practice because it acts as a backup in the event something happens to your local machine, and it also allows other collaborators to see your work (without having to give them access to your personal device). This should also be done often, but does not need to be as frequent as commits. A good rule of thumb is to push any updated branches at the end of every day. 
+### Growing projects
+Commit regularly as you make changes
 
-`git branch -vv` (check that you're on the correct branch, and that you are pointed to the correct remote branch)
+```
+git status
+git add <file1> <file2> <...>
+git commit -m "useful message"
+```
 
-`git push`
+When you have made many commits and want to save on the remote, first check that you have the correct current and target branches
 
-- Another good rule of thumb is to pull every morning (at least on branches that might have multiple contributors)!
+```
+git branch -vv
+git push
+```
 
-`git branch -vv` (check that you're on the correct branch, and that you are pointed to the correct remote branch)
+### Mature projects 
 
-`git pull`
+When a project is nearing completion (e.g when the code is nearly ready to be pulled into the Main Repository and tested), the author of the branch should first double check that their branch is up to date with the upstream branches. At the very least, they should update `dev`, and merge any updates into their branch.
 
-### Work collaboratively across forks 
+```
+git checkout dev
+git pull
+git checkout <mature-branch>
+git merge dev
+```
 
-- The purpose of forks is to give you a place to work on projects privately and without stepping on the toes of other people (or letting anyone else step on your toes!). However, there will likely still be times when you want to check out a branch that someone else worked on. This may happen before the branch is polished enough to be sent to the Main repo, but they would still like feedback or edits. In this case, the other developer needs to add you as a collaborator on their personal repo (this is done on Github, in the settings menu of their repo). Once you are added, you can set up a local branch to point upstream to their remote branch.
+At this point, the user might choose to submit their branch from their local repo, or from their personal fork (e.g if the mature branch has been worked on by several people). Either of these is fine. 
 
-`git remote add <collaborator_name-repo> <url>` where \<url\> is the https or ssh url you can copy from Github, and \<name\> is your nickname for that fork, e.g `reinhold_fork`. 
+1. If you are pushing from your local repo:
 
-`git checkout dev`
+	to an existing branch:
 
-`git checkout -b <collaborator_name-project1>`
+	```
+	git checkout <mature-branch>
+	git branch --set-upstream-to=origin/<existing-branch>
+	git push
+	```
 
-`git branch --set-upstream-to=<collaborator_name-repo>`
+	to a new branch (with the same name):
 
--- Note: now you can push and pull to that remote branch (assuming the other developer has given you permission) to see what work they have done as well.
+	```
+	git checkout <mature-branch>
+	git push -u origin
+	```
+	
+2. If you are pushing from your remote fork:
 
-### Mature projects - adding to the Main Repo
+	to an existing branch on `origin`, go to the <mature-branch> on github, click on Pull Request, and set the dropdowns to `TeamCOMPAS/COMPAS`, `<target-branch>`, `<Your-Repo>/COMPAS`, and `<mature-branch>`. For feature target branches (i.e not `master`, `dev`) the Pull Request will be automatically approved. 
 
-- When a project is nearing completion (e.g when the code is nearly ready to be joined into the Main Repository), the author of the branch should do a final push to their personal remote repo, then submit a pull-request onto the Main Repo. This branch should cover only the scope of the named project and should not include work on any other project or bug fixes. 
+	to a new branch on `origin`, you will first need to create the branch. Go to the Main repo on github, click on the Branch dropdown, and type in a name for the new branch. Then, follow the steps above for pushing to an existing branch.
 
-- In order to merge your remote branch into a branch on COMPAS, you will first need to create a new branch on the Main Repo (the reason for this is that we decided to keep all branches off of the Main Repo until they were mature, but you need to have an existing branch to receive a pull request). 
+You should leave a detailed description of the branch in the comment section, and if you would like to request any Reviewers, feel free to do so. You can leave Assignees, Labels, Projects, and Milestones blank for now.
 
-    - 1. On the Main Repo, click the Code tab, click the Branch dropdown and select Dev, click the Branch dropdown again and into the Find or Create a Branch textbox, and type in the name of the new branch. In most situations, this will be the name of your mature branch (but you should ensure that it is clear what edits were made in this branch).
-
-    - 2. If you did the initial fork properly, there should be a clear yellow box right in the center of your repo's main page with recently pushed branches, and a button to "Compare and pull request". Click the button to see the Open a Pull Request GUI. 
-
-    - 3. The title of the pull request should be the name of the branch you are merging in, **only if this is the first pull-request**. If a pull-request is rejected and resubmitted, or if it is accepted but additions are made to it later on, the newer titles should broadly reflect the changes.
-
-    - 4. You should leave a detailed description of the branch in the comment section, and if you would like to request any Reviewers, feel free to do so. You can leave Assignees, Labels, Projects, and Milestones blank for now.
-
-    - 5. Once you have created the pull request, it is up to the other team members to review it (see below). 
+Once you have created the pull request, it is up to the other team members to review it (see below). 
 
 ---
 
-## 3. Typical Workflow
+## 3. The COMPAS Git Workflow
 
+The above sections go over many of the available git commands that you might find useful. This section delves into how we apply these specifically to the COMPAS workflow.
 
 ### Overview 
-First, any and all changes to the main repo are done through pull-requests, not pushes (a pull-request really represents a push, with the added step of confirmation from a third party that the push meets certain standards). This is to ensure that the main repo is "clean" and contains code that has at least been somewhat tested. Branches will first be added into the main repo from the remote forks of a given collaborator, then (after further testing) added to the Dev branch. Finally, when sufficient sub-branches have been added to the Dev branch to warrant a new version release, the Dev branch will be added to the Master branch and published to the public. Ultimately, we should always be thinking of the next Version Release and which projects/concepts we would like to include in it, and define our timelines around those expectations.  
 
-### Q&A Protocol
-A mature branch will have to go through 3 rounds of Q&A review before it is ready for deployment in a new COMPAS version. The Primary Review occurs when a pull-request is sent to have the branch included as a sub-branch in the main repo. The Secondary Review occurs when a pull-request is sent to have that sub-branch merged into the Dev branch on the main repo. The Final Review occurs when a pull-request is sent to have the Dev branch (which might contain several sub-branches) merged into the Master branch. **Testing and validation of a branch should never be done by someone who worked on it extensively** (we can decide on a case-by-case basis who falls into that category). 
+There are 4 types of branches on the Main Repo. `master` and `dev` are the first two. They are both permanent, and both can only be modified with Pull Requests (PRs) from other branches on the Main repo. These PRs must be approved by one or more other COMPAS developers. `master` is the current "long term service release" meaning we expect that it works well for all typical use cases. Of course, code is never bug-free, but this branch is the one the public will use, so updates should be extensively tested. `dev` is where new well-tested features are joined together in preparation for the next release. Presumably, these new features have been well-tested in isolation, but `dev` is a place to confirm that the tests still pass when other new features are included.
 
-1. Primary Review: To be included as a sub-branch in the main repo, the branch must be reviewed by one person in the broader COMPAS collaboration. It must compile and run, producing somewhat sensible output (e.g output files should not be empty, but at this stage they may contain data which is "wrong", or physically inconsistent) 
+The third kind is `hotfix*` branches. When an urgent bug is detected and needs to be rushed through to `master`, the changes should be pushed directly to a branch on `origin` that starts with "hotfix-" followed by some descriptive name. The fourth kind is all other feature branches. These can have any name you like as long as it doesn't conflict with the previous three. Any branches that get pulled into Main need to pass a set of Status Checks to ensure that the updates pass basic unit tests (e.g does it compile?). 
 
-2. Secondary Review: To be merged into the Dev branch on the main repo, the branch must then be reviewed by two people in the broader COMPAS collaboration, one of whom is a core developer. Additionally, one of the reviewers should focus on the consistency of the code layout and structure with the current code, while the other reviewer should focus primarily on the accuracy of the physics and its implementation, although ultimately both reviewers are responsible for ensuring that the branch is clearly and correctly written. This is the primary review step, with the expectation that code that is accepted to be merged into Dev is ready for the public. 
+PRs to `master` can only come from `dev` or `hotfix*` branches. PRs to `dev` can only come from feature branches on Main. Any collaborator can push a new feature or `hotfix*` branch to Main, as long as it passes the Status Checks. Non-collaborators have read-only access; if they would like to contribute, we will first have to add them as collaborators. 
 
-3. Final Review: When Dev is updated with a new branch, all collaborators should be testing it, and in particular should ensure that all of the different projects which have been added to Dev work with each other. When Dev is nearly ready to be merged into the Master branch, the core collaborators will host a COMPAS Powwow to discuss and assign any final revisions/tests, and set a firm release date. Other collaborators are invited to join (over Zoom or in person), details decided on a case-by-case basis.
+### Reviewing Pull Requests
 
----
+A typical new feature will be formally reviewed twice. The first is in the PR from `<feature-branch>` to `dev`. This review checks that the feature works well in isolation (on it's current branch) and can be merged into `dev` without conflict. It is not intended to test for introduced bugs in `dev`. It needs to be approved by only one other developer, so the reviewer is equally responsible if any bugs slip through. The second review occurs before `dev` is pulled into `master`. When we are nearing a new version release, we should asign various testing roles to the different developers to check for any introduced bugs from all the new features in `dev`. This review requires two approvers, but this is more of a formality and protection, since hopefully the development team will collectively approve of any new version releases. 
 
-## Quick Fixes
-
-- This workflow should work well for larger projects and features which need oversight and testing before merging into the Main Repo. However, there will inevitibly be times when only a simple bux-fix or last-minute addition is warranted. In these situations, we will use a stream-lined workflow for merging with the Main Repo. 
-
-    - 1. Determine the seriousness of the fix: is this a bug in the published Master branch that we need to fix urgently, or is there simply a typo in one of the sub-branches? Once this is decided, go onto the relevant branch on the Main Repo, and create a new branch (see Step 1 under Mature Projects, above). Give the branch a descriptive name that starts with "hotfix-", e.g "hotfix-typo_in_speed_of_light". 
-
-    - 2. Create a branch locally (from an up-to-date branch, e.g the local master), and set the new hotfix branch as the upstream of the local branch (see Work Collaboratively Across Forks, above). 
-
-	- 3. Make the edits on the local branch
-
-	- 4. `git push`, to merge your edits into the remote branch
-
-	- 5. Submit a pull request on the Main repo from the hotfix branch onto it's parent
-
-	- 6. Notify another collaborator to have them quickly review your hotfix and accept the pull request
-
--- Note: This will only work for branches that start with "hotfix-"
+A `hotfix*` branch will only be reviewed once in the PR from `hotfix*` to `dev`, to help streamline the process of fixing the bug. This PR still requires two approvers, to ensure no new bugs are "introduced in production" to the `master` branch. 
 
 ---
 
