@@ -20,9 +20,9 @@
 
 ---
 
-## Introduction
+# Introduction
 
-###Git & Github for COMPAS developers
+### Git & Github for COMPAS developers
 For those who are unfamiliar, git and github are popular tools in the software development community for sharing and collaborating on software projects. 
 
 Git is a light-weight command line tool for maintaining different versions of software locally, and sharing those versions to remote servers. Github is a website that stores git-managed projects and enables developers to collaborate centrally on many projects. 
@@ -59,7 +59,7 @@ This approach to the repository and workflow below are based on the [Feature Bra
 
 ---
 
-## Getting Set Up
+# Getting Set Up
 
 **Step-by-step directions for how to configure your local and remote git repositories**
 
@@ -124,7 +124,7 @@ The <remote-fork-url> can be found on your remote repo under the same green 'Clo
 
 ---
 
-## Day to Day commands
+# Day to Day commands
 
 ### Basic commands for navigating local git 
 
@@ -275,7 +275,7 @@ git branch --set-upstream-to=<remote-fork>/<remote-branch-to-track>
 
 ---
 
-## Lifetime of a project
+# Lifetime of a project
 
 ### New projects
 
@@ -347,7 +347,7 @@ Once you have created the pull request, it is up to the other team members to re
 
 ---
 
-## The COMPAS Git Workflow
+# The COMPAS Git Workflow
 
 The above sections go over many of the available git commands that you might find useful. This section delves into how we apply these specifically to the COMPAS workflow.
 
@@ -367,7 +367,7 @@ A `hotfix*` branch will only be reviewed once in the PR from `hotfix*` to `dev`,
 
 ---
 
-## Terminology
+# Terminology
 
 - **Commit**: A single commit records a collection of edits to one or more files, with an associated commit message. You can make and undo many changes before making a commit, and you can similarly revert commits which are later deemed unnecessary. As a verb, committing changes means to create a commit of the changes and append that commit onto a sequence of previous commits (a "branch", see below). 
 
