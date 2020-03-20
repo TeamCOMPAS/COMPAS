@@ -6,9 +6,9 @@
 
 ## Contents of this document
 
- [Introduction](#introduction)
+ [Introduction](#introduction:-git-&-github-for-compas-developers)
 
- [Getting Set Up](#getting-set-up)
+ [Getting Set Up](#getting-set-up:-step-by-step-directions-for-how-to-configure-your-local-and-remote-git-repositories)
 
  [Day to Day Commands](#day-to-day-commands)
 
