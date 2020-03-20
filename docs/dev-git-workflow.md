@@ -6,9 +6,9 @@
 
 ## Contents of this document
 
- [Introduction](#introduction:-git-&-github-for-compas-developers)
+ [Introduction](#introduction)
 
- [Getting Set Up](#getting-set-up:-step-by-step-directions-for-how-to-configure-your-local-and-remote-git-repositories)
+ [Getting Set Up](#getting-set-up)
 
  [Day to Day Commands](#day-to-day-commands)
 
@@ -20,9 +20,9 @@
 
 ---
 
-## Introduction: Git & Github for COMPAS developers
+## Introduction
 
-### Git and Github
+###Git & Github for COMPAS developers
 For those who are unfamiliar, git and github are popular tools in the software development community for sharing and collaborating on software projects. 
 
 Git is a light-weight command line tool for maintaining different versions of software locally, and sharing those versions to remote servers. Github is a website that stores git-managed projects and enables developers to collaborate centrally on many projects. 
@@ -59,7 +59,9 @@ This approach to the repository and workflow below are based on the [Feature Bra
 
 ---
 
-## Getting Set Up: Step-by-step directions for how to configure your local and remote git repositories
+## Getting Set Up
+
+**Step-by-step directions for how to configure your local and remote git repositories**
 
 ### *COMPAS Users and Developers*
 
