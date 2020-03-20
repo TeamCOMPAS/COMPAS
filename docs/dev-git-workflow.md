@@ -6,21 +6,21 @@
 
 ## Contents of this document
 
- Introduction
+ [Introduction](#introduction)
 
- Getting Set Up
+ [Getting Set Up](#getting-set-up)
 
- Day to Day Commands
+ [Day to Day Commands](#day-to-day-commands)
 
- Lifetime of a Project
+ [Lifetime of a Project](#lifetime-of-a-project)
 
- Typical Workflow
+ [COMPAS Git Workflow](#the-compas-git-workflow)
 
- Terminology
+ [Terminology](#terminology)
 
 ---
 
-## 1. Introduction: Git & Github for COMPAS developers
+## Introduction: Git & Github for COMPAS developers
 
 ### Git and Github
 For those who are unfamiliar, git and github are popular tools in the software development community for sharing and collaborating on software projects. 
@@ -59,7 +59,7 @@ This approach to the repository and workflow below are based on the [Feature Bra
 
 ---
 
-## 2. Getting Set Up: Step-by-step directions for how to configure your local and remote git repositories
+## Getting Set Up: Step-by-step directions for how to configure your local and remote git repositories
 
 ### *COMPAS Users and Developers*
 
@@ -122,7 +122,7 @@ The <remote-fork-url> can be found on your remote repo under the same green 'Clo
 
 ---
 
-## 3. Day to Day commands
+## Day to Day commands
 
 ### Basic commands for navigating local git 
 
@@ -190,7 +190,7 @@ git branch -d branch2
 
 Merging can be difficult at first because, unless you are very good at thinking ahead or very lucky, you probably have some overlap in the two branches that you were working on. If you try to merge two branches in which you edited the same line of the same file, you get, in git terminology, a merge conflict. You will have to manually edit the files to choose how to resolve the conflict. Git has several [ways to deal with merge conflicts,](https://www.atlassian.com/git/tutorials/using-branches/merge-conflicts) the best option for you may depend on the particular IDE you are using. 
 
-### F. Deleting branches 
+### Deleting branches 
 
 You should become comfortable deleting branches, or else your repos might pile up with old branches that are no longer active. Branches are also very easy to manage in git (relative to other version control systems), so you should practice creating new branches, making quick edits, committing, and deleting again without worry. To delete a branch, first navigate to any other branch, then:
 
@@ -200,7 +200,7 @@ You should become comfortable deleting branches, or else your repos might pile u
 
 `git branch -D <branch-name>`
 
-### E. Fetch other branches from a remote
+### Fetch other branches from a remote
 
 If you followed the above workflow, you can verify that the COMPAS repo is a designated remote fork in your local repo, nicknamed `origin`. You can also see any other remote forks that you have linked from your local repo.
 
@@ -273,7 +273,7 @@ git branch --set-upstream-to=<remote-fork>/<remote-branch-to-track>
 
 ---
 
-## 3. Lifetime of a project
+## Lifetime of a project
 
 ### New projects
 
@@ -345,7 +345,7 @@ Once you have created the pull request, it is up to the other team members to re
 
 ---
 
-## 3. The COMPAS Git Workflow
+## The COMPAS Git Workflow
 
 The above sections go over many of the available git commands that you might find useful. This section delves into how we apply these specifically to the COMPAS workflow.
 
