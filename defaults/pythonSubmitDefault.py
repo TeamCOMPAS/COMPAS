@@ -6,6 +6,10 @@ import pickle
 import itertools 
 from subprocess import call
 
+# Check if we are using python 3
+python_version = sys.version_info[0]
+print("python_version =", python_version)
+
 class pythonProgramOptions:
     """
     A class to store and access COMPAS program options in python
@@ -15,7 +19,7 @@ class pythonProgramOptions:
     #-- Define variables
     git_directory = os.environ.get('COMPAS_ROOT_DIR')
     compas_executable = os.path.join(git_directory, 'src/COMPAS')
-    number_of_binaries = 10  #number of binaries per batch
+    number_of_binaries = 1000  #number of binaries per batch
     populationPrinting = False
 
     randomSeedFileName = 'randomSeed.txt'
@@ -32,7 +36,7 @@ class pythonProgramOptions:
     #-- amoungst the grid points (as closely as possible). See the hyperparameterGrid method below
     #-- for more details. If this is set to True, some hyperparameter values defined in this method'gridOutputs/'+str(i)
     #-- will be overwritten
-    hyperparameterGrid = False
+    hyperparameterGrid = True
     hyperparameterList = False
     shareSeeds = False
 
@@ -507,7 +511,16 @@ def specifyCommandLineOptions(programOptions):
     listChoices = programOptions.listChoices()
     listCommands = programOptions.listCommands()
 
-    command = [generateCommandLineOptions(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
+    if programOptions.hyperparameterGrid == True:
+        command = hyperparameterGridCommand(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,programOptions.shareSeeds)
+    elif programOptions.hyperparameterList == True:
+        if programOptions.hyperparameterGrid == True:
+            raise ValueError("You can't have both a list and a grid!")
+        command = hyperparameterListCommand(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,programOptions.shareSeeds)
+    else:
+        command = [generateCommandLineOptions(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
+
+    #command = [generateCommandLineOptions(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
 
     return command
 
@@ -553,7 +566,7 @@ def generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,
 
     return command
 
-def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
+def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,shareSeeds):
     """This function allows for a range of hyperparameter values to be specified in a single run, if the hyperparameterGrid boolean is set to True in the
     specifyCommandLineOptions() function.
     This works by constructing nested output directories in the current working directory, and running a population at each combination of parameter values.
@@ -563,10 +576,14 @@ def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,n
     """
     
     # Load up the dictionary from gridRun.py
-    with open('pickledGrid.pkl') as pg:
+    with open('pickledGrid.pkl', 'rb') as pg:
         commandsAndValues = pickle.load(pg)
+    
     # set up lists for recursion
-    keys = commandsAndValues.keys()
+    if python_version >= 3:
+        keys = list(commandsAndValues.keys())
+    else:
+        keys = commandsAndValues.keys()
     valuesLists = []
     nSimulations = 1
     for key in keys:
@@ -582,7 +599,11 @@ def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,n
         if command == '--number-of-binaries':
             break
     nBinariesPerSimulation = numericalChoices[index]/nSimulations
-    numericalChoices[index] = nBinariesPerSimulation
+
+    numericalChoices[index] = int(nBinariesPerSimulation)
+    print("index, nBinariesPerSimulation")
+    print(index, nBinariesPerSimulation)
+
     bashCommands = []
     # itertools.product recurses through all combinations of the lists in valuesLists
     for en,combination in enumerate(itertools.product(*valuesLists)):
@@ -598,27 +619,32 @@ def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,n
             for index,command in enumerate(numericalCommands):
                 if command == '--random-seed':
                     break
-            numericalChoices[index] += nBinariesPerSimulation
+            numericalChoices[index] += int(nBinariesPerSimulation)
         #setup output arguments
         for index,command in enumerate(stringCommands):
-            if command == '--output':
+            if command == '--outputPath':
                 break
         stringChoices[index] = pathName + '/.'
-        bashCommand += generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands)
+        bashCommand += generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)
         bashCommand += '; '
         bashCommands.append(bashCommand)
     return bashCommands
     
 
     
-def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
+def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,shareSeeds):
     """
     """
     # Load up the dictionary from gridRun.py
-    with open('pickledList.pkl') as pl:
+    with open('pickledList.pkl', 'rb') as pl:
         commandsAndValues = pickle.load(pl)
+    
     # set up lists for recursion
-    keys = commandsAndValues.keys()
+    if python_version >= 3:
+        keys = list(commandsAndValues.keys())
+    else:
+        keys = commandsAndValues.keys()
+
     #work how many things there are in the list
     nSimulations = len(commandsAndValues[keys[0]])
     print("nSimulations = ", nSimulations)
@@ -637,7 +663,7 @@ def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,n
         if command == '--number-of-binaries':
             break
     nBinariesPerSimulation = numericalChoices[index]/nSimulations
-    numericalChoices[index] = nBinariesPerSimulation
+    numericalChoices[index] = int(nBinariesPerSimulation)
     print("index, nBinariesPerSimulation")
     print(index, nBinariesPerSimulation)
     bashCommands = []
@@ -655,13 +681,13 @@ def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,n
             for index,command in enumerate(numericalCommands):
                 if command == '--random-seed':
                     break
-            numericalChoices[index] += nBinariesPerSimulation
+            numericalChoices[index] += int(nBinariesPerSimulation)
         #setup output arguments
         for index,command in enumerate(stringCommands):
-            if command == '--output':
+            if command == '--outputPath':
                 break
         stringChoices[index] = pathName + '/.'
-        bashCommand += generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands)
+        bashCommand += generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)
         bashCommand += '; '
         bashCommands.append(bashCommand)
     return bashCommands
