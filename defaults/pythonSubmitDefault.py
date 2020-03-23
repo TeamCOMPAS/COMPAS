@@ -19,7 +19,7 @@ class pythonProgramOptions:
     #-- Define variables
     git_directory = os.environ.get('COMPAS_ROOT_DIR')
     compas_executable = os.path.join(git_directory, 'src/COMPAS')
-    number_of_binaries = 1000  #number of binaries per batch
+    number_of_binaries = 10  #number of binaries per batch
     populationPrinting = False
 
     randomSeedFileName = 'randomSeed.txt'
@@ -36,7 +36,7 @@ class pythonProgramOptions:
     #-- amoungst the grid points (as closely as possible). See the hyperparameterGrid method below
     #-- for more details. If this is set to True, some hyperparameter values defined in this method'gridOutputs/'+str(i)
     #-- will be overwritten
-    hyperparameterGrid = True
+    hyperparameterGrid = False
     hyperparameterList = False
     shareSeeds = False
 
