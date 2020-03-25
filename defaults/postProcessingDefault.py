@@ -18,7 +18,7 @@ be removed afterwards.
 def setDefaults():
 
     dataRootDir    = '.'                # Location of root directory of the data     # defaults to '.'            
-    prefix         = 'Compas_Log_BSE_'  # Prefix of the data files                   # defaults to 'Compas_Log_BSE_'  
+    prefix         = 'BSE_'  			# Prefix of the data files                   # defaults to 'BSE_'  
     delimiter      = ','                # Delimeter used in the output csv files     # defaults to ','        
     extension      = 'csv'              # Extension of the data files                # defaults to 'csv'
     
@@ -35,7 +35,7 @@ def setDefaults():
     #]
     
     # Name of the output h5 file
-    h5Name         =  'COMPAS_output.h5' 
+    h5Name         =  'COMPAS_Output.h5' 
 
     return filesToCombine, dataRootDir, prefix, delimiter, extension, h5Name
 
