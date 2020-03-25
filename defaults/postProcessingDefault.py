@@ -21,6 +21,7 @@ def setDefaults():
     prefix         = 'BSE_'  			# Prefix of the data files                   # defaults to 'BSE_'  
     delimiter      = ','                # Delimeter used in the output csv files     # defaults to ','        
     extension      = 'csv'              # Extension of the data files                # defaults to 'csv'
+    h5Name         = 'COMPAS_Output.h5' # Name of the output h5 file				 # defaults to 'COMPAS_Output.h5' 
     
     # To only combine a subset of the data files, specify them here    
     filesToCombine = None    # default None means to use all of them (apologies if that's counterintuitive...)
@@ -33,13 +34,8 @@ def setDefaults():
     #    'errors',\            
     #    'output'\
     #]
-    
-    # Name of the output h5 file
-    h5Name         =  'COMPAS_Output.h5' 
 
     return filesToCombine, dataRootDir, prefix, delimiter, extension, h5Name
-
-
 
 
 
