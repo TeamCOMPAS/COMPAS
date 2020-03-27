@@ -249,9 +249,13 @@
 //                                      - fixed some comments in BAseBinaryStar.cpp (lines 2222 and 2468, "de Mink" -> "HURLEY")
 //                                      - fixed description (in comments) of BinaryConstituentStar::SetPostCEEValues() (erroneously had "pre" instead of "post" - in comments only, not code)
 //                                      - fixed description of BaseStar::DrawKickDirection()
+// 02.08.02      JR - Mar 27, 2020 - Defect repairs:
+//                                      - fixed issue #160 Circularisation timescale incorrectly calculated
+//                                      - fixed issue #161 Splashscreen printed twice - now only prints once
+//                                      - fixed issue #162 OPTIONS->UseFixedUK() always returns FALSE.  Now returns TRUE if user supplies a fixed kick velocity via --fix-dimensionless-kick-velocity command line option
 
 
-const std::string VERSION_STRING = "02.08.01";
+const std::string VERSION_STRING = "02.08.02";
 
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)

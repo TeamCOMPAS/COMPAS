@@ -227,6 +227,8 @@ public:
 
     void            CalculateOmegaTidesIndividualDiff(const double p_OrbitalVelocity)   { m_OmegaTidesIndividualDiff = p_OrbitalVelocity - OmegaPrev(); }
 
+    double          CalculateCircularisationTimescale(const double p_SemiMajorAxis);
+
     double          CalculateSynchronisationTimescale(const double p_SemiMajorAxis);
 
     void            DetermineInitialMassTransferCase();
