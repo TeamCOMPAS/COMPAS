@@ -151,7 +151,7 @@ void Log::Start(const string              p_LogBasePath,
 
                     try {                                                                                             
 
-                        m_RunDetailsFile << utils::SplashScreen() << std::endl;                                     // write splash string with version number to file
+                        m_RunDetailsFile << utils::SplashScreen(false) << std::endl;                                // write splash string with version number to file
 
                         std::time_t timeStart = std::chrono::system_clock::to_time_t(m_WallStart);                  // record start time
 
