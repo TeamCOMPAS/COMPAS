@@ -55,16 +55,16 @@ def reduceH5(pathToOld = None, pathToNew = None, dictFiles=None, dictColumns=Non
         if pathToNew is None:
             raise ValueError("pathToNew not given")
         if dictFiles is None:
-            raise ValueError("dictionary of files not given is None")
+            raise ValueError("dictionary of files is not given")
         if dictColumns is None:
-            raise ValueError("dictionary of columns not given is None")
-        if dictColumns is None:
-            raise ValueError("dictionary of seeds not given is None")
+            raise ValueError("dictionary of columns is not given")
+        if dictSeeds is None:
+            raise ValueError("dictionary of seeds is not given")
 
         if((len(dictFiles) != len(dictColumns)) or\
            (len(dictSeeds) != len(dictColumns)) or\
-           (len(dictFiles) != len(dictSeeds))):
-            raise ValueError("the 3 dictionaries are not of same lengt!")
+           (len(dictFiles) != len(dictSeeds))):									# RTW 3/25/20 - do we need the third statement?
+            raise ValueError("The 3 dictionaries are not of same length!")
 
         h_old = h5.File(pathToOld)
         h_new = h5.File(pathToNew, 'w')
@@ -100,6 +100,7 @@ def printAllColumnsInH5(pathToData):
     Files  = Data.keys()
 
     for File in Files:
+		print()
         print('Filename = %s' %(File))
         print('----------------------')
 
