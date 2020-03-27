@@ -149,6 +149,7 @@ string Options::ProgramOptionDetails(const boost::program_options::variables_map
 
     ss << "fixedRandomSeed = " << (fixedRandomSeed ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";       // fixedRandomSeed
     ss << "fixedMetallicity = " << (fixedMetallicity ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";     // fixedMetallicity
+    ss << "useFixedUK = " << (useFixedUK ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";                 // useFixedUK
     ss << "outputPath = " << outputPath.string() << ", CALCULATED, STRING\n";                           // outputPath (fully qualified)
 
     return ss.str();
@@ -1216,7 +1217,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             ("log-classes",                                                 po::value<vector<string>>(&logClasses)->multitoken()->default_value(logClasses),                                                                            ("Logging classes enabled (default = " + defaultLogClasses + ")").c_str())
 		;
 
-        po::variables_map vm;   // Variables map
+        po::variables_map vm;                                                                                                           // Variables map
 
         try {
 
@@ -1238,9 +1239,9 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
             po::notify(vm);                                                                                                             // invoke notify to assign user-input values to variables.  Throws an error, so do after help just in case there are any problems.
 
-            fixedRandomSeed = !vm["random-seed"].defaulted();                                                                           // use random seed if it is provided by the user
+            fixedRandomSeed  = !vm["random-seed"].defaulted();                                                                          // use random seed if it is provided by the user
             fixedMetallicity = !vm["metallicity"].defaulted();                                                                          // determine if user supplied a metallicity value
-
+            useFixedUK       = !vm["fix-dimensionless-kick-velocity"].defaulted();                                                      // determine if user supplied kick velocity
 
 
             // check & set prescriptions, distributions, assumptions etc. options - alphabetically
