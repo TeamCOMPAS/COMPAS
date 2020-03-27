@@ -1898,7 +1898,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             m_Star2->ResolveEnvelopeLossAndSwitch();                                                                    // resolve envelope loss for star2 and switch to new stellar type
 
             m_SynchronizationTimescale   = star2Copy->CalculateSynchronisationTimescale(periastronRsol);
-            m_CircularizationTimescale   = star1Copy->CalculateCircularisationTimescale(periastronRsol);
+            m_CircularizationTimescale   = star2Copy->CalculateCircularisationTimescale(periastronRsol);
             m_MassTransferTrackerHistory = MT_TRACKING::CE_FROM_2_TO_1;                                                 // record history - star2 -> star1
         }
 

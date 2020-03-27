@@ -253,9 +253,11 @@
 //                                      - fixed issue #160 Circularisation timescale incorrectly calculated
 //                                      - fixed issue #161 Splashscreen printed twice - now only prints once
 //                                      - fixed issue #162 OPTIONS->UseFixedUK() always returns FALSE.  Now returns TRUE if user supplies a fixed kick velocity via --fix-dimensionless-kick-velocity command line option
+// 02.08.03      JR - Mar 28, 2020 - defect repair:
+//                                      - fixed typo in BaseBinaryStar::ResolveCommonEnvelopeEvent() when calculating circularisation timescale in the case where star2 is the donor: star1Copy was errorneously used instead of star2Copy; changed to star2Copy
 
 
-const std::string VERSION_STRING = "02.08.02";
+const std::string VERSION_STRING = "02.08.03";
 
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
