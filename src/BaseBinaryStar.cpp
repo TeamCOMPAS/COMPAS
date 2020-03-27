@@ -1767,8 +1767,8 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
     BinaryConstituentStar* star1Copy = new BinaryConstituentStar(*m_Star1);                                             // clone star1 before CEE
 	BinaryConstituentStar* star2Copy = new BinaryConstituentStar(*m_Star2);                                             // clone star2 before CEE
-	star1Copy->SetCompanion(star2Copy);                                                                                 // need companion for CalculateSynchronisationTimescale() later
-	star2Copy->SetCompanion(star1Copy);                                                                                 // need companion for CalculateSynchronisationTimescale() later
+	star1Copy->SetCompanion(star2Copy);                                                                                 // need companion for CalculateSynchronisationTimescale() & CalculateCircularisationTimescale() later
+	star2Copy->SetCompanion(star1Copy);                                                                                 // need companion for CalculateSynchronisationTimescale() & CalculateCircularisationTimescale() later
 
     double alphaCE = m_CEDetails.alpha;                                                                                 // CE efficiency parameter
 
@@ -1834,7 +1834,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
     m_Star1->SetPreCEEValues();                                                                                         // squirrel away pre CEE stellar values for star 1
     m_Star2->SetPreCEEValues();                                                                                         // squirrel away pre CEE stellar values for star 2
-  	SetPreCEEValues(semiMajorAxis, eccentricity, rRLd1, rRLd1);                                                         // squirrel away pre CEE binary values
+  	SetPreCEEValues(semiMajorAxis, eccentricity, rRLd1, rRLd2);                                                         // squirrel away pre CEE binary values
 
     m_Star1->SetPostCEEValues();                                                                                        // squirrel away (initial) post CEE stellar values for star 1 - default is just pre CEE values
     m_Star2->SetPostCEEValues();                                                                                        // squirrel away (initial) post CEE stellar values for star 2 - default is just pre CEE values
@@ -1876,7 +1876,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         m_StellarMerger              = true;
     }
 	else {
-        double periastronRsol = semiMajorAxis * AU_TO_RSOL* (1.0 - eccentricity);                                       // periastron in Rsol
+        double periastronRsol = semiMajorAxis * AU_TO_RSOL * (1.0 - eccentricity);                                      // periastron in Rsol
 
         STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                             // star 1 stellar type before resolving envelope loss
         STELLAR_TYPE stellarType2 = m_Star2->StellarType();                                                             // star 2 stellar type before resolving envelope loss
@@ -1884,7 +1884,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             m_Star1->ResolveEnvelopeLossAndSwitch();                                                                    // resolve envelope loss for star1 and switch to new stellar type
 
             m_SynchronizationTimescale = star1Copy->CalculateSynchronisationTimescale(periastronRsol);
-            m_CircularizationTimescale = m_SynchronizationTimescale;
+            m_CircularizationTimescale = star1Copy->CalculateCircularisationTimescale(periastronRsol);
 
             if (envelopeFlag2) {                                                                                        // correction - double CEE   JR: todo: why do we check envelopeFlags and not value of m_CEDetails.doubleCoreCE calculated above?
                 m_Star2->ResolveEnvelopeLossAndSwitch();                                                                // resolve envelope loss for star2 and switch to new stellar type
@@ -1898,7 +1898,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             m_Star2->ResolveEnvelopeLossAndSwitch();                                                                    // resolve envelope loss for star2 and switch to new stellar type
 
             m_SynchronizationTimescale   = star2Copy->CalculateSynchronisationTimescale(periastronRsol);
-            m_CircularizationTimescale   = m_SynchronizationTimescale;
+            m_CircularizationTimescale   = star1Copy->CalculateCircularisationTimescale(periastronRsol);
             m_MassTransferTrackerHistory = MT_TRACKING::CE_FROM_2_TO_1;                                                 // record history - star2 -> star1
         }
 
