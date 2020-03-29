@@ -262,7 +262,7 @@
 //                                      - enhanced grid processing code in main.cpp to better handle TAB characters
 
 
-const std::string VERSION_STRING = "02.08.03";
+const std::string VERSION_STRING = "02.09.00";
 
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
