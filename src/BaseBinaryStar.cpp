@@ -79,7 +79,7 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
         m_MassesEquilibrated        = false;                                                                                                    // default
         m_MassesEquilibratedAtBirth = false;                                                                                                    // default
 
-        if ((OPTIONS->CHE_Option() != CHE_OPTION::NONE || OPTIONS->AllowRLOFAtBirth()) &&                                                       // CHE enabled or over-contact binaries at birth allowed?
+        if (OPTIONS->AllowRLOFAtBirth() &&                                                                                                      // over-contact binaries at birth allowed?
            (utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0)) {                                        // either star overflowing Roche Lobe?
             rlof                        = false;                                                                                                // over-contact at birth allowed - set this false
             m_MassesEquilibratedAtBirth = true;                                                                                                 // record that we've equilbrated at birth
@@ -164,7 +164,7 @@ BaseBinaryStar::BaseBinaryStar(const AIS           &p_AIS,
     m_MassesEquilibrated        = false;                                                                                                        // default
     m_MassesEquilibratedAtBirth = false;                                                                                                        // default
 
-    if ((OPTIONS->CHE_Option() != CHE_OPTION::NONE || OPTIONS->AllowRLOFAtBirth()) &&                                                           // CHE enabled or over-contact binaries at birth allowed?
+    if (OPTIONS->AllowRLOFAtBirth() &&                                                                                                          // over-contact binaries at birth allowed?
        (utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0)) {                                            // either star overflowing Roche Lobe?
 
         m_MassesEquilibratedAtBirth = true;                                                                                                     // record that we've equilbrated
@@ -179,7 +179,7 @@ BaseBinaryStar::BaseBinaryStar(const AIS           &p_AIS,
         (void)m_Star2->UpdateAttributesAndAgeOneTimestep(newMass2 - mass2, newMass2 - mass2, 0.0, true);
     }
 
-    SetRemainingCommonValues();                                                                                                             // complete the construction of the binary
+    SetRemainingCommonValues();                                                                                                                 // complete the construction of the binary
 }
 
 

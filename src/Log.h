@@ -313,7 +313,7 @@ public:
                  const bool                p_ErrorsToFile,
                  const string              p_Delimiter);
 
-    void   Stop();
+    void   Stop(std::tuple<int, int> p_ObjectStats = std::make_tuple(0, 0));
 
     bool   Enabled() const { return m_Enabled; }
 
