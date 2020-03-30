@@ -69,6 +69,9 @@ Date (d/m/y)    -   Ini.   - Comment
                               100% binaries. Update ClassCOMPASdata explanation
                               point 2 accordingly
 
+03/30/2020		-  RTW	   -  Cosmic Integration notebooks need to be cleaned up. 
+							  I may not have time for this for a while.
+
 #########################################################################
 #                                                                       #
 #  Authors alphabetically by first initial   (easier to find that way)  #
@@ -76,3 +79,4 @@ Date (d/m/y)    -   Ini.   - Comment
 #########################################################################
 
 CJN -   Coenraad Jacob Neijssel
+RTW - 	Reinhold Turner Willcox
