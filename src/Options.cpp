@@ -1241,7 +1241,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
             fixedRandomSeed  = !vm["random-seed"].defaulted();                                                                          // use random seed if it is provided by the user
             fixedMetallicity = !vm["metallicity"].defaulted();                                                                          // determine if user supplied a metallicity value
-            useFixedUK       = !vm["fix-dimensionless-kick-velocity"].defaulted();                                                      // determine if user supplied kick velocity
+            useFixedUK       = !vm["fix-dimensionless-kick-velocity"].defaulted() && (fixedUK >= 0.0);                                  // determine if user supplied a valid kick velocity
 
 
             // check & set prescriptions, distributions, assumptions etc. options - alphabetically
