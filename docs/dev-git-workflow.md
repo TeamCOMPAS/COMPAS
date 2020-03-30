@@ -6,17 +6,17 @@
 
 ## Contents of this document
 
- [Introduction](#introduction)
+### [Introduction](#introduction)
 
- [Getting Set Up](#getting-set-up)
+### [Getting Set Up](#getting-set-up)
 
- [Day to Day Commands](#day-to-day-commands)
+### [Day to Day Commands](#day-to-day-commands)
 
- [Lifetime of a Project](#lifetime-of-a-project)
+### [Lifetime of a Project](#lifetime-of-a-project)
 
- [COMPAS Git Workflow](#the-compas-git-workflow)
+### [COMPAS Git Workflow](#the-compas-git-workflow)
 
- [Terminology](#terminology)
+### [Terminology](#terminology)
 
 ---
 
@@ -98,7 +98,7 @@ At this point, if you do not plan to do any COMPAS development, you're all set. 
 
 ### *COMPAS Developers Only*
 
-*Note:* This section is very technical. Take a look at the section below on [Terminology.](#terminology) if you get stuck!
+*Note:* This section is very technical. Take a look at the section below on [Terminology,](#terminology) if you get stuck!
 
 ### Join as a collaborator 
 
@@ -110,7 +110,7 @@ In order to contribute to COMPAS, you will need to be added as a collaborator. N
 
 As a COMPAS developer, you are highly encouraged to create your own personal fork of the Main repo. This serves as a public-facing 'sandbox' of your current work, where you can share partially-developed ideas and projects with others who might be interested in assisting. 
 
-On Github, go to the TeamCOMPAS/COMPAS repo and click on `Fork` in the upper-right corner. This will create a copy of the current state of the TeamCOMPAS/COMPAS repo, including all branches and all commit histories, and place it in your profile as your personal Fork, identified as <your-username>/COMPAS.
+On Github, go to the TeamCOMPAS/COMPAS repo and click on `Fork` in the upper-right corner. This will create a copy of the current state of the TeamCOMPAS/COMPAS repo, including all branches and all commit histories, and place it in your profile as your personal Fork, identified as `<your-username>`/COMPAS.
 
 Since this is your personal repo, you can be as organized or scatter-brained as you wish here. If you work best with 50 branches, obscure names, and code scraps everywhere, have at it. You can also give or take away access to any other collaborators who you might wish to contribute. Note that for public repositories, your code will still be read-only for everyone who is not a collaborator. 
 
@@ -120,7 +120,7 @@ Once your fork is created, you'll want to connect it to your local repository. I
 
 `git remote add <fork-nickname> <remote-fork-url>`
 
-The <remote-fork-url> can be found on your remote repo under the same green 'Clone or Download' button as before. If you have ssh configured, it will be similar to `git@github.com:reinhold-willcox/COMPAS.git`. The <fork-nickname> is your choice, but should be informative, e.g `reinhold_fork`.
+The `<remote-fork-url>` can be found on your remote repo under the same green 'Clone or Download' button as before. If you have ssh configured, it will be similar to `git@github.com:reinhold-willcox/COMPAS.git`. The `<fork-nickname>` is your choice, but should be informative, e.g `reinhold_fork`.
 
 ---
 
@@ -130,15 +130,17 @@ The <remote-fork-url> can be found on your remote repo under the same green 'Clo
 
 Branches allow a developer to experiment with multiple new features simultaneously on the same code-base. In git, branches are very lightweight and easy to manage, making them incredibly useful.
 
-To view, create, and switch branches, use: (similar to `ls`, `mkdir`, and `cd`)
+To view, switch, and create branches, use: (similar to `ls`, `cd`, and `mkdir`)
 
 ```
 git branch
-git checkout -b <newbranch>
 git checkout <branchname>
+git checkout -b <newbranch>
 ```
 
-*Note:* Many git commands require that you are on the correct branch before executing the command - using these 3 commands regularly before running more complicated commands will save you headaches down the road!
+*Note:* Many git commands require that you are on the correct branch before executing the command - using these 3 commands regularly before running more complicated commands will save you headaches down the road! 
+
+**Important:** A new branch is already created as a copy of the current branch, so you always need to double check that you're on the branch you want to copy (typically, `dev`)
 
 ### Committing changes
 
@@ -246,23 +248,63 @@ e.g `git checkout -b myPySubmit another_fork/pythonSubmit`
 
 ### Configuring upstream branches - pushing & pulling
 
+**Important:** This section is crucially important, but it contains some of the more confusing subtleties of git. I tried to make these explicit throughout, but as a result this section is a bit dense (sorry about that). I highly recommend trying the commands yourself as you read through.
+
 It's often useful, though not required, to point local branches to an 'upstream' branch, from which it will inherit changes. For example, when changes occur on the upstream `origin/dev`, you want to pull them into your local `dev` to keep up to date. 
+
+If changes occur on the remote, your local git repo will not automatically know about it (since git is not regularly sending out update requests like, e.g, some of the apps on your phone). You can check for remote changes on a fork with:
+
+`git fetch <remote-fork>`
+
+*Warning:* This is subtle, but `git fetch` only updates git's local knowledge of the remote branches, it does not affect your local branches. That makes it very "safe" - you can't overwrite any of your own work with `fetch`. This is not true of `git pull` (see below).
 
 To see which local branches have upstreams and where they point, use:
 
-`git branch -vv`
+`git branch -vv` 
 
-If you have a branch which is "behind" the upstream by some number of commits, yours is out of date, and you should update with 
+which will have an output that looks similar to:
 
-`git pull`
+```
+* compas_hpc_updates eea656f [origin/compas_hpc_updates: behind 14] Removed references to dead files:
+  dev                a110d38 [origin/dev: ahead 2, behind 12] Remove unwanted demo files (#150)
+  master             d379be5 [origin/master] Jeff's defect repairs from previous commits that had to be readded (#82)
+  new_branch         b6aee96 generic branch to test git branch -vv, don't keep this
+```
 
-A good rule of thumb is to pull every morning (at least on branches that might have multiple contributors)!
+The first column lists your local branches (the * indicates your current branch). The second column is the unique hash that identifies the commit of the tip of that branch (technically, it's only the beginning of the hash, but it suffices to identify the commit). If the local branch is tracking from an 'upstream' remote branch, this will be specified in brackets in the third column as `[<remote_repo>/<remote_tracking_branch>]`. If there is a colon after the branch name with either "ahead N" or "behind M" (or both), this describes whether the tip of the local branch has additional commits that the remote does not, and vice versa. If there are no brackets, the branch is not tracking an upstream. 
 
-Pushing to your remote repository is a way to save all of your commits (i.e the history of edits) somewhere off your local computer. This is good practice because it acts as a backup in the event something happens to your local machine, and it also allows other collaborators to see your work (without having to give them access to your personal device). This should also be done often, but does not need to be as frequent as commits. Another good rule of thumb is to push any updated branches at the end of every day. 
+#### git pull
 
-`git push`
+If you have a branch which is "behind" the upstream by some number of commits, yours is out of date, and you should update with:
+
+```
+git checkout <outdated-branch>
+git pull
+```
+
+The `git pull` command defaults to the designated "upstream" branch of the current branch. If the current branch does not have an upstream, or if you want to pull from a different remote branch (e.g, if `origin/dev` was updated and you want your `<local-feature-branch>` to pull in those updates), you can set it explicitly:
+
+```
+git checkout <local-feature-branch>
+git pull <remote-fork> <remote-branch>
+```
+
+*Note:* You should regularly check that your branches are updated, and pull if they are not, in order to avoid major conflicts later on. 
+
+#### git push
+
+To share your local work with the other collaborators, you need to "push" your changes to a remote repository. Similar to `git pull`, `git push` defaults to the designated "upstream" branch, if it exists. If not, or if you want to push somewhere other than the designated upstream, you can set it manually:
+
+```
+git checkout <local-branch-to-push>
+git push <remote-fork> <remote-branch>
+```
+
+Pushing to your personal remote repository is a way to save all of your commits (i.e the history of edits) somewhere off your local computer. This is good practice because it acts as a backup in the event something happens to your local machine, and it also allows other collaborators to see your work (without having to give them access to your personal device). This should also be done often, but not necessarily for every commit. A good rule of thumb is to push any updated branches at the end of the day. 
 
 Clarification of the difference between push, pull, and pull requests can be found in the Terminology section below.
+
+#### set upstream branch
 
 You can add or update a branch's upstream with:
 
@@ -324,8 +366,7 @@ At this point, the user might choose to submit their branch from their local rep
 
 	```
 	git checkout <mature-branch>
-	git branch --set-upstream-to=origin/<existing-branch>
-	git push
+	git push origin <existing-branch>
 	```
 
 	to a new branch (with the same name):
@@ -337,7 +378,7 @@ At this point, the user might choose to submit their branch from their local rep
 	
 2. If you are pushing from your remote fork:
 
-	to an existing branch on `origin`, go to the <mature-branch> on github, click on Pull Request, and set the dropdowns to `TeamCOMPAS/COMPAS`, `<target-branch>`, `<Your-Repo>/COMPAS`, and `<mature-branch>`. For feature target branches (i.e not `master`, `dev`) the Pull Request will be automatically approved. 
+	to an existing branch on `origin`, go to the `<mature-branch>` on github, click on Pull Request, and set the dropdowns to `TeamCOMPAS/COMPAS`, `<target-branch>`, `<Your-Repo>/COMPAS`, and `<mature-branch>`. For feature target branches (i.e not `master`, `dev`) the Pull Request will be automatically approved (for official collaborators only, not the public). 
 
 	to a new branch on `origin`, you will first need to create the branch. Go to the Main repo on github, click on the Branch dropdown, and type in a name for the new branch. Then, follow the steps above for pushing to an existing branch.
 
