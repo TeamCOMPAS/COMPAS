@@ -6,6 +6,10 @@ import pickle
 import itertools 
 from subprocess import call
 
+# Check if we are using python 3
+python_version = sys.version_info[0]
+print("python_version =", python_version)
+
 class pythonProgramOptions:
     """
     A class to store and access COMPAS program options in python
@@ -15,14 +19,14 @@ class pythonProgramOptions:
     #-- Define variables
     git_directory = os.environ.get('COMPAS_ROOT_DIR')
     compas_executable = os.path.join(git_directory, 'src/COMPAS')
-    number_of_binaries = 1  #number of binaries per batch
+    number_of_binaries = 10  #number of binaries per batch
     populationPrinting = False
 
     randomSeedFileName = 'randomSeed.txt'
     if os.path.isfile(randomSeedFileName):
         random_seed = int(np.loadtxt(randomSeedFileName))
     else:
-        random_seed = 4174238869 #np.random.randint(2,2**63-1)  # If you want a random seed, use: np.random.randint(2,2**63-1)
+        random_seed = 0 # If you want a random seed, use: np.random.randint(2,2**63-1)
 
     output = os.getcwd()
     output_container = None                 # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
@@ -69,9 +73,9 @@ class pythonProgramOptions:
     common_envelope_alpha_thermal = 1.0                     # lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
     common_envelope_lambda_multiplier = 1.0                 # Multiply common envelope lambda by some constant
     common_envelope_allow_main_sequence_survive = True      # Allow main sequence stars to survive CE. Was previously False by default
-    common_envelope_mass_accretion_prescription = 'MACLEOD'
-    common_envelope_mass_accretion_min = 0.04           # For 'MACLEOD' [Msol]
-    common_envelope_mass_accretion_max = 0.10           # For 'MACLEOD' [Msol]
+    common_envelope_mass_accretion_prescription = 'ZERO'
+    common_envelope_mass_accretion_min = 0.04           # For 'MACLEOD+2014' [Msol]
+    common_envelope_mass_accretion_max = 0.10           # For 'MACLEOD+2014' [Msol]
 
     mass_loss_prescription = 'VINK'
     luminous_blue_variable_multiplier = 1.5
@@ -99,8 +103,8 @@ class pythonProgramOptions:
     maximum_number_timesteps = 99999
 
     initial_mass_function = 'KROUPA'
-    initial_mass_min = 4.0                              # Use 1.0 for LRNe, 5.0 for DCOs  [Msol]
-    initial_mass_max = 50.0                            # Stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
+    initial_mass_min = 5.0                              # Use 1.0 for LRNe, 5.0 for DCOs  [Msol]
+    initial_mass_max = 150.0                            # Stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
 
     initial_mass_power = 0.0
 
@@ -118,11 +122,11 @@ class pythonProgramOptions:
     eccentricity_min = 0.0
     eccentricity_max = 1.0
 
-    pulsar_birth_magnetic_field_distribution = 'UNIFORM'
-    pulsar_birth_magnetic_field_min = 10.0              # [log10(B/G)]
+    pulsar_birth_magnetic_field_distribution = 'ZERO'
+    pulsar_birth_magnetic_field_min = 11.0              # [log10(B/G)]
     pulsar_birth_magnetic_field_max = 13.0              # [log10(B/G)]
 
-    pulsar_birth_spin_period_distribution = "UNIFORM"
+    pulsar_birth_spin_period_distribution = "ZERO"
     pulsar_birth_spin_period_min = 10.0                 # [ms]
     pulsar_birth_spin_period_max = 100.0                # [ms]
 
@@ -130,7 +134,7 @@ class pythonProgramOptions:
     pulsar_magnetic_field_decay_massscale = 0.025       # [Msol]
     pulsar_minimum_magnetic_field = 8.0                 # [log10(B/G)]
 
-    evolvePulsars = True
+    evolvePulsars = False
 
     rotational_velocity_distribution = 'ZERO'
 
@@ -507,7 +511,16 @@ def specifyCommandLineOptions(programOptions):
     listChoices = programOptions.listChoices()
     listCommands = programOptions.listCommands()
 
-    command = [generateCommandLineOptions(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
+    if programOptions.hyperparameterGrid == True:
+        command = hyperparameterGridCommand(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,programOptions.shareSeeds)
+    elif programOptions.hyperparameterList == True:
+        if programOptions.hyperparameterGrid == True:
+            raise ValueError("You can't have both a list and a grid!")
+        command = hyperparameterListCommand(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,programOptions.shareSeeds)
+    else:
+        command = [generateCommandLineOptions(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
+
+    #command = [generateCommandLineOptions(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
 
     return command
 
@@ -553,7 +566,7 @@ def generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,
 
     return command
 
-def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
+def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,shareSeeds):
     """This function allows for a range of hyperparameter values to be specified in a single run, if the hyperparameterGrid boolean is set to True in the
     specifyCommandLineOptions() function.
     This works by constructing nested output directories in the current working directory, and running a population at each combination of parameter values.
@@ -563,10 +576,14 @@ def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,n
     """
     
     # Load up the dictionary from gridRun.py
-    with open('pickledGrid.pkl') as pg:
+    with open('pickledGrid.pkl', 'rb') as pg:
         commandsAndValues = pickle.load(pg)
+    
     # set up lists for recursion
-    keys = commandsAndValues.keys()
+    if python_version >= 3:
+        keys = list(commandsAndValues.keys())
+    else:
+        keys = commandsAndValues.keys()
     valuesLists = []
     nSimulations = 1
     for key in keys:
@@ -582,7 +599,11 @@ def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,n
         if command == '--number-of-binaries':
             break
     nBinariesPerSimulation = numericalChoices[index]/nSimulations
-    numericalChoices[index] = nBinariesPerSimulation
+
+    numericalChoices[index] = int(nBinariesPerSimulation)
+    print("index, nBinariesPerSimulation")
+    print(index, nBinariesPerSimulation)
+
     bashCommands = []
     # itertools.product recurses through all combinations of the lists in valuesLists
     for en,combination in enumerate(itertools.product(*valuesLists)):
@@ -598,27 +619,32 @@ def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,n
             for index,command in enumerate(numericalCommands):
                 if command == '--random-seed':
                     break
-            numericalChoices[index] += nBinariesPerSimulation
+            numericalChoices[index] += int(nBinariesPerSimulation)
         #setup output arguments
         for index,command in enumerate(stringCommands):
-            if command == '--output':
+            if command == '--outputPath':
                 break
         stringChoices[index] = pathName + '/.'
-        bashCommand += generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands)
+        bashCommand += generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)
         bashCommand += '; '
         bashCommands.append(bashCommand)
     return bashCommands
     
 
     
-def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,shareSeeds):
+def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,shareSeeds):
     """
     """
     # Load up the dictionary from gridRun.py
-    with open('pickledList.pkl') as pl:
+    with open('pickledList.pkl', 'rb') as pl:
         commandsAndValues = pickle.load(pl)
+    
     # set up lists for recursion
-    keys = commandsAndValues.keys()
+    if python_version >= 3:
+        keys = list(commandsAndValues.keys())
+    else:
+        keys = commandsAndValues.keys()
+
     #work how many things there are in the list
     nSimulations = len(commandsAndValues[keys[0]])
     print("nSimulations = ", nSimulations)
@@ -637,7 +663,7 @@ def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,n
         if command == '--number-of-binaries':
             break
     nBinariesPerSimulation = numericalChoices[index]/nSimulations
-    numericalChoices[index] = nBinariesPerSimulation
+    numericalChoices[index] = int(nBinariesPerSimulation)
     print("index, nBinariesPerSimulation")
     print(index, nBinariesPerSimulation)
     bashCommands = []
@@ -655,13 +681,13 @@ def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,n
             for index,command in enumerate(numericalCommands):
                 if command == '--random-seed':
                     break
-            numericalChoices[index] += nBinariesPerSimulation
+            numericalChoices[index] += int(nBinariesPerSimulation)
         #setup output arguments
         for index,command in enumerate(stringCommands):
-            if command == '--output':
+            if command == '--outputPath':
                 break
         stringChoices[index] = pathName + '/.'
-        bashCommand += generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands)
+        bashCommand += generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)
         bashCommand += '; '
         bashCommands.append(bashCommand)
     return bashCommands
