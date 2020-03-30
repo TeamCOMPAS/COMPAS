@@ -1678,8 +1678,6 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
             stellarType = IsCoreCollapseSN(OPTIONS->FryerSupernovaEngine());
         }
 
-        
-
         // SIMON : What is this line for? Why 'reset' things to 0?                                  // JR: todo: check this
         // reset values to zero
         m_COCoreMass  = 0.0;
