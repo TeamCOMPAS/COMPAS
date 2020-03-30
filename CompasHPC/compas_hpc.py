@@ -77,8 +77,7 @@ if(np.logical_not(os.path.isdir(rootOutputDir))):
 # What options has the used specified for this run?
 isGridRun = programOptions.hyperparameterGrid
 isListRun = programOptions.hyperparameterList
-#isAISRun  = programOptions.AIS_exploratory_phase
-isAISRun  = False #programOptions.AIS_exploratory_phase
+isAISRun  = False
 
 if(isAISRun and (isGridRun or isListRun)):
 	raise ValueError("CompasHPC is not tested using both grid/list run and AIS. Contact Simon if you want to do this.")
