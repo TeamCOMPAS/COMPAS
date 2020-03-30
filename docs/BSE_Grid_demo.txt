@@ -1,6 +1,0 @@
-# Demo BSE Grid file
-
-Mass_1, Mass_2, Metallicity_1, Metallicity_2, Eccentricity, Separation
-
-45.0, 13.2, 0.001, 0.002, 0.0, 1400.0
-
