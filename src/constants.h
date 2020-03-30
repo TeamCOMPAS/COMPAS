@@ -256,7 +256,10 @@
 // 02.08.03      JR - Mar 28, 2020 - Defect repairs:
 //                                      - fixed typo in BaseBinaryStar::ResolveCommonEnvelopeEvent() when calculating circularisation timescale in the case where star2 is the donor: star1Copy was errorneously used instead of star2Copy; changed to star2Copy
 //                                      - changed circularisation timescale of binary to be minimum of constituent stars circularisation timescales, clamped to (0.0, infinity)
-
+// 02.08.02      DC - Mar 30, 2020 - Defect repairs:
+//                                      - Pulsar code fixed by correcting unit of NS radius in NS.cpp (added KM_TO_M constant in constants.h as a part of this),
+//                                      correcting initialisation of pulsar birth parameters from GiantBranch.cpp to NS.cpp, adding an extra condition for isolated evolution when the companion loses mass but the NS does not accrete 
+//                                      - option MACLEOD was printing wrongly as MACLEOD+2014 for user options, hence corrected it to MACLEOD in Options.cpp
 
 const std::string VERSION_STRING = "02.08.03";
 
