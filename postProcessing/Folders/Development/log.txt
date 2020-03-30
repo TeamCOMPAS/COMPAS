@@ -69,6 +69,14 @@ Date (d/m/y)   - Ini.  - Comment
                           No log-book yet
  
 
+03/30/2020	  	- RTW - Major clean up and rewrite of most postProc scripts
+						  All H5, Python, and Development scripts:
+							- Cleaned up codes and context 
+							- Updated links
+							- Fixed typos
+					  	  Cosmic Integration scripts 
+							- Confirmed scripts compile with new data sets, 
+							  but did not look at links/typos/cleaning
 
 
 ####################################################################
@@ -80,3 +88,4 @@ Date (d/m/y)   - Ini.  - Comment
 ####################################################################
 
 CJN -   Coenraad Jacob Neijssel
+RTW - 	Reinhold Turner Willcox
