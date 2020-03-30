@@ -175,12 +175,6 @@ else:
 	bashCommand = 'cp ' + os.path.join(compasHPCDir, ppPythonFile) + " " + os.path.join(rootOutputDir, '.')
 	chpc.runBashCommand(bashCommand, verbose=True)
 
-bashCommand = 'cp ' + os.path.join(compasHPCDir, "plottingRoutines.py") + " " + os.path.join(rootOutputDir, '.')
-chpc.runBashCommand(bashCommand, verbose=True)
-
-bashCommand = 'cp ' + os.path.join(compasHPCDir, "template.html") + " " + os.path.join(rootOutputDir, '.')
-chpc.runBashCommand(bashCommand, verbose=True)
-
 #-- Make a copy of this script in the output directory
 bashCommand = 'cp ' + os.path.join(compasHPCDir, "compas_hpc.py") + " " + os.path.join(rootOutputDir, '.')
 chpc.runBashCommand(bashCommand, verbose=True)
