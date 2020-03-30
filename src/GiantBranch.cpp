@@ -1677,8 +1677,6 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         else {                                                                                      // Core Collapse SuperNova
             stellarType = IsCoreCollapseSN(OPTIONS->FryerSupernovaEngine());
         }
-        
-        CalculateAndSetPulsarParameters();
 
         // SIMON : What is this line for? Why 'reset' things to 0?                                  // JR: todo: check this
         // reset values to zero
