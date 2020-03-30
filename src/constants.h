@@ -426,6 +426,7 @@ constexpr double G_TO_KG                                = 1.0E-3;               
 
 constexpr double KM_TO_CM 					            = 1.0E5;									                // convert km to cm
 constexpr double CM_TO_M                                = 1.0E-2;                                                   // convert cm to m
+constexpr double KM_TO_M                                = 1000 ;                                                    //convert km to m
 
 constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
 constexpr double GAUSS_TO_TESLA                         = 1.0E-4;                                                   // convert Gauss to Tesla
