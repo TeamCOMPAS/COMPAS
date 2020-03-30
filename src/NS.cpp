@@ -375,9 +375,7 @@ DBL_DBL NS::CalculateMassAcceptanceRate(const double p_DonorMassRate, const doub
  */
 void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const double p_Stepsize, const double p_MassGainPerTimeStep, const double p_Epsilon) {
 
-    constexpr double Rsol_TO_KM    = 6.9*10*10*10*10*10;
-    constexpr double KM_TO_M       = 1000 ;
-    constexpr double NSRadius_IN_M = NEUTRON_STAR_RADIUS * Rsol_TO_KM * KM_TO_M ;
+    constexpr double NSRadius_IN_M = NEUTRON_STAR_RADIUS * RSOL_TO_KM * KM_TO_M ;
     constexpr double NSRadius_3    = NSRadius_IN_M * NSRadius_IN_M * NSRadius_IN_M;
     constexpr double NSRadius_6    = NSRadius_3 * NSRadius_3;
     constexpr double PI_8          = 8.0 * M_PI;
