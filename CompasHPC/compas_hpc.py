@@ -77,7 +77,8 @@ if(np.logical_not(os.path.isdir(rootOutputDir))):
 # What options has the used specified for this run?
 isGridRun = programOptions.hyperparameterGrid
 isListRun = programOptions.hyperparameterList
-isAISRun  = programOptions.AIS_exploratory_phase
+#isAISRun  = programOptions.AIS_exploratory_phase
+isAISRun  = False #programOptions.AIS_exploratory_phase
 
 if(isAISRun and (isGridRun or isListRun)):
 	raise ValueError("CompasHPC is not tested using both grid/list run and AIS. Contact Simon if you want to do this.")
@@ -174,12 +175,6 @@ if isAISRun:
 else:
 	bashCommand = 'cp ' + os.path.join(compasHPCDir, ppPythonFile) + " " + os.path.join(rootOutputDir, '.')
 	chpc.runBashCommand(bashCommand, verbose=True)
-
-bashCommand = 'cp ' + os.path.join(compasHPCDir, "plottingRoutines.py") + " " + os.path.join(rootOutputDir, '.')
-chpc.runBashCommand(bashCommand, verbose=True)
-
-bashCommand = 'cp ' + os.path.join(compasHPCDir, "template.html") + " " + os.path.join(rootOutputDir, '.')
-chpc.runBashCommand(bashCommand, verbose=True)
 
 #-- Make a copy of this script in the output directory
 bashCommand = 'cp ' + os.path.join(compasHPCDir, "compas_hpc.py") + " " + os.path.join(rootOutputDir, '.')
