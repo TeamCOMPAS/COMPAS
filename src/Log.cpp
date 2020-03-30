@@ -192,7 +192,7 @@ void Log::Start(const string              p_LogBasePath,
  * void Stop()
  *
  */
-void Log::Stop() {
+void Log::Stop(std::tuple<int, int> p_ObjectStats) {
     if (m_Enabled) {
         CloseAllStandardFiles();                                                                                // first close all standard log files
         for(unsigned int index = 0; index < m_Logfiles.size(); index++) {                                       // check for open logfiles (even if not active)
@@ -219,10 +219,14 @@ void Log::Stop() {
             std::time_t timeEnd = std::chrono::system_clock::to_time_t(m_WallEnd);                              // get end time and date
         
             // record end time and whether evolving single stars or binaries   
-            if(OPTIONS->SingleStar())
-                m_RunDetailsFile << "End generating stars at " << std::ctime(&timeEnd) << std::endl;
-            else
-                m_RunDetailsFile << "End generating binaries at " << std::ctime(&timeEnd) << std::endl; 
+            if(OPTIONS->SingleStar()) {
+                m_RunDetailsFile << "Generated " << std::to_string(std::get<1>(p_ObjectStats)) << " of " << (std::get<0>(p_ObjectStats) < 0 ? "<INCOMPLETE GRID>" : std::to_string(std::get<0>(p_ObjectStats))) << " stars requested" << std::endl;
+                m_RunDetailsFile << "\nEnd generating stars at " << std::ctime(&timeEnd) << std::endl;
+            }
+            else {
+                m_RunDetailsFile << "Generated " << std::to_string(std::get<1>(p_ObjectStats)) << " of " << (std::get<0>(p_ObjectStats) < 0 ? "<INCOMPLETE GRID>" : std::to_string(std::get<0>(p_ObjectStats))) << " binaries requested" << std::endl;
+                m_RunDetailsFile << "\nEnd generating binaries at " << std::ctime(&timeEnd) << std::endl; 
+            }
 
             m_RunDetailsFile << "Clock time = " << cpuSeconds << " CPU seconds" << std::endl;                   // record cpu second
 
