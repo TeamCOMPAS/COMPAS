@@ -250,6 +250,7 @@
 //                                      - fixed description (in comments) of BinaryConstituentStar::SetPostCEEValues() (erroneously had "pre" instead of "post" - in comments only, not code)
 //                                      - fixed description of BaseStar::DrawKickDirection()
 // 02.08.02      JR - Mar 27, 2020 - Defect repairs:
+//                                      - fixed issue #158 RocheLobe_1<CE == RocheLobe_2<CE always
 //                                      - fixed issue #160 Circularisation timescale incorrectly calculated
 //                                      - fixed issue #161 Splashscreen printed twice - now only prints once
 //                                      - fixed issue #162 OPTIONS->UseFixedUK() always returns FALSE.  Now returns TRUE if user supplies a fixed kick velocity via --fix-dimensionless-kick-velocity command line option
@@ -260,9 +261,11 @@
 //                                      - tightened the conditions under which we allow over-contact binaries - enabling CHE is no longer a sufficient condition after this change: the allow-rlof-at-birth option must also be specified (ussue #164)
 //                                      - added printing of number of stars (for SSE) or binaries (for BSE) created to both stdout and Run_Details (issue #165)
 //                                      - enhanced grid processing code in main.cpp to better handle TAB characters
+// 02.09/01      JR - Mar 30, 2020 - Defect repair:
+//                                      - OPTIONS->UseFixedUK() returns TRUE when user supplies -ve value via --fix-dimensionless-kick-velocity.  Now return TRUE iff the user supplies a value >=0 via --fix-dimensionless-kick-velocity
 
 
-const std::string VERSION_STRING = "02.09.00";
+const std::string VERSION_STRING = "02.09.01";
 
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
