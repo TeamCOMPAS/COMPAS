@@ -302,6 +302,57 @@ void BinaryConstituentStar::ResolveCommonEnvelopeAccretion(const double p_FinalM
 
 
 /*
+ * Calculate the circularisation timescale for the star
+ *
+ * Hurley et al. 2002, section 2.3
+ *
+ *
+ * double CalculateCircularisationTimescale(const double p_SemiMajorAxis)
+ *
+ * @param   [IN]    p_SemiMajorAxis             Semi-major Axis of the binary (Rsol)
+ * @return                                      Circularisation timescale for the star (yr)
+ */
+double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_SemiMajorAxis) {
+
+    double q2     = m_Companion->Mass() / Mass();
+    double rOverA = Radius() / p_SemiMajorAxis;
+
+    double timescale;
+
+	switch (DetermineEnvelopeTypeHurley2002()) {                                                                                        // JR: todo: this differs from envelopeType() in star.cpp and DetermineEnvelopeType() in new code - ok?
+
+        case ENVELOPE::CONVECTIVE: {                                                                                                    // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
+
+	        double tauConv          = CalculateEddyTurnoverTimescale();
+	        double fConv            = 1.0;                                                                                              // currently, as COMPAS doesn't have rotating stars tested, we set f_conv = 1 always.
+            double fConvOverTauConv = fConv / tauConv;
+            double rOverAPow8       = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;                            // use multiplication - pow() is slow
+
+	        timescale               = 1.0 / (fConvOverTauConv * ((Mass() - CoreMass()) / Mass()) * q2 * (1.0 + q2) * rOverAPow8);
+        } break;
+
+        case ENVELOPE::RADIATIVE: {                                                                                                     // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
+
+            double rInAU                  = Radius() * RSOL_TO_AU;
+            double rInAUPow3              = rInAU * rInAU * rInAU;                                                                      // use multiplication - pow() is slow
+            double rOverAPow10            = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;    // use multiplication - pow() is slow
+            double rOverAPow21Over2       = rOverAPow10 * rOverA * sqrt(rOverA);                                                        // srqt() is faster than pow()
+
+		    double	secondOrderTidalCoeff = 1.592E-09 * pow(Mass(), 2.84);                                                              // aka E_2.
+		    double	freeFallFactor        = sqrt(G1 * Mass() / rInAUPow3);
+		
+		    timescale                     = 1.0 / ((21.0 / 2.0) * freeFallFactor * q2 * pow(1.0 + q2, 11.0/6.0) * secondOrderTidalCoeff * rOverAPow21Over2);
+        } break;
+
+        default:                                                                                                                        // all other envelope types (remnants?)
+            timescale = 0.0;
+    }
+
+	return timescale;
+}
+
+
+/*
  * Calculate the synchronisation timescale for the star
  *
  * Hurley et al. 2002, section 2.3
@@ -309,11 +360,9 @@ void BinaryConstituentStar::ResolveCommonEnvelopeAccretion(const double p_FinalM
  *
  * double CalculateSynchronisationTimescale(const double p_SemiMajorAxis)
  *
- * @return                                      synchronisation timescale for the star (yr)
+ * @param   [IN]    p_SemiMajorAxis             Semi-major Axis of the binary (Rsol)
+ * @return                                      Synchronisation timescale for the star (yr)
  */
-	// Function to calculate the synchronization timescale
-	// For details see sec. 2.3 of Hurley+2002
-	// [syncrhonizationTimescale] = yr
 double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_SemiMajorAxis) {
 
     double gyrationRadiusSquared_1 = 1.0 / CalculateGyrationRadius();
@@ -321,16 +370,17 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
     double rOverA_6                = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;
     double q2			           = m_Companion->Mass() / Mass();
 
-	double denominator;
+	double timescale;
+
 	switch (DetermineEnvelopeTypeHurley2002()) {                                // JR: todo: this differs from envelopeType() in star.cpp and DetermineEnvelopeType() in new code - ok?
 
         case ENVELOPE::CONVECTIVE: {                                            // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
 
-                      double tauConv = CalculateEddyTurnoverTimescale();
-                      double fConv   = 1.0;	                                    // currently, as COMPAS doesn't have rotating stars tested, we set f_conv = 1 always.
-                      double kOverTc = (2.0 / 21.0) * (fConv / tauConv) * ((Mass() - CoreMass()) / Mass());
+            double tauConv = CalculateEddyTurnoverTimescale();
+            double fConv   = 1.0;	                                            // currently, as COMPAS doesn't have rotating stars tested, we set f_conv = 1 always.
+            double kOverTc = (2.0 / 21.0) * (fConv / tauConv) * ((Mass() - CoreMass()) / Mass());
 
-            denominator = 3.0 * kOverTc * q2 * gyrationRadiusSquared_1 * rOverA_6;
+            timescale       = 1.0 / (3.0 * kOverTc * q2 * gyrationRadiusSquared_1 * rOverA_6);
             } break;
 
         case ENVELOPE::RADIATIVE: {                                             // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
@@ -341,14 +391,14 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
             double rAU_3           = rAU * rAU * rAU;
             double freeFallFactor  = sqrt(G1 * Mass() / rAU_3);
 
-		    denominator = coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * pow(1.0 + q2, 5.0 / 6.0) * e2 * pow(rOverA, 17.0 / 2.0);
+		    timescale              = 1.0 / (coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * pow(1.0 + q2, 5.0 / 6.0) * e2 * pow(rOverA, 17.0 / 2.0));
             } break;
 
         default:                                                                // all other envelope types (remnants?)
-            denominator = (1.0 / 1.3E7) * pow(Luminosity() / Mass(), 5.0 / 7.0) * rOverA_6;
+            timescale = 1.0 / ((1.0 / 1.3E7) * pow(Luminosity() / Mass(), 5.0 / 7.0) * rOverA_6);
 	}
 
-	return 1.0 / denominator;
+	return timescale;
 }
 
 

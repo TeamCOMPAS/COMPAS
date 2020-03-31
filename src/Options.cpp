@@ -149,6 +149,7 @@ string Options::ProgramOptionDetails(const boost::program_options::variables_map
 
     ss << "fixedRandomSeed = " << (fixedRandomSeed ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";       // fixedRandomSeed
     ss << "fixedMetallicity = " << (fixedMetallicity ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";     // fixedMetallicity
+    ss << "useFixedUK = " << (useFixedUK ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";                 // useFixedUK
     ss << "outputPath = " << outputPath.string() << ", CALCULATED, STRING\n";                           // outputPath (fully qualified)
 
     return ss.str();
@@ -1161,7 +1162,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 			("common-envelope-hertzsprung-gap-assumption",                  po::value<string>(&commonEnvelopeHertzsprungGapDonorString)->default_value(commonEnvelopeHertzsprungGapDonorString),                                        ("Assumption to make about HG stars in CE (default = " + commonEnvelopeHertzsprungGapDonorString + ")").c_str())
 			("common-envelope-lambda-prescription",                         po::value<string>(&commonEnvelopeLambdaPrescriptionString)->default_value(commonEnvelopeLambdaPrescriptionString),                                          ("CE lambda prescription (options: LAMBDA_FIXED, LAMBDA_LOVERIDGE, LAMBDA_NANJING, LAMBDA_KRUCKOW, LAMBDA_DEWI), default = " + commonEnvelopeLambdaPrescriptionString + ")").c_str())
-		    ("common-envelope-mass-accretion-prescription",                 po::value<string>(&commonEnvelopeMassAccretionPrescriptionString)->default_value(commonEnvelopeMassAccretionPrescriptionString),                            ("Assumption about whether NS/BHs can accrete mass during common envelope evolution (options: ZERO, CONSTANT, UNIFORM, MACLEOD+2014), default = " + commonEnvelopeMassAccretionPrescriptionString + ")").c_str())
+		    ("common-envelope-mass-accretion-prescription",                 po::value<string>(&commonEnvelopeMassAccretionPrescriptionString)->default_value(commonEnvelopeMassAccretionPrescriptionString),                            ("Assumption about whether NS/BHs can accrete mass during common envelope evolution (options: ZERO, CONSTANT, UNIFORM, MACLEOD), default = " + commonEnvelopeMassAccretionPrescriptionString + ")").c_str())
 			("common-envelope-zeta-prescription",                           po::value<string>(&commonEnvelopeZetaPrescriptionString)->default_value(commonEnvelopeZetaPrescriptionString),                                              ("Prescription for CE zeta (default = " + commonEnvelopeZetaPrescriptionString + ")").c_str())
 
 		    ("eccentricity-distribution,e",                                 po::value<string>(&eccentricityDistributionString)->default_value(eccentricityDistributionString),                                                          ("Initial eccentricity distribution, e (options: ZERO, FIXED, FLAT, THERMALISED, GELLER+2013), default = " + eccentricityDistributionString + ")").c_str())
@@ -1216,7 +1217,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             ("log-classes",                                                 po::value<vector<string>>(&logClasses)->multitoken()->default_value(logClasses),                                                                            ("Logging classes enabled (default = " + defaultLogClasses + ")").c_str())
 		;
 
-        po::variables_map vm;   // Variables map
+        po::variables_map vm;                                                                                                           // Variables map
 
         try {
 
@@ -1238,9 +1239,9 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
             po::notify(vm);                                                                                                             // invoke notify to assign user-input values to variables.  Throws an error, so do after help just in case there are any problems.
 
-            fixedRandomSeed = !vm["random-seed"].defaulted();                                                                           // use random seed if it is provided by the user
+            fixedRandomSeed  = !vm["random-seed"].defaulted();                                                                          // use random seed if it is provided by the user
             fixedMetallicity = !vm["metallicity"].defaulted();                                                                          // determine if user supplied a metallicity value
-
+            useFixedUK       = !vm["fix-dimensionless-kick-velocity"].defaulted() && (fixedUK >= 0.0);                                  // determine if user supplied a valid kick velocity
 
 
             // check & set prescriptions, distributions, assumptions etc. options - alphabetically

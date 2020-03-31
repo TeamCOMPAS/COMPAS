@@ -249,9 +249,27 @@
 //                                      - fixed some comments in BAseBinaryStar.cpp (lines 2222 and 2468, "de Mink" -> "HURLEY")
 //                                      - fixed description (in comments) of BinaryConstituentStar::SetPostCEEValues() (erroneously had "pre" instead of "post" - in comments only, not code)
 //                                      - fixed description of BaseStar::DrawKickDirection()
+// 02.08.02      JR - Mar 27, 2020 - Defect repairs:
+//                                      - fixed issue #158 RocheLobe_1<CE == RocheLobe_2<CE always
+//                                      - fixed issue #160 Circularisation timescale incorrectly calculated
+//                                      - fixed issue #161 Splashscreen printed twice - now only prints once
+//                                      - fixed issue #162 OPTIONS->UseFixedUK() always returns FALSE.  Now returns TRUE if user supplies a fixed kick velocity via --fix-dimensionless-kick-velocity command line option
+// 02.08.03      JR - Mar 28, 2020 - Defect repairs:
+//                                      - fixed typo in BaseBinaryStar::ResolveCommonEnvelopeEvent() when calculating circularisation timescale in the case where star2 is the donor: star1Copy was errorneously used instead of star2Copy; changed to star2Copy
+//                                      - changed circularisation timescale of binary to be minimum of constituent stars circularisation timescales, clamped to (0.0, infinity)
+// 02.09.00      JR - Mar 30, 2020 - Minor enhancements:
+//                                      - tightened the conditions under which we allow over-contact binaries - enabling CHE is no longer a sufficient condition after this change: the allow-rlof-at-birth option must also be specified (ussue #164)
+//                                      - added printing of number of stars (for SSE) or binaries (for BSE) created to both stdout and Run_Details (issue #165)
+//                                      - enhanced grid processing code in main.cpp to better handle TAB characters
+// 02.09.01      JR - Mar 30, 2020 - Defect repair:
+//                                      - OPTIONS->UseFixedUK() returns TRUE when user supplies -ve value via --fix-dimensionless-kick-velocity.  Now return TRUE iff the user supplies a value >=0 via --fix-dimensionless-kick-velocity
+// 02.09.02      DC - Mar 30, 2020 - Defect repairs:
+//                                      - Pulsar code fixed by correcting unit of NS radius in NS.cpp (added KM_TO_M constant in constants.h as a part of this),
+//                                      correcting initialisation of pulsar birth parameters from GiantBranch.cpp to NS.cpp, adding an extra condition for isolated evolution when the companion loses mass but the NS does not accrete 
+//                                      - option MACLEOD was printing wrongly as MACLEOD+2014 for user options, hence corrected it to MACLEOD in Options.cpp
 
 
-const std::string VERSION_STRING = "02.08.01";
+const std::string VERSION_STRING = "02.09.02";
 
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
@@ -419,6 +437,7 @@ constexpr double G_TO_KG                                = 1.0E-3;               
 
 constexpr double KM_TO_CM 					            = 1.0E5;									                // convert km to cm
 constexpr double CM_TO_M                                = 1.0E-2;                                                   // convert cm to m
+constexpr double KM_TO_M                                = 1000 ;                                                    //convert km to m
 
 constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
 constexpr double GAUSS_TO_TESLA                         = 1.0E-4;                                                   // convert Gauss to Tesla

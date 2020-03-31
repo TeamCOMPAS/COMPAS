@@ -139,7 +139,7 @@ public:
     void            CalculateBindingEnergies(const double p_CoreMass,
                                              const double p_EnvMass,
                                              const double p_Radius)                                             { m_Star->CalculateBindingEnergies(p_CoreMass, p_EnvMass, p_Radius); }
-
+    
     double          CalculateDynamicalMassLossRate()                                                            { return m_Star->CalculateDynamicalMassLossRate(); }
 
     double          CalculateDynamicalTimescale() const                                                         { return m_Star->CalculateDynamicalTimescale(); }

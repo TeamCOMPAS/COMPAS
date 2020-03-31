@@ -76,7 +76,7 @@ namespace utils {
 
     double                      SolveQuadratic(const double p_A, const double p_B, double p_C);
 
-    std::string                 SplashScreen();
+    std::string                 SplashScreen(const bool p_Print = true);
 
 
     /*

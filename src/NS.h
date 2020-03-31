@@ -45,6 +45,7 @@ protected:
         m_StellarType = STELLAR_TYPE::NEUTRON_STAR;                                                                                                                 // Set stellar type
         CalculateTimescales();                                                                                                                                      // Initialise timescales
         m_Age = 0.0;                                                                                                                                                // Set age appropriately
+        CalculateAndSetPulsarParameters();
     }
 
 
