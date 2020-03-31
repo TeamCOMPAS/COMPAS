@@ -42,7 +42,7 @@ Furthermore,
 
      Stevenson S., Sampson M., Powell J., Vigna-Gómez A., Neijssel C. J., Szécsi D., Mandel I., 2019, [ApJ, 882, 121](https://ui.adsabs.harvard.edu/abs/2019ApJ...882..121S/abstract)
      
-  * If evolving pulsars with COMPAS, please cite
+  * If evolving pulsar spins and magnetic fields with COMPAS, please cite
   
      Chattopadhyay D., Stevenson S., Hurley J. R., Rossi L. J., Flynn C., 2020,  [MNRAS](https://ui.adsabs.harvard.edu/abs/2020MNRAS.tmp..697C/abstract)
 
