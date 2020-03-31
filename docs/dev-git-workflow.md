@@ -246,11 +246,11 @@ All of the remote branches are available to be copied locally with:
 e.g `git checkout -b myPySubmit another_fork/pythonSubmit`
 
 
-### Configuring upstream branches - pushing & pulling
+### Configuring remote tracking branches - pushing & pulling
 
 **Important:** This section is crucially important, but it contains some of the more confusing subtleties of git. I tried to make these explicit throughout, but as a result this section is a bit dense (sorry about that). I highly recommend trying the commands yourself as you read through.
 
-It's often useful, though not required, to point local branches to an 'upstream' branch, from which it will inherit changes. For example, when changes occur on the upstream `origin/dev`, you want to pull them into your local `dev` to keep up to date. 
+It's often useful, though not required, to point local branches to a branch on a remote repo, from which it will inherit changes. For example, when changes occur on the `dev` branch of the Main repo, you want to pull them into your local `dev` to keep up to date. 
 
 If changes occur on the remote, your local git repo will not automatically know about it (since git is not regularly sending out update requests like, e.g, some of the apps on your phone). You can check for remote changes on a fork with:
 
@@ -258,7 +258,7 @@ If changes occur on the remote, your local git repo will not automatically know 
 
 *Warning:* This is subtle, but `git fetch` only updates git's local knowledge of the remote branches, it does not affect your local branches. That makes it very "safe" - you can't overwrite any of your own work with `fetch`. This is not true of `git pull` (see below).
 
-To see which local branches have upstreams and where they point, use:
+To see which local branches are tracking remote branches, use:
 
 `git branch -vv` 
 
@@ -271,18 +271,18 @@ which will have an output that looks similar to:
   new_branch         b6aee96 generic branch to test git branch -vv, don't keep this
 ```
 
-The first column lists your local branches (the * indicates your current branch). The second column is the unique hash that identifies the commit of the tip of that branch (technically, it's only the beginning of the hash, but it suffices to identify the commit). If the local branch is tracking from an 'upstream' remote branch, this will be specified in brackets in the third column as `[<remote_repo>/<remote_tracking_branch>]`. If there is a colon after the branch name with either "ahead N" or "behind M" (or both), this describes whether the tip of the local branch has additional commits that the remote does not, and vice versa. If there are no brackets, the branch is not tracking an upstream. 
+The first column lists your local branches (the * indicates your current branch). The second column is the unique hash that identifies the commit of the tip of that branch (technically, it's only the beginning of the hash, but it suffices to identify the commit). If the local branch is tracking a remote branch, this will be specified in brackets in the third column as `[<remote_repo>/<remote_tracking_branch>]`. If there is a colon after the branch name with either "ahead N" or "behind M" (or both), this describes whether the tip of the local branch has additional commits that the remote does not, and vice versa. If there are no brackets, the branch is not tracking anything.
 
 #### git pull
 
-If you have a branch which is "behind" the upstream by some number of commits, yours is out of date, and you should update with:
+If you have a branch which is "behind" the remote branch it is tracking by some number of commits, then yours is out of date and you should update it with:
 
 ```
 git checkout <outdated-branch>
 git pull
 ```
 
-The `git pull` command defaults to the designated "upstream" branch of the current branch. If the current branch does not have an upstream, or if you want to pull from a different remote branch (e.g, if `origin/dev` was updated and you want your `<local-feature-branch>` to pull in those updates), you can set it explicitly:
+The `git pull` command defaults to the remote tracking branch of the current branch (whatever was in the brackets above). If the current branch is not tracking anything, or if you want to pull from a different remote branch (e.g, if `origin/dev` was updated and you want your `<local-feature-branch>` to pull in those updates), you can set it explicitly:
 
 ```
 git checkout <local-feature-branch>
@@ -293,7 +293,7 @@ git pull <remote-fork> <remote-branch>
 
 #### git push
 
-To share your local work with the other collaborators, you need to "push" your changes to a remote repository. Similar to `git pull`, `git push` defaults to the designated "upstream" branch, if it exists. If not, or if you want to push somewhere other than the designated upstream, you can set it manually:
+To share your local work with the other collaborators, you need to "push" your changes to a remote repository. Similar to `git pull`, `git push` defaults to the designated remote tracking branch, if it exists. If not, or if you want to push to a different remote branch, you can set it manually:
 
 ```
 git checkout <local-branch-to-push>
@@ -304,9 +304,9 @@ Pushing to your personal remote repository is a way to save all of your commits 
 
 Clarification of the difference between push, pull, and pull requests can be found in the Terminology section below.
 
-#### set upstream branch
+#### set remote tracking branch
 
-You can add or update a branch's upstream with:
+You can add or update a branch's remote tracking branch (sometimes called the "upstream" branch) with:
 
 ```
 git checkout <branch-to-update>`
@@ -349,7 +349,7 @@ git push
 
 ### Mature projects 
 
-When a project is nearing completion (e.g when the code is nearly ready to be pulled into the Main Repository and tested), the author of the branch should first double check that their branch is up to date with the upstream branches. At the very least, they should update `dev`, and merge any updates into their branch.
+When a project is nearing completion (e.g when the code is nearly ready to be pulled into the Main Repository and tested), the author of the branch should first double check that their branch is up to date with the remote tracking branches. At the very least, they should update `dev`, and merge any updates into their branch.
 
 ```
 git checkout dev
@@ -427,7 +427,7 @@ A `hotfix*` branch will only be reviewed once in the PR from `hotfix*` to `dev`,
 - **Index**: The Index (aka Staging Area) exists only in the intermediate step between editing local files and committing those files. Historically, other Version Control systems only allowed editting files, and then committing those files one by one. The issue with that is that sometimes a collection of edits of different files logically make up one full "commit-worthy-edit". The classic example of this is adding a function to a .C file and it's header .h file. If you need to revert this commit back for any reason, it makes sense to remove both of those edits at once - you would virtually never need to remove the function from the C file but leave it in the header. Adding files to the index is the way to collect all of the files that were involved in a given series of edits that you want to treat as one big Edit. 
 
 - **Tracking**: The word tracking refers to either remote repositories, or local files in a single branch, but they have slightly different meanings. 
-    - A tracked repository is one which contains a branch which is "upstream" of a branch in your local repository. By default, all the branches on a forked repository track the branches they were forked from. You can modify the upstream branch of a given branch to point at any other branch you like, whether local or remote, and can even track multiple remote repositories. This is useful if you want to check out a branch that sits on a colleague's fork. You can view all tracked repositories with `git remote -v`
+    - A tracked repository is one which contains a branch which is currently being tracked, or "upstream", of a branch in your local repository. By default, all the branches on a forked repository track the branches they were forked from. You can modify the upstream branch of a given branch to point at any other branch you like, whether local or remote, and can even track multiple remote repositories. This is useful if you want to check out a branch that sits on a colleague's fork. You can view all tracked repositories with `git remote -v`
     - A tracked file is one that git "knows about". It is one that was included in the last commit. You can have other files in the same folders as your git repo which are not tracked (if, e.g, you want to have output files from COMPAS runs but not push those to other repos). If you make modifications to a tracked file but don't commit it, git will not let you leave the branch.
 
 - **Push, Pull, and Pull Request**: These commands form the backbone of file-sharing across repositories. They all cover the same conceptual idea of "taking a branch and copying it over to a different branch on another repo." The difference is where you are relative to the target. You `pull` from a remote into your local, and you `push` from your local into a remote. For many remotes, there are protections in place to keep arbitrary users from pushing changes ad hoc. `Pull-requests` are the polite version of a `push` - instead of forcing your changes onto a remote, you are asking the manager of the remote to review your changes, and hopefully pull them into the remote if they approve.
