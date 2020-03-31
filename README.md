@@ -28,19 +28,23 @@ We anticipate releasing a more detailed and comprehensive methods paper in the f
 Furthermore,
   * If you use COMPAS's importance sampling algorithm STROOPWAFEL, please cite 
 
-     Broekgaarden F. S., Justham S., de Mink S. E., Gair J., Mandel I., Stevenson S., Barrett J. W., Vigna-Gómez A., Neijssel C. J., 2019, [MNRAS, 490, 5528](https://ui.adsabs.harvard.edu/abs/2019MNRAS.490.5228B/abstract)
+     Broekgaarden F. S., Justham S., de Mink S. E., Gair J., Mandel I., Stevenson S., Barrett J. W., Vigna-Gómez A., Neijssel C. J., 2019, [MNRAS, 490, 5228](https://ui.adsabs.harvard.edu/abs/2019MNRAS.490.5228B/abstract)
 
   * If using the COMPAS model of gravitational wave selection effects, please cite
 
      Barrett J. W., Gaebel S. M., Neijssel C. J., Vigna-Gómez A., Stevenson S., Berry C. P. L., Farr W. M., Mandel I., 2018, [MNRAS, 477, 4685](https://ui.adsabs.harvard.edu/abs/2018MNRAS.477.4685B/abstract)
 
-  * If using COMPAS integration over cosmic star formation history, please cite 
+  * If using COMPAS's integration over cosmic star formation history, please cite 
 
      Neijssel C. J., Vigna-Gómez A., Stevenson S., Barrett J. W., Gaebel S. M., Broekgaarden F. S., de Mink S. E., Szécsi D., Vinciguerra S., Mandel I., 2019, [MNRAS, 490, 3740](https://ui.adsabs.harvard.edu/abs/2019MNRAS.490.3740N/abstract)
 
   * If using the COMPAS model of (pulsational) pair instability supernova, please cite 
 
      Stevenson S., Sampson M., Powell J., Vigna-Gómez A., Neijssel C. J., Szécsi D., Mandel I., 2019, [ApJ, 882, 121](https://ui.adsabs.harvard.edu/abs/2019ApJ...882..121S/abstract)
+     
+  * If evolving pulsar spins and magnetic fields with COMPAS, please cite
+  
+     Chattopadhyay D., Stevenson S., Hurley J. R., Rossi L. J., Flynn C., 2020,  [MNRAS](https://ui.adsabs.harvard.edu/abs/2020MNRAS.tmp..697C/abstract)
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
