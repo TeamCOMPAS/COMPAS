@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Read file and create dataframe.
-data_path = './Compas_Log_BSE_Detailed_Output_0.csv'
+data_path = './COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.csv'
 df = pd.read_table(data_path, sep=',', header=2, skipinitialspace=True)
 df.columns = df.columns.str.strip() # Strip white space around headers
 
