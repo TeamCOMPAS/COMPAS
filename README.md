@@ -5,12 +5,12 @@
 # Compact Object Mergers: Population Astrophysics & Statistics
 
 [//]: ## (Outline features)
-COMPAS is a publicly available rapid binary population synthesis code (https://compas.science/) that is developed for easily adjustable evolution prescriptions and model parameters. COMPAS draws binary properties from a set of initial distributions, and evolves a binary star from zero-age main sequence to the end of its life as a compact remnant. It has been used for inference from observations of gravitational wave mergers, Galactic double neutron stars, and radio pulsars.
+COMPAS is a publicly available rapid binary population synthesis code (https://compas.science/) that is developed for easily adjustable evolution prescriptions and model parameters. COMPAS draws binary properties from a set of initial distributions, and evolves a binary star from zero-age main sequence to the end of its life as two compact remnants. It has been used for inference from observations of gravitational wave mergers, Galactic double neutron stars, and radio pulsars.
 
 ## Documentation
-[Getting started](https://github.com/TeamCOMPAS/COMPAS/tree/master/docs/getting_started.md)  
-[Specifications](https://github.com/TeamCOMPAS/COMPAS/tree/master/docs/COMPAS_Doc.pdf)  
-[Post-processing](https://github.com/TeamCOMPAS/COMPAS/tree/master/postProcessing)  
+[Getting started](./docs/getting_started.md)  
+[Specifications](./docs/COMPAS_Doc.pdf)  
+[Post-processing](./master/postProcessing)  
 
 ## Contact
 Please email your queries to compas-user@googlegroups.com. You are also welcome to join the [COMPAS User Google Group](https://groups.google.com/forum/#!members/compas-user) to engage in discussions with COMPAS users and developers.
