@@ -10,7 +10,7 @@ COMPAS is a publicly available rapid binary population synthesis code (https://c
 ## Documentation
 [Getting started](./docs/getting_started.md)  
 [Specifications](./docs/COMPAS_Doc.pdf)  
-[Post-processing](./master/postProcessing)  
+[Post-processing](./postProcessing/README.txt)  
 
 ## Contact
 Please email your queries to compas-user@googlegroups.com. You are also welcome to join the [COMPAS User Google Group](https://groups.google.com/forum/#!members/compas-user) to engage in discussions with COMPAS users and developers.
