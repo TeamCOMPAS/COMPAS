@@ -267,9 +267,12 @@
 //                                      - Pulsar code fixed by correcting unit of NS radius in NS.cpp (added KM_TO_M constant in constants.h as a part of this),
 //                                      correcting initialisation of pulsar birth parameters from GiantBranch.cpp to NS.cpp, adding an extra condition for isolated evolution when the companion loses mass but the NS does not accrete 
 //                                      - option MACLEOD was printing wrongly as MACLEOD+2014 for user options, hence corrected it to MACLEOD in Options.cpp
+// 02.09.03      JR - Apr 01, 2020 - Defect repairs:
+//                                      - reinstated assignment of "prev" values in BaseBinaryStar::EvaluateBinary() (where call to ResolveTides() was removed).  Fixes low DNS count introduced in v02.08.00 caused by removal of ResolveTides() function (and call)
+//                                      - commented option --logfile-BSE-be-binaries to match Be-Binary options commented by AVG in v02.08.00
 
 
-const std::string VERSION_STRING = "02.09.02";
+const std::string VERSION_STRING = "02.09.03";
 
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
