@@ -3040,7 +3040,13 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         PrintDetailedOutput(m_Id);                                                                                      // print detailed output record if stellar type changed
     }
 
-    EvaluateSupernovae(false);                                                                                         // evaluate supernovae (both stars)   JR: todo: ?
+    EvaluateSupernovae(false);                                                                                          // evaluate supernovae (both stars)
+
+    // assign new values to "previous" values, for following timestep
+    m_EccentricityPrev	  = m_EccentricityPrime;
+    m_SemiMajorAxisPrev   = m_SemiMajorAxisPrime;
+    m_OrbitalVelocityPrev = m_OrbitalVelocityPrime;    
+
     CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
 
     if (!(m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })))
