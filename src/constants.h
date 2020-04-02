@@ -270,9 +270,11 @@
 // 02.09.03      JR - Apr 01, 2020 - Defect repairs:
 //                                      - reinstated assignment of "prev" values in BaseBinaryStar::EvaluateBinary() (where call to ResolveTides() was removed).  Fixes low DNS count introduced in v02.08.00 caused by removal of ResolveTides() function (and call)
 //                                      - commented option --logfile-BSE-be-binaries to match Be-Binary options commented by AVG in v02.08.00
+// 02.09.04      JR - Apr 04, 2020 - Defect repair:
+//                                      - removed IsUSSN() from IsSNEvent() definition in BinaryConstituentStar.cpp (USSN flag indicates just US, not USSN. Needs to be tidied-up properly)
 
 
-const std::string VERSION_STRING = "02.09.03";
+const std::string VERSION_STRING = "02.09.04";
 
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
