@@ -1563,10 +1563,7 @@ double BaseBinaryStar::CalculateSemiMajorAxisPostSupernova(const double p_KickVe
  */
 bool BaseBinaryStar::ResolveSupernova() {
 
-    // check for supernova event
-    // USSN on its own is not considered an SN event here (only), because it is subsumed (later, if that makes sense) by CCSN and handled then
-    // Need to check PISN and PPISN here - they are now independent
-    if (!m_Supernova->IsSNevent() || (m_Supernova->IsUSSN() && !m_Supernova->IsCCSN())) return false;                               // not a supernova event - bail out (or bale out depending whence you hail...) passively
+    if (!m_Supernova->IsSNevent()) return false;                                                                                    // not a supernova event - bail out (or bale out depending whence you hail...) passively
 
 	// Masses should already be correct, mass before SN given by star.m_MassPrev
     // Generate true anomaly - (for e=0, should be a flat distribution) - updates Eccentric anomaly and True anomaly automatically
@@ -1845,7 +1842,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     double k2            = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda2 * alphaCE)) * m_Star2->Mass() * m_MassEnv2 / rRLd2;
     double k3            = m_Star1->Mass() * m_Star2->Mass() / semiMajorAxis;
     double k4            = (m_Mass1Final * m_Mass2Final);
-    double aFinal        = k4 / (k1 + k2 + k3);                                                                         // semi-major axis after CEE
+    double aFinal        = k4 / (k1 + k2 + k3);    
     m_SemiMajorAxisPrime = aFinal;
 
     m_CEDetails.doubleCoreCE = utils::Compare(k1, 0.0) > 0 && utils::Compare(k2, 0.0) > 0 && utils::Compare(k3, 0.0) > 0 && utils::Compare(k4, 0.0) > 0;
@@ -3258,7 +3255,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             }
             else if ((IsUnbound() && !OPTIONS->EvolveUnboundSystems()) ||                                                                   // binary is unbound and we don't want unbound systems?
                     (!IsGravitationallyBound() && !OPTIONS->EvolveUnboundSystems())) {                                                      // binary is not gravitationally bound and we don't want unbound systems?
-                m_Unbound      = true;                                                                                                      // yes - set the unbound flag (should already be set)
+                m_Unbound       = true;                                                                                                     // yes - set the unbound flag (should already be set)
                 evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                                // stop evolution
             }
             else {                                                                                                                          // continue evolution
@@ -3275,7 +3272,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                     evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                     // yes - stop evolution
                 }
                 else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                 // binary is unbound and we don't want unbound systems?
-                    m_Unbound      = true;                                                                                                  // yes - set the unbound flag (should already be set)
+                    m_Unbound       = true;                                                                                                 // yes - set the unbound flag (should already be set)
                     evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                            // stop evolution
                 }
 
