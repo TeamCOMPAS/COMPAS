@@ -11798,7 +11798,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">pathToData</span> <span class="o">=</span> <span class="s1">&#39;/home/cneijssel/Desktop/Test/COMPAS_output.h5&#39;</span>
@@ -11819,7 +11819,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Python libraries</span>
@@ -11844,7 +11844,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">Data</span>  <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">pathToData</span><span class="p">)</span>
@@ -11862,85 +11862,6 @@ div#notebook {
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_text output_error">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">OSError</span>                                   Traceback (most recent call last)
-<span class="ansi-green-fg">~/anaconda3/lib/python3.6/site-packages/h5py/_hl/files.py</span> in <span class="ansi-cyan-fg">make_fid</span><span class="ansi-blue-fg">(name, mode, userblock_size, fapl, fcpl, swmr)</span>
-<span class="ansi-green-intense-fg ansi-bold">    161</span>         <span class="ansi-green-fg">try</span><span class="ansi-blue-fg">:</span>
-<span class="ansi-green-fg">--&gt; 162</span><span class="ansi-red-fg">             </span>fid <span class="ansi-blue-fg">=</span> h5f<span class="ansi-blue-fg">.</span>open<span class="ansi-blue-fg">(</span>name<span class="ansi-blue-fg">,</span> h5f<span class="ansi-blue-fg">.</span>ACC_RDWR<span class="ansi-blue-fg">,</span> fapl<span class="ansi-blue-fg">=</span>fapl<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    163</span>         <span class="ansi-green-fg">except</span> IOError<span class="ansi-blue-fg">:</span>
-
-<span class="ansi-green-fg">h5py/_objects.pyx</span> in <span class="ansi-cyan-fg">h5py._objects.with_phil.wrapper</span><span class="ansi-blue-fg">()</span>
-
-<span class="ansi-green-fg">h5py/_objects.pyx</span> in <span class="ansi-cyan-fg">h5py._objects.with_phil.wrapper</span><span class="ansi-blue-fg">()</span>
-
-<span class="ansi-green-fg">h5py/h5f.pyx</span> in <span class="ansi-cyan-fg">h5py.h5f.open</span><span class="ansi-blue-fg">()</span>
-
-<span class="ansi-red-fg">OSError</span>: Unable to open file (unable to open file: name = &#39;/home/cneijssel/Desktop/Test/COMPAS_output.h5&#39;, errno = 2, error message = &#39;No such file or directory&#39;, flags = 1, o_flags = 2)
-
-During handling of the above exception, another exception occurred:
-
-<span class="ansi-red-fg">OSError</span>                                   Traceback (most recent call last)
-<span class="ansi-green-fg">~/anaconda3/lib/python3.6/site-packages/h5py/_hl/files.py</span> in <span class="ansi-cyan-fg">make_fid</span><span class="ansi-blue-fg">(name, mode, userblock_size, fapl, fcpl, swmr)</span>
-<span class="ansi-green-intense-fg ansi-bold">    164</span>             <span class="ansi-green-fg">try</span><span class="ansi-blue-fg">:</span>
-<span class="ansi-green-fg">--&gt; 165</span><span class="ansi-red-fg">                 </span>fid <span class="ansi-blue-fg">=</span> h5f<span class="ansi-blue-fg">.</span>open<span class="ansi-blue-fg">(</span>name<span class="ansi-blue-fg">,</span> h5f<span class="ansi-blue-fg">.</span>ACC_RDONLY<span class="ansi-blue-fg">,</span> fapl<span class="ansi-blue-fg">=</span>fapl<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    166</span>             <span class="ansi-green-fg">except</span> IOError<span class="ansi-blue-fg">:</span>
-
-<span class="ansi-green-fg">h5py/_objects.pyx</span> in <span class="ansi-cyan-fg">h5py._objects.with_phil.wrapper</span><span class="ansi-blue-fg">()</span>
-
-<span class="ansi-green-fg">h5py/_objects.pyx</span> in <span class="ansi-cyan-fg">h5py._objects.with_phil.wrapper</span><span class="ansi-blue-fg">()</span>
-
-<span class="ansi-green-fg">h5py/h5f.pyx</span> in <span class="ansi-cyan-fg">h5py.h5f.open</span><span class="ansi-blue-fg">()</span>
-
-<span class="ansi-red-fg">OSError</span>: Unable to open file (unable to open file: name = &#39;/home/cneijssel/Desktop/Test/COMPAS_output.h5&#39;, errno = 2, error message = &#39;No such file or directory&#39;, flags = 0, o_flags = 0)
-
-During handling of the above exception, another exception occurred:
-
-<span class="ansi-red-fg">OSError</span>                                   Traceback (most recent call last)
-<span class="ansi-green-fg">&lt;ipython-input-3-cc57e90926c2&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span><span class="ansi-blue-fg">()</span>
-<span class="ansi-green-fg">----&gt; 1</span><span class="ansi-red-fg"> </span>Data  <span class="ansi-blue-fg">=</span> h5<span class="ansi-blue-fg">.</span>File<span class="ansi-blue-fg">(</span>pathToData<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">      2</span> 
-<span class="ansi-green-intense-fg ansi-bold">      3</span> print<span class="ansi-blue-fg">(</span>list<span class="ansi-blue-fg">(</span>Data<span class="ansi-blue-fg">.</span>keys<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">      4</span> <span class="ansi-red-fg"># DCOs = double compact objects</span>
-<span class="ansi-green-intense-fg ansi-bold">      5</span> 
-
-<span class="ansi-green-fg">~/anaconda3/lib/python3.6/site-packages/h5py/_hl/files.py</span> in <span class="ansi-cyan-fg">__init__</span><span class="ansi-blue-fg">(self, name, mode, driver, libver, userblock_size, swmr, **kwds)</span>
-<span class="ansi-green-intense-fg ansi-bold">    310</span>             <span class="ansi-green-fg">with</span> phil<span class="ansi-blue-fg">:</span>
-<span class="ansi-green-intense-fg ansi-bold">    311</span>                 fapl <span class="ansi-blue-fg">=</span> make_fapl<span class="ansi-blue-fg">(</span>driver<span class="ansi-blue-fg">,</span> libver<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">**</span>kwds<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-fg">--&gt; 312</span><span class="ansi-red-fg">                 </span>fid <span class="ansi-blue-fg">=</span> make_fid<span class="ansi-blue-fg">(</span>name<span class="ansi-blue-fg">,</span> mode<span class="ansi-blue-fg">,</span> userblock_size<span class="ansi-blue-fg">,</span> fapl<span class="ansi-blue-fg">,</span> swmr<span class="ansi-blue-fg">=</span>swmr<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    313</span> 
-<span class="ansi-green-intense-fg ansi-bold">    314</span>                 <span class="ansi-green-fg">if</span> swmr_support<span class="ansi-blue-fg">:</span>
-
-<span class="ansi-green-fg">~/anaconda3/lib/python3.6/site-packages/h5py/_hl/files.py</span> in <span class="ansi-cyan-fg">make_fid</span><span class="ansi-blue-fg">(name, mode, userblock_size, fapl, fcpl, swmr)</span>
-<span class="ansi-green-intense-fg ansi-bold">    165</span>                 fid <span class="ansi-blue-fg">=</span> h5f<span class="ansi-blue-fg">.</span>open<span class="ansi-blue-fg">(</span>name<span class="ansi-blue-fg">,</span> h5f<span class="ansi-blue-fg">.</span>ACC_RDONLY<span class="ansi-blue-fg">,</span> fapl<span class="ansi-blue-fg">=</span>fapl<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    166</span>             <span class="ansi-green-fg">except</span> IOError<span class="ansi-blue-fg">:</span>
-<span class="ansi-green-fg">--&gt; 167</span><span class="ansi-red-fg">                 </span>fid <span class="ansi-blue-fg">=</span> h5f<span class="ansi-blue-fg">.</span>create<span class="ansi-blue-fg">(</span>name<span class="ansi-blue-fg">,</span> h5f<span class="ansi-blue-fg">.</span>ACC_EXCL<span class="ansi-blue-fg">,</span> fapl<span class="ansi-blue-fg">=</span>fapl<span class="ansi-blue-fg">,</span> fcpl<span class="ansi-blue-fg">=</span>fcpl<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    168</span>     <span class="ansi-green-fg">else</span><span class="ansi-blue-fg">:</span>
-<span class="ansi-green-intense-fg ansi-bold">    169</span>         <span class="ansi-green-fg">raise</span> ValueError<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#34;Invalid mode; must be one of r, r+, w, w-, x, a&#34;</span><span class="ansi-blue-fg">)</span>
-
-<span class="ansi-green-fg">h5py/_objects.pyx</span> in <span class="ansi-cyan-fg">h5py._objects.with_phil.wrapper</span><span class="ansi-blue-fg">()</span>
-
-<span class="ansi-green-fg">h5py/_objects.pyx</span> in <span class="ansi-cyan-fg">h5py._objects.with_phil.wrapper</span><span class="ansi-blue-fg">()</span>
-
-<span class="ansi-green-fg">h5py/h5f.pyx</span> in <span class="ansi-cyan-fg">h5py.h5f.create</span><span class="ansi-blue-fg">()</span>
-
-<span class="ansi-red-fg">OSError</span>: Unable to create file (unable to open file: name = &#39;/home/cneijssel/Desktop/Test/COMPAS_output.h5&#39;, errno = 2, error message = &#39;No such file or directory&#39;, flags = 15, o_flags = c2)</pre>
-</div>
-</div>
-
 </div>
 </div>
 
