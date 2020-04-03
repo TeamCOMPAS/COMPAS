@@ -674,6 +674,20 @@ STELLAR_TYPE EAGB::ResolveRemnantAfterEnvelopeLoss() {
     m_Mass     = m_HeCoreMass;
     m_Mass0    = m_Mass;
     m_CoreMass = m_COCoreMass;
+    m_EnvMass  = m_Mass - m_CoreMass;
+
+    double p1   = gbParams(p) - 1.0;
+    double q1   = gbParams(q) - 1.0;
+    double p1_p = p1 / gbParams(p);
+    double q1_q = q1 / gbParams(q);
+
+    timescales(tHeMS)=HeMS::CalculateLifetimeOnPhase_Static(m_Mass);    // calculate common values
+
+    double LTHe = HeMS::CalculateLuminosityAtPhaseEnd_Static(m_Mass);
+
+    timescales(tinf1_HeGB) = timescales(tHeMS) + (1.0 / ((p1 * gbParams(AHe) * gbParams(D))) * pow((gbParams(D) / LTHe), p1_p));
+    timescales(tx_HeGB) = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * pow((LTHe / gbParams(Lx)), p1_p);
+    timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * pow((gbParams(B) / gbParams(Lx)), q1_q));
 
     m_Age      = HeGB::CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, timescales(tHeMS), m_GBParams);
 
@@ -721,9 +735,21 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
         m_Mass     = m_HeCoreMass;
         m_Mass0    = m_Mass;
         m_CoreMass = m_COCoreMass;
-        m_EnvMass  = 0.0;
+        m_EnvMass  = m_Mass - m_CoreMass;
 
-        CalculateTimescales(m_Mass0, m_Timescales);                     // JR: todo: not sure this is actually necessary here
+        double p1   = gbParams(p) - 1.0;
+        double q1   = gbParams(q) - 1.0;
+        double p1_p = p1 / gbParams(p);
+        double q1_q = q1 / gbParams(q);
+
+        timescales(tHeMS)=HeMS::CalculateLifetimeOnPhase_Static(m_Mass);    // calculate common values
+
+        double LTHe = HeMS::CalculateLuminosityAtPhaseEnd_Static(m_Mass);
+
+        timescales(tinf1_HeGB) = timescales(tHeMS) + (1.0 / ((p1 * gbParams(AHe) * gbParams(D))) * pow((gbParams(D) / LTHe), p1_p));
+        timescales(tx_HeGB) = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * pow((LTHe / gbParams(Lx)), p1_p);
+        timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * pow((gbParams(B) / gbParams(Lx)), q1_q));
+
 
         // Need to calculate gbParams for new stellar type - calculations of stellar attributes below depend
         // on new gbParams.  

@@ -1,15 +1,26 @@
 #!/bin/bash
 
-#https://unix.stackexchange.com/questions/187167/traverse-all-subdirectories-in-and-do-something-in-unix-shell-script
+# Run this bash script to update all .html files in this directory from their matching .ipynb files, using a tree-walker
+# Code taken from: https://unix.stackexchange.com/questions/187167/traverse-all-subdirectories-in-and-do-something-in-unix-shell-script
 
-
-#If multiple notebook changed and you are on Unix
-#run this script and it updates the notebooks using a tree walker
-STR = /home/cneijssel/Documents/COMPASpop/popsynth/Papers/NeijsselEtAL/PostProcessing
+STR = ./
 echo $d
-for d in $(find $STR -maxdepth 1 -type d)
+for d in $(find $STR -maxdepth 2 -type d)
 do
   #Do something, the directory is accessible with $d:
-  echo $d
-  ipython nbconvert *.ipynb
-done >output_file
+  echo $d"/"
+  #count the ipynb files
+  #https://stackoverflow.com/questions/3856747/check-whether-a-certain-file-type-extension-exists-in-directory
+  count=`ls -1 $d"/"*.ipynb 2>/dev/null | wc -l`
+  echo $count
+  if [ $count != "0" ];
+    then
+      jupyter nbconvert  $d"/"*.ipynb 
+      sed -i 's/ipynb/html/g' $d"/"*.html  
+    else
+      # no files in directory so dont try to convert
+      :
+  fi
+done
+
+

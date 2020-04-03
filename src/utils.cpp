@@ -15,13 +15,27 @@ namespace utils {
 
     /*
      * Announce COMPAS
+     * 
+     * Constructs an returns a splash string.  Prints string to stdout if required.
      *
      *
-     * void SplashScreen()
+     * void SplashScreen(const bool p_Print)
+     * 
+     * @param   [IN]    p_Print             Boolean indicating whether splash string should be printed.  Default is TRUE
+     * @return                              Splash string
      */
-    void SplashScreen() {
-        // Print a nice splash screen
-        std::cout << "\nCOMPAS v" << VERSION_STRING << "\nCompact Object Mergers: Population Astrophysics and Statistics \nby Team COMPAS (http://compas.science/index.html)\nA binary star simulator\n" << std::endl;
+    std::string SplashScreen(const bool p_Print) {
+
+        // Construct the splash string
+        std::string splashString = "\nCOMPAS v" + 
+                                   VERSION_STRING + 
+                                   "\nCompact Object Mergers: Population Astrophysics and Statistics"
+                                   "\nby Team COMPAS (http://compas.science/index.html)"
+                                   "\nA binary star simulator\n";
+
+        if (p_Print) std::cout << splashString << std::endl;    // print the splash string if required
+
+        return splashString;                                    // return the splash string
     }
 
 
