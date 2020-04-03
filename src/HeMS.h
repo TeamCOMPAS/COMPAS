@@ -34,6 +34,8 @@ public:
 
     static double   CalculateLuminosityAtZAMS_Static(const double p_Mass);
     static double   CalculateLuminosityOnPhase_Static(const double p_Mass, const double p_Tau);
+    static double   CalculateLuminosityAtPhaseEnd_Static(const double p_Mass);
+
 
     static DBL_DBL  CalculateRadiusAtPhaseEnd_Static(const double p_Mass, const double p_Luminosity);
     static double   CalculateRadiusAtZAMS_Static(const double p_Mass);
@@ -72,7 +74,6 @@ protected:
 
             double          CalculateLuminosityAtPhaseEnd(const double p_Mass)                   { return CalculateLuminosityAtPhaseEnd_Static(p_Mass); }
             double          CalculateLuminosityAtPhaseEnd()                                      { return CalculateLuminosityAtPhaseEnd(m_Mass); }                       // Use class member variables
-    static  double          CalculateLuminosityAtPhaseEnd_Static(const double p_Mass);
             double          CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau)  { return CalculateLuminosityOnPhase_Static(p_Mass, p_Tau); }
             double          CalculateLuminosityOnPhase()                                         { return CalculateLuminosityOnPhase(m_Mass, m_Tau); }                   // Use class member variables
 
