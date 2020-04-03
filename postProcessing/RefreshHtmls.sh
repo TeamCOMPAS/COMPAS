@@ -15,7 +15,8 @@ do
   echo $count
   if [ $count != "0" ];
     then
-      ipython nbconvert  $d"/"*.ipynb 
+      jupyter nbconvert  $d"/"*.ipynb 
+      sed -i 's/ipynb/html/g' $d"/"*.html  
     else
       # no files in directory so dont try to convert
       :
