@@ -194,7 +194,7 @@ public:
     bool            ExperiencedRLOF() const                                             { return m_RLOFDetails.experiencedRLOF; }
     bool            FastPhaseCaseA() const                                              { return m_FastPhaseCaseA ; }
     bool            IsPrimary() const                                                   { return m_IsPrimary; }
-    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsUSSN() || IsPISN() || IsPPISN(); }
+    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsPISN() || IsPPISN(); }
     bool            IsRLOF() const                                                      { return m_RLOFDetails.isRLOF; }
     double          MassLossDiff() const                                                { return m_MassLossDiff; }
     MT_CASE         MassTransferCaseInitial() const                                     { return m_MassTransferCaseInitial; }
@@ -226,6 +226,8 @@ public:
     void            CalculateCommonEnvelopeValues();
 
     void            CalculateOmegaTidesIndividualDiff(const double p_OrbitalVelocity)   { m_OmegaTidesIndividualDiff = p_OrbitalVelocity - OmegaPrev(); }
+
+    double          CalculateCircularisationTimescale(const double p_SemiMajorAxis);
 
     double          CalculateSynchronisationTimescale(const double p_SemiMajorAxis);
 

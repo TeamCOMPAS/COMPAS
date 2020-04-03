@@ -77,12 +77,13 @@ std::tuple<int, std::vector<std::string>> OpenSSEGridFile(std::ifstream &p_Grid,
                     size_t hashPos = record.find("#");                                                          // find first occurrence of "#"
                     if (hashPos != std::string::npos) record.erase(hashPos, record.size() - hashPos);           // if "#" found, prune it and everything after it (ignore comments)
 
-                    while (record.size() > 0 && record[0] == ' ') record.erase(0, 1);                           // strip any leading ' ' characters from the record
+                    while (record.size() > 0 && (record[0] == ' ' || record[0] == '\t')) record.erase(0, 1);    // strip any leading ' ' or TAB ('\t') characters from the record
 
                     while (record.size() > 0               &&
                           (record[record.size()-1] == '\r' ||
                            record[record.size()-1] == '\n' ||
-                           record[record.size()-1] == ' '  )) record.erase(record.size()-1, 1);                 // strip any trailing '\r', '\n' and ' ' characters from the record
+                           record[record.size()-1] == '\t' ||
+                           record[record.size()-1] == ' '  )) record.erase(record.size()-1, 1);                 // strip any trailing '\r', '\n', TAB ('\t'), and ' ' characters from the record
 
                     if (record.empty()) {
                         lineNo++;                                                                               // increment line number
@@ -99,12 +100,13 @@ std::tuple<int, std::vector<std::string>> OpenSSEGridFile(std::ifstream &p_Grid,
 
                         tokenCount++;                                                                           // increment token count - even if it's empty, it's a token
 
-                        while (token.size() > 0 && token[0] == ' ') token.erase(0, 1);                          // strip any leading ' ' characters from the token
+                        while (token.size() > 0 && (token[0] == ' ' || token[0] == '\t')) token.erase(0, 1);    // strip any leading ' ' or TAB ('\t') characters from the token
 
                         while (token.size() > 0              &&
                               (token[token.size()-1] == '\r' ||
                                token[token.size()-1] == '\n' ||
-                               token[token.size()-1] == ' ')) token.erase(token.size()-1, 1);                   // strip any trailing '\r', '\n' and ' ' characters from the token
+                               token[token.size()-1] == '\t' ||
+                               token[token.size()-1] == ' ')) token.erase(token.size()-1, 1);                   // strip any trailing '\r', '\n', TAB ('\t'), and ' ' characters from the token
 
                         if (token.empty()) {                                                                    // empty token?
                             SAY(ERR_MSG(ERROR::GRID_FILE_EMPTY_HEADER));                                        // show error
@@ -193,12 +195,13 @@ std::tuple<bool, int, SSEGridParameters> ReadSSEGridRecord(std::ifstream &p_Grid
 
         for (size_t pos = 0; pos < record.size(); pos++) if (record[pos] == '\t') record[pos] = ' ';            // replace tab with space
 
-        while (record.size() > 0 && record[0] == ' ') record.erase(0, 1);                                       // strip any leading ' ' characters from the record
+        while (record.size() > 0 && (record[0] == ' ' || record[0] == '\t')) record.erase(0, 1);                // strip any leading ' ' or TAB ('\t') characters from the record
 
         while (record.size() > 0               &&
               (record[record.size()-1] == '\r' ||
                record[record.size()-1] == '\n' ||
-               record[record.size()-1] == ' '  )) record.erase(record.size()-1, 1);                             // strip any trailing '\r', '\n' and ' ' characters from the record
+               record[record.size()-1] == '\t' ||
+               record[record.size()-1] == ' '  )) record.erase(record.size()-1, 1);                             // strip any trailing '\r', '\n', TAB ('\t'), and ' ' characters from the record
 
         if (record.empty()) {
             lineNo++;                                                                                           // increment line number
@@ -212,12 +215,13 @@ std::tuple<bool, int, SSEGridParameters> ReadSSEGridRecord(std::ifstream &p_Grid
         std::string token;                                                                                      // token from record
         while (!error && std::getline(recordSS, token, ',')) {                                                  // get next token from record read
 
-            while (token.size() > 0 && token[0] == ' ') token.erase(0, 1);                                      // strip any leading ' ' characters from the token
+            while (token.size() > 0 && (token[0] == ' ' || token[0] == '\t')) token.erase(0, 1);                // strip any leading ' ' or TAB ('\t') characters from the token
 
             while (token.size() > 0              &&
                   (token[token.size()-1] == '\r' ||
                    token[token.size()-1] == '\n' ||
-                   token[token.size()-1] == ' '  )) token.erase(token.size()-1, 1);                             // strip any trailing '\r', '\n' and ' ' characters from the token
+                   token[token.size()-1] == '\t' ||
+                   token[token.size()-1] == ' '  )) token.erase(token.size()-1, 1);                             // strip any trailing '\r', '\n', TAB ('\t'), and ' ' characters from the token
 
             if (column >= p_GridHeaders.size()) {
                 SAY(ERR_MSG(ERROR::GRID_FILE_EXTRA_COLUMN) << " ignored");                                      // show error
@@ -240,7 +244,7 @@ std::tuple<bool, int, SSEGridParameters> ReadSSEGridRecord(std::ifstream &p_Grid
                 tokenSS >> value;                                                                               // read double from token
                 if (tokenSS.fail()) {                                                                           // check for valid conversion
                     error = true;                                                                               // set error flag
-                    SAY(ERR_MSG(ERROR::GRID_FILE_INVALID_DATA) << "at line " << lineNo << ": " << token);       // show error
+                    SAY(ERR_MSG(ERROR::GRID_FILE_INVALID_DATA) << " at line " << lineNo << ": " << token);      // show error
                 }
                 else if (value < 0.0) {                                                                         // value < 0?
                     error = true;                                                                               // set error flag
@@ -292,11 +296,15 @@ std::tuple<bool, int, SSEGridParameters> ReadSSEGridRecord(std::ifstream &p_Grid
  * Evolve single stars
  *
  *
- * void EvolveSingleStars()
+ * std::tuple<int, int> EvolveSingleStars()
+ * 
+ * @return                                      Tuple: <number of stars requested, actual number of stars created>
  */
-void EvolveSingleStars() {
+std::tuple<int, int> EvolveSingleStars() {
 
     EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
+
+    int nStarsCreated = 0;                                                                                                      // number of stars actually created
 
     auto wallStart = std::chrono::system_clock::now();                                                                          // start wall timer
     clock_t clockStart = clock();                                                                                               // start CPU timer
@@ -389,6 +397,9 @@ void EvolveSingleStars() {
                     ", "                <<
                     STELLAR_TYPE_LABEL.at(star->StellarType()));
             }
+
+            nStarsCreated++;                                                                                                    // increment the number of stars created
+
         }
 
         if (!LOGGING->CloseStandardFile(LOGFILE::SSE_PARAMETERS)) {                                                             // close single star output file
@@ -404,11 +415,17 @@ void EvolveSingleStars() {
 
     if (evolutionStatus == EVOLUTION_STATUS::CONTINUE && index >= nStars) evolutionStatus = EVOLUTION_STATUS::DONE;             // set done
 
+    int nStarsRequested = OPTIONS->GridFilename().empty() ? OPTIONS->SingleStarMassSteps() : (evolutionStatus == EVOLUTION_STATUS::DONE ? nStarsCreated : -1);
+
+    SAY("\nGenerated " << std::to_string(nStarsCreated) << " of " << (nStarsRequested < 0 ? "<INCOMPLETE GRID>" : std::to_string(nStarsRequested)) << " stars requested");
 
     // announce result
     if (!OPTIONS->Quiet()) {
-        if (evolutionStatus != EVOLUTION_STATUS::CONTINUE) {
+        if (evolutionStatus != EVOLUTION_STATUS::CONTINUE) {                                                                    // shouldn't be
             SAY("\n" << EVOLUTION_STATUS_LABEL.at(evolutionStatus));
+        }
+        else {
+            SHOW_WARN(ERROR::STELLAR_SIMULATION_STOPPED, EVOLUTION_STATUS_LABEL.at(EVOLUTION_STATUS::ERROR));                   // show warning
         }
     }
 
@@ -429,6 +446,8 @@ void EvolveSingleStars() {
     int wallSS = (int)(wallSeconds.count() - ((double)wallHH * 3600.0) - ((double)wallMM * 60.0));                          // seconds
 
     SAY("Wall time  = " << wallHH << ":" << wallMM << ":" << wallSS << " (hh:mm:ss)");
+
+    return  std::make_tuple(nStarsRequested, nStarsCreated);
 }
 
 
@@ -480,16 +499,16 @@ std::tuple<int, std::vector<std::string>> OpenBSEGridFile(std::ifstream &p_Grid,
             bool emptyRecord = true;
             std::string record;
             while (emptyRecord && std::getline(p_Grid, record)) {                                                                   // read the header - first non-empty record
-
                 size_t hashPos = record.find("#");                                                                                  // find first occurrence of "#"
                 if (hashPos != std::string::npos) record.erase(hashPos, record.size() - hashPos);                                   // if "#" found, prune it and everything after it (ignore comments)
 
-                while (record.size() > 0 && record[0] == ' ') record.erase(0, 1);                                                   // strip any leading ' ' characters from the record
+                while (record.size() > 0 && (record[0] == ' ' || record[0] == '\t')) record.erase(0, 1);                            // strip any leading ' ' or TAB ('\t') characters from the record
 
                 while (record.size() > 0               &&
                       (record[record.size()-1] == '\r' ||
                        record[record.size()-1] == '\n' ||
-                       record[record.size()-1] == ' '  )) record.erase(record.size()-1, 1);                                         // strip any trailing '\r', '\n' and ' ' characters from the record
+                       record[record.size()-1] == '\t' ||
+                       record[record.size()-1] == ' '  )) record.erase(record.size()-1, 1);                                         // strip any trailing '\r', '\n', TAB ('\t'), and ' ' characters from the record
 
                 if (record.empty()) {
                     lineNo++;                                                                                                       // increment line number
@@ -504,12 +523,13 @@ std::tuple<int, std::vector<std::string>> OpenBSEGridFile(std::ifstream &p_Grid,
                 std::string token;
                 while (std::getline(recordSS, token, ',')) {                                                                        // get token from record read
 
-                    while (token.size() > 0 && token[0] == ' ') token.erase(0, 1);                                                  // strip any leading ' ' characters from the token
+                    while (token.size() > 0 && (token[0] == ' ' || token[0] == '\t')) token.erase(0, 1);                            // strip any leading ' ' or TAB ('\t') characters from the token
 
                     while (token.size() > 0              &&
                           (token[token.size()-1] == '\r' ||
                            token[token.size()-1] == '\n' ||
-                           token[token.size()-1] == ' ')) token.erase(token.size()-1, 1);                                           // strip any trailing '\r', '\n' and ' ' characters from the token
+                           token[token.size()-1] == '\t' ||
+                           token[token.size()-1] == ' ')) token.erase(token.size()-1, 1);                                           // strip any trailing '\r', '\n', TAB ('\t'), and ' ' characters from the token
 
                     if (token.empty()) {                                                                                            // empty token?
                         SAY(ERR_MSG(ERROR::GRID_FILE_EMPTY_HEADER));                                                                // show error
@@ -758,12 +778,13 @@ std::tuple<bool, int, BSEGridParameters> ReadBSEGridRecord(std::ifstream &p_Grid
 
         for (size_t pos = 0; pos < record.size(); pos++) if (record[pos] == '\t') record[pos] = ' ';                        // replace tab with space
 
-        while (record.size() > 0 && record[0] == ' ') record.erase(0, 1);                                                   // strip any leading ' ' characters from the record
+        while (record.size() > 0 && (record[0] == ' ' || record[0] == '\t')) record.erase(0, 1);                            // strip any leading ' ' or TAB ('\t') characters from the record
 
         while (record.size() > 0               &&
               (record[record.size()-1] == '\r' ||
                record[record.size()-1] == '\n' ||
-               record[record.size()-1] == ' '  )) record.erase(record.size()-1, 1);                                         // strip any trailing '\r', '\n' and ' ' characters from the record
+               record[record.size()-1] == '\t' ||
+               record[record.size()-1] == ' '  )) record.erase(record.size()-1, 1);                                         // strip any trailing '\r', '\n', TAB ('\t'), and ' ' characters from the record
 
         if (record.empty()) {
             lineNo++;                                                                                                       // increment line number
@@ -779,12 +800,13 @@ std::tuple<bool, int, BSEGridParameters> ReadBSEGridRecord(std::ifstream &p_Grid
         std::string token;                                                                                                  // token from record
         while (!error && std::getline(recordSS, token, ',')) {                                                              // get next token from record read
 
-            while (token.size() > 0 && token[0] == ' ') token.erase(0, 1);                                                  // strip any leading ' ' characters from the token
+            while (token.size() > 0 && (token[0] == ' ' || token[0] == '\t')) token.erase(0, 1);                            // strip any leading ' ' or TAB ('\t') characters from the token
 
             while (token.size() > 0              &&
                   (token[token.size()-1] == '\r' ||
                    token[token.size()-1] == '\n' ||
-                   token[token.size()-1] == ' '  )) token.erase(token.size()-1, 1);                                         // strip any trailing '\r', '\n' and ' ' characters from the token
+                   token[token.size()-1] == '\t' ||
+                   token[token.size()-1] == ' '  )) token.erase(token.size()-1, 1);                                         // strip any trailing '\r', '\n', TAB ('\t'), and ' ' characters from the token
 
             if (column >= p_GridHeaders.size()) {
                 SAY(ERR_MSG(ERROR::GRID_FILE_EXTRA_COLUMN) << " ignored");                                                  // show error
@@ -801,7 +823,7 @@ std::tuple<bool, int, BSEGridParameters> ReadBSEGridRecord(std::ifstream &p_Grid
                 tokenSS >> value;                                                                                           // read double from token
                 if (tokenSS.fail()) {                                                                                       // check for valid conversion
                     error = true;                                                                                           // set error flag
-                    SAY(ERR_MSG(ERROR::GRID_FILE_INVALID_DATA) << "at line " << lineNo << ": " << token);                   // show error
+                    SAY(ERR_MSG(ERROR::GRID_FILE_INVALID_DATA) << " at line " << lineNo << ": " << token);                  // show error
                 }
 
                 // don't use utils::Compare() here for bounds/range checks
@@ -986,11 +1008,15 @@ std::tuple<bool, int, BSEGridParameters> ReadBSEGridRecord(std::ifstream &p_Grid
  * Evolve binary stars
  *
  *
- * void EvolveBinaryStars()
+ * std::tuple<int, int> EvolveBinaryStars()
+ * 
+ * @return                                      Tuple: <number of binaries requested, actual number of binaries created>
  */
-void EvolveBinaryStars() {
+std::tuple<int, int> EvolveBinaryStars() {
 
     EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
+
+    int nBinariesCreated = 0;                                                                                               // number of binaries actually created
 
     auto wallStart = std::chrono::system_clock::now();                                                                      // start wall timer
     clock_t clockStart = clock();                                                                                           // start CPU timer
@@ -1077,10 +1103,10 @@ void EvolveBinaryStars() {
                 }
             }
 
+            nBinariesCreated++;                                                                                             // increment the number of binaries created
 
             if (OPTIONS->AIS_ExploratoryPhase() && ais.ShouldStopExploratoryPhase(index)) {                                 // AIS says should stop simulation?
-                SHOW_WARN(ERROR::BINARY_SIMULATION_STOPPED, EVOLUTION_STATUS_LABEL.at(EVOLUTION_STATUS::AIS_EXPLORATORY));  // yes - show warning
-                break;                                                                                                      // ... and stop
+                evolutionStatus = EVOLUTION_STATUS::AIS_EXPLORATORY;                                                        // ... and stop
             }
 
             if (!LOGGING->CloseStandardFile(LOGFILE::BSE_DETAILED_OUTPUT)) {                                                // close detailed output file
@@ -1097,11 +1123,22 @@ void EvolveBinaryStars() {
 
     if (evolutionStatus == EVOLUTION_STATUS::CONTINUE && index >= nBinaries) evolutionStatus = EVOLUTION_STATUS::DONE;      // set done
 
+    int nBinariesRequested = OPTIONS->GridFilename().empty() ? OPTIONS->NBinaries() : (evolutionStatus == EVOLUTION_STATUS::DONE ? nBinariesCreated : -1);
+
+    SAY("\nGenerated " << std::to_string(nBinariesCreated) << " of " << (nBinariesRequested < 0 ? "<INCOMPLETE GRID>" : std::to_string(nBinariesRequested)) << " binaries requested");
+
+    if (evolutionStatus == EVOLUTION_STATUS::AIS_EXPLORATORY) {                                                             // AIS said stop?
+        SHOW_WARN(ERROR::BINARY_SIMULATION_STOPPED, EVOLUTION_STATUS_LABEL.at(evolutionStatus));                            // yes - show warning
+        evolutionStatus = EVOLUTION_STATUS::DONE;                                                                           // set done
+    }
 
     // announce result
     if (!OPTIONS->Quiet()) {
-        if (evolutionStatus != EVOLUTION_STATUS::CONTINUE) {
+        if (evolutionStatus != EVOLUTION_STATUS::CONTINUE) {                                                                // shouldn't be...
             SAY("\n" << EVOLUTION_STATUS_LABEL.at(evolutionStatus));
+        }
+        else {
+            SHOW_WARN(ERROR::BINARY_SIMULATION_STOPPED, EVOLUTION_STATUS_LABEL.at(EVOLUTION_STATUS::ERROR));                // show warning
         }
     }
 
@@ -1127,6 +1164,8 @@ void EvolveBinaryStars() {
     int wallSS = (int)(wallSeconds.count() - ((double)wallHH * 3600.0) - ((double)wallMM * 60.0));                      // seconds
 
     SAY("Wall time  = " << wallHH << ":" << wallMM << ":" << wallSS << " (hh:mm:ss)");
+
+    return std::make_tuple(nBinariesRequested, nBinariesCreated);
 }
 
 
@@ -1150,6 +1189,7 @@ int main(int argc, char * argv[]) {
 
         // start the logging service
         LOGGING->Start(OPTIONS->OutputPathString(),                                     // location of logfiles
+                       OPTIONS->OutputContainerName(),                                  // directory to be created for logfiles
                        OPTIONS->LogfileNamePrefix(),                                    // prefix for logfile names
                        OPTIONS->LogLevel(),                                             // log level - determines (in part) what is written to log file
                        OPTIONS->LogClasses(),                                           // log classes - determines (in part) what is written to log file
@@ -1159,23 +1199,26 @@ int main(int argc, char * argv[]) {
                        OPTIONS->ErrorsToFile(),                                         // should error messages also be written to logfile?
                        DELIMITERValue.at(OPTIONS->LogfileDelimiter()));                 // log record field delimiter
 
-        utils::SplashScreen();                                                          // announce ourselves
+        (void)utils::SplashScreen();                                                    // announce ourselves
 
         if (!LOGGING->Enabled()) programStatus = COMMANDLINE_STATUS::LOGGING_FAILED;    // logging failed to start
         else {
 
             RAND->Initialise();                                                         // initialise the random number service
 
+            int objectsRequested = 0;
+            int objectsCreated   = 0;
+
             if(OPTIONS->SingleStar()) {                                                 // Single star?
-                EvolveSingleStars();                                                    // yes - evolve single stars
+                std::tie(objectsRequested, objectsCreated) = EvolveSingleStars();       // yes - evolve single stars
             }
             else {                                                                      // no - binary
-                EvolveBinaryStars();                                                    // evolve binary stars
+                std::tie(objectsRequested, objectsCreated) = EvolveBinaryStars();       // evolve binary stars
             }
 
             RAND->Free();                                                               // release gsl dynamically allocated memory
 
-            LOGGING->Stop();                                                            // stop the logging service
+            LOGGING->Stop(std::make_tuple(objectsRequested, objectsCreated));           // stop the logging service
 
             programStatus = COMMANDLINE_STATUS::SUCCESS;                                // set program status, and...
         }

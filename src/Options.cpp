@@ -1,7 +1,18 @@
 #include "Options.h"
 
+namespace po = boost::program_options;
+namespace fs = boost::filesystem;
 
 Options* Options::m_Instance = nullptr;
+
+// this is required to set default value for boost program options of type vector<string>
+namespace std
+{
+  std::ostream& operator<<(std::ostream &os, const std::vector<string> &vec) {    
+    for (auto item : vec) os << item << " ";
+    return os; 
+  }
+} 
 
 
 Options* Options::Instance() {
@@ -9,6 +20,139 @@ Options* Options::Instance() {
         m_Instance = new Options();
     }
     return m_Instance;
+}
+
+
+string Options::ProgramOptionDetails(const boost::program_options::variables_map p_VM) {
+
+    std::ostringstream ss;
+
+    ss << "COMMAND LINE OPTIONS\n-------------------\n\n";
+
+    for (po::variables_map::const_iterator it = p_VM.begin(); it != p_VM.end(); it++) {
+
+        // option name
+        ss << it->first << " = ";
+        
+        if (((boost::any)it->second.value()).empty()) ss << "<EMPTY_OPTION>\n";
+        else {
+
+            // determine if option values was supplied, or whether the default was used
+
+            string valueSource;
+            if (p_VM[it->first].defaulted() || it->second.defaulted()) valueSource = "DEFAULT_USED";
+            else                                                       valueSource = "USER_SUPPLIED";
+
+            // find data type & print value
+            // handles most data types - add others if they cause problems
+
+            bool isCharPtr = false;
+            bool isStr     = false;
+
+            // (pre)check for data type = charPtr
+            try {
+                boost::any_cast<const char *>(it->second.value());
+                isCharPtr = true;
+            } catch (const boost::bad_any_cast &) {
+                isCharPtr = false;
+            }
+
+            if (!isCharPtr) {
+                // (pre)check for data type = string
+                try {
+                    boost::any_cast<std::string>(it->second.value());
+                    isStr = true;
+                } catch (const boost::bad_any_cast &) {
+                    isStr = false;
+                }
+            }
+
+            // find other data types
+            // it's not pretty, but it works
+
+            if (isCharPtr) ss << p_VM[it->first].as<const char *>() << ", " << valueSource << ", CONST_CHAR_*";
+
+            else if (isStr) {
+                std::string tmp = p_VM[it->first].as<std::string>();
+                if (tmp.size()) ss << "'" << tmp << "'";
+                else            ss << "''";
+                ss << ", " << valueSource << ", STRING";
+            }
+
+            else if (((boost::any)it->second.value()).type() == typeid(signed                )) ss << p_VM[it->first].as<signed                >() << ", " << valueSource << ", SIGNED";
+            else if (((boost::any)it->second.value()).type() == typeid(unsigned              )) ss << p_VM[it->first].as<unsigned              >() << ", " << valueSource << ", UNSIGNED";
+
+            else if (((boost::any)it->second.value()).type() == typeid(short                 )) ss << p_VM[it->first].as<short                 >() << ", " << valueSource << ", SHORT";
+            else if (((boost::any)it->second.value()).type() == typeid(signed short          )) ss << p_VM[it->first].as<signed short          >() << ", " << valueSource << ", SIGNED_SHORT";
+            else if (((boost::any)it->second.value()).type() == typeid(unsigned short        )) ss << p_VM[it->first].as<unsigned short        >() << ", " << valueSource << ", UNSIGNED_SHORT";
+
+            else if (((boost::any)it->second.value()).type() == typeid(short int             )) ss << p_VM[it->first].as<short int             >() << ", " << valueSource << ", SHORT_INT";
+            else if (((boost::any)it->second.value()).type() == typeid(signed short int      )) ss << p_VM[it->first].as<signed short int      >() << ", " << valueSource << ", SIGNED_SHORT_INT";
+            else if (((boost::any)it->second.value()).type() == typeid(unsigned short int    )) ss << p_VM[it->first].as<unsigned short int    >() << ", " << valueSource << ", UNSIGNED_SHORT_INT";
+
+            else if (((boost::any)it->second.value()).type() == typeid(int                   )) ss << p_VM[it->first].as<int                   >() << ", " << valueSource << ", INT";
+            else if (((boost::any)it->second.value()).type() == typeid(signed int            )) ss << p_VM[it->first].as<signed int            >() << ", " << valueSource << ", SIGNED_INT";
+            else if (((boost::any)it->second.value()).type() == typeid(unsigned int          )) ss << p_VM[it->first].as<unsigned int          >() << ", " << valueSource << ", UNSIGNED_INT";
+
+            else if (((boost::any)it->second.value()).type() == typeid(long                  )) ss << p_VM[it->first].as<long                  >() << ", " << valueSource << ", LONG";
+            else if (((boost::any)it->second.value()).type() == typeid(signed long           )) ss << p_VM[it->first].as<signed long           >() << ", " << valueSource << ", SIGNED_LONG";
+            else if (((boost::any)it->second.value()).type() == typeid(unsigned long         )) ss << p_VM[it->first].as<unsigned long         >() << ", " << valueSource << ", UNSIGNED_LONG";
+
+            else if (((boost::any)it->second.value()).type() == typeid(long int              )) ss << p_VM[it->first].as<long int              >() << ", " << valueSource << ", LONG_INT";
+            else if (((boost::any)it->second.value()).type() == typeid(signed long int       )) ss << p_VM[it->first].as<signed long int       >() << ", " << valueSource << ", SIGNED_LONG_INT";
+            else if (((boost::any)it->second.value()).type() == typeid(unsigned long int     )) ss << p_VM[it->first].as<unsigned long int     >() << ", " << valueSource << ", UNSIGNED_LONG_INT";
+
+            else if (((boost::any)it->second.value()).type() == typeid(long long             )) ss << p_VM[it->first].as<long long             >() << ", " << valueSource << ", LONG_LONG";
+            else if (((boost::any)it->second.value()).type() == typeid(signed long long      )) ss << p_VM[it->first].as<signed long long      >() << ", " << valueSource << ", SIGNED_LONG_LONG";
+            else if (((boost::any)it->second.value()).type() == typeid(unsigned long long    )) ss << p_VM[it->first].as<unsigned long long    >() << ", " << valueSource << ", UNSIGNED_LONG_LONG";
+
+            else if (((boost::any)it->second.value()).type() == typeid(long long int         )) ss << p_VM[it->first].as<long long int         >() << ", " << valueSource << ", LONG_LONG_INT";
+            else if (((boost::any)it->second.value()).type() == typeid(signed long long int  )) ss << p_VM[it->first].as<signed long long int  >() << ", " << valueSource << ", SIGNED_LONG_LONG_INT";
+            else if (((boost::any)it->second.value()).type() == typeid(unsigned long long int)) ss << p_VM[it->first].as<unsigned long long int>() << ", " << valueSource << ", UNSIGNED_LONG_LONG_INT";
+
+            else if (((boost::any)it->second.value()).type() == typeid(float                 )) ss << p_VM[it->first].as<float                 >() << ", " << valueSource << ", FLOAT";
+            else if (((boost::any)it->second.value()).type() == typeid(double                )) ss << p_VM[it->first].as<double                >() << ", " << valueSource << ", DOUBLE";
+            else if (((boost::any)it->second.value()).type() == typeid(long double           )) ss << p_VM[it->first].as<long double           >() << ", " << valueSource << ", LONG_DOUBLE";
+
+            else if (((boost::any)it->second.value()).type() == typeid(char                  )) ss << p_VM[it->first].as<char                  >() << ", " << valueSource << ", CHAR";
+            else if (((boost::any)it->second.value()).type() == typeid(signed char           )) ss << p_VM[it->first].as<signed char           >() << ", " << valueSource << ", SIGNED_CHAR";
+            else if (((boost::any)it->second.value()).type() == typeid(unsigned char         )) ss << p_VM[it->first].as<unsigned char         >() << ", " << valueSource << ", UNSIGNED_CHAR";
+
+            else if (((boost::any)it->second.value()).type() == typeid(bool)) {
+                bool v = p_VM[it->first].as<bool>();
+                ss << (v ? "TRUE" : "FALSE") << ", " << valueSource << ", BOOL";
+            } 
+
+            else {  // Assume vector<string>
+                try {
+                    std::ostringstream elemsSS;
+                    elemsSS << "{ ";
+                    vector<string> tmp = p_VM[it->first].as<vector<string>>();
+                    for (std::vector<string>::iterator elem=tmp.begin(); elem != tmp.end(); elem++) {
+                        elemsSS << "'" << (*elem) << "', ";
+                    }
+                    string elems = elemsSS.str();
+                    if (elems.size() > 2) elems.erase(elems.size() - 2);
+                    else if (elems.size() == 2) elems.erase(elems.size() - 1);
+                    elems += " }";
+                    ss << elems << ", " << valueSource << ", VECTOR<STRING>";
+                } catch (const boost::bad_any_cast &) {
+                    ss << "<UNKNOWN_DATA_TYPE>, " << valueSource << ", <UNKNOWN_DATA_TYPE>";
+                }
+            }
+        }
+
+        ss << "\n";
+    }
+  
+    ss << "\n\nOTHER PARAMETERS\n----------------\n\n";
+
+    ss << "fixedRandomSeed = " << (fixedRandomSeed ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";       // fixedRandomSeed
+    ss << "fixedMetallicity = " << (fixedMetallicity ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";     // fixedMetallicity
+    ss << "useFixedUK = " << (useFixedUK ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";                 // useFixedUK
+    ss << "outputPath = " << outputPath.string() << ", CALCULATED, STRING\n";                           // outputPath (fully qualified)
+
+    return ss.str();
 }
 
 
@@ -40,42 +184,21 @@ void Options::InitialiseMemberVariables(void) {
 	beBinaries                                                      = false;
     evolvePulsars                                                   = false;                                                                            // Whether to evolve pulsars
 	evolveUnboundSystems                                            = false;                                                                            // Allow unbound syetms to evolve
-    onlyDoubleCompactObjects                                        = false;                                                                            // Flag to turn on some shortcuts to only evolve systems which may form double compact objects
-    PNevolution                                                     = false;
 
     detailedOutput                                                  = false;                                                                            // Detailed output
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
     printBoolAsString                                               = false;                                                                            // default is do not print bool as string
     quiet                                                           = false;                                                                            // Suppress some of the printing
-    rlofPrinting                                                    = false;
 
-    useImportanceSampling                                           = false;
-//    useMCMC                                                         = false;
-
-    nBatchesUsed                                                    = -1;                                                                               // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
-
-    // Variables required to restart a binary/star part-way through
-//    primaryStellarType                                              = -1;                                                                               // Initial primary stellar type (not yet implemented)
-//    secondaryStellarType                                            = -1;                                                                               // Initial secondary stellar type (not yet implemented)
-
-//    primaryEffectiveInitialMass                                     = primaryMass;                                                                      // Effective initial mass for the primary in solar masses (not yet implemented)
-//    secondaryEffectiveInitialMass                                   = secondaryMass;                                                                    // Effective initial mass for the secondary in solar masses (not yet implemented)
-
-//    primaryCoreMass                                                 = 0.0;                                                                              // Initial primary core mass in solar masses (not yet implemented)
-//    secondaryCoreMass                                               = 0.0;                                                                              // Initial secondary core mass in solar masses (not yet implemented)
-
-//    primaryAge                                                      = 0.0;                                                                              // Effective age for the primary star in Myrs (not yet implemented)
-//    secondaryAge                                                    = 0.0;                                                                              // Effective age for the secondary star in Myrs (not yet implemented)
-
-//    primaryRotationalVelocity                                       = 0.0;                                                                              // Initial rotational velocity of the primary (not yet implemented)
-//    secondaryRotationalVelocity                                     = 0.0;                                                                              // Initial rotational velocity of the secondary (not yet implemented)
+    // AVG - 17/03/2020 - Floor will uncomment when tested.
+    //    nBatchesUsed                                                    = -1;                                                                               // Number of batches used, for STROOPWAFEL (AIS)
 
 
     // Public population synthesis variables
     nBinaries                                                       = 10;
 
-    fixedRandomSeed                                                 = false;                                                                            // Whether to use a fixed random seed given by options.randomSeed (set to true if --random-seed is passed on command line) (default = false)
-    randomSeed                                                      = 0;                                                                                // Random seed to use (default = 0)
+    fixedRandomSeed                                                 = false;                                                                            // Whether to use a fixed random seed given by options.randomSeed (set to true if --random-seed is passed on command line)
+    randomSeed                                                      = 0;                                                                                // Random seed to use
 
 
     // Specify how long to evolve binaries for
@@ -121,8 +244,8 @@ void Options::InitialiseMemberVariables(void) {
     // Kick options
     kickVelocityDistribution                                        = KICK_VELOCITY_DISTRIBUTION::MAXWELLIAN;		                                    // Which kick velocity distribution to use
     kickVelocityDistributionString                                  = KICK_VELOCITY_DISTRIBUTION_LABEL.at(kickVelocityDistribution);		            // Which kick velocity distribution to use
-    kickVelocityDistributionSigmaCCSN_NS                            = 250;                                                                              // Kick velocity sigma in km s^-1 for neutron stars (default = "250" )
-    kickVelocityDistributionSigmaCCSN_BH                            = 250;                                                                              // Kick velocity sigma in km s^-1 for black holes (default = "250" )
+    kickVelocityDistributionSigmaCCSN_NS                            = 250;                                                                              // Kick velocity sigma in km s^-1 for neutron stars
+    kickVelocityDistributionSigmaCCSN_BH                            = 250;                                                                              // Kick velocity sigma in km s^-1 for black holes
     kickVelocityDistributionMaximum                                 = -1.0;                                                                             // Maximum kick velocity to draw in km s^-1. Ignored if < 0
     kickVelocityDistributionSigmaForECSN                            = 30.0;                                                                             // Characteristic kick velocity for an ECSN in km s^-1
     kickVelocityDistributionSigmaForUSSN   	                        = 30.0;                                                                             // Characteristic kick velocity for an USSN in km s^-1
@@ -157,47 +280,33 @@ void Options::InitialiseMemberVariables(void) {
 
 
     // Pair instability and pulsational pair instability mass loss
-    usePairInstabilitySupernovae                                    = true;                                                                             // Whether to use pair instability supernovae (PISN)
-    pairInstabilityUpperLimit                                       = 135.0;                                                                            // Maximum core mass leading to PISN (default = 135, Value in Belczynski+ 2016 is 135 Msol)
-    pairInstabilityLowerLimit                                       = 60.0;                                                                             // Minimum core mass leading to PISN (default = 65,  Value in Belczynski+ 2016 is 65 Msol)
+    usePairInstabilitySupernovae                                    = false;                                                                            // Whether to use pair instability supernovae (PISN)
+    pairInstabilityUpperLimit                                       = 135.0;                                                                            // Maximum core mass leading to PISN (Value in Belczynski+ 2016 is 135 Msol)
+    pairInstabilityLowerLimit                                       = 60.0;                                                                             // Minimum core mass leading to PISN (Value in Belczynski+ 2016 is 65 Msol)
 
-    usePulsationalPairInstability                                   = true;                                                                             // Whether to use pulsational pair instability (PPI)
-    pulsationalPairInstabilityLowerLimit                            = 35.0;                                                                             // Minimum core mass leading to PPI, default = 40, Value in Belczynski+ 2016 is 45 Msol
-    pulsationalPairInstabilityUpperLimit                            = 60.0;                                                                             // Maximum core mass leading to PPI, default = 65, Value in Belczynski+ 2016 is 65 Msol
+    usePulsationalPairInstability                                   = false;                                                                            // Whether to use pulsational pair instability (PPI)
+    pulsationalPairInstabilityLowerLimit                            = 35.0;                                                                             // Minimum core mass leading to PPI, Value in Belczynski+ 2016 is 45 Msol
+    pulsationalPairInstabilityUpperLimit                            = 60.0;                                                                             // Maximum core mass leading to PPI, Value in Belczynski+ 2016 is 65 Msol
 
     pulsationalPairInstabilityPrescription                          = PPI_PRESCRIPTION::COMPAS;                                                         // Prescription for PPI to use
     pulsationalPairInstabilityPrescriptionString                    = PPI_PRESCRIPTION_LABEL.at(pulsationalPairInstabilityPrescription);                // String for which PPI prescription to use
 
-	maximumNeutronStarMass                                          = 3.0;									                                            // Maximum mass of a neutron star allowed, set to default in StarTrack
+	maximumNeutronStarMass                                          = 3.0;									                                            // Maximum mass of a neutron star allowed, value in StarTrack is 3.0
 
 
     // Kick direction option
-    kickDirectionDistribution                                       = KICK_DIRECTION_DISTRIBUTION::ISOTROPIC;                                           // Which assumption for SN kicks: Possibilities: isotropic, inplane, perpendicular, powerlaw, wedge, poles, default = isotropic
-    kickDirectionDistributionString                                 = KICK_DIRECTION_DISTRIBUTION_LABEL.at(kickDirectionDistribution);		            // Which assumption for SN kicks: Possibilities: isotropic, inplane, perpendicular, powerlaw, wedge, poles, default = isotropic
+    kickDirectionDistribution                                       = KICK_DIRECTION_DISTRIBUTION::ISOTROPIC;                                           // Which assumption for SN kicks: Possibilities: isotropic, inplane, perpendicular, powerlaw, wedge, poles
+    kickDirectionDistributionString                                 = KICK_DIRECTION_DISTRIBUTION_LABEL.at(kickDirectionDistribution);		            // Which assumption for SN kicks: Possibilities: isotropic, inplane, perpendicular, powerlaw, wedge, poles
     kickDirectionPower                                              = 0.0;                                                                              // Power law power for the "power" SN kick direction choice
 
-    // Get default output path
-    outputPathString                                                = ".";                                                                               // String to hold the output directory
+    // Output path
+    outputPathString                                                = ".";                                                                              // String to hold the output directory
     defaultOutputPath                                               = boost::filesystem::current_path();                                                // Default output location
-    outputPath                                                      = defaultOutputPath;                                                                // Desired output location (default = CWD)
-
-    // Spin options
-    spinDistribution                                                = SPIN_DISTRIBUTION::FIXED;
-    spinDistributionString                                          = SPIN_DISTRIBUTION_LABEL.at(spinDistribution);
-    spinDistributionMin                                             = 0.60;
-    spinDistributionMax                                             = 0.98;
-
-    spinAssumption                                                  = SPIN_ASSUMPTION::ALIGNED;
-    spinAssumptionString                                            = SPIN_ASSUMPTION_LABEL.at(spinAssumption);
-
-
-    // Tides options
-    tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
-    tidesPrescriptionString                                         = TIDES_PRESCRIPTION_LABEL.at(tidesPrescription);                                   // String containing which tides prescription to use (default = "None")
-
-
+    outputPath                                                      = defaultOutputPath;                                                                // Desired output location
+    outputContainerName                                             = DEFAULT_OUTPUT_CONTAINER_NAME;                                                    // Output container - this is a container (directory) created at outputPath to hold all output files
+    
     // Mass loss options
-    useMassLoss                                                     = true;                                                                             // Whether to use mass loss
+    useMassLoss                                                     = false;                                                                            // Whether to use mass loss
 
     massLossPrescription                                            = MASS_LOSS_PRESCRIPTION::VINK;
     massLossPrescriptionString                                      = MASS_LOSS_PRESCRIPTION_LABEL.at(massLossPrescription);
@@ -207,13 +316,15 @@ void Options::InitialiseMemberVariables(void) {
     luminousBlueVariableFactor                                      = 1.5;                                                                              // Luminous blue variable mass loss enhancement factor
     wolfRayetFactor                                                 = 1.0;                                                                              // WR winds factor
 
-    // Mass transfer options
-    useMassTransfer                                                 = true;                                                                             // Whether to use mass transfer (default = true)
-	circulariseBinaryDuringMassTransfer         	                = false;						                                                    // Whether to circularise binary when it starts (default = false)
-	forceCaseBBBCStabilityFlag                                      = true;									                                            // Whether if all case BB/BC systems are forced to be stable or unstable
-	alwaysStableCaseBBBCFlag                                        = true;									                                            // Whether if case BB/BC is always stable
 
-    massTransferPrescription                                        = MT_PRESCRIPTION::DEMINK;
+    // Mass transfer options
+    useMassTransfer                                                 = true;                                                                             // Whether to use mass transfer
+	circulariseBinaryDuringMassTransfer         	                = false;						                                                    // Whether to circularise binary when it starts
+	forceCaseBBBCStabilityFlag                                      = false;									                                        // Whether if all case BB/BC systems are forced to be stable or unstable
+	alwaysStableCaseBBBCFlag                                        = false;									                                        // Whether if case BB/BC is always stable
+	angularMomentumConservationDuringCircularisation                = false;		                                                                    // Whether to conserve angular momentum while circularising or circularise to periastron
+
+    massTransferPrescription                                        = MT_PRESCRIPTION::HURLEY;
 	massTransferPrescriptionString                                  = MT_PRESCRIPTION_LABEL.at(massTransferPrescription);
 
 
@@ -230,6 +341,7 @@ void Options::InitialiseMemberVariables(void) {
     massTransferAccretionEfficiencyPrescriptionString               = MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL.at(massTransferAccretionEfficiencyPrescription);
 
 
+    // Mass transfer thermally limited options
 	massTransferThermallyLimitedVariation                           = MT_THERMALLY_LIMITED_VARIATION::C_FACTOR;
 	massTransferThermallyLimitedVariationString                     = MT_THERMALLY_LIMITED_VARIATION_LABEL.at(massTransferThermallyLimitedVariation);
 
@@ -250,44 +362,44 @@ void Options::InitialiseMemberVariables(void) {
 
     // Mass transfer critical mass ratios
     massTransferCriticalMassRatioMSLowMass                          = false;                    			                                            // Whether to use critical mass ratios
-    massTransferCriticalMassRatioMSLowMassNonDegenerateAccretor     = 1.44;                                                                             // Critical mass ratio for MT from a MS low mass star (default = 1.44, Claeys+ 2014)
-    massTransferCriticalMassRatioMSLowMassDegenerateAccretor        = 1.0;                                                                              // Critical mass ratio for MT from a MS low mass star on to a degenerate accretor (default = 1.0, Claeys+ 2014)
+    massTransferCriticalMassRatioMSLowMassNonDegenerateAccretor     = 1.44;                                                                             // Critical mass ratio for MT from a MS low mass star (Claeys+ 2014 = 1.44)
+    massTransferCriticalMassRatioMSLowMassDegenerateAccretor        = 1.0;                                                                              // Critical mass ratio for MT from a MS low mass star on to a degenerate accretor (Claeys+ 2014 = 1.0)
 
     massTransferCriticalMassRatioMSHighMass                         = false;							                                                // Whether to use critical mass ratios
-    massTransferCriticalMassRatioMSHighMassNonDegenerateAccretor    = 0.625;                                                                            // Critical mass ratio for MT from a MS high mass star (default = 0.625, Claeys+ 2014)
-    massTransferCriticalMassRatioMSHighMassDegenerateAccretor       = 0.0;                                                                              // Critical mass ratio for MT from a MS high mass star on to a degenerate accretor (default = 0)
+    massTransferCriticalMassRatioMSHighMassNonDegenerateAccretor    = 0.625;                                                                            // Critical mass ratio for MT from a MS high mass star (Claeys+ 2014 = 0.625)
+    massTransferCriticalMassRatioMSHighMassDegenerateAccretor       = 0.0;                                                                              // Critical mass ratio for MT from a MS high mass star on to a degenerate accretor
 
     massTransferCriticalMassRatioHG                                 = false;                                                                            // Whether to use critical mass ratios
-    massTransferCriticalMassRatioHGNonDegenerateAccretor            = 0.40;                                                                             // Critical mass ratio for MT from a HG star (default = 0.25, Claeys+ 2014)
-    massTransferCriticalMassRatioHGDegenerateAccretor               = 0.21;                                                                             // Critical mass ratio for MT from a HG star on to a degenerate accretor (default = 0.21, Claeys+ 2014)
+    massTransferCriticalMassRatioHGNonDegenerateAccretor            = 0.40;                                                                             // Critical mass ratio for MT from a HG star (Claeys+ 2014 = 0.25)
+    massTransferCriticalMassRatioHGDegenerateAccretor               = 0.21;                                                                             // Critical mass ratio for MT from a HG star on to a degenerate accretor (Claeys+ 2014 = 0.21)
 
     massTransferCriticalMassRatioGiant                              = false;                                                                            // Whether to use critical mass ratios
-    massTransferCriticalMassRatioGiantNonDegenerateAccretor         = 0.0;                                                                              // Critical mass ratio for MT from a giant (default = 0.0)
-    massTransferCriticalMassRatioGiantDegenerateAccretor            = 0.87;                                                                             // Critical mass ratio for MT from a giant on to a degenerate accretor (default = 0.81, Claeys+ 2014)
+    massTransferCriticalMassRatioGiantNonDegenerateAccretor         = 0.0;                                                                              // Critical mass ratio for MT from a giant
+    massTransferCriticalMassRatioGiantDegenerateAccretor            = 0.87;                                                                             // Critical mass ratio for MT from a giant on to a degenerate accretor (Claeys+ 2014 = 0.81)
 
     massTransferCriticalMassRatioHeliumMS                           = false;	                                                                        // Whether to use critical mass ratios
-    massTransferCriticalMassRatioHeliumMSNonDegenerateAccretor      = 0.625;                                                                            // Critical mass ratio for MT from a Helium MS star (default = 0.625)
-    massTransferCriticalMassRatioHeliumMSDegenerateAccretor         = 0.0;                                                                              // Critical mass ratio for MT from a Helium MS star on to a degenerate accretor (default = 0)
+    massTransferCriticalMassRatioHeliumMSNonDegenerateAccretor      = 0.625;                                                                            // Critical mass ratio for MT from a Helium MS star
+    massTransferCriticalMassRatioHeliumMSDegenerateAccretor         = 0.0;                                                                              // Critical mass ratio for MT from a Helium MS star on to a degenerate accretor
 
     massTransferCriticalMassRatioHeliumHG                           = false;                                                                            // Whether to use critical mass ratios
-    massTransferCriticalMassRatioHeliumHGNonDegenerateAccretor      = 0.25;		                                                                       	// Critical mass ratio for MT from a Helium HG star (default = 0.25, de Claeys+ 2014)
-    massTransferCriticalMassRatioHeliumHGDegenerateAccretor         = 0.21;		                                                                        // Critical mass ratio for MT from a Helium HG star on to a degenerate accretor (default = 0.21, Claeys+ 2014)
+    massTransferCriticalMassRatioHeliumHGNonDegenerateAccretor      = 0.25;		                                                                       	// Critical mass ratio for MT from a Helium HG star (Claeys+ 2014 = 0.25)
+    massTransferCriticalMassRatioHeliumHGDegenerateAccretor         = 0.21;		                                                                        // Critical mass ratio for MT from a Helium HG star on to a degenerate accretor (Claeys+ 2014 = 0.21)
 
     massTransferCriticalMassRatioHeliumGiant                        = false;                                                                            // Whether to use critical mass ratios
-    massTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor   = 1.28;                                                                             // Critical mass ratio for MT from a Helium giant (default = 0.25, Claeys+ 2014)
+    massTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor   = 1.28;                                                                             // Critical mass ratio for MT from a Helium giant (Claeys+ 2014 = 0.25)
     massTransferCriticalMassRatioHeliumGiantDegenerateAccretor      = 0.87;                                                                             // Critical mass ratio for MT from a Helium giant on to a degenerate accretor
 
     massTransferCriticalMassRatioWhiteDwarf                         = false;                                                                            // Whether to use critical mass ratios
 	massTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor    = 0.0;                                                                              // Critical mass ratio for MT from a White Dwarf (default = 0.0)
-    massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor       = 1.6;                                                                              // Critical mass ratio for MT from a White Dwarf on to a degenerate accretor (default = 1.6, Claeys+ 2014)
+    massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor       = 1.6;                                                                              // Critical mass ratio for MT from a White Dwarf on to a degenerate accretor (Claeys+ 2014 = 1.6)
 
 
     // Common Envelope parameters
     commonEnvelopePrescriptionFlag                                  = COMMON_ENVELOPE_PRESCRIPTION::WEBBINK;                                            // Which common envelope prescription to use
-    commonEnvelopeAlpha                                             = 1.0;                                                                              // Common envelope efficiency alpha parameter (default = 1.0)
-    commonEnvelopeLambda                                            = 0.1;                                                                              // Common envelope Lambda parameter (default = 0.1)
-    commonEnvelopeHertzsprungGapDonor                               = COMMON_ENVELOPE_PRESCRIPTION::OPTIMISTIC_HG;                                      // Which prescription to use for Hertzsprung gap donors in a CE (default = OPTIMISTIC_HG_CE)
-    commonEnvelopeHertzsprungGapDonorString                         = COMMON_ENVELOPE_PRESCRIPTION_LABEL.at(commonEnvelopeHertzsprungGapDonor);         // String containing which prescription to use for Hertzsprung gap donors in a CE (default = "OPTIMISTIC_HG_CE")
+    commonEnvelopeAlpha                                             = 1.0;                                                                              // Common envelope efficiency alpha parameter
+    commonEnvelopeLambda                                            = 0.1;                                                                              // Common envelope Lambda parameter
+    commonEnvelopeHertzsprungGapDonor                               = COMMON_ENVELOPE_PRESCRIPTION::OPTIMISTIC_HG;                                      // Which prescription to use for Hertzsprung gap donors in a CE
+    commonEnvelopeHertzsprungGapDonorString                         = COMMON_ENVELOPE_PRESCRIPTION_LABEL.at(commonEnvelopeHertzsprungGapDonor);         // String containing which prescription to use for Hertzsprung gap donors in a CE
 	commonEnvelopeAlphaThermal                                      = 1.0;                                                                              // lambda = (alpha_th * lambda_b) + (1-alpha_th) * lambda_g
     commonEnvelopeLambdaMultiplier                                  = 1.0;                                                                              // Multiply common envelope lambda by some constant
     allowMainSequenceStarToSurviveCommonEnvelope                    = false;                                                                            // Whether or not to allow a main sequence star to survive a common envelope event
@@ -301,37 +413,36 @@ void Options::InitialiseMemberVariables(void) {
     commonEnvelopeMassAccretionConstant                             = 0.0;                                                                              // Constant value
 
 	// Common envelope lambda prescription
-	commonEnvelopeLambdaPrescription                                = CE_LAMBDA_PRESCRIPTION::NANJING;                                                  // Which prescription to use for CE lambda (default = LAMBDA_NANJING)
-	commonEnvelopeLambdaPrescriptionString                          = CE_LAMBDA_PRESCRIPTION_LABEL.at(commonEnvelopeLambdaPrescription);                // String containing which prescription to use for CE lambda (default = "LAMBDA_NANJING")
+	commonEnvelopeLambdaPrescription                                = CE_LAMBDA_PRESCRIPTION::NANJING;                                                  // Which prescription to use for CE lambda
+	commonEnvelopeLambdaPrescriptionString                          = CE_LAMBDA_PRESCRIPTION_LABEL.at(commonEnvelopeLambdaPrescription);                // String containing which prescription to use for CE lambda
 
 	// Common envelope Nandez and Ivanova energy formalism
-	revisedEnergyFormalismNandezIvanova	                            = false;						                                                    // Use the revised energy formalism from Nandez & Ivanova 2016 (default = false)
-	maximumMassDonorNandezIvanova                                   = 2.0;								                                                // Maximum mass allowed to use the revised energy formalism in Msol (default = 2.0)
-	commonEnvelopeRecombinationEnergyDensity                        = 1.5E13;					                                                        // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 ergs/g)
+	revisedEnergyFormalismNandezIvanova	                            = false;						                                                    // Use the revised energy formalism from Nandez & Ivanova 2016
+	maximumMassDonorNandezIvanova                                   = 2.0;								                                                // Maximum mass allowed to use the revised energy formalism in Msol
+	commonEnvelopeRecombinationEnergyDensity                        = 1.5E13;					                                                        // Factor using to calculate the binding energy depending on the mass of the envelope
 
 	// Common envelope power factor for Kruckow fit
 	commonEnvelopeSlopeKruckow                                      = -4.0/5.0;								                                            // Common envelope power factor for Kruckow fit normalized according to Kruckow+2016, Fig. 1
 
 	// Which prescription to use for calculating zetas
-	commonEnvelopeZetaPrescription                                  = CE_ZETA_PRESCRIPTION::SOBERMAN;					                                // Which prescription to use for calculating CE zetas (default = ZETA_ADIABATIC)
-	commonEnvelopeZetaPrescriptionString                            = CE_ZETA_PRESCRIPTION_LABEL.at(commonEnvelopeZetaPrescription);				    // String containing which prescription to use for calculating CE zetas (default = STARTRACK)
+	commonEnvelopeZetaPrescription                                  = CE_ZETA_PRESCRIPTION::SOBERMAN;					                                // Which prescription to use for calculating CE zetas
+	commonEnvelopeZetaPrescriptionString                            = CE_ZETA_PRESCRIPTION_LABEL.at(commonEnvelopeZetaPrescription);				    // String containing which prescription to use for calculating CE zetas
 
-	zetaAdiabaticArbitrary                                          = 0.0;
-	zetaThermalArbitrary                                            = 0.0;
+	zetaAdiabaticArbitrary                                          = 10000.0;                                                                          // large value, which will favour stable MT
+	zetaThermalArbitrary                                            = 10000.0;                                                                          // large value, which will favour stable MT
     zetaMainSequence 	                                            = 2.0;
 	zetaHertzsprungGap	                                            = 6.5;
 
 
-    // Afaptive Importance Sampling options
+    // Adaptive Importance Sampling options
     AISexploratoryPhase                                             = false;                                                                            // Flag for whether to run the AIS exploratory phase
-    AISDCOtype                                                      = AIS_DCO::ALL;                                                                     // Which prescription to use for DCO type (default = ALL)
-    AISDCOtypeString                                                = AIS_DCO_LABEL.at(AIS_DCO::ALL);                                                   // String containing which type of DCOs to focus on (default = "ALL")
+    AISDCOtype                                                      = AIS_DCO::ALL;                                                                     // Which prescription to use for DCO type
+    AISDCOtypeString                                                = AIS_DCO_LABEL.at(AIS_DCO::ALL);                                                   // String containing which type of DCOs to focus on
     AIShubble                                                       = false;                                                                            // Flag for excluding DCOs that do not merge in Hubble
-    AISrlof                                                         = false;                                                                            // Flag for excluding DCOs that RLOFSecondaryZAMS
     AISpessimistic                                                  = false;                                                                            // Flag for excluding DCOs that are Optmistic
     AISrefinementPhase                                              = false;                                                                            // Flag for whether to run the AIS refinement phase (step 2)
+    AISrlof                                                         = false;                                                                            // Flag for excluding DCOs that RLOFSecondaryZAMS
     kappaGaussians                                                  = 2;                                                                                // scaling factor for the width of the Gaussian distributions in AIS main sampling phase
-
 
     // Metallicity options
     metallicity                                                     = ZSOL;
@@ -400,7 +511,7 @@ void Options::InitialiseMemberVariables(void) {
 
     logLevel                                                        = 0;                                                                                // default log level
     logClasses.clear();                                                                                                                                 // default debug classes
-
+    
     logfileNamePrefix                                               = "";                                                                               // default prefix for all log files
     logfileDelimiter                                                = DELIMITER::TAB;                                                                   // default field delimiter for all log files
     logfileDelimiterString                                          = DELIMITERLabel.at(logfileDelimiter);                                              // delimiter name - for options
@@ -422,7 +533,6 @@ void Options::InitialiseMemberVariables(void) {
     logfileBSEDoubleCompactObjects                                  = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS));               // get default filename from constants.h
     logfileBSESupernovae                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));                           // get default filename from constants.h
     logfileBSECommonEnvelopes                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));                     // get default filename from constants.h
-    logfileBSERLOFParameters                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS));                      // get default filename from constants.h
     logfileBSEBeBinaries                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));                          // get default filename from constants.h
     logfileBSEPulsarEvolution                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION));                     // get default filename from constants.h
 }
@@ -446,43 +556,21 @@ void Options::SetToFiducialValues(void) {
 	beBinaries                                                      = false;
     evolvePulsars                                                   = false;                                                                            // Whether to evolve pulsars
 	evolveUnboundSystems                                            = false;                                                                            // Allow unbound syetms to evolve
-    onlyDoubleCompactObjects                                        = false;                                                                            // Flag to turn on some shortcuts to only evolve systems which may form double compact objects
-    PNevolution                                                     = false;
 
     detailedOutput                                                  = false;                                                                            // Detailed output
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
     printBoolAsString                                               = false;                                                                            // default is do not print bool as string
     quiet                                                           = false;                                                                            // Suppress some of the printing
-    rlofPrinting                                                    = false;
 
-    useImportanceSampling                                           = false;
-//    useMCMC                                                         = false;
-
-    nBatchesUsed                                                    = -1;                                                                               // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
-
-
-    // Variables required to restart a binary/star halfway through
-//    primaryStellarType                                              = 1;                                                                                // Initial primary stellar type (not yet implemented)
-//    secondaryStellarType                                            = 1;                                                                                // Initial secondary stellar type (not yet implemented)
-
-//    primaryEffectiveInitialMass                                     = 0.;                                                                               // Effective initial mass for the primary in solar masses (not yet implemented)
-//    secondaryEffectiveInitialMass                                   = 0.;                                                                               // Effective initial mass for the secondary in solar masses (not yet implemented)
-
-//    primaryCoreMass                                                 = 0.0;                                                                              // Initial primary core mass in solar masses (not yet implemented)
-//    secondaryCoreMass                                               = 0.0;                                                                              // Initial secondary core mass in solar masses (not yet implemented)
-
-//    primaryAge                                                      = 0.0;                                                                              // Effective age for the primary star in Myrs (not yet implemented)
-//    secondaryAge                                                    = 0.0;                                                                              // Effective age for the secondary star in Myrs (not yet implemented)
-
-//    primaryRotationalVelocity                                       = 0.0;                                                                              // Initial rotational velocity of the primary (not yet implemented)
-//    secondaryRotationalVelocity                                     = 0.0;                                                                              // Initial rotational velocity of the secondary (not yet implemented)
+    // AVG - 17/03/2020 - Floor will uncomment when tested.
+    //    nBatchesUsed                                                    = -1;                                                                               // Number of batches used, for STROOPWAFEL (AIS)
 
 
     // Public population synthesis variables
     nBinaries                                                       = 10;
 
-    fixedRandomSeed                                                 = true;                                                                             // Whether to use a fixed random seed given by options.randomSeed (set to true if --random-seed is passed on command line) (default = false)
-    randomSeed                                                      = 0;                                                                                // Random seed to use (default = 0)
+    fixedRandomSeed                                                 = false;                                                                            // Whether to use a fixed random seed given by options.randomSeed (set to true if --random-seed is passed on command line)
+    randomSeed                                                      = 0;                                                                                // Random seed to use
 
 
     // Specify how long to evolve binaries for
@@ -504,7 +592,7 @@ void Options::SetToFiducialValues(void) {
     massRatioDistributionMin                                        = 0.0;
     massRatioDistributionMax                                        = 1.0;
 
-    minimumMassSecondary                                            = 0.1;                                                                              // Minimum mass of secondary to draw (in Msol) (default = 0.1, brown dwarf limit)
+    minimumMassSecondary                                            = 0.1;                                                                              // Minimum mass of secondary to draw (in Msol) (brown dwarf limit = 0.1)
 
 
     // Initial orbit options
@@ -521,8 +609,8 @@ void Options::SetToFiducialValues(void) {
 
 
     // Eccentricity
-    eccentricityDistribution                                        = ECCENTRICITY_DISTRIBUTION::ZERO;                                                  // Which eccentricity distribution to use (default = "Zero")
-    eccentricityDistributionString                                  = ECCENTRICITY_DISTRIBUTION_LABEL.at(eccentricityDistribution);                     // Which eccentricity distribution to use (default = "Zero")
+    eccentricityDistribution                                        = ECCENTRICITY_DISTRIBUTION::ZERO;                                                  // Which eccentricity distribution to use
+    eccentricityDistributionString                                  = ECCENTRICITY_DISTRIBUTION_LABEL.at(eccentricityDistribution);                     // Which eccentricity distribution to use
     eccentricityDistributionMin                                     = 0.0;                                                                              // Minimum initial eccentricity to sample
     eccentricityDistributionMax                                     = 1.0;                                                                              // Maximum initial eccentricity to sample
 
@@ -533,11 +621,11 @@ void Options::SetToFiducialValues(void) {
 
 
     // Kick velocity options
-    kickVelocityDistributionSigmaCCSN_NS                            = 250;                                                                              // Kick velocity sigma in km s^-1 for neutron stars (default = "250" )
-    kickVelocityDistributionSigmaCCSN_BH                            = 250;                                                                              // Kick velocity sigma in km s^-1 for black holes (default = "250" )
+    kickVelocityDistributionSigmaCCSN_NS                            = 250;                                                                              // Kick velocity sigma in km s^-1 for neutron stars
+    kickVelocityDistributionSigmaCCSN_BH                            = 250;                                                                              // Kick velocity sigma in km s^-1 for black holes
     kickVelocityDistributionMaximum                                 = -1.0;                                                                             // Maximum kick velocity to draw in km s^-1. Ignored if < 0
-    kickVelocityDistributionSigmaForECSN   	                        = 30.0;                                                                             // Characteristic kick velocity for an ECSN in km s^-1 (default = "30")
-    kickVelocityDistributionSigmaForUSSN   	                        = 30.0;                                                                             // Characteristic kick velocity for an USSN in km s^-1 (default = "30")
+    kickVelocityDistributionSigmaForECSN   	                        = 30.0;                                                                             // Characteristic kick velocity for an ECSN in km s^-1
+    kickVelocityDistributionSigmaForUSSN   	                        = 30.0;                                                                             // Characteristic kick velocity for an USSN in km s^-1
 	kickScalingFactor						                        = 1.0;				                                                                // Arbitrary factor for scaling kicks
 
 
@@ -571,47 +659,33 @@ void Options::SetToFiducialValues(void) {
 
 
     // Pair instability and pulsational pair instability mass loss
-    usePairInstabilitySupernovae                                    = true;                                                                             // Whether to use pair instability supernovae (PISN)
-    pairInstabilityUpperLimit                                       = 135.0;                                                                            // Maximum core mass leading to PISN (default = 135, Value in Belczynski+ 2016 is 135 Msol)
-    pairInstabilityLowerLimit                                       = 60.0;                                                                             // Minimum core mass leading to PISN (default = 60, Value in Belczynski+ 2016 is 65 Msol)
+    usePairInstabilitySupernovae                                    = false;                                                                            // Whether to use pair instability supernovae (PISN)
+    pairInstabilityUpperLimit                                       = 135.0;                                                                            // Maximum core mass leading to PISN (Value in Belczynski+ 2016 is 135 Msol)
+    pairInstabilityLowerLimit                                       = 60.0;                                                                             // Minimum core mass leading to PISN (Value in Belczynski+ 2016 is 65 Msol)
 
-    usePulsationalPairInstability                                   = true;                                                                             // Whether to use pulsational pair instability (PPI)
-    pulsationalPairInstabilityLowerLimit                            = 35.0;                                                                             // Minimum core mass leading to PPI (default = 40, Value in Belczynski+ 2016 is 45 Msol)
-    pulsationalPairInstabilityUpperLimit                            = 60.0;                                                                             // Maximum core mass leading to PPI (default = 60, Value in Belczynski+ 2016 is 65 Msol)
+    usePulsationalPairInstability                                   = false;                                                                            // Whether to use pulsational pair instability (PPI)
+    pulsationalPairInstabilityLowerLimit                            = 35.0;                                                                             // Minimum core mass leading to PPI (Value in Belczynski+ 2016 is 45 Msol)
+    pulsationalPairInstabilityUpperLimit                            = 60.0;                                                                             // Maximum core mass leading to PPI (Value in Belczynski+ 2016 is 65 Msol)
 
     pulsationalPairInstabilityPrescription                          = PPI_PRESCRIPTION::COMPAS;                                                         // Prescription for PPI to use
     pulsationalPairInstabilityPrescriptionString                    = PPI_PRESCRIPTION_LABEL.at(pulsationalPairInstabilityPrescription);                // String for which PPI prescription to use
 
-	maximumNeutronStarMass                                          = 3.0;								                                                // Maximum mass of a neutron star allowed, set to default in StarTrack
+	maximumNeutronStarMass                                          = 3.0;								                                                // Maximum mass of a neutron star allowed, valuse in StarTrack = 3.0
 
 
     // Kick direction option
-    kickDirectionDistribution                                       = KICK_DIRECTION_DISTRIBUTION::ISOTROPIC;                                           // Which assumption for SN kicks: Possibilities: isotropic, inplane, perpendicular, powerlaw, wedge, poles, default = isotropic
-    kickDirectionDistributionString                                 = KICK_DIRECTION_DISTRIBUTION_LABEL.at(kickDirectionDistribution);		            // Which assumption for SN kicks: Possibilities: isotropic, inplane, perpendicular, powerlaw, wedge, poles, default = isotropic
+    kickDirectionDistribution                                       = KICK_DIRECTION_DISTRIBUTION::ISOTROPIC;                                           // Which assumption for SN kicks: Possibilities: isotropic, inplane, perpendicular, powerlaw, wedge, poles
+    kickDirectionDistributionString                                 = KICK_DIRECTION_DISTRIBUTION_LABEL.at(kickDirectionDistribution);		            // Which assumption for SN kicks: Possibilities: isotropic, inplane, perpendicular, powerlaw, wedge, poles
     kickDirectionPower                                              = 0.0;                                                                              // Power law power for the "power" SN kick direction choice
 
-    // Get default output path
+    // Output path
     outputPathString                                                = ".";                                                                              // String to hold the output directory
     defaultOutputPath                                               = boost::filesystem::current_path();                                                // Default output location
-    outputPath                                                      = defaultOutputPath;                                                                // Desired output location (default = CWD)
-
-    // Spin options
-    spinDistribution                                                = SPIN_DISTRIBUTION::ZERO;
-    spinDistributionString                                          = SPIN_DISTRIBUTION_LABEL.at(spinDistribution);
-    spinDistributionMin                                             = 0.0;
-    spinDistributionMax                                             = 1.0;
-
-    spinAssumption                                                  = SPIN_ASSUMPTION::ALIGNED;
-    spinAssumptionString                                            = SPIN_ASSUMPTION_LABEL.at(spinAssumption);
-
-
-    // Tides options
-    tidesPrescription                                               = TIDES_PRESCRIPTION::NONE;                                                         // Tides prescription that will be used by the code
-    tidesPrescriptionString                                         = TIDES_PRESCRIPTION_LABEL.at(tidesPrescription);                                   // String containing which tides prescription to use (default = "None")
-
+    outputPath                                                      = defaultOutputPath;                                                                // Desired output location
+    outputContainerName                                             = DEFAULT_OUTPUT_CONTAINER_NAME;                                                    // Output container - this is a container (directory) created at outputPath to hold all output files
 
     // Mass loss options
-    useMassLoss                                                     = true;                                                                             // Whether to use mass loss
+    useMassLoss                                                     = false;                                                                            // Whether to use mass loss
 
     massLossPrescription                                            = MASS_LOSS_PRESCRIPTION::VINK;
     massLossPrescriptionString                                      = MASS_LOSS_PRESCRIPTION_LABEL.at(massLossPrescription);
@@ -623,15 +697,13 @@ void Options::SetToFiducialValues(void) {
 
 
     // Mass transfer options
-    useMassTransfer                                                 = true;											                                    // Whether to use mass transfer (default = true)
-	circulariseBinaryDuringMassTransfer	                            = true;						                                                        // Whether to circularise binary when it starts (default = true)
-	forceCaseBBBCStabilityFlag                                      = true;									                                            // Whether if all case BB/BC systems are forced to be stable or unstable
-	alwaysStableCaseBBBCFlag                                        = true;									                                            // Whether if case BB/BC is always stable
-	angularMomentumConservationDuringCircularisation                = true;		                                                                        // Whether to conserve angular momentum while circularising or circularise to periastron (default = true)
+    useMassTransfer                                                 = true;											                                    // Whether to use mass transfer
+	circulariseBinaryDuringMassTransfer	                            = false;						                                                    // Whether to circularise binary when it starts
+	forceCaseBBBCStabilityFlag                                      = false;									                                        // Whether if all case BB/BC systems are forced to be stable or unstable
+	alwaysStableCaseBBBCFlag                                        = false;							                                                // Whether if case BB/BC is always stable
+	angularMomentumConservationDuringCircularisation                = false;		                                                                    // Whether to conserve angular momentum while circularising or circularise to periastron
 
-
-    // Mass transfer prescription options
-    massTransferPrescription                                        = MT_PRESCRIPTION::DEMINK;
+    massTransferPrescription                                        = MT_PRESCRIPTION::HURLEY;
     massTransferPrescriptionString                                  = MT_PRESCRIPTION_LABEL.at(massTransferPrescription);
 
 
@@ -644,8 +716,6 @@ void Options::SetToFiducialValues(void) {
     massTransferFractionAccreted                                    = 1.0;
     massTransferCParameter                                          = 10.0;
 
-
-    // Mass transfer accretion efficiency prescription options
     massTransferAccretionEfficiencyPrescription                     = MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED;
     massTransferAccretionEfficiencyPrescriptionString               = MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL.at(massTransferAccretionEfficiencyPrescription);
 
@@ -672,44 +742,44 @@ void Options::SetToFiducialValues(void) {
 
     // Mass transfer critical mass ratios
     massTransferCriticalMassRatioMSLowMass                          = false;                    			                                            // Whether to use critical mass ratios
-    massTransferCriticalMassRatioMSLowMassNonDegenerateAccretor     = 1.44;                    			                                                // Critical mass ratio for MT from a MS low mass star (default = 1.44, Claeys+ 2014)
-    massTransferCriticalMassRatioMSLowMassDegenerateAccretor        = 1.0;                    			                                                // Critical mass ratio for MT from a MS low mass star on to a degenerate accretor (default = 1.0, Claeys+ 2014)
+    massTransferCriticalMassRatioMSLowMassNonDegenerateAccretor     = 1.44;                    			                                                // Critical mass ratio for MT from a MS low mass star (Claeys+ 2014 = 1.44)
+    massTransferCriticalMassRatioMSLowMassDegenerateAccretor        = 1.0;                    			                                                // Critical mass ratio for MT from a MS low mass star on to a degenerate accretor (Claeys+ 2014 = 1.0)
 
     massTransferCriticalMassRatioMSHighMass                         = false;	           			                                                    // Whether to use critical mass ratios
-    massTransferCriticalMassRatioMSHighMassNonDegenerateAccretor    = 0.625;                 			                                                // Critical mass ratio for MT from a MS high mass star (default = 0.625, Claeys+ 2014)
-    massTransferCriticalMassRatioMSHighMassDegenerateAccretor       = 0.0;                      			                                            // Critical mass ratio for MT from a MS high mass star on to a degenerate accretor (default = 0)
+    massTransferCriticalMassRatioMSHighMassNonDegenerateAccretor    = 0.625;                 			                                                // Critical mass ratio for MT from a MS high mass star (Claeys+ 2014 = 0.625)
+    massTransferCriticalMassRatioMSHighMassDegenerateAccretor       = 0.0;                      			                                            // Critical mass ratio for MT from a MS high mass star on to a degenerate accretor
 
     massTransferCriticalMassRatioHG                                 = false;                 			                                                // Whether to use critical mass ratios
-    massTransferCriticalMassRatioHGNonDegenerateAccretor            = 0.40;                  			                                                // Critical mass ratio for MT from a HG star (default = 0.25, Claeys+ 2014)
-    massTransferCriticalMassRatioHGDegenerateAccretor               = 0.21;                  			                                                // Critical mass ratio for MT from a HG star on to a degenerate accretor (default = 0.21, Claeys+ 2014)
+    massTransferCriticalMassRatioHGNonDegenerateAccretor            = 0.40;                  			                                                // Critical mass ratio for MT from a HG star (Claeys+ 2014 = 0.25)
+    massTransferCriticalMassRatioHGDegenerateAccretor               = 0.21;                  			                                                // Critical mass ratio for MT from a HG star on to a degenerate accretor (Claeys+ 2014 = 0.21)
 
     massTransferCriticalMassRatioGiant                              = false;                  			                                                // Whether to use critical mass ratios
-    massTransferCriticalMassRatioGiantNonDegenerateAccretor         = 0.0;                   			                                                // Critical mass ratio for MT from a giant (default = 0.0)
-    massTransferCriticalMassRatioGiantDegenerateAccretor            = 0.87;                  			                                                // Critical mass ratio for MT from a giant on to a degenerate accretor (default = 0.81, Claeys+ 2014)
+    massTransferCriticalMassRatioGiantNonDegenerateAccretor         = 0.0;                   			                                                // Critical mass ratio for MT from a giant
+    massTransferCriticalMassRatioGiantDegenerateAccretor            = 0.87;                  			                                                // Critical mass ratio for MT from a giant on to a degenerate accretor (Claeys+ 2014 = 0.81)
 
     massTransferCriticalMassRatioHeliumMS                           = false;	           			                                                    // Whether to use critical mass ratios
-    massTransferCriticalMassRatioHeliumMSNonDegenerateAccretor      = 0.625;                			                                                // Critical mass ratio for MT from a Helium MS star (default = 0.625)
-    massTransferCriticalMassRatioHeliumMSDegenerateAccretor         = 0.0;                  			                                                // Critical mass ratio for MT from a Helium MS star on to a degenerate accretor (default = 0)
+    massTransferCriticalMassRatioHeliumMSNonDegenerateAccretor      = 0.625;                			                                                // Critical mass ratio for MT from a Helium MS star
+    massTransferCriticalMassRatioHeliumMSDegenerateAccretor         = 0.0;                  			                                                // Critical mass ratio for MT from a Helium MS star on to a degenerate accretor
 
     massTransferCriticalMassRatioHeliumHG                           = false;                  			                                                // Whether to use critical mass ratios
-    massTransferCriticalMassRatioHeliumHGNonDegenerateAccretor      = 0.25;		           			                                                    // Critical mass ratio for MT from a Helium HG star (default = 0.25, de Claeys+ 2014)
-    massTransferCriticalMassRatioHeliumHGDegenerateAccretor         = 0.21;			           			                                                // Critical mass ratio for MT from a Helium HG star on to a degenerate accretor (default = 0.21, Claeys+ 2014)
+    massTransferCriticalMassRatioHeliumHGNonDegenerateAccretor      = 0.25;		           			                                                    // Critical mass ratio for MT from a Helium HG star (Claeys+ 2014 = 0.25)
+    massTransferCriticalMassRatioHeliumHGDegenerateAccretor         = 0.21;			           			                                                // Critical mass ratio for MT from a Helium HG star on to a degenerate accretor (Claeys+ 2014 = 0.21)
 
     massTransferCriticalMassRatioHeliumGiant                        = false;                 			                                                // Whether to use critical mass ratios
-    massTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor   = 1.28;                 			                                                // Critical mass ratio for MT from a Helium giant (default = 0.25, Claeys+ 2014)
+    massTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor   = 1.28;                 			                                                // Critical mass ratio for MT from a Helium giant (Claeys+ 2014 = 0.25)
     massTransferCriticalMassRatioHeliumGiantDegenerateAccretor      = 0.87;                 			                                                // Critical mass ratio for MT from a Helium giant on to a degenerate accretor
 
     massTransferCriticalMassRatioWhiteDwarf                         = false;                			                                                // Whether to use critical mass ratios
-	massTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor    = 0.0;                  			                                                // Critical mass ratio for MT from a White Dwarf (default = 0.0)
-    massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor       = 1.6;                     			                                                // Critical mass ratio for MT from a White Dwarf on to a degenerate accretor (default = 1.6, Claeys+ 2014)
+	massTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor    = 0.0;                  			                                                // Critical mass ratio for MT from a White Dwarf
+    massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor       = 1.6;                     			                                                // Critical mass ratio for MT from a White Dwarf on to a degenerate accretor (Claeys+ 2014 = 1.6)
 
 
     // Common Envelope parameters
     commonEnvelopePrescriptionFlag                                  = COMMON_ENVELOPE_PRESCRIPTION::WEBBINK;                                            // Which common envelope prescription to use
-    commonEnvelopeAlpha                                             = 1.0;                                                                              // Common envelope efficiency alpha parameter (default = 1.0)
-    commonEnvelopeLambda                                            = 0.1;                                                                              // Common envelope Lambda parameter (default = 0.1)
-    commonEnvelopeHertzsprungGapDonor                               = COMMON_ENVELOPE_PRESCRIPTION::PESSIMISTIC_HG;                                     // Which prescription to use for Hertzsprung gap donors in a CE (default = OPTIMISTIC_HG_CE)
-    commonEnvelopeHertzsprungGapDonorString                         = COMMON_ENVELOPE_PRESCRIPTION_LABEL.at(commonEnvelopeHertzsprungGapDonor);         // String containing which prescription to use for Hertzsprung gap donors in a CE (default = "OPTIMISTIC_HG_CE")
+    commonEnvelopeAlpha                                             = 1.0;                                                                              // Common envelope efficiency alpha parameter
+    commonEnvelopeLambda                                            = 0.1;                                                                              // Common envelope Lambda parameter
+    commonEnvelopeHertzsprungGapDonor                               = COMMON_ENVELOPE_PRESCRIPTION::PESSIMISTIC_HG;                                     // Which prescription to use for Hertzsprung gap donors in a CE
+    commonEnvelopeHertzsprungGapDonorString                         = COMMON_ENVELOPE_PRESCRIPTION_LABEL.at(commonEnvelopeHertzsprungGapDonor);         // String containing which prescription to use for Hertzsprung gap donors in a CE
     commonEnvelopeAlphaThermal                                      = 1.0;                                                                              // lambda = (alpha_th * lambda_b) + (1-alpha_th) * lambda_g
     commonEnvelopeLambdaMultiplier                                  = 1.0;                                                                              // Multiply common envelope lambda by some constant
     allowMainSequenceStarToSurviveCommonEnvelope                    = false;                                                                            // Whether or not to allow a main sequence star to survive a common envelope event
@@ -725,13 +795,13 @@ void Options::SetToFiducialValues(void) {
 
 
 	// Common envelope lambda prescription
-	commonEnvelopeLambdaPrescription                                = CE_LAMBDA_PRESCRIPTION::NANJING;                                                  // Which prescription to use for CE lambda (default = LAMBDA_NANJING)
-	commonEnvelopeLambdaPrescriptionString                          = CE_LAMBDA_PRESCRIPTION_LABEL.at(commonEnvelopeLambdaPrescription);                // String containing which prescription to use for CE lambda (default = "LAMBDA_NANJING")
+	commonEnvelopeLambdaPrescription                                = CE_LAMBDA_PRESCRIPTION::NANJING;                                                  // Which prescription to use for CE lambda
+	commonEnvelopeLambdaPrescriptionString                          = CE_LAMBDA_PRESCRIPTION_LABEL.at(commonEnvelopeLambdaPrescription);                // String containing which prescription to use for CE lambda
 
 
 	// Common envelope Nandez and Ivanova energy formalism
-	revisedEnergyFormalismNandezIvanova	                            = false;						                                                    // Use the revised energy formalism from Nandez & Ivanova 2016 (default = false)
-	maximumMassDonorNandezIvanova                                   = 2.0;								                                                // Maximum mass allowed to use the revised energy formalism in Msol (default = 2.0)
+	revisedEnergyFormalismNandezIvanova	                            = false;						                                                    // Use the revised energy formalism from Nandez & Ivanova 2016
+	maximumMassDonorNandezIvanova                                   = 2.0;								                                                // Maximum mass allowed to use the revised energy formalism in Msol
 	commonEnvelopeRecombinationEnergyDensity                        = 1.5E13;					                                                        // Factor using to calculate the bin
 
 
@@ -740,26 +810,24 @@ void Options::SetToFiducialValues(void) {
 
 
 	// Which prescription to use for calculating zetas
-	commonEnvelopeZetaPrescription                                  = CE_ZETA_PRESCRIPTION::SOBERMAN;					                                // Which prescription to use for calculating CE zetas (default = ZETA_ADIABATIC)
-	commonEnvelopeZetaPrescriptionString                            = CE_ZETA_PRESCRIPTION_LABEL.at(commonEnvelopeZetaPrescription);					// String containing which prescription to use for calculating CE zetas (default = STARTRACK)
+	commonEnvelopeZetaPrescription                                  = CE_ZETA_PRESCRIPTION::SOBERMAN;					                                // Which prescription to use for calculating CE zetas
+	commonEnvelopeZetaPrescriptionString                            = CE_ZETA_PRESCRIPTION_LABEL.at(commonEnvelopeZetaPrescription);					// String containing which prescription to use for calculating CE zetas
 
 
-	zetaAdiabaticArbitrary                                          = 0.0;
-	zetaThermalArbitrary                                            = 0.0;
+	zetaAdiabaticArbitrary                                          = 10000.0;                                                                          // large value, which will favour stable MT
+	zetaThermalArbitrary                                            = 10000.0;                                                                          // large value, which will favour stable MT
     zetaMainSequence 	                                            = 6.5;
 	zetaHertzsprungGap	                                            = 2.0;
 
-
     // Adaptive Importance Sampling Exploratory phase
-    AISexploratoryPhase                                             = false;  // Floor
-    AISDCOtype                                                      = AIS_DCO::ALL;                                                                     // Which prescription to use for DCO type (default = ALL)
-    AISDCOtypeString                                                = AIS_DCO_LABEL.at(AIS_DCO::ALL);                                                   // String containing which type of DCOs to focus on (default = "ALL")
+    AISexploratoryPhase                                             = false;                                                                            // Flag for whether to run the AIS exploratory phase
+    AISDCOtype                                                      = AIS_DCO::ALL;                                                                     // Which prescription to use for DCO type
+    AISDCOtypeString                                                = AIS_DCO_LABEL.at(AIS_DCO::ALL);                                                   // String containing which type of DCOs to focus on
     AIShubble                                                       = false;                                                                            // Flag for excluding DCOs that do not merge in Hubble
-    AISrlof                                                         = false;                                                                            // Flag for excluding DCOs that RLOFSecondaryZAMS
     AISpessimistic                                                  = false;                                                                            // Flag for excluding DCOs that are Optmistic
     AISrefinementPhase                                              = false;                                                                            // Flag for whether to run the AIS refinement phase (step 2)
+    AISrlof                                                         = false;                                                                            // Flag for excluding DCOs that RLOFSecondaryZAMS
     kappaGaussians                                                  = 2;                                                                                // scaling factor for the width of the Gaussian distributions in AIS main sampling phase
-
 
     // Metallicity options
     metallicity                                                     = ZSOL;
@@ -850,7 +918,6 @@ void Options::SetToFiducialValues(void) {
     logfileBSEDoubleCompactObjects                                  = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS));               // get default filename from constants.h
     logfileBSESupernovae                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));                           // get default filename from constants.h
     logfileBSECommonEnvelopes                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));                     // get default filename from constants.h
-    logfileBSERLOFParameters                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS));                      // get default filename from constants.h
     logfileBSEBeBinaries                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));                          // get default filename from constants.h
     logfileBSEPulsarEvolution                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION));                     // get default filename from constants.h
 }
@@ -868,585 +935,481 @@ void Options::SetToFiducialValues(void) {
  */
 COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
-    namespace po = boost::program_options;
-    namespace fs = boost::filesystem;
-
     COMMANDLINE_STATUS programStatus = COMMANDLINE_STATUS::CONTINUE;
+
+    
+    // create default strings for vector<string> types (too hard to do inline)
+
+    std::ostringstream ss;
+
+    // debug classes
+    string defaultDebugClasses;
+    ss << "";
+    for (auto debugClass = debugClasses.begin(); debugClass != debugClasses.end(); ++debugClass) ss << *debugClass << ",";
+    defaultDebugClasses = ss.str();
+    if (defaultDebugClasses.size() > 0) defaultDebugClasses.erase(defaultDebugClasses.size() - 1);
+
+    // log classes
+    string defaultLogClasses;
+    ss << "";
+    for (auto logClass = logClasses.begin(); logClass != logClasses.end(); ++logClass) ss << *logClass << ",";
+    defaultLogClasses = ss.str();
+    if (defaultLogClasses.size() > 0) defaultLogClasses.erase(defaultLogClasses.size() - 1);
+
+
+    // create and populate program options
 
     try {
 
         // Create program options object
-        po::options_description desc("Options");
+        po::options_description desc("Options", 128, 64);
+
+        // add options
         desc.add_options()
 
-		    // JR: todo: should make these names consistent ( case, hyphenated, camelCase... )
+	        // JR: todo: should make these names consistent ( case, hyphenated, camelCase... )
 
 		    // JR: todo: some of the strings below declare the default value for the option - and some of them are wrong
 		    // (probably have become wrong over time).  I think we should either not show the default value, or if we do
 		    // then construct the string with the default value.  The second option is more work...
 
+            // switches
+		    ("help,h",                                                      po::bool_switch(), "Print this help message")
+		    ("version,v",                                                   po::bool_switch(), "Print COMPAS version string")
 
-		    // boolean options (flags) - alphabetically
+		    // boolean options - alphabetically
 
-            ("AIS-exploratory-phase",                               "Run exploratory phase of STROOPWAFEL") // Floor
-		    ("AIS-Hubble",                                          "Excluding not in Hubble time mergers selection in exploratory phase of STROOPWAFEL")
-		    ("AIS-Pessimistic",                                     "Optimistic or Pessimistic selection in exploratory phase of STROOPWAFEL")
-		    ("AIS-refinement-phase",                                "If true: run main sampling phase (step2) of STROOPWAFEL")
-		    ("AIS-RLOF",                                            "RLOFSecondaryZAMS selection in exploratory phase of STROOPWAFEL")
-		    ("allow-rlof-at-birth",                                 "Allow binaries that have one or both stars in RLOF at birth to evolve")
-		    ("allow-touching-at-birth",                             "Allow binaries that are touching at birth to evolve")
-			("alwaysStableCaseBBBCFlag",                            "Choose case BB/BC mass transfer to be always stable (default = True)")
-			("angularMomentumConservationDuringCircularisation",    "Conserve angular momentum when binary is circularised when entering a Mass Transfer episode (default = False)")
-			("BeBinaries",                                          "Enable Be Binaries study")
-			("circulariseBinaryDuringMassTransfer",                 "Circularise binary when it enters a Mass Transfer episode (default = False)")
-		    ("common-envelope-allow-main-sequence-survive",         "Allow main sequence stars to survive common envelope evolution")
-			("debug-to-file",                                       "Write debug statements to file")
-		    ("detailedOutput",                                      "Print detailed output to file")
-			("errors-to-file",                                      "Write error messages to file")
-		    ("evolve-pulsars",                                      "Whether to evolve pulsars")
-			("evolve-unbound-systems",                              "Keeps evolving stars even if the binary is disrupted")
-            ("forceCaseBBBCStabilityFlag",                          "Force case BB/BC mass transfer to be only stable or unstable (default = True)")
-		    ("help,h",                                              "Print this help message")
-			("lambda-calculation-every-timeStep",                   "Calculate all values of lambda at each timestep")
-   		   	("massTransfer",                                        "Enable mass transfer")
-//			("mcmc",                                                "Use MCMC sampling (Not yet implemented. default = false)")
-		    ("only-double-compact-objects",                         "Only evolve binaries which may form double compact objects")
-		    ("pair-instability-supernovae",                         "Enable pair instability supernovae (PISN)")
-			("PN",                                                  "Enable post-newtonian evolution")
-            ("populationDataPrinting",                              "Print details of population")
-		    ("print-bool-as-string",                                "Print boolean properties as 'TRUE' or 'FALSE'")
-		    ("pulsational-pair-instability",                        "Enable mass loss due to pulsational-pair-instability (PPI)")
-		    ("quiet",                                               "Suppress printing")
-			("revised-energy-formalism-Nandez-Ivanova",             "Enable revised energy formalism")
-            ("RLOFPrinting",                                        "Enable output parameters before/after RLOF ")
-			("sample-common-envelope-alpha",                        "Sample over common envelope alpha")
-			("sample-kick-direction-power",                         "Sample over kick direction powerlaw exponent")
-			("sample-kick-velocity-sigma",                          "Sample over Kick Velocity Sigma")
-			("sample-luminous-blue-variable-multiplier",            "Sample over multiplicative constant from LBV mass loss")
-			("sample-wolf-rayet-multiplier",                        "Sample over WR winds multiplicative constant")
-            ("single-star",                                         "Evolve single star(s)")
-		    ("use-mass-loss",                                       "Enable mass loss")
-		    ("version,v",                                           "Print COMPAS version string")
-			("zeta-calculation-every-time-Step",                    "Calculate all values of MT zetas at each timestep")
+            // AVG - 17/03/2020 - Floor will uncomment when tested.
+            /*
+            ("AIS-exploratory-phase",                                       po::value<bool>(&AISexploratoryPhase)->default_value(AISexploratoryPhase)->implicit_value(true),                                                            ("Run exploratory phase of STROOPWAFEL (default = " + std::string(AISexploratoryPhase ? "TRUE" : "FALSE") + ")").c_str())
+		    ("AIS-Hubble",                                                  po::value<bool>(&AIShubble)->default_value(AIShubble)->implicit_value(true),                                                                                ("Excluding not in Hubble time mergers selection in exploratory phase of STROOPWAFEL (default = " + std::string(AIShubble ? "TRUE" : "FALSE") + ")").c_str())
+		    ("AIS-Pessimistic",                                             po::value<bool>(&AISpessimistic)->default_value(AISpessimistic)->implicit_value(true),                                                                      ("Optimistic or Pessimistic selection in exploratory phase of STROOPWAFEL (default = " + std::string(AISpessimistic ? "TRUE" : "FALSE") + ")").c_str())
+		    ("AIS-refinement-phase",                                        po::value<bool>(&AISrefinementPhase)->default_value(AISrefinementPhase)->implicit_value(true),                                                              ("Run main sampling phase (step2) of STROOPWAFEL (default = " + std::string(AISrefinementPhase ? "TRUE" : "FALSE") + ")").c_str())
+		    ("AIS-RLOF",                                                    po::value<bool>(&AISrlof)->default_value(AISrlof)->implicit_value(true),                                                                                    ("RLOFSecondaryZAMS selection in exploratory phase of STROOPWAFEL (default = " + std::string(AISrlof ? "TRUE" : "FALSE") + ")").c_str())
+            */
+
+		    ("allow-rlof-at-birth",                                         po::value<bool>(&allowRLOFAtBirth)->default_value(allowRLOFAtBirth)->implicit_value(true),                                                                  ("Allow binaries that have one or both stars in RLOF at birth to evolve (default = " + std::string(allowRLOFAtBirth ? "TRUE" : "FALSE") + ")").c_str())
+		    ("allow-touching-at-birth",                                     po::value<bool>(&allowTouchingAtBirth)->default_value(allowTouchingAtBirth)->implicit_value(true),                                                          ("Allow binaries that are touching at birth to evolve (default = " + std::string(allowTouchingAtBirth ? "TRUE" : "FALSE") + ")").c_str())
+
+			("alwaysStableCaseBBBCFlag",                                    po::value<bool>(&alwaysStableCaseBBBCFlag)->default_value(alwaysStableCaseBBBCFlag)->implicit_value(true),                                                  ("Choose case BB/BC mass transfer to be always stable (default = " + std::string(alwaysStableCaseBBBCFlag ? "TRUE" : "FALSE") + ")").c_str())
+			("angularMomentumConservationDuringCircularisation",            po::value<bool>(&angularMomentumConservationDuringCircularisation)->default_value(angularMomentumConservationDuringCircularisation)->implicit_value(true),  ("Conserve angular momentum when binary is circularised when entering a Mass Transfer episode (default = " + std::string(angularMomentumConservationDuringCircularisation ? "TRUE" : "FALSE") + ")").c_str())
+			// AVG - 17/03/2020 - Serena will uncomment when tested.
+            // ("BeBinaries",                                                  po::value<bool>(&beBinaries)->default_value(beBinaries)->implicit_value(true),                                                                              ("Enable Be Binaries study (default = " + std::string(beBinaries ? "TRUE" : "FALSE") + ")").c_str())
+			("circulariseBinaryDuringMassTransfer",                         po::value<bool>(&circulariseBinaryDuringMassTransfer)->default_value(circulariseBinaryDuringMassTransfer)->implicit_value(true),                            ("Circularise binary when it enters a Mass Transfer episode (default = " + std::string(circulariseBinaryDuringMassTransfer ? "TRUE" : "FALSE") + ")").c_str())
+		    ("common-envelope-allow-main-sequence-survive",                 po::value<bool>(&allowMainSequenceStarToSurviveCommonEnvelope)->default_value(allowMainSequenceStarToSurviveCommonEnvelope)->implicit_value(true),          ("Allow main sequence stars to survive common envelope evolution (default = " + std::string(allowMainSequenceStarToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str())
+
+			("debug-to-file",                                               po::value<bool>(&debugToFile)->default_value(debugToFile)->implicit_value(true),                                                                            ("Write debug statements to file (default = " + std::string(debugToFile ? "TRUE" : "FALSE") + ")").c_str())
+		    ("detailedOutput",                                              po::value<bool>(&detailedOutput)->default_value(detailedOutput)->implicit_value(true),                                                                      ("Print detailed output to file (default = " + std::string(detailedOutput ? "TRUE" : "FALSE") + ")").c_str())
+			("errors-to-file",                                              po::value<bool>(&errorsToFile)->default_value(errorsToFile)->implicit_value(true),                                                                          ("Write error messages to file (default = " + std::string(errorsToFile ? "TRUE" : "FALSE") + ")").c_str())
+
+		    ("evolve-pulsars",                                              po::value<bool>(&evolvePulsars)->default_value(evolvePulsars)->implicit_value(true),                                                                        ("Evolve pulsars (default = " + std::string(evolvePulsars ? "TRUE" : "FALSE") + ")").c_str())
+			("evolve-unbound-systems",                                      po::value<bool>(&evolveUnboundSystems)->default_value(evolveUnboundSystems)->implicit_value(true),                                                          ("Continue evolving stars even if the binary is disrupted (default = " + std::string(evolveUnboundSystems ? "TRUE" : "FALSE") + ")").c_str())
+
+            ("forceCaseBBBCStabilityFlag",                                  po::value<bool>(&forceCaseBBBCStabilityFlag)->default_value(forceCaseBBBCStabilityFlag)->implicit_value(true),                                              ("Force case BB/BC mass transfer to be only stable or unstable (default = " + std::string(forceCaseBBBCStabilityFlag ? "TRUE" : "FALSE") + ")").c_str())
+			("lambda-calculation-every-timeStep",                           po::value<bool>(&lambdaCalculationEveryTimeStep)->default_value(lambdaCalculationEveryTimeStep)->implicit_value(true),                                      ("Calculate all values of lambda at each timestep (default = " + std::string(lambdaCalculationEveryTimeStep ? "TRUE" : "FALSE") + ")").c_str())
+   		   	("massTransfer",                                                po::value<bool>(&useMassTransfer)->default_value(useMassTransfer)->implicit_value(true),                                                                    ("Enable mass transfer (default = " + std::string(useMassTransfer ? "TRUE" : "FALSE") + ")").c_str())
+		    ("pair-instability-supernovae",                                 po::value<bool>(&usePairInstabilitySupernovae)->default_value(usePairInstabilitySupernovae)->implicit_value(true),                                          ("Enable pair instability supernovae (PISN) (default = " + std::string(usePairInstabilitySupernovae ? "TRUE" : "FALSE") + ")").c_str())
+            ("populationDataPrinting",                                      po::value<bool>(&populationDataPrinting)->default_value(populationDataPrinting)->implicit_value(true),                                                      ("Print details of population (default = " + std::string(populationDataPrinting ? "TRUE" : "FALSE") + ")").c_str())
+		    ("print-bool-as-string",                                        po::value<bool>(&printBoolAsString)->default_value(printBoolAsString)->implicit_value(true),                                                                ("Print boolean properties as 'TRUE' or 'FALSE' (default = " + std::string(printBoolAsString ? "TRUE" : "FALSE") + ")").c_str())
+		    ("pulsational-pair-instability",                                po::value<bool>(&usePulsationalPairInstability)->default_value(usePulsationalPairInstability)->implicit_value(true),                                        ("Enable mass loss due to pulsational-pair-instability (PPI) (default = " + std::string(usePulsationalPairInstability ? "TRUE" : "FALSE") + ")").c_str())
+		    ("quiet",                                                       po::value<bool>(&quiet)->default_value(quiet)->implicit_value(true),                                                                                        ("Suppress printing (default = " + std::string(quiet ? "TRUE" : "FALSE") + ")").c_str())
+			("revised-energy-formalism-Nandez-Ivanova",                     po::value<bool>(&revisedEnergyFormalismNandezIvanova)->default_value(revisedEnergyFormalismNandezIvanova)->implicit_value(true),                            ("Enable revised energy formalism (default = " + std::string(revisedEnergyFormalismNandezIvanova ? "TRUE" : "FALSE") + ")").c_str())
+
+            // AVG
+            /*
+			("sample-common-envelope-alpha",                                po::value<bool>(&sampleCommonEnvelopeAlpha)->default_value(sampleCommonEnvelopeAlpha)->implicit_value(true),                                                ("Sample over common envelope alpha (default = " + std::string(sampleCommonEnvelopeAlpha ? "TRUE" : "FALSE") + ")").c_str())
+			("sample-kick-direction-power",                                 po::value<bool>(&sampleKickDirectionPower)->default_value(sampleKickDirectionPower)->implicit_value(true),                                                  ("Sample over kick direction powerlaw exponent (default = " + std::string(sampleKickDirectionPower ? "TRUE" : "FALSE") + ")").c_str())
+			("sample-kick-velocity-sigma",                                  po::value<bool>(&sampleKickVelocitySigma)->default_value(sampleKickVelocitySigma)->implicit_value(true),                                                    ("Sample over Kick Velocity Sigma (default = " + std::string(sampleKickVelocitySigma ? "TRUE" : "FALSE") + ")").c_str())
+			("sample-luminous-blue-variable-multiplier",                    po::value<bool>(&sampleLuminousBlueVariableMultiplier)->default_value(sampleLuminousBlueVariableMultiplier)->implicit_value(true),                          ("Sample over multiplicative constant from LBV mass loss (default = " + std::string(sampleLuminousBlueVariableMultiplier ? "TRUE" : "FALSE") + ")").c_str())
+			("sample-wolf-rayet-multiplier",                                po::value<bool>(&sampleWolfRayetMultiplier)->default_value(sampleWolfRayetMultiplier)->implicit_value(true),                                                ("Sample over WR winds multiplicative constant (default = " + std::string(sampleWolfRayetMultiplier ? "TRUE" : "FALSE") + ")").c_str())
+            */
+
+            ("single-star",                                                 po::value<bool>(&singleStar)->default_value(singleStar)->implicit_value(true),                                                                              ("Evolve single star(s) (default = " + std::string(singleStar ? "TRUE" : "FALSE") + ")").c_str())
+
+		    ("use-mass-loss",                                               po::value<bool>(&useMassLoss)->default_value(useMassLoss)->implicit_value(true),                                                                            ("Enable mass loss (default = " + std::string(useMassLoss ? "TRUE" : "FALSE") + ")").c_str())
+
+			("zeta-calculation-every-timestep",                             po::value<bool>(&zetaCalculationEveryTimeStep)->default_value(zetaCalculationEveryTimeStep)->implicit_value(true),                                          ("Calculate all values of MT zetas at each timestep (default = " + std::string(zetaCalculationEveryTimeStep ? "TRUE" : "FALSE") + ")").c_str())
 
 
-			// numerical options - alphabetically by groups
+			// numerical options - alphabetically grouped by type
 
 			// unsigned long
-		    ("random-seed",                                                 po::value<unsigned long>(&randomSeed),                                              "Random seed to use (default = 0)")
+		    ("random-seed",                                                 po::value<unsigned long>(&randomSeed)->default_value(randomSeed),                                                                                           ("Random seed to use (default = " + std::to_string(randomSeed) + ")").c_str())
 
 		    // int
-			("debug-level",                                                 po::value<int>(&debugLevel),                                                        "Determines which print statements are displayed for debugging")
-		    ("log-level",                                                   po::value<int>(&logLevel),                                                          "Determines which print statements are included in the logfile")
-		    ("maximum-number-iterations",                                   po::value<int>(&maxNumberOfTimestepIterations),                                     "Maximum number of timesteps to evolve binary before giving up (default = 99999)")
-			("number-of-binaries,n",                                        po::value<int>(&nBinaries),                                                         "Specify the number of binaries to simulate (default = 1000000)")
-			("single-star-mass-steps",                                      po::value<int>(&singleStarMassSteps),                                               "Specify the number of mass steps for single star evolution (default = 100)")
+			("debug-level",                                                 po::value<int>(&debugLevel)->default_value(debugLevel),                                                                                                     ("Determines which print statements are displayed for debugging (default = " + std::to_string(debugLevel) + ")").c_str())
+		    ("log-level",                                                   po::value<int>(&logLevel)->default_value(logLevel),                                                                                                         ("Determines which print statements are included in the logfile (default = " + std::to_string(logLevel) + ")").c_str())
+		    ("maximum-number-timestep-iterations",                                   po::value<int>(&maxNumberOfTimestepIterations)->default_value(maxNumberOfTimestepIterations),                                                               ("Maximum number of timesteps to evolve binary before giving up (default = " + std::to_string(maxNumberOfTimestepIterations) + ")").c_str())
+			// AVG - 17/03/2020 - Floor will uncomment when tested.
+            // ("nbatches-used",                                               po::value<int>(&nBatchesUsed)->default_value(nBatchesUsed),                                                                                                 ("Number of batches used, for STROOPWAFEL (AIS), -1 = not required (default = " + std::to_string(nBatchesUsed) + ")").c_str())
+			("number-of-binaries,n",                                        po::value<int>(&nBinaries)->default_value(nBinaries),                                                                                                       ("Specify the number of binaries to simulate (default = " + std::to_string(nBinaries) + ")").c_str())
+			("single-star-mass-steps",                                      po::value<int>(&singleStarMassSteps)->default_value(singleStarMassSteps),                                                                                   ("Specify the number of mass steps for single star evolution (default = " + std::to_string(singleStarMassSteps) + ")").c_str())
 
 		    // double
-		    ("common-envelope-alpha",                                       po::value<double>(&commonEnvelopeAlpha),                                            "Common Envelope efficiency alpha (default = 1.0)")
-		    ("common-envelope-alpha-thermal",                               po::value<double>(&commonEnvelopeAlphaThermal),                                     "Defined such that lambda = alpha_th * lambda_b + (1.0 - alpha_th) * lambda_g (default = 1.0)")
-		    ("common-envelope-lambda",                                      po::value<double>(&commonEnvelopeLambda),                                           "Common Envelope lambda (default = 0.1)")
-		    ("common-envelope-lambda-multiplier",                           po::value<double>(&commonEnvelopeLambdaMultiplier),                                 "Multiply lambda by some constant (default = 1.0)")
-	    	("common-envelope-mass-accretion-constant",                     po::value<double>(&commonEnvelopeMassAccretionConstant),                            "Value of mass accreted by NS/BH during common envelope evolution if assuming all NS/BH accrete same amount of mass (common-envelope-mass-accretion-prescription CONSTANT). Ignored otherwise (default = 0)")
-		    ("common-envelope-mass-accretion-max",                          po::value<double>(&commonEnvelopeMassAccretionMax),                                 "Maximum amount of mass accreted by NS/BHs during common envelope evolution in solar masses (default = 0.1)")
-		    ("common-envelope-mass-accretion-min",                          po::value<double>(&commonEnvelopeMassAccretionMin),                                 "Minimum amount of mass accreted by NS/BHs during common envelope evolution in solar masses (default = 0.04)")
-		    ("common-envelope-recombination-energy-density",                po::value<double>(&commonEnvelopeRecombinationEnergyDensity),                       "Recombination energy density in ergs/g (default = 1.5x10^13)")
-		    ("common-envelope-slope-Kruckow",                               po::value<double>(&commonEnvelopeSlopeKruckow),                                     "Common Envelope slope for Kruckow lambda (default = -4/5)")
-            ("critical-mass-ratio-giant-degenerate-accretor",               po::value<double>(&massTransferCriticalMassRatioGiantDegenerateAccretor),           "Critical mass ratio for MT from a giant star (default = 0.87 from Claeys+ 2014) Specify both giant flags to use. 0 is always stable, <0 is disabled")
-            ("critical-mass-ratio-giant-non-degenerate-accretor",           po::value<double>(&massTransferCriticalMassRatioGiantNonDegenerateAccretor),        "Critical mass ratio for MT from a giant star (default = not implemented from Claeys+ 2014) Specify both giant flags to use. 0 is always stable, <0 is disabled")
-            ("critical-mass-ratio-helium-giant-degenerate-accretor",        po::value<double>(&massTransferCriticalMassRatioHeliumGiantDegenerateAccretor),     "Critical mass ratio for MT from a helium giant star (default = 0.87 from Claeys+ 2014) Specify both helium giant flags to use. 0 is always stable, <0 is disabled")
-            ("critical-mass-ratio-helium-giant-non-degenerate-accretor",    po::value<double>(&massTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor),  "Critical mass ratio for MT from a helium giant star (default = 1.28 from Claeys+ 2014) Specify both helium giant flags to use. 0 is always stable, <0 is disabled")
-            ("critical-mass-ratio-helium-HG-degenerate-accretor",           po::value<double>(&massTransferCriticalMassRatioHeliumHGDegenerateAccretor),        "Critical mass ratio for MT from a helium HG star (default = 0.21 from Claeys+ 2014) Specify both helium HG flags to use. 0 is always stable, <0 is disabled")
-            ("critical-mass-ratio-helium-HG-non-degenerate-accretor",       po::value<double>(&massTransferCriticalMassRatioHeliumHGNonDegenerateAccretor),     "Critical mass ratio for MT from a helium HG star (default = 0.25 from Claeys+ 2014) Specify both helium HG flags to use. 0 is always stable, <0 is disabled")
-            ("critical-mass-ratio-helium-MS-degenerate-accretor",           po::value<double>(&massTransferCriticalMassRatioHeliumMSDegenerateAccretor),        "Critical mass ratio for MT from a helium MS star (default = 0.0) Specify both helium MS flags to use. 0 is always stable, <0 is disabled")
-            ("critical-mass-ratio-helium-MS-non-degenerate-accretor",       po::value<double>(&massTransferCriticalMassRatioHeliumMSNonDegenerateAccretor),     "Critical mass ratio for MT from a helium MS star (default = 0.625) Specify both helium MS flags to use. 0 is always stable, <0 is disabled")
-            ("critical-mass-ratio-HG-degenerate-accretor",                  po::value<double>(&massTransferCriticalMassRatioHGDegenerateAccretor),              "Critical mass ratio for MT from a HG star (default = 0.21 from Claeys+ 2014) Specify both HG flags to use. 0 is always stable, <0 is disabled")
-            ("critical-mass-ratio-HG-non-degenerate-accretor",              po::value<double>(&massTransferCriticalMassRatioHGNonDegenerateAccretor),           "Critical mass ratio for MT from a HG star (default = 0.40 from de Mink+ 2013) Specify both HG flags to use. 0 is always stable, <0 is disabled")
-            ("critical-mass-ratio-MS-high-mass-degenerate-accretor",        po::value<double>(&massTransferCriticalMassRatioMSHighMassDegenerateAccretor),      "Critical mass ratio for MT from a MS star to a degenerate accretor (default = 0.0 from Claeys+ 2014) Specify both MS high mass flags to use. 0 is always stable, <0 is disabled")
-            ("critical-mass-ratio-MS-high-mass-non-degenerate-accretor",    po::value<double>(&massTransferCriticalMassRatioMSHighMassNonDegenerateAccretor),   "Critical mass ratio for MT from a MS star (default = 0.625, Claeys+ 2014). Specify both MS high mass flags to use. 0 is always stable, <0 is disabled")
-            ("critical-mass-ratio-MS-low-mass-degenerate-accretor",         po::value<double>(&massTransferCriticalMassRatioMSLowMassDegenerateAccretor),       "Critical mass ratio for MT from a MS star to a degenerate accretor (default = 1.0 from Claeys+ 2014) Specify both MS low mass flags to use. 0 is always stable, <0 is disabled")
-            ("critical-mass-ratio-MS-low-mass-non-degenerate-accretor",     po::value<double>(&massTransferCriticalMassRatioMSLowMassNonDegenerateAccretor),    "Critical mass ratio for MT from a MS star (default = 1.44, Claeys+ 2014). Specify both MS low mass flags to use. 0 is always stable, <0 is disabled")
-            ("critical-mass-ratio-white-dwarf-degenerate-accretor",         po::value<double>(&massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor),      "Critical mass ratio for MT from a white dwarf (default = 1.6 from Claeys+ 2014) Specify both white dwarf flags to use. 0 is always stable, <0 is disabled")
-            ("critical-mass-ratio-white-dwarf-non-degenerate-accretor",     po::value<double>(&massTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor),   "Critical mass ratio for MT from a white dwarf (default = 0.0) Specify both white dwarf flags to use. 0 is always stable, <0 is disabled")
+		    ("common-envelope-alpha",                                       po::value<double>(&commonEnvelopeAlpha)->default_value(commonEnvelopeAlpha),                                                                                ("Common Envelope efficiency alpha (default = " + std::to_string(commonEnvelopeAlpha) + ")").c_str())
+		    ("common-envelope-alpha-thermal",                               po::value<double>(&commonEnvelopeAlphaThermal)->default_value(commonEnvelopeAlphaThermal),                                                                  ("Defined such that lambda = alpha_th * lambda_b + (1.0 - alpha_th) * lambda_g (default = " + std::to_string(commonEnvelopeAlphaThermal) + ")").c_str())
+		    ("common-envelope-lambda",                                      po::value<double>(&commonEnvelopeLambda)->default_value(commonEnvelopeLambda),                                                                              ("Common Envelope lambda (default = " + std::to_string(commonEnvelopeLambda) + ")").c_str())
+		    ("common-envelope-lambda-multiplier",                           po::value<double>(&commonEnvelopeLambdaMultiplier)->default_value(commonEnvelopeLambdaMultiplier),                                                          ("Multiply lambda by some constant (default = " + std::to_string(commonEnvelopeLambdaMultiplier) + ")").c_str())
+	    	("common-envelope-mass-accretion-constant",                     po::value<double>(&commonEnvelopeMassAccretionConstant)->default_value(commonEnvelopeMassAccretionConstant),                                                ("Value of mass accreted by NS/BH during common envelope evolution if assuming all NS/BH accrete same amount of mass (common-envelope-mass-accretion-prescription CONSTANT). Ignored otherwise (default = " + std::to_string(commonEnvelopeMassAccretionConstant) + ")").c_str())
+		    ("common-envelope-mass-accretion-max",                          po::value<double>(&commonEnvelopeMassAccretionMax)->default_value(commonEnvelopeMassAccretionMax),                                                          ("Maximum amount of mass accreted by NS/BHs during common envelope evolution in solar masses (default = " + std::to_string(commonEnvelopeMassAccretionMax) + ")").c_str())
+		    ("common-envelope-mass-accretion-min",                          po::value<double>(&commonEnvelopeMassAccretionMin)->default_value(commonEnvelopeMassAccretionMin),                                                          ("Minimum amount of mass accreted by NS/BHs during common envelope evolution in solar masses (default = " + std::to_string(commonEnvelopeMassAccretionMin) + ")").c_str())
+		    ("common-envelope-recombination-energy-density",                po::value<double>(&commonEnvelopeRecombinationEnergyDensity)->default_value(commonEnvelopeRecombinationEnergyDensity),                                      ("Recombination energy density in ergs/g (default = " + std::to_string(commonEnvelopeRecombinationEnergyDensity) + ")").c_str())
+		    ("common-envelope-slope-Kruckow",                               po::value<double>(&commonEnvelopeSlopeKruckow)->default_value(commonEnvelopeSlopeKruckow),                                                                  ("Common Envelope slope for Kruckow lambda (default = " + std::to_string(commonEnvelopeSlopeKruckow) + ")").c_str())
 
-		    ("eccentricity-max",                                            po::value<double>(&eccentricityDistributionMax),                                    "Maximum eccentricity to generate (default = 1.0)")
-		    ("eccentricity-min",                                            po::value<double>(&eccentricityDistributionMin),                                    "Minimum eccentricity to generate (default = 0.0)")
-			("eddington-accretion-factor",                                  po::value<double>(&eddingtonAccretionFactor),                                       "Multiplication factor for eddington accretion for NS & BH, i.e. >1 is super-eddington and 0. is no accretion")
+            // AVG - 17/03/2020 - Uncomment mass-ratio options when fully implemented
+            /*
+            ("critical-mass-ratio-giant-degenerate-accretor",               po::value<double>(&massTransferCriticalMassRatioGiantDegenerateAccretor)->default_value(massTransferCriticalMassRatioGiantDegenerateAccretor),              ("Critical mass ratio for MT from a giant star (default = " + std::to_string(massTransferCriticalMassRatioGiantDegenerateAccretor) + ") Specify both giant flags to use. 0 is always stable, <0 is disabled").c_str())
+            ("critical-mass-ratio-giant-non-degenerate-accretor",           po::value<double>(&massTransferCriticalMassRatioGiantNonDegenerateAccretor)->default_value(massTransferCriticalMassRatioGiantNonDegenerateAccretor),        ("Critical mass ratio for MT from a giant star (default = " + std::to_string(massTransferCriticalMassRatioGiantNonDegenerateAccretor) + ") Specify both giant flags to use. 0 is always stable, <0 is disabled").c_str())
+            ("critical-mass-ratio-helium-giant-degenerate-accretor",        po::value<double>(&massTransferCriticalMassRatioHeliumGiantDegenerateAccretor)->default_value(massTransferCriticalMassRatioHeliumGiantDegenerateAccretor),  ("Critical mass ratio for MT from a helium giant star (default = " + std::to_string(massTransferCriticalMassRatioHeliumGiantDegenerateAccretor) + ") Specify both helium giant flags to use. 0 is always stable, <0 is disabled").c_str())
+            ("critical-mass-ratio-helium-giant-non-degenerate-accretor",    po::value<double>(&massTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor)->default_value(massTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor),    ("Critical mass ratio for MT from a helium giant star (default = " + std::to_string(massTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor) + ") Specify both helium giant flags to use. 0 is always stable, <0 is disabled").c_str())
+            ("critical-mass-ratio-helium-HG-degenerate-accretor",           po::value<double>(&massTransferCriticalMassRatioHeliumHGDegenerateAccretor)->default_value(massTransferCriticalMassRatioHeliumHGDegenerateAccretor),        ("Critical mass ratio for MT from a helium HG star (default = " + std::to_string(massTransferCriticalMassRatioHeliumHGDegenerateAccretor) + ") Specify both helium HG flags to use. 0 is always stable, <0 is disabled").c_str())
+            ("critical-mass-ratio-helium-HG-non-degenerate-accretor",       po::value<double>(&massTransferCriticalMassRatioHeliumHGNonDegenerateAccretor)->default_value(massTransferCriticalMassRatioHeliumHGNonDegenerateAccretor),  ("Critical mass ratio for MT from a helium HG star (default = " + std::to_string(massTransferCriticalMassRatioHeliumHGNonDegenerateAccretor) + ") Specify both helium HG flags to use. 0 is always stable, <0 is disabled").c_str())
+            ("critical-mass-ratio-helium-MS-degenerate-accretor",           po::value<double>(&massTransferCriticalMassRatioHeliumMSDegenerateAccretor)->default_value(massTransferCriticalMassRatioHeliumMSDegenerateAccretor),        ("Critical mass ratio for MT from a helium MS star (default = " + std::to_string(massTransferCriticalMassRatioHeliumMSDegenerateAccretor) + ") Specify both helium MS flags to use. 0 is always stable, <0 is disabled").c_str())
+            ("critical-mass-ratio-helium-MS-non-degenerate-accretor",       po::value<double>(&massTransferCriticalMassRatioHeliumMSNonDegenerateAccretor)->default_value(massTransferCriticalMassRatioHeliumMSNonDegenerateAccretor),  ("Critical mass ratio for MT from a helium MS star (default = " + std::to_string(massTransferCriticalMassRatioHeliumMSNonDegenerateAccretor) + ") Specify both helium MS flags to use. 0 is always stable, <0 is disabled").c_str())
+            ("critical-mass-ratio-HG-degenerate-accretor",                  po::value<double>(&massTransferCriticalMassRatioHGDegenerateAccretor)->default_value(massTransferCriticalMassRatioHGDegenerateAccretor),                    ("Critical mass ratio for MT from a HG star (default = " + std::to_string(massTransferCriticalMassRatioHGDegenerateAccretor) + ") Specify both HG flags to use. 0 is always stable, <0 is disabled").c_str())
+            ("critical-mass-ratio-HG-non-degenerate-accretor",              po::value<double>(&massTransferCriticalMassRatioHGNonDegenerateAccretor)->default_value(massTransferCriticalMassRatioHGNonDegenerateAccretor),              ("Critical mass ratio for MT from a HG star (default = " + std::to_string(massTransferCriticalMassRatioHGNonDegenerateAccretor) + ") Specify both HG flags to use. 0 is always stable, <0 is disabled").c_str())
+            ("critical-mass-ratio-MS-high-mass-degenerate-accretor",        po::value<double>(&massTransferCriticalMassRatioMSHighMassDegenerateAccretor)->default_value(massTransferCriticalMassRatioMSHighMassDegenerateAccretor),    ("Critical mass ratio for MT from a MS star to a degenerate accretor (default = " + std::to_string(massTransferCriticalMassRatioMSHighMassDegenerateAccretor) + " Specify both MS high mass flags to use. 0 is always stable, <0 is disabled").c_str())
+            ("critical-mass-ratio-MS-high-mass-non-degenerate-accretor",    po::value<double>(&massTransferCriticalMassRatioMSHighMassNonDegenerateAccretor)->default_value(massTransferCriticalMassRatioMSHighMassNonDegenerateAccretor),  ("Critical mass ratio for MT from a MS star (default = " + std::to_string(massTransferCriticalMassRatioMSHighMassNonDegenerateAccretor) + ") Specify both MS high mass flags to use. 0 is always stable, <0 is disabled").c_str())
+            ("critical-mass-ratio-MS-low-mass-degenerate-accretor",         po::value<double>(&massTransferCriticalMassRatioMSLowMassDegenerateAccretor)->default_value(massTransferCriticalMassRatioMSLowMassDegenerateAccretor),      ("Critical mass ratio for MT from a MS star to a degenerate accretor (default = " + std::to_string(massTransferCriticalMassRatioMSLowMassDegenerateAccretor) + " Specify both MS low mass flags to use. 0 is always stable, <0 is disabled").c_str())
+            ("critical-mass-ratio-MS-low-mass-non-degenerate-accretor",     po::value<double>(&massTransferCriticalMassRatioMSLowMassNonDegenerateAccretor)->default_value(massTransferCriticalMassRatioMSLowMassNonDegenerateAccretor),    ("Critical mass ratio for MT from a MS star (default = " + std::to_string(massTransferCriticalMassRatioMSLowMassNonDegenerateAccretor) + ") Specify both MS low mass flags to use. 0 is always stable, <0 is disabled").c_str())
+            ("critical-mass-ratio-white-dwarf-degenerate-accretor",         po::value<double>(&massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor)->default_value(massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor),    ("Critical mass ratio for MT from a white dwarf (default = " + std::to_string(massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor) + ") Specify both white dwarf flags to use. 0 is always stable, <0 is disabled").c_str())
+            ("critical-mass-ratio-white-dwarf-non-degenerate-accretor",     po::value<double>(&massTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor)->default_value(massTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor),  ("Critical mass ratio for MT from a white dwarf (default = " + std::to_string(massTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor) + ") Specify both white dwarf flags to use. 0 is always stable, <0 is disabled").c_str())
+            */
 
-   		    ("fix-dimensionless-kick-velocity",                             po::value<double>(&fixedUK),                                                        "Fix dimensionless kick velocity uk to this value (default = -1, -ve values false, +ve values true)")
+		    ("eccentricity-max",                                            po::value<double>(&eccentricityDistributionMax)->default_value(eccentricityDistributionMax),                                                                ("Maximum eccentricity to generate (default = " + std::to_string(eccentricityDistributionMax) + ")").c_str())
+		    ("eccentricity-min",                                            po::value<double>(&eccentricityDistributionMin)->default_value(eccentricityDistributionMin),                                                                ("Minimum eccentricity to generate (default = " + std::to_string(eccentricityDistributionMin) + ")").c_str())
+			("eddington-accretion-factor",                                  po::value<double>(&eddingtonAccretionFactor)->default_value(eddingtonAccretionFactor),                                                                      ("Multiplication factor for eddington accretion for NS & BH, i.e. >1 is super-eddington and 0. is no accretion (default = " + std::to_string(eddingtonAccretionFactor) + ")").c_str())
 
-		    ("initial-mass-max",                                            po::value<double>(&initialMassFunctionMax),                                         "Maximum mass (in Msol) to generate using given IMF (default = 100)")
-		    ("initial-mass-min",                                            po::value<double>(&initialMassFunctionMin),                                         "Minimum mass (in Msol) to generate using given IMF (default = 8)")
-		    ("initial-mass-power",                                          po::value<double>(&initialMassFunctionPower),                                       "Single power law power to generate primary mass using given IMF")
+   		    ("fix-dimensionless-kick-velocity",                             po::value<double>(&fixedUK)->default_value(fixedUK),                                                                                                        ("Fix dimensionless kick velocity uk to this value (default = " + std::to_string(fixedUK) + ", -ve values false, +ve values true)").c_str())
 
-		    ("kappa-gaussians",                                             po::value<double>(&kappaGaussians),                                                 "Scaling factor for the width of the Gaussian distributions in STROOPWAFEL main sampling phase" )
-		    ("kick-direction-power",                                        po::value<double>(&kickDirectionPower),                                             "Power for power law kick direction distribution (default = 0.0 = isotropic, +ve = polar, -ve = in plane)")
-			("kick-scaling-factor",                                         po::value<double>(&kickScalingFactor),                                              "Arbitrary factor used to scale kicks (default = 1.0 )")
-		    ("kick-velocity-max",                                           po::value<double>(&kickVelocityDistributionMaximum),                                "Maximum drawn kick velocity in km s^-1. Ignored if < 0. Must be > 0 if using kick-velocity-distribution=FLAT")
-		    ("kick-velocity-sigma-CCSN-BH",                                 po::value<double>(&kickVelocityDistributionSigmaCCSN_BH),                           "Sigma for chosen kick velocity distribution for black holes (default = 250 km s^-1 )")
-		    ("kick-velocity-sigma-CCSN-NS",                                 po::value<double>(&kickVelocityDistributionSigmaCCSN_NS),                           "Sigma for chosen kick velocity distribution for neutron stars (default = 250 km s^-1 )")
-			("kick-velocity-sigma-ECSN",                                    po::value<double>(&kickVelocityDistributionSigmaForECSN),                           "Sigma for chosen kick velocity distribution for ECSN (default = 0 km s^-1 )")
-			("kick-velocity-sigma-USSN",                                    po::value<double>(&kickVelocityDistributionSigmaForUSSN),                           "Sigma for chosen kick velocity distribution for USSN (default = 20 km s^-1 )")
+		    ("initial-mass-max",                                            po::value<double>(&initialMassFunctionMax)->default_value(initialMassFunctionMax),                                                                          ("Maximum mass (in Msol) to generate using given IMF (default = " + std::to_string(initialMassFunctionMax) + ")").c_str())
+		    ("initial-mass-min",                                            po::value<double>(&initialMassFunctionMin)->default_value(initialMassFunctionMin),                                                                          ("Minimum mass (in Msol) to generate using given IMF (default = " + std::to_string(initialMassFunctionMin) + ")").c_str())
+		    ("initial-mass-power",                                          po::value<double>(&initialMassFunctionPower)->default_value(initialMassFunctionPower),                                                                      ("Single power law power to generate primary mass using given IMF (default = " + std::to_string(initialMassFunctionPower) + ")").c_str())
 
-		    ("luminous-blue-variable-multiplier",                           po::value<double>(&luminousBlueVariableFactor),                                     "Multiplicitive constant for LBV mass loss (default = 1.5, use 10 for Mennekens & Vanbeveren 2014)")
+            // AVG - 17/03/2020 - Floor will uncomment when tested.
+		    // ("kappa-gaussians",                                             po::value<double>(&kappaGaussians)->default_value(kappaGaussians),                                                                                          ("Scaling factor for the width of the Gaussian distributions in STROOPWAFEL main sampling phase (default = " + std::to_string(kappaGaussians) + ")").c_str())
+		    ("kick-direction-power",                                        po::value<double>(&kickDirectionPower)->default_value(kickDirectionPower),                                                                                  ("Power for power law kick direction distribution (default = " + std::to_string(kickDirectionPower) + " = isotropic, +ve = polar, -ve = in plane)").c_str())
+			("kick-scaling-factor",                                         po::value<double>(&kickScalingFactor)->default_value(kickScalingFactor),                                                                                    ("Arbitrary factor used to scale kicks (default = " + std::to_string(kickScalingFactor) + ")").c_str())
+		    ("kick-velocity-max",                                           po::value<double>(&kickVelocityDistributionMaximum)->default_value(kickVelocityDistributionMaximum),                                                        ("Maximum drawn kick velocity in km s^-1. Ignored if < 0. Must be > 0 if using kick-velocity-distribution=FLAT (default = " + std::to_string(kickVelocityDistributionMaximum) + ")").c_str())
+		    ("kick-velocity-sigma-CCSN-BH",                                 po::value<double>(&kickVelocityDistributionSigmaCCSN_BH)->default_value(kickVelocityDistributionSigmaCCSN_BH),                                              ("Sigma for chosen kick velocity distribution for black holes (default = " + std::to_string(kickVelocityDistributionSigmaCCSN_BH) + " km s^-1 )").c_str())
+		    ("kick-velocity-sigma-CCSN-NS",                                 po::value<double>(&kickVelocityDistributionSigmaCCSN_NS)->default_value(kickVelocityDistributionSigmaCCSN_NS),                                              ("Sigma for chosen kick velocity distribution for neutron stars (default = " + std::to_string(kickVelocityDistributionSigmaCCSN_NS) + " km s^-1 )").c_str())
+			("kick-velocity-sigma-ECSN",                                    po::value<double>(&kickVelocityDistributionSigmaForECSN)->default_value(kickVelocityDistributionSigmaForECSN),                                              ("Sigma for chosen kick velocity distribution for ECSN (default = " + std::to_string(kickVelocityDistributionSigmaForECSN) + " km s^-1 )").c_str())
+			("kick-velocity-sigma-USSN",                                    po::value<double>(&kickVelocityDistributionSigmaForUSSN)->default_value(kickVelocityDistributionSigmaForUSSN),                                              ("Sigma for chosen kick velocity distribution for USSN (default = " + std::to_string(kickVelocityDistributionSigmaForUSSN) + " km s^-1 )").c_str())
 
-		    ("mass-ratio-max",                                              po::value<double>(&massRatioDistributionMax),                                       "Maximum mass ratio m2/m1 to generate (default = 1.0)")
-		    ("mass-ratio-min",                                              po::value<double>(&massRatioDistributionMin),                                       "Minimum mass ratio m2/m1 to generate (default = 0.0)")
-		    ("mass-transfer-fa",                                            po::value<double>(&massTransferFractionAccreted),                                   "Mass Transfer fraction accreted (default = 1.0, fully conservative)")
-		    ("mass-transfer-jloss",                                         po::value<double>(&massTransferJloss),                                              "Specific angular momentum with which the non-accreted system leaves the system (default = 1.0)")
-			("mass-transfer-thermal-limit-C",                               po::value<double>(&massTransferCParameter),                                         "Mass Transfer Thermal rate factor fo the accretor (default = 10.0, Hurley+2002)")
-		    ("maximum-evolution-time",                                      po::value<double>(&maxEvolutionTime),                                               "Maximum time to evolve binaries in Myrs (default = 5.0)")
-		    ("maximum-mass-donor-Nandez-Ivanova",                           po::value<double>(&maximumMassDonorNandezIvanova),                                  "Maximum donor mass allowed for the revised common envelope formalism in Msol (default = 2.0)")
-			("maximum-neutron-star-mass",                                   po::value<double>(&maximumNeutronStarMass),                                         "Maximum mass of a neutron star (default = 3.0, as in StarTrack)")
-            ("metallicity,z",                                               po::value<double>(&metallicity),                                                    "Metallicity to use (default 0.02 is Zsol)")
-		    ("minimum-secondary-mass",                                      po::value<double>(&minimumMassSecondary),                                           "Minimum mass of secondary to generate in Msol (default = 0.0)")
+		    ("luminous-blue-variable-multiplier",                           po::value<double>(&luminousBlueVariableFactor)->default_value(luminousBlueVariableFactor),                                                                  ("Multiplicitive constant for LBV mass loss (default = " + std::to_string(luminousBlueVariableFactor) + ", use 10 for Mennekens & Vanbeveren 2014)").c_str())
 
-			("nbatches-used",                                               po::value<int>(&nBatchesUsed),                                                      "nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed) sets itself automatically in pythonSubmit")
+		    ("mass-ratio-max",                                              po::value<double>(&massRatioDistributionMax)->default_value(massRatioDistributionMax),                                                                      ("Maximum mass ratio m2/m1 to generate (default = " + std::to_string(massRatioDistributionMax) + ")").c_str())
+		    ("mass-ratio-min",                                              po::value<double>(&massRatioDistributionMin)->default_value(massRatioDistributionMin),                                                                      ("Minimum mass ratio m2/m1 to generate (default = " + std::to_string(massRatioDistributionMin) + ")").c_str())
+		    ("mass-transfer-fa",                                            po::value<double>(&massTransferFractionAccreted)->default_value(massTransferFractionAccreted),                                                              ("Mass Transfer fraction accreted (default = " + std::to_string(massTransferFractionAccreted) + ", fully conservative)").c_str())
+		    ("mass-transfer-jloss",                                         po::value<double>(&massTransferJloss)->default_value(massTransferJloss),                                                                                    ("Specific angular momentum with which the non-accreted system leaves the system (default = " + std::to_string(massTransferJloss) + ")").c_str())
+			("mass-transfer-thermal-limit-C",                               po::value<double>(&massTransferCParameter)->default_value(massTransferCParameter),                                                                          ("Mass Transfer Thermal rate factor fo the accretor (default = " + std::to_string(massTransferCParameter) + ")").c_str())
+		    ("maximum-evolution-time",                                      po::value<double>(&maxEvolutionTime)->default_value(maxEvolutionTime),                                                                                      ("Maximum time to evolve binaries in Myrs (default = " + std::to_string(maxEvolutionTime) + ")").c_str())
+		    ("maximum-mass-donor-Nandez-Ivanova",                           po::value<double>(&maximumMassDonorNandezIvanova)->default_value(maximumMassDonorNandezIvanova),                                                            ("Maximum donor mass allowed for the revised common envelope formalism in Msol (default = " + std::to_string(maximumMassDonorNandezIvanova) + ")").c_str())
+			("maximum-neutron-star-mass",                                   po::value<double>(&maximumNeutronStarMass)->default_value(maximumNeutronStarMass),                                                                          ("Maximum mass of a neutron star (default = " + std::to_string(maximumNeutronStarMass) + ")").c_str())
+            ("metallicity,z",                                               po::value<double>(&metallicity)->default_value(metallicity),                                                                                                ("Metallicity to use (default " + std::to_string(metallicity) + " Zsol)").c_str())
+		    ("minimum-secondary-mass",                                      po::value<double>(&minimumMassSecondary)->default_value(minimumMassSecondary),                                                                              ("Minimum mass of secondary to generate in Msol (default = " + std::to_string(minimumMassSecondary) + ")").c_str())
 
-		    ("orbital-period-max",                                          po::value<double>(&periodDistributionMax),                                          "Maximum period in days to generate (default = 1000)")
-		   	("orbital-period-min",                                          po::value<double>(&periodDistributionMin),                                          "Minimum period in days to generate (default = 1.1)")
+		    ("neutrino-mass-loss-bh-formation-value",                       po::value<double>(&neutrinoMassLossValueBH)->default_value(neutrinoMassLossValueBH),                                                                        ("Value corresponding to neutrino mass loss assumption (default = " + std::to_string(neutrinoMassLossValueBH) + ")").c_str())
 
-		    ("PISN-lower-limit",                                            po::value<double>(&pairInstabilityLowerLimit),                                      "Minimum core mass for PISN (default = 60.0)")
-		    ("PISN-upper-limit",                                            po::value<double>(&pairInstabilityUpperLimit),                                      "Maximum core mass for PISN (default = 135.0)")
-		    ("PPI-lower-limit",                                             po::value<double>(&pulsationalPairInstabilityLowerLimit),                           "Minimum core mass for PPI (default = 35.0)")
-		    ("PPI-upper-limit",                                             po::value<double>(&pulsationalPairInstabilityUpperLimit),                           "Maximum core mass for PPI (default = 60.0)")
-		    ("pulsar-birth-magnetic-field-distribution-max",                po::value<double>(&pulsarBirthMagneticFieldDistributionMax),                        "Maximum (log10) pulsar birth magnetic field (default = 13.0)")
-		    ("pulsar-birth-magnetic-field-distribution-min",                po::value<double>(&pulsarBirthMagneticFieldDistributionMin),                        "Minimum (log10) pulsar birth magnetic field) (default = 11.0)")
-		    ("pulsar-birth-spin-period-distribution-max",                   po::value<double>(&pulsarBirthSpinPeriodDistributionMax),                           "Maximum pulsar birth spin period in ms (default = 100.0)")
-		    ("pulsar-birth-spin-period-distribution-min",                   po::value<double>(&pulsarBirthSpinPeriodDistributionMin),                           "Minimum pulsar birth spin period in ms (default = 0.0)")
-		    ("pulsar-magnetic-field-decay-massscale",                       po::value<double>(&pulsarMagneticFieldDecayMassscale),                              "Mass scale on which magnetic field decays during accretion in solar masses (default = 0.025)")
-		    ("pulsar-magnetic-field-decay-timescale",                       po::value<double>(&pulsarMagneticFieldDecayTimescale),                              "Timescale on which magnetic field decays in Myrs (default = 1000.0)")
-		    ("pulsar-minimum-magnetic-field",                               po::value<double>(&pulsarLog10MinimumMagneticField),                                "log10 of the minimum pulsar magnetic field in Gauss (default = 8.0)")
+		    ("orbital-period-max",                                          po::value<double>(&periodDistributionMax)->default_value(periodDistributionMax),                                                                            ("Maximum period in days to generate (default = " + std::to_string(periodDistributionMax) + ")").c_str())
+		   	("orbital-period-min",                                          po::value<double>(&periodDistributionMin)->default_value(periodDistributionMin),                                                                            ("Minimum period in days to generate (default = " + std::to_string(periodDistributionMin) + ")").c_str())
 
-			("sample-common-envelope-alpha-max",                            po::value<double>(&sampleCommonEnvelopeAlphaMax),                                   "Maximum for Uniform sampling over common envelope alpha")
-			("sample-common-envelope-alpha-min",                            po::value<double>(&sampleCommonEnvelopeAlphaMin),                                   "Minimum for Uniform sampling over common envelope alpha")
-			("sample-kick-direction-power-max",                             po::value<double>(&sampleKickDirectionPowerMax),                                    "Maximum for Uniform sampling over kick direction powerlaw exponent")
-			("sample-kick-direction-power-min",                             po::value<double>(&sampleKickDirectionPowerMin),                                    "Minimum for Uniform sampling over kick direction powerlaw exponent")
-			("sample-kick-velocity-sigma-max",                              po::value<double>(&sampleKickVelocitySigmaMax),                                     "Maximum for Uniform sampling over kick velocity sigma")
-			("sample-kick-velocity-sigma-min",                              po::value<double>(&sampleKickVelocitySigmaMin),                                     "Minimum for Uniform sampling over kick velocity sigma")
-			("sample-luminous-blue-variable-multiplier-max",                po::value<double>(&sampleLuminousBlueVariableMultiplierMax),                        "Maximum for Uniform sampling over multiplicative constant for LBV mass loss")
-			("sample-luminous-blue-variable-multiplier-min",                po::value<double>(&sampleLuminousBlueVariableMultiplierMin),                        "Minimum for Uniform sampling over multiplicative constant for LBV mass loss")
-			("sample-wolf-rayet-multiplier-max",                            po::value<double>(&sampleWolfRayetMultiplierMax),                                   "Maximum for Uniform sampling over multiplicative constant for WR winds")
-			("sample-wolf-rayet-multiplier-min",                            po::value<double>(&sampleWolfRayetMultiplierMin),                                   "Minimum for Uniform sampling over multiplicative constant for WR winds")
-		    ("semi-major-axis-max",                                         po::value<double>(&semiMajorAxisDistributionMax),                                   "Maximum semi major axis in AU to generate (default = 1000)")
-		    ("semi-major-axis-min",                                         po::value<double>(&semiMajorAxisDistributionMin),                                   "Minimum semi major axis in AU to generate (default = 0.1)")
-		    ("single-star-mass-max",                                        po::value<double>(&singleStarMassMax),                                              "Maximum mass (in Msol) for single star evolution (default = 100.0)")
-            ("single-star-mass-min",                                        po::value<double>(&singleStarMassMin),                                              "Minimum mass (in Msol) for single star evolution (default = 5.0)")
-		    ("spin-mag-max",                                                po::value<double>(&spinDistributionMax),                                            "Maximum magnitude of spin (default = )")
-		    ("spin-mag-min",                                                po::value<double>(&spinDistributionMin),                                            "Minimum magnitude of spin (default = )")
+		    ("PISN-lower-limit",                                            po::value<double>(&pairInstabilityLowerLimit)->default_value(pairInstabilityLowerLimit),                                                                    ("Minimum core mass for PISN (default = " + std::to_string(pairInstabilityLowerLimit) + ")").c_str())
+		    ("PISN-upper-limit",                                            po::value<double>(&pairInstabilityUpperLimit)->default_value(pairInstabilityUpperLimit),                                                                    ("Maximum core mass for PISN (default = " + std::to_string(pairInstabilityUpperLimit) + ")").c_str())
+		    ("PPI-lower-limit",                                             po::value<double>(&pulsationalPairInstabilityLowerLimit)->default_value(pulsationalPairInstabilityLowerLimit),                                              ("Minimum core mass for PPI (default = " + std::to_string(pulsationalPairInstabilityLowerLimit) + ")").c_str())
+		    ("PPI-upper-limit",                                             po::value<double>(&pulsationalPairInstabilityUpperLimit)->default_value(pulsationalPairInstabilityUpperLimit),                                              ("Maximum core mass for PPI (default = " + std::to_string(pulsationalPairInstabilityUpperLimit) + ")").c_str())
+		    ("pulsar-birth-magnetic-field-distribution-max",                po::value<double>(&pulsarBirthMagneticFieldDistributionMax)->default_value(pulsarBirthMagneticFieldDistributionMax),                                        ("Maximum (log10) pulsar birth magnetic field (default = " + std::to_string(pulsarBirthMagneticFieldDistributionMax) + ")").c_str())
+		    ("pulsar-birth-magnetic-field-distribution-min",                po::value<double>(&pulsarBirthMagneticFieldDistributionMin)->default_value(pulsarBirthMagneticFieldDistributionMin),                                        ("Minimum (log10) pulsar birth magnetic field) (default = " + std::to_string(pulsarBirthMagneticFieldDistributionMin) + ")").c_str())
+		    ("pulsar-birth-spin-period-distribution-max",                   po::value<double>(&pulsarBirthSpinPeriodDistributionMax)->default_value(pulsarBirthSpinPeriodDistributionMax),                                              ("Maximum pulsar birth spin period in ms (default = " + std::to_string(pulsarBirthSpinPeriodDistributionMax) + ")").c_str())
+		    ("pulsar-birth-spin-period-distribution-min",                   po::value<double>(&pulsarBirthSpinPeriodDistributionMin)->default_value(pulsarBirthSpinPeriodDistributionMin),                                              ("Minimum pulsar birth spin period in ms (default = " + std::to_string(pulsarBirthSpinPeriodDistributionMin) + ")").c_str())
+		    ("pulsar-magnetic-field-decay-massscale",                       po::value<double>(&pulsarMagneticFieldDecayMassscale)->default_value(pulsarMagneticFieldDecayMassscale),                                                    ("Mass scale on which magnetic field decays during accretion in solar masses (default = " + std::to_string(pulsarMagneticFieldDecayMassscale) + ")").c_str())
+		    ("pulsar-magnetic-field-decay-timescale",                       po::value<double>(&pulsarMagneticFieldDecayTimescale)->default_value(pulsarMagneticFieldDecayTimescale),                                                    ("Timescale on which magnetic field decays in Myrs (default = " + std::to_string(pulsarMagneticFieldDecayTimescale) + ")").c_str())
+		    ("pulsar-minimum-magnetic-field",                               po::value<double>(&pulsarLog10MinimumMagneticField)->default_value(pulsarLog10MinimumMagneticField),                                                        ("log10 of the minimum pulsar magnetic field in Gauss (default = " + std::to_string(pulsarLog10MinimumMagneticField) + ")").c_str())
 
-		    ("wolf-rayet-multiplier",                                       po::value<double>(&wolfRayetFactor),                                                "Multiplicitive constant for WR winds (default = 1.0)")
+            // AVG
+            /*
+			("sample-common-envelope-alpha-max",                            po::value<double>(&sampleCommonEnvelopeAlphaMax)->default_value(sampleCommonEnvelopeAlphaMax),                                                              ("Maximum for Uniform sampling over common envelope alpha (default = " + std::to_string(sampleCommonEnvelopeAlphaMax) + ")").c_str())
+			("sample-common-envelope-alpha-min",                            po::value<double>(&sampleCommonEnvelopeAlphaMin)->default_value(sampleCommonEnvelopeAlphaMin),                                                              ("Minimum for Uniform sampling over common envelope alpha (default = " + std::to_string(sampleCommonEnvelopeAlphaMin) + ")").c_str())
+			("sample-kick-direction-power-max",                             po::value<double>(&sampleKickDirectionPowerMax)->default_value(sampleKickDirectionPowerMax),                                                                ("Maximum for Uniform sampling over kick direction powerlaw exponent (default = " + std::to_string(sampleKickDirectionPowerMax) + ")").c_str())
+			("sample-kick-direction-power-min",                             po::value<double>(&sampleKickDirectionPowerMin)->default_value(sampleKickDirectionPowerMin),                                                                ("Minimum for Uniform sampling over kick direction powerlaw exponent (default = " + std::to_string(sampleKickDirectionPowerMin) + ")").c_str())
+			("sample-kick-velocity-sigma-max",                              po::value<double>(&sampleKickVelocitySigmaMax)->default_value(sampleKickVelocitySigmaMax),                                                                  ("Maximum for Uniform sampling over kick velocity sigma (default = " + std::to_string(sampleKickVelocitySigmaMax) + ")").c_str())
+			("sample-kick-velocity-sigma-min",                              po::value<double>(&sampleKickVelocitySigmaMin)->default_value(sampleKickVelocitySigmaMin),                                                                  ("Minimum for Uniform sampling over kick velocity sigma (default = " + std::to_string(sampleKickVelocitySigmaMin) + ")").c_str())
+			("sample-luminous-blue-variable-multiplier-max",                po::value<double>(&sampleLuminousBlueVariableMultiplierMax)->default_value(sampleLuminousBlueVariableMultiplierMax),                                        ("Maximum for Uniform sampling over multiplicative constant for LBV mass loss (default = " + std::to_string(sampleLuminousBlueVariableMultiplierMax) + ")").c_str())
+			("sample-luminous-blue-variable-multiplier-min",                po::value<double>(&sampleLuminousBlueVariableMultiplierMin)->default_value(sampleLuminousBlueVariableMultiplierMin),                                        ("Minimum for Uniform sampling over multiplicative constant for LBV mass loss (default = " + std::to_string(sampleLuminousBlueVariableMultiplierMin) + ")").c_str())
+			("sample-wolf-rayet-multiplier-max",                            po::value<double>(&sampleWolfRayetMultiplierMax)->default_value(sampleWolfRayetMultiplierMax),                                                              ("Maximum for Uniform sampling over multiplicative constant for WR winds (default = " + std::to_string(sampleWolfRayetMultiplierMax) + ")").c_str())
+			("sample-wolf-rayet-multiplier-min",                            po::value<double>(&sampleWolfRayetMultiplierMin)->default_value(sampleWolfRayetMultiplierMin),                                                              ("Minimum for Uniform sampling over multiplicative constant for WR winds (default = " + std::to_string(sampleWolfRayetMultiplierMin) + ")").c_str())
+		    */
+            ("semi-major-axis-max",                                         po::value<double>(&semiMajorAxisDistributionMax)->default_value(semiMajorAxisDistributionMax),                                                              ("Maximum semi major axis in AU to generate (default = " + std::to_string(semiMajorAxisDistributionMax) + ")").c_str())
+		    ("semi-major-axis-min",                                         po::value<double>(&semiMajorAxisDistributionMin)->default_value(semiMajorAxisDistributionMin),                                                              ("Minimum semi major axis in AU to generate (default = " + std::to_string(semiMajorAxisDistributionMin) + ")").c_str())
+		    ("single-star-mass-max",                                        po::value<double>(&singleStarMassMax)->default_value(singleStarMassMax),                                                                                    ("Maximum mass (in Msol) for single star evolution (default = " + std::to_string(singleStarMassMax) + ")").c_str())
+            ("single-star-mass-min",                                        po::value<double>(&singleStarMassMin)->default_value(singleStarMassMin),                                                                                    ("Minimum mass (in Msol) for single star evolution (default = " + std::to_string(singleStarMassMin) + ")").c_str())
 
-		    ("zeta-adiabatic-arbitrary",                                    po::value<double>(&zetaAdiabaticArbitrary),                                         "Value of mass-radius exponent zeta adiabatic")
-		    ("zeta-hertzsprung-gap",                                        po::value<double>(&zetaHertzsprungGap),                                             "Value of mass-radius exponent zeta on the hertzstrpung gap (default = 6.5)")
-		    ("zeta-main-sequence",                                          po::value<double>(&zetaMainSequence),                                               "Value of mass-radius exponent zeta on the main sequence (default = 2.0)")
+		    ("wolf-rayet-multiplier",                                       po::value<double>(&wolfRayetFactor)->default_value(wolfRayetFactor),                                                                                        ("Multiplicitive constant for WR winds (default = " + std::to_string(wolfRayetFactor) + ")").c_str())
+
+		    ("zeta-adiabatic-arbitrary",                                    po::value<double>(&zetaAdiabaticArbitrary)->default_value(zetaAdiabaticArbitrary),                                                                          ("Value of mass-radius exponent zeta adiabatic (default = " + std::to_string(zetaAdiabaticArbitrary) + ")").c_str())
+		    ("zeta-thermal-arbitrary",                                      po::value<double>(&zetaThermalArbitrary)->default_value(zetaThermalArbitrary),                                                                          ("Value of mass-radius exponent zeta adiabatic (default = " + std::to_string(zetaAdiabaticArbitrary) + ")").c_str())
+		    ("zeta-hertzsprung-gap",                                        po::value<double>(&zetaHertzsprungGap)->default_value(zetaHertzsprungGap),                                                                                  ("Value of mass-radius exponent zeta on the hertzstrpung gap (default = " + std::to_string(zetaHertzsprungGap) + ")").c_str())
+		    ("zeta-main-sequence",                                          po::value<double>(&zetaMainSequence)->default_value(zetaMainSequence),                                                                                      ("Value of mass-radius exponent zeta on the main sequence (default = " + std::to_string(zetaMainSequence) + ")").c_str())
 
 
 		    // string options - alphabetically
-            ("AIS-DCOtype",                                                 po::value<string>(&AISDCOtypeString),                                               "DCO type selection in exploratory phase of STROOPWAFEL, select ALL, BBH, BNS or BHNS")
+            // AVG - 17/03/2020 - Floor will uncomment when tested.
+            // ("AIS-DCOtype",                                                 po::value<string>(&AISDCOtypeString)->default_value(AISDCOtypeString),                                                                                      ("DCO type selection in exploratory phase of STROOPWAFEL, (options: ALL, BBH, BNS or BHNS), default = " + AISDCOtypeString + ")").c_str())
 
-		  	("black-hole-kicks",                                            po::value<string>(&blackHoleKicksString),                                           "Black hole kicks relative to NS kicks (options: FULL, REDUCED, ZERO, FALLBACK. Default = FALLBACK)")
+		  	("black-hole-kicks",                                            po::value<string>(&blackHoleKicksString)->default_value(blackHoleKicksString),                                                                              ("Black hole kicks relative to NS kicks (options: FULL, REDUCED, ZERO, FALLBACK), default = " + blackHoleKicksString + ")").c_str())
 
-		  	("chemically-homogeneous-evolution",                            po::value<string>(&cheString),                                                      "Chemically Homogeneous Evolution (options: NONE, OPTIMISTIC, PESSIMISTIC. Default = NONE)")
+		  	("chemically-homogeneous-evolution",                            po::value<string>(&cheString)->default_value(cheString),                                                                                                    ("Chemically Homogeneous Evolution (options: NONE, OPTIMISTIC, PESSIMISTIC), default = " + cheString + ")").c_str())
 
-			("common-envelope-hertzsprung-gap-assumption",                  po::value<string>(&commonEnvelopeHertzsprungGapDonorString),                        "Assumption to make about HG stars in CE (default = OPTIMISTIC_HG_CE)")
-			("common-envelope-lambda-prescription",                         po::value<string>(&commonEnvelopeLambdaPrescriptionString),                         "Prescription for CE lambda (options: LAMBDA_FIXED, LAMBDA_LOVERIDGE, LAMBDA_NANJING, LAMBDA_KRUCKOW, LAMBDA_DEWI. Default = LAMBDA_FIXED)")
-		    ("common-envelope-mass-accretion-prescription",                 po::value<string>(&commonEnvelopeMassAccretionPrescriptionString),                  "Assumption about whether NS/BHs can accrete mass during common envelope evolution (options: ZERO, CONSTANT, UNIFORM, MACLEOD+2014 . Default = ZERO)")
-			("common-envelope-zeta-prescription",                           po::value<string>(&commonEnvelopeZetaPrescriptionString),                           "Prescription for CE zeta (default = STARTRACK)")
+			("common-envelope-hertzsprung-gap-assumption",                  po::value<string>(&commonEnvelopeHertzsprungGapDonorString)->default_value(commonEnvelopeHertzsprungGapDonorString),                                        ("Assumption to make about HG stars in CE (default = " + commonEnvelopeHertzsprungGapDonorString + ")").c_str())
+			("common-envelope-lambda-prescription",                         po::value<string>(&commonEnvelopeLambdaPrescriptionString)->default_value(commonEnvelopeLambdaPrescriptionString),                                          ("CE lambda prescription (options: LAMBDA_FIXED, LAMBDA_LOVERIDGE, LAMBDA_NANJING, LAMBDA_KRUCKOW, LAMBDA_DEWI), default = " + commonEnvelopeLambdaPrescriptionString + ")").c_str())
+		    ("common-envelope-mass-accretion-prescription",                 po::value<string>(&commonEnvelopeMassAccretionPrescriptionString)->default_value(commonEnvelopeMassAccretionPrescriptionString),                            ("Assumption about whether NS/BHs can accrete mass during common envelope evolution (options: ZERO, CONSTANT, UNIFORM, MACLEOD), default = " + commonEnvelopeMassAccretionPrescriptionString + ")").c_str())
+			("common-envelope-zeta-prescription",                           po::value<string>(&commonEnvelopeZetaPrescriptionString)->default_value(commonEnvelopeZetaPrescriptionString),                                              ("Prescription for CE zeta (default = " + commonEnvelopeZetaPrescriptionString + ")").c_str())
 
-		    ("eccentricity-distribution,e",                                 po::value<string>(&eccentricityDistributionString),                                 "Initial eccentricity distribution, e (options: ZERO, FIXED, FLAT, THERMALISED, GELLER+2013. Default = ZERO)")
+		    ("eccentricity-distribution,e",                                 po::value<string>(&eccentricityDistributionString)->default_value(eccentricityDistributionString),                                                          ("Initial eccentricity distribution, e (options: ZERO, FIXED, FLAT, THERMALISED, GELLER+2013), default = " + eccentricityDistributionString + ")").c_str())
 
-		    ("fryer-supernova-engine",                                      po::value<string>(&fryerSupernovaEngineString),                                     "If using Fryer et al 2012 fallback prescription, select between 'delayed' and 'rapid' engines (default = 'delayed')")
+		    ("fryer-supernova-engine",                                      po::value<string>(&fryerSupernovaEngineString)->default_value(fryerSupernovaEngineString),                                                                  ("If using Fryer et al 2012 fallback prescription, select between 'delayed' and 'rapid' engines (default = " + fryerSupernovaEngineString + ")").c_str())
 
-            ("grid",                                                        po::value<string>(&gridFilename)->implicit_value(""),                               "Grid filename - SSE or BSE")
+            ("grid",                                                        po::value<string>(&gridFilename)->default_value(gridFilename)->implicit_value(""),                                                                          ("Grid filename (default = " + gridFilename + ")").c_str())
 
-		    ("initial-mass-function,i",                                     po::value<string>(&initialMassFunctionString),                                      "Specify initial mass function to use (options: SALPETER, POWERLAW, UNIFORM, KROUPA. default = KROUPA)")
+		    ("initial-mass-function,i",                                     po::value<string>(&initialMassFunctionString)->default_value(initialMassFunctionString),                                                                    ("Initial mass function (options: SALPETER, POWERLAW, UNIFORM, KROUPA), default = " + initialMassFunctionString + ")").c_str())
 
-		    ("kick-direction",                                              po::value<string>(&kickDirectionDistributionString),                                "Distribution for natal kick direction (options: ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW, WEDGE, POLES. Default = ISOTROPIC)")
-		    ("kick-velocity-distribution",                                  po::value<string>(&kickVelocityDistributionString),                                 "Natal kick velocity distribution (options: ZERO, FLAT, MAXWELLIAN, MUELLER2016, MUELLER2016MAXWELLIAN, BRAYELDRIDGE. Default = MAXWELLIAN)")
+		    ("kick-direction",                                              po::value<string>(&kickDirectionDistributionString)->default_value(kickDirectionDistributionString),                                                        ("Natal kick direction distribution (options: ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW, WEDGE, POLES), default = " + kickDirectionDistributionString + ")").c_str())
+		    ("kick-velocity-distribution",                                  po::value<string>(&kickVelocityDistributionString)->default_value(kickVelocityDistributionString),                                                          ("Natal kick velocity distribution (options: ZERO, FLAT, MAXWELLIAN, MUELLER2016, MUELLER2016MAXWELLIAN, BRAYELDRIDGE), default = " + kickVelocityDistributionString + ")").c_str())
 
-            ("logfile-BSE-be-binaries",                                     po::value<string>(&logfileBSEBeBinaries),                                           "Filename for BSE Be Binaries logfile")
-            ("logfile-BSE-common-envelopes",                                po::value<string>(&logfileBSECommonEnvelopes),                                      "Filename for BSE Common Envelopes logfile")
-            ("logfile-BSE-detailed-output",                                 po::value<string>(&logfileBSEDetailedOutput),                                       "Filename for BSE Detailed Output logfile")
-            ("logfile-BSE-double-compact-objects",                          po::value<string>(&logfileBSEDoubleCompactObjects),                                 "Filename for BSE Double Compact Objects logfile")
-            ("logfile-BSE-pulsar-evolution",                                po::value<string>(&logfileBSEPulsarEvolution),                                      "Filename for BSE Pulsar Evolution logfile")
-            ("logfile-BSE-rlof-parameters",                                 po::value<string>(&logfileBSERLOFParameters),                                       "Filename for BSE RLOF Parameters logfile")
-            ("logfile-BSE-supernovae",                                      po::value<string>(&logfileBSESupernovae),                                           "Filename for BSE Supernovae logfile")
-            ("logfile-BSE-system-parameters",                               po::value<string>(&logfileBSESystemParameters),                                     "Filename for BSE System Parameters logfile")
-            ("logfile-definitions",                                         po::value<string>(&logfileDefinitionsFilename)->implicit_value(""),                 "Filename for logfile record definitions")
-            ("logfile-delimiter",                                           po::value<string>(&logfileDelimiterString),                                         "Field delimiter for logfile records.  Default = TAB")
-            ("logfile-name-prefix",                                         po::value<string>(&logfileNamePrefix),                                              "Prefix for logfile names")
-            ("logfile-SSE-parameters",                                      po::value<string>(&logfileSSEParameters),                                           "Filename for SSE Parameters logfile")
+            // JR - 01/04/2020 - Serena will uncomment when tested.
+            // ("logfile-BSE-be-binaries",                                     po::value<string>(&logfileBSEBeBinaries)->default_value(logfileBSEBeBinaries),                                                                              ("Filename for BSE Be Binaries logfile (default = " + logfileBSEBeBinaries + ")").c_str())
+            ("logfile-BSE-common-envelopes",                                po::value<string>(&logfileBSECommonEnvelopes)->default_value(logfileBSECommonEnvelopes),                                                                    ("Filename for BSE Common Envelopes logfile (default = " + logfileBSECommonEnvelopes + ")").c_str())
+            ("logfile-BSE-detailed-output",                                 po::value<string>(&logfileBSEDetailedOutput)->default_value(logfileBSEDetailedOutput),                                                                      ("Filename for BSE Detailed Output logfile (default = " + logfileBSEDetailedOutput + ")").c_str())
+            ("logfile-BSE-double-compact-objects",                          po::value<string>(&logfileBSEDoubleCompactObjects)->default_value(logfileBSEDoubleCompactObjects),                                                          ("Filename for BSE Double Compact Objects logfile (default = " + logfileBSEDoubleCompactObjects + ")").c_str())
+            ("logfile-BSE-pulsar-evolution",                                po::value<string>(&logfileBSEPulsarEvolution)->default_value(logfileBSEPulsarEvolution),                                                                    ("Filename for BSE Pulsar Evolution logfile (default = " + logfileBSEPulsarEvolution + ")").c_str())
+            ("logfile-BSE-supernovae",                                      po::value<string>(&logfileBSESupernovae)->default_value(logfileBSESupernovae),                                                                              ("Filename for BSE Supernovae logfile (default = " + logfileBSESupernovae + ")").c_str())
+            ("logfile-BSE-system-parameters",                               po::value<string>(&logfileBSESystemParameters)->default_value(logfileBSESystemParameters),                                                                  ("Filename for BSE System Parameters logfile (default = " + logfileBSESystemParameters + ")").c_str())
+            ("logfile-definitions",                                         po::value<string>(&logfileDefinitionsFilename)->default_value(logfileDefinitionsFilename)->implicit_value(""),                                              ("Filename for logfile record definitions (default = " + logfileDefinitionsFilename + ")").c_str())
+            ("logfile-delimiter",                                           po::value<string>(&logfileDelimiterString)->default_value(logfileDelimiterString),                                                                          ("Field delimiter for logfile records (default = " + logfileDelimiterString + ")").c_str())
+            ("logfile-name-prefix",                                         po::value<string>(&logfileNamePrefix)->default_value(logfileNamePrefix)->implicit_value(""),                                                                ("Prefix for logfile names (default = " + logfileNamePrefix + ")").c_str())
+            ("logfile-SSE-parameters",                                      po::value<string>(&logfileSSEParameters)->default_value(logfileSSEParameters),                                                                              ("Filename for SSE Parameters logfile (default = " + logfileSSEParameters + ")").c_str())
 
-		    ("mass-loss-prescription",                                      po::value<string>(&massLossPrescriptionString),                                     "Mass loss prescription to use (options: NONE, HURLEY, VINK. Default = NONE)")
-		    ("mass-ratio-distribution,q",                                   po::value<string>(&massRatioDistributionString),                                    "Initial mass ratio distribution for q=m2/m1 (options: FLAT, DuquennoyMayor1991, SANA2012. Default = FLAT)")
-		    ("mass-transfer-accretion-efficiency-prescription",             po::value<string>(&massTransferAccretionEfficiencyPrescriptionString),              "Mass Transfer Accretion Efficiency prescription to use (options: THERMAL, FIXED, CENTRIFUGAL. Default = THERMAL)")
-		    ("mass-transfer-angular-momentum-loss-prescription",            po::value<string>(&massTransferAngularMomentumLossPrescriptionString),              "Mass Transfer Angular Momentum Loss prescription to use (options: JEANS, ISOTROPIC, CIRCUMBINARY, ARBITRARY. Default = ISOTROPIC)")
-		    ("mass-transfer-prescription",                                  po::value<string>(&massTransferPrescriptionString),                                 "Mass Transfer prescription to use (default = DEMINK)")
-		    ("mass-transfer-rejuvenation-prescription",                     po::value<string>(&massTransferRejuvenationPrescriptionString),                     "Mass Transfer Rejuvenation prescription to use (options: NONE, STARTRACK. Default = NONE)")
-			("mass-transfer-thermal-limit-accretor",                        po::value<string>(&massTransferThermallyLimitedVariationString),                    "Mass Transfer Thermal Accretion limit to use (default = CFACTOR)")
+		    ("mass-loss-prescription",                                      po::value<string>(&massLossPrescriptionString)->default_value(massLossPrescriptionString),                                                                  ("Mass loss prescription (options: NONE, HURLEY, VINK), default = " + massLossPrescriptionString + ")").c_str())
+		    ("mass-ratio-distribution,q",                                   po::value<string>(&massRatioDistributionString)->default_value(massRatioDistributionString),                                                                ("Initial mass ratio distribution for q=m2/m1 (options: FLAT, DuquennoyMayor1991, SANA2012), default = " + massRatioDistributionString + ")").c_str())
+		    ("mass-transfer-accretion-efficiency-prescription",             po::value<string>(&massTransferAccretionEfficiencyPrescriptionString)->default_value(massTransferAccretionEfficiencyPrescriptionString),                    ("Mass Transfer Accretion Efficiency prescription (options: THERMAL, FIXED, CENTRIFUGAL), default = " + massTransferAngularMomentumLossPrescriptionString + ")").c_str())
+		    ("mass-transfer-angular-momentum-loss-prescription",            po::value<string>(&massTransferAngularMomentumLossPrescriptionString)->default_value(massTransferAngularMomentumLossPrescriptionString),                    ("Mass Transfer Angular Momentum Loss prescription (options: JEANS, ISOTROPIC, CIRCUMBINARY, ARBITRARY), default = " + massTransferAngularMomentumLossPrescriptionString + ")").c_str())
+		    ("mass-transfer-prescription",                                  po::value<string>(&massTransferPrescriptionString)->default_value(massTransferPrescriptionString),                                                          ("Mass Transfer prescription (default = " + massTransferPrescriptionString + ")").c_str())
+		    ("mass-transfer-rejuvenation-prescription",                     po::value<string>(&massTransferRejuvenationPrescriptionString)->default_value(massTransferRejuvenationPrescriptionString),                                  ("Mass Transfer Rejuvenation prescription (options: NONE, STARTRACK), default = " + massTransferRejuvenationPrescriptionString + ")").c_str())
+			("mass-transfer-thermal-limit-accretor",                        po::value<string>(&massTransferThermallyLimitedVariationString)->default_value(massTransferThermallyLimitedVariationString),                                ("Mass Transfer Thermal Accretion limit (default = " + massTransferThermallyLimitedVariationString + ")").c_str())
 
-		    ("neutron-star-equation-of-state",                              po::value<string>(&neutronStarEquationOfStateString),                               "Specify which neutron star equation of state to use (options: SSE, ARP3 default = SSE)")
+		    ("neutrino-mass-loss-bh-formation",                             po::value<string>(&neutrinoMassLossAssumptionBHString)->default_value(neutrinoMassLossAssumptionBHString),                                                  ("Assumption about neutrino mass loss during BH formation (options: FIXED_FRACTION, FIXED_MASS), default = " + neutrinoMassLossAssumptionBHString + ")").c_str())
 
-   		    ("outputPath,o",                                                po::value<string>(&outputPathString),                                               "Directory for output (default = CWD)")
+		    ("neutron-star-equation-of-state",                              po::value<string>(&neutronStarEquationOfStateString)->default_value(neutronStarEquationOfStateString),                                                      ("Neutron star equation of state to use (options: SSE, ARP3), default = " + neutronStarEquationOfStateString + ")").c_str())
 
-		    ("pulsar-birth-magnetic-field-distribution",                    po::value<string>(&pulsarBirthMagneticFieldDistributionString),                     "Distribution of (log10 of) pulsar birth magnetic field in G (options: ZERO, FIXED, FLATINLOG, UNIFORM, LOGNORMAL. Default = ZERO)")
-		    ("pulsar-birth-spin-period-distribution",                       po::value<string>(&pulsarBirthSpinPeriodDistributionString),                        "Distribution of pulsar birth spin period in ms (options: ZERO, FIXED, UNIFORM, NORMAL. Default = ZERO)")
-		    ("pulsational-pair-instability-prescription",                   po::value<string>(&pulsationalPairInstabilityPrescriptionString),                   "Specify which prescription to use for pulsational pair instability (options: COMPAS, STARTRACK, MARCHANT default = COMPAS)")
+   		    ("output-container,c",                                          po::value<string>(&outputContainerName)->default_value(outputContainerName)->implicit_value(""),                                                            ("Container (directory) name for output files (default = " + outputContainerName + ")").c_str())
+   		    ("outputPath,o",                                                po::value<string>(&outputPathString)->default_value(outputPathString)->implicit_value(""),                                                                  ("Directory for output (default = " + outputPathString + ")").c_str())
 
-		    ("remnant-mass-prescription",                                   po::value<string>(&remnantMassPrescriptionString),                                  "Choose remnant mass prescription (options: postitnote, hurley2000, belczynski2002, fryer2012, muller2016, muller2016Maxwellian. Default = fryer2012)")
-		    ("rotational-velocity-distribution",                            po::value<string>(&rotationalVelocityDistributionString),                           "Initial rotational velocity distribution (options: ZERO, HURLEY, VLTFLAMES. Default = ZERO)")
+		    ("pulsar-birth-magnetic-field-distribution",                    po::value<string>(&pulsarBirthMagneticFieldDistributionString)->default_value(pulsarBirthMagneticFieldDistributionString),                                  ("Pulsar Birth Magnetic Field distribution (options: ZERO, FIXED, FLATINLOG, UNIFORM, LOGNORMAL), default = " + pulsarBirthMagneticFieldDistributionString + ")").c_str())
+		    ("pulsar-birth-spin-period-distribution",                       po::value<string>(&pulsarBirthSpinPeriodDistributionString)->default_value(pulsarBirthSpinPeriodDistributionString),                                        ("Pulsar Birth Spin Period distribution (options: ZERO, FIXED, UNIFORM, NORMAL), default = " + pulsarBirthSpinPeriodDistributionString + ")").c_str())
+		    ("pulsational-pair-instability-prescription",                   po::value<string>(&pulsationalPairInstabilityPrescriptionString)->default_value(pulsationalPairInstabilityPrescriptionString),                              ("Pulsational Pair Instability prescription (options: COMPAS, STARTRACK, MARCHANT), default = " + pulsationalPairInstabilityPrescriptionString + ")").c_str())
 
-		    ("semi-major-axis-distribution,a",                              po::value<string>(&semiMajorAxisDistributionString),                                "Initial semi-major axis distribution, a (options: FLATINLOG, CUSTOM, DuquennoyMayor1991, SANA2012. default = FLATINLOG)")
-		    ("spin-assumption",                                             po::value<string>(&spinAssumptionString),                                           "Which assumption of misalignedments to use (default = bothAligned)")
-		    ("spin-distribution",                                           po::value<string>(&spinDistributionString),                                         "Which distribution of spins to use (default = 0)")
+		    ("remnant-mass-prescription",                                   po::value<string>(&remnantMassPrescriptionString)->default_value(remnantMassPrescriptionString),                                                            ("Choose remnant mass prescription (options: postitnote, hurley2000, belczynski2002, fryer2012, muller2016, muller2016Maxwellian), default = " + remnantMassPrescriptionString + ")").c_str())
+		    ("rotational-velocity-distribution",                            po::value<string>(&rotationalVelocityDistributionString)->default_value(rotationalVelocityDistributionString),                                              ("Initial rotational velocity distribution (options: ZERO, HURLEY, VLTFLAMES), default = " + rotationalVelocityDistributionString + ")").c_str())
 
-		    ("tides-prescription",                                          po::value<string>(&tidesPrescriptionString),                                        "Tides prescription to use (options: default = None)")
-
+		    ("semi-major-axis-distribution,a",                              po::value<string>(&semiMajorAxisDistributionString)->default_value(semiMajorAxisDistributionString),                                                        ("Initial semi-major axis distribution, a (options: FLATINLOG, CUSTOM, DuquennoyMayor1991, SANA2012), default = " + semiMajorAxisDistributionString + ")").c_str())
 
             // vector (list) options - alphabetically
-            ("debug-classes",                                               po::value<vector<string>>(&debugClasses)->multitoken(),                             "Debug classes enabled")
-            ("log-classes",                                                 po::value<vector<string>>(&logClasses)->multitoken(),                               "Logging classes enabled")
+            ("debug-classes",                                               po::value<vector<string>>(&debugClasses)->multitoken()->default_value(debugClasses),                                                                        ("Debug classes enabled (default = " + defaultDebugClasses + ")").c_str())
+            ("log-classes",                                                 po::value<vector<string>>(&logClasses)->multitoken()->default_value(logClasses),                                                                            ("Logging classes enabled (default = " + defaultLogClasses + ")").c_str())
 		;
 
-
-        po::variables_map vm;   // Variables map
+        po::variables_map vm;                                                                                                           // Variables map
 
         try {
 
             po::store(po::parse_command_line(argc, argv, desc), vm);
 
             // --help option
-            if (vm.count("help")) {                                                                                                     // user requested help?
+            if (vm["help"].as<bool>()) {                                                                                                // user requested help?
                 utils::SplashScreen();                                                                                                  // yes - show splash screen
                 ANNOUNCE(desc);                                                                                                         // and help
                 programStatus = COMMANDLINE_STATUS::SUCCESS;                                                                            // ok
             }
 
             // --version option
-            if (vm.count("version")) {                                                                                                  // user requested version?
+            if (vm["version"].as<bool>()) {                                                                                             // user requested version?
                 ANNOUNCE("COMPAS v" << VERSION_STRING);                                                                                 // yes, show version string
                 programStatus = COMMANDLINE_STATUS::SUCCESS;                                                                            // ok
             }
 
+
             po::notify(vm);                                                                                                             // invoke notify to assign user-input values to variables.  Throws an error, so do after help just in case there are any problems.
 
-
-            // boolean options (flags) - alphabetically (where possible - dependencies)
-
-            AISexploratoryPhase                             = vm.count("AIS-exploratory-phase");                                        // exploratory phase of Adaptive Importance Sampling - Floor 24-04-2018.  Do not retain previous (default) value
-            AIShubble                                       = vm.count("AIS-Hubble");                                                   // excluding binaries that merge outside Hubble time (exploratory phase AIS)?  Do not retain previous (default) value
-            AISpessimistic                                  = vm.count("AIS-Pessimistic");                                              // excluding binaries that are Optimistic (exploratory phase AIS)?  Do not retain previous (default) value
-            AISrefinementPhase                              = vm.count("AIS-refinement-phase");
-            AISrlof                                         = vm.count("AIS-RLOF");                                                     // excluding binaries that RLOFSecondaryZAMS (exploratory phase AIS)?  Do not retain previous (default) value
-
-            allowTouchingAtBirth                            = vm.count("allow-touching-at-birth");                                      // allow binaries that are touching at birth to evolve
-            allowRLOFAtBirth                                = vm.count("allow-rlof-at-birth");                                          // allow binaries that have one or both stars in RLOF at birth to evolve
-
-            allowMainSequenceStarToSurviveCommonEnvelope    = vm.count("common-envelope-allow-main-sequence-survive");                  // allow MS stars to survive CE event?  Do not retain previous (default) value
-
-			beBinaries                                      = vm.count("BeBinaries");                                                   // enable Be Binaries?  Do not retain previous (default) value
-
-            debugToFile                                     = vm.count("debug-to-file") ? true : debugToFile;                           // write debug records to file?  Retain previous (default) value if not specified
-
-            detailedOutput                                  = vm.count("detailedOutput");                                               // detailed output of each simulated system?  Do not retain previous (default) value
-
-            errorsToFile                                    = vm.count("errors-to-file") ? true : errorsToFile;                         // write error messages to file?  Retain previous (default) value
-
-            evolvePulsars                                   = vm.count("evolve-pulsars");                                               // evolve pulsars?  Do not retain previous (default) value
-
-            evolveUnboundSystems                            = vm.count("evolve-unbound-systems");                                       // evolve unbound systems?  Do not retain previous (default) value
-
-            fixedMetallicity                                = vm.count("metallicity") ? true : fixedMetallicity;                        // user-specified a metallicity value?  Retain previous (default) value
-
-            fixedRandomSeed                                 = fixedRandomSeed || vm.count("random-seed");                               // user-specified random seed?  Do not retain previous (default) value
-
-			lambdaCalculationEveryTimeStep                  = vm.count("lambda-calculation-every-timeStep");                            // calculate lambdas at every timestep?  Do not retain previous (default) value if not specified
-
-            massTransferCriticalMassRatioMSLowMass          = vm.count("critical-mass-ratio-MS-low-mass-non-degenerate-accretor") &&
-                                                              vm.count("critical-mass-ratio-MS-low-mass-degenerate-accretor")     &&
-                                                              massTransferCriticalMassRatioMSLowMassNonDegenerateAccretor >= 0.0  &&
-                                                              massTransferCriticalMassRatioMSLowMassDegenerateAccretor    >= 0.0;       // Do not retain previous (default) value
-
-            massTransferCriticalMassRatioMSHighMass         = vm.count("critical-mass-ratio-MS-high-mass-non-degenerate-accretor") &&
-                                                              vm.count("critical-mass-ratio-MS-high-mass-degenerate-accretor")     &&
-                                                              massTransferCriticalMassRatioMSHighMassNonDegenerateAccretor >= 0.0  &&
-                                                              massTransferCriticalMassRatioMSHighMassDegenerateAccretor    >= 0.0;      // Do not retain previous (default) value
-
-            massTransferCriticalMassRatioHG                 = vm.count("critical-mass-ratio-HG-non-degenerate-accretor")  &&
-                                                              vm.count("critical-mass-ratio-HG-degenerate-accretor")      &&
-                                                              massTransferCriticalMassRatioHGNonDegenerateAccretor >= 0.0 &&
-                                                              massTransferCriticalMassRatioHGDegenerateAccretor    >= 0.0;              // Do not retain previous (default) value
-
-            massTransferCriticalMassRatioGiant              = vm.count("critical-mass-ratio-giant-non-degenerate-accretor")  &&
-                                                              vm.count("critical-mass-ratio-giant-degenerate-accretor")      &&
-                                                              massTransferCriticalMassRatioGiantNonDegenerateAccretor >= 0.0 &&
-                                                              massTransferCriticalMassRatioGiantDegenerateAccretor    >= 0.0;           // Do not retain previous (default) value
-
-            massTransferCriticalMassRatioHeliumMS           = vm.count("critical-mass-ratio-helium-MS-non-degenerate-accretor") &&
-                                                              vm.count("critical-mass-ratio-helium-MS-degenerate-accretor")     &&
-                                                              massTransferCriticalMassRatioHeliumMSNonDegenerateAccretor >= 0.0 &&
-                                                              massTransferCriticalMassRatioHeliumMSDegenerateAccretor    >= 0.0;        // Do not retain previous (default) value
-
-            massTransferCriticalMassRatioHeliumHG           = vm.count("critical-mass-ratio-helium-HG-non-degenerate-accretor") &&
-                                                              vm.count("critical-mass-ratio-helium-HG-degenerate-accretor")     &&
-                                                              massTransferCriticalMassRatioHeliumHGNonDegenerateAccretor >= 0.0 &&
-                                                              massTransferCriticalMassRatioHeliumHGDegenerateAccretor    >= 0.0;        // Do not retain previous (default) value
-
-            massTransferCriticalMassRatioHeliumGiant        = vm.count("critical-mass-ratio-helium-giant-non-degenerate-accretor") &&
-                                                              vm.count("critical-mass-ratio-helium-giant-degenerate-accretor")     &&
-                                                              massTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor >= 0.0 &&
-                                                              massTransferCriticalMassRatioHeliumGiantDegenerateAccretor    >= 0.0;     // Do not retain previous (default) value
-
-            massTransferCriticalMassRatioWhiteDwarf         = vm.count("critical-mass-ratio-white-dwarf-non-degenerate-accretor") &&
-                                                              vm.count("critical-mass-ratio-white-dwarf-degenerate-accretor")     &&
-                                                              massTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor >= 0.0 &&
-                                                              massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor    >= 0.0;      // Do not retain previous (default) value
-
-            onlyDoubleCompactObjects                        = vm.count("only-double-compact-objects");                                  // only evolve DCOs?  Do not retain previous (default) value
-
-            PNevolution                                     = vm.count("PN") ? true : PNevolution;                                      // integrate spins using PN equations?  Retain previous (default) value
-
-            populationDataPrinting                          = vm.count("populationDataPrinting");                                       // print certain values while running a population?  Do not retain previous (default) valued
-
-            printBoolAsString                               = vm.count("print-bool-as-string") ? true : printBoolAsString;              // print boolean values as "TRUE"/"FALSE"?  Retain previous (default) value
-
-            quiet                                           = vm.count("quiet");                                                        // verbose or quiet mode?  Do not retain previous (default) value
-
-            revisedEnergyFormalismNandezIvanova             = vm.count("revised-energy-formalism-Nandez-Ivanova");                      // Do not retain previous (default) value
-
-            rlofPrinting                                    = vm.count("RLOFPrinting");                                                 // print Roche Lobe overflow details?  Do not retain previous (default) value
-
-			sampleCommonEnvelopeAlpha                       = vm.count("sample-common-envelope-alpha");                                 // sample CE alpha?  Do not retain previous (default) value
-			sampleKickDirectionPower                        = vm.count("sample-kick-direction-power");                                  // sample kick direction power?  Do not retain previous (default) value
-			sampleKickVelocitySigma                         = vm.count("sample-kick-velocity-sigma");                                   // sample over some hyperparameters? - JIM BARRETT -- 06/07/2016.  Do not retain previous (default) value
-			sampleLuminousBlueVariableMultiplier            = vm.count("sample-luminous-blue-variable-multiplier");                     // sample LBV multiplier?  Do not retain previous (default) value
-			sampleWolfRayetMultiplier                       = vm.count("sample-wolf-rayet-multiplier");                                 // sample wolf-rayet multiplier?  Do not retain previous (default) valued
-
-            singleStar                                      = vm.count("single-star");                                                  // evolve a single star?  Do not retain previous (default) valued
-
-            useFixedUK                                      = vm.count("fix-dimensionless-kick-velocity") && (utils::Compare(fixedUK, 0.0) >= 0);   // fix the dimensionless kick velocity?  Do not retain previous (default) value
-
-			useImportanceSampling                           = vm.count("importance-sampling");                                          // Do not retain previous (default) value
-
-            useMassTransfer                                 = vm.count("massTransfer") ? true : useMassTransfer;                        // use mass transfer?  Retain previous (default) value
-
-            useMassLoss                                     = vm.count("use-mass-loss");                                                // use mass loss?  Do not retain previous (default) value
-
-//			useMCMC                                         = vm.count("mcmc");			                                                // Simon Stevenson - 15/03/2018 - adding MCMC functionality.  Do not retain previous (default) value
-
-            usePairInstabilitySupernovae                    = vm.count("pair-instability-supernovae");                                  // pair instability supernovae?  Do not retain previous (default) value
-
-            usePulsationalPairInstability                   = vm.count("pulsational-pair-instability");                                 // pulsational pair instability supernovae?  Do not retain previous (default) value
-
-			zetaCalculationEveryTimeStep                    = vm.count("zeta-Calculation-Every-Time-Step");                             // calculate zetas at every timestep?  Do not retain previous (default) value
+            fixedRandomSeed  = !vm["random-seed"].defaulted();                                                                          // use random seed if it is provided by the user
+            fixedMetallicity = !vm["metallicity"].defaulted();                                                                          // determine if user supplied a metallicity value
+            useFixedUK       = !vm["fix-dimensionless-kick-velocity"].defaulted() && (fixedUK >= 0.0);                                  // determine if user supplied a valid kick velocity
 
 
-			if (useMassTransfer) {                                                                                                      // the following depend on the value of useMassTransfer
-                if (vm.count("circulariseBinaryDuringMassTransfer")) {
-					angularMomentumConservationDuringCircularisation = vm.count("angularMomentumConservationDuringCircularisation");    // Do not retain previous (default) value
-					circulariseBinaryDuringMassTransfer              = true;
-                }
-				else{
-					circulariseBinaryDuringMassTransfer              = false;
-				}
-
-                if (vm.count("forceCaseBBBCStabilityFlag")) {
-	                alwaysStableCaseBBBCFlag   = vm.count("alwaysStableCaseBBBCFlag");                                                  // Do not retain previous (default) value
-					forceCaseBBBCStabilityFlag = true;
-                }
-				else{
-					forceCaseBBBCStabilityFlag = false;
-				}
-            }
-
-
-            // prescriptions, distributions, assumptions etc. options - alphabetically
+            // check & set prescriptions, distributions, assumptions etc. options - alphabetically
 
             bool found;
 
-            if (vm.count("AIS-DCOtype")) {                                                                                              // Adaptive Importance Sampling DCO type
+            // AVG - 17/03/2020 - Floor will uncomment when tested.
+            /*
+            if (!vm["AIS-DCOtype"].defaulted()) {                                                                                       // Adaptive Importance Sampling DCO type
                 std::tie(found, AISDCOtype) = utils::GetMapKey(AISDCOtypeString, AIS_DCO_LABEL, AISDCOtype);
                 COMPLAIN_IF(!found, "Unknown AIS DCO Type");
             }
+            */
 
-            if (vm.count("black-hole-kicks")) {                                                                                         // black hole kicks option
+            if (!vm["black-hole-kicks"].defaulted()) {                                                                                  // black hole kicks option
                 std::tie(found, blackHoleKicksOption) = utils::GetMapKey(blackHoleKicksString, BLACK_HOLE_KICK_OPTION_LABEL, blackHoleKicksOption);
                 COMPLAIN_IF(!found, "Unknown Black Hole Kicks Option");
             }
 
-            if (vm.count("chemically-homogeneous-evolution")) {                                                                         // Chemically Homogeneous Evolution
+            if (!vm["chemically-homogeneous-evolution"].defaulted()) {                                                                  // Chemically Homogeneous Evolution
                 std::tie(found, cheOption) = utils::GetMapKey(cheString, CHE_OPTION_LABEL, cheOption);
                 COMPLAIN_IF(!found, "Unknown Chemically Homogeneous Evolution Option");
             }
 
-            if (vm.count("common-envelope-hertzsprung-gap-assumption")) {                                                               // common envelope hertzsprung gap assumption
+            if (!vm["common-envelope-hertzsprung-gap-assumption"].defaulted()) {                                                        // common envelope hertzsprung gap assumption
                 std::tie(found, commonEnvelopeHertzsprungGapDonor) = utils::GetMapKey(commonEnvelopeHertzsprungGapDonorString, COMMON_ENVELOPE_PRESCRIPTION_LABEL, commonEnvelopeHertzsprungGapDonor);
                 COMPLAIN_IF(!found, "Unknown CE HG Assumption");
             }
 
-            if (vm.count("common-envelope-lambda-prescription")) {                                                                      // common envelope lambda prescription
+            if (!vm["common-envelope-lambda-prescription"].defaulted()) {                                                               // common envelope lambda prescription
                 std::tie(found, commonEnvelopeLambdaPrescription) = utils::GetMapKey(commonEnvelopeLambdaPrescriptionString, CE_LAMBDA_PRESCRIPTION_LABEL, commonEnvelopeLambdaPrescription);
                 COMPLAIN_IF(!found, "Unknown CE Lambda Prescription");
-
-                if (commonEnvelopeLambdaPrescription == CE_LAMBDA_PRESCRIPTION::KRUCKOW) {                                              // CE Lambda prescription = Kruckow
-                    commonEnvelopeSlopeKruckow = vm.count("common-envelope-slope-Kruckow") ? commonEnvelopeSlopeKruckow : -4.0 / 5.0;   // if user didn't specify choice of the slope, use default
-                }
             }
 
-            if (vm.count("common-envelope-mass-accretion-prescription")) {                                                              // common envelope mass accretion prescription
+            if (!vm["common-envelope-mass-accretion-prescription"].defaulted()) {                                                       // common envelope mass accretion prescription
                 std::tie(found, commonEnvelopeMassAccretionPrescription) = utils::GetMapKey(commonEnvelopeMassAccretionPrescriptionString, CE_ACCRETION_PRESCRIPTION_LABEL, commonEnvelopeMassAccretionPrescription);
                 COMPLAIN_IF(!found, "Unknown CE Mass Accretion Prescription");
             }
 
-            if (vm.count("common-envelope-zeta-prescription")) {                                                                        // common envelope zeta prescription
+            if (!vm["common-envelope-zeta-prescription"].defaulted()) {                                                                 // common envelope zeta prescription
                 std::tie(found, commonEnvelopeZetaPrescription) = utils::GetMapKey(commonEnvelopeZetaPrescriptionString, CE_ZETA_PRESCRIPTION_LABEL, commonEnvelopeZetaPrescription);
                 COMPLAIN_IF(!found, "Unknown CE Zeta Prescription");
-
-                if (commonEnvelopeZetaPrescription == CE_ZETA_PRESCRIPTION::ARBITRARY) {                                                // CE Lambda prescription = Kruckow
-                    zetaAdiabaticArbitrary = vm.count("zeta-adiabatic-arbitrary") ? zetaAdiabaticArbitrary : 10000.0;                   // if user didn't specify Zetas, asign large value, which will favour stable MT
-                    zetaThermalArbitrary   = vm.count("zeta-thermal-arbitrary")   ? zetaThermalArbitrary   : 10000.0;                   // if user didn't specify Zetas, asign large value, which will favour stable MT
-                }
             }
 
-            if (vm.count("eccentricity-distribution")) {                                                                                // eccentricity distribution
+            if (!vm["eccentricity-distribution"].defaulted()) {                                                                         // eccentricity distribution
                 std::tie(found, eccentricityDistribution) = utils::GetMapKey(eccentricityDistributionString, ECCENTRICITY_DISTRIBUTION_LABEL, eccentricityDistribution);
                 COMPLAIN_IF(!found, "Unknown Eccentricity Distribution");
             }
 
-            if (vm.count("fryer-supernova-engine")) {                                                                                   // Fryer et al. 2012 supernova engine
+            if (!vm["fryer-supernova-engine"].defaulted()) {                                                                            // Fryer et al. 2012 supernova engine
                 std::tie(found, fryerSupernovaEngine) = utils::GetMapKey(fryerSupernovaEngineString, SN_ENGINE_LABEL, fryerSupernovaEngine);
                 COMPLAIN_IF(!found, "Unknown Fryer et al. Supernova Engine");
             }
 
-            if (vm.count("initial-mass-function")) {                                                                                    // initial mass function
+            if (!vm["initial-mass-function"].defaulted()) {                                                                             // initial mass function
                 std::tie(found, initialMassFunction) = utils::GetMapKey(initialMassFunctionString, INITIAL_MASS_FUNCTION_LABEL, initialMassFunction);
                 COMPLAIN_IF(!found, "Unknown Initial Mass Function");
             }
 
-            if (vm.count("kick-direction")) {                                                                                           // kick direction
+            if (!vm["kick-direction"].defaulted()) {                                                                                    // kick direction
                 std::tie(found, kickDirectionDistribution) = utils::GetMapKey(kickDirectionDistributionString, KICK_DIRECTION_DISTRIBUTION_LABEL, kickDirectionDistribution);
                 COMPLAIN_IF(!found, "Unknown Kick Direction Distribution");
             }
 
-            if (vm.count("kick-velocity-distribution")) {                                                                               // kick velocity
+            if (!vm["kick-velocity-distribution"].defaulted()) {                                                                        // kick velocity
                 std::tie(found, kickVelocityDistribution) = utils::GetMapKey(kickVelocityDistributionString, KICK_VELOCITY_DISTRIBUTION_LABEL, kickVelocityDistribution);
                 COMPLAIN_IF(!found, "Unknown Kick Velocity Distribution");
             }
 
-			if (vm.count("logfile-delimiter")) {                                                                                        // logfile field delimiter
+			if (!vm["logfile-delimiter"].defaulted()) {                                                                                 // logfile field delimiter
                 std::tie(found, logfileDelimiter) = utils::GetMapKey(logfileDelimiterString, DELIMITERLabel, logfileDelimiter);
                 COMPLAIN_IF(!found, "Unknown Logfile Delimiter");
             }
 
-            if (vm.count("mass-loss-prescription")) {                                                                                   // mass loss prescription
+            if (!vm["mass-loss-prescription"].defaulted()) {                                                                            // mass loss prescription
                 std::tie(found, massLossPrescription) = utils::GetMapKey(massLossPrescriptionString, MASS_LOSS_PRESCRIPTION_LABEL, massLossPrescription);
                 COMPLAIN_IF(!found, "Unknown Mass Loss Prescription");
             }
 
-            if (vm.count("mass-ratio-distribution")) {                                                                                  // mass ratio distribution
+            if (!vm["mass-ratio-distribution"].defaulted()) {                                                                           // mass ratio distribution
                 std::tie(found, massRatioDistribution) = utils::GetMapKey(massRatioDistributionString, MASS_RATIO_DISTRIBUTION_LABEL, massRatioDistribution);
                 COMPLAIN_IF(!found, "Unknown Mass Ratio Distribution");
             }
 
-            if (useMassTransfer && vm.count("mass-transfer-prescription")) {                                                            // mass transfer prescription
+            if (useMassTransfer && !vm["mass-transfer-prescription"].defaulted()) {                                                     // mass transfer prescription
                 std::tie(found, massTransferPrescription) = utils::GetMapKey(massTransferPrescriptionString, MT_PRESCRIPTION_LABEL, massTransferPrescription);
                 COMPLAIN_IF(!found, "Unknown Mass Transfer Prescription");
             }
 
-            if (useMassTransfer && vm.count("mass-transfer-accretion-efficiency-prescription")) {                                       // mass transfer accretion efficiency prescription
+            if (useMassTransfer && !vm["mass-transfer-accretion-efficiency-prescription"].defaulted()) {                                // mass transfer accretion efficiency prescription
                 std::tie(found, massTransferAccretionEfficiencyPrescription) = utils::GetMapKey(massTransferAccretionEfficiencyPrescriptionString, MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL, massTransferAccretionEfficiencyPrescription);
                 COMPLAIN_IF(!found, "Unknown Mass Transfer Angular Momentum Loss Prescription");
             }
 
-            if (useMassTransfer && vm.count("mass-transfer-angular-momentum-loss-prescription")) {                                      // mass transfer angular momentum loss prescription
+            if (useMassTransfer && !vm["mass-transfer-angular-momentum-loss-prescription"].defaulted()) {                               // mass transfer angular momentum loss prescription
                 std::tie(found, massTransferAngularMomentumLossPrescription) = utils::GetMapKey(massTransferAngularMomentumLossPrescriptionString, MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL, massTransferAngularMomentumLossPrescription);
                 COMPLAIN_IF(!found, "Unknown Mass Transfer Angular Momentum Loss Prescription");
             }
 
-            if (useMassTransfer && vm.count("mass-transfer-rejuvenation-prescription")) {                                               // mass transfer rejuvenation prescription
+            if (useMassTransfer && !vm["mass-transfer-rejuvenation-prescription"].defaulted()) {                                        // mass transfer rejuvenation prescription
                 std::tie(found, massTransferRejuvenationPrescription) = utils::GetMapKey(massTransferRejuvenationPrescriptionString, MT_REJUVENATION_PRESCRIPTION_LABEL, massTransferRejuvenationPrescription);
                 COMPLAIN_IF(!found, "Unknown Mass Transfer Rejuvenation Prescription");
             }
 
-            if (useMassTransfer && vm.count("mass-transfer-thermal-limit-accretor")) {                                                  // mass transfer accretor thermal limit
+            if (useMassTransfer && !vm["mass-transfer-thermal-limit-accretor"].defaulted()) {                                           // mass transfer accretor thermal limit
                 std::tie(found, massTransferThermallyLimitedVariation) = utils::GetMapKey(massTransferThermallyLimitedVariationString, MT_THERMALLY_LIMITED_VARIATION_LABEL, massTransferThermallyLimitedVariation);
                 COMPLAIN_IF(!found, "Unknown Mass Transfer Accretor Thermal Limit");
 
-                if (massTransferThermallyLimitedVariation == MT_THERMALLY_LIMITED_VARIATION::C_FACTOR) {
-                    massTransferCParameter = vm.count("mass-transfer-thermal-limit-C") ? massTransferCParameter : 10.0;                 // if user didn't specify choice of C factor, use default based on choice of thermally limited variation
-                }
+                if (found) {
+                    if (massTransferThermallyLimitedVariation == MT_THERMALLY_LIMITED_VARIATION::C_FACTOR) {
+                        massTransferCParameter = vm["mass-transfer-thermal-limit-C"].defaulted() ? 10.0 : massTransferCParameter;       // if user didn't specify choice of C factor, use default based on choice of thermally limited variation
+                    }
 
-                if (massTransferThermallyLimitedVariation == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE) {
-                    massTransferCParameter = vm.count("mass-transfer-thermal-limit-C") ? massTransferCParameter : 1.0;                  // if user didn't specify choice of C factor, use default based on choice of thermally limited variation
+                    if (massTransferThermallyLimitedVariation == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE) {
+                        massTransferCParameter = vm["mass-transfer-thermal-limit-C"].defaulted() ? 1.0 : massTransferCParameter;        // if user didn't specify choice of C factor, use default based on choice of thermally limited variation
+                    }
                 }
             }
 
-            if (vm.count("neutrino-mass-loss-bh-formation")) {                                                                          // neutrino mass loss assumption
+            if (!vm["neutrino-mass-loss-bh-formation"].defaulted()) {                                                                   // neutrino mass loss assumption
                 std::tie(found, neutrinoMassLossAssumptionBH) = utils::GetMapKey(neutrinoMassLossAssumptionBHString, NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL, neutrinoMassLossAssumptionBH);
                 COMPLAIN_IF(!found, "Unknown Neutrino Mass Loss Assumption");
             }
 
-            if (vm.count("neutron-star-equation-of-state")) {                                                                           // neutron star equation of state
+            if (!vm["neutron-star-equation-of-state"].defaulted()) {                                                                    // neutron star equation of state
                 std::tie(found, neutronStarEquationOfState) = utils::GetMapKey(neutronStarEquationOfStateString, NS_EOSLabel, neutronStarEquationOfState);
                 COMPLAIN_IF(!found, "Unknown Neutron Star Equation of State");
             }
 
-            if (vm.count("pulsar-birth-magnetic-field-distribution")) {                                                                 // pulsar birth magnetic field distribution
+            if (!vm["pulsar-birth-magnetic-field-distribution"].defaulted()) {                                                          // pulsar birth magnetic field distribution
                 std::tie(found, pulsarBirthMagneticFieldDistribution) = utils::GetMapKey(pulsarBirthMagneticFieldDistributionString, PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL, pulsarBirthMagneticFieldDistribution);
                 COMPLAIN_IF(!found, "Unknown Pulsar Birth Magnetic Field Distribution");
             }
 
-            if (vm.count("pulsar-birth-spin-period-distribution")) {                                                                    // pulsar birth spin period distribution
+            if (!vm["pulsar-birth-spin-period-distribution"].defaulted()) {                                                             // pulsar birth spin period distribution
                 std::tie(found, pulsarBirthSpinPeriodDistribution) = utils::GetMapKey(pulsarBirthSpinPeriodDistributionString, PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL, pulsarBirthSpinPeriodDistribution);
                 COMPLAIN_IF(!found, "Unknown Pulsar Birth Spin Period Distribution");
             }
 
-
-			if (vm.count("pulsational-pair-instability-prescription")) {                                                                // pulsational pair instability prescription
+			if (!vm["pulsational-pair-instability-prescription"].defaulted()) {                                                         // pulsational pair instability prescription
                 std::tie(found, pulsationalPairInstabilityPrescription) = utils::GetMapKey(pulsationalPairInstabilityPrescriptionString, PPI_PRESCRIPTION_LABEL, pulsationalPairInstabilityPrescription);
                 COMPLAIN_IF(!found, "Unknown Pulsational Pair Instability Prescription");
 			}
 
-            if (vm.count("remnant-mass-prescription")) {                                                                                // remnant mass prescription
+            if (!vm["remnant-mass-prescription"].defaulted()) {                                                                         // remnant mass prescription
                 std::tie(found, remnantMassPrescription) = utils::GetMapKey(remnantMassPrescriptionString, REMNANT_MASS_PRESCRIPTION_LABEL, remnantMassPrescription);
                 COMPLAIN_IF(!found, "Unknown Remnant Mass Prescription");
             }
 
-            if (vm.count("rotational-velocity-distribution")) {                                                                         // rotational velocity distribution
+            if (!vm["rotational-velocity-distribution"].defaulted()) {                                                                  // rotational velocity distribution
                 std::tie(found, rotationalVelocityDistribution) = utils::GetMapKey(rotationalVelocityDistributionString, ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL, rotationalVelocityDistribution);
                 COMPLAIN_IF(!found, "Unknown Rotational Velocity Distribution");
             }
 
-            if (vm.count("semi-major-axis-distribution")) {                                                                             // semi-major axis distribution
+            if (!vm["semi-major-axis-distribution"].defaulted()) {                                                                      // semi-major axis distribution
                 std::tie(found, semiMajorAxisDistribution) = utils::GetMapKey(semiMajorAxisDistributionString, SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL, semiMajorAxisDistribution);
                 COMPLAIN_IF(!found, "Unknown Semi-Major Axis Distribution");
             }
 
-			if (vm.count("spin-assumption")) {                                                                                          // spin assumption
-                std::tie(found, spinAssumption) = utils::GetMapKey(spinAssumptionString, SPIN_ASSUMPTION_LABEL, spinAssumption);
-                COMPLAIN_IF(!found, "Unknown Spin Assumption");
-			}
-
-			if (vm.count("spin-distribution")) {                                                                                        // spin distribution
-                std::tie(found, spinDistribution) = utils::GetMapKey(spinDistributionString, SPIN_DISTRIBUTION_LABEL, spinDistribution);
-                COMPLAIN_IF(!found, "Unknown Spin Assumption");
-			}
-
-            if (vm.count("tides-prescription")) {                                                                                       // tides prescription
-                std::tie(found, tidesPrescription) = utils::GetMapKey(tidesPrescriptionString, TIDES_PRESCRIPTION_LABEL, tidesPrescription);
-                COMPLAIN_IF(!found, "Unknown Tides Prescription");
-            }
-
-
             // constraint/value/range checks - alphabetically (where possible)
 
-            COMPLAIN_IF(vm.count("common-envelope-alpha") && commonEnvelopeAlpha < 0.0, "CE alpha (--common-envelope-alpha) < 0");
-            COMPLAIN_IF(vm.count("common-envelope-alpha-thermal") && (commonEnvelopeAlphaThermal < 0.0 || commonEnvelopeAlphaThermal > 1.0), "CE alpha thermal (--common-envelope-alpha-thermal) must be between 0 and 1");
-            COMPLAIN_IF(vm.count("common-envelope-lambda-multiplier") && commonEnvelopeLambdaMultiplier < 0.0, "CE lambda multiplie (--common-envelope-lambda-multiplier < 0");
-            COMPLAIN_IF(vm.count("common-envelope-mass-accretion-constant") && commonEnvelopeMassAccretionConstant < 0.0, "CE mass accretion constant (--common-envelope-mass-accretion-constant) < 0");
-            COMPLAIN_IF(vm.count("common-envelope-mass-accretion-max") && commonEnvelopeMassAccretionMax < 0.0, "Maximum accreted mass (--common-envelope-mass-accretion-max) < 0");
-            COMPLAIN_IF(vm.count("common-envelope-mass-accretion-min") && commonEnvelopeMassAccretionMin < 0.0, "Minimum accreted mass (--common-envelope-mass-accretion-min) < 0");
+            COMPLAIN_IF(!vm["common-envelope-alpha"].defaulted() && commonEnvelopeAlpha < 0.0, "CE alpha (--common-envelope-alpha) < 0");
+            COMPLAIN_IF(!vm["common-envelope-alpha-thermal"].defaulted() && (commonEnvelopeAlphaThermal < 0.0 || commonEnvelopeAlphaThermal > 1.0), "CE alpha thermal (--common-envelope-alpha-thermal) must be between 0 and 1");
+            COMPLAIN_IF(!vm["common-envelope-lambda-multiplier"].defaulted() && commonEnvelopeLambdaMultiplier < 0.0, "CE lambda multiplie (--common-envelope-lambda-multiplier < 0");
+            COMPLAIN_IF(!vm["common-envelope-mass-accretion-constant"].defaulted() && commonEnvelopeMassAccretionConstant < 0.0, "CE mass accretion constant (--common-envelope-mass-accretion-constant) < 0");
+            COMPLAIN_IF(!vm["common-envelope-mass-accretion-max"].defaulted() && commonEnvelopeMassAccretionMax < 0.0, "Maximum accreted mass (--common-envelope-mass-accretion-max) < 0");
+            COMPLAIN_IF(!vm["common-envelope-mass-accretion-min"].defaulted() && commonEnvelopeMassAccretionMin < 0.0, "Minimum accreted mass (--common-envelope-mass-accretion-min) < 0");
 
             COMPLAIN_IF(debugLevel < 0, "Debug level (--debug-level) < 0");
 
@@ -1462,17 +1425,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 COMPLAIN_IF(kickVelocityDistributionMaximum <= 0.0, "User specified --kick-velocity-distribution = FLAT with Maximum kick velocity (--kick-velocity-max) <= 0.0");
             }
 
-            if (neutrinoMassLossAssumptionBH == NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS) {
-               COMPLAIN_IF(neutrinoMassLossValueBH < 0.0, "Neutrino mass loss value < 0");                                              // JR: todo: this is not a user-specified option
-            }
-
             COMPLAIN_IF(logLevel < 0, "Logging level (--log-level) < 0");
-
-            COMPLAIN_IF(nBinaries <= 0, "Number of binaries requested <= 0");
-
-            if (neutrinoMassLossAssumptionBH == NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_FRACTION) {
-               COMPLAIN_IF(neutrinoMassLossValueBH < 0.0 || neutrinoMassLossValueBH > 1.0, "Neutrino mass loss must be between 0 and 1"); // JR: todo: this is not a user-specified option
-            }
 
             COMPLAIN_IF(massRatioDistributionMin < 0.0 || massRatioDistributionMin > 1.0, "Minimum mass ratio (--mass-ratio-min) must be between 0 and 1");
             COMPLAIN_IF(massRatioDistributionMax < 0.0 || massRatioDistributionMax > 1.0, "Maximum mass ratio (--mass-ratio-max) must be between 0 and 1");
@@ -1485,7 +1438,17 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             COMPLAIN_IF(minimumMassSecondary < 0.0, "Seconday minimum mass (--minimum-secondary-mass) must be >= 0");
             COMPLAIN_IF(minimumMassSecondary > initialMassFunctionMax, "Seconday minimum mass (--minimum-secondary-mass) must be <= Maximum initial mass (--initial-mass-max)");
 
-            if (vm.count("outputPath") or vm.count("o")) {                                                                              // user specified output path?
+            if (neutrinoMassLossAssumptionBH == NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS) {
+               COMPLAIN_IF(neutrinoMassLossValueBH < 0.0, "Neutrino mass loss value < 0");
+            }
+
+            COMPLAIN_IF(nBinaries <= 0, "Number of binaries requested <= 0");
+
+            if (neutrinoMassLossAssumptionBH == NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_FRACTION) {
+               COMPLAIN_IF(neutrinoMassLossValueBH < 0.0 || neutrinoMassLossValueBH > 1.0, "Neutrino mass loss must be between 0 and 1");
+            }
+
+            if (!vm["outputPath"].defaulted()) {                                                                                        // user specified output path?
                                                                                                                                         // yes
                 fs::path userPath = outputPathString;                                                                                   // user-specifed path
                 if (fs::is_directory(userPath)) {                                                                                       // valid directory?
@@ -1495,14 +1458,13 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                     WARN("User-specified output path is not a valid directory. Using CWD.");                                            // show warning
                     outputPath = defaultOutputPath;                                                                                     // use default path = CWD
                 }
-
             }
 
             COMPLAIN_IF(periodDistributionMin < 0.0, "Minimum orbital period (--orbital-period-min) < 0");
             COMPLAIN_IF(periodDistributionMax < 0.0, "Maximum orbital period (--orbital-period-max) < 0");
 
-            COMPLAIN_IF(vm.count("pulsar-magnetic-field-decay-timescale") && pulsarMagneticFieldDecayTimescale <= 0.0, "Pulsar magnetic field decay timescale (--pulsar-magnetic-field-decay-timescale) <= 0");
-            COMPLAIN_IF(vm.count("pulsar-magnetic-field-decay-massscale") && pulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar Magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
+            COMPLAIN_IF(!vm["pulsar-magnetic-field-decay-timescale"].defaulted() && pulsarMagneticFieldDecayTimescale <= 0.0, "Pulsar magnetic field decay timescale (--pulsar-magnetic-field-decay-timescale) <= 0");
+            COMPLAIN_IF(!vm["pulsar-magnetic-field-decay-massscale"].defaulted() && pulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar Magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
 
             COMPLAIN_IF(semiMajorAxisDistributionMin < 0.0, "Minimum semi-major Axis (--semi-major-axis-min) < 0");
             COMPLAIN_IF(semiMajorAxisDistributionMax < 0.0, "Maximum semi-major Axis (--semi-major-axis-max) < 0");
@@ -1511,6 +1473,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             COMPLAIN_IF(singleStarMassMax   <= singleStarMassMin, "Single star mass maximum (--single-star-mass-max) <= minimum (--single-star-mass-min)");
             COMPLAIN_IF(singleStarMassMin   <= 0.0,               "Single star mass minimum (--single-star-mass-min) <= 0");
             COMPLAIN_IF(singleStarMassSteps <= 0,                 "Single star mass steps (--single-star-mass-steps) <= 0");
+
+            m_OptionsDetails = ProgramOptionDetails(vm);                                                                                  // construct options details string for output
 
         }
         catch (po::error& e) {                                                                                                          // program options exception

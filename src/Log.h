@@ -4,7 +4,10 @@
 #define LOGGING Log::Instance()
 
 #include <fstream>
+#include <ctime>
+#include <chrono>
 
+#include <boost/filesystem.hpp>
 #include <boost/variant.hpp>
 
 #include "constants.h"
@@ -101,6 +104,7 @@ private:
     Log() {                                                                         // constructor - initialise variables
         m_Enabled = false;                                                          // logging disabled initially
         m_LogBasePath = ".";                                                        // default log file base path
+        m_LogContainerName = DEFAULT_OUTPUT_CONTAINER_NAME;                         // default log file container name                        
         m_LogNamePrefix = "";                                                       // default log file name prefix
         m_Delimiter = DELIMITERValue.at(DELIMITER::TAB);                            // default delimiter is TAB
         m_LogLevel = 0;                                                             // default log level - log everything
@@ -123,6 +127,7 @@ private:
     bool                 m_Enabled;                                                 // is logging enabled?
 
     string               m_LogBasePath;                                             // base path for log files
+    string               m_LogContainerName;                                        // container (directory) name for log files
     string               m_LogNamePrefix;                                           // prefix for log files
 
     string               m_Delimiter;                                               // filed delimiter for logging
@@ -158,11 +163,15 @@ private:
     ANY_PROPERTY_VECTOR m_BSE_DCO_Rec         = BSE_DOUBLE_COMPACT_OBJECTS_REC;     // default specification
     ANY_PROPERTY_VECTOR m_BSE_SNE_Rec         = BSE_SUPERNOVAE_REC;                 // default specification
     ANY_PROPERTY_VECTOR m_BSE_CEE_Rec         = BSE_COMMON_ENVELOPES_REC;           // default specification
-    ANY_PROPERTY_VECTOR m_BSE_RLOF_Rec        = BSE_RLOF_PARAMETERS_REC;            // default specification
     ANY_PROPERTY_VECTOR m_BSE_BE_Binaries_Rec = BSE_BE_BINARIES_REC;                // default specification
     ANY_PROPERTY_VECTOR m_BSE_Pulsars_Rec     = BSE_PULSAR_EVOLUTION_REC;           // default specification
     ANY_PROPERTY_VECTOR m_BSE_Detailed_Rec    = BSE_DETAILED_OUTPUT_REC;            // default specification
 
+
+    std::ofstream                                      m_RunDetailsFile;            // run details file
+    std::chrono::time_point<std::chrono::system_clock> m_WallStart;                 // for run details file
+    std::chrono::time_point<std::chrono::system_clock> m_WallEnd;                   // for run details file
+    clock_t                                            m_ClockStart;                // for run details file
 
     // member functions
 
@@ -294,6 +303,7 @@ public:
 
     // member functions
     void   Start(const string              p_LogBasePath,
+                 const string              p_LogContainerName,
                  const string              p_LogNamePrefix,
                  const int                 p_LogLevel,
                  const std::vector<string> p_LogClasses,
@@ -303,7 +313,7 @@ public:
                  const bool                p_ErrorsToFile,
                  const string              p_Delimiter);
 
-    void   Stop();
+    void   Stop(std::tuple<int, int> p_ObjectStats = std::make_tuple(0, 0));
 
     bool   Enabled() const { return m_Enabled; }
 
@@ -328,8 +338,6 @@ public:
     void LogSingleStarParameters(const T* const p_Star, const int p_Id)  { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PARAMETERS)), 0, LOGFILE::SSE_PARAMETERS, p_Star, "_" + std::to_string(abs(p_Id))); }
     template <class T>
     void LogBinarySystemParameters(const T* const p_Binary)              { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS)), 0, LOGFILE::BSE_SYSTEM_PARAMETERS, p_Binary); }
-    template <class T>
-    void LogRLOFParameters(const T* const p_Binary)                      { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS)), 0, LOGFILE::BSE_RLOF_PARAMETERS, p_Binary); }
     template <class T>
     void LogDoubleCompactObject(const T* const p_Binary)                 { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS)), 0, LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, p_Binary); }
     template <class T>
