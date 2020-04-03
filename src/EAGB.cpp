@@ -701,7 +701,6 @@ STELLAR_TYPE EAGB::ResolveRemnantAfterEnvelopeLoss() {
     if (utils::Compare(R1, R2) < 0) {
         m_Radius    = R1;
         stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP;
-        CalculateTimescales(m_Mass0, m_Timescales);
     }
     else {
         m_Radius    = R2;
