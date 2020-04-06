@@ -7,20 +7,20 @@
 # (note uppercase 'CPP' and no whitespace around '=')
 
 CPP = g++
-BOOST =
+BOOST :=
 
 
-EXE = COMPAS
+EXE := COMPAS
 
 # build COMPAS
 ifeq ($(filter clean,$(MAKECMDGOALS)),)
   $(info Building $(EXE) with $(CPP))
 endif
 
-CXXFLAGS = -g -std=c++11 -Wall -march=native -O3
-ICFLAGS = -I$(BOOST)/include -I.
-LFLAGS =  -L$(BOOST)/lib -lgsl -lgslcblas -lstdc++ -lm -lz -ldl -lboost_filesystem -lboost_program_options -lboost_system -Xlinker -rpath -Xlinker $(BOOST)/lib
-SOURCES =                                                               \
+CXXFLAGS := -g -std=c++11 -Wall -march=native -O3
+ICFLAGS := -I$(BOOST)/include -I.
+LFLAGS :=  -L$(BOOST)/lib -lgsl -lgslcblas -lstdc++ -lm -lz -ldl -lboost_filesystem -lboost_program_options -lboost_system -Xlinker -rpath -Xlinker $(BOOST)/lib
+SOURCES :=                                                               \
 			utils.cpp					\
 									\
 			Options.cpp					\
@@ -65,7 +65,7 @@ SOURCES =                                                               \
 									\
 			main.cpp
 
-OBJI = $(SOURCES:.cpp=.o)
+OBJI := $(SOURCES:.cpp=.o)
 
 
 all: $(EXE)
