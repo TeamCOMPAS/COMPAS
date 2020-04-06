@@ -18,7 +18,6 @@ ifeq ($(filter clean,$(MAKECMDGOALS)),)
 endif
 
 CXXFLAGS = -g -std=c++11 -Wall -march=native -O3
-FCFLAGS =
 ICFLAGS = -I$(BOOST)/include -I.
 LFLAGS =  -L$(BOOST)/lib -lgsl -lgslcblas -lstdc++ -lm -lz -ldl -lboost_filesystem -lboost_program_options -lboost_system -Xlinker -rpath -Xlinker $(BOOST)/lib
 SOURCES =                                                               \
@@ -73,7 +72,7 @@ all: $(EXE)
 	@echo $(OBJI)
 
 .cpp.o: $(SOURCES)
-	$(CPP) $(CXXFLAGS) $(FCFLAGS) $(ICFLAGS) -c $?
+	$(CPP) $(CXXFLAGS) $(ICFLAGS) -c $?
 
 
 $(EXE): $(OBJI)
