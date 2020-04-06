@@ -82,7 +82,7 @@ $(EXE): $(OBJI)
 
 .phony: clean static
 clean:
-	rm -f $(OBJI)
+	rm -f $(OBJI) $(EXE) $(EXE)_STATIC
 
 static: $(EXE)_STATIC
 	@echo $(OBJI)
