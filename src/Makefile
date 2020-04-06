@@ -28,42 +28,42 @@ SOURCES =                                                               \
 			Log.cpp						\
 			Rand.cpp					\
 			Errors.cpp					\
-										\
-			BaseStar.cpp				\
-										\
+									\
+			BaseStar.cpp					\
+									\
 			Star.cpp					\
-										\
-			MainSequence.cpp			\
-			MS_lte_07.cpp				\
-			MS_gt_07.cpp				\
-										\
+									\
+			MainSequence.cpp				\
+			MS_lte_07.cpp					\
+			MS_gt_07.cpp					\
+									\
 			CH.cpp						\
-										\
-			GiantBranch.cpp				\
+									\
+			GiantBranch.cpp					\
 			HG.cpp						\
 			FGB.cpp						\
 			CHeB.cpp					\
 			EAGB.cpp					\
 			TPAGB.cpp					\
-										\
+									\
 			HeMS.cpp					\
 			HeHG.cpp					\
 			HeGB.cpp					\
-										\
+									\
 			HeWD.cpp					\
 			COWD.cpp					\
 			ONeWD.cpp					\
-										\
+									\
 			NS.cpp						\
 			BH.cpp						\
 			MR.cpp						\
-										\
+									\
 			AIS.cpp						\
-										\
-			BinaryConstituentStar.cpp	\
-			BaseBinaryStar.cpp			\
-			BinaryStar.cpp				\
-										\
+									\
+			BinaryConstituentStar.cpp			\
+			BaseBinaryStar.cpp				\
+			BinaryStar.cpp					\
+									\
 			main.cpp
 
 OBJI = $(SOURCES:.cpp=.o)
