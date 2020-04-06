@@ -7,24 +7,23 @@
 # (note uppercase 'CPP' and no whitespace around '=')
 
 CPP = g++
-cpp = $(CPP)
+BOOST =
 
+
+EXE = COMPAS
 
 # build COMPAS
+ifeq ($(filter clean,$(MAKECMDGOALS)),)
+  $(info Building $(EXE) with $(CPP))
+endif
 
-$(info Building COMPAS with $(CPP))
-
-CFLAGS = -g
-
-
-BOOST =
-CFLAGS =  -I.
+CXXFLAGS = -g -std=c++11 -Wall -march=native -O3
 FCFLAGS =
-ICFLAGS = -I$(BOOST)/include -Wall -std=c++11
-LFLAGS =  -L$(BOOST)/lib -lgsl -lgslcblas -lstdc++ -lm -lz -ldl -march=k8 -lboost_filesystem -lboost_program_options -lboost_system -std=c++11 -O3
-SOURCES = 								\
+ICFLAGS = -I$(BOOST)/include -I.
+LFLAGS =  -L$(BOOST)/lib -lgsl -lgslcblas -lstdc++ -lm -lz -ldl -lboost_filesystem -lboost_program_options -lboost_system -Xlinker -rpath -Xlinker $(BOOST)/lib
+SOURCES =                                                               \
 			utils.cpp					\
-										\
+									\
 			Options.cpp					\
 			Log.cpp						\
 			Rand.cpp					\
@@ -70,27 +69,27 @@ SOURCES = 								\
 OBJI = $(SOURCES:.cpp=.o)
 
 
-all: COMPAS
+all: $(EXE)
 	@echo $(OBJI)
 
-.cpp.o:
-	$(CPP) -c $(CFLAGS) $(FCFLAGS) $(ICFLAGS) $?
+.cpp.o: $(SOURCES)
+	$(CPP) $(CXXFLAGS) $(FCFLAGS) $(ICFLAGS) -c $?
 
 
-COMPAS: $(OBJI)
+$(EXE): $(OBJI)
 	@echo $(SOURCES)
 	@echo $(OBJI)
-	$(CPP) -o COMPAS $(OBJI) $(ICFLAGS) $(LFLAGS)
+	$(CPP) $(OBJI) $(LFLAGS) -o $@
 
+.phony: clean static
 clean:
-	rm -f *.o
+	rm -f $(OBJI)
 
-static: COMPAS_STATIC
-	@echo $OBJI
+static: $(EXE)_STATIC
+	@echo $(OBJI)
 
-COMPAS_STATIC: $(OBJI)
+
+$(EXE)_STATIC: $(OBJI)
 	@echo $(SOURCES)
 	@echo $(OBJI)
-	$(CPP) -o COMPAS $(OBJI) $(ICFLAGS) $(LFLAGS) -static
-
-
+	$(CPP) $(OBJI) $(LFLAGS) -static -o $@
