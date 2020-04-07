@@ -98,7 +98,7 @@ int Rand::RandomInt(const int p_Lower, const int p_Upper) {
     int lower = std::min(p_Lower, p_Upper);
     int upper = std::max(p_Lower, p_Upper);
 
-    return gsl_rng_uniform_int(m_Rng, upper) + lower;
+    return gsl_rng_uniform_int(m_Rng, (upper - lower)) + lower;
 }
 
 
