@@ -67,6 +67,10 @@ SOURCES :=                                                               \
 
 OBJI := $(SOURCES:.cpp=.o)
 
+# Create the list of header files, and remove
+# main.h from this auto-generated list
+INCL := $(SOURCES:.cpp=.h)
+INCL := $(filter-out main.h,$(INCL))
 
 all: $(EXE)
 	@echo $(OBJI)
