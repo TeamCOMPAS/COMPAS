@@ -75,18 +75,10 @@ INCL := $(filter-out main.h,$(INCL))
 all: $(EXE)
 	@echo $(OBJI)
 
-.cpp.o: $(SOURCES)
-	$(CPP) $(CXXFLAGS) $(ICFLAGS) -c $?
-
-
 $(EXE): $(OBJI)
 	@echo $(SOURCES)
 	@echo $(OBJI)
 	$(CPP) $(OBJI) $(LFLAGS) -o $@
-
-.phony: clean static
-clean:
-	rm -f $(OBJI) $(EXE) $(EXE)_STATIC
 
 static: $(EXE)_STATIC
 	@echo $(OBJI)
@@ -96,3 +88,10 @@ $(EXE)_STATIC: $(OBJI)
 	@echo $(SOURCES)
 	@echo $(OBJI)
 	$(CPP) $(OBJI) $(LFLAGS) -static -o $@
+
+.cpp.o: $(SOURCES) $(INCL) Makefile
+	$(CPP) $(CXXFLAGS) $(ICFLAGS) -c $?
+
+.phony: clean static
+clean:
+	rm -f $(OBJI) $(EXE) $(EXE)_STATIC
