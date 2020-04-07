@@ -277,8 +277,9 @@
 // 02.09.06      JR - Apr 07, 2020 - Defect repair:
 //                                      - corrected calculation in return statement for Rand::Random(const double p_Lower, const double p_Upper) (issue #201)
 //                                      - corrected calculation in return statement for Rand::RandomInt(const double p_Lower, const double p_Upper) (issue #201)
+// 02.09.07      SS - Apr 07, 2020 - Change eccentricity, semi major axis and orbital velocity pre-2nd supernove to just pre-supernova everywhere in the code
 
-const std::string VERSION_STRING = "02.09.06";
+const std::string VERSION_STRING = "02.09.07";
 
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
@@ -1877,7 +1878,7 @@ enum class BINARY_PROPERTY: int {
     ECCENTRICITY_AT_DCO_FORMATION,
     ECCENTRICITY_INITIAL,
     ECCENTRICITY_POST_COMMON_ENVELOPE,
-    ECCENTRICITY_PRE_2ND_SUPERNOVA,
+    ECCENTRICITY_PRE_SUPERNOVA,
     ECCENTRICITY_PRE_COMMON_ENVELOPE,
     ECCENTRICITY_PRIME,
     ERROR,
@@ -1898,7 +1899,7 @@ enum class BINARY_PROPERTY: int {
     MERGES_IN_HUBBLE_TIME,
     OPTIMISTIC_COMMON_ENVELOPE,
     ORBITAL_VELOCITY,
-    ORBITAL_VELOCITY_PRE_2ND_SUPERNOVA,
+    ORBITAL_VELOCITY_PRE_SUPERNOVA,
     RADIUS_1_POST_COMMON_ENVELOPE,
     RADIUS_1_PRE_COMMON_ENVELOPE,
     RADIUS_2_POST_COMMON_ENVELOPE,
@@ -1916,8 +1917,8 @@ enum class BINARY_PROPERTY: int {
     SEMI_MAJOR_AXIS_AT_DCO_FORMATION,
     SEMI_MAJOR_AXIS_INITIAL,
     SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,
-    SEMI_MAJOR_AXIS_PRE_2ND_SUPERNOVA,
-    SEMI_MAJOR_AXIS_PRE_2ND_SUPERNOVA_RSOL,
+    SEMI_MAJOR_AXIS_PRE_SUPERNOVA,
+    SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,
     SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,
     SEMI_MAJOR_AXIS_PRIME,
     SEMI_MAJOR_AXIS_PRIME_RSOL,
@@ -1973,7 +1974,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::ECCENTRICITY_AT_DCO_FORMATION,                      "ECCENTRICITY_AT_DCO_FORMATION" },
     { BINARY_PROPERTY::ECCENTRICITY_INITIAL,                               "ECCENTRICITY_INITIAL" },
     { BINARY_PROPERTY::ECCENTRICITY_POST_COMMON_ENVELOPE,                  "ECCENTRICITY_POST_COMMON_ENVELOPE" },
-    { BINARY_PROPERTY::ECCENTRICITY_PRE_2ND_SUPERNOVA,                     "ECCENTRICITY_PRE_2ND_SUPERNOVA" },
+    { BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,                     "ECCENTRICITY_PRE_SUPERNOVA" },
     { BINARY_PROPERTY::ECCENTRICITY_PRE_COMMON_ENVELOPE,                   "ECCENTRICITY_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::ECCENTRICITY_PRIME,                                 "ECCENTRICITY_PRIME" },
     { BINARY_PROPERTY::ERROR,                                              "ERROR" },
@@ -1994,7 +1995,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                              "MERGES_IN_HUBBLE_TIME" },
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                         "OPTIMISTIC_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::ORBITAL_VELOCITY,                                   "ORBITAL_VELOCITY" },
-    { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_2ND_SUPERNOVA,                 "ORBITAL_VELOCITY_PRE_2ND_SUPERNOVA" },
+    { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                 "ORBITAL_VELOCITY_PRE_SUPERNOVA" },
     { BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,                      "RADIUS_1_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::RADIUS_1_PRE_COMMON_ENVELOPE,                       "RADIUS_1_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE,                      "RADIUS_2_POST_COMMON_ENVELOPE" },
@@ -2012,8 +2013,8 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION,                   "SEMI_MAJOR_AXIS_AT_DCO_FORMATION" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,                            "SEMI_MAJOR_AXIS_INITIAL" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,               "SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE" },
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_2ND_SUPERNOVA,                  "SEMI_MAJOR_AXIS_PRE_2ND_SUPERNOVA" },
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_2ND_SUPERNOVA_RSOL,             "SEMI_MAJOR_AXIS_PRE_2ND_SUPERNOVA_RSOL" },
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                  "SEMI_MAJOR_AXIS_PRE_SUPERNOVA" },
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,             "SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                "SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME,                              "SEMI_MAJOR_AXIS_PRIME" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL,                         "SEMI_MAJOR_AXIS_PRIME_RSOL" },
@@ -2254,7 +2255,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::ECCENTRICITY_AT_DCO_FORMATION,                       { TYPENAME::DOUBLE,         "Eccentricity@DCO",     "-",                14, 6 }},
     { BINARY_PROPERTY::ECCENTRICITY_INITIAL,                                { TYPENAME::DOUBLE,         "Eccentricity@ZAMS",    "-",                14, 6 }},
     { BINARY_PROPERTY::ECCENTRICITY_POST_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Eccentricity>CE",      "-",                14, 6 }},
-    { BINARY_PROPERTY::ECCENTRICITY_PRE_2ND_SUPERNOVA,                      { TYPENAME::DOUBLE,         "Eccentricity<2ndSN",   "-",                14, 6 }},
+    { BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,                      { TYPENAME::DOUBLE,         "Eccentricity<SN",   "-",                14, 6 }},
     { BINARY_PROPERTY::ECCENTRICITY_PRE_COMMON_ENVELOPE,                    { TYPENAME::DOUBLE,         "Eccentricity<CE",      "-",                14, 6 }},
     { BINARY_PROPERTY::ECCENTRICITY_PRIME,                                  { TYPENAME::DOUBLE,         "Eccentricity",         "-",                14, 6 }},
     { BINARY_PROPERTY::ERROR,                                               { TYPENAME::ERROR,          "Error",                "-",                 4, 1 }},
@@ -2275,7 +2276,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                               { TYPENAME::BOOL,           "Merges_Hubble_Time",   "State",             0, 0 }},
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                          { TYPENAME::BOOL,           "Optimistic_CE",        "State",             0, 0 }},
     { BINARY_PROPERTY::ORBITAL_VELOCITY,                                    { TYPENAME::DOUBLE,         "Orbital_Velocity",     "kms^-1",           14, 6 }},
-    { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_2ND_SUPERNOVA,                  { TYPENAME::DOUBLE,         "Orb_Velocity<2ndSN",   "kms^-1",           14, 6 }},
+    { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                  { TYPENAME::DOUBLE,         "Orb_Velocity<SN",   "kms^-1",           14, 6 }},
     { BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,         "Radius_1>CE",          "Rsol",             14, 6 }},
     { BINARY_PROPERTY::RADIUS_1_PRE_COMMON_ENVELOPE,                        { TYPENAME::DOUBLE,         "Radius_1<CE",          "Rsol",             14, 6 }},
     { BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,         "Radius_2>CE",          "Rsol",             14, 6 }},
@@ -2293,8 +2294,8 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION,                    { TYPENAME::DOUBLE,         "Separation@DCO",       "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,                             { TYPENAME::DOUBLE,         "Separation@ZAMS",      "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,         "Separation>CE",        "AU",               14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_2ND_SUPERNOVA,                   { TYPENAME::DOUBLE,         "Separation<2ndSN",     "AU",               14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_2ND_SUPERNOVA_RSOL,              { TYPENAME::DOUBLE,         "Separation<2ndSN",     "Rsol",             14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                   { TYPENAME::DOUBLE,         "Separation<SN",     "AU",               14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,              { TYPENAME::DOUBLE,         "Separation<SN",     "Rsol",             14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,         "Separation<CE",        "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME,                               { TYPENAME::DOUBLE,         "Separation",           "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL,                          { TYPENAME::DOUBLE,         "Separation",           "Rsol",             14, 6 }},
@@ -2576,7 +2577,7 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     SUPERNOVA_PROPERTY::DRAWN_KICK_VELOCITY,
     SUPERNOVA_PROPERTY::KICK_VELOCITY,
     SUPERNOVA_PROPERTY::FALLBACK_FRACTION,
-    BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_2ND_SUPERNOVA,
+    BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,
     BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY, // remove?  (its in systemParameters)
     SUPERNOVA_PROPERTY::TRUE_ANOMALY,				// remove?  (its in systemParameters)
     SUPERNOVA_PROPERTY::SUPERNOVA_THETA, // remove?  (its in systemParameters)
@@ -2598,9 +2599,9 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     // BINARY_PROPERTY::STABLE_RLOF_POST_COMMON_ENVELOPE, 
     // SUPERNOVA_PROPERTY::RLOF_ONTO_NS, // (does not work currently?)
     BINARY_PROPERTY::TIME,
-    BINARY_PROPERTY::ECCENTRICITY_PRE_2ND_SUPERNOVA,  // floor: we want a Eccentricity<SN and Eccentricity>SN; how to do this?
+    BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,  // floor: we want a Eccentricity<SN and Eccentricity>SN; how to do this?
 	BINARY_PROPERTY::ECCENTRICITY,
-    BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_2ND_SUPERNOVA_RSOL,
+    BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,
 	BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL,
     BINARY_PROPERTY::SYSTEMIC_VELOCITY,
     SUPERNOVA_PROPERTY::HYDROGEN_RICH,
