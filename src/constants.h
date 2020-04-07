@@ -272,10 +272,13 @@
 //                                      - commented option --logfile-BSE-be-binaries to match Be-Binary options commented by AVG in v02.08.00
 // 02.09.04      JR - Apr 03, 2020 - Defect repair:
 //                                      - removed IsUSSN() from IsSNEvent() definition in BinaryConstituentStar.cpp (USSN flag indicates just US, not USSN. Needs to be tidied-up properly)
-// 02.09.05	 IM - Apr 03, 2020 - Defect repair:
-//					- fixed timescale calculation issue for newly created HeHG stars (from stripped EAGB stars); fixes drop in CO core mass
+// 02.09.05	     IM - Apr 03, 2020 - Defect repair:
+//					                    - fixed timescale calculation issue for newly created HeHG stars (from stripped EAGB stars); fixes drop in CO core mass
+// 02.09.06      JR - Apr 07, 2020 - Defect repair:
+//                                      - corrected calculation in return statement for Rand::Random(const double p_Lower, const double p_Upper) (issue #201)
+//                                      - corrected calculation in return statement for Rand::RandomInt(const double p_Lower, const double p_Upper) (issue #201)
 
-const std::string VERSION_STRING = "02.09.05";
+const std::string VERSION_STRING = "02.09.06";
 
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
