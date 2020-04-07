@@ -65,7 +65,7 @@ public:
         m_Eccentricity                     = p_Star.m_Eccentricity;
         m_EccentricityAtDCOFormation       = p_Star.m_EccentricityAtDCOFormation;
         m_EccentricityInitial              = p_Star.m_EccentricityInitial;
-        m_EccentricityPre2ndSN             = p_Star.m_EccentricityPre2ndSN;
+        m_EccentricityPreSN                = p_Star.m_EccentricityPreSN;
         m_EccentricityPrev                 = p_Star.m_EccentricityPrev;
         m_EccentricityPrime                = p_Star.m_EccentricityPrime;
 
@@ -114,7 +114,7 @@ public:
         m_MSNPrime                         = p_Star.m_MSNPrime;
 
         m_OrbitalVelocity                  = p_Star.m_OrbitalVelocity;
-        m_OrbitalVelocityPre2ndSN          = p_Star.m_OrbitalVelocityPre2ndSN;
+        m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
         m_OrbitalVelocityPrev              = p_Star.m_OrbitalVelocityPrev;
         m_OrbitalVelocityPrime             = p_Star.m_OrbitalVelocityPrime;
 
@@ -127,7 +127,7 @@ public:
         m_SemiMajorAxis                    = p_Star.m_SemiMajorAxis;
         m_SemiMajorAxisAtDCOFormation      = p_Star.m_SemiMajorAxisAtDCOFormation;
         m_SemiMajorAxisInitial             = p_Star.m_SemiMajorAxisInitial;
-        m_SemiMajorAxisPre2ndSN            = p_Star.m_SemiMajorAxisPre2ndSN;
+        m_SemiMajorAxisPreSN               = p_Star.m_SemiMajorAxisPreSN;
         m_SemiMajorAxisPrev                = p_Star.m_SemiMajorAxisPrev;
         m_SemiMajorAxisPrime               = p_Star.m_SemiMajorAxisPrime;
 
@@ -229,7 +229,7 @@ public:
     double              EccentricityAtDCOFormation() const          { return m_EccentricityAtDCOFormation; }
     double              EccentricityInitial() const                 { return m_EccentricityInitial; }
     double              EccentricityPostCEE() const                 { return m_CEDetails.postCEE.eccentricity; }
-    double              EccentricityPre2ndSN() const                { return m_EccentricityPre2ndSN; }
+    double              EccentricityPreSN() const                   { return m_EccentricityPreSN; }
     double              EccentricityPreCEE() const                  { return m_CEDetails.preCEE.eccentricity; }
     double              EccentricityPrime() const                   { return m_EccentricityPrime; }
     ERROR               Error() const                               { return m_Error; }
@@ -262,7 +262,7 @@ public:
     bool                MergesInHubbleTime() const                  { return m_MergesInHubbleTime; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
     double              OrbitalVelocity() const                     { return m_OrbitalVelocity; }
-    double              OrbitalVelocityPre2ndSN() const             { return m_OrbitalVelocityPre2ndSN; }
+    double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
 	double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
 	double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
 	double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }
@@ -282,7 +282,7 @@ public:
     double              SemiMajorAxisAtDCOFormation() const         { return m_SemiMajorAxisAtDCOFormation; }
     double              SemiMajorAxisInitial() const                { return m_SemiMajorAxisInitial; }
     double              SemiMajorAxisPostCEE() const                { return m_CEDetails.postCEE.semiMajorAxis; }
-    double              SemiMajorAxisPre2ndSN() const               { return m_SemiMajorAxisPre2ndSN; }
+    double              SemiMajorAxisPreSN() const                  { return m_SemiMajorAxisPreSN; }
     double              SemiMajorAxisPreCEE() const                 { return m_CEDetails.preCEE.semiMajorAxis; }
     double              SemiMajorAxisPrime() const                  { return m_SemiMajorAxisPrime; }
     bool                SimultaneousRLOF() const                    { return m_RLOFDetails.simultaneousRLOF; }
@@ -353,7 +353,7 @@ private:
     double              m_Eccentricity;                                                     // Initial eccentricity
     double              m_EccentricityAtDCOFormation;                                       // Eccentricity at DCO formation
     double              m_EccentricityInitial;                                              // Record initial eccentricity              JR: todo: check necessary
-    double              m_EccentricityPre2ndSN;                                             // Eccentricity prior to 2nd supernova
+    double              m_EccentricityPreSN;                                             // Eccentricity prior to 2nd supernova
     double              m_EccentricityPrev;                                                 // Eccentricity at previous timestep
     double              m_EccentricityPrime;                                                // Initial eccentricity
 
@@ -402,7 +402,7 @@ private:
     double              m_MSNPrime;
 
     double              m_OrbitalVelocity;
-    double              m_OrbitalVelocityPre2ndSN;
+    double              m_OrbitalVelocityPreSN;
     double              m_OrbitalVelocityPrev;
     double              m_OrbitalVelocityPrime;
 
@@ -415,14 +415,14 @@ private:
     double              m_SemiMajorAxis;                                                    // Semi-major axis
     double              m_SemiMajorAxisAtDCOFormation;                                      // Semi-major axis at DCO formation
     double              m_SemiMajorAxisInitial;                                             // Record initial semi-major axis              JR: todo: check necessary
-    double              m_SemiMajorAxisPre2ndSN;                                            // Semi-major axis prior to 2nd supernova
+    double              m_SemiMajorAxisPreSN;                                            // Semi-major axis prior to 2nd supernova
     double              m_SemiMajorAxisPrev;                                                // Semi-major axis at previous timestep
     double              m_SemiMajorAxisPrime;                                               // Semi-major axis
 
     bool                m_StellarMerger;                                                    // Indicates that the constituent stars merged
     bool                m_StellarMergerAtBirth;                                             // Indicates that the constituent stars were touching at bierth
 
-    SN_STATE            m_SupernovaState;                                                   // Indicates which star (or stars) are undergoing / hove undergone a supernova event
+    SN_STATE            m_SupernovaState;                                                   // Indicates which star (or stars) are undergoing / have undergone a supernova event
 
 	double              m_SynchronizationTimescale;
 
