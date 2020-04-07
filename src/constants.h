@@ -278,8 +278,9 @@
 //                                      - corrected calculation in return statement for Rand::Random(const double p_Lower, const double p_Upper) (issue #201)
 //                                      - corrected calculation in return statement for Rand::RandomInt(const double p_Lower, const double p_Upper) (issue #201)
 // 02.09.07      SS - Apr 07, 2020 - Change eccentricity, semi major axis and orbital velocity pre-2nd supernove to just pre-supernova everywhere in the code
+// 02.09.08      SS - Apr 07, 2020 - Update zetaMainSequence=2.0 and zetaHertzsprungGap=6.5 in Options::SetToFiducialValues
 
-const std::string VERSION_STRING = "02.09.07";
+const std::string VERSION_STRING = "02.09.08";
 
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
