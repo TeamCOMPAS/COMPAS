@@ -276,6 +276,7 @@
 //					                    - fixed timescale calculation issue for newly created HeHG stars (from stripped EAGB stars); fixes drop in CO core mass
 // 02.09.06      JR - Apr 07, 2020 - Defect repair:
 //                                      - corrected calculation in return statement for Rand::Random(const double p_Lower, const double p_Upper) (issue #201)
+//                                      - corrected calculation in return statement for Rand::RandomInt(const double p_Lower, const double p_Upper) (issue #201)
 
 const std::string VERSION_STRING = "02.09.06";
 
