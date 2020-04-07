@@ -816,9 +816,9 @@ void Options::SetToFiducialValues(void) {
 
 	zetaAdiabaticArbitrary                                          = 10000.0;                                                                          // large value, which will favour stable MT
 	zetaThermalArbitrary                                            = 10000.0;                                                                          // large value, which will favour stable MT
-    zetaMainSequence 	                                            = 6.5;
-	zetaHertzsprungGap	                                            = 2.0;
-
+    zetaMainSequence 	                                            = 2.0;
+	zetaHertzsprungGap	                                            = 6.5;
+    
     // Adaptive Importance Sampling Exploratory phase
     AISexploratoryPhase                                             = false;                                                                            // Flag for whether to run the AIS exploratory phase
     AISDCOtype                                                      = AIS_DCO::ALL;                                                                     // Which prescription to use for DCO type
