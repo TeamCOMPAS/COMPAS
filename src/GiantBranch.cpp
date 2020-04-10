@@ -1078,6 +1078,93 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
 
 
 /*
+ * Calculate remnant type given remnant core mass
+ *
+ * Muller and Mandel
+ *
+ *
+ * STELLAR_TYPE CalculateRemnantTypeByMullerMandel(const double remnantMass)
+ *
+ * @param   [IN]    remnantMass                 remnant mass in Msol
+ * @return                                      Remnant type (stellar type)
+ */
+STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMullerMandel(const double remnantMass){
+    STELLAR_TYPE stellarType = STELLAR_TYPE::BLACK_HOLE;
+    if (utils::Compare(remnantMass, 2.5 ) < 0) { stellarType = STELLAR_TYPE::NEUTRON_STAR; }
+    return stellarType;
+}
+
+/*
+ * Calculate remnant mass given COCoreMass and HeCoreMass
+ *
+ * Muller and Mandel
+ *
+ *
+ * double CalculateRemnantMassByMullerMandel (const double p_COCoreMass, const double p_HeCoreMass)
+ *
+ * @param   [IN]    p_COCoreMass                COCoreMass in Msol
+ * @param   [IN]    p_HeCoreMass                HeCoreMass in Msol
+ * @return                                      Remnant mass in Msol
+ */
+double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass, const double p_HeCoreMass){
+    double remnantMass=0;   
+    double M0=1.45, M1=2.0, M2=3.0, M3=7.0, M4=8.0;
+    double minNSmass=1.13, maxNSmass=2.5, mu1=1.2, mu2a=1.4, mu2b=0.5, mu3a=1.4, mu3b=0.4, sigma1=0.02, sigma2=0.05, sigma3=0.05, muBH=0.8, sigmaBH=0.5;
+    double pBH=0;
+    double pCompleteCollapse=0;
+    
+
+    if (utils::Compare(p_COCoreMass, M1) < 0) {
+	pBH=0;
+    }
+    else if (utils::Compare(p_COCoreMass, M3) < 0) {
+    	pBH=1.0/(M3-M1)*(p_COCoreMass-M1);
+    }
+    else {
+	pBH=1.0;
+    } 
+ 
+    if(utils::Compare(RAND->Random(0,1), pBH) < 0) {  	// this is a BH
+        if(utils::Compare(p_COCoreMass, M4) < 0)
+		pCompleteCollapse=1.0/(M4-M1)*(p_COCoreMass-M1);
+        else
+		pCompleteCollapse=1.0;
+
+	if(utils::Compare(RAND->Random(0,1), pCompleteCollapse) < 0) {
+		while(remnantMass<maxNSmass || remnantMass > (p_COCoreMass+p_HeCoreMass) ){ 
+			remnantMass = muBH*p_COCoreMass+RAND->RandomGaussian(sigmaBH);
+		}
+        }
+	else
+		remnantMass=p_COCoreMass+p_HeCoreMass;
+    }
+    else {						// this is an NS
+    	if (utils::Compare(p_COCoreMass, M0) < 0) {
+        	remnantMass = 0;  //TODO: add ECSN
+    	}
+	else if (utils::Compare(p_COCoreMass, M1) < 0) {
+		while(remnantMass < minNSmass || remnantMass > maxNSmass){
+			remnantMass = mu1 + RAND->RandomGaussian(sigma1);
+		}
+	}
+	else if (utils::Compare(p_COCoreMass, M2) < 0) {
+                while(remnantMass < minNSmass || remnantMass > maxNSmass){
+                        remnantMass = mu2a + mu2b/(M2-M1)*(p_COCoreMass-M1)+RAND->RandomGaussian(sigma2);
+                }
+        }
+        else {
+                while(remnantMass < minNSmass || remnantMass > maxNSmass){
+                        remnantMass = mu3a + mu3b/(M3-M2)*(p_COCoreMass-M2)+RAND->RandomGaussian(sigma3);
+                }
+        }
+        //TODO: neutrino mass loss
+    }
+
+    return remnantMass;
+}
+
+
+/*
  * Calculate remnant mass given Mass and COCoreMass
  *
  * Muller et al. 2016
