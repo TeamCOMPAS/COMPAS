@@ -16,7 +16,7 @@ namespace utils {
     /*
      * Announce COMPAS
      * 
-     * Constructs an returns a splash string.  Prints string to stdout if required.
+     * Constructs and returns a splash string.  Prints string to stdout if required.
      *
      *
      * void SplashScreen(const bool p_Print)
