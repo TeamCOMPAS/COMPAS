@@ -4,6 +4,7 @@
 #include "constants.h"
 #include "typedefs.h"
 #include "utils.h"
+#include "Rand.h"
 
 #include "MainSequence.h"
 
@@ -75,6 +76,7 @@ protected:
             double          CalculateRemnantMassByBelczynski2002(const double p_Mass, const double p_COCoreMass, const double p_FallbackFraction);
             DBL_DBL         CalculateRemnantMassByFryer2012(const SN_ENGINE p_Engine, const double p_Mass, const double p_COCoreMass);
             double          CalculateRemnantMassByMuller2016(const double p_Mass, const double p_COCoreMass);
+	    double          CalculateRemnantMassByMullerMandel(const double p_COCoreMass, const double p_HeCoreMass);
             double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0)             { return (0.1 * m_EnvMass * m_Radius * m_Radius) + (0.21 * m_CoreMass * p_RemnantRadius * p_RemnantRadius); }   // k2 = 0.1 and k3 = 0.21 as defined in Hurley et al. 2000, after eq 109
             double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)           { return CalculateMomentOfInertia(p_RemnantRadius * RSOL_TO_AU) * RSOL_TO_AU * RSOL_TO_AU; }
 
@@ -96,6 +98,8 @@ protected:
 
     virtual double          CalculateRemnantLuminosity();
             STELLAR_TYPE    CalculateRemnantTypeByMuller2016(const double p_COCoreMass);
+	    STELLAR_TYPE    CalculateRemnantTypeByMullerMandel(const double remnantMass);
+	
     virtual double          CalculateRemnantRadius();
 
             double          CalculateThermalMassLossRate()                                          { return (m_Mass - m_CoreMass) / CalculateThermalTimescale(); }     // Use class member variables
