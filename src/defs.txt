@@ -1,1 +1,0 @@
-sse_parms_rec += { STAR_PROPERTY::RZAMS, STAR_PROPERTY::MZAMS }
