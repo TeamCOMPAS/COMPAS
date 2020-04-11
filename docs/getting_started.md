@@ -188,10 +188,13 @@ This should produce the following plot:
 ![demo_plot](demo/demo_plot.png)
 
 
-COMPAS provides many tools for analysing and post-processing the data. Please view the post-processing documentation in `COMPAS/postProcessing`. If you would like to contribute to the development of COMPAS, you should also consult our [`git` workflow](./dev-git-workflow.md).
+COMPAS provides many tools for analysing and post-processing the data. Please view the post-processing documentation in `COMPAS/postProcessing`. 
 
 
 ## 3. Further queries
 If you have any queries unanswered by this document, your best bet is to consult our more detailed [Specifications Document](./COMPAS_Doc.pdf), which is included in your installation at `$COMPAS_ROOT_DIR/docs/COMPAS_Doc.pdf`.
 
 If this still doesn't answer your question, you can join the [COMPAS User Google Group](https://groups.google.com/forum/#!members/compas-user) to engage in discussions with COMPAS users and developers, or email your queries to compas-user@googlegroups.com.
+
+If you would like to contribute to the development of COMPAS, you should also consult our [`git` workflow](./dev-git-workflow.md).
+
