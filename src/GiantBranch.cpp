@@ -1765,5 +1765,6 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         m_Age         = 0.0;
     }
 
+    CalculateSNKickVelocity(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass);
     return stellarType;
 }
