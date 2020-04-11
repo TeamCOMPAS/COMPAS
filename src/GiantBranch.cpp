@@ -1078,6 +1078,77 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
 
 
 /*
+ * Calculate remnant mass given COCoreMass and HeCoreMass
+ *
+ * Muller and Mandel
+ *
+ *
+ * double CalculateRemnantMassByMullerMandel (const double p_COCoreMass, const double p_HeCoreMass)
+ *
+ * @param   [IN]    p_COCoreMass                COCoreMass in Msol
+ * @param   [IN]    p_HeCoreMass                HeCoreMass in Msol
+ * @return                                      Remnant mass in Msol
+ */
+double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass, const double p_HeCoreMass){
+    double remnantMass=0;   
+    double M1=2.0, M2=3.0, M3=7.0, M4=8.0;
+    double minNSmass=1.13, maxNSmass=OPTIONS->MaximumNeutronStarMass();
+    double mu1=1.2, mu2a=1.4, mu2b=0.5, mu3a=1.4, mu3b=0.4, sigma1=0.02, sigma2=0.05, sigma3=0.05, muBH=0.8, sigmaBH=0.5;
+    double pBH=0;
+    double pCompleteCollapse=0;
+    
+
+    if (utils::Compare(p_COCoreMass, M1) < 0) {
+	pBH=0;
+    }
+    else if (utils::Compare(p_COCoreMass, M3) < 0) {
+    	pBH=1.0/(M3-M1)*(p_COCoreMass-M1);
+    }
+    else {
+	pBH=1.0;
+    } 
+ 
+    if(utils::Compare(RAND->Random(0,1), pBH) < 0) {  	// this is a BH
+        if(utils::Compare(p_COCoreMass, M4) < 0)
+		pCompleteCollapse=1.0/(M4-M1)*(p_COCoreMass-M1);
+        else
+		pCompleteCollapse=1.0;
+
+	if(utils::Compare(RAND->Random(0,1), pCompleteCollapse) < 0) {
+		remnantMass=p_HeCoreMass;
+        }
+	else {
+		while(remnantMass<maxNSmass || remnantMass > (p_COCoreMass+p_HeCoreMass) ){ 
+			remnantMass = muBH*p_COCoreMass+RAND->RandomGaussian(sigmaBH);
+		}
+	}
+    }
+    else {						// this is an NS
+	//TODO: there is a gap between the ECSN / CCSN threshold of COMPAS and the Muller threshold 
+	//minimal mass M0~1.45; at the moment, treating objects with p_COCoreMass<M0 as those in the <M1 range 
+	if (utils::Compare(p_COCoreMass, M1) < 0) {
+		while(remnantMass < minNSmass || remnantMass > maxNSmass){
+			remnantMass = mu1 + RAND->RandomGaussian(sigma1);
+		}
+	}
+	else if (utils::Compare(p_COCoreMass, M2) < 0) {
+                while(remnantMass < minNSmass || remnantMass > maxNSmass){
+                        remnantMass = mu2a + mu2b/(M2-M1)*(p_COCoreMass-M1)+RAND->RandomGaussian(sigma2);
+                }
+        }
+        else {
+                while(remnantMass < minNSmass || remnantMass > maxNSmass){
+                        remnantMass = mu3a + mu3b/(M3-M2)*(p_COCoreMass-M2)+RAND->RandomGaussian(sigma3);
+                }
+        }
+        //TODO: neutrino mass loss
+    }
+
+    return remnantMass;
+}
+
+
+/*
  * Calculate remnant mass given Mass and COCoreMass
  *
  * Muller et al. 2016
@@ -1429,6 +1500,12 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
             m_Mass = CalculateRemnantMassByMuller2016(m_Mass, m_COCoreMass);
 
             // JR: todo: fallback fraction not calculated here?
+            break;
+
+	case REMNANT_MASS_PRESCRIPTION::MULLERMANDEL:                                                         // Muller + Mandel
+
+            m_Mass = CalculateRemnantMassByMullerMandel(m_COCoreMass, m_HeCoreMass);
+
             break;
 
         default:                                                                                            // unknown prescription

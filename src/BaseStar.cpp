@@ -2802,6 +2802,37 @@ double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
     return remnantKick;
 }
 
+/*
+ * Draw kick velocity per Muller and Mandel 2020
+ *
+ * double DrawRemnantKickMuller(const double p_COCoreMass)
+ * 
+ * @param   [IN]    p_COCoreMass                Carbon Oxygen core mass of exploding star (Msol)
+ * @param   [IN]    p_Rand                      Random number between 0 and 1 used for drawing from the distribution
+ * @param   [IN]    p_RemnantMass               Mass of the remnant (Msol)
+ * @return                                      Drawn kick velocity (km s^-1)
+ */
+double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass, 
+                                    const double p_Rand,
+                                    const double p_RemnantMass) {					
+	double remnantKick=0.0;
+	double muKick=0.0;
+	//double sigmaKick=0.0;
+    	double BHkick=100.0;		// Typical max 1-d kick for BHs, scaled by p_Rand and inversely by remnant mass in solar masses
+	double v0=250.0;		// Typical NS kick value
+	//double sigma0=50.0;		// Typical NS kick spread
+	//double sigmafrac=0.2;		// Typical NS kick fractional spread
+
+	if (utils::Compare(p_RemnantMass, 2.50) <  0) {
+		muKick=v0*(p_COCoreMass-p_RemnantMass)/p_RemnantMass;
+		remnantKick=DrawKickVelocityDistributionMaxwell(muKick/sqrt(3.0), p_Rand);
+	}
+	else {
+		remnantKick = BHkick*p_Rand/p_RemnantMass;
+	}
+	return remnantKick;
+}
+
 
 /*
  * Draw a kick velocity from the user-specified distribution
@@ -2860,6 +2891,10 @@ double BaseStar::DrawSNKickVelocity(const double p_Sigma,
 
             kickVelocity = DrawKickVelocityDistributionMaxwell(mullerSigma, p_Rand);
             } break;
+
+        case  KICK_VELOCITY_DISTRIBUTION::MULLERMANDEL:                                          // MULLERMANDEL
+            kickVelocity = DrawRemnantKickMullerMandel(p_COCoreMass, p_Rand, p_RemnantMass);
+            break;
 
         default:                                                                                // unknown distribution
             SHOW_WARN(ERROR::UNKNOWN_KICK_VELOCITY_DISTRIBUTION, "Using default: MAXWELL");     // show warning

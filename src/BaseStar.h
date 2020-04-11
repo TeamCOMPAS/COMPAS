@@ -522,6 +522,10 @@ protected:
 
             double          DrawRemnantKickMuller(const double p_COCoreMass);
 
+	    double          DrawRemnantKickMullerMandel(const double p_COCoreMass,
+                                    			const double p_Rand,
+                                    			const double p_RemnantMass);
+
             double          DrawSNKickVelocity(const double p_Sigma,
                                                const double p_COCoreMass,
                                                const double p_Rand,
