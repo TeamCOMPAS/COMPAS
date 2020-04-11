@@ -1124,7 +1124,6 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
 	}
     }
     else {						// this is an NS
-    	
 	//TODO: there is a gap between the ECSN / CCSN threshold of COMPAS and the Muller threshold 
 	//minimal mass M0~1.45; at the moment, treating objects with p_COCoreMass<M0 as those in the <M1 range 
 	if (utils::Compare(p_COCoreMass, M1) < 0) {
