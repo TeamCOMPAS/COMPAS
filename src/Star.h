@@ -215,6 +215,8 @@ public:
     void            SetSNCurrentEvent(const SN_EVENT p_SNEvent)                                                 { m_Star->SetSNCurrentEvent(p_SNEvent); }
     void            SetSNPastEvent(const SN_EVENT p_SNEvent)                                                    { m_Star->SetSNPastEvent(p_SNEvent); }
 
+    double     	    SN_KickVelocity()       									{ return m_Star->SN_KickVelocity() ; }
+
     void            SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
 
     void            UpdateAgeAfterMassLoss()                                                                    { m_Star->UpdateAgeAfterMassLoss(); }
