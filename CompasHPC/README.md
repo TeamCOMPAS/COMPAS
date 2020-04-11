@@ -48,6 +48,30 @@ The HPC code is in the folder **`$COMPAS_ROOT_DIR/CompasHPC/`** which is abbrevi
  
 User modifiable input files are provided as templates in the folder **`$COMPAS_ROOT_DIR/defaults/`** abbreviated as **`$Cdefs`**
 
+#### 0) Compiling an optimised version of COMPAS
+
+If you are interested in CompasHPC, you are likely considering simulating many binaries. This can be computationally expensive. The Makefile included with COMPAS includes a mode which will optimise the compilation of COMPAS for the machine it is to be run on; in our benchmarking tests, this can lead to speed ups of a factor of 2--3. 
+
+To utilise this option, recompile COMPAS by doing
+
+	cd $COMPAS_ROOT_DIR/src
+	make clean
+	make fast
+
+This compilation takes longer than the standard compilation, which is why it is off by default. To speed this up, you can utilise all available cores on your machine by doing (on linux systems)
+
+	make fast -j $(nproc)
+
+On MacOS, `nproc` does not exist by default. You can overcome this either by specifying the number by hand if you know it e.g.
+
+	make fast -j 4
+
+or by adding
+
+	alias nproc='sysctl -n hw.ncpu'
+
+to your `~/.bash_profile` or equivalent.
+
 #### 1) CompasHPC
    
   There are 3 input files required for CompasHPC, 

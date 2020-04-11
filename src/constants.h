@@ -279,8 +279,10 @@
 //                                      - corrected calculation in return statement for Rand::RandomInt(const double p_Lower, const double p_Upper) (issue #201)
 // 02.09.07      SS - Apr 07, 2020 - Change eccentricity, semi major axis and orbital velocity pre-2nd supernove to just pre-supernova everywhere in the code
 // 02.09.08      SS - Apr 07, 2020 - Update zetaMainSequence=2.0 and zetaHertzsprungGap=6.5 in Options::SetToFiducialValues
+// 02.09.09      JR - Apr 11, 2020 - Defect repair:
+//                                      - restored property names in COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL in constants.h (issue #218) (was causing logfile definitions files to be parsed incorrectly)
 
-const std::string VERSION_STRING = "02.09.08";
+const std::string VERSION_STRING = "02.09.09";
 
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
@@ -1701,6 +1703,22 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
 // STAR_PROPERTY refers to an individual star of type BaseStar for SSE (differences are where the data comes from, and the column header)
 enum class STAR_PROPERTY: int { STAR_PROPERTIES };
 
+
+//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//  !!!                                                                             !!!
+//  !!!   Do not change the following map unless you are adding or deleting a new   !!!
+//  !!!   property (or changing the name of an existing property for some reason)   !!!
+//  !!!                                                                             !!!
+//  !!!             This is not where header strings should be changed!             !!!
+/// !!!       This is a lookup table for the logfile definitions file parser.       !!!
+//  !!!                                                                             !!!
+//  !!!   Header strings are in the following maps, and should be changed there:    !!!
+//  !!!                                                                             !!!
+//  !!!   std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL    !!!
+//  !!!   std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL      !!!
+//  !!!                                                                             !!!
+//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 // map STAR PROPERTY to string identifying the property
 // for lookup by the printing functions
 // this map serves as the lookup for: STAR_PROPERTY, STAR_1_PROPERTY, STAR_2_PROPERTY, SUPERNOVA_PROPERTY, COMPANION_PROPERTY and ANY_STAR_PROPERTY
@@ -1773,14 +1791,15 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::MASS_TRANSFER_CASE_INITIAL,                      "MASS_TRANSFER_CASE_INITIAL" },
     { STAR_PROPERTY::MASS_TRANSFER_DIFF,                              "MASS_TRANSFER_DIFF" },
     { STAR_PROPERTY::MDOT,                                            "MDOT" },
-    { STAR_PROPERTY::METALLICITY,                                     "METALLICITY@ZAMS" },
-    { STAR_PROPERTY::MZAMS,                                           "Mass@ZAMS" },
+    { STAR_PROPERTY::MEAN_ANOMALY,                                    "MEAN_ANOMALY" },
+    { STAR_PROPERTY::METALLICITY,                                     "METALLICITY" },
+    { STAR_PROPERTY::MZAMS,                                           "MZAMS" },
     { STAR_PROPERTY::NUCLEAR_TIMESCALE,                               "NUCLEAR_TIMESCALE" },
     { STAR_PROPERTY::NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE,          "NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE" },
     { STAR_PROPERTY::NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE,           "NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE" },
     { STAR_PROPERTY::OMEGA,                                           "OMEGA" },
     { STAR_PROPERTY::OMEGA_BREAK,                                     "OMEGA_BREAK" },
-    { STAR_PROPERTY::OMEGA_ZAMS,                                      "OMEGA@ZAMS" },
+    { STAR_PROPERTY::OMEGA_ZAMS,                                      "OMEGA_ZAMS" },
     { STAR_PROPERTY::ORBITAL_ENERGY_POST_SUPERNOVA,                   "ORBITAL_ENERGY_POST_SUPERNOVA" },
     { STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA,                    "ORBITAL_ENERGY_PRE_SUPERNOVA" },
     { STAR_PROPERTY::PULSAR_MAGNETIC_FIELD,                           "PULSAR_MAGNETIC_FIELD" },
@@ -1802,7 +1821,6 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::STELLAR_TYPE_PREV,                               "STELLAR_TYPE_PREV" },
     { STAR_PROPERTY::STELLAR_TYPE_PREV_NAME,                          "STELLAR_TYPE_PREV_NAME" },
     { STAR_PROPERTY::SUPERNOVA_KICK_VELOCITY_MAGNITUDE_RANDOM_NUMBER, "SUPERNOVA_KICK_VELOCITY_MAGNITUDE_RANDOM_NUMBER" },
-    { STAR_PROPERTY::MEAN_ANOMALY,                                    "SUPERNOVA_MEAN_ANOMALY" },
     { STAR_PROPERTY::SUPERNOVA_PHI,                                   "SUPERNOVA_PHI" },
     { STAR_PROPERTY::SUPERNOVA_THETA,                                 "SUPERNOVA_THETA" },
     { STAR_PROPERTY::TEMPERATURE,                                     "TEMPERATURE" },
