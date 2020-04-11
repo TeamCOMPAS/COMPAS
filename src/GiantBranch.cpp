@@ -1078,23 +1078,6 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
 
 
 /*
- * Calculate remnant type given remnant core mass
- *
- * Muller and Mandel
- *
- *
- * STELLAR_TYPE CalculateRemnantTypeByMullerMandel(const double remnantMass)
- *
- * @param   [IN]    remnantMass                 remnant mass in Msol
- * @return                                      Remnant type (stellar type)
- */
-STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMullerMandel(const double remnantMass){
-    STELLAR_TYPE stellarType = STELLAR_TYPE::BLACK_HOLE;
-    if (utils::Compare(remnantMass, 2.5 ) < 0) { stellarType = STELLAR_TYPE::NEUTRON_STAR; }
-    return stellarType;
-}
-
-/*
  * Calculate remnant mass given COCoreMass and HeCoreMass
  *
  * Muller and Mandel
@@ -1108,8 +1091,9 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMullerMandel(const double remnan
  */
 double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass, const double p_HeCoreMass){
     double remnantMass=0;   
-    double M0=1.45, M1=2.0, M2=3.0, M3=7.0, M4=8.0;
-    double minNSmass=1.13, maxNSmass=2.5, mu1=1.2, mu2a=1.4, mu2b=0.5, mu3a=1.4, mu3b=0.4, sigma1=0.02, sigma2=0.05, sigma3=0.05, muBH=0.8, sigmaBH=0.5;
+    double M1=2.0, M2=3.0, M3=7.0, M4=8.0;
+    double minNSmass=1.13, maxNSmass=OPTIONS->MaximumNeutronStarMass();
+    double mu1=1.2, mu2a=1.4, mu2b=0.5, mu3a=1.4, mu3b=0.4, sigma1=0.02, sigma2=0.05, sigma3=0.05, muBH=0.8, sigmaBH=0.5;
     double pBH=0;
     double pCompleteCollapse=0;
     
@@ -1131,18 +1115,19 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
 		pCompleteCollapse=1.0;
 
 	if(utils::Compare(RAND->Random(0,1), pCompleteCollapse) < 0) {
+		remnantMass=p_HeCoreMass;
+        }
+	else {
 		while(remnantMass<maxNSmass || remnantMass > (p_COCoreMass+p_HeCoreMass) ){ 
 			remnantMass = muBH*p_COCoreMass+RAND->RandomGaussian(sigmaBH);
 		}
-        }
-	else
-		remnantMass=p_COCoreMass+p_HeCoreMass;
+	}
     }
     else {						// this is an NS
-    	if (utils::Compare(p_COCoreMass, M0) < 0) {
-        	remnantMass = 0;  //TODO: add ECSN
-    	}
-	else if (utils::Compare(p_COCoreMass, M1) < 0) {
+    	
+	//TODO: there is a gap between the ECSN / CCSN threshold of COMPAS and the Muller threshold 
+	//minimal mass M0~1.45; at the moment, treating objects with p_COCoreMass<M0 as those in the <M1 range 
+	if (utils::Compare(p_COCoreMass, M1) < 0) {
 		while(remnantMass < minNSmass || remnantMass > maxNSmass){
 			remnantMass = mu1 + RAND->RandomGaussian(sigma1);
 		}
@@ -1516,6 +1501,12 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
             m_Mass = CalculateRemnantMassByMuller2016(m_Mass, m_COCoreMass);
 
             // JR: todo: fallback fraction not calculated here?
+            break;
+
+	case REMNANT_MASS_PRESCRIPTION::MULLERMANDEL:                                                         // Muller + Mandel
+
+            m_Mass = CalculateRemnantMassByMullerMandel(m_COCoreMass, m_HeCoreMass);
+
             break;
 
         default:                                                                                            // unknown prescription

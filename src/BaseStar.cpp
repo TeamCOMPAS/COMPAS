@@ -2823,10 +2823,12 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
 	//double sigma0=50.0;		// Typical NS kick spread
 	//double sigmafrac=0.2;		// Typical NS kick fractional spread
 
-	if (utils::Compare(p_RemnantMass, 2.50) <  0) remnantKick = BHkick*p_Rand/p_RemnantMass;
-	else{
+	if (utils::Compare(p_RemnantMass, 2.50) <  0) {
 		muKick=v0*(p_COCoreMass-p_RemnantMass)/p_RemnantMass;
 		remnantKick=DrawKickVelocityDistributionMaxwell(muKick/sqrt(3.0), p_Rand);
+	}
+	else {
+		remnantKick = BHkick*p_Rand/p_RemnantMass;
 	}
 	return remnantKick;
 }

@@ -98,7 +98,6 @@ protected:
 
     virtual double          CalculateRemnantLuminosity();
             STELLAR_TYPE    CalculateRemnantTypeByMuller2016(const double p_COCoreMass);
-	    STELLAR_TYPE    CalculateRemnantTypeByMullerMandel(const double remnantMass);
 	
     virtual double          CalculateRemnantRadius();
 
