@@ -167,7 +167,9 @@ public:
     double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)                              { return m_Star->CalculateMomentOfInertiaAU(p_RemnantRadius); }
 
     void            CalculateSNAnomalies(const double p_Eccentricity)                                           { m_Star->CalculateSNAnomalies(p_Eccentricity); }
-    double          CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass)              { return m_Star->CalculateSNKickVelocity(p_RemnantMass, p_EjectaMass); }
+    double          CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass, 
+								const STELLAR_TYPE p_StellarType)               { return m_Star->CalculateSNKickVelocity(p_RemnantMass, 
+																p_EjectaMass, p_StellarType); }
 
     double          CalculateThermalMassLossRate()                                                              { return m_Star->CalculateThermalMassLossRate(); }
 

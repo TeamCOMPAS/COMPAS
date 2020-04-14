@@ -178,7 +178,7 @@ public:
 
             void            CalculateSNAnomalies(const double p_Eccentricity);
 
-            double          CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass);
+            double          CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType);
 
     virtual double          CalculateThermalMassLossRate()                                                      { return m_Mass / CalculateThermalTimescale(); }                    // Use class member variables - and inheritance hierarchy
 
