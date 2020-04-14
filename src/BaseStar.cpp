@@ -2911,19 +2911,21 @@ double BaseStar::DrawSNKickVelocity(const double p_Sigma,
  * Based on the current supernova event type and user-specified kick velocity distributions
  *
  *
- * double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass)
+ * double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType)
  *
  * @param   [IN]    p_RemnantMass               The mass of the remnant (Msol)
  * @param   [IN]    p_EjectaMass                Change in mass of the exploding star (i.e. mass of the ejecta) (Msol)
+ * @param   [IN]    p_StellarType		Expected remnant type
  * @return                                      Kick velocity
  */
-double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass) {
+double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType) {
     ERROR error = ERROR::NONE;
 	double vK;
 
     if (!m_SupernovaDetails.initialKickParameters.supplied ||                                       // user did not supply kick parameters, or
         (m_SupernovaDetails.initialKickParameters.supplied &&                                       // user did supply kick parameters but ...
          m_SupernovaDetails.initialKickParameters.useVelocityRandom)) {                             // ... wants to draw velocity using supplied random number
+
 
         double sigma;
         switch (utils::SNEventType(m_SupernovaDetails.events.current)) {                            // what type of supernova event happening now?
@@ -2938,7 +2940,8 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
 
 		    case SN_EVENT::CCSN:                                                                    // draw a random kick velocity from the user selected distribution - sigma based on whether compact object is a NS or BH
 
-                switch (m_StellarType) {                                                            // which stellar type?
+                switch (p_StellarType) {                                                            // which stellar type?
+
                     case STELLAR_TYPE::NEUTRON_STAR:
                         sigma = OPTIONS->KickVelocityDistributionSigmaCCSN_NS();
                         break;
