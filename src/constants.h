@@ -283,8 +283,10 @@
 //                                      - restored property names in COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL in constants.h (issue #218) (was causing logfile definitions files to be parsed incorrectly)
 // 02.09.10	 IM - Apr 12, 2020 - Minor enhancement: added Mueller & Mandel 2020 remnant mass and kick prescription, MULLERMANDEL
 //				     Defect repair: corrected spelling of output help string for MULLER2016 and MULLER2016MAXWELLIAN
+// 02.10.01	 IM - Apr 14, 2020 - Minor enhancement: 
+//					- moved code so that SSE will also sample SN kicks, following same code branch as BSE 
 
-const std::string VERSION_STRING = "02.09.10";
+const std::string VERSION_STRING = "02.10.01";
 
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
