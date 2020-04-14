@@ -7,7 +7,7 @@ class BaseBinaryStar;
 
 
 /*
- * Determine the value of the requested property of the constitusnt star (parameter p_Property)
+ * Determine the value of the requested property of the constituent star (parameter p_Property)
  *
  * The property is a boost variant variable, and is one of the following types:
  *
