@@ -1009,7 +1009,7 @@ const COMPASUnorderedMap<HYDROGEN_CONTENT, std::string> HYDROGEN_CONTENT_LABEL =
 
 
 // Kick velocity distribution
-enum class KICK_VELOCITY_DISTRIBUTION: int { ZERO, FIXED, FLAT, MAXWELLIAN, MAXWELL, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN };
+enum class KICK_VELOCITY_DISTRIBUTION: int { ZERO, FIXED, FLAT, MAXWELLIAN, MAXWELL, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL };
 const COMPASUnorderedMap<KICK_VELOCITY_DISTRIBUTION, std::string> KICK_VELOCITY_DISTRIBUTION_LABEL = {
     { KICK_VELOCITY_DISTRIBUTION::ZERO,                 "ZERO" },
     { KICK_VELOCITY_DISTRIBUTION::FIXED,                "FIXED" },
@@ -1018,7 +1018,8 @@ const COMPASUnorderedMap<KICK_VELOCITY_DISTRIBUTION, std::string> KICK_VELOCITY_
     { KICK_VELOCITY_DISTRIBUTION::MAXWELL,              "MAXWELL" },
     { KICK_VELOCITY_DISTRIBUTION::BRAYELDRIDGE,         "BRAYELDRIDGE" },
     { KICK_VELOCITY_DISTRIBUTION::MULLER2016,           "MULLER2016" },
-    { KICK_VELOCITY_DISTRIBUTION::MULLER2016MAXWELLIAN, "MULLER2016MAXWELLIAN" }
+    { KICK_VELOCITY_DISTRIBUTION::MULLER2016MAXWELLIAN, "MULLER2016MAXWELLIAN" },
+    { KICK_VELOCITY_DISTRIBUTION::MULLERMANDEL, "MULLERMANDEL" }
 };
 
 
@@ -1188,14 +1189,15 @@ const COMPASUnorderedMap<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PUL
 
 
 // Remnant Mass Prescriptions
-enum class REMNANT_MASS_PRESCRIPTION: int { POSTITNOTE, HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLER2016MAXWELLIAN };
+enum class REMNANT_MASS_PRESCRIPTION: int { POSTITNOTE, HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL };
 const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PRESCRIPTION_LABEL = {
     { REMNANT_MASS_PRESCRIPTION::POSTITNOTE,           "POSTITNOTE" },
     { REMNANT_MASS_PRESCRIPTION::HURLEY2000,           "HURLEY2000" },
     { REMNANT_MASS_PRESCRIPTION::BELCZYNSKI2002,       "BELCZYNSKI2002" },
     { REMNANT_MASS_PRESCRIPTION::FRYER2012,            "FRYER2012" },
     { REMNANT_MASS_PRESCRIPTION::MULLER2016,           "MULLER2016" },
-    { REMNANT_MASS_PRESCRIPTION::MULLER2016MAXWELLIAN, "MULLER2016MAXWELLIAN" }
+    { REMNANT_MASS_PRESCRIPTION::MULLER2016MAXWELLIAN, "MULLER2016MAXWELLIAN" },
+    { REMNANT_MASS_PRESCRIPTION::MULLERMANDEL, "MULLERMANDEL" }
 };
 
 
@@ -1705,6 +1707,22 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
 // STAR_PROPERTY refers to an individual star of type BaseStar for SSE (differences are where the data comes from, and the column header)
 enum class STAR_PROPERTY: int { STAR_PROPERTIES };
 
+
+//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//  !!!                                                                             !!!
+//  !!!   Do not change the following map unless you are adding or deleting a new   !!!
+//  !!!   property (or changing the name of an existing property for some reason)   !!!
+//  !!!                                                                             !!!
+//  !!!             This is not where header strings should be changed!             !!!
+/// !!!       This is a lookup table for the logfile definitions file parser.       !!!
+//  !!!                                                                             !!!
+//  !!!   Header strings are in the following maps, and should be changed there:    !!!
+//  !!!                                                                             !!!
+//  !!!   std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL    !!!
+//  !!!   std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL      !!!
+//  !!!                                                                             !!!
+//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 // map STAR PROPERTY to string identifying the property
 // for lookup by the printing functions
 // this map serves as the lookup for: STAR_PROPERTY, STAR_1_PROPERTY, STAR_2_PROPERTY, SUPERNOVA_PROPERTY, COMPANION_PROPERTY and ANY_STAR_PROPERTY
@@ -1777,14 +1795,15 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::MASS_TRANSFER_CASE_INITIAL,                      "MASS_TRANSFER_CASE_INITIAL" },
     { STAR_PROPERTY::MASS_TRANSFER_DIFF,                              "MASS_TRANSFER_DIFF" },
     { STAR_PROPERTY::MDOT,                                            "MDOT" },
-    { STAR_PROPERTY::METALLICITY,                                     "METALLICITY@ZAMS" },
-    { STAR_PROPERTY::MZAMS,                                           "Mass@ZAMS" },
+    { STAR_PROPERTY::MEAN_ANOMALY,                                    "MEAN_ANOMALY" },
+    { STAR_PROPERTY::METALLICITY,                                     "METALLICITY" },
+    { STAR_PROPERTY::MZAMS,                                           "MZAMS" },
     { STAR_PROPERTY::NUCLEAR_TIMESCALE,                               "NUCLEAR_TIMESCALE" },
     { STAR_PROPERTY::NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE,          "NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE" },
     { STAR_PROPERTY::NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE,           "NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE" },
     { STAR_PROPERTY::OMEGA,                                           "OMEGA" },
     { STAR_PROPERTY::OMEGA_BREAK,                                     "OMEGA_BREAK" },
-    { STAR_PROPERTY::OMEGA_ZAMS,                                      "OMEGA@ZAMS" },
+    { STAR_PROPERTY::OMEGA_ZAMS,                                      "OMEGA_ZAMS" },
     { STAR_PROPERTY::ORBITAL_ENERGY_POST_SUPERNOVA,                   "ORBITAL_ENERGY_POST_SUPERNOVA" },
     { STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA,                    "ORBITAL_ENERGY_PRE_SUPERNOVA" },
     { STAR_PROPERTY::PULSAR_MAGNETIC_FIELD,                           "PULSAR_MAGNETIC_FIELD" },
@@ -1806,7 +1825,6 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::STELLAR_TYPE_PREV,                               "STELLAR_TYPE_PREV" },
     { STAR_PROPERTY::STELLAR_TYPE_PREV_NAME,                          "STELLAR_TYPE_PREV_NAME" },
     { STAR_PROPERTY::SUPERNOVA_KICK_VELOCITY_MAGNITUDE_RANDOM_NUMBER, "SUPERNOVA_KICK_VELOCITY_MAGNITUDE_RANDOM_NUMBER" },
-    { STAR_PROPERTY::MEAN_ANOMALY,                                    "SUPERNOVA_MEAN_ANOMALY" },
     { STAR_PROPERTY::SUPERNOVA_PHI,                                   "SUPERNOVA_PHI" },
     { STAR_PROPERTY::SUPERNOVA_THETA,                                 "SUPERNOVA_THETA" },
     { STAR_PROPERTY::TEMPERATURE,                                     "TEMPERATURE" },
