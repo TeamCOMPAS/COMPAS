@@ -624,15 +624,10 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;               // default is unchanged
 
-    // what happens in this star type if there is a CEE? Following lines are for COCoreMass, more like a SNe process. AVG
-    // double check this
-
-    if (p_NoCheck ||
-       (utils::Compare(m_COCoreMass, std::min(gbParams(McSN), m_Mass)) >= 0 &&
-       (utils::Compare(m_COCoreMass, gbParams(McSN)) < 0 || utils::Compare(m_COCoreMass, m_Mass) >= 0))) {
+    if (p_NoCheck || (utils::Compare(m_EnvMass, 0.0) <= 0) || (utils::Compare(m_CoreMass, m_Mass) >= 0)){
 
         stellarType = utils::Compare(gbParams(McBAGB), 1.6) < 0 ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
- 
+        
         m_Mass      = m_CoreMass;
         m_Mass0     = m_Mass;
         m_Age       = 0.0;
