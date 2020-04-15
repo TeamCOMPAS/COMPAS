@@ -1595,7 +1595,7 @@ bool BaseBinaryStar::ResolveSupernova() {
     #undef e
     #undef a
 
-    double vK = m_Supernova->CalculateSNKickVelocity(m_Supernova->Mass(), m_Supernova->MassPrev() - m_Supernova->Mass());           // draw kick velocoty from distribution
+    double vK = m_Supernova->SN_KickVelocity();												
 
     ///////////////////////////////////////////////////////////////////////////////////
 	//          AT THE MOMENT, QUANTITIES BEYOND HERE ARE IN SI (NOT IDEAL)          //                                             // JR: todo: do we need to change this?

@@ -178,7 +178,7 @@ public:
 
             void            CalculateSNAnomalies(const double p_Eccentricity);
 
-            double          CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass);
+            double          CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType);
 
     virtual double          CalculateThermalMassLossRate()                                                      { return m_Mass / CalculateThermalTimescale(); }                    // Use class member variables - and inheritance hierarchy
 
@@ -521,6 +521,10 @@ protected:
             double          DrawKickVelocityDistributionMaxwell(const double p_Sigma, const double p_Rand);
 
             double          DrawRemnantKickMuller(const double p_COCoreMass);
+
+	    double          DrawRemnantKickMullerMandel(const double p_COCoreMass,
+                                    			const double p_Rand,
+                                    			const double p_RemnantMass);
 
             double          DrawSNKickVelocity(const double p_Sigma,
                                                const double p_COCoreMass,
