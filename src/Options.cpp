@@ -816,9 +816,9 @@ void Options::SetToFiducialValues(void) {
 
 	zetaAdiabaticArbitrary                                          = 10000.0;                                                                          // large value, which will favour stable MT
 	zetaThermalArbitrary                                            = 10000.0;                                                                          // large value, which will favour stable MT
-    zetaMainSequence 	                                            = 6.5;
-	zetaHertzsprungGap	                                            = 2.0;
-
+    zetaMainSequence 	                                            = 2.0;
+	zetaHertzsprungGap	                                            = 6.5;
+    
     // Adaptive Importance Sampling Exploratory phase
     AISexploratoryPhase                                             = false;                                                                            // Flag for whether to run the AIS exploratory phase
     AISDCOtype                                                      = AIS_DCO::ALL;                                                                     // Which prescription to use for DCO type
@@ -1174,7 +1174,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("initial-mass-function,i",                                     po::value<string>(&initialMassFunctionString)->default_value(initialMassFunctionString),                                                                    ("Initial mass function (options: SALPETER, POWERLAW, UNIFORM, KROUPA), default = " + initialMassFunctionString + ")").c_str())
 
 		    ("kick-direction",                                              po::value<string>(&kickDirectionDistributionString)->default_value(kickDirectionDistributionString),                                                        ("Natal kick direction distribution (options: ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW, WEDGE, POLES), default = " + kickDirectionDistributionString + ")").c_str())
-		    ("kick-velocity-distribution",                                  po::value<string>(&kickVelocityDistributionString)->default_value(kickVelocityDistributionString),                                                          ("Natal kick velocity distribution (options: ZERO, FLAT, MAXWELLIAN, MUELLER2016, MUELLER2016MAXWELLIAN, BRAYELDRIDGE), default = " + kickVelocityDistributionString + ")").c_str())
+		    ("kick-velocity-distribution",                                  po::value<string>(&kickVelocityDistributionString)->default_value(kickVelocityDistributionString),                                                          ("Natal kick velocity distribution (options: ZERO, FLAT, MAXWELLIAN, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL, BRAYELDRIDGE), default = " + kickVelocityDistributionString + ")").c_str())
 
             // JR - 01/04/2020 - Serena will uncomment when tested.
             // ("logfile-BSE-be-binaries",                                     po::value<string>(&logfileBSEBeBinaries)->default_value(logfileBSEBeBinaries),                                                                              ("Filename for BSE Be Binaries logfile (default = " + logfileBSEBeBinaries + ")").c_str())

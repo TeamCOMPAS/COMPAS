@@ -247,9 +247,9 @@ void BaseBinaryStar::SetRemainingCommonValues() {
     m_SemiMajorAxisInitial        = m_SemiMajorAxis;
     m_EccentricityInitial         = m_Eccentricity;
 
-    // initialise variables to hold parameters prior to 2nd supernova
-    m_SemiMajorAxisPre2ndSN       = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_EccentricityPre2ndSN        = DEFAULT_INITIAL_DOUBLE_VALUE;
+    // initialise variables to hold parameters prior to supernova explosion
+    m_SemiMajorAxisPreSN          = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_EccentricityPreSN           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // initialise variables to hold parameters at DCO formation
     m_SemiMajorAxisAtDCOFormation = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -260,7 +260,7 @@ void BaseBinaryStar::SetRemainingCommonValues() {
 
     m_OrbitalVelocityPrime        = m_OrbitalVelocity;
     m_OrbitalVelocityPrev         = m_OrbitalVelocity;
-    m_OrbitalVelocityPre2ndSN     = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_OrbitalVelocityPreSN        = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 
     // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
@@ -534,7 +534,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::ECCENTRICITY_AT_DCO_FORMATION:                        value = EccentricityAtDCOFormation();                                       break;
         case BINARY_PROPERTY::ECCENTRICITY_INITIAL:                                 value = EccentricityInitial();                                              break;
         case BINARY_PROPERTY::ECCENTRICITY_POST_COMMON_ENVELOPE:                    value = EccentricityPostCEE();                                              break;
-        case BINARY_PROPERTY::ECCENTRICITY_PRE_2ND_SUPERNOVA:                       value = EccentricityPre2ndSN();                                             break;
+        case BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA:                       value = EccentricityPreSN();                                                break;
         case BINARY_PROPERTY::ECCENTRICITY_PRE_COMMON_ENVELOPE:                     value = EccentricityPreCEE();                                               break;
         case BINARY_PROPERTY::ECCENTRICITY_PRIME:                                   value = EccentricityPrime();                                                break;
         case BINARY_PROPERTY::ERROR:                                                value = Error();                                                            break;
@@ -555,7 +555,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME:                                value = MergesInHubbleTime();                                               break;
         case BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE:                           value = OptimisticCommonEnvelope();                                         break;
         case BINARY_PROPERTY::ORBITAL_VELOCITY:                                     value = OrbitalVelocity();                                                  break;
-        case BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_2ND_SUPERNOVA:                   value = OrbitalVelocityPre2ndSN();                                          break;
+        case BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA:                   value = OrbitalVelocityPreSN();                                             break;
         case BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE:                        value = Radius1PostCEE();                                                   break;
         case BINARY_PROPERTY::RADIUS_1_PRE_COMMON_ENVELOPE:                         value = Radius1PreCEE();                                                    break;
         case BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE:                        value = Radius2PostCEE();                                                   break;
@@ -573,8 +573,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION:                     value = SemiMajorAxisAtDCOFormation();                                      break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL:                              value = SemiMajorAxisInitial();                                             break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE:                 value = SemiMajorAxisPostCEE();                                             break;
-        case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_2ND_SUPERNOVA:                    value = SemiMajorAxisPre2ndSN();                                            break;
-        case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_2ND_SUPERNOVA_RSOL:               value = SemiMajorAxisPre2ndSN() * AU_TO_RSOL;                               break;
+        case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA:                    value = SemiMajorAxisPreSN();                                               break;
+        case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL:               value = SemiMajorAxisPreSN() * AU_TO_RSOL;                                  break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE:                  value = SemiMajorAxisPreCEE();                                              break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME:                                value = SemiMajorAxisPrime();                                               break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL:                           value = SemiMajorAxisPrime() * AU_TO_RSOL;                                  break;
@@ -1595,7 +1595,7 @@ bool BaseBinaryStar::ResolveSupernova() {
     #undef e
     #undef a
 
-    double vK = m_Supernova->CalculateSNKickVelocity(m_Supernova->Mass(), m_Supernova->MassPrev() - m_Supernova->Mass());           // draw kick velocoty from distribution
+    double vK = m_Supernova->SN_KickVelocity();												
 
     ///////////////////////////////////////////////////////////////////////////////////
 	//          AT THE MOMENT, QUANTITIES BEYOND HERE ARE IN SI (NOT IDEAL)          //                                             // JR: todo: do we need to change this?
@@ -1607,7 +1607,7 @@ bool BaseBinaryStar::ResolveSupernova() {
 	vK                       *= KM;                                                                                                 // convert vK to m s^-1.  Would be nice to draw this in nicer units to avoid this secion
 	m_VRel                    = sqrt(G * (totalMass * MSOL) * ((2.0 / (m_Radius * AU)) - (1.0 / (m_SemiMajorAxisPrime * AU))));     // orbital velocity
 	m_uK                      = OPTIONS->UseFixedUK() ? OPTIONS->FixedUK() : vK / m_VRel;                                           // fix uK to user-defined value if required, otherwise calculate it.  uK is dimensionless
-	m_OrbitalVelocityPre2ndSN = m_VRel;                                                                                             // since the kick velocity always occurs in equations as vk/vrel, we need to know vrel
+	m_OrbitalVelocityPreSN    = m_VRel;                                                                                             // since the kick velocity always occurs in equations as vk/vrel, we need to know vrel
 
 	///////////////////////////////////////////////////////////////////////////////////
 	//                       SHOULD BE BACK TO NICE UNITS NOW                        //
@@ -1623,8 +1623,8 @@ bool BaseBinaryStar::ResolveSupernova() {
 	// calculate post-SN orbital properties
 
     // Record the semi major axis and eccentricity just before each supernova
-    m_SemiMajorAxisPre2ndSN = m_SemiMajorAxisPrime;
-    m_EccentricityPre2ndSN  = m_Eccentricity;
+    m_SemiMajorAxisPreSN = m_SemiMajorAxisPrime;
+    m_EccentricityPreSN  = m_Eccentricity;
 
     double ePrime           = CalculateOrbitalEccentricityPostSupernova(m_uK, totalMass, totalMassPrime, m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
     m_SemiMajorAxisPrime    = CalculateSemiMajorAxisPostSupernova(m_uK, totalMass, totalMassPrime, m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
