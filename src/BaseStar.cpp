@@ -2342,7 +2342,7 @@ double BaseStar::CalculateOmegaBreak() {
  * Calculate the minimum rotational frequency (in yr^-1) at which CHE will occur
  * for a star with ZAMS mass MZAMS
  *
- * Mendel's fit from Butler 2018
+ * Mandel's fit from Butler 2018
  *
  *
  * double CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity)

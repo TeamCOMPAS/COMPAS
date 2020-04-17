@@ -331,7 +331,6 @@ std::tuple<int, int> EvolveSingleStars() {
         nStars = OPTIONS->SingleStarMassSteps();                                                                                // user specified
     }
 
-
     // Loop over stars to evolve
 
     evolutionStatus = EVOLUTION_STATUS::CONTINUE;
@@ -371,15 +370,24 @@ std::tuple<int, int> EvolveSingleStars() {
                     initialMass = gV.mass;                                                                                      // for status message
                     nStars++;                                                                                                   // not done yet...
                     delete star;
-                    star = new Star(randomSeed, gV.mass, gV.metallicity);                                                       // create a star with required mass and metallicity, and...
+                    star = new Star(randomSeed, gV.mass, gV.metallicity, {}, OPTIONS->LuminousBlueVariableFactor(), OPTIONS->WolfRayetFactor()); // create a star with required attricbutes
                 }
             }
             else evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                   // must have been a problem
         }
         else {                                                                                                                  // no grid file - use user-specified values
             initialMass = OPTIONS->SingleStarMassMin() + (index * massIncrement);                                               // for status message
+
+            double fLBV = OPTIONS->SampleLuminousBlueVariableMultiplier()                                                       // LBV winds factor
+                            ? RAND->Random(OPTIONS->SampleLuminousBlueVariableMultiplierMin(), OPTIONS->SampleLuminousBlueVariableMultiplierMax())
+                            : OPTIONS->LuminousBlueVariableFactor();
+
+            double fWR  = OPTIONS->SampleWolfRayetMultiplier()                                                                  // Wolf Rayet winds factor
+                            ? RAND->Random(OPTIONS->SampleWolfRayetMultiplierMin(), OPTIONS->SampleWolfRayetMultiplierMax())
+                            : OPTIONS->WolfRayetFactor();
+
             delete star;
-            star = new Star(randomSeed, initialMass, OPTIONS->Metallicity());                                                   // create a star with required mass and metallicity, and...
+            star = new Star(randomSeed, initialMass, OPTIONS->Metallicity(), {}, fLBV, fWR);                                    // create a star with required attributes
         }
 
         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // still good?
