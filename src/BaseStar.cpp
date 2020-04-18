@@ -2592,7 +2592,7 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
  * Inverse sampling from the Maxwell CDF for MCMC and importance sampling
  * Generates a random sample from the distribution
  *
- * From https://en.wikipedia.org/wiki/Maxwell–Boltzmann_distribution,
+ * From https://en.wikipedia.org/wiki/Maxwell-Boltzmann_distribution
  *
  * the Maxwell CDF is:
  *
@@ -2630,7 +2630,7 @@ double BaseStar::InverseSampleFromMaxwellCDF_Static(const double p_X, const doub
  */
 double BaseStar::CalculateInverseMaxwellCDF_Static(const double p_X, void* p_Params) {
     KickVelocityParams* params = (KickVelocityParams*)p_Params;
-    return InverseSampleFromMaxwellCDF_Static(p_X, params->sigma) -params->y;
+    return InverseSampleFromMaxwellCDF_Static(p_X, params->sigma) - params->y;
 }
 
 
@@ -2818,17 +2818,21 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
 	double remnantKick=0.0;
 	double muKick=0.0;
 	//double sigmaKick=0.0;
-    	double BHkick=100.0;		// Typical max 1-d kick for BHs, scaled by p_Rand and inversely by remnant mass in solar masses
-	double v0=250.0;		// Typical NS kick value
-	//double sigma0=50.0;		// Typical NS kick spread
-	//double sigmafrac=0.2;		// Typical NS kick fractional spread
+    	double vBH=100.0;		// Typical max 1-d kick for BHs, scaled by p_Rand and inversely by remnant mass in solar masses
+	double vNS=250.0;		// Typical NS kick value
+	double sigmaNS=50.0;		// Typical NS kick spread
+	double sigmaNSfrac=0.3;		// Typical NS kick fractional spread
 
+/*ILYA*/
+//std::cout<<p_Rand<<std::endl;
 	if (utils::Compare(p_RemnantMass, 2.50) <  0) {
-		muKick=v0*(p_COCoreMass-p_RemnantMass)/p_RemnantMass;
-		remnantKick=DrawKickVelocityDistributionMaxwell(muKick/sqrt(3.0), p_Rand);
+		muKick=vNS*(p_COCoreMass-p_RemnantMass)/p_RemnantMass;
 	}
 	else {
-		remnantKick = BHkick*p_Rand/p_RemnantMass;
+		muKick=vBH*(p_COCoreMass-p_RemnantMass)/p_RemnantMass;
+	}
+	while(remnantKick<=0) {
+		remnantKick=muKick*(1.0+gsl_cdf_gaussian_Pinv(p_Rand, sigmaNSfrac));
 	}
 	return remnantKick;
 }
@@ -2857,6 +2861,9 @@ double BaseStar::DrawSNKickVelocity(const double p_Sigma,
                                     const double p_EjectaMass,
                                     const double p_RemnantMass) {
 	double kickVelocity;
+
+/*ILYA*/
+std::cout<<"BaseStar::DrawSNKickVelocity"<<std::endl;
 
     switch (OPTIONS->KickVelocityDistribution()) {                                              // which distribution
 
