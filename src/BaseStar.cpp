@@ -1,5 +1,6 @@
 // gsl includes
 #include <gsl/gsl_roots.h>
+#include <gsl/gsl_cdf.h>
 
 // boos includes
 #include <boost/math/distributions.hpp>
@@ -2817,22 +2818,17 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
                                     const double p_RemnantMass) {					
 	double remnantKick=0.0;
 	double muKick=0.0;
-	//double sigmaKick=0.0;
-    	double vBH=100.0;		// Typical max 1-d kick for BHs, scaled by p_Rand and inversely by remnant mass in solar masses
-	double vNS=250.0;		// Typical NS kick value
-	double sigmaNS=50.0;		// Typical NS kick spread
-	double sigmaNSfrac=0.3;		// Typical NS kick fractional spread
+        double rand=p_Rand;		//makes it possible to adjust if p_Rand is too low, to avoid getting stuck
 
-/*ILYA*/
-//std::cout<<p_Rand<<std::endl;
-	if (utils::Compare(p_RemnantMass, 2.50) <  0) {
-		muKick=vNS*(p_COCoreMass-p_RemnantMass)/p_RemnantMass;
+	if (utils::Compare(p_RemnantMass, MULLERMANDEL_MAXNS) <  0) {
+		muKick=max(MULLERMANDEL_KICKNS*(p_COCoreMass-p_RemnantMass)/p_RemnantMass,0.0);
 	}
 	else {
-		muKick=vBH*(p_COCoreMass-p_RemnantMass)/p_RemnantMass;
+		muKick=max(MULLERMANDEL_KICKBH*(p_COCoreMass-p_RemnantMass)/p_RemnantMass,0.0);
 	}
-	while(remnantKick<=0) {
-		remnantKick=muKick*(1.0+gsl_cdf_gaussian_Pinv(p_Rand, sigmaNSfrac));
+	while(remnantKick<0) {
+		remnantKick=muKick*(1.0+gsl_cdf_gaussian_Pinv(rand, MULLERMANDEL_SIGMAKICK));
+		rand=rand+p_Rand+0.0001;
 	}
 	return remnantKick;
 }
