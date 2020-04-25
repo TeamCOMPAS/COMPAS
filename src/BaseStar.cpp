@@ -2858,9 +2858,6 @@ double BaseStar::DrawSNKickVelocity(const double p_Sigma,
                                     const double p_RemnantMass) {
 	double kickVelocity;
 
-/*ILYA*/
-std::cout<<"BaseStar::DrawSNKickVelocity"<<std::endl;
-
     switch (OPTIONS->KickVelocityDistribution()) {                                              // which distribution
 
         case KICK_VELOCITY_DISTRIBUTION::MAXWELLIAN:
