@@ -272,8 +272,8 @@
 //                                      - commented option --logfile-BSE-be-binaries to match Be-Binary options commented by AVG in v02.08.00
 // 02.09.04      JR - Apr 03, 2020 - Defect repair:
 //                                      - removed IsUSSN() from IsSNEvent() definition in BinaryConstituentStar.cpp (USSN flag indicates just US, not USSN. Needs to be tidied-up properly)
-// 02.09.05	     IM - Apr 03, 2020 - Defect repair:
-//					                    - fixed timescale calculation issue for newly created HeHG stars (from stripped EAGB stars); fixes drop in CO core mass
+// 02.09.05	 IM - Apr 03, 2020 - Defect repair:
+//			                - fixed timescale calculation issue for newly created HeHG stars (from stripped EAGB stars); fixes drop in CO core mass
 // 02.09.06      JR - Apr 07, 2020 - Defect repair:
 //                                      - corrected calculation in return statement for Rand::Random(const double p_Lower, const double p_Upper) (issue #201)
 //                                      - corrected calculation in return statement for Rand::RandomInt(const double p_Lower, const double p_Upper) (issue #201)
@@ -281,15 +281,16 @@
 // 02.09.08      SS - Apr 07, 2020 - Update zetaMainSequence=2.0 and zetaHertzsprungGap=6.5 in Options::SetToFiducialValues
 // 02.09.09      JR - Apr 11, 2020 - Defect repair:
 //                                      - restored property names in COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL in constants.h (issue #218) (was causing logfile definitions files to be parsed incorrectly)
-// 02.09.10	     IM - Apr 12, 2020 - Minor enhancement: added Mueller & Mandel 2020 remnant mass and kick prescription, MULLERMANDEL
+// 02.09.10	 IM - Apr 12, 2020 - Minor enhancement: added Mueller & Mandel 2020 remnant mass and kick prescription, MULLERMANDEL
 //				                     Defect repair: corrected spelling of output help string for MULLER2016 and MULLER2016MAXWELLIAN
-// 02.10.01	     IM - Apr 14, 2020 - Minor enhancement: 
+// 02.10.01	 IM - Apr 14, 2020 - Minor enhancement: 
 //					                    - moved code so that SSE will also sample SN kicks, following same code branch as BSE 
 // 02.10.02      SS - Apr 16, 2020 - Bug Fix for issue #105 ; core and envelope masses for HeHG and TPAGB stars
 // 02.10.03      JR - Apr 17, 2020 - Defect repair:
 //                                      - added LBV and WR winds to SSE (issue #223)
+// 02.10.04	 IM - Apr 25, 2020 - Minor enhancement: moved Mueller & Mandel prescription constants to constants.h, other cleaning of this option
 
-const std::string VERSION_STRING = "02.10.03";
+const std::string VERSION_STRING = "02.10.04";
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
 
