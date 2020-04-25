@@ -1091,26 +1091,23 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
  */
 double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass, const double p_HeCoreMass){
     double remnantMass=0;   
-    double M1=2.0, M2=3.0, M3=7.0, M4=8.0;
-    double minNSmass=1.13, maxNSmass=OPTIONS->MaximumNeutronStarMass();
-    double mu1=1.2, mu2a=1.4, mu2b=0.5, mu3a=1.4, mu3b=0.4, sigma1=0.02, sigma2=0.05, sigma3=0.05, muBH=0.8, sigmaBH=0.5;
     double pBH=0;
     double pCompleteCollapse=0;
     
 
-    if (utils::Compare(p_COCoreMass, M1) < 0) {
+    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
 	pBH=0;
     }
-    else if (utils::Compare(p_COCoreMass, M3) < 0) {
-    	pBH=1.0/(M3-M1)*(p_COCoreMass-M1);
+    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M3) < 0) {
+    	pBH=1.0/(MULLERMANDEL_M3-MULLERMANDEL_M1)*(p_COCoreMass-MULLERMANDEL_M1);
     }
     else {
 	pBH=1.0;
     } 
  
     if(utils::Compare(RAND->Random(0,1), pBH) < 0) {  	// this is a BH
-        if(utils::Compare(p_COCoreMass, M4) < 0)
-		pCompleteCollapse=1.0/(M4-M1)*(p_COCoreMass-M1);
+        if(utils::Compare(p_COCoreMass, MULLERMANDEL_M4) < 0)
+		pCompleteCollapse=1.0/(MULLERMANDEL_M4-MULLERMANDEL_M1)*(p_COCoreMass-MULLERMANDEL_M1);
         else
 		pCompleteCollapse=1.0;
 
@@ -1118,30 +1115,29 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
 		remnantMass=p_HeCoreMass;
         }
 	else {
-		while(remnantMass<maxNSmass || remnantMass > (p_COCoreMass+p_HeCoreMass) ){ 
-			remnantMass = muBH*p_COCoreMass+RAND->RandomGaussian(sigmaBH);
+		while(remnantMass<MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass+p_HeCoreMass) ){ 
+			remnantMass = MULLERMANDEL_MUBH*p_COCoreMass + RAND->RandomGaussian(MULLERMANDEL_SIGMABH);
 		}
 	}
     }
     else {						// this is an NS
-	//TODO: there is a gap between the ECSN / CCSN threshold of COMPAS and the Muller threshold 
-	//minimal mass M0~1.45; at the moment, treating objects with p_COCoreMass<M0 as those in the <M1 range 
-	if (utils::Compare(p_COCoreMass, M1) < 0) {
-		while(remnantMass < minNSmass || remnantMass > maxNSmass){
-			remnantMass = mu1 + RAND->RandomGaussian(sigma1);
+	if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
+		while(remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS){
+			remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
 		}
 	}
-	else if (utils::Compare(p_COCoreMass, M2) < 0) {
-                while(remnantMass < minNSmass || remnantMass > maxNSmass){
-                        remnantMass = mu2a + mu2b/(M2-M1)*(p_COCoreMass-M1)+RAND->RandomGaussian(sigma2);
+	else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
+                while(remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS){
+                        remnantMass = MULLERMANDEL_MU2A + 
+			MULLERMANDEL_MU2B/(MULLERMANDEL_M2-MULLERMANDEL_M1)*(p_COCoreMass-MULLERMANDEL_M1)+RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
                 }
         }
         else {
-                while(remnantMass < minNSmass || remnantMass > maxNSmass){
-                        remnantMass = mu3a + mu3b/(M3-M2)*(p_COCoreMass-M2)+RAND->RandomGaussian(sigma3);
+                while(remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS){
+                        remnantMass = MULLERMANDEL_MU3A + 
+			MULLERMANDEL_MU3B/(MULLERMANDEL_M3-MULLERMANDEL_M2)*(p_COCoreMass-MULLERMANDEL_M2)+RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
                 }
         }
-        //TODO: neutrino mass loss
     }
 
     return remnantMass;

@@ -605,6 +605,26 @@ constexpr double KROUPA_BREAK_2_PLUS1_2                 = 1.23114441334491628449
 constexpr double KROUPA_BREAK_2_PLUS1_3                 = 2.4622888266898325689987861383354862197522;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_3);
 constexpr double KROUPA_BREAK_2_POWER_2_3               = 0.5;                                                      // pow(KROUPA_BREAK_2, (KROUPA_POWER_2 - KROUPA_POWER_2));
 
+// Constants for the Muller and Mandel remnant mass and kick prescriptions
+constexpr double MULLERMANDEL_M1                        = 2.0;	
+constexpr double MULLERMANDEL_M2                        = 3.0; 
+constexpr double MULLERMANDEL_M3                        = 7.0; 
+constexpr double MULLERMANDEL_M4                        = 8.0; 
+constexpr double MULLERMANDEL_MU1                       = 1.2;
+constexpr double MULLERMANDEL_SIGMA1                    = 0.02;  
+constexpr double MULLERMANDEL_MU2A                      = 1.4; 
+constexpr double MULLERMANDEL_MU2B                      = 0.5;
+constexpr double MULLERMANDEL_SIGMA2                    = 0.05;
+constexpr double MULLERMANDEL_MU3A                      = 1.4;
+constexpr double MULLERMANDEL_MU3B                      = 0.4;
+constexpr double MULLERMANDEL_SIGMA3                    = 0.05;
+constexpr double MULLERMANDEL_MUBH                    	= 0.8;
+constexpr double MULLERMANDEL_SIGMABH                   = 0.5;
+constexpr double MULLERMANDEL_MINNS                     = 1.13;
+constexpr double MULLERMANDEL_MAXNS                     = 2.0;
+constexpr double MULLERMANDEL_KICKNS                    = 250.0;
+constexpr double MULLERMANDEL_KICKBH                    = 100.0;
+constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3; 
 
 // object types
 enum class OBJECT_TYPE: int { NONE, MAIN, UTILS, AIS, STAR, BASE_STAR, BINARY_STAR, BASE_BINARY_STAR, BINARY_CONSTITUENT_STAR };    //  if BASE_STAR, check STELLAR_TYPE
