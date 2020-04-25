@@ -2816,7 +2816,7 @@ double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
 double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass, 
                                     const double p_Rand,
                                     const double p_RemnantMass) {					
-	double remnantKick=0.0;
+	double remnantKick=-1.0;
 	double muKick=0.0;
         double rand=p_Rand;		//makes it possible to adjust if p_Rand is too low, to avoid getting stuck
 
