@@ -1,5 +1,6 @@
 // gsl includes
 #include <gsl/gsl_roots.h>
+#include <gsl/gsl_cdf.h>
 
 // boos includes
 #include <boost/math/distributions.hpp>
@@ -2592,7 +2593,7 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
  * Inverse sampling from the Maxwell CDF for MCMC and importance sampling
  * Generates a random sample from the distribution
  *
- * From https://en.wikipedia.org/wiki/Maxwell–Boltzmann_distribution,
+ * From https://en.wikipedia.org/wiki/Maxwell-Boltzmann_distribution
  *
  * the Maxwell CDF is:
  *
@@ -2630,7 +2631,7 @@ double BaseStar::InverseSampleFromMaxwellCDF_Static(const double p_X, const doub
  */
 double BaseStar::CalculateInverseMaxwellCDF_Static(const double p_X, void* p_Params) {
     KickVelocityParams* params = (KickVelocityParams*)p_Params;
-    return InverseSampleFromMaxwellCDF_Static(p_X, params->sigma) -params->y;
+    return InverseSampleFromMaxwellCDF_Static(p_X, params->sigma) - params->y;
 }
 
 
@@ -2815,20 +2816,19 @@ double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
 double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass, 
                                     const double p_Rand,
                                     const double p_RemnantMass) {					
-	double remnantKick=0.0;
+	double remnantKick=-1.0;
 	double muKick=0.0;
-	//double sigmaKick=0.0;
-    	double BHkick=100.0;		// Typical max 1-d kick for BHs, scaled by p_Rand and inversely by remnant mass in solar masses
-	double v0=250.0;		// Typical NS kick value
-	//double sigma0=50.0;		// Typical NS kick spread
-	//double sigmafrac=0.2;		// Typical NS kick fractional spread
+        double rand=p_Rand;		//makes it possible to adjust if p_Rand is too low, to avoid getting stuck
 
-	if (utils::Compare(p_RemnantMass, 2.50) <  0) {
-		muKick=v0*(p_COCoreMass-p_RemnantMass)/p_RemnantMass;
-		remnantKick=DrawKickVelocityDistributionMaxwell(muKick/sqrt(3.0), p_Rand);
+	if (utils::Compare(p_RemnantMass, MULLERMANDEL_MAXNS) <  0) {
+		muKick=max(MULLERMANDEL_KICKNS*(p_COCoreMass-p_RemnantMass)/p_RemnantMass,0.0);
 	}
 	else {
-		remnantKick = BHkick*p_Rand/p_RemnantMass;
+		muKick=max(MULLERMANDEL_KICKBH*(p_COCoreMass-p_RemnantMass)/p_RemnantMass,0.0);
+	}
+	while(remnantKick<0) {
+		remnantKick=muKick*(1.0+gsl_cdf_gaussian_Pinv(rand, MULLERMANDEL_SIGMAKICK));
+		rand=rand+p_Rand+0.0001;
 	}
 	return remnantKick;
 }

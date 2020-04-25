@@ -272,8 +272,8 @@
 //                                      - commented option --logfile-BSE-be-binaries to match Be-Binary options commented by AVG in v02.08.00
 // 02.09.04      JR - Apr 03, 2020 - Defect repair:
 //                                      - removed IsUSSN() from IsSNEvent() definition in BinaryConstituentStar.cpp (USSN flag indicates just US, not USSN. Needs to be tidied-up properly)
-// 02.09.05	     IM - Apr 03, 2020 - Defect repair:
-//					                    - fixed timescale calculation issue for newly created HeHG stars (from stripped EAGB stars); fixes drop in CO core mass
+// 02.09.05	 IM - Apr 03, 2020 - Defect repair:
+//			                - fixed timescale calculation issue for newly created HeHG stars (from stripped EAGB stars); fixes drop in CO core mass
 // 02.09.06      JR - Apr 07, 2020 - Defect repair:
 //                                      - corrected calculation in return statement for Rand::Random(const double p_Lower, const double p_Upper) (issue #201)
 //                                      - corrected calculation in return statement for Rand::RandomInt(const double p_Lower, const double p_Upper) (issue #201)
@@ -281,15 +281,16 @@
 // 02.09.08      SS - Apr 07, 2020 - Update zetaMainSequence=2.0 and zetaHertzsprungGap=6.5 in Options::SetToFiducialValues
 // 02.09.09      JR - Apr 11, 2020 - Defect repair:
 //                                      - restored property names in COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL in constants.h (issue #218) (was causing logfile definitions files to be parsed incorrectly)
-// 02.09.10	     IM - Apr 12, 2020 - Minor enhancement: added Mueller & Mandel 2020 remnant mass and kick prescription, MULLERMANDEL
+// 02.09.10	 IM - Apr 12, 2020 - Minor enhancement: added Mueller & Mandel 2020 remnant mass and kick prescription, MULLERMANDEL
 //				                     Defect repair: corrected spelling of output help string for MULLER2016 and MULLER2016MAXWELLIAN
-// 02.10.01	     IM - Apr 14, 2020 - Minor enhancement: 
+// 02.10.01	 IM - Apr 14, 2020 - Minor enhancement: 
 //					                    - moved code so that SSE will also sample SN kicks, following same code branch as BSE 
 // 02.10.02      SS - Apr 16, 2020 - Bug Fix for issue #105 ; core and envelope masses for HeHG and TPAGB stars
 // 02.10.03      JR - Apr 17, 2020 - Defect repair:
 //                                      - added LBV and WR winds to SSE (issue #223)
+// 02.10.04	 IM - Apr 25, 2020 - Minor enhancement: moved Mueller & Mandel prescription constants to constants.h, other cleaning of this option
 
-const std::string VERSION_STRING = "02.10.03";
+const std::string VERSION_STRING = "02.10.04";
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
 
@@ -605,6 +606,26 @@ constexpr double KROUPA_BREAK_2_PLUS1_2                 = 1.23114441334491628449
 constexpr double KROUPA_BREAK_2_PLUS1_3                 = 2.4622888266898325689987861383354862197522;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_3);
 constexpr double KROUPA_BREAK_2_POWER_2_3               = 0.5;                                                      // pow(KROUPA_BREAK_2, (KROUPA_POWER_2 - KROUPA_POWER_2));
 
+// Constants for the Muller and Mandel remnant mass and kick prescriptions
+constexpr double MULLERMANDEL_M1                        = 2.0;	
+constexpr double MULLERMANDEL_M2                        = 3.0; 
+constexpr double MULLERMANDEL_M3                        = 7.0; 
+constexpr double MULLERMANDEL_M4                        = 8.0; 
+constexpr double MULLERMANDEL_MU1                       = 1.2;
+constexpr double MULLERMANDEL_SIGMA1                    = 0.02;  
+constexpr double MULLERMANDEL_MU2A                      = 1.4; 
+constexpr double MULLERMANDEL_MU2B                      = 0.5;
+constexpr double MULLERMANDEL_SIGMA2                    = 0.05;
+constexpr double MULLERMANDEL_MU3A                      = 1.4;
+constexpr double MULLERMANDEL_MU3B                      = 0.4;
+constexpr double MULLERMANDEL_SIGMA3                    = 0.05;
+constexpr double MULLERMANDEL_MUBH                    	= 0.8;
+constexpr double MULLERMANDEL_SIGMABH                   = 0.5;
+constexpr double MULLERMANDEL_MINNS                     = 1.13;
+constexpr double MULLERMANDEL_MAXNS                     = 2.0;
+constexpr double MULLERMANDEL_KICKNS                    = 250.0;
+constexpr double MULLERMANDEL_KICKBH                    = 100.0;
+constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3; 
 
 // object types
 enum class OBJECT_TYPE: int { NONE, MAIN, UTILS, AIS, STAR, BASE_STAR, BINARY_STAR, BASE_BINARY_STAR, BINARY_CONSTITUENT_STAR };    //  if BASE_STAR, check STELLAR_TYPE
