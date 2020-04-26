@@ -86,7 +86,11 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
 
             mass1                       = (mass1 + mass2) / 2.0;                                                                                // equilibrate masses
             mass2                       = mass1;                                                                                                // ditto
-            m_SemiMajorAxis            *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                            // circularise; conserve angular momentum
+            
+            double M                    = mass1 + mass2;
+            double m1m2                 = mass1 * mass2;
+            m_SemiMajorAxis            *= 16.0 * m1m2 * m1m2 / (M * M * M * M) * (1.0 - (m_Eccentricity * m_Eccentricity));                     // circularise; conserve angular momentum
+
             m_Eccentricity              = 0.0;                                                                                                  // now circular
 
             // create new stars with equal masses - eveything else is recalculated
@@ -171,7 +175,11 @@ BaseBinaryStar::BaseBinaryStar(const AIS           &p_AIS,
 
         double newMass1             = (mass1 + mass2) / 2.0;                                                                                    // equilibrate masses
         double newMass2             = newMass1;                                                                                                 // ditto
-        m_SemiMajorAxis            *= (1.0 - (m_Eccentricity * m_Eccentricity));                                                                // circularise; conserve angular momentum
+            
+        double M                    = newMass1 + newMass2;
+        double m1m2                 = newMass1 * newMass2;
+        m_SemiMajorAxis            *= 16.0 * m1m2 * m1m2 / (M * M * M * M) * (1.0 - (m_Eccentricity * m_Eccentricity));                         // circularise; conserve angular momentum
+
         m_Eccentricity              = 0.0;                                                                                                      // now circular
 
         // equilibrate masses - recalculate everything else
