@@ -147,10 +147,11 @@ string Options::ProgramOptionDetails(const boost::program_options::variables_map
   
     ss << "\n\nOTHER PARAMETERS\n----------------\n\n";
 
-    ss << "fixedRandomSeed = " << (fixedRandomSeed ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";       // fixedRandomSeed
-    ss << "fixedMetallicity = " << (fixedMetallicity ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";     // fixedMetallicity
-    ss << "useFixedUK = " << (useFixedUK ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";                 // useFixedUK
-    ss << "outputPath = " << outputPath.string() << ", CALCULATED, STRING\n";                           // outputPath (fully qualified)
+    ss << "fixedRandomSeed    = " << (fixedRandomSeed ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";                            // fixedRandomSeed
+    ss << "Actual random seed = " << (fixedRandomSeed ? randomSeed : RAND->DefaultSeed()) << ", CALCULATED, UNSIGNED_LONG\n";   // actual random seed
+    ss << "fixedMetallicity   = " << (fixedMetallicity ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";                           // fixedMetallicity
+    ss << "useFixedUK         = " << (useFixedUK ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";                                 // useFixedUK
+    ss << "outputPath         = " << outputPath.string() << ", CALCULATED, STRING\n";                                           // outputPath (fully qualified)
 
     return ss.str();
 }
@@ -1470,7 +1471,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             COMPLAIN_IF(semiMajorAxisDistributionMax < 0.0, "Maximum semi-major Axis (--semi-major-axis-max) < 0");
 
             COMPLAIN_IF(singleStarMassMax   <= 0.0,               "Single star mass maximum (--single-star-mass-max) <= 0");
-            COMPLAIN_IF(singleStarMassMax   <= singleStarMassMin, "Single star mass maximum (--single-star-mass-max) <= minimum (--single-star-mass-min)");
+            COMPLAIN_IF(singleStarMassSteps > 1 && (singleStarMassMax <= singleStarMassMin), "Single star mass maximum (--single-star-mass-max) <= minimum (--single-star-mass-min)");
             COMPLAIN_IF(singleStarMassMin   <= 0.0,               "Single star mass minimum (--single-star-mass-min) <= 0");
             COMPLAIN_IF(singleStarMassSteps <= 0,                 "Single star mass steps (--single-star-mass-steps) <= 0");
 
