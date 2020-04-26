@@ -292,8 +292,10 @@
 // 02.10.05      JR - Apr 26, 2020 - Enhancements:
 //                                      - Issue #239 - added actual random seed to Run_Details
 //                                      - Issue #246 - changed Options.cpp to ignore --single-star-mass-max if --single-star-mass-steps = 1.  Already does in main.cpp.
+// 02.10.06      JR - Apr 26, 2020 - Defect repair:
+//                                      - Issue #233 - corrected cicularisation formalae used in both BaseBinartStar constructors
 
-const std::string VERSION_STRING = "02.10.05";
+const std::string VERSION_STRING = "02.10.06";
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
 
