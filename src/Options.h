@@ -14,6 +14,7 @@
 #include "constants.h"
 #include "typedefs.h"
 #include "utils.h"
+#include "rand.h"
 
 using std::string;
 using std::vector;
@@ -332,7 +333,7 @@ private:
     // Code variables
     int                                         nBinaries;                                                      // Number of binaries to simulate (default = 10 for quick test)
     bool                                        fixedRandomSeed;                                                // Whether to use a fixed random seed given by options.randomSeed (set to true if --random-seed is passed on command line)
-    unsigned long                               randomSeed;                                                     // Random seed to use
+    unsigned long int                           randomSeed;                                                     // Random seed to use
     double                                      maxEvolutionTime;                                               // Maximum time to evolve a binary by
     int                                         maxNumberOfTimestepIterations;                                  // Maximum number of timesteps to evolve binary for before giving up
 

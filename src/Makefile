@@ -36,9 +36,9 @@ LFLAGS :=  -L$(BOOST)/lib -lgsl -lgslcblas -lstdc++ -lm -lz -ldl -lboost_filesys
 SOURCES :=                                                               \
 			utils.cpp					\
 									\
+			Rand.cpp					\
 			Options.cpp					\
 			Log.cpp						\
-			Rand.cpp					\
 			Errors.cpp					\
 									\
 			BaseStar.cpp					\
