@@ -53,9 +53,6 @@ std::tuple<int, std::vector<std::string>> OpenSSEGridFile(std::ifstream &p_Grid,
 
     int kickVelocityRandom = 0;                                                                                                 // count 'Kick_Velocity_Random' occurrences
     int kickVelocity       = 0;                                                                                                 // count 'Kick_Velocity" occurrences
-    int kickTheta          = 0;                                                                                                 // count 'Kick_Theta" occurrences
-    int kickPhi            = 0;                                                                                                 // count 'Kick_Phi" occurrences
-    int kickMeanAnomaly    = 0;                                                                                                 // count 'Kick_Mean_Anomaly" occurrences
 
     int unknown            = 0;                                                                                                 // count unknown occurrences
 
@@ -130,12 +127,6 @@ std::tuple<int, std::vector<std::string>> OpenSSEGridFile(std::ifstream &p_Grid,
 
                             case _("KICK_VELOCITY")       : kickVelocity++;         gridHeaders.push_back(token); break;        // Kick velocity
 
-                            case _("KICK_THETA")          : kickTheta++;            gridHeaders.push_back(token); break;        // Kick theta
-
-                            case _("KICK_PHI")            : kickPhi++;              gridHeaders.push_back(token); break;        // Kick phi
-
-                            case _("KICK_MEAN_ANOMALY")   : kickMeanAnomaly++;      gridHeaders.push_back(token); break;        // Kick mean anomaly
-
                             default                       : unknown++;                                                          // unknown - deal with this later
                         }
                     }
@@ -147,48 +138,20 @@ std::tuple<int, std::vector<std::string>> OpenSSEGridFile(std::ifstream &p_Grid,
         }
     }
 
-    int kickHeaders = kickVelocityRandom + kickVelocity + kickTheta + kickPhi + kickMeanAnomaly;                                // number of kick headers
-
-    if (mass != 1 || metallicity > 1 || ((kickHeaders > 0) && (kickHeaders != 5)) || unknown > 0) {                             // check we have all the headers we need, and in the right numbers, and no extraneous headers
+    if (mass != 1 || metallicity > 1 || kickVelocity > 1 || kickVelocityRandom > 1 || unknown > 0) {                            // check we have all the headers we need, and in the right numbers, and no extraneous headers
                                                                                                                                 // we don't, but maybe this wasn't a header record
-        if (tokenCount > 1 || mass >= 1 || metallicity >= 1) {                                                                  // more than 1 column, or we got some header strings, so should have been a header
-
-            bool error = true;                                                                                                  // asume error - but it might just be no Kick_Velocity_Random, which is allowed
+        if (tokenCount > 1 || mass >= 1 || metallicity >= 1 || kickVelocity >= 1 || kickVelocityRandom >= 1) {                  // more than 1 column, or we got some header strings, so should have been a header
+            bool error = true;                                                                                                  // error
 
             if (mass < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << ": Mass")                                             // no 'Mass'
             else if (mass > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << ": Mass");                                     // duplicate 'Mass'
 
-            if (metallicity < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << ": Metallicity")                               // no 'Metallicity'
+            if (tokenCount > 1 && metallicity < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << ": Metallicity")             // no 'Metallicity'
             else if (metallicity > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << ": Metallicity");                       // duplicate 'Metallicity'
 
-            if ((kickVelocityRandom + kickVelocity + kickTheta + kickPhi + kickMeanAnomaly) > 0) {                              // at least one kick header present, so all are required (except Kick_Velocity_Random)
+            if (kickVelocity > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << ": Kick_Velocity");                         // duplicate 'Kick_Velocity'
 
-                if (kickVelocityRandom < 1 && kickVelocity < 1) {                                                               // neither 'Kick_Velocity_Random' nor 'Kick_Velocity'
-                    SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << ": One of {Kick_Velocity_Random, Kick_Velocity}");
-                }
-                else {                                                                                                          // at least one of 'Kick_Velocity_Random' and 'Kick_Velocity'
-                    if (kickVelocityRandom > 1) {                                                                               // too many?
-                        SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << ": Kick_Velocity_Random");                            // yes - duplicate 'Kick_Velocity_Random'
-                    }
-                    else if (kickVelocityRandom == 0) {                                                                         // no - any?
-                        error = false;                                                                                          // no - that's not an error...
-                    }
-
-                    if (kickVelocity > 1) {                                                                                     // too many of these?
-                        SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << ": Kick_Velocity");                                   // yes - duplicate 'Kick_Velocity'
-                        error = true;                                                                                           // just in case we turned it off above
-                    }
-                }
-                    
-                if (kickTheta < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << ": Kick_Theta")                              // no 'Kick_Theta'
-                else if (kickTheta > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << ": Kick_Theta");                      // duplicate 'Kick_Theta'
-
-                if (kickPhi < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << ": Kick_Phi")                                  // no 'Kick_Phi'
-                else if (kickPhi > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << ": Kick_Phi");                          // duplicate 'Kick_Phi'
-
-                if (kickMeanAnomaly < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << ": Kick_Mean_Anomaly")                 // no 'Kick_Mean_Anomaly'
-                else if (kickMeanAnomaly > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << ": Kick_Mean_Anomaly");         // duplicate 'Kick_Mean_Anomaly'
-            }
+            if (kickVelocityRandom > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << ": Kick_Velocity_Random");            // duplicate 'Kick_Velocity_Random'
 
             if (unknown > 0) SAY(ERR_MSG(ERROR::GRID_FILE_UNKNOWN_HEADER));                                                     // unknown header string
 
@@ -215,9 +178,6 @@ std::tuple<int, std::vector<std::string>> OpenSSEGridFile(std::ifstream &p_Grid,
  *     Metallicity
  *     Kick_Velocity_Random 
  *     Kick_Velocity 
- *     Kick_Theta 
- *     Kick_Phi
- *     Kick_Mean_Anomaly 
  * 
  * Plus boolean flags (see definition of KickParameters in typedefs.h):
  * 
@@ -250,9 +210,6 @@ std::tuple<bool, int, SSEGridParameters> ReadSSEGridRecord(std::ifstream &p_Grid
     gridValues.kickParameters.useVelocityRandom = false;
     gridValues.kickParameters.velocityRandom    = 0.0;
     gridValues.kickParameters.velocity          = 0.0;
-    gridValues.kickParameters.theta             = 0.0;
-    gridValues.kickParameters.phi               = 0.0;
-    gridValues.kickParameters.meanAnomaly       = 0.0;
 
     int lineNo = p_LineNo;                                                                                              // line number - for error messages
 
@@ -359,27 +316,6 @@ std::tuple<bool, int, SSEGridParameters> ReadSSEGridRecord(std::ifstream &p_Grid
                             else {                                                                                      // no - proceed
                                 gridValues.kickParameters.supplied = true;                                              // kick parameters supplied
                                 gridValues.kickParameters.velocity = value;                                             // Kick velocity
-                            }
-                            break;
-
-                        case _("KICK_THETA"):                                                                           // Kick theta
-                            gridValues.kickParameters.supplied = true;                                                  // kick parameters supplied
-                            gridValues.kickParameters.theta    = value;                                                 // Kick theta
-                            break;  
-
-                        case _("KICK_PHI"):                                                                             // Kick phi
-                            gridValues.kickParameters.supplied = true;                                                  // kick parameters supplied
-                            gridValues.kickParameters.phi      = value;                                                 // Kick phi
-                            break;  
-
-                        case _("KICK_MEAN_ANOMALY"):                                                                    // Kick mean anomaly
-                            if (value < 0.0 || value >= _2_PI) {                                                        // in the range [0.0, _2_PI)? 
-                                error = true;                                                                           // no - set error flag
-                                SAY(ERR_MSG(ERROR::GRID_FILE_INVALID_DATA) << " at line " << lineNo << ": " << token);  // show error
-                            }
-                            else {                                                                                      // yes - proceed
-                                gridValues.kickParameters.supplied    = true;                                           // kick parameters supplied
-                                gridValues.kickParameters.meanAnomaly = value;                                          // Kick mean anomaly
                             }
                             break;
 

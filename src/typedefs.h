@@ -33,9 +33,9 @@ typedef struct KickParameters {
     bool   useVelocityRandom;
     double velocityRandom;
     double velocity;
-    double theta;
-    double phi;
-    double meanAnomaly;
+    double theta;                   // only used for BSE
+    double phi;                     // only used for BSE
+    double meanAnomaly;             // only used for BSE
 } KickParameters;
 
 
