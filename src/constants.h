@@ -296,6 +296,9 @@
 //                                      - Issue #233 - corrected cicularisation formalae used in both BaseBinartStar constructors
 // 02.11.00      JR - Apr 27, 2020 - Enhancement:
 //                                      - Issue #238 - add supernova kick functionality to SSE grid file (+ updated docs)
+//                                   Defect repairs:
+//                                      - fixed typo in Options.h: changed '#include "rand.h" to '#include "Rand.h"
+//                                      - fixed printing of actual random seed in Run_Details file (moved to Log.cpp from Options.cpp: initial random seed is set after options are set)
 
 const std::string VERSION_STRING = "02.11.00";
 
