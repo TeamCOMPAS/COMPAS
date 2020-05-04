@@ -294,8 +294,13 @@
 //                                      - Issue #246 - changed Options.cpp to ignore --single-star-mass-max if --single-star-mass-steps = 1.  Already does in main.cpp.
 // 02.10.06      JR - Apr 26, 2020 - Defect repair:
 //                                      - Issue #233 - corrected cicularisation formalae used in both BaseBinartStar constructors
+// 02.11.00      JR - Apr 27, 2020 - Enhancement:
+//                                      - Issue #238 - add supernova kick functionality to SSE grid file (+ updated docs)
+//                                   Defect repairs:
+//                                      - fixed typo in Options.h: changed '#include "rand.h" to '#include "Rand.h"
+//                                      - fixed printing of actual random seed in Run_Details file (moved to Log.cpp from Options.cpp: initial random seed is set after options are set)
 
-const std::string VERSION_STRING = "02.10.06";
+const std::string VERSION_STRING = "02.11.00";
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
 

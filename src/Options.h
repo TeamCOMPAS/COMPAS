@@ -14,7 +14,7 @@
 #include "constants.h"
 #include "typedefs.h"
 #include "utils.h"
-#include "rand.h"
+#include "Rand.h"
 
 using std::string;
 using std::vector;
