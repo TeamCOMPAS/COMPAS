@@ -147,11 +147,10 @@ string Options::ProgramOptionDetails(const boost::program_options::variables_map
   
     ss << "\n\nOTHER PARAMETERS\n----------------\n\n";
 
-    ss << "fixedRandomSeed    = " << (fixedRandomSeed ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";                            // fixedRandomSeed
-    ss << "Actual random seed = " << (fixedRandomSeed ? randomSeed : RAND->DefaultSeed()) << ", CALCULATED, UNSIGNED_LONG\n";   // actual random seed
     ss << "fixedMetallicity   = " << (fixedMetallicity ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";                           // fixedMetallicity
     ss << "useFixedUK         = " << (useFixedUK ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";                                 // useFixedUK
     ss << "outputPath         = " << outputPath.string() << ", CALCULATED, STRING\n";                                           // outputPath (fully qualified)
+    ss << "fixedRandomSeed    = " << (fixedRandomSeed ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";                            // fixedRandomSeed
 
     return ss.str();
 }
