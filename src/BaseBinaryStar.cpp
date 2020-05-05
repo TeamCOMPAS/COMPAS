@@ -1721,6 +1721,14 @@ void BaseBinaryStar::EvaluateSupernovae(const bool p_Resolve2ndSN) {
 
     double aPrime = m_SemiMajorAxisPrime;                                                                               // prior to processing SN events
 
+    if (m_Star1->IsSNevent() || (m_Star2->IsSNevent() )) {
+		std::cout << "The SNing star is " ;					//RTW
+		std::cout << (m_Star1->IsSNevent() ? "1" : "2");	//RTW
+		std::cout << "\nThe p_Resolve2ndSN param = ";		//RTW	
+		std::cout << p_Resolve2ndSN;						//RTW	
+		std::cout << "\n";
+	}
+
     if (m_Star1->IsSNevent() && (p_Resolve2ndSN || (utils::Compare(aPrime, 0.0) > 0))) {                                // star1 supernova
         m_SupernovaState = SN_STATE::STAR1;                                                                             // star1
 
@@ -3031,6 +3039,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
     }
     else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) {
+		// RTW 05/05/20 - I think the code never reaches this point!! 
         EvaluateSupernovae(true);                                                                                       // evaluate supernovae (both stars) - immediate event
     }
     else {
