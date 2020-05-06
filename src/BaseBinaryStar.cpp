@@ -3234,8 +3234,9 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             else if (HasStarsTouching()) {                                                                                                  // binary components touching? (should usually be avoided as MT or CE should happen prior to this)
                 evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                         // yes - stop evolution
             }
-            else if ((IsUnbound() && !OPTIONS->EvolveUnboundSystems()) ||                                                                   // binary is unbound and we don't want unbound systems?
-                    (!IsGravitationallyBound() && !OPTIONS->EvolveUnboundSystems())) {                                                      // binary is not gravitationally bound and we don't want unbound systems?
+            else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                    // binary is unbound and we don't want unbound systems?
+				// RTW 06/05/20 - We should probably set m_Unbound elsewhere (when IsUnbound is set)
+				// 				  and only change evolutionStatus here...
                 m_Unbound       = true;                                                                                                     // yes - set the unbound flag (should already be set)
                 evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                                // stop evolution
             }
