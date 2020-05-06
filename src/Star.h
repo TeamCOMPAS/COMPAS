@@ -168,8 +168,8 @@ public:
 
     void            CalculateSNAnomalies(const double p_Eccentricity)                                           { m_Star->CalculateSNAnomalies(p_Eccentricity); }
     double          CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass, 
-								const STELLAR_TYPE p_StellarType)               { return m_Star->CalculateSNKickVelocity(p_RemnantMass, 
-																p_EjectaMass, p_StellarType); }
+								const STELLAR_TYPE p_StellarType)               								{ return m_Star->CalculateSNKickVelocity(p_RemnantMass, 
+																														p_EjectaMass, p_StellarType); }
 
     double          CalculateThermalMassLossRate()                                                              { return m_Star->CalculateThermalMassLossRate(); }
 
@@ -217,7 +217,7 @@ public:
     void            SetSNCurrentEvent(const SN_EVENT p_SNEvent)                                                 { m_Star->SetSNCurrentEvent(p_SNEvent); }
     void            SetSNPastEvent(const SN_EVENT p_SNEvent)                                                    { m_Star->SetSNPastEvent(p_SNEvent); }
 
-    double     	    SN_KickVelocity()       									{ return m_Star->SN_KickVelocity() ; }
+    double     	    SN_KickVelocity()       																	{ return m_Star->SN_KickVelocity() ; }
 
     void            SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
 
