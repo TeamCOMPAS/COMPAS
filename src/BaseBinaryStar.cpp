@@ -535,14 +535,14 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE:                        value = CEAtLeastOnce();                                                    break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT:                          value = CommonEnvelopeEventCount();                                         break;
         case BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY:                          value = UK();                                                               break;
-        case BINARY_PROPERTY::UNBOUND:                                              value = Unbound();                                                         break;
+        case BINARY_PROPERTY::UNBOUND:                                              value = Unbound();                                                          break;
         case BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE:                          value = DoubleCoreCE();                                                     break;
         case BINARY_PROPERTY::DT:                                                   value = Dt();                                                               break;
         case BINARY_PROPERTY::ECCENTRICITY:                                         value = Eccentricity();                                                     break;
         case BINARY_PROPERTY::ECCENTRICITY_AT_DCO_FORMATION:                        value = EccentricityAtDCOFormation();                                       break;
         case BINARY_PROPERTY::ECCENTRICITY_INITIAL:                                 value = EccentricityInitial();                                              break;
         case BINARY_PROPERTY::ECCENTRICITY_POST_COMMON_ENVELOPE:                    value = EccentricityPostCEE();                                              break;
-        case BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA:                       value = EccentricityPreSN();                                                break;
+        case BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA:                       	value = EccentricityPreSN();                                                break;
         case BINARY_PROPERTY::ECCENTRICITY_PRE_COMMON_ENVELOPE:                     value = EccentricityPreCEE();                                               break;
         case BINARY_PROPERTY::ECCENTRICITY_PRIME:                                   value = EccentricityPrime();                                                break;
         case BINARY_PROPERTY::ERROR:                                                value = Error();                                                            break;
@@ -563,7 +563,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME:                                value = MergesInHubbleTime();                                               break;
         case BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE:                           value = OptimisticCommonEnvelope();                                         break;
         case BINARY_PROPERTY::ORBITAL_VELOCITY:                                     value = OrbitalVelocity();                                                  break;
-        case BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA:                   value = OrbitalVelocityPreSN();                                             break;
+        case BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA:                   	value = OrbitalVelocityPreSN();                                             break;
         case BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE:                        value = Radius1PostCEE();                                                   break;
         case BINARY_PROPERTY::RADIUS_1_PRE_COMMON_ENVELOPE:                         value = Radius1PreCEE();                                                    break;
         case BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE:                        value = Radius2PostCEE();                                                   break;
@@ -581,8 +581,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION:                     value = SemiMajorAxisAtDCOFormation();                                      break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL:                              value = SemiMajorAxisInitial();                                             break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE:                 value = SemiMajorAxisPostCEE();                                             break;
-        case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA:                    value = SemiMajorAxisPreSN();                                               break;
-        case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL:               value = SemiMajorAxisPreSN() * AU_TO_RSOL;                                  break;
+        case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA:                    	value = SemiMajorAxisPreSN();                                               break;
+        case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL:               	value = SemiMajorAxisPreSN() * AU_TO_RSOL;                                  break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE:                  value = SemiMajorAxisPreCEE();                                              break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME:                                value = SemiMajorAxisPrime();                                               break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL:                           value = SemiMajorAxisPrime() * AU_TO_RSOL;                                  break;
@@ -1572,6 +1572,7 @@ double BaseBinaryStar::CalculateSemiMajorAxisPostSupernova(const double p_KickVe
 bool BaseBinaryStar::ResolveSupernova() {
 
     if (!m_Supernova->IsSNevent()) return false;                                                                                    // not a supernova event - bail out (or bale out depending whence you hail...) passively
+	// RTW 06/05/20 - Why would this ever need to be checked?
 
 	// Masses should already be correct, mass before SN given by star.m_MassPrev
     // Generate true anomaly - (for e=0, should be a flat distribution) - updates Eccentric anomaly and True anomaly automatically
