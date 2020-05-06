@@ -1689,48 +1689,26 @@ bool BaseBinaryStar::ResolveSupernova() {
  * Determine if one or both of the stars are undergoing a supernova event,
  * and if so resolve the event(s) by calling ResolveSupernova() for each of
  * the stars as appropriate.
- * 
- * p_Resolve2ndSN parameter added in v02.04.02:
- * 
- *    The legacy code has this code (almost) duplicated in BinaryStar::evaluateBinary():
- * 
- *       The first instance of the code in BinaryStar::evaluateBinary() checks m_SemiMajorAxisPrime > 0
- *       only for the case where both stars undergo an SN event - the check is not performed in the case(s)
- *       where only a single star undergoes an SN event.  In this (first) instance, if both stars undergo
- *       an SN event, both events are always processed.
- * 
- *       The second instance of the code in BinaryStar::evaluateBinary() checks m_SemiMajorAxisPrime > 0
- *       for all cases - i.e. where both stars undergo a SN event and either of the constituent stars undergo
- *       a SN event.  In this (second) instance, if both stars undergo an SN event, the SN event for star2
- *       is only processed if the binary survives the SN event for star1.
  *
- *    The p_Resolve2ndSN parameter was added to more closely replicate the behaviour of the legacy code:
- *       If p_Resolve2ndSN is true this code behaves the same as the first instance described above.
- *       If p_Resolve2ndSN is false this code behaves the same as the second instance described above.
+ * Also, sets the m_SupernovaState parameter which encodes information about which
+ * stars have already undergone supernova.
+ * 
+ * This function is no longer backwards compatible with legacy:
  *
- * aPrime variable added in v02.04.02 - more closely matches legacy code functionality
+ * 		p_Resolve2ndSN removed as a parameter, along with checks that the binary is intact.
+ * 		This is because the 2nd SN should always be resolved (and printed) if the code reaches that point.
+ * 		To avoid the 2nd supernova for unbound systems, the evolve_unbound_systems setting should be set to false.
+ * 		- RTW 06/05/20
  * 
- * 
- * void EvaluateSupernovae(const bool p_Calculate2ndSN)
- * 
- * @param   [IN]    p_Resolve2ndSN              Indicates whether 2nd supernova should be evaluated regardless of bound/unbound status
+ * void EvaluateSupernovae()
  */
-void BaseBinaryStar::EvaluateSupernovae(const bool p_Resolve2ndSN) {
+void BaseBinaryStar::EvaluateSupernovae() { 
 
-    m_SupernovaState = SN_STATE::NONE;                                                                                  // not yet determined
+    if (m_Star1->IsSNevent()) { 														                                // star1 supernova
 
-    double aPrime = m_SemiMajorAxisPrime;                                                                               // prior to processing SN events
-
-    if (m_Star1->IsSNevent() || (m_Star2->IsSNevent() )) {
-		std::cout << "The SNing star is " ;					//RTW
-		std::cout << (m_Star1->IsSNevent() ? "1" : "2");	//RTW
-		std::cout << "\nThe p_Resolve2ndSN param = ";		//RTW	
-		std::cout << p_Resolve2ndSN;						//RTW	
-		std::cout << "\n";
-	}
-
-    if (m_Star1->IsSNevent() && (p_Resolve2ndSN || (utils::Compare(aPrime, 0.0) > 0))) {                                // star1 supernova
-        m_SupernovaState = SN_STATE::STAR1;                                                                             // star1
+        m_SupernovaState = m_SupernovaState == SN_STATE::NONE 										                    // star2 hasn't undergone supernova?
+                            ? SN_STATE::STAR1                                                                           // yes - just star1
+                            : SN_STATE::BOTH;                                                                           // no - both 
 
         // resolve star1 supernova
         m_Supernova = m_Star1;                                                                                          // supernova
@@ -1738,26 +1716,16 @@ void BaseBinaryStar::EvaluateSupernovae(const bool p_Resolve2ndSN) {
         (void)ResolveSupernova();                                                                                       // resolve supernova
     }
 
-    if (m_Star2->IsSNevent() && (p_Resolve2ndSN || (utils::Compare(aPrime, 0.0) > 0))) {                                // star2 supernova                                                                                                        // star2 supernova
-        m_SupernovaState = m_SupernovaState == SN_STATE::NONE || (utils::Compare(aPrime, 0.0) <= 0)                     // star1 not supernova or binary unbound?
+    if (m_Star2->IsSNevent()) { 																					    // star2 supernova
+
+        m_SupernovaState = m_SupernovaState == SN_STATE::NONE 										                    // star1 not supernova or binary unbound?
                             ? SN_STATE::STAR2                                                                           // yes - just star2
                             : SN_STATE::BOTH;                                                                           // no - both 
 
-        bool resolveStar2SN = true;                                                                                     // resolve star2 SN event
-        if (m_SupernovaState == SN_STATE::BOTH && utils::Compare(m_EPrime, 0.0) > 0) {                                  // both stars supernova & still bound
-            resolveStar2SN = p_Resolve2ndSN;                                                                            // only resolve star 2 supernova if required ...
-            if (!resolveStar2SN) {                                                                                      // ... and if not required
-                m_Star2->ClearCurrentSNEvent();                                                                         // ... clear current SN event
-            }
-        }
-
-        if (resolveStar2SN) {                                                                                           // need to resolve star 2 SN?
-                                                                                                                        // yes
-            // resolve star2 supernova
-            m_Supernova = m_Star2;                                                                                      // supernova
-            m_Companion = m_Star1;                                                                                      // companion
-            (void)ResolveSupernova();                                                                                   // resolve supernova
-        }
+        // resolve star2 supernova
+        m_Supernova = m_Star2;                                                                                      // supernova
+        m_Companion = m_Star1;                                                                                      // companion
+        (void)ResolveSupernova();                                                                                   // resolve supernova
     }
 }
 
@@ -3038,10 +3006,6 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
        !(OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {              // yes - avoid CEE if CH+CH
         ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
     }
-    else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) {
-		// RTW 05/05/20 - I think the code never reaches this point!! 
-        EvaluateSupernovae(true);                                                                                       // evaluate supernovae (both stars) - immediate event
-    }
     else {
         ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
     }
@@ -3054,7 +3018,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         PrintDetailedOutput(m_Id);                                                                                      // print detailed output record if stellar type changed
     }
 
-    EvaluateSupernovae(false);                                                                                          // evaluate supernovae (both stars)
+    if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) { EvaluateSupernovae(); } 										// evaluate supernovae if applicable
 
     // assign new values to "previous" values, for following timestep
     m_EccentricityPrev	  = m_EccentricityPrime;
