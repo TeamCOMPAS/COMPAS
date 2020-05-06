@@ -30,7 +30,7 @@ class BaseBinaryStar;
  * functional return is a tuple: std::tuple<bool, COMPAS_VARIABLE_TYPE>.  This type
  * is COMPAS_VARIABLE by typedef.
  *
- * The bool returned indicates whether the property value was retrieved ok: true = yes, fales = no
+ * The bool returned indicates whether the property value was retrieved ok: true = yes, false = no
  * The COMPAS_VARIABLE_TYPE variable returned is a boost variant variable, the value of which is the
  * value of the underlying primitive variable.
  *
