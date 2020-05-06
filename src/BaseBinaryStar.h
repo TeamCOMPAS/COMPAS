@@ -584,7 +584,7 @@ private:
     void    EvaluateBinary(const double p_Dt);
     void    EvaluateBinaryPreamble();
 
-    void    EvaluateSupernovae(const bool p_Resolve2ndSN);
+    void    EvaluateSupernovae(); 
 
     void    EvolveOneTimestep(const double p_Dt);
     void    EvolveOneTimestepPreamble(const double p_Dt);
