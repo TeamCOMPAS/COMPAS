@@ -403,7 +403,7 @@ void BaseBinaryStar::SetRemainingCommonValues() {
 
     m_VRel                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_uK                                         = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Radius                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_CurrentSeparation                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_EPrime                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_CosIPrime                                  = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_IPrime                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -1501,7 +1501,7 @@ double BaseBinaryStar::CalculateOrbitalEccentricityPostSupernova(const double p_
     // calculate these once for use later
     double mOverMprime           = p_TotalMassPreSN / p_TotalMassPostSN;
     double uk_2                  = p_KickVelocity * p_KickVelocity;
-    double _2_r_Minus_1_a        = (2.0 / m_Radius) - (1.0 / m_SemiMajorAxisPrime);
+    double _2_r_Minus_1_a        = (2.0 / m_CurrentSeparation) - (1.0 / m_SemiMajorAxisPrime);
     double sinTheta              = sin(p_KickTheta);
     double cosTheta              = cos(p_KickTheta);
     double sinPhi                = sin(p_KickPhi);
@@ -1515,8 +1515,8 @@ double BaseBinaryStar::CalculateOrbitalEccentricityPostSupernova(const double p_
     // calculate orbital eccentricity
     double quadraticTerm         = 1.0 + (2.0 * ukCosThetaCosPhi) + uk_2;
     double firstSquareBrackets   = (uk_2 * sinTheta * sinTheta) + (((ukCosTheta * sinPhi * cosBeta) - (sinBeta * ukCosThetaCosPhiPlus1)) * ((ukCosTheta * sinPhi * cosBeta) - (sinBeta * ukCosThetaCosPhiPlus1)));
-    double secondSquareBrackets  = (2.0 / m_Radius) - (mOverMprime * _2_r_Minus_1_a * quadraticTerm);
-    double oneMinusESquared      = m_Radius * m_Radius * mOverMprime * _2_r_Minus_1_a * firstSquareBrackets * secondSquareBrackets;
+    double secondSquareBrackets  = (2.0 / m_CurrentSeparation) - (mOverMprime * _2_r_Minus_1_a * quadraticTerm);
+    double oneMinusESquared      = m_CurrentSeparation * m_CurrentSeparation * mOverMprime * _2_r_Minus_1_a * firstSquareBrackets * secondSquareBrackets;
     double eSquared              = 1.0 - oneMinusESquared;
 
     if(eSquared < 1E-8) eSquared = 0.0;     // Deal with small number rounding problems - don't use utils::Compare() here      JR: todo: this should be fixed
@@ -1550,7 +1550,7 @@ double BaseBinaryStar::CalculateSemiMajorAxisPostSupernova(const double p_KickVe
                                                            const double p_KickTheta,
                                                            const double p_KickPhi) {
 
-    double r_2           = 2.0 / m_Radius;
+    double r_2           = 2.0 / m_CurrentSeparation;
     double quadraticTerm = 1.0 + (2.0 * p_KickVelocity * cos(p_KickTheta) * cos(p_KickPhi)) + (p_KickVelocity * p_KickVelocity);
 
     return 1.0 / (r_2 - ((p_TotalMassPreSN / p_TotalMassPostSN) * (r_2 - (1.0 / m_SemiMajorAxisPrime)) * quadraticTerm));
@@ -1565,19 +1565,26 @@ double BaseBinaryStar::CalculateSemiMajorAxisPostSupernova(const double p_KickVe
  * JR: todo: flesh-out this documentation
  *
  *
- * bool ResolveSupernova()
+ * bool ResolveSupernovaInBinary()
  *
  * @return                                      True if a supernova event occurred, otherwise false
  */
-bool BaseBinaryStar::ResolveSupernova() {
+bool BaseBinaryStar::ResolveSupernovaInBinary() {
 
     if (!m_Supernova->IsSNevent()) return false;                                                                                    // not a supernova event - bail out (or bale out depending whence you hail...) passively
-	// RTW 06/05/20 - Why would this ever need to be checked?
+	// RTW 06/05/20 - Why would this ever need to be checked? What happens if it's false?
 
 	// Masses should already be correct, mass before SN given by star.m_MassPrev
     // Generate true anomaly - (for e=0, should be a flat distribution) - updates Eccentric anomaly and True anomaly automatically
     // ALEJANDRO - 09/05/2018 - If statement to avoid solving Kepler's equation for an unbound orbit; it may be of interest to have SN of unbound stars in the supernovae.txt file.
 
+	// Calculate relevant pre-SN masses
+	double totalMass        = m_Supernova->MassPrev() + m_Companion->MassPrev();                                                    // total mass of binary before supernova event
+	double reducedMass      = (m_Supernova->MassPrev() * m_Companion->MassPrev()) / totalMass;                                      // reduced mass before supernova event
+	double totalMassPrime   = m_Supernova->Mass() + m_Companion->Mass();                                                            // total mass of binary after supernova event
+	double reducedMassPrime = (m_Supernova->Mass() * m_Companion->Mass()) / totalMassPrime;                                         // reduced mass after supernova event
+
+	// If System is already unbound, don't worry about evaluating orbital parameters
     if (IsUnbound()) {      // JR: todo: check this - was just "if (m_SemiMajorAxisPrime > 0.0)"
         // ALEJANDRO - 09/05/2018 - Following 3 lines copied from else statement in the end.                                        // JR: todo: are these going to be executed twice...? (I removed one... not required)
         m_Unbound = true;
@@ -1586,17 +1593,14 @@ bool BaseBinaryStar::ResolveSupernova() {
         m_Supernova->CalculateSNAnomalies(m_Eccentricity);
     }
 
-	m_Radius = (m_SemiMajorAxisPrime * (1.0 - (m_Eccentricity * m_Eccentricity))) / (1.0 + m_Eccentricity * cos(m_Supernova->SN_TrueAnomaly()));   // radius of orbit at current time in AU as a function of the true anomaly psi
+	// RTW 07/05/20 - m_Radius is a bit confusing (since stars also have an m_Radius) - I advocate m_Separation
+	m_CurrentSeparation = (m_SemiMajorAxisPrime * (1.0 - (m_Eccentricity * m_Eccentricity))) / (1.0 + m_Eccentricity * cos(m_Supernova->SN_TrueAnomaly()));   // radius of orbit at current time in AU as a function of the true anomaly psi
 
-	double totalMass        = m_Supernova->MassPrev() + m_Companion->MassPrev();                                                    // total mass of binary before supernova event
-	double reducedMass      = (m_Supernova->MassPrev() * m_Companion->MassPrev()) / totalMass;                                      // reduced mass before supernova event
-	double totalMassPrime   = m_Supernova->Mass() + m_Companion->Mass();                                                            // total mass of binary after supernova event
-	double reducedMassPrime = (m_Supernova->Mass() * m_Companion->Mass()) / totalMassPrime;                                         // reduced mass after supernova event
 
     // JR todo - check whether m_Beta needs to be a class variable
     #define a m_SemiMajorAxisPrime  // for convenience - undefined below
     #define e m_Eccentricity        // for convenience - undefined below
-    #define r m_Radius              // for convenience - undefined below
+    #define r m_CurrentSeparation              // for convenience - undefined below
 
     m_Beta = utils::Compare(e, 0.0) == 0 ? M_PI_2 : asin(sqrt((a * a * (1.0 - (e * e))) / ((2.0 * r * a) - (r * r))));              // angle between the position and velocity vectors
 
@@ -1614,7 +1618,7 @@ bool BaseBinaryStar::ResolveSupernova() {
     // Since this equation contains 'G', all other quantities must be in SI to get answer in ms^-1
 
 	vK                       *= KM;                                                                                                 // convert vK to m s^-1.  Would be nice to draw this in nicer units to avoid this secion
-	m_VRel                    = sqrt(G * (totalMass * MSOL) * ((2.0 / (m_Radius * AU)) - (1.0 / (m_SemiMajorAxisPrime * AU))));     // orbital velocity
+	m_VRel                    = sqrt(G * (totalMass * MSOL) * ((2.0 / (m_CurrentSeparation * AU)) - (1.0 / (m_SemiMajorAxisPrime * AU))));     // orbital velocity
 	m_uK                      = OPTIONS->UseFixedUK() ? OPTIONS->FixedUK() : vK / m_VRel;                                           // fix uK to user-defined value if required, otherwise calculate it.  uK is dimensionless
 	m_OrbitalVelocityPreSN    = m_VRel;                                                                                             // since the kick velocity always occurs in equations as vk/vrel, we need to know vrel
 

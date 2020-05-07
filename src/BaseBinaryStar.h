@@ -118,7 +118,7 @@ public:
         m_OrbitalVelocityPrev              = p_Star.m_OrbitalVelocityPrev;
         m_OrbitalVelocityPrime             = p_Star.m_OrbitalVelocityPrime;
 
-        m_Radius                           = p_Star.m_Radius;
+        m_CurrentSeparation				   = p_Star.m_CurrentSeparation;
 
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
 
@@ -405,7 +405,7 @@ private:
     double              m_OrbitalVelocityPrev;
     double              m_OrbitalVelocityPrime;
 
-    double              m_Radius;
+    double              m_CurrentSeparation;
 
     BinaryRLOFDetailsT  m_RLOFDetails;                                                      // RLOF details
 
