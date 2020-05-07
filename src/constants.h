@@ -302,6 +302,8 @@
 // 02.12.00		 RW - May 07, 2020 - Enhancement:
 // 										- Issue #254 - Remove ID from output files (SEED accomplishes this functionality better)
 // 										- Issue #255 - Update meaning of SN_STATE to reflect which SN occured and in what order
+// 									 Defect repairs:
+// 									 	- Issue #236 - 2nd SN not printed in disrupted systems
 
 const std::string VERSION_STRING = "02.12.00";
 
