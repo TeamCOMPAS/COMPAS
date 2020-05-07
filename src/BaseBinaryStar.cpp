@@ -1687,19 +1687,17 @@ bool BaseBinaryStar::ResolveSupernova() {
 
 
 /*
- * Determine if one or both of the stars are undergoing a supernova event,
- * and if so resolve the event(s) by calling ResolveSupernova() for each of
+ * Determine if one or both of the stars are undergoing a supernova event and if so, 
+ * 1) set the m_SupernovaState parameter which encodes information about which
+ * stars have already undergone supernova, and 
+ * 2) resolve the event(s) by calling ResolveSupernova() for each of
  * the stars as appropriate.
  *
- * Also, sets the m_SupernovaState parameter which encodes information about which
- * stars have already undergone supernova.
- * 
- * This function is no longer backwards compatible with legacy:
- *
- * 		p_Resolve2ndSN removed as a parameter, along with checks that the binary is intact.
- * 		This is because the 2nd SN should always be resolved (and printed) if the code reaches that point.
- * 		To avoid the 2nd supernova for unbound systems, the evolve_unbound_systems setting should be set to false.
- * 		- RTW 06/05/20
+ * Note: This function is no longer backwards compatible with legacy:
+ * p_Resolve2ndSN was removed as a parameter, along with checks that the binary is intact.
+ * This is because the 2nd SN should always be resolved (and printed) if the code reaches that point.
+ * To avoid the 2nd supernova for unbound systems, set the evolve_unbound_systems to false.
+ * - RTW 06/05/20
  * 
  * void EvaluateSupernovae()
  */
