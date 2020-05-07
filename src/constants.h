@@ -1318,12 +1318,15 @@ const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
 
 
 // Supernova types
-enum class SN_STATE: int { NONE, STAR1, STAR2, BOTH };
+// RTW 07/05/20 - TODO: change from enum class to specific ints
+enum class SN_STATE: int { NONE, STAR10, STAR20, STAR12, STAR21, SIMUL };
 const COMPASUnorderedMap<SN_STATE, std::string> SN_STATE_LABEL = {
     { SN_STATE::NONE,  "No Supernova" },
-    { SN_STATE::STAR1, "Star1 only" },
-    { SN_STATE::STAR2, "Star2 only" },
-    { SN_STATE::BOTH,  "Both stars" }
+    { SN_STATE::STAR10, "Star1 only" },
+    { SN_STATE::STAR20, "Star2 only" },
+    { SN_STATE::STAR12, "Star1, then Star2" },
+    { SN_STATE::STAR21, "Star2, then Star1" },
+    { SN_STATE::SIMUL,  "Both stars simultaneously" }
 };
 
 // enum class L_CONSTANTS

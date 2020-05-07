@@ -1705,11 +1705,25 @@ bool BaseBinaryStar::ResolveSupernova() {
  */
 void BaseBinaryStar::EvaluateSupernovae() { 
 
-    if (m_Star1->IsSNevent()) { 														                                // star1 supernova
+    // Establish the SN State - which SNe occured and in what order
+    if (m_Star1->IsSNevent() && m_Star2->IsSNevent()) {																	// simultaneous supernovae
+		m_SupernovaState = SN_STATE::SIMUL;
+	} 
+	else if (m_Star1->IsSNevent()) {																					// only star1 SN at current timestep
 
-        m_SupernovaState = m_SupernovaState == SN_STATE::NONE 										                    // star2 hasn't undergone supernova?
-                            ? SN_STATE::STAR1                                                                           // yes - just star1
-                            : SN_STATE::BOTH;                                                                           // no - both 
+        m_SupernovaState = (m_SupernovaState == SN_STATE::NONE) 									                    // star2 hasn't undergone supernova?
+                            ? SN_STATE::STAR10                                                                          // yes - just star1
+                            : SN_STATE::STAR21;                                                                         // no - star2 first, then star1
+	}
+	else if (m_Star2->IsSNevent()) {																					// only star2 SN at current timestep
+
+        m_SupernovaState = (m_SupernovaState == SN_STATE::NONE) 									                    // star1 hasn't undergone supernova?
+                            ? SN_STATE::STAR20                                                                          // yes - just star2
+                            : SN_STATE::STAR12;                                                                         // no - star1 first, then star2
+	}                                                                                                                   
+
+    // Resolve the SN(e)
+    if (m_Star1->IsSNevent()) { 														                                // star1 supernova
 
         // resolve star1 supernova
         m_Supernova = m_Star1;                                                                                          // supernova
@@ -1718,10 +1732,6 @@ void BaseBinaryStar::EvaluateSupernovae() {
     }
 
     if (m_Star2->IsSNevent()) { 																					    // star2 supernova
-
-        m_SupernovaState = m_SupernovaState == SN_STATE::NONE 										                    // star1 not supernova or binary unbound?
-                            ? SN_STATE::STAR2                                                                           // yes - just star2
-                            : SN_STATE::BOTH;                                                                           // no - both 
 
         // resolve star2 supernova
         m_Supernova = m_Star2;                                                                                      // supernova
