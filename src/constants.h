@@ -301,8 +301,9 @@
 //                                      - fixed printing of actual random seed in Run_Details file (moved to Log.cpp from Options.cpp: initial random seed is set after options are set)
 // 02.12.00		 RW - May 07, 2020 - Enhancement:
 // 										- Issue #254 - Remove ID from output files (SEED accomplishes this functionality better)
+// 										- Issue #255 - Update meaning of SN_STATE to reflect which SN occured and in what order
 
-const std::string VERSION_STRING = "02.11.00";
+const std::string VERSION_STRING = "02.12.00";
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
 
