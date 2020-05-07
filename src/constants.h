@@ -299,6 +299,8 @@
 //                                   Defect repairs:
 //                                      - fixed typo in Options.h: changed '#include "rand.h" to '#include "Rand.h"
 //                                      - fixed printing of actual random seed in Run_Details file (moved to Log.cpp from Options.cpp: initial random seed is set after options are set)
+// 02.12.00		 RW - May 07, 2020 - Enhancement:
+// 										- Issue #254 - Remove ID from output files (SEED accomplishes this functionality better)
 
 const std::string VERSION_STRING = "02.11.00";
 
@@ -2425,7 +2427,6 @@ const ANY_PROPERTY_VECTOR SSE_PARAMETERS_REC = {
 // Default record definition for the Binary System Parameters logfile
 //
 const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
-    //BINARY_PROPERTY::ID, // RTW 07/05/20 - Removed
     BINARY_PROPERTY::RANDOM_SEED,
     STAR_1_PROPERTY::MZAMS,
     STAR_2_PROPERTY::MZAMS,
@@ -2467,7 +2468,6 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
 // Default record definition for the Binary Double Compact Objects logfile
 //
 const ANY_PROPERTY_VECTOR BSE_DOUBLE_COMPACT_OBJECTS_REC = {
-    //BINARY_PROPERTY::ID, // RTW 07/05/20 - removed
     BINARY_PROPERTY::RANDOM_SEED,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION, 
     BINARY_PROPERTY::ECCENTRICITY_AT_DCO_FORMATION,
@@ -2510,7 +2510,6 @@ const ANY_PROPERTY_VECTOR BSE_BE_BINARIES_REC = {
 // Default record definition for the Binary Detailed Output logfile
 //
 const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
-    //BINARY_PROPERTY::ID, // RTW 07/05/20 - removed
     BINARY_PROPERTY::RANDOM_SEED,
     BINARY_PROPERTY::DT,
     BINARY_PROPERTY::TIME,
@@ -2605,7 +2604,6 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
 // Default record definition for the Binary Pulsar Evolution logfile
 //
 const ANY_PROPERTY_VECTOR BSE_PULSAR_EVOLUTION_REC = {
-    //BINARY_PROPERTY::ID, // RTW 07/05/20 - removed
     BINARY_PROPERTY::RANDOM_SEED,
     // BINARY_PROPERTY::UNBOUND,
     STAR_1_PROPERTY::MASS,
@@ -2630,7 +2628,6 @@ const ANY_PROPERTY_VECTOR BSE_PULSAR_EVOLUTION_REC = {
 // Default record definition for the Binary Supernovae logfile
 //
 const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
-    //BINARY_PROPERTY::ID, // RTW 07/05/20 - removed
     BINARY_PROPERTY::RANDOM_SEED,
     SUPERNOVA_PROPERTY::DRAWN_KICK_VELOCITY,
     SUPERNOVA_PROPERTY::KICK_VELOCITY,
@@ -2673,7 +2670,6 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
 // Default record definition for the Binary Common Envelopes logfile
 //
 const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
-    //BINARY_PROPERTY::ID, // RTW 07/05/20 - removed
     BINARY_PROPERTY::RANDOM_SEED,
     BINARY_PROPERTY::TIME,
     STAR_1_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,
