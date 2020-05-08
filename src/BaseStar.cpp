@@ -3008,6 +3008,10 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
  /*
   * Draw the angular components of the supernova kick theta and phi according to user specified options.
   *
+  * Explicitly, theta is defined on [-pi/2, pi/2], where theta=0 is in the orbital plane, and theta=pi/2 is
+  * parallel to the orbital angular momentum. Phi is defined on [0, 2*pi), with phi=0 defined in the direction
+  * of the radial vector from the companion to the star undergoing SN, and increasing in the same direction as the 
+  * binary orbit (i.e it appears counter-clockwise when the binary motion is viewed as counter-clockwise)
   * 
   * DBL_DBL DrawKickDirection()
   */
@@ -3097,6 +3101,8 @@ DBL_DBL BaseStar::DrawKickDirection() {
  */
 DBL_DBL BaseStar::SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity) {
 
+		// RTW 08/05/20 - why is this here? Should be in BaseBinaryStar
+
     double e = p_Eccentricity;
     double M = p_MeanAnomaly;
     double E = p_MeanAnomaly;                                                                                                       // inital guess at E is M - correct for e = 0
@@ -3132,6 +3138,7 @@ DBL_DBL BaseStar::SolveKeplersEquation(const double p_MeanAnomaly, const double 
  * @param   [IN]    p_Eccentricity              Eccentricity of the binary
  */
 void BaseStar::CalculateSNAnomalies(const double p_Eccentricity) {
+		// RTW 08/05/20 - why is this here? Should be in BaseBinaryStar no? There's no eccen for a single star...
     std::tie(m_SupernovaDetails.eccentricAnomaly, m_SupernovaDetails.trueAnomaly) = SolveKeplersEquation(m_SupernovaDetails.meanAnomaly, p_Eccentricity);
 }
 
