@@ -132,6 +132,7 @@ public:
             double              Zeta_Soberman() const                                           { return m_Zetas.soberman; }
             double              Zeta_SobermanHe() const                                         { return m_Zetas.sobermanHe; }
             double              Zeta_Thermal() const                                            { return m_Zetas.thermal; }
+			double				Speed() const													{ return m_ComponentSpeed; }
 
 
     // setters
@@ -140,6 +141,8 @@ public:
 
             void                SetSNCurrentEvent(SN_EVENT p_SNEvent)                           { m_SupernovaDetails.events.current |= p_SNEvent; }                                 // Set supernova primary event/state for current timestep
             void                SetSNPastEvent(const SN_EVENT p_SNEvent)                        { m_SupernovaDetails.events.past |= p_SNEvent; }                                    // Set supernova primary event/state for any past timestep
+
+			void				UpdateComponentVelocity(const std::vector<double> p_newVelocity);
 
 
     // member functions - alphabetically
@@ -351,6 +354,10 @@ protected:
     SupernovaDetailsT       m_SupernovaDetails;                         // Supernova attributes
     PulsarDetailsT          m_PulsarDetails;                            // Pulsar attributes
 
+	// Star speed and velocity
+	std::vector<double> 	m_ComponentVelocity(3); 					// Isolated star velocity vector
+	double 					m_ComponentSpeed; 							// Magnitude of velocity vector
+
 
     // member functions - alphabetically
             void            AgeOneTimestepPreamble(const double p_DeltaTime);
@@ -544,6 +551,10 @@ protected:
     virtual bool            IsSupernova()                                                                       { return false; }
 
             double          LimitTimestep(const double p_Dt);
+
+			double			CalculateSpeedFromVelocity();
+
+
 
     /*
      * Perturb Luminosity and Radius
