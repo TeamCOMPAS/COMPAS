@@ -2644,7 +2644,7 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     SUPERNOVA_PROPERTY::KICK_VELOCITY,
     SUPERNOVA_PROPERTY::FALLBACK_FRACTION,
     BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,
-    BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY, // remove?  (its in systemParameters)
+    BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY, // remove?  (its in systemParameters)		// RTW 07/05/20 - Please do not remove these
     SUPERNOVA_PROPERTY::TRUE_ANOMALY,				// remove?  (its in systemParameters)
     SUPERNOVA_PROPERTY::SUPERNOVA_THETA, // remove?  (its in systemParameters)
     SUPERNOVA_PROPERTY::SUPERNOVA_PHI, // remove?  (its in systemParameters)
