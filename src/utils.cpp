@@ -3,6 +3,7 @@
 #include <fstream>
 #include <algorithm>
 #include <cstring>
+#include <math.h>
 #include "utils.h"
 #include "Rand.h"
 
@@ -498,4 +499,63 @@ namespace utils {
         
         return SN_EVENT::NONE;
     }
+
+
+    /*
+     * Rotates a vector from one coordinate basis to another using Euler Angles
+     * 
+     * Returns the rotated vector. For a change of basis from (X,Y,Z)->(X',Y',Z'),
+	 * ThetaE is the angle between Z and Z',
+	 * Vector N := Z x Z' (cross product)
+	 * PhiE is the angle between X and N
+	 * PsiE is the angle between X' and N
+	 * These angles uniquely determine the change of basis, which is applied 
+	 * in the form of a rotation matrix as a function of these angles.
+	 *
+	 * For details, see:
+	 * https://en.wikipedia.org/wiki/Euler_angles
+	 * https://en.wikipedia.org/wiki/Change_of_basis
+	 *
+     *
+     * @param   [IN]   p_oldVector[3]				The vector in old coordinate basis (any units, must be 3D)
+     * @param   [IN]   p_ThetaE						Euler angle Theta (rad) 
+     * @param   [IN]   p_PhiE						Euler angle Phi   (rad) 
+     * @param   [IN]   p_PsiE						Euler angle Psi   (rad) 
+     * @return                                      rotatedVector
+     */
+	std::vector<double>	RotateVector(const double p_oldVector[3], const double p_ThetaE, const double p_PhiE, const double p_PsiE) {
+
+		// Replace for convenience, undefine below
+		#define cTheta cos(p_ThetaE)
+		#define cPhi   cos(p_PhiE)
+		#define cPsi   cos(p_PsiE)
+		#define sTheta sin(p_ThetaE)
+		#define sPhi   sin(p_PhiE)
+		#define sPsi   sin(p_PsiE)
+
+		// Define the Rotation Matrix 	// RTW 10/05/20 - TODO: test that this is correct (check that determinant = 1)
+		double RotationMatrix[3][3] = {
+				{ cPhi*cPsi - sPhi*cTheta*sPsi ,  -cPhi*sPsi - sPhi*cTheta*cPsi ,  sTheta*sPhi },
+				{ sPhi*cPsi + cPhi*cTheta*sPsi ,  -sPhi*sPsi + cPhi*cTheta*cPsi , -sTheta*cPhi },
+				{ sTheta*sPsi                  ,  sTheta*cPsi                   ,  cTheta      }};
+
+		// Multiply RotationMatrix * p_oldVector
+		double newVector[3] = {0, 0, 0};
+
+		for (i=0; i< 3; i++) {
+				for (j=0; j<3; j++) {
+						newVector[i] += RotationMatrix[i][j] * p_oldVector[j];
+				}
+		}
+
+		#undef cTheta
+		#undef cPhi
+		#undef cPsi
+		#undef sTheta
+		#undef sPhi
+		#undef sPsi
+
+		return newVector;
+	}
+
 }

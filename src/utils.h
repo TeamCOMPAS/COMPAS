@@ -78,6 +78,10 @@ namespace utils {
 
     std::string                 SplashScreen(const bool p_Print = true);
 
+	std::vector<double>			RotateVector(const double p_oldVector[3], 
+					                         const double p_ThetaE, 
+											 const double p_PhiE, 
+											 const double p_PsiE);
 
     /*
      * Generic function to find an element in a vector
