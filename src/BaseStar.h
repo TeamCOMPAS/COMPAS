@@ -590,7 +590,8 @@ protected:
 
             void            UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMass, const double p_DeltaMass0, const double p_DeltaTime);
 
-            void            UpdateComponentVelocity(DBL_VECTOR p_newVelocity);
+		    void  			UpdateComponentVelocity(DBL_VECTOR p_newVelocity, double p_ThetaE, double p_PhiE, double p_PsiE); 
+            void            UpdateComponentVelocity(DBL_VECTOR p_newVelocity)	{ (void) UpdateComponentVelocity(p_newVelocity, 0.0, 0.0, 0.0); }
 
 };
 
