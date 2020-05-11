@@ -523,7 +523,7 @@ namespace utils {
      * @param   [IN]   p_PsiE						Euler angle Psi   (rad) 
      * @return                                      rotatedVector
      */
-	std::vector<double>	RotateVector(const std::vector<double> p_oldVector, const double p_ThetaE, const double p_PhiE, const double p_PsiE) {
+	DBL_VECTOR RotateVector(const DBL_VECTOR p_oldVector, const double p_ThetaE, const double p_PhiE, const double p_PsiE) {
 
 		// Replace for convenience, undefine below
 		#define cTheta cos(p_ThetaE)
@@ -534,17 +534,17 @@ namespace utils {
 		#define sPsi   sin(p_PsiE)
 
 		// Define the Rotation Matrix 	
-		std::vector<std::vector<double>> RotationMatrix = {
+		std::vector<DBL_VECTOR> RotationMatrix = {
 				{ cPhi*cPsi - sPhi*cTheta*sPsi ,  -cPhi*sPsi - sPhi*cTheta*cPsi ,  sTheta*sPhi },
 				{ sPhi*cPsi + cPhi*cTheta*sPsi ,  -sPhi*sPsi + cPhi*cTheta*cPsi , -sTheta*cPhi },
 				{ sTheta*sPsi                  ,  sTheta*cPsi                   ,  cTheta      }};
 
 		// Multiply RotationMatrix * p_oldVector
-		std::vector<double> newVector = {0, 0, 0};
+		DBL_VECTOR newVector = {0, 0, 0};
 
 		for (i=0; i< 3; i++) {
 				for (j=0; j<3; j++) {
-						newVector[i] += RotationMatrix[i][j] * p_oldVector[j];
+						
 				}
 		}
 
