@@ -542,8 +542,8 @@ namespace utils {
 		// Multiply RotationMatrix * p_oldVector
 		DBL_VECTOR newVector = {0, 0, 0};
 
-		for (i=0; i< 3; i++) {
-				for (j=0; j<3; j++) {
+		for (int i=0; i< 3; i++) {
+				for (int j=0; j<3; j++) {
 						
 				}
 		}
