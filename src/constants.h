@@ -464,6 +464,7 @@ constexpr double DEFAULT_INITIAL_DOUBLE_VALUE           = 0.0;                  
 constexpr double DEFAULT_INITIAL_INTEGER_VALUE          = 0;                                                        // default initial value for int variables
 constexpr double DEFAULT_INITIAL_ULONGINT_VALUE         = 0l;                                                       // default initial value for unsigned long int variables
 constexpr double DEFAULT_INITIAL_BOOLEAN_VALUE          = false;                                                    // default initial value for bool variables
+constexpr double DEFAULT_INITIAL_VELOCITY_VALUE       = {0.0, 0.0, 0.0};                                            // default initial value for DBL_VECTOR velocity parameters
 
 
 // conversion constants
