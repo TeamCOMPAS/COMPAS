@@ -464,7 +464,6 @@ constexpr double DEFAULT_INITIAL_DOUBLE_VALUE           = 0.0;                  
 constexpr double DEFAULT_INITIAL_INTEGER_VALUE          = 0;                                                        // default initial value for int variables
 constexpr double DEFAULT_INITIAL_ULONGINT_VALUE         = 0l;                                                       // default initial value for unsigned long int variables
 constexpr double DEFAULT_INITIAL_BOOLEAN_VALUE          = false;                                                    // default initial value for bool variables
-constexpr double DEFAULT_INITIAL_VELOCITY_VALUE       = {0.0, 0.0, 0.0};                                            // default initial value for DBL_VECTOR velocity parameters
 
 
 // conversion constants
@@ -1941,6 +1940,9 @@ enum class BINARY_PROPERTY: int {
     BE_BINARY_CURRENT_RANDOM_SEED,
     BE_BINARY_CURRENT_SEPARATION,
     BE_BINARY_CURRENT_TOTAL_TIME,
+    BINARY_ORBIT_EULER_THETA, 
+    BINARY_ORBIT_EULER_PHI,
+    BINARY_ORBIT_EULER_PSI,
     CIRCULARIZATION_TIMESCALE,
     COMMON_ENVELOPE_ALPHA,
     COMMON_ENVELOPE_AT_LEAST_ONCE,
@@ -1957,9 +1959,6 @@ enum class BINARY_PROPERTY: int {
     ECCENTRICITY_PRE_COMMON_ENVELOPE,
     ECCENTRICITY_PRIME,
     ERROR,
-    //EULER_THETA, // RTW 11/05/20 - come back to these later
-    //EULER_PHI,
-    //EULER_PSI,
     ID,
     IMMEDIATE_RLOF_POST_COMMON_ENVELOPE,
     LUMINOUS_BLUE_VARIABLE_FACTOR,
@@ -2040,6 +2039,9 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::BE_BINARY_CURRENT_RANDOM_SEED,                      "BE_BINARY_CURRENT_RANDOM_SEED" },
     { BINARY_PROPERTY::BE_BINARY_CURRENT_SEPARATION,                       "BE_BINARY_CURRENT_SEPARATION" },
     { BINARY_PROPERTY::BE_BINARY_CURRENT_TOTAL_TIME,                       "BE_BINARY_CURRENT_TOTAL_TIME" },
+	{ BINARY_PROPERTY::BINARY_ORBIT_EULER_THETA,                           "BINARY_ORBIT_EULER_THETA" }, 
+    { BINARY_PROPERTY::BINARY_ORBIT_EULER_PHI,                             "BINARY_ORBIT_EULER_PHI" }, 
+    { BINARY_PROPERTY::BINARY_ORBIT_EULER_PSI,                             "BINARY_ORBIT_EULER_PSI" }, 
     { BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE,                          "CIRCULARIZATION_TIMESCALE" },
     { BINARY_PROPERTY::COMMON_ENVELOPE_ALPHA,                              "COMMON_ENVELOPE_ALPHA" },
     { BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE,                      "COMMON_ENVELOPE_AT_LEAST_ONCE" },
@@ -2056,9 +2058,6 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::ECCENTRICITY_PRE_COMMON_ENVELOPE,                   "ECCENTRICITY_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::ECCENTRICITY_PRIME,                                 "ECCENTRICITY_PRIME" },
     { BINARY_PROPERTY::ERROR,                                              "ERROR" },
-    //{ BINARY_PROPERTY::EULER_THETA,                                        "EULER_THETA" },  // RTW 11/05/20 - come back to these later
-    //{ BINARY_PROPERTY::EULER_PHI,                                          "EULER_PHI" },  
-    //{ BINARY_PROPERTY::EULER_PSI,                                          "EULER_PSI" }, 
     { BINARY_PROPERTY::ID,                                                 "ID" },
     { BINARY_PROPERTY::IMMEDIATE_RLOF_POST_COMMON_ENVELOPE,                "IMMEDIATE_RLOF_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::LUMINOUS_BLUE_VARIABLE_FACTOR,                      "LUMINOUS_BLUE_VARIABLE_FACTOR" },
