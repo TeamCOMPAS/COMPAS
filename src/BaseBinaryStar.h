@@ -118,7 +118,7 @@ public:
         m_OrbitalVelocityPrev              = p_Star.m_OrbitalVelocityPrev;
         m_OrbitalVelocityPrime             = p_Star.m_OrbitalVelocityPrime;
 
-        m_CurrentSeparation				   = p_Star.m_CurrentSeparation;
+        m_CurrentSeparation                = p_Star.m_CurrentSeparation;
 
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
 
@@ -138,7 +138,9 @@ public:
 
         m_SynchronizationTimescale         = p_Star.m_SynchronizationTimescale;
 
+		// RTW!!
         m_SystemicVelocity                 = p_Star.m_SystemicVelocity;
+		m_SystemicSpeed                    = p_Star.m_SystemicSpeed;
 
         m_Time                             = p_Star.m_Time;
         m_TimePrev                         = p_Star.m_TimePrev;
@@ -165,6 +167,8 @@ public:
         m_ZetaRLOFAnalytic                 = p_Star.m_ZetaRLOFAnalytic;
         m_ZetaRLOFNumerical                = p_Star.m_ZetaRLOFNumerical;
         m_ZetaStarCompare                  = p_Star.m_ZetaStarCompare;
+
+        // RTW 09/05/20 - Add in new speed/vel/Euler attributes here
 
         // copy the constituent stars and pointers
 
@@ -217,11 +221,11 @@ public:
 
     // getters - alphabetically
     BeBinaryDetailsT    BeBinaryDetails() const                     { return m_BeBinaryDetails; }
-	double              CEAlpha() const                             { return m_CEDetails.alpha; }
-	bool                CEAtLeastOnce() const                       { return m_CEDetails.CEEcount > 0; }
+    double              CEAlpha() const                             { return m_CEDetails.alpha; }
+    bool                CEAtLeastOnce() const                       { return m_CEDetails.CEEcount > 0; }
     unsigned int        CEEventCount() const                        { return m_CEDetails.CEEcount; }
-	double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
-	unsigned int        CommonEnvelopeEventCount() const            { return m_CEDetails.CEEcount; }
+    double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
+    unsigned int        CommonEnvelopeEventCount() const            { return m_CEDetails.CEEcount; }
     bool                Unbound() const                             { return m_Unbound; }
     bool                DoubleCoreCE() const                        { return m_CEDetails.doubleCoreCE; }
     double              Dt() const                                  { return m_Dt; }
@@ -247,7 +251,7 @@ public:
     bool                IsUnbound() const                           { return m_Unbound; }
     bool                IsWDandWD() const                           { return HasTwoOf({STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF}); }
     double              LBV_Factor() const                          { return m_LBVfactor; }
-	double              Mass1Final() const                          { return m_Mass1Final; }
+    double              Mass1Final() const                          { return m_Mass1Final; }
     double              Mass2Final() const                          { return m_Mass2Final; }
     double              Mass1PostCEE() const                        { return m_Star1->MassPostCEE(); }
     double              Mass1PreCEE() const                         { return m_Star1->MassPreCEE(); }
@@ -262,12 +266,12 @@ public:
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
     double              OrbitalVelocity() const                     { return m_OrbitalVelocity; }
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
-	double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
-	double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
-	double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }
-	double              Radius2PreCEE() const                       { return m_Star2->RadiusPreCEE(); }
-	unsigned long int   RandomSeed() const                          { return m_RandomSeed; }
-	BinaryRLOFDetailsT  RLOFDetails() const                         { return m_RLOFDetails; }
+    double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
+    double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
+    double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }
+    double              Radius2PreCEE() const                       { return m_Star2->RadiusPreCEE(); }
+    unsigned long int   RandomSeed() const                          { return m_RandomSeed; }
+    BinaryRLOFDetailsT  RLOFDetails() const                         { return m_RLOFDetails; }
     bool                RLOFSecondaryPostCEE() const                { return m_Star2->RLOFPostCEE(); }
     double              RocheLobe1to2PostCEE() const                { return m_CEDetails.postCEE.rocheLobe1to2; }
     double              RocheLobe1to2PreCEE() const                 { return m_CEDetails.preCEE.rocheLobe1to2; }
@@ -295,8 +299,9 @@ public:
     STELLAR_TYPE        StellarType2PostCEE() const                 { return m_Star2->StellarTypePostCEE(); }
     STELLAR_TYPE        StellarType2PreCEE() const                  { return m_Star2->StellarTypePreCEE(); }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
-	double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
-    double              SystemicVelocity() const                    { return m_SystemicVelocity; }
+    double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
+	// RTW!
+    double              SystemicSpeed() const                       { return m_SystemicSpeed; }
     double              Time() const                                { return m_Time; }
     double              TimeToCoalescence() const                   { return m_TimeToCoalescence; }
     double              TotalAngularMomentumPrime() const           { return m_TotalAngularMomentumPrime; }
@@ -341,7 +346,7 @@ private:
 
     BinaryCEDetailsT    m_CEDetails;                                                        // Common Event details
 
-	double              m_CircularizationTimescale;
+    double              m_CircularizationTimescale;
 
     bool                m_Unbound;                                                          // Binary unbound?
 
@@ -356,21 +361,21 @@ private:
     double              m_EccentricityPrev;                                                 // Eccentricity at previous timestep
     double              m_EccentricityPrime;                                                // Initial eccentricity
 
-    bool 	            m_FastPhaseCaseA;                                                   // Indicates if the system just entered a case A MT for the first time
+    bool                m_FastPhaseCaseA;                                                   // Indicates if the system just entered a case A MT for the first time
 
-    double	            m_FractionAccreted;	                                                // Fraction of mass accreted from the donor during mass transfer
+    double              m_FractionAccreted;                                                    // Fraction of mass accreted from the donor during mass transfer
 
     double              m_CosIPrime;
     double              m_IPrime;
 
-   	double	            m_JLoss;			                                                // Specific angular momentum with which mass is lost during non-conservative mass transfer
+    double              m_JLoss;                                                            // Specific angular momentum with which mass is lost during non-conservative mass transfer
 
     double              m_LBVfactor;
 
     bool                m_MassesEquilibrated;                                               // Indicates whether stars had masses equilbrated at some stage after birth
     bool                m_MassesEquilibratedAtBirth;                                        // Indicates whether stars had masses equilbrated at birth
 
-	double              m_Mass1Final;                                                       // Star1 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
+    double              m_Mass1Final;                                                       // Star1 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
     double              m_Mass2Final;                                                       // Star2 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
 
     double              m_MassEnv1;                                                         // Star1 envelope mass in Msol
@@ -385,11 +390,11 @@ private:
 
     MT_TRACKING         m_MassTransferTrackerHistory;
 
-	double              m_ReducedMassPrev;
-	double              m_ReducedMassPrime;
+    double              m_ReducedMassPrev;
+    double              m_ReducedMassPrime;
 
-	double              m_TotalMassPrev;
-	double              m_TotalMassPrime;
+    double              m_TotalMassPrev;
+    double              m_TotalMassPrime;
 
     double              m_MC;
     double              m_MCPrime;
@@ -414,44 +419,48 @@ private:
     double              m_SemiMajorAxis;                                                    // Semi-major axis
     double              m_SemiMajorAxisAtDCOFormation;                                      // Semi-major axis at DCO formation
     double              m_SemiMajorAxisInitial;                                             // Record initial semi-major axis              JR: todo: check necessary
-    double              m_SemiMajorAxisPreSN;                                            // Semi-major axis prior to 2nd supernova
-    double              m_SemiMajorAxisPrev;                                                // Semi-major axis at previous timestep
+    double              m_SemiMajorAxisPreSN;                                               // Semi-major axis prior to 2nd supernova
+    double              m_SemiMajorAxisPrev;                                                // Semi-major axis at previous timestep double              m_SemiMajorAxisPrime;                                               // Semi-major axis 
     double              m_SemiMajorAxisPrime;                                               // Semi-major axis
-
     bool                m_StellarMerger;                                                    // Indicates that the constituent stars merged
     bool                m_StellarMergerAtBirth;                                             // Indicates that the constituent stars were touching at bierth
 
     SN_STATE            m_SupernovaState;                                                   // Indicates which star (or stars) are undergoing / have undergone a supernova event
 
-	double              m_SynchronizationTimescale;
+    double              m_SynchronizationTimescale;
 
-    double              m_SystemicVelocity;                                                 // Post supernova systemic velocity
+    // Systemic speed and velocity, related Euler angles between pre- and post-SN orbital planes 
+    DBL_VECTOR           m_SystemicVelocity;                                                // Systemic velocity vector, relative to ZAMS Center of Mass
+    double               m_SystemicSpeed;                                                   // Systemic speed, magnitude of velocity vector
+    double               m_ThetaE;                                                          // Euler Theta
+    double               m_PhiE;                                                            // Euler Phi                
+    double               m_PsiE;                                                            // Euler Psi
     
-    double              m_Time;                                                             // Physical simulation time
-    double              m_TimePrev;                                                         // Previous simulation time
-    double              m_TimeToCoalescence;                                                // Coalescence time
+    double               m_Time;                                                            // Physical simulation time
+    double               m_TimePrev;                                                        // Previous simulation time
+    double               m_TimeToCoalescence;                                               // Coalescence time
 
-    double              m_TotalAngularMomentumPrev;
-    double              m_TotalAngularMomentumPrime;
+    double               m_TotalAngularMomentumPrev;
+    double               m_TotalAngularMomentumPrime;
 
-    double              m_TotalEnergy;
-    double              m_TotalEnergyPrime;
+    double               m_TotalEnergy;
+    double               m_TotalEnergyPrime;
 
-	double              m_TotalOrbitalAngularMomentumPrev;
-	double              m_TotalOrbitalAngularMomentumPrime;
+    double               m_TotalOrbitalAngularMomentumPrev;
+    double               m_TotalOrbitalAngularMomentumPrime;
 
-	double              m_TotalOrbitalEnergyPrev;
-	double              m_TotalOrbitalEnergyPrime;
+    double               m_TotalOrbitalEnergyPrev;
+    double               m_TotalOrbitalEnergyPrime;
 
-    double              m_uK;
+    double               m_uK;
 
-    double              m_VRel;
+    double               m_VRel;
 
-    double              m_WolfRayetFactor;
+    double               m_WolfRayetFactor;
 
-    double              m_ZetaRLOFAnalytic;
-    double              m_ZetaRLOFNumerical;
-    double              m_ZetaStarCompare;
+    double               m_ZetaRLOFAnalytic;
+    double               m_ZetaRLOFNumerical;
+    double               m_ZetaStarCompare;
 
 
     // Binaries contain two stars
@@ -502,6 +511,7 @@ private:
 
     double  CalculateCDFKroupa(const double p_Mass);
 
+    // RTW 09/05/20 - do we want this?
     double  CalculateCosFinalPlaneTilt(const double p_KickTheta, const double p_KickPhi);
 
     void    CalculateEnergyAndAngularMomentum();
@@ -531,6 +541,7 @@ private:
                                    const double p_Mass,
                                    const double p_SemiMajorAxis)            { return -(G1 * p_Mu * p_Mass) / (2.0 * p_SemiMajorAxis); }
 
+	// RTW!
     double  CalculatePostSNSystemicVelocity(const double p_SNMass,
                                             const double p_SNDeltaMass,
                                             const double p_CompanionMass,
@@ -591,7 +602,7 @@ private:
     void    ResolveCoalescence();
     void    ResolveCommonEnvelopeEvent();
     void    ResolveMassChanges();
-    bool    ResolveSupernova();
+    bool    ResolveSupernovaInBinary();
 
     double  SampleSemiMajorAxisDistribution(const double p_Mass1, const double p_Mass2);
     double  SampleEccentricityDistribution();
@@ -611,6 +622,8 @@ private:
 
     void    StashBeBinaryProperties();
 
+		// RTW
+    void    UpdateSystemicVelocity(DBL_VECTOR p_newVelocity );
 
     // printing functions
     void PrintBinarySystemParameters()          {                                   LOGGING->LogBinarySystemParameters(this); }

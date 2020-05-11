@@ -3,7 +3,6 @@
 // gsl includes
 #include <gsl/gsl_poly.h>
 
-
 /* Constructor
  *
  * Parameter p_Id is optional, and is only included so that comparison tests can
@@ -403,7 +402,7 @@ void BaseBinaryStar::SetRemainingCommonValues() {
 
     m_VRel                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_uK                                         = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_CurrentSeparation                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_CurrentSeparation                          = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_EPrime                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_CosIPrime                                  = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_IPrime                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -416,7 +415,9 @@ void BaseBinaryStar::SetRemainingCommonValues() {
     m_MergesInHubbleTime                         = false;
     m_Unbound                                    = false;
 
-    m_SystemicVelocity                           = DEFAULT_INITIAL_DOUBLE_VALUE;
+	// RTW 11/05/20 - Add in a default initial velocity (same as BaseStar)
+    m_SystemicVelocity                           = {0.0, 0.0, 0.0};
+	m_SystemicSpeed                              = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 	m_SynchronizationTimescale                   = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CircularizationTimescale                   = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -600,7 +601,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE:              value = STELLAR_TYPE_LABEL.at(StellarType2PreCEE());                        break;
         case BINARY_PROPERTY::SUPERNOVA_STATE:                                      value = SN_State();                                                         break;
         case BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE:                            value = SynchronizationTimescale();                                         break;
-        case BINARY_PROPERTY::SYSTEMIC_VELOCITY:                                    value = SystemicVelocity();                                                 break;
+        case BINARY_PROPERTY::SYSTEMIC_SPEED:                                       value = SystemicSpeed();                                                    break;
         case BINARY_PROPERTY::TIME:                                                 value = Time();                                                             break;
         case BINARY_PROPERTY::TIME_TO_COALESCENCE:                                  value = TimeToCoalescence();                                                break;
         case BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM_PRIME:                         value = TotalAngularMomentumPrime();                                        break;
@@ -1572,30 +1573,158 @@ double BaseBinaryStar::CalculateSemiMajorAxisPostSupernova(const double p_KickVe
 bool BaseBinaryStar::ResolveSupernovaInBinary() {
 
     if (!m_Supernova->IsSNevent()) return false;                                                                                    // not a supernova event - bail out (or bale out depending whence you hail...) passively
-	// RTW 06/05/20 - Why would this ever need to be checked? What happens if it's false?
+	// RTW 06/05/20 - Why would this ever need to be checked? What happens if it's false? // Safety check - double check this
 
 	// Masses should already be correct, mass before SN given by star.m_MassPrev
     // Generate true anomaly - (for e=0, should be a flat distribution) - updates Eccentric anomaly and True anomaly automatically
     // ALEJANDRO - 09/05/2018 - If statement to avoid solving Kepler's equation for an unbound orbit; it may be of interest to have SN of unbound stars in the supernovae.txt file.
+	
+	/////////////////////////////////
+	// Logic
+	// 
 
+	// If (Unbound before SN):
+	// 		StarSN->UpdateComponentVelocity(vKick)
+	//
+	// Else:  (Intact before SN)
+	//
+	//		Run PRP evolver do determine centerofmass velocity, h', e' (and also a', and see if epsilon is used anywhere) and whether bound or unbound
+	// 
+	// 		If now unbound:
+	// 				m_Unbound = True; // Only set this here!
+	// 				Continue PRP to find v1inf and v2inf
+	// 				Star1->UpdateComponentVelocity(v1new)   // Adds to previous systemic
+	// 				Star2->UpdateComponentVelocity(v2new)   // Adds to previous systemic
+	// 		If still intact
+	// 				Binary->UpdateSystemicVelocity(vCOM) 		//Add previous system velocity to component velocities
+	
+	// In UpdateComponent, could have gotten there if 
+	// a) Disrupted now at 1st SN   -> No previous vel to add
+	// b) Disrupted previously at 1st, now applying 2nd -> Previous componet vel to add
+	// c) Survived 1st, Disrupted now at 2nd  -> Previous systemic to add
+	//
+	// If default ThetaE, PhiE, PsiE are all 0, then Rotation matrix is the identity, and nothing changes! 
+	//
+	// For UpdateComponentVelocity, do 
+	// 		starX.ComponentVelocity = ( RotationMatrix(ThetaE, PhiE, PsiE) * (newVelocity) + (previousComponentVelocity + previousSystemicVelocity) )
+	// 		// Need to distinguish between single and binary stars, since singles won't have a systemic velocity
+	//
+	// For UpdateSystemicVelocity, do    
+	// 		binary.SystemicVelocity = ( RotationMatrix(ThetaE, PhiE, PsiE) * (newSysVel) + (previousSystemicVelocity) )
+
+
+	/////////////////////////////////////////////////////////////////////////////
+
+	// Get remnant mass and natal kick, calculated previously in ResolveSupernova()
+	//double remnantMass = m_Supernova->Mass();
+
+
+
+    if (IsUnbound()) {      																										// Is system already unbound?
+		// StarSN->UpdateComponentVelocity(vKick)																					// yes - update only starSN component velocity
+    }
+    else {																															// no - evaluate orbital changes
+		// Update Orbital Configuration according to Pfahl, Rappaport, Podsiadlowski 2002 (Appendix B)
+	}
+		
+    PrintSupernovaDetails();                                                                                                        // log record to supernovae logfile
+
+    m_Supernova->ClearCurrentSNEvent();
+
+    return true;
+}
+		
+/*
+ * Update the Center of Mass velocity of the binary system following a Supernova
+ *
+ * If this is the first Supernova, simply set the systemic velocity to this new velocity.
+ * If this is the second Supernova, the underlying coordinate basis for the current 
+ * system velocity is defined in terms of the orbital plane pre-1stSN, 
+ * whereas the new velocity is defined in terms of the orbital plane post-1stSN. 
+ *
+ * (The coordinate plane is defined as (x, y, z) = (e, h x e, h), where e is the unit vector
+ * in the direction of periapsis of the binary, or equivalently the LRL vector, and h
+ * is the unit vector in the direction of the orbital angular momentum.
+ * See Pfahl, Rappaport, Podsiadlowski 2002 for details)
+ *
+ * To properly add these together, we rotate the new vector into the old basis, using
+ * the Euler angles calculated during the 1st SN (m_ThetaE, m_PhiE, m_PsiE)
+ *
+ * void UpdateSystemicVelocity(const double p_newVelocity[3] )
+ *
+ * @param   [IN]    p_newVelocity(3)             3D velocity vector in km/s to add to current velocity vector
+ */
+void UpdateSystemicVelocity(DBL_VECTOR p_newVelocity ) {
+
+    //return 0;
+	
+	// RTW 11/05/20 - will all this run?
+	// 
+    //if SN_STATE = (...) {     						// Is this the first SN ?
+	//		m_SystemicVelocity = p_newVelocity; 	// yes - do not worry about coordinate systems
+	//}
+	//else {					  						// no - need to apply coordinate transform
+	//	m_SystemicVelocity += utils::RotateVector(p_newVelocity, m_ThetaE, m_PhiE, m_PsiE);
+	//}
+	// 		binary.SystemicVelocity = ( RotationMatrix(ThetaE, PhiE, PsiE) * (newSysVel) + (previousSystemicVelocity) )
+
+}
+
+
+
+
+
+/* Old stuff
+void BaseBinaryStar::UpdateVelocitiesForUnboundBinary() {
+	// For already unbound binary, need only to add the natal kick to the current component velocity, ignore systemic
+	
+	// Already randomized directions, which is fine since correlation between current velocity and kick velocity should not exist
+
+    
+    double natalKick = m_Supernova->SN_KickVelocity();
+	
+    //boost::numeric::ublas::vector<double> natalKick (3);
+	double natalKick[3];
+	for (unsigned i = 0; i < natalKick.size (); ++ i) {
+			natalKick (i) = i;
+	}
+	std::cout << natalKick(0) << std::endl;
+	std::cout << natalKick(1) << std::endl;
+	std::cout << natalKick(2) << std::endl;
+	std::cout << "did it work?" << std::endl;
+    
+}
+*/
+
+
+/*
+void BaseBinaryStar::UpdateVelocitiesForIntactBinary() {
+
+		
+    // Determine evolution -> If intact, add new systemic velocity to old systemic velocity
+	// 					   -> If now disrupted, add new component velocities to old systemic velocity
+
+	
+	
+	
+
+	////// OLD STUFF
+	//
+	// 
 	// Calculate relevant pre-SN masses
 	double totalMass        = m_Supernova->MassPrev() + m_Companion->MassPrev();                                                    // total mass of binary before supernova event
 	double reducedMass      = (m_Supernova->MassPrev() * m_Companion->MassPrev()) / totalMass;                                      // reduced mass before supernova event
 	double totalMassPrime   = m_Supernova->Mass() + m_Companion->Mass();                                                            // total mass of binary after supernova event
 	double reducedMassPrime = (m_Supernova->Mass() * m_Companion->Mass()) / totalMassPrime;                                         // reduced mass after supernova event
 
-	// If System is already unbound, don't worry about evaluating orbital parameters
-    if (IsUnbound()) {      // JR: todo: check this - was just "if (m_SemiMajorAxisPrime > 0.0)"
-        // ALEJANDRO - 09/05/2018 - Following 3 lines copied from else statement in the end.                                        // JR: todo: are these going to be executed twice...? (I removed one... not required)
-        m_Unbound = true;
-    }
-    else {
-        m_Supernova->CalculateSNAnomalies(m_Eccentricity);
-    }
+	// JR: todo: check this - was just "if (m_SemiMajorAxisPrime > 0.0)"
+    // ALEJANDRO - 09/05/2018 - Following 3 lines copied from else statement in the end.                                        
+	// JR: todo: are these going to be executed twice...? (I removed one... not required)
+		
+    m_Supernova->CalculateSNAnomalies(m_Eccentricity);
 
 	// RTW 07/05/20 - m_Radius is a bit confusing (since stars also have an m_Radius) - I advocate m_Separation
 	m_CurrentSeparation = (m_SemiMajorAxisPrime * (1.0 - (m_Eccentricity * m_Eccentricity))) / (1.0 + m_Eccentricity * cos(m_Supernova->SN_TrueAnomaly()));   // radius of orbit at current time in AU as a function of the true anomaly psi
-
 
     // JR todo - check whether m_Beta needs to be a class variable
     #define a m_SemiMajorAxisPrime  // for convenience - undefined below
@@ -1682,12 +1811,12 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
     m_Eccentricity      = ePrime;
     m_EccentricityPrime = ePrime;
 
-    PrintSupernovaDetails();                                                                                                        // log record to supernovae logfile
 
-    m_Supernova->ClearCurrentSNEvent();
 
-    return true;
+
 }
+
+	*/
 
 
 /*
@@ -1730,7 +1859,7 @@ void BaseBinaryStar::EvaluateSupernovae() {
         // resolve star1 supernova
         m_Supernova = m_Star1;                                                                                          // supernova
         m_Companion = m_Star2;                                                                                          // companion
-        (void)ResolveSupernova();                                                                                       // resolve supernova
+        (void)ResolveSupernovaInBinary();                                                                                       // resolve supernova
     }
 
     if (m_Star2->IsSNevent()) { 																					    // star2 supernova
@@ -1738,7 +1867,7 @@ void BaseBinaryStar::EvaluateSupernovae() {
         // resolve star2 supernova
         m_Supernova = m_Star2;                                                                                      // supernova
         m_Companion = m_Star1;                                                                                      // companion
-        (void)ResolveSupernova();                                                                                   // resolve supernova
+        (void)ResolveSupernovaInBinary();                                                                                   // resolve supernova
     }
 }
 

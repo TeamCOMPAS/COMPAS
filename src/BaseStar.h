@@ -119,6 +119,7 @@ public:
             double              SN_Theta() const                                                { return m_SupernovaDetails.theta; }
             SN_EVENT            SN_Type() const                                                 { return utils::SNEventType(m_SupernovaDetails.events.current); }
             double              SN_KickVelocityRandom() const                                   { return m_SupernovaDetails.kickVelocityRandom; }
+            double              Speed() const                                                   { return m_ComponentSpeed; }
             COMPAS_VARIABLE     StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
             double              Tau() const                                                     { return m_Tau; }
             double              Temperature() const                                             { return m_Temperature; }
@@ -132,7 +133,6 @@ public:
             double              Zeta_Soberman() const                                           { return m_Zetas.soberman; }
             double              Zeta_SobermanHe() const                                         { return m_Zetas.sobermanHe; }
             double              Zeta_Thermal() const                                            { return m_Zetas.thermal; }
-            double              Speed() const                                                   { return m_ComponentSpeed; }
 
 
     // setters
@@ -141,8 +141,6 @@ public:
 
             void                SetSNCurrentEvent(SN_EVENT p_SNEvent)                           { m_SupernovaDetails.events.current |= p_SNEvent; }                                 // Set supernova primary event/state for current timestep
             void                SetSNPastEvent(const SN_EVENT p_SNEvent)                        { m_SupernovaDetails.events.past |= p_SNEvent; }                                    // Set supernova primary event/state for any past timestep
-
-            void                UpdateComponentVelocity(const std::vector<double> p_newVelocity(3) );
 
 
     // member functions - alphabetically
@@ -354,10 +352,10 @@ protected:
     SupernovaDetailsT       m_SupernovaDetails;                         // Supernova attributes
     PulsarDetailsT          m_PulsarDetails;                            // Pulsar attributes
 
-    // Star speed and velocity
-    std::vector<double>     m_ComponentVelocity(3);                     // Isolated star velocity vector
-    double                     m_ComponentSpeed;                             // Magnitude of velocity vector
-
+    // Star speed and velocity, and related Euler angles 
+	// between pre- and post-SN orbital planes, for velocity addition
+	DBL_VECTOR              m_ComponentVelocity; 	                    // Isolated star velocity vector
+    double                  m_ComponentSpeed;                           // Magnitude of velocity vector
 
     // member functions - alphabetically
             void            AgeOneTimestepPreamble(const double p_DeltaTime);
@@ -552,9 +550,6 @@ protected:
 
             double          LimitTimestep(const double p_Dt);
 
-            double            CalculateSpeedFromVelocity();
-
-
 
     /*
      * Perturb Luminosity and Radius
@@ -594,6 +589,8 @@ protected:
             DBL_DBL         SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity);
 
             void            UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMass, const double p_DeltaMass0, const double p_DeltaTime);
+
+            void            UpdateComponentVelocity(DBL_VECTOR p_newVelocity);
 
 };
 
