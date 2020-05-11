@@ -415,8 +415,7 @@ void BaseBinaryStar::SetRemainingCommonValues() {
     m_MergesInHubbleTime                         = false;
     m_Unbound                                    = false;
 
-	// RTW 11/05/20 - Add in a default initial velocity (same as BaseStar)
-    m_SystemicVelocity                           = {0.0, 0.0, 0.0};
+    m_SystemicVelocity                           = DEFAULT_INITIAL_VELOCITY_VALUE;
 	m_SystemicSpeed                              = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 	m_SynchronizationTimescale                   = DEFAULT_INITIAL_DOUBLE_VALUE;
