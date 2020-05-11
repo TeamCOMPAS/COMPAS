@@ -83,6 +83,8 @@ namespace utils {
 											 const double p_PhiE, 
 											 const double p_PsiE);
 
+    double                      CalculateSpeedFromVelocity(const DBL_VECTOR velocity);
+
     /*
      * Generic function to find an element in a vector
      *

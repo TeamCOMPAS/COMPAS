@@ -558,4 +558,18 @@ namespace utils {
 		return newVector;
 	}
 
+    /*
+     * Calculate the magnitude of a velocity vector, the speed.
+     * 
+     *
+     * @param   [IN]   velocity  					Velocity vector in 3D
+     * @return                                      The associated speed
+     */
+    double                      CalculateSpeedFromVelocity(const DBL_VECTOR velocity) {
+
+        // Straightforward application of pythagorean theorem 
+        double speed2 = velocity[0]*velocity[0] + velocity[1]*velocity[1] + velocity[2]*velocity[2]
+
+        return sqrt(speed2)
+    }
 }
