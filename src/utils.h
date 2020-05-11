@@ -78,7 +78,7 @@ namespace utils {
 
     std::string                 SplashScreen(const bool p_Print = true);
 
-	std::vector<double>			RotateVector(const std::vector<double> p_oldVector, 
+	DBL_VECTOR				    RotateVector(const DBL_VECTOR p_oldVector, 
 					                         const double p_ThetaE, 
 											 const double p_PhiE, 
 											 const double p_PsiE);
