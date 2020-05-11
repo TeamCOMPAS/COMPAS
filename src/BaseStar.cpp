@@ -137,6 +137,9 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
     m_EnvMass                                  = CalculateInitialEnvelopeMass_Static(m_Mass);
+	// RTW 11/05/20 - TODO: create and use here a default initial velocity = {0.0, 0.0, 0.0}
+	m_ComponentVelocity						   = {0.0, 0.0, 0.0};
+	m_ComponentSpeed						   = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_CoreMass                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_COCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -370,6 +373,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::RUNAWAY:                                            value = ExperiencedRunaway();                                   break;
             case ANY_STAR_PROPERTY::RZAMS:                                              value = RZAMS();                                                break;
             case ANY_STAR_PROPERTY::SN_TYPE:                                            value = SN_Type();                                              break;
+            case ANY_STAR_PROPERTY::SPEED:                                              value = Speed();												break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE:                                       value = StellarType();                                          break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE_NAME:                                  value = STELLAR_TYPE_LABEL.at(StellarType());                   break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE_PREV:                                  value = StellarTypePrev();                                      break;
@@ -3141,6 +3145,13 @@ void BaseStar::CalculateSNAnomalies(const double p_Eccentricity) {
 		// RTW 08/05/20 - why is this here? Should be in BaseBinaryStar no? There's no eccen for a single star...
     std::tie(m_SupernovaDetails.eccentricAnomaly, m_SupernovaDetails.trueAnomaly) = SolveKeplersEquation(m_SupernovaDetails.meanAnomaly, p_Eccentricity);
 }
+
+void UpdateComponentVelocity(DBL_VECTOR p_newVelocity){
+		// RTW 10/05/20 - come back to this
+		// Make sure to update the speed in the same function
+
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
