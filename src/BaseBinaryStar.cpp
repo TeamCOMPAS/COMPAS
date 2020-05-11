@@ -415,8 +415,12 @@ void BaseBinaryStar::SetRemainingCommonValues() {
     m_MergesInHubbleTime                         = false;
     m_Unbound                                    = false;
 
-    m_SystemicVelocity                           = DEFAULT_INITIAL_VELOCITY_VALUE;
+	// RTW 11/05/20 - Can I create a default initial velocity vector?
+    m_SystemicVelocity                           = {0.0, 0.0, 0.0};
 	m_SystemicSpeed                              = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_ThetaE                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_PhiE                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_PsiE                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 	m_SynchronizationTimescale                   = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CircularizationTimescale                   = DEFAULT_INITIAL_DOUBLE_VALUE;

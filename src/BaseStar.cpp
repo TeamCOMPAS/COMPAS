@@ -137,7 +137,8 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
     m_EnvMass                                  = CalculateInitialEnvelopeMass_Static(m_Mass);
-	m_ComponentVelocity						   = DEFAULT_INITIAL_VELOCITY_VALUE;
+	// RTW 11/05/20 - Can I create a default initial velocity vector?
+	m_ComponentVelocity						   = {0.0, 0.0, 0.0};
 	m_ComponentSpeed						   = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_CoreMass                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
