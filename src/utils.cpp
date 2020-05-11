@@ -517,13 +517,13 @@ namespace utils {
 	 * https://en.wikipedia.org/wiki/Change_of_basis
 	 *
      *
-     * @param   [IN]   p_oldVector[3]				The vector in old coordinate basis (any units, must be 3D)
+     * @param   [IN]   p_oldVector					The vector in old coordinate basis (any units, must be 3D)
      * @param   [IN]   p_ThetaE						Euler angle Theta (rad) 
      * @param   [IN]   p_PhiE						Euler angle Phi   (rad) 
      * @param   [IN]   p_PsiE						Euler angle Psi   (rad) 
      * @return                                      rotatedVector
      */
-	std::vector<double>	RotateVector(const double p_oldVector[3], const double p_ThetaE, const double p_PhiE, const double p_PsiE) {
+	std::vector<double>	RotateVector(const std::vector<double> p_oldVector, const double p_ThetaE, const double p_PhiE, const double p_PsiE) {
 
 		// Replace for convenience, undefine below
 		#define cTheta cos(p_ThetaE)
@@ -533,14 +533,14 @@ namespace utils {
 		#define sPhi   sin(p_PhiE)
 		#define sPsi   sin(p_PsiE)
 
-		// Define the Rotation Matrix 	// RTW 10/05/20 - TODO: test that this is correct (check that determinant = 1)
-		double RotationMatrix[3][3] = {
+		// Define the Rotation Matrix 	
+		std::vector<std::vector<double>> RotationMatrix = {
 				{ cPhi*cPsi - sPhi*cTheta*sPsi ,  -cPhi*sPsi - sPhi*cTheta*cPsi ,  sTheta*sPhi },
 				{ sPhi*cPsi + cPhi*cTheta*sPsi ,  -sPhi*sPsi + cPhi*cTheta*cPsi , -sTheta*cPhi },
 				{ sTheta*sPsi                  ,  sTheta*cPsi                   ,  cTheta      }};
 
 		// Multiply RotationMatrix * p_oldVector
-		double newVector[3] = {0, 0, 0};
+		std::vector<double> newVector = {0, 0, 0};
 
 		for (i=0; i< 3; i++) {
 				for (j=0; j<3; j++) {
