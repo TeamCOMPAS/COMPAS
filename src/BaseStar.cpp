@@ -7,6 +7,7 @@
 
 #include "Rand.h"
 #include "BaseStar.h"
+#include "vector3d.h"
 
 using std::max;
 using std::min;
@@ -138,7 +139,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Temperature                              = m_TZAMS;
     m_EnvMass                                  = CalculateInitialEnvelopeMass_Static(m_Mass);
 	// RTW 11/05/20 - Can I create a default initial velocity vector?
-	m_ComponentVelocity						   = {0.0, 0.0, 0.0};
+	m_ComponentVelocity						   = Vector3d();
 	m_ComponentSpeed						   = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_CoreMass                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -3105,7 +3106,7 @@ DBL_DBL BaseStar::DrawKickDirection() {
  */
 DBL_DBL BaseStar::SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity) {
 
-		// RTW 08/05/20 - why is this here? Should be in BaseBinaryStar
+		// RTW 08/05/20 - why is this here? Should be in BinaryConstituentStar, no?
 
     double e = p_Eccentricity;
     double M = p_MeanAnomaly;
@@ -3146,23 +3147,31 @@ void BaseStar::CalculateSNAnomalies(const double p_Eccentricity) {
     std::tie(m_SupernovaDetails.eccentricAnomaly, m_SupernovaDetails.trueAnomaly) = SolveKeplersEquation(m_SupernovaDetails.meanAnomaly, p_Eccentricity);
 }
 
-void UpdateComponentVelocity(DBL_VECTOR p_newVelocity, double p_ThetaE, double p_PhiE, double p_PsiE) {
+// RTW 13/05/20 - Get rid of this?
+//void UpdateComponentVelocity(DBL_VECTOR p_newVelocity, double p_ThetaE, double p_PhiE, double p_PsiE) {
+//    // RTW 11/05/20 - TODO Add in a description of this function
+//
+//    // If the current speed is 0, simply set the current velocity to the new velocity
+//
+//	if (utils::Compare(m_ComponentSpeed, 0.0) <= 0) {                                           // Is the current speed = 0?
+//        m_ComponentVelocity = p_newVelocity;                                                    // yes - set to the new velocity
+//    }
+//    else {                                                                                      // no - need to rotate new velocity into old frame
+//        m_ComponentVelocity += utils::RotateVector(p_newVelocity, p_ThetaE, p_PhiE, p_PsiE)
+//    }
+//
+//    // Set the speed as well
+//    m_ComponentSpeed = utils::CalculateSpeedFromVelocity(m_ComponentVelocity);                  // Calculate component speed from new velocity
+//}
+
+
+//void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity) {
+void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity) {
+    
     // RTW 11/05/20 - TODO Add in a description of this function
-
-    // If the current speed is 0, simply set the current velocity to the new velocity
-
-	if (utils::Compare(m_ComponentSpeed, 0.0) <= 0) {                                           // Is the current speed = 0?
-        m_ComponentVelocity = p_newVelocity;                                                    // yes - set to the new velocity
-    }
-    else {                                                                                      // no - need to rotate new velocity into old frame
-        m_ComponentVelocity += utils::RotateVector(p_newVelocity, p_ThetaE, p_PhiE, p_PsiE)
-    }
-
-    // Set the speed as well
-    m_ComponentSpeed = utils::CalculateSpeedFromVelocity(m_ComponentVelocity);                  // Calculate component speed from new velocity
+    m_ComponentVelocity += p_newVelocity;                                                    // yes - set to the new velocity
+    m_ComponentSpeed     = m_ComponentVelocity.Magnitude();      // Calculate component speed from new velocity
 }
-
-
 
 
 

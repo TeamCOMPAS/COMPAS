@@ -4,6 +4,7 @@
 #include "constants.h"
 #include "typedefs.h"
 #include "utils.h"
+#include "vector3d.h"
 
 #include "Log.h"
 #include "Star.h"
@@ -430,7 +431,7 @@ private:
     double              m_SynchronizationTimescale;
 
     // Systemic speed and velocity, related Euler angles between pre- and post-SN orbital planes 
-    DBL_VECTOR           m_SystemicVelocity;                                                // Systemic velocity vector, relative to ZAMS Center of Mass
+    Vector3d             m_SystemicVelocity;                                                // Systemic velocity vector, relative to ZAMS Center of Mass
     double               m_SystemicSpeed;                                                   // Systemic speed, magnitude of velocity vector
     double               m_ThetaE;                                                          // Euler Theta
     double               m_PhiE;                                                            // Euler Phi                
@@ -623,7 +624,7 @@ private:
     void    StashBeBinaryProperties();
 
 		// RTW
-    void    UpdateSystemicVelocity(DBL_VECTOR p_newVelocity );
+    void    UpdateSystemicVelocity(Vector3d p_newVelocity); 
 
     // printing functions
     void PrintBinarySystemParameters()          {                                   LOGGING->LogBinarySystemParameters(this); }

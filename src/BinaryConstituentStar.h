@@ -4,6 +4,7 @@
 #include "constants.h"
 #include "typedefs.h"
 #include "utils.h"
+#include "vector3d.h"
 
 #include "Star.h"
 
