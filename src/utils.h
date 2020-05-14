@@ -102,22 +102,6 @@ namespace utils {
         return iter != p_Vector.end() ? std::make_tuple(true, distance(p_Vector.begin(), iter)) : std::make_tuple(false, -1l);  // if found return index, otherwise -1
     }
 
-    //////////////////////////////
-    // Linear Algebra Functions
-    //////////////////////////////
-
-    double                      DotProduct(DBL_VECTOR a, DBL_VECTOR b);
-
-    DBL_VECTOR                  CrossProduct(DBL_VECTOR a, DBL_VECTOR b);
-
-    double                      CalculateSpeedFromVelocity(const DBL_VECTOR velocity);
-
-    DBL_VECTOR                  RotateVector(const DBL_VECTOR p_oldVector, 
-                                             const double p_ThetaE, 
-                                             const double p_PhiE, 
-                                             const double p_PsiE);
-
-
 }
 
 #endif // __utils_h__
