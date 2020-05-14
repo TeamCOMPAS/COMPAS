@@ -469,10 +469,13 @@ constexpr double DEFAULT_INITIAL_BOOLEAN_VALUE          = false;                
 // conversion constants
 
 constexpr double G_TO_KG                                = 1.0E-3;                                                   // convert grams to kg
+constexpr double MSOL_TO_G                              = 1.98892E33;                                               // convert Solar Masses to grams
+constexpr double MSOL_TO_KG                             = MSOL_TO_G * G_TO_KG;                                      // convert Solar Masses to kg 
+constexpr double KG_TO_MSOL                             = 1.0 / MSOL_TO_KG;                                         // convert kg to Solar Masses
 
 constexpr double KM_TO_CM 					            = 1.0E5;									                // convert km to cm
 constexpr double CM_TO_M                                = 1.0E-2;                                                   // convert cm to m
-constexpr double KM_TO_M                                = 1000 ;                                                    //convert km to m
+constexpr double KM_TO_M                                = 1000 ;                                                    // convert km to m
 
 constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
 constexpr double GAUSS_TO_TESLA                         = 1.0E-4;                                                   // convert Gauss to Tesla
@@ -492,10 +495,9 @@ constexpr double RSOL_TO_CM                             = 6.957E10;             
 constexpr double RSOL_TO_AU                             = 0.00465047;                                               // convert Solar Radius (RSOL) to AU
 constexpr double KM_TO_RSOL					            = 1.0 / RSOL_TO_KM;						                    // convert km to Solar Radius (RSOL)
 
-constexpr double MSOL_TO_G                              = 1.988E33;                                                 // convert Solar Mass to grams
-
 constexpr double AU_TO_CM                               = 14959787070000.0;                                         // convert Astronomical Units (AU) to cm
-constexpr double AU_TO_RSOL				                = 1.0 / RSOL_TO_AU;                                         // convert Astronomical Units AU to Solar Radius RSOL
+constexpr double AU_TO_RSOL				                = 1.0 / RSOL_TO_AU;                                         // convert Astronomical Units (AU) to Solar Radius RSOL
+constexpr double AU_TO_KM                               = AU_TO_CM / 1.0E5;                                         // convert Astronomical Units (AU) to km
 
 
 // constants
@@ -513,6 +515,7 @@ constexpr double HUBBLE_TIME                            = 1 / H0SI;             
 constexpr double G                                      = 6.67E-11;                                                 // Gravitational constant in m^3 kg^-1 s^-2 (more accurately known as G M_sol)
 constexpr double G_CGS                                  = 6.6743E-8;                                                // Gravitational constant in cm^3 g^-1 s^-2
 constexpr double G1                                     = 4.0 * M_PI * M_PI;                                        // Gravitational constant in AU^3 Msol^-1 yr^-2
+constexpr double G_SN                                   = G * 1.0E9 * KG_TO_MSOL;                                   // Gravitational constant in km^3 Msol^-1 s^-2, for use in the ResolveSupernovaInBinary() function
 
 constexpr double MSOL                                   = 1.988E30;                                                 // Solar Mass (in kg)
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
