@@ -35,6 +35,7 @@ ICFLAGS := -I$(BOOST)/include -I.
 LFLAGS :=  -L$(BOOST)/lib -lgsl -lgslcblas -lstdc++ -lm -lz -ldl -lboost_filesystem -lboost_program_options -lboost_system -Xlinker -rpath -Xlinker $(BOOST)/lib
 SOURCES :=                                                               \
 			utils.cpp					\
+			vector3d.cpp			\
 									\
 			Rand.cpp					\
 			Options.cpp					\
