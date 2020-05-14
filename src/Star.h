@@ -117,7 +117,9 @@ public:
     double                      SN_Phi() const                                                                              { return m_Star->SN_Phi(); }
     double                      SN_Theta() const                                                                            { return m_Star->SN_Theta(); }
     double                      SN_TrueAnomaly() const                                                                      { return m_Star->SN_TrueAnomaly(); }
+    double                      SN_EccentricAnomaly() const                                                                 { return m_Star->SN_EccentricAnomaly(); }
     SN_EVENT                    SN_Type() const                                                                             { return m_Star->SN_Type(); }
+    double                      Speed() const                                                                               { return m_Star->Speed(); }
     COMPAS_VARIABLE             StellarPropertyValue(const T_ANY_PROPERTY p_Property) const                                 { return m_Star->StellarPropertyValue(p_Property); }
     double                      Temperature() const                                                                         { return m_Star->Temperature(); }
     double                      ThermalTimescale() const                                                                    { return m_Star->ThermalTimescale(); }
@@ -233,6 +235,8 @@ public:
                                                       const double p_DeltaTime,
                                                       const bool   p_Switch = true,
                                                       const bool   p_ForceRecalculate = false);
+
+    void            UpdateComponentVelocity(const Vector3d p_newVelocity)                                       { m_Star->UpdateComponentVelocity(p_newVelocity); }
 
     void            UpdateInitialMass()                                                                         { m_Star->UpdateInitialMass(); }
 

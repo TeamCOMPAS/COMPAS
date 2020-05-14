@@ -7,6 +7,7 @@
 #include "constants.h"
 #include "typedefs.h"
 #include "utils.h"
+#include "vector3d.h"
 
 #include "Options.h"
 #include "Log.h"
@@ -141,6 +142,11 @@ public:
 
             void                SetSNCurrentEvent(SN_EVENT p_SNEvent)                           { m_SupernovaDetails.events.current |= p_SNEvent; }                                 // Set supernova primary event/state for current timestep
             void                SetSNPastEvent(const SN_EVENT p_SNEvent)                        { m_SupernovaDetails.events.past |= p_SNEvent; }                                    // Set supernova primary event/state for any past timestep
+            
+            // RTW 13/05/20 - TODO this only needs one function, right?
+		    //void  			UpdateComponentVelocity(Vector3d p_newVelocity, double p_ThetaE, double p_PhiE, double p_PsiE); 
+            void                UpdateComponentVelocity(const Vector3d p_newVelocity);	
+
 
 
     // member functions - alphabetically
@@ -354,7 +360,7 @@ protected:
 
     // Star speed and velocity, and related Euler angles 
 	// between pre- and post-SN orbital planes, for velocity addition
-	DBL_VECTOR              m_ComponentVelocity; 	                    // Isolated star velocity vector
+	Vector3d                m_ComponentVelocity; 	                    // Isolated star velocity vector
     double                  m_ComponentSpeed;                           // Magnitude of velocity vector
 
     // member functions - alphabetically
@@ -590,8 +596,6 @@ protected:
 
             void            UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMass, const double p_DeltaMass0, const double p_DeltaTime);
 
-		    void  			UpdateComponentVelocity(DBL_VECTOR p_newVelocity, double p_ThetaE, double p_PhiE, double p_PsiE); 
-            void            UpdateComponentVelocity(DBL_VECTOR p_newVelocity)	{ (void) UpdateComponentVelocity(p_newVelocity, 0.0, 0.0, 0.0); }
 
 };
 

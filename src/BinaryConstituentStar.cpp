@@ -1,7 +1,7 @@
 #include "BinaryConstituentStar.h"
 
 #include "BaseBinaryStar.h"
-
+#include "vector3d.h"
 
 class BaseBinaryStar;
 
