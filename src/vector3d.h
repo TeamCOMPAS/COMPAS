@@ -84,8 +84,13 @@ protected:
     void updateVector( const double x, const double y, const double z);
 };
 
-// Free function, for overloading * with reversed order of inputs
+// Free functions, 
+// Overload * with reversed order of inputs
 Vector3d operator *(double scalar, Vector3d vec);
+
+// Overload output << operator for Vector3d
+std::ostream &operator <<(std::ostream &os, Vector3d const vec);
+
 
 
 ///////////////////////////////////////////////////////////
@@ -99,6 +104,8 @@ namespace linalg {
     double      dot(const Vector3d& a, const Vector3d& b);
 
     Vector3d    cross(const Vector3d& a, const Vector3d& b);
+
+    double      angleBetween(const Vector3d& a, const Vector3d& b);
 }
 
 #endif // __vector3d_h__
