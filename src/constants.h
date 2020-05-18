@@ -453,7 +453,7 @@ extern OBJECT_ID globalObjectId;                                                
 //
 // I've added _2_PI and SQRT_M_2_PI below
 
-#undef COMPARE_WITH_TOLERANCE // define/undef this to compare floats with/without tolerance (see FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE and Compare() function)
+#define COMPARE_WITH_TOLERANCE // define/undef this to compare floats with/without tolerance (see FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE and Compare() function)
 
 constexpr double FLOAT_TOLERANCE_ABSOLUTE               = 0.0000005;                                                // Absolute tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
 constexpr double FLOAT_TOLERANCE_RELATIVE               = 0.0000005;                                                // Relative tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
@@ -468,20 +468,28 @@ constexpr double DEFAULT_INITIAL_BOOLEAN_VALUE          = false;                
 
 // conversion constants
 
+// mass
 constexpr double G_TO_KG                                = 1.0E-3;                                                   // convert grams to kg
 constexpr double MSOL_TO_G                              = 1.98892E33;                                               // convert Solar Masses to grams
 constexpr double MSOL_TO_KG                             = MSOL_TO_G * G_TO_KG;                                      // convert Solar Masses to kg 
 constexpr double KG_TO_MSOL                             = 1.0 / MSOL_TO_KG;                                         // convert kg to Solar Masses
 
+// length
 constexpr double KM_TO_CM 					            = 1.0E5;									                // convert km to cm
 constexpr double CM_TO_M                                = 1.0E-2;                                                   // convert cm to m
 constexpr double KM_TO_M                                = 1000 ;                                                    // convert km to m
 
-constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
-constexpr double GAUSS_TO_TESLA                         = 1.0E-4;                                                   // convert Gauss to Tesla
+constexpr double RSOL_TO_KM                             = 6.957E5;                                                  // convert Solar Radius (RSOL) to km
+constexpr double RSOL_TO_CM                             = 6.957E10;                                                 // convert Solar Radius (RSOL) to cm
+constexpr double RSOL_TO_AU                             = 0.00465047;                                               // convert Solar Radius (RSOL) to AU
+constexpr double AU_TO_CM                               = 14959787070000.0;                                         // convert Astronomical Units (AU) to cm
+constexpr double AU_TO_KM                               = AU_TO_CM / 1.0E5;                                         // convert Astronomical Units (AU) to km
 
-constexpr double JOULES_TO_ERG                          = 1.0E7;                                                    // convert Joules to Ergs
+constexpr double AU_TO_RSOL				                = 1.0 / RSOL_TO_AU;                                         // convert Astronomical Units (AU) to Solar Radius RSOL
+constexpr double KM_TO_RSOL					            = 1.0 / RSOL_TO_KM;						                    // convert km to Solar Radius (RSOL)
+constexpr double KM_TO_AU                               = 1.0 / AU_TO_KM;                                           // convert km to Astronomical Units (AU) 
 
+// time
 constexpr double SECONDS_IN_YEAR                        = 31556926.0;                                               // number of second in 1 year
 constexpr double SECONDS_IN_DAY                         = SECONDS_IN_YEAR * 4.0 / 1461.0;                           // number of second in 1 day
 constexpr double SECONDS_IN_MS                          = 1.0E-3;                                                   // number of second in 1 millisecond
@@ -490,14 +498,12 @@ constexpr double SECONDS_IN_MYR                         = 31556926.0 * 1.0E6;   
 constexpr double MYR_TO_YEAR                            = 1.0E6;                                                    // convert Myr to year
 constexpr double YEAR_TO_MYR                            = 1.0E-6;                                                   // convert year to Myr
 
-constexpr double RSOL_TO_KM                             = 6.957E5;                                                  // convert Solar Radius (RSOL) to km
-constexpr double RSOL_TO_CM                             = 6.957E10;                                                 // convert Solar Radius (RSOL) to cm
-constexpr double RSOL_TO_AU                             = 0.00465047;                                               // convert Solar Radius (RSOL) to AU
-constexpr double KM_TO_RSOL					            = 1.0 / RSOL_TO_KM;						                    // convert km to Solar Radius (RSOL)
+// energy
+constexpr double JOULES_TO_ERG                          = 1.0E7;                                                    // convert Joules to Ergs
 
-constexpr double AU_TO_CM                               = 14959787070000.0;                                         // convert Astronomical Units (AU) to cm
-constexpr double AU_TO_RSOL				                = 1.0 / RSOL_TO_AU;                                         // convert Astronomical Units (AU) to Solar Radius RSOL
-constexpr double AU_TO_KM                               = AU_TO_CM / 1.0E5;                                         // convert Astronomical Units (AU) to km
+// B-field
+constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
+constexpr double GAUSS_TO_TESLA                         = 1.0E-4;                                                   // convert Gauss to Tesla
 
 
 // constants
@@ -1959,6 +1965,7 @@ enum class BINARY_PROPERTY: int {
     ECCENTRICITY_INITIAL,
     ECCENTRICITY_POST_COMMON_ENVELOPE,
     ECCENTRICITY_PRE_SUPERNOVA,
+    ECCENTRICITY_POST_SUPERNOVA,
     ECCENTRICITY_PRE_COMMON_ENVELOPE,
     ECCENTRICITY_PRIME,
     ERROR,
@@ -1980,6 +1987,7 @@ enum class BINARY_PROPERTY: int {
     OPTIMISTIC_COMMON_ENVELOPE,
     ORBITAL_VELOCITY,
     ORBITAL_VELOCITY_PRE_SUPERNOVA,
+    ORBITAL_VELOCITY_POST_SUPERNOVA,
     RADIUS_1_POST_COMMON_ENVELOPE,
     RADIUS_1_PRE_COMMON_ENVELOPE,
     RADIUS_2_POST_COMMON_ENVELOPE,
@@ -1998,7 +2006,9 @@ enum class BINARY_PROPERTY: int {
     SEMI_MAJOR_AXIS_INITIAL,
     SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,
     SEMI_MAJOR_AXIS_PRE_SUPERNOVA,
+    SEMI_MAJOR_AXIS_POST_SUPERNOVA,
     SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,
+    SEMI_MAJOR_AXIS_POST_SUPERNOVA_RSOL,
     SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,
     SEMI_MAJOR_AXIS_PRIME,
     SEMI_MAJOR_AXIS_PRIME_RSOL,
@@ -2058,6 +2068,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::ECCENTRICITY_INITIAL,                               "ECCENTRICITY_INITIAL" },
     { BINARY_PROPERTY::ECCENTRICITY_POST_COMMON_ENVELOPE,                  "ECCENTRICITY_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,                         "ECCENTRICITY_PRE_SUPERNOVA" },
+    { BINARY_PROPERTY::ECCENTRICITY_POST_SUPERNOVA,                         "ECCENTRICITY_POST_SUPERNOVA" },
     { BINARY_PROPERTY::ECCENTRICITY_PRE_COMMON_ENVELOPE,                   "ECCENTRICITY_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::ECCENTRICITY_PRIME,                                 "ECCENTRICITY_PRIME" },
     { BINARY_PROPERTY::ERROR,                                              "ERROR" },
@@ -2079,6 +2090,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                         "OPTIMISTIC_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::ORBITAL_VELOCITY,                                   "ORBITAL_VELOCITY" },
     { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                     "ORBITAL_VELOCITY_PRE_SUPERNOVA" },
+    { BINARY_PROPERTY::ORBITAL_VELOCITY_POST_SUPERNOVA,                     "ORBITAL_VELOCITY_POST_SUPERNOVA" },
     { BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,                      "RADIUS_1_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::RADIUS_1_PRE_COMMON_ENVELOPE,                       "RADIUS_1_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE,                      "RADIUS_2_POST_COMMON_ENVELOPE" },
@@ -2097,7 +2109,9 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,                            "SEMI_MAJOR_AXIS_INITIAL" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,               "SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                      "SEMI_MAJOR_AXIS_PRE_SUPERNOVA" },
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_SUPERNOVA,                      "SEMI_MAJOR_AXIS_POST_SUPERNOVA" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,                 "SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL" },
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_SUPERNOVA_RSOL,                 "SEMI_MAJOR_AXIS_POST_SUPERNOVA_RSOL" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                "SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME,                              "SEMI_MAJOR_AXIS_PRIME" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL,                         "SEMI_MAJOR_AXIS_PRIME_RSOL" },
@@ -2340,6 +2354,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::ECCENTRICITY_INITIAL,                                { TYPENAME::DOUBLE,         "Eccentricity@ZAMS",    "-",                14, 6 }},
     { BINARY_PROPERTY::ECCENTRICITY_POST_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Eccentricity>CE",      "-",                14, 6 }},
     { BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,                          { TYPENAME::DOUBLE,         "Eccentricity<SN",      "-",                14, 6 }},
+    { BINARY_PROPERTY::ECCENTRICITY_POST_SUPERNOVA,                         { TYPENAME::DOUBLE,         "Eccentricity>SN",      "-",                14, 6 }},
     { BINARY_PROPERTY::ECCENTRICITY_PRE_COMMON_ENVELOPE,                    { TYPENAME::DOUBLE,         "Eccentricity<CE",      "-",                14, 6 }},
     { BINARY_PROPERTY::ECCENTRICITY_PRIME,                                  { TYPENAME::DOUBLE,         "Eccentricity",         "-",                14, 6 }},
     { BINARY_PROPERTY::ERROR,                                               { TYPENAME::ERROR,          "Error",                "-",                 4, 1 }},
@@ -2361,6 +2376,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                          { TYPENAME::BOOL,           "Optimistic_CE",        "State",             0, 0 }},
     { BINARY_PROPERTY::ORBITAL_VELOCITY,                                    { TYPENAME::DOUBLE,         "Orbital_Velocity",     "kms^-1",           14, 6 }},
     { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                      { TYPENAME::DOUBLE,         "Orb_Velocity<SN",      "kms^-1",           14, 6 }},
+    { BINARY_PROPERTY::ORBITAL_VELOCITY_POST_SUPERNOVA,                     { TYPENAME::DOUBLE,         "Orb_Velocity>SN",      "kms^-1",           14, 6 }},
     { BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,         "Radius_1>CE",          "Rsol",             14, 6 }},
     { BINARY_PROPERTY::RADIUS_1_PRE_COMMON_ENVELOPE,                        { TYPENAME::DOUBLE,         "Radius_1<CE",          "Rsol",             14, 6 }},
     { BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,         "Radius_2>CE",          "Rsol",             14, 6 }},
@@ -2380,6 +2396,8 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,         "Separation>CE",        "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                       { TYPENAME::DOUBLE,         "Separation<SN",        "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,                  { TYPENAME::DOUBLE,         "Separation<SN",        "Rsol",             14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_SUPERNOVA,                      { TYPENAME::DOUBLE,         "Separation>SN",        "AU",               14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_SUPERNOVA_RSOL,                 { TYPENAME::DOUBLE,         "Separation>SN",        "Rsol",             14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,         "Separation<CE",        "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME,                               { TYPENAME::DOUBLE,         "Separation",           "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL,                          { TYPENAME::DOUBLE,         "Separation",           "Rsol",             14, 6 }},
@@ -2657,6 +2675,7 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     SUPERNOVA_PROPERTY::KICK_VELOCITY,
     SUPERNOVA_PROPERTY::FALLBACK_FRACTION,
     BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,
+    BINARY_PROPERTY::ORBITAL_VELOCITY_POST_SUPERNOVA, // RTW - for testing purposes, can be removed later
     BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY, // remove?  (its in systemParameters)		// RTW 07/05/20 - Please do not remove these
     SUPERNOVA_PROPERTY::TRUE_ANOMALY,				// remove?  (its in systemParameters)
     SUPERNOVA_PROPERTY::SUPERNOVA_THETA, // remove?  (its in systemParameters)
@@ -2678,10 +2697,12 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     // BINARY_PROPERTY::STABLE_RLOF_POST_COMMON_ENVELOPE, 
     // SUPERNOVA_PROPERTY::RLOF_ONTO_NS, // (does not work currently?)
     BINARY_PROPERTY::TIME,
-    BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,  // floor: we want a Eccentricity<SN and Eccentricity>SN; how to do this?
-	BINARY_PROPERTY::ECCENTRICITY,
+    BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,  // floor: we want a Eccentricity<SN and Eccentricity>SN; how to do this? - RTW done
+	BINARY_PROPERTY::ECCENTRICITY_POST_SUPERNOVA,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,
-	BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL,
+	BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_SUPERNOVA_RSOL,
+    SUPERNOVA_PROPERTY::SPEED,
+    COMPANION_PROPERTY::SPEED,
     BINARY_PROPERTY::SYSTEMIC_SPEED,
     SUPERNOVA_PROPERTY::HYDROGEN_RICH,
     SUPERNOVA_PROPERTY::HYDROGEN_POOR,
