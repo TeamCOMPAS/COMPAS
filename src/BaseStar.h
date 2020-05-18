@@ -143,8 +143,6 @@ public:
             void                SetSNCurrentEvent(SN_EVENT p_SNEvent)                           { m_SupernovaDetails.events.current |= p_SNEvent; }                                 // Set supernova primary event/state for current timestep
             void                SetSNPastEvent(const SN_EVENT p_SNEvent)                        { m_SupernovaDetails.events.past |= p_SNEvent; }                                    // Set supernova primary event/state for any past timestep
             
-            // RTW 13/05/20 - TODO this only needs one function, right?
-		    //void  			UpdateComponentVelocity(Vector3d p_newVelocity, double p_ThetaE, double p_PhiE, double p_PsiE); 
             void                UpdateComponentVelocity(const Vector3d p_newVelocity);	
 
 
