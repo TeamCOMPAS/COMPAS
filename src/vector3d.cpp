@@ -115,6 +115,11 @@ Vector3d Vector3d::operator /(const double scalar) {
 }
 
 
+// Overload output << operator for Vector3d
+std::ostream &operator <<(std::ostream &os, Vector3d const vec) {
+    return os << "{" << vec[0] << ", " << vec[1] << ", " << vec[2] << "}";
+}
+
 
 //////////////////////////////////
 // Add in common vector calculations
@@ -259,5 +264,11 @@ namespace linalg {
     
         return c;
     }
+
+    double angleBetween(const Vector3d& a, const Vector3d& b) {
+        // Angle between 2 vectors, between [0, 2pi] 
+        return acos(linalg::dot(a,b));
+    }
+
 }
 
