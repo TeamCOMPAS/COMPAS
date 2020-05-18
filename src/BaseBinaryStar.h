@@ -51,7 +51,8 @@ public:
         m_BeBinaryDetails.currentProps     = p_Star.m_BeBinaryDetails.currentProps  == &(p_Star.m_BeBinaryDetails.props1) ? &(m_BeBinaryDetails.props1) : &(m_BeBinaryDetails.props2);
         m_BeBinaryDetails.previousProps    = p_Star.m_BeBinaryDetails.previousProps == &(p_Star.m_BeBinaryDetails.props1) ? &(m_BeBinaryDetails.props1) : &(m_BeBinaryDetails.props2);
 
-        m_Beta                             = p_Star.m_Beta;
+        // RTW
+        //m_Beta                             = p_Star.m_Beta;
 
         m_CircularizationTimescale         = p_Star.m_CircularizationTimescale;
 
@@ -67,6 +68,7 @@ public:
         m_EccentricityAtDCOFormation       = p_Star.m_EccentricityAtDCOFormation;
         m_EccentricityInitial              = p_Star.m_EccentricityInitial;
         m_EccentricityPreSN                = p_Star.m_EccentricityPreSN;
+        m_EccentricityPostSN               = p_Star.m_EccentricityPostSN;
         m_EccentricityPrev                 = p_Star.m_EccentricityPrev;
         m_EccentricityPrime                = p_Star.m_EccentricityPrime;
 
@@ -105,21 +107,25 @@ public:
         m_TotalMassPrev                    = p_Star.m_TotalMassPrev;
         m_TotalMassPrime                   = p_Star.m_TotalMassPrime;
 
-        m_MC                               = p_Star.m_MC;
-        m_MCPrime                          = p_Star.m_MCPrime;
+        // RTW
+        //m_MC                               = p_Star.m_MC;
+        //m_MCPrime                          = p_Star.m_MCPrime;
 
         m_Merged                           = p_Star.m_Merged;
         m_MergesInHubbleTime               = p_Star.m_MergesInHubbleTime;
 
-        m_MSN                              = p_Star.m_MSN;
-        m_MSNPrime                         = p_Star.m_MSNPrime;
+        // RTW
+        //m_MSN                              = p_Star.m_MSN;
+        //m_MSNPrime                         = p_Star.m_MSNPrime;
 
         m_OrbitalVelocity                  = p_Star.m_OrbitalVelocity;
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
+        m_OrbitalVelocityPostSN            = p_Star.m_OrbitalVelocityPostSN;
         m_OrbitalVelocityPrev              = p_Star.m_OrbitalVelocityPrev;
         m_OrbitalVelocityPrime             = p_Star.m_OrbitalVelocityPrime;
 
-        m_CurrentSeparation                = p_Star.m_CurrentSeparation;
+        // RTW
+        //m_CurrentSeparation                = p_Star.m_CurrentSeparation;
 
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
 
@@ -129,6 +135,7 @@ public:
         m_SemiMajorAxisAtDCOFormation      = p_Star.m_SemiMajorAxisAtDCOFormation;
         m_SemiMajorAxisInitial             = p_Star.m_SemiMajorAxisInitial;
         m_SemiMajorAxisPreSN               = p_Star.m_SemiMajorAxisPreSN;
+        m_SemiMajorAxisPostSN              = p_Star.m_SemiMajorAxisPostSN;
         m_SemiMajorAxisPrev                = p_Star.m_SemiMajorAxisPrev;
         m_SemiMajorAxisPrime               = p_Star.m_SemiMajorAxisPrime;
 
@@ -161,7 +168,7 @@ public:
 
         m_uK                               = p_Star.m_uK;
 
-        m_VRel                             = p_Star.m_VRel;
+        //m_VRel                             = p_Star.m_VRel;
 
         m_WolfRayetFactor                  = p_Star.m_WolfRayetFactor;
 
@@ -235,6 +242,7 @@ public:
     double              EccentricityInitial() const                 { return m_EccentricityInitial; }
     double              EccentricityPostCEE() const                 { return m_CEDetails.postCEE.eccentricity; }
     double              EccentricityPreSN() const                   { return m_EccentricityPreSN; }
+    double              EccentricityPostSN() const                  { return m_EccentricityPostSN; }
     double              EccentricityPreCEE() const                  { return m_CEDetails.preCEE.eccentricity; }
     double              EccentricityPrime() const                   { return m_EccentricityPrime; }
     ERROR               Error() const                               { return m_Error; }
@@ -267,6 +275,7 @@ public:
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
     double              OrbitalVelocity() const                     { return m_OrbitalVelocity; }
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
+    double              OrbitalVelocityPostSN() const               { return m_OrbitalVelocityPostSN; }
     double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
     double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
     double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }
@@ -287,6 +296,7 @@ public:
     double              SemiMajorAxisInitial() const                { return m_SemiMajorAxisInitial; }
     double              SemiMajorAxisPostCEE() const                { return m_CEDetails.postCEE.semiMajorAxis; }
     double              SemiMajorAxisPreSN() const                  { return m_SemiMajorAxisPreSN; }
+    double              SemiMajorAxisPostSN() const                 { return m_SemiMajorAxisPostSN; }
     double              SemiMajorAxisPreCEE() const                 { return m_CEDetails.preCEE.semiMajorAxis; }
     double              SemiMajorAxisPrime() const                  { return m_SemiMajorAxisPrime; }
     bool                SimultaneousRLOF() const                    { return m_RLOFDetails.simultaneousRLOF; }
@@ -343,7 +353,8 @@ private:
 
     BeBinaryDetailsT    m_BeBinaryDetails;                                                  // BeBinary details
 
-    double              m_Beta;                                                             // Angle between r and v, related to eccentricity (= pi/2 for circular e = 0)
+    // RTW
+    //double              m_Beta;                                                             // Angle between r and v, related to eccentricity (= pi/2 for circular e = 0)
 
     BinaryCEDetailsT    m_CEDetails;                                                        // Common Event details
 
@@ -358,7 +369,8 @@ private:
     double              m_Eccentricity;                                                     // Initial eccentricity
     double              m_EccentricityAtDCOFormation;                                       // Eccentricity at DCO formation
     double              m_EccentricityInitial;                                              // Record initial eccentricity              JR: todo: check necessary
-    double              m_EccentricityPreSN;                                             // Eccentricity prior to 2nd supernova
+    double              m_EccentricityPreSN;                                                // Eccentricity prior to 2nd supernova
+    double              m_EccentricityPostSN;                                               // Eccentricity after 2nd supernova
     double              m_EccentricityPrev;                                                 // Eccentricity at previous timestep
     double              m_EccentricityPrime;                                                // Initial eccentricity
 
@@ -397,21 +409,25 @@ private:
     double              m_TotalMassPrev;
     double              m_TotalMassPrime;
 
-    double              m_MC;
-    double              m_MCPrime;
+    // RTW
+    //double              m_MC;
+    //double              m_MCPrime;
 
     bool                m_Merged;                                                           // Indicates if the stars merged
     bool                m_MergesInHubbleTime;                                               // Indicates if the stars merge in Hubble Time
 
-    double              m_MSN;
-    double              m_MSNPrime;
+    // RTW
+    //double              m_MSN;
+    //double              m_MSNPrime;
 
     double              m_OrbitalVelocity;
     double              m_OrbitalVelocityPreSN;
+    double              m_OrbitalVelocityPostSN;
     double              m_OrbitalVelocityPrev;
     double              m_OrbitalVelocityPrime;
 
-    double              m_CurrentSeparation;
+    // RTW
+    //double              m_CurrentSeparation;
 
     BinaryRLOFDetailsT  m_RLOFDetails;                                                      // RLOF details
 
@@ -421,6 +437,7 @@ private:
     double              m_SemiMajorAxisAtDCOFormation;                                      // Semi-major axis at DCO formation
     double              m_SemiMajorAxisInitial;                                             // Record initial semi-major axis              JR: todo: check necessary
     double              m_SemiMajorAxisPreSN;                                               // Semi-major axis prior to 2nd supernova
+    double              m_SemiMajorAxisPostSN;                                              // Semi-major axis after 2nd supernova
     double              m_SemiMajorAxisPrev;                                                // Semi-major axis at previous timestep double              m_SemiMajorAxisPrime;                                               // Semi-major axis 
     double              m_SemiMajorAxisPrime;                                               // Semi-major axis
     bool                m_StellarMerger;                                                    // Indicates that the constituent stars merged
@@ -455,7 +472,8 @@ private:
 
     double               m_uK;
 
-    double               m_VRel;
+    // RTW
+    //double               m_VRel;
 
     double               m_WolfRayetFactor;
 
@@ -510,10 +528,11 @@ private:
 
     double  CalculateAngularMomentumPrime()                                 { return CalculateAngularMomentum(m_SemiMajorAxisPrime, m_EccentricityPrime, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
 
+    //double CalculateAverageOrbitalVelocity(const 
     double  CalculateCDFKroupa(const double p_Mass);
 
     // RTW 09/05/20 - do we want this?
-    double  CalculateCosFinalPlaneTilt(const double p_KickTheta, const double p_KickPhi);
+    //double  CalculateCosFinalPlaneTilt(const double p_KickTheta, const double p_KickPhi);
 
     void    CalculateEnergyAndAngularMomentum();
 
@@ -532,34 +551,36 @@ private:
                                             const double p_Mass,
                                             const double p_SemiMajorAxis)   { return p_Mu * sqrt(G1 * p_Mass * p_SemiMajorAxis); }
 
-    double  CalculateOrbitalEccentricityPostSupernova(const double p_KickVelocity,
-                                                      const double p_TotalMassPreSN,
-                                                      const double p_TotalMassPostSN,
-                                                      const double p_KickTheta,
-                                                      const double p_KickPhi);
+    // RTW
+    //double  CalculateOrbitalEccentricityPostSupernova(const double p_KickVelocity,
+    //                                                  const double p_TotalMassPreSN,
+    //                                                  const double p_TotalMassPostSN,
+    //                                                  const double p_KickTheta,
+    //                                                  const double p_KickPhi);
 
     double  CalculateOrbitalEnergy(const double p_Mu,
                                    const double p_Mass,
                                    const double p_SemiMajorAxis)            { return -(G1 * p_Mu * p_Mass) / (2.0 * p_SemiMajorAxis); }
 
 	// RTW!
-    double  CalculatePostSNSystemicVelocity(const double p_SNMass,
-                                            const double p_SNDeltaMass,
-                                            const double p_CompanionMass,
-                                            const double p_TotalMassPreSN,
-                                            const double p_TotalMassPostSN,
-                                            const double p_KickTheta,
-                                            const double p_KickPhi);
+    //double  CalculatePostSNSystemicVelocity(const double p_SNMass,
+    //                                        const double p_SNDeltaMass,
+    //                                        const double p_CompanionMvass,
+    //                                        const double p_TotalMassPreSN,
+    //                                        const double p_TotalMassPostSN,
+    //                                        const double p_KickTheta,
+    //                                        const double p_KickPhi);
 
     double  CalculateAdaptiveRocheLobeOverFlow(const double p_JLoss);
     double  CalculateNumericalZRocheLobe(const double p_jLoss);
     double  CalculateZRocheLobe(const double p_jLoss);
 
-    double  CalculateSemiMajorAxisPostSupernova(const double p_KickVelocity,
-                                                const double p_TotalMassPreSN,
-                                                const double p_TotalMassPostSN,
-                                                const double p_KickTheta,
-                                                const double p_KickPhi);
+    // RTW!
+    //double  CalculateSemiMajorAxisPostSupernova(const double p_KickVelocity,
+    //                                            const double p_TotalMassPreSN,
+    //                                            const double p_TotalMassPostSN,
+    //                                            const double p_KickTheta,
+    //                                            const double p_KickPhi);
 
     double  CalculateDt(const double p_Dt, const Star* const p_Primary, const Star* const p_Secondary);
     double  CalculateTimestep(const double p_Dt);
