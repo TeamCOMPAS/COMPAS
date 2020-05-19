@@ -40,8 +40,8 @@ public:
     
     // member functions 
     Vector3d    RotateVector( const double p_ThetaE, 
-                                  const double p_PhiE, 
-                                  const double p_PsiE);
+                              const double p_PhiE, 
+                              const double p_PsiE);
 
     ///////////////////////////////
     // Overload operators
@@ -52,6 +52,9 @@ public:
     
     // Overload setting operator
     void operator =(Vector3d vNew);
+
+    // Overload += setting vector
+    void operator +=(Vector3d vec) { (*this) = (*this) + vec; }
 
     // Overload vector addition operator
     Vector3d operator +(Vector3d vec);
@@ -65,8 +68,6 @@ public:
     // Overload scalar division operator
     Vector3d operator /(const double scalar);
 
-    // Overload += setting vector
-    Vector3d operator +=(Vector3d vec) { return (*this) + vec; }
 
     
     
