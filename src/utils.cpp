@@ -60,7 +60,10 @@ namespace utils {
      */
     int Compare(const double p_X, const double p_Y) {
     #ifdef COMPARE_WITH_TOLERANCE
-        return (std::abs(p_X - p_Y) <= std::max(FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE * std::max(std::abs(p_X), fabs(p_Y)))) ? 0 : (p_X < p_Y ? -1 : 1);
+        return 
+            (std::abs(p_X - p_Y) <= std::max(FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE * std::max(std::abs(p_X), std::abs(p_Y)))) 
+            ? 0 
+            : (p_X < p_Y ? -1 : 1);
     #else
         return (p_X == p_Y) ? 0 : (p_X < p_Y ? -1 : 1);
     #endif
