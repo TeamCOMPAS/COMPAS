@@ -150,6 +150,8 @@ public:
         m_SystemicVelocity                 = p_Star.m_SystemicVelocity;
 		m_SystemicSpeed                    = p_Star.m_SystemicSpeed;
 
+        // RTW - add in Euler angles here
+
         m_Time                             = p_Star.m_Time;
         m_TimePrev                         = p_Star.m_TimePrev;
         m_TimeToCoalescence                = p_Star.m_TimeToCoalescence;
@@ -176,7 +178,6 @@ public:
         m_ZetaRLOFNumerical                = p_Star.m_ZetaRLOFNumerical;
         m_ZetaStarCompare                  = p_Star.m_ZetaStarCompare;
 
-        // RTW 09/05/20 - Add in new speed/vel/Euler attributes here
 
         // copy the constituent stars and pointers
 
