@@ -26,25 +26,30 @@ struct KickVelocityParams {
 };
 
 
-// struct for SSE grid file parameters
-
-typedef struct SSEGridParameters {
-    double mass;
-    double metallicity;
-} SSEGridParameters;
-
-
-// structs for binary stars and BSE grid file parameters
+// KickParameters struct for both SSE and BSE grid file parameters
 
 typedef struct KickParameters {
     bool   supplied;
     bool   useVelocityRandom;
     double velocityRandom;
     double velocity;
-    double theta;
-    double phi;
-    double meanAnomaly;
+    double theta;                   // only used for BSE
+    double phi;                     // only used for BSE
+    double meanAnomaly;             // only used for BSE
 } KickParameters;
+
+
+// struct for SSE grid file parameters
+
+typedef struct SSEGridParameters {
+    double mass;
+    double metallicity;
+
+    KickParameters kickParameters;
+ } SSEGridParameters;
+
+
+// structs for binary stars and BSE grid file parameters
 
 typedef struct BSEGridParameters {
     double mass1;
