@@ -35,7 +35,7 @@ public:
     double      yValue() const       { return m_1; }
     double      zValue() const       { return m_2; }
     double      Magnitude();
-    // RTW 14/05/20 - is this necessary? worth deleting?
+
     DBL_VECTOR  asDBL_VECTOR();
     
     // member functions 

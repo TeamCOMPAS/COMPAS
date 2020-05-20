@@ -14,7 +14,7 @@ Vector3d::Vector3d() {
 
     // Initialize member variables
 
-    m_ObjectId = globalObjectId++; // RTW 12/05/20 - is this right?
+    m_ObjectId = globalObjectId++; 
 
     m_0 = 0.0;
     m_1 = 0.0;
@@ -26,7 +26,7 @@ Vector3d::Vector3d() {
 
 Vector3d::Vector3d(double x, double y, double z) {
 
-    m_ObjectId = globalObjectId++; // RTW 12/05/20 - is this right?
+    m_ObjectId = globalObjectId++; 
 
     m_0 = x;
     m_1 = y;
@@ -35,7 +35,7 @@ Vector3d::Vector3d(double x, double y, double z) {
 
 Vector3d::Vector3d(DBL_VECTOR v) {
 
-    m_ObjectId = globalObjectId++; // RTW 12/05/20 - is this right?
+    m_ObjectId = globalObjectId++; 
     
     m_0 = v[0];
     m_1 = v[1];
@@ -128,8 +128,7 @@ std::ostream &operator <<(std::ostream &os, Vector3d const vec) {
  * Calculate the magnitude of a velocity vector, the speed.
  * 
  *
- * @param   [IN]   velocity                      Velocity vector in 3d
- * @return                                      The associated speed
+ * @return                                       The magnitude of the velocity vector (speed)
  */
 double Vector3d::Magnitude() {
 
@@ -139,6 +138,13 @@ double Vector3d::Magnitude() {
     return sqrt(speed2);
 }
 
+
+/*
+ * Convert the Vector3d to a DBL_VECTOR
+ * 
+ *
+ * @return                                       The analogous DBL_VECTOR
+ */
 DBL_VECTOR Vector3d::asDBL_VECTOR() {
 
     Vector3d v = (*this);
@@ -227,7 +233,7 @@ Vector3d Vector3d::RotateVector(const double p_ThetaE, const double p_PhiE, cons
 namespace linalg {
 
     /*
-     * Calculate the standard dot product of 2 vectors
+     * Calculate the standard dot product of two vectors
      *
      *
      * @param   [IN]   a                            first vector
@@ -247,7 +253,7 @@ namespace linalg {
     
     
     /*
-     * Calculate the standard cross product of 2 vectors
+     * Calculate the standard cross product of two vectors
      *
      *
      * @param   [IN]   a                            first vector
@@ -265,6 +271,14 @@ namespace linalg {
         return c;
     }
 
+    /*
+     * Calculate the angle between two vectors.
+     *
+     *
+     * @param   [IN]   a                            first vector
+     * @param   [IN]   b                            second vector
+     * @return                                      angle between them, in radians
+     */
     double angleBetween(const Vector3d& a, const Vector3d& b) {
         // Angle between 2 vectors, between [0, 2pi] 
         return acos(linalg::dot(a,b));
