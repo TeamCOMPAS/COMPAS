@@ -1517,6 +1517,13 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
     if (OPTIONS->RemnantMassPrescription() == REMNANT_MASS_PRESCRIPTION::MULLER2016) {
         stellarType = CalculateRemnantTypeByMuller2016(m_COCoreMass);
     }
+    else if (OPTIONS->RemnantMassPrescription() == REMNANT_MASS_PRESCRIPTION::MULLERMANDEL) {
+	if(utils::Compare(m_Mass, MULLERMANDEL_MAXNS ) > 0) 
+		stellarType = STELLAR_TYPE::BLACK_HOLE; 
+        else
+		stellarType = STELLAR_TYPE::NEUTRON_STAR;
+    }	
+
     else if (utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass()) > 0) {
         std::tie(m_Luminosity, m_Radius, m_Temperature) = BH::CalculateCoreCollapseSNParams_Static(m_Mass);
         stellarType = STELLAR_TYPE::BLACK_HOLE;
