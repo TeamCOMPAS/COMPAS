@@ -397,22 +397,10 @@ void BaseBinaryStar::SetRemainingCommonValues() {
 	m_ZetaStarCompare	                         = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // Initialise other parameters to 0
-    // RTW
-    //m_MSN                                        = DEFAULT_INITIAL_DOUBLE_VALUE;
-    //m_MSNPrime                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
-    //m_MC                                         = DEFAULT_INITIAL_DOUBLE_VALUE;
-    //m_MCPrime                                    = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-    //m_VRel                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_uK                                         = DEFAULT_INITIAL_DOUBLE_VALUE;
-    // RTW
-    //m_CurrentSeparation                          = DEFAULT_INITIAL_DOUBLE_VALUE;
-    //m_EPrime                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_CosIPrime                                  = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_IPrime                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_TimeToCoalescence                          = DEFAULT_INITIAL_DOUBLE_VALUE;
-    // RTW
-    //m_Beta                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_SupernovaState                             = SN_STATE::NONE;
 
@@ -420,7 +408,6 @@ void BaseBinaryStar::SetRemainingCommonValues() {
     m_MergesInHubbleTime                         = false;
     m_Unbound                                    = false;
 
-	// RTW 11/05/20 - Can I create a default initial velocity vector?
     m_SystemicVelocity                           = Vector3d();
 	m_SystemicSpeed                              = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_ThetaE                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -1377,6 +1364,8 @@ void BaseBinaryStar::ResolveCoalescence() {
     // define DCO formation to be now
     m_SemiMajorAxisAtDCOFormation = m_SemiMajorAxisPrime;
     m_EccentricityAtDCOFormation  = m_EccentricityPrime;
+    std::cout << "m_EccentricityAtDCOFormation " << m_EccentricityAtDCOFormation << std::endl;
+    std::cout << "m_SemiMajorAxisAtDCOFormation " << m_SemiMajorAxisAtDCOFormation << std::endl;
     // RTW - fix these
 
     double tC           = CalculateTimeToCoalescence(m_SemiMajorAxisPrime * AU, m_EccentricityPrime, m_Star1->Mass() * MSOL, m_Star2->Mass() * MSOL);
@@ -1641,23 +1630,21 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
         
     // RTW testing
     std::cout << std::endl;
-    std::cout << "m_Eccentricity" << m_Eccentricity << std::endl;
-    std::cout << "m_EccentricityPrev" << m_EccentricityPrev << std::endl;
-    std::cout << "m_EccentricityPrime" << m_EccentricityPrime << std::endl;
-    std::cout << "m_EccentricityPreSN" << m_EccentricityPreSN << std::endl;
-    std::cout << "m_EccentricityPostSN" << m_EccentricityPostSN << std::endl;
-    std::cout << "m_EccentricityInitial" << m_EccentricityInitial << std::endl;
-    std::cout << "m_EccentricityAtDCOFormation" << m_EccentricityAtDCOFormation << std::endl;
+    std::cout << "m_Eccentricity " << m_Eccentricity << std::endl;
+    std::cout << "m_EccentricityInitial " << m_EccentricityInitial << std::endl;
+    std::cout << "m_EccentricityPrev " << m_EccentricityPrev << std::endl;
+    std::cout << "m_EccentricityPrime " << m_EccentricityPrime << std::endl;
+    std::cout << "m_EccentricityPreSN " << m_EccentricityPreSN << std::endl;
+    std::cout << "m_EccentricityPostSN " << m_EccentricityPostSN << std::endl;
 
     std::cout << std::endl;
 
-    std::cout << "m_SemiMajorAxis" << m_SemiMajorAxis << std::endl;
-    std::cout << "m_SemiMajorAxisPrev" << m_SemiMajorAxisPrev << std::endl;
-    std::cout << "m_SemiMajorAxisPrime" << m_SemiMajorAxisPrime << std::endl;
-    std::cout << "m_SemiMajorAxisPreSN" << m_SemiMajorAxisPreSN << std::endl;
-    std::cout << "m_SemiMajorAxisPostSN" << m_SemiMajorAxisPostSN << std::endl;
-    std::cout << "m_SemiMajorAxisInitial" << m_SemiMajorAxisInitial << std::endl;
-    std::cout << "m_SemiMajorAxisAtDCOFormation" << m_SemiMajorAxisAtDCOFormation << std::endl;
+    std::cout << "m_SemiMajorAxis " << m_SemiMajorAxis << std::endl;
+    std::cout << "m_SemiMajorAxisInitial " << m_SemiMajorAxisInitial << std::endl;
+    std::cout << "m_SemiMajorAxisPrev " << m_SemiMajorAxisPrev << std::endl;
+    std::cout << "m_SemiMajorAxisPrime " << m_SemiMajorAxisPrime << std::endl;
+    std::cout << "m_SemiMajorAxisPreSN " << m_SemiMajorAxisPreSN << std::endl;
+    std::cout << "m_SemiMajorAxisPostSN " << m_SemiMajorAxisPostSN << std::endl;
     std::cout << std::endl;
 
     // RTW - drop the DCO formation params? probably easier that way
@@ -1688,7 +1675,7 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
         m_Supernova->UpdateComponentVelocity( natalKickVector.RotateVector(m_ThetaE, m_PhiE, m_PsiE));    // yes - only need to update the velocity of the star undergoing SN
 
         // The quantities below are mostly meaningless, but are arbitrarily defined for later calculations
-        m_OrbitalVelocityPreSN = -1.0; 
+        m_OrbitalVelocityPreSN = -nan("");
 
         //m_EccentricityAtDCOFormation
         m_EccentricityPostSN = m_EccentricityPrime;                     // --   - Eccentricity PostSN
@@ -1747,8 +1734,8 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
 
         Vector3d E = cross(V, H)/(G*mb) - R/r;                           // --        - Laplace-Runge-Lenz vector (magnitude = eccentricity)
 
-        // Set the Pre-SN orbital velocity
-        m_OrbitalVelocityPreSN = v;
+        m_OrbitalVelocityPreSN = v;                                      // km/s      - Set the Pre-SN orbital velocity and 
+        m_uK = m_Supernova->SN_KickVelocity() / m_OrbitalVelocityPreSN;  // --        - Dimensionless kick magnitude
 
         ////////////////////////////////
         // Note: In the following,
@@ -1796,7 +1783,13 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
         ////////////////////////////////
          
 
-        UpdateSystemicVelocity( Vcm_.RotateVector(m_ThetaE, m_PhiE, m_PsiE) );          // Update the system velocity with the new center of mass velocity
+        // RTW delete later
+        Vector3d vcmtemp =  Vcm_.RotateVector(m_ThetaE, m_PhiE, m_PsiE) ;
+
+            std::cout << "vcm     = " << Vcm_ << std::endl;
+            std::cout << "vcmrot  = " << vcmtemp << std::endl;
+        UpdateSystemicVelocity( vcmtemp );          // Update the system velocity with the new center of mass velocity
+        //UpdateSystemicVelocity( Vcm_.RotateVector(m_ThetaE, m_PhiE, m_PsiE) );          // Update the system velocity with the new center of mass velocity
 
         
         // Sanity checks 
@@ -1916,7 +1909,39 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
         m_SemiMajorAxisPostSN = a_ * KM_TO_AU;              // AU   - Semi-major axis PostSN       
         m_OrbitalVelocityPostSN = v_;                       // km/s - Orbital velocity PostSN
 
-        // Undefine the pre-processor commands // RTW TODO: check that these are on the right level
+        // REINHOLD
+
+        // RTW test all outputs
+
+        std::cout << "  Vk = " << natalKickVector << std::endl;
+        std::cout << "  V =  " << V << std::endl;
+        std::cout << "  V_ = " << V_ << std::endl;
+        std::cout << "  vk = " << m_Supernova->SN_KickVelocity() << std::endl;
+        std::cout << "  v =  " << v << std::endl;
+        std::cout << "  v_ = " << v_ << std::endl;
+        std::cout << "  omega = " << omega << std::endl;
+        std::cout << "  m1 = " << m1 << std::endl;
+        std::cout << "  m2 = " << m2 << std::endl;
+        std::cout << "  dm = " << dm1 << std::endl;
+        std::cout << "  a =  " << a << std::endl;
+        std::cout << "  a_ = " << a_ << std::endl;
+        std::cout << "  R =  " << R << std::endl;
+        std::cout << "  E =  " << E << std::endl;
+        std::cout << "  E_ = " << E_ << std::endl;
+        std::cout << "  e =  " << e << std::endl;
+        std::cout << "  e_ = " << e_ << std::endl;
+        std::cout << "  uK = " << m_uK << std::endl;
+        std::cout << "  H =  " << H << std::endl;
+        std::cout << "  H_ = " << H_ << std::endl;
+        std::cout << "  m_ThetaE = pi*" << m_ThetaE/M_PI << std::endl;
+        std::cout << "  m_PhiE =   pi*" << m_PhiE/M_PI << std::endl;
+        std::cout << "  m_PsiE =   pi*" << m_PsiE/M_PI << std::endl;
+        //std::cout << "  x = " << x << std::endl;
+
+
+
+
+        // Undefine the pre-processor commands 
         #undef cross
         #undef dot
         #undef angleBetween
@@ -2064,7 +2089,7 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
 //	//                       SHOULD BE BACK TO NICE UNITS NOW                        //
 //	///////////////////////////////////////////////////////////////////////////////////
 //
-//    m_Supernova->SetPreSNeOrbitalEnergy(CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxisPrime));                      // pre-SN orbital energy - should be -ve by construction
+//    m_Supernova->SetOrbitalEnergyPreSN(CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxisPrime));                      // pre-SN orbital energy - should be -ve by construction
 //
 //	// seemed to be getting into this loop occasionally with E > 0 but E ~ 0 (1e-37 for example) -- what's going on?
 //    // JR: todo: remove this if we're not seeing the problem...
