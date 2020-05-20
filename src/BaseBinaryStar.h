@@ -51,9 +51,6 @@ public:
         m_BeBinaryDetails.currentProps     = p_Star.m_BeBinaryDetails.currentProps  == &(p_Star.m_BeBinaryDetails.props1) ? &(m_BeBinaryDetails.props1) : &(m_BeBinaryDetails.props2);
         m_BeBinaryDetails.previousProps    = p_Star.m_BeBinaryDetails.previousProps == &(p_Star.m_BeBinaryDetails.props1) ? &(m_BeBinaryDetails.props1) : &(m_BeBinaryDetails.props2);
 
-        // RTW
-        //m_Beta                             = p_Star.m_Beta;
-
         m_CircularizationTimescale         = p_Star.m_CircularizationTimescale;
 
         m_CEDetails                        = p_Star.m_CEDetails;
@@ -107,25 +104,14 @@ public:
         m_TotalMassPrev                    = p_Star.m_TotalMassPrev;
         m_TotalMassPrime                   = p_Star.m_TotalMassPrime;
 
-        // RTW
-        //m_MC                               = p_Star.m_MC;
-        //m_MCPrime                          = p_Star.m_MCPrime;
-
         m_Merged                           = p_Star.m_Merged;
         m_MergesInHubbleTime               = p_Star.m_MergesInHubbleTime;
-
-        // RTW
-        //m_MSN                              = p_Star.m_MSN;
-        //m_MSNPrime                         = p_Star.m_MSNPrime;
 
         m_OrbitalVelocity                  = p_Star.m_OrbitalVelocity;
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
         m_OrbitalVelocityPostSN            = p_Star.m_OrbitalVelocityPostSN;
         m_OrbitalVelocityPrev              = p_Star.m_OrbitalVelocityPrev;
         m_OrbitalVelocityPrime             = p_Star.m_OrbitalVelocityPrime;
-
-        // RTW
-        //m_CurrentSeparation                = p_Star.m_CurrentSeparation;
 
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
 
@@ -146,11 +132,12 @@ public:
 
         m_SynchronizationTimescale         = p_Star.m_SynchronizationTimescale;
 
-		// RTW!!
         m_SystemicVelocity                 = p_Star.m_SystemicVelocity;
 		m_SystemicSpeed                    = p_Star.m_SystemicSpeed;
 
-        // RTW - add in Euler angles here
+        m_ThetaE                           = p_Star.m_ThetaE;
+        m_PhiE                             = p_Star.m_PhiE;  
+        m_PsiE                             = p_Star.m_PsiE;  
 
         m_Time                             = p_Star.m_Time;
         m_TimePrev                         = p_Star.m_TimePrev;
@@ -169,8 +156,6 @@ public:
         m_TotalOrbitalEnergyPrime          = p_Star.m_TotalOrbitalEnergyPrime;
 
         m_uK                               = p_Star.m_uK;
-
-        //m_VRel                             = p_Star.m_VRel;
 
         m_WolfRayetFactor                  = p_Star.m_WolfRayetFactor;
 
@@ -312,7 +297,6 @@ public:
     STELLAR_TYPE        StellarType2PreCEE() const                  { return m_Star2->StellarTypePreCEE(); }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
     double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
-	// RTW!
     double              SystemicSpeed() const                       { return m_SystemicSpeed; }
     double              Time() const                                { return m_Time; }
     double              TimeToCoalescence() const                   { return m_TimeToCoalescence; }
@@ -353,9 +337,6 @@ private:
     AIS                 m_AIS;
 
     BeBinaryDetailsT    m_BeBinaryDetails;                                                  // BeBinary details
-
-    // RTW
-    //double              m_Beta;                                                             // Angle between r and v, related to eccentricity (= pi/2 for circular e = 0)
 
     BinaryCEDetailsT    m_CEDetails;                                                        // Common Event details
 
@@ -410,25 +391,14 @@ private:
     double              m_TotalMassPrev;
     double              m_TotalMassPrime;
 
-    // RTW
-    //double              m_MC;
-    //double              m_MCPrime;
-
     bool                m_Merged;                                                           // Indicates if the stars merged
     bool                m_MergesInHubbleTime;                                               // Indicates if the stars merge in Hubble Time
-
-    // RTW
-    //double              m_MSN;
-    //double              m_MSNPrime;
 
     double              m_OrbitalVelocity;
     double              m_OrbitalVelocityPreSN;
     double              m_OrbitalVelocityPostSN;
     double              m_OrbitalVelocityPrev;
     double              m_OrbitalVelocityPrime;
-
-    // RTW
-    //double              m_CurrentSeparation;
 
     BinaryRLOFDetailsT  m_RLOFDetails;                                                      // RLOF details
 
@@ -448,7 +418,6 @@ private:
 
     double              m_SynchronizationTimescale;
 
-    // Systemic speed and velocity, related Euler angles between pre- and post-SN orbital planes 
     Vector3d             m_SystemicVelocity;                                                // Systemic velocity vector, relative to ZAMS Center of Mass
     double               m_SystemicSpeed;                                                   // Systemic speed, magnitude of velocity vector
     double               m_ThetaE;                                                          // Euler Theta
@@ -472,9 +441,6 @@ private:
     double               m_TotalOrbitalEnergyPrime;
 
     double               m_uK;
-
-    // RTW
-    //double               m_VRel;
 
     double               m_WolfRayetFactor;
 
@@ -529,11 +495,7 @@ private:
 
     double  CalculateAngularMomentumPrime()                                 { return CalculateAngularMomentum(m_SemiMajorAxisPrime, m_EccentricityPrime, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
 
-    //double CalculateAverageOrbitalVelocity(const 
     double  CalculateCDFKroupa(const double p_Mass);
-
-    // RTW 09/05/20 - do we want this?
-    //double  CalculateCosFinalPlaneTilt(const double p_KickTheta, const double p_KickPhi);
 
     void    CalculateEnergyAndAngularMomentum();
 
@@ -552,36 +514,13 @@ private:
                                             const double p_Mass,
                                             const double p_SemiMajorAxis)   { return p_Mu * sqrt(G1 * p_Mass * p_SemiMajorAxis); }
 
-    // RTW
-    //double  CalculateOrbitalEccentricityPostSupernova(const double p_KickVelocity,
-    //                                                  const double p_TotalMassPreSN,
-    //                                                  const double p_TotalMassPostSN,
-    //                                                  const double p_KickTheta,
-    //                                                  const double p_KickPhi);
-
     double  CalculateOrbitalEnergy(const double p_Mu,
                                    const double p_Mass,
                                    const double p_SemiMajorAxis)            { return -(G1 * p_Mu * p_Mass) / (2.0 * p_SemiMajorAxis); }
 
-	// RTW!
-    //double  CalculatePostSNSystemicVelocity(const double p_SNMass,
-    //                                        const double p_SNDeltaMass,
-    //                                        const double p_CompanionMvass,
-    //                                        const double p_TotalMassPreSN,
-    //                                        const double p_TotalMassPostSN,
-    //                                        const double p_KickTheta,
-    //                                        const double p_KickPhi);
-
     double  CalculateAdaptiveRocheLobeOverFlow(const double p_JLoss);
     double  CalculateNumericalZRocheLobe(const double p_jLoss);
     double  CalculateZRocheLobe(const double p_jLoss);
-
-    // RTW!
-    //double  CalculateSemiMajorAxisPostSupernova(const double p_KickVelocity,
-    //                                            const double p_TotalMassPreSN,
-    //                                            const double p_TotalMassPostSN,
-    //                                            const double p_KickTheta,
-    //                                            const double p_KickPhi);
 
     double  CalculateDt(const double p_Dt, const Star* const p_Primary, const Star* const p_Secondary);
     double  CalculateTimestep(const double p_Dt);
@@ -645,7 +584,6 @@ private:
 
     void    StashBeBinaryProperties();
 
-		// RTW
     void    UpdateSystemicVelocity(Vector3d p_newVelocity); 
 
     // printing functions

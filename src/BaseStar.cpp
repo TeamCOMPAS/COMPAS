@@ -138,7 +138,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
     m_EnvMass                                  = CalculateInitialEnvelopeMass_Static(m_Mass);
-	// RTW 11/05/20 - Can I create a default initial velocity vector?
 	m_ComponentVelocity						   = Vector3d();
 	m_ComponentSpeed						   = DEFAULT_INITIAL_DOUBLE_VALUE;
 
@@ -3106,8 +3105,6 @@ DBL_DBL BaseStar::DrawKickDirection() {
  */
 DBL_DBL BaseStar::SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity) {
 
-		// RTW 08/05/20 - why is this here? Should be in BinaryConstituentStar, no?
-
     double e = p_Eccentricity;
     double M = p_MeanAnomaly;
     double E = p_MeanAnomaly;                                                                                                       // inital guess at E is M - correct for e = 0
@@ -3143,33 +3140,20 @@ DBL_DBL BaseStar::SolveKeplersEquation(const double p_MeanAnomaly, const double 
  * @param   [IN]    p_Eccentricity              Eccentricity of the binary
  */
 void BaseStar::CalculateSNAnomalies(const double p_Eccentricity) {
-		// RTW 08/05/20 - why is this here? Should be in BaseBinaryStar no? There's no eccen for a single star...
     std::tie(m_SupernovaDetails.eccentricAnomaly, m_SupernovaDetails.trueAnomaly) = SolveKeplersEquation(m_SupernovaDetails.meanAnomaly, p_Eccentricity);
 }
 
-// RTW 13/05/20 - Get rid of this?
-//void UpdateComponentVelocity(DBL_VECTOR p_newVelocity, double p_ThetaE, double p_PhiE, double p_PsiE) {
-//    // RTW 11/05/20 - TODO Add in a description of this function
-//
-//    // If the current speed is 0, simply set the current velocity to the new velocity
-//
-//	if (utils::Compare(m_ComponentSpeed, 0.0) <= 0) {                                           // Is the current speed = 0?
-//        m_ComponentVelocity = p_newVelocity;                                                    // yes - set to the new velocity
-//    }
-//    else {                                                                                      // no - need to rotate new velocity into old frame
-//        m_ComponentVelocity += utils::RotateVector(p_newVelocity, p_ThetaE, p_PhiE, p_PsiE)
-//    }
-//
-//    // Set the speed as well
-//    m_ComponentSpeed = utils::CalculateSpeedFromVelocity(m_ComponentVelocity);                  // Calculate component speed from new velocity
-//}
 
-
-//void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity) {
+/*
+ * Update the current velocity vector of the star, adding to a previous one if it exists.
+ *
+ *
+ * void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity)
+ *
+ * @param   [IN]    p_newVelocity               The new velocity vector 
+ */
 void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity) {
-    
-    // RTW 11/05/20 - TODO Add in a description of this function
-    m_ComponentVelocity += p_newVelocity;                                                    // yes - set to the new velocity
+    m_ComponentVelocity += p_newVelocity;                        // Add new velocity to previous velocity 
     m_ComponentSpeed     = m_ComponentVelocity.Magnitude();      // Calculate component speed from new velocity
 }
 
@@ -3435,7 +3419,7 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
     UpdateAttributesAndAgeOneTimestepPreamble(p_DeltaMass, p_DeltaMass0, p_DeltaTime);      // apply mass changes and save current values if required
 
     if (ShouldBeMasslessRemnant()) {                                                        // ALEJANDRO - 02/12/2016 - Attempt to fix updating the star if it lost all of its mass
-        stellarType = STELLAR_TYPE::MASSLESS_REMNANT;                                       // JR: should also pik up already massless remnant
+        stellarType = STELLAR_TYPE::MASSLESS_REMNANT;                                       // JR: should also pick up already massless remnant
     }
     else {
         stellarType = ResolveSupernova();                                                   // handle supernova     JR: moved this to start of timestep

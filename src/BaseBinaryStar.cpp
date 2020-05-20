@@ -1364,9 +1364,6 @@ void BaseBinaryStar::ResolveCoalescence() {
     // define DCO formation to be now
     m_SemiMajorAxisAtDCOFormation = m_SemiMajorAxisPrime;
     m_EccentricityAtDCOFormation  = m_EccentricityPrime;
-    std::cout << "m_EccentricityAtDCOFormation " << m_EccentricityAtDCOFormation << std::endl;
-    std::cout << "m_SemiMajorAxisAtDCOFormation " << m_SemiMajorAxisAtDCOFormation << std::endl;
-    // RTW - fix these
 
     double tC           = CalculateTimeToCoalescence(m_SemiMajorAxisPrime * AU, m_EccentricityPrime, m_Star1->Mass() * MSOL, m_Star2->Mass() * MSOL);
     m_TimeToCoalescence = (tC / SECONDS_IN_YEAR) * YEAR_TO_MYR;                                                                                 // coalescence time in Myrs
@@ -1392,188 +1389,46 @@ void BaseBinaryStar::ResolveCoalescence() {
 }
 
 
-///*
-// * Calculate the systemic velocity (centre-of-mass velocity) of the binary after the supernova
-// *
-// * Brandt & Podsiadlowski 1995 https://arxiv.org/pdf/astro-ph/9412023.pdf, eq Equation 2.10, or
-// * Hurley et al 2002 https://arxiv.org/pdf/astro-ph/0201220.pdf, eq A.14
-// *
-// *
-// * double CalculatePostSNSystemicVelocity(const double p_SNMass,
-// *                                        const double p_SNDeltaMass,
-// *                                        const double p_CompanionMass,
-// *                                        const double p_TotalMassPreSN,
-// *                                        const double p_TotalMassPostSN,
-// *                                        const double p_KickTheta,
-// *                                        const double p_KickPhi)
-// *
-// * @param   [IN]    p_SNMass                    Mass of the supernoa
-// * @param   [IN]    p_SNDeltaMass               Change in mass of the supernova from last timestep
-// * @param   [IN]    p_CompanionMass             Mass of the companion
-// * @param   [IN]    p_TotalMassPreSN            Total mass of binary before supernova event
-// * @param   [IN]    p_TotalMassPostSN           Total mass of binary after supernova event
-// * @param   [IN]    p_KickTheta                 Kick direction angle out of the plane
-// * @param   [IN]    p_KickPhi                   Kick direction angle in the plane
-// * @return                                      Post supernova systemic velocity
-// */
-///* RTW 14/05/20 - lose this?
-//double BaseBinaryStar::CalculatePostSNSystemicVelocity(const double p_SNMass,
-//                                                       const double p_SNDeltaMass,
-//                                                       const double p_CompanionMass,
-//                                                       const double p_TotalMassPreSN,
-//                                                       const double p_TotalMassPostSN,
-//                                                       const double p_KickTheta,
-//                                                       const double p_KickPhi) {
-//    // calculate these once for later use
-//    double cosPhi    = cos(p_KickPhi);
-//    double term1_1   = p_SNDeltaMass * p_CompanionMass / p_TotalMassPreSN;
-//    double term3_4_1 = p_SNMass * term1_1;
-//
-//    // calculate the systemic velocity
-//    double term1     = term1_1 * term1_1;
-//    double term2     = p_SNMass * p_SNMass * m_uK * m_uK;
-//    double term3     = 2.0 * term3_4_1 * m_uK * sin(p_KickTheta) * cosPhi * cos(m_Beta);
-//    double term4     = 2.0 * term3_4_1 * m_uK * cos(p_KickTheta) * cosPhi * sin(m_Beta);
-//
-//    return (m_VRel / p_TotalMassPostSN) * sqrt(term1 + term2 + term3 + term4);
-//}
-//*/
-//
-//
-///*
-// * Calculate cos(i), where i = the tilt between the pre and post SN orbital planes (as defined by the angular momentum)
-// * Eq (40) in post-SN orbital characteristics 2 notes (Alejandro's?  JR: todo: get proper reference)
-// *
-// *
-// * double CalculateCosFinalPlaneTilt(const double p_KickTheta, const double p_KickPhi)
-// *
-// * @param   [IN]    p_KickTheta                 Kick direction angle out of the plane
-// * @param   [IN]    p_KickPhi                   Kick direction angle in the plane
-// * @return                                      cos(i)
-// */
-///* RTW 14/05/20 - lose this? 
-//double BaseBinaryStar::CalculateCosFinalPlaneTilt(const double p_KickTheta, const double p_KickPhi) {
-//
-//    // calculate these once for use later
-//    double sinTheta                = sin(p_KickTheta);
-//    double cosTheta                = cos(p_KickTheta);
-//    double sinPhi                  = sin(p_KickPhi);
-//    double cosPhi                  = cos(p_KickPhi);
-//    double sinBeta                 = sin(m_Beta);
-//    double cosBeta                 = cos(m_Beta);
-//    double ukCosThetaCosPhiPlus1   = m_uK * cosTheta * cosPhi + 1.0;
-//    double ukCosThetaSinPhiCosBeta = m_uK * cosTheta * sinPhi * cosBeta;
-//
-//    // calculate cos(tilt)
-//    double top    = (sinBeta  * ukCosThetaCosPhiPlus1) - ukCosThetaSinPhiCosBeta;
-//    double bottom = sqrt(
-//                        (m_uK * m_uK * sinTheta * sinTheta) +
-//                        (ukCosThetaSinPhiCosBeta * ukCosThetaSinPhiCosBeta) +
-//                        (sinBeta * sinBeta * ukCosThetaCosPhiPlus1 * ukCosThetaCosPhiPlus1) -
-//                        (2.0 * cosTheta * sinPhi * cosBeta * sinBeta * ukCosThetaCosPhiPlus1)
-//                    );
-//
-//    return top / bottom;
-//}
-//*/
-//
-//
-///*
-// * Calculate the post-supernova orbital eccentricity
-// *
-// * Post-SN orbital characteristics 2 notes, eq 31  (Alejandro's?  JR: todo: get proper reference)
-// *
-// * Simplifies to Brandt & Podsiadlowski 1995 (http://arxiv.org/abs/astro-ph/9412023), eq 2.8 when e = 0, beta = pi/2
-// * Also given in Hurley et al 2002 (http://arxiv.org/pdf/astro-ph/0201220v1.pdf), eq A.12
-// *
-// *
-// * double CalculateOrbitalEccentricityPostSupernova(const double p_KickVelocity,
-// *                                                  const double p_TotalMassPreSN,
-// *                                                  const double p_TotalMassPostSN,
-// *                                                  const double p_KickTheta,
-// *                                                  const double p_KickPhi)
-// *
-// * @param   [IN]    p_KickVelocity              Dimensionless kick velocity vk/vrel
-// * @param   [IN]    p_TotalMassPreSN            Total mass of binary before supernova event
-// * @param   [IN]    p_TotalMassPostSN           Total mass of binary after supernova event
-// * @param   [IN]    p_KickTheta                 Kick direction angle out of the plane
-// * @param   [IN]    p_KickPhi                   Kick direction angle in the plane
-// * @return                                      Orbital eccentricity after a supernova
-// */
-///* RTW 14/05/20 - lose this?
-//double BaseBinaryStar::CalculateOrbitalEccentricityPostSupernova(const double p_KickVelocity,
-//                                                                 const double p_TotalMassPreSN,
-//                                                                 const double p_TotalMassPostSN,
-//                                                                 const double p_KickTheta,
-//                                                                 const double p_KickPhi) {
-//    // calculate these once for use later
-//    double mOverMprime           = p_TotalMassPreSN / p_TotalMassPostSN;
-//    double uk_2                  = p_KickVelocity * p_KickVelocity;
-//    double _2_r_Minus_1_a        = (2.0 / m_CurrentSeparation) - (1.0 / m_SemiMajorAxisPrime);
-//    double sinTheta              = sin(p_KickTheta);
-//    double cosTheta              = cos(p_KickTheta);
-//    double sinPhi                = sin(p_KickPhi);
-//    double cosPhi                = cos(p_KickPhi);
-//    double sinBeta               = sin(m_Beta);
-//    double cosBeta               = cos(m_Beta);
-//    double ukCosTheta            = p_KickVelocity * cosTheta;
-//    double ukCosThetaCosPhi      = p_KickVelocity * cosTheta * cosPhi;
-//    double ukCosThetaCosPhiPlus1 = ukCosThetaCosPhi + 1.0;
-//
-//    // calculate orbital eccentricity
-//    double quadraticTerm         = 1.0 + (2.0 * ukCosThetaCosPhi) + uk_2;
-//    double firstSquareBrackets   = (uk_2 * sinTheta * sinTheta) + (((ukCosTheta * sinPhi * cosBeta) - (sinBeta * ukCosThetaCosPhiPlus1)) * ((ukCosTheta * sinPhi * cosBeta) - (sinBeta * ukCosThetaCosPhiPlus1)));
-//    double secondSquareBrackets  = (2.0 / m_CurrentSeparation) - (mOverMprime * _2_r_Minus_1_a * quadraticTerm);
-//    double oneMinusESquared      = m_CurrentSeparation * m_CurrentSeparation * mOverMprime * _2_r_Minus_1_a * firstSquareBrackets * secondSquareBrackets;
-//    double eSquared              = 1.0 - oneMinusESquared;
-//
-//    if(eSquared < 1E-8) eSquared = 0.0;     // Deal with small number rounding problems - don't use utils::Compare() here      JR: todo: this should be fixed
-//
-//    return sqrt(eSquared);
-//}
-//*/
-//
-//
-///*
-// * Calculate the post-supernova semi-major axis
-// *
-// * Post-SN orbital characteristics 2 document, eq 22        JR: todo get reference to document
-// *
-// *
-// * double CalculateSemiMajorAxisPostSupernova(const double p_KickVelocity,
-// *                                            const double p_TotalMassPreSN,
-// *                                            const double p_TotalMassPostSN,
-// *                                            const double p_KickTheta,
-// *                                            const double p_KickPhi)
-// *
-// * @param   [IN]    p_KickVelocity              Dimensionless kick velocity vk/vrel
-// * @param   [IN]    p_TotalMassPreSN            Total mass of binary before supernova event
-// * @param   [IN]    p_TotalMassPostSN           Total mass of binary after supernova event
-// * @param   [IN]    p_KickTheta                 Kick direction angle out of the plane
-// * @param   [IN]    p_KickPhi                   Kick direction angle in the plane
-// * @return                                      Semi major axis of the orbit after the supernova
-// */
-///* RTW 14/05/20 - lose this?
-//double BaseBinaryStar::CalculateSemiMajorAxisPostSupernova(const double p_KickVelocity,
-//                                                           const double p_TotalMassPreSN,
-//                                                           const double p_TotalMassPostSN,
-//                                                           const double p_KickTheta,
-//                                                           const double p_KickPhi) {
-//
-//    double r_2           = 2.0 / m_CurrentSeparation;
-//    double quadraticTerm = 1.0 + (2.0 * p_KickVelocity * cos(p_KickTheta) * cos(p_KickPhi)) + (p_KickVelocity * p_KickVelocity);
-//
-//    return 1.0 / (r_2 - ((p_TotalMassPreSN / p_TotalMassPostSN) * (r_2 - (1.0 / m_SemiMajorAxisPrime)) * quadraticTerm));
-//}
-//*/
-
-
 /*
  * Resolves supernova event - one of the stars has gone supernova!
  *
- * Assign a random supernova kick according to the user specified options and then update the orbit
+ * Assign a random supernova kick according to the user specified options and then update the orbit and velocities.
+ * Vector algebra is directly based on Pfahl, Rappaport, Podsiadlowski 2002, Appendix B:
+ * https://arxiv.org/abs/astro-ph/0106141 
+ * The change of reference basis angles, ThetaE, PhiE, and PsiE, are the standard Euler angles (see vector3d.h)
  *
- * JR: todo: flesh-out this documentation
+ * Note: the systemic speed is only valid for intact binaries, and component speeds are only valid for disrupted binaries.
+ * 
+ *  /////////////////////////////////
+ *  // Logic
+ *  // 
+ *  // If (Unbound before SN):
+ *  //
+ *  //         Must be 2nd SN, only need to update starSN component velocity (rotated into previous reference frame).
+ *  //
+ *  // Else: (Intact before SN)
+ *  //
+ *  //        Evolve binary according to vector algebra to determine centerofmass velocity, h', e', a', and whether bound or unbound.
+ *  //
+ *  //        Update binary systemic velocity (even if disrupted, just for consistency) - rotate into previous reference frame if needed.
+ *  // 
+ *  //        If now unbound:
+ *  //
+ *  //                Set m_Unbound to True - should be the only place in the code this is done.
+ *  //
+ *  //                Continue vector algebra to find v1inf and v2inf.
+ *  //                Add these values to previous component velocities (rotated if need be) which will be the systemic velocity if this is the 2nd SN. 
+ *  //
+ *  //                For unbound binary, new Euler Angles should be randomized.
+ *  //
+ *  //        If still intact:
+ *  //
+ *  //                Binary systemic velocity has already been set, so just set the component velocities to the same vector.
+ *  //                (this is to make it easier to add just a component velocity later).
+ *  //
+ *  //                For intact binary, Euler Angles must be calculated according to the vector algebra (see vector3d.h).
+ *  //
+ *  /////////////////////////////////////////////////////////////////////////////
  *
  *
  * bool ResolveSupernovaInBinary()
@@ -1582,102 +1437,36 @@ void BaseBinaryStar::ResolveCoalescence() {
  */
 bool BaseBinaryStar::ResolveSupernovaInBinary() {
 
-    // Masses should already be correct, mass before SN given by star.m_MassPrev
-    // Generate true anomaly - (for e=0, should be a flat distribution) - updates Eccentric anomaly and True anomaly automatically
-    // ALEJANDRO - 09/05/2018 - If statement to avoid solving Kepler's equation for an unbound orbit; it may be of interest to have SN of unbound stars in the supernovae.txt file.
-    
-    /////////////////////////////////
-    // Logic
-    // 
-    // If (Unbound before SN):
-    //         // 2nd SN, only need to update 1 component (random angles)
-    //         StarSN->UpdateComponentVelocity( R(vKick)) // adds to previous
-    //
-    // Else:  (Intact before SN)
-    //
-    //        //Run PRP evolver do determine centerofmass velocity, h', e' (and also a', and see if epsilon is used anywhere) and whether bound or unbound
-    //
-    //        Binary->UpdateSystemicVelocity( R(vCOM)) // adds to previous
-    // 
-    //        If now unbound:
-    //                m_Unbound = True; // Only set this here!
-    //
-    //                // Continue PRP to find v1inf and v2inf
-    //                StarSN->UpdateComponentVelocity( R(v1inf))   // Adds to previous systemic, which is what the component is set to
-    //                StarCP->UpdateComponentVelocity( R(v2inf))   // Adds to previous systemic, which is what the component is set to
-    //
-    //                Euler_Angles = Random()
-    //
-    //        If still intact:
-    //
-    //                StarSN->UpdateComponentVelocity( R(vCOM))   // Adds to previous systemic, which is what the component is set to
-    //                StarCP->UpdateComponentVelocity( R(vCOM))   // Adds to previous systemic, which is what the component is set to
-    //
-    //                Euler_Angles = specified()
-    //
-    //        // And the values only have meaning in given contexts, so sys applies for intact, comp applies for disrupted
-    //
-    /////////////////////////////////////////////////////////////////////////////
 
-    if (!m_Supernova->IsSNevent()) return false;                                                                          // not a supernova event - bail out (or bale out depending whence you hail...) passively
-    // RTW 15/05/20 - TODO: Safety check - double check this later
+    if (!m_Supernova->IsSNevent()) {
+        // RTW 15/05/20 - TODO: Make this throw an error, not std::cout
+        std::cout << "ResolveSupernovaInBinary function is called, but there is no supernova event ... ?" << std::endl;
+        return false;                                                                         // not a supernova event - bail out 
+    }
 
     // Set relevant preSN parameters 
-    m_EccentricityPreSN = m_EccentricityPrev;                                                                             // Eccentricity preSN
-    m_SemiMajorAxisPreSN = m_SemiMajorAxisPrev;                                                                           // Semi-major axis preSN
+    m_EccentricityPreSN = m_EccentricityPrev;                                                 
+    m_SemiMajorAxisPreSN = m_SemiMajorAxisPrev;                                               
 
-    // REINHOLD
-        
-    // RTW testing
-    std::cout << std::endl;
-    std::cout << "m_Eccentricity " << m_Eccentricity << std::endl;
-    std::cout << "m_EccentricityInitial " << m_EccentricityInitial << std::endl;
-    std::cout << "m_EccentricityPrev " << m_EccentricityPrev << std::endl;
-    std::cout << "m_EccentricityPrime " << m_EccentricityPrime << std::endl;
-    std::cout << "m_EccentricityPreSN " << m_EccentricityPreSN << std::endl;
-    std::cout << "m_EccentricityPostSN " << m_EccentricityPostSN << std::endl;
-
-    std::cout << std::endl;
-
-    std::cout << "m_SemiMajorAxis " << m_SemiMajorAxis << std::endl;
-    std::cout << "m_SemiMajorAxisInitial " << m_SemiMajorAxisInitial << std::endl;
-    std::cout << "m_SemiMajorAxisPrev " << m_SemiMajorAxisPrev << std::endl;
-    std::cout << "m_SemiMajorAxisPrime " << m_SemiMajorAxisPrime << std::endl;
-    std::cout << "m_SemiMajorAxisPreSN " << m_SemiMajorAxisPreSN << std::endl;
-    std::cout << "m_SemiMajorAxisPostSN " << m_SemiMajorAxisPostSN << std::endl;
-    std::cout << std::endl;
-
-    // RTW - drop the DCO formation params? probably easier that way
-
-
-
-
-    double totalMassPreSN = m_Supernova->MassPrev() + m_Companion->MassPrev();                                            // Total Mass preSN
-    double reducedMassPreSN = m_Supernova->MassPrev() * m_Companion->MassPrev() / totalMassPreSN;                         // Reduced Mass preSN
+    double totalMassPreSN = m_Supernova->MassPrev() + m_Companion->MassPrev();                                           // Total Mass preSN
+    double reducedMassPreSN = m_Supernova->MassPrev() * m_Companion->MassPrev() / totalMassPreSN;                        // Reduced Mass preSN
     m_Supernova->SetOrbitalEnergyPreSN(CalculateOrbitalEnergy(reducedMassPreSN, totalMassPreSN, m_SemiMajorAxisPreSN));  // Orbital energy preSN
 
     // Define the natal kick vector (see above for precise definitions of the angles)
     double theta = m_Supernova->SN_Theta();         // Angle out of the binary plane
     double phi   = m_Supernova->SN_Phi();           // Angle in the binary plane
-    // Add in functionality for uK
     Vector3d natalKickVector = m_Supernova->SN_KickVelocity() * Vector3d(cos(theta)*cos(phi), 
                                                                          cos(theta)*sin(phi),
                                                                          sin(theta));
-
-    // RTW test velocities and angles
-    std::cout << std::endl; // clear a line
-    std::cout << "  Angles preSN: " << m_ThetaE << ", " << m_PhiE << ", " << m_PsiE << std::endl;
-    std::cout << "  natalKick = " << natalKickVector << std::endl;
 
     // Check if the system is already unbound
     if (IsUnbound()) {                                                                                    // Is system already unbound?
 
         m_Supernova->UpdateComponentVelocity( natalKickVector.RotateVector(m_ThetaE, m_PhiE, m_PsiE));    // yes - only need to update the velocity of the star undergoing SN
 
-        // The quantities below are mostly meaningless, but are arbitrarily defined for later calculations
+        // The quantities below are mostly meaningless 
         m_OrbitalVelocityPreSN = -nan("");
 
-        //m_EccentricityAtDCOFormation
         m_EccentricityPostSN = m_EccentricityPrime;                     // --   - Eccentricity PostSN
         m_SemiMajorAxisPostSN = m_SemiMajorAxisPrime;                   // AU   - Semi-major axis PostSN       
         m_OrbitalVelocityPostSN = m_OrbitalVelocityPreSN;               // km/s - Orbital velocity PostSN
@@ -1685,8 +1474,6 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
 
     }
     else {                                                                                                // no - evaluate orbital changes and calculate velocities
-
-        // RTW TODO add checks that preSN quantities are all in the correct regimes
         
         //////////////////////////////////////////////////////////////////////////////////////////////////
         // 
@@ -1753,9 +1540,9 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
 
         Vector3d dV1 = natalKickVector;                                  // km/s - The supernova natal kick
         Vector3d dV2 = Vector3d(0.0, 0.0, 0.0);                          // km/s - The recoil of the companion due to ablation
-        double m1_ = m_Supernova->Mass();                                // Mo   - SN star post-SN mass
-        double m2_ = m_Companion->Mass();                                // Mo   - CP star post-SN mass
-        double mb_ = m1_ + m2_;                                          // Mo   - Total binary post-SN mass
+        double m1_ = m_Supernova->Mass();                                // Mo   - SN star postSN mass
+        double m2_ = m_Companion->Mass();                                // Mo   - CP star postSN mass
+        double mb_ = m1_ + m2_;                                          // Mo   - Total binary postSN mass
 
         double dm1 = (m1 - m1_);                                         // Mo   - Mass difference of SN star
         double dm2 = (m2 - m2_);                                         // Mo   - Mass difference of CP star
@@ -1773,7 +1560,7 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
         Vector3d E_ = cross(V_, H_)/(G*mb_) - R/r;                       // --         - PostSN Laplace-Runge-Lenz vector
         double   e_ = E_.mag;                                            // --         - PostSN eccentricity
 
-        double a_ = (h_*h_) / (G*mb_ * (1-(e_*e_))) ;                    // km         - Post-SN semi-major axis
+        double a_ = (h_*h_) / (G*mb_ * (1-(e_*e_))) ;                    // km         - PostSN semi-major axis
 
         ////////////////////////////////
         // Note: similar to above,
@@ -1783,29 +1570,10 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
         ////////////////////////////////
          
 
-        // RTW delete later
-        Vector3d vcmtemp =  Vcm_.RotateVector(m_ThetaE, m_PhiE, m_PsiE) ;
+        UpdateSystemicVelocity( Vcm_.RotateVector(m_ThetaE, m_PhiE, m_PsiE) );          // Update the system velocity with the new center of mass velocity
 
-            std::cout << "vcm     = " << Vcm_ << std::endl;
-            std::cout << "vcmrot  = " << vcmtemp << std::endl;
-        UpdateSystemicVelocity( vcmtemp );          // Update the system velocity with the new center of mass velocity
-        //UpdateSystemicVelocity( Vcm_.RotateVector(m_ThetaE, m_PhiE, m_PsiE) );          // Update the system velocity with the new center of mass velocity
 
-        
-        // Sanity checks 
-	    if (!(std::abs(E.mag - e) <= 1e-10)) {                                          // Check that magnitude from LRL is ~= to eccentricity from before 
-            std::cout << "BUG: E.mag != e, need to check the algebra!" << std::endl;
-            std::cout << "  e = " << e << std::endl;
-            std::cout << "  E.mag = " << E.mag << std::endl;
-            std::cout << "  E = " << E << std::endl;
-        }
-
-	    if (!((e_ < 1.0) == (a_ > 0.0))) {                                              // If a_ and e_ do not agree on unboundedness, we have a problem
-            std::cout << "BUG! a_ and e_ do not agree on unboundedness!" << std::endl;
-            std::cout << "e_ = " << e_ << std::endl;
-            std::cout << "a_ = " << a_ << std::endl;
-        }
-
+        /////////////////////////////////////////////////////////////////////////////////////////
         // Split off and evaluate depending on whether the binary is now bound or unbound
 	    if (utils::Compare(e_, 1.0) >= 0) {                                                                     
             
@@ -1847,9 +1615,9 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
             m_Supernova->UpdateComponentVelocity( Vcm_.RotateVector(m_ThetaE, m_PhiE, m_PsiE) );
             m_Companion->UpdateComponentVelocity( Vcm_.RotateVector(m_ThetaE, m_PhiE, m_PsiE) );
 
+            ////////////////////////////////////////////////////////////////////////////////////
             // Calculate Euler angles - see RotateVector() in vector.cpp for details
-            //RTW 15/05/20 - TODO test proper euler angles
-            
+
             m_ThetaE = angleBetween( H/h, H_/h_ );                         // Angle between the angular momentum unit vectors, always well defined
 
             // If N = H x H_ is not well-defined, need to account for degeneracy between eccentricities
@@ -1893,12 +1661,11 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
                 }
             }
 
-            // Note: There is some evidence for evolution of periapsis in mass transfering binaries (see e.g ...)
-            // This should be investigated in more depth, but because we cannot assume that the periapsis does *not* evolve,
-            // We should randomize the angle of periapsis around the new orbital angular momentum, i.e randomize Psi
+            // Note: There is some evidence for evolution of periapsis in mass transfering binaries (see e.g Dosopoulou & Kalogera 2016, 2018). 
+            // This should be investigated in more depth, but until then, we assume that the periapsis *may* evolve, 
+            // and accordingly randomize the angle of periapsis around the new orbital angular momentum, (i.e, Psi)
             // - RTW 15/05/20
             m_PsiE  = _2_PI * RAND->Random();
-            // RTW 17/05/20 - TODO add in these papers
             
         }
 
@@ -1909,38 +1676,6 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
         m_SemiMajorAxisPostSN = a_ * KM_TO_AU;              // AU   - Semi-major axis PostSN       
         m_OrbitalVelocityPostSN = v_;                       // km/s - Orbital velocity PostSN
 
-        // REINHOLD
-
-        // RTW test all outputs
-
-        std::cout << "  Vk = " << natalKickVector << std::endl;
-        std::cout << "  V =  " << V << std::endl;
-        std::cout << "  V_ = " << V_ << std::endl;
-        std::cout << "  vk = " << m_Supernova->SN_KickVelocity() << std::endl;
-        std::cout << "  v =  " << v << std::endl;
-        std::cout << "  v_ = " << v_ << std::endl;
-        std::cout << "  omega = " << omega << std::endl;
-        std::cout << "  m1 = " << m1 << std::endl;
-        std::cout << "  m2 = " << m2 << std::endl;
-        std::cout << "  dm = " << dm1 << std::endl;
-        std::cout << "  a =  " << a << std::endl;
-        std::cout << "  a_ = " << a_ << std::endl;
-        std::cout << "  R =  " << R << std::endl;
-        std::cout << "  E =  " << E << std::endl;
-        std::cout << "  E_ = " << E_ << std::endl;
-        std::cout << "  e =  " << e << std::endl;
-        std::cout << "  e_ = " << e_ << std::endl;
-        std::cout << "  uK = " << m_uK << std::endl;
-        std::cout << "  H =  " << H << std::endl;
-        std::cout << "  H_ = " << H_ << std::endl;
-        std::cout << "  m_ThetaE = pi*" << m_ThetaE/M_PI << std::endl;
-        std::cout << "  m_PhiE =   pi*" << m_PhiE/M_PI << std::endl;
-        std::cout << "  m_PsiE =   pi*" << m_PsiE/M_PI << std::endl;
-        //std::cout << "  x = " << x << std::endl;
-
-
-
-
         // Undefine the pre-processor commands 
         #undef cross
         #undef dot
@@ -1948,11 +1683,6 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
         #undef mag        
         #undef G
     }
-
-        std::cout << "  SN spd = " << m_Supernova->Speed() << std::endl;
-        std::cout << "  CP spd = " << m_Companion->Speed() << std::endl;
-        std::cout << "  Sys vel = " << m_SystemicVelocity << std::endl;
-        std::cout << "  Sys spd = " << m_SystemicSpeed << std::endl;
 
     //////////////////////////
     // Do for all systems 
@@ -1965,7 +1695,6 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
     double reducedMassPrime = m_Supernova->MassPrev() * m_Companion->MassPrev() / totalMassPrime;                         // Reduced Mass preSN
     m_Supernova->SetOrbitalEnergyPostSN(CalculateOrbitalEnergy(reducedMassPrime, totalMassPrime, m_SemiMajorAxisPrime));  // Orbital energy preSN
 
-    // RTW 19/05/20 - Do we need these anymore?
     m_IPrime           = m_ThetaE;                                                                                        // Inclination angle between preSN and postSN orbital planes 
     m_CosIPrime        = cos(m_IPrime);
 
@@ -1977,217 +1706,11 @@ bool BaseBinaryStar::ResolveSupernovaInBinary() {
 
 
 
-
-
-/* Probably dead stuff
-        // RTW 13/05/20 - TODO Check all units!!! /
-        // RTW 13/05/20 - TODO Set all the required COMPAS vars, in correct units!
-
-        //m_uK // this is important, because we might fix uK in Options!
-        //DBG_ID_IF () stuff - is this needed?
-
-	    //m_CurrentSeparation = r;  // Delete this, not useful anymore!
-        //m_VRel
-        //m_MC                = m_Companion->MassPrev();                                                                                  // companion star pre-SN mass
-        //m_MCPrime           = m_Companion->Mass();                                                                                      // companion star post-SN mass
-        //m_MSN               = m_Supernova->MassPrev();                                                                                  // exploding star pre-SN mass
-        //m_MSNPrime          = m_Supernova->Mass();                                                                                      // exploding star post-SN mass
-        //m_EPrime            = m_Supernova->OrbitalEnergyPostSN();
-        // Don't want these - this is done in CalculateEnergyAndAngularMomentum, and expects old Prime values
-        //m_Beta = utils::Compare(e, 0.0) == 0 ? M_PI_2 : asin(sqrt((a * a * (1.0 - (e * e))) / ((2.0 * r * a) - (r * r))));              // angle between the position and velocity vectors
-        //m_TotalOrbitalEnergyPrime = CalculateOrbitalEnergy(reducedMassPostSN, totalMassPostSN, m_SemiMajorAxisPostSN);  
-        //m_TotalOrbitalAngularMomentumPrime = CalculateOrbitalAngularMomentum(reducedMassPostSN, totalMassPostSN, m_SemiMajorAxisPostSN);  
-        // For CalculateEnergyAndAngularMomentum function, need the following to be not updated!
-        // m_TotalMassPrime
-        // m_ReducedMassPrime
-        // m_TotalOrbitalEnergyPrime
-        // m_TotalOrbitalAngularMomentumPrime
-        //// Still need to handle:
-        //CalculateCosFinalPlaneTilt
-        //CalculatePostSNSystemicVelocity
-        //CalculateSemiMajorAxisPostSupernova
-        //CalculateOrbitalEccentricityPostSupernova
-        //CalculateOrbitalEnergy // not really
-        //what to do about preSN, Prime, and _ for 
-        //  semimajoraxis 
-        //  eccentricity
-        //  where do the preSN values get called?
-    //m_OrbitalVelocityPrime  // NO! This is an angular velocity!
-    
-    //m_OrbitalVelocity             = 
-    //    sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / 
-    //    (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); // rads/year
-    //m_OrbitalVelocityPrime = m_OrbitalVelocityPostSN;
-    // Note: OrbitalVelocityPostSN is defined as the immediate postSN orbital velocity, whereas m_OrbitalVelocityPrime is the average orbital velocity
-    // thus these are not expected to be equal
-
-
-        //// RTW - do we need these?
-        //
-        //
-        //m_SystemicVelocity /= KM;                                                                                                   // convert to km s^-1
-        //m_SystemicVelocity = 0.0;
-        //m_EccentricityPreSN 
-        //m_EccentricityPrime 
-        //m_Eccentricity      = ePrime;
-        //m_EccentricityPrime = ePrime;
-        //m_SemiMajorAxisPreSN = a;     // Nah, don't do this - wrong units
-        //m_SemiMajorAxisPrime = a_;
-        //m_SemiMajorAxis = a_;
-        // postSNOrbitalenergy or preSNorbitalEnergy 
-*/
-
-
-
-///*
-//
-//	////// OLD STUFF
-//	//
-//	// 
-//	// Calculate relevant pre-SN masses
-//	double totalMass        = m_Supernova->MassPrev() + m_Companion->MassPrev();                                                    // total mass of binary before supernova event
-//	double reducedMass      = (m_Supernova->MassPrev() * m_Companion->MassPrev()) / totalMass;                                      // reduced mass before supernova event
-//	double totalMassPrime   = m_Supernova->Mass() + m_Companion->Mass();                                                            // total mass of binary after supernova event
-//	double reducedMassPrime = (m_Supernova->Mass() * m_Companion->Mass()) / totalMassPrime;                                         // reduced mass after supernova event
-//
-//	// JR: todo: check this - was just "if (m_SemiMajorAxisPrime > 0.0)"
-//    // ALEJANDRO - 09/05/2018 - Following 3 lines copied from else statement in the end.                                        
-//	// JR: todo: are these going to be executed twice...? (I removed one... not required)
-//		
-//    m_Supernova->CalculateSNAnomalies(m_Eccentricity);
-//
-//    	// RTW 07/05/20 - m_Radius is a bit confusing (since stars also have an m_Radius) - I advocate m_Separation
-//	    //m_CurrentSeparation = (m_SemiMajorAxisPrime * (1.0 - (m_Eccentricity * m_Eccentricity))) / (1.0 + m_Eccentricity * cos(m_Supernova->SN_TrueAnomaly()));   // radius of orbit at current time in AU as a function of the true anomaly psi
-//
-//
-//    // JR todo - check whether m_Beta needs to be a class variable
-//    #define a m_SemiMajorAxisPrime  // for convenience - undefined below
-//    #define e m_Eccentricity        // for convenience - undefined below
-//    #define r m_CurrentSeparation              // for convenience - undefined below
-//
-//    m_Beta = utils::Compare(e, 0.0) == 0 ? M_PI_2 : asin(sqrt((a * a * (1.0 - (e * e))) / ((2.0 * r * a) - (r * r))));              // angle between the position and velocity vectors
-//
-//    #undef r
-//    #undef e
-//    #undef a
-//
-//    double vK = m_Supernova->SN_KickVelocity();												
-//
-//    ///////////////////////////////////////////////////////////////////////////////////
-//	//          AT THE MOMENT, QUANTITIES BEYOND HERE ARE IN SI (NOT IDEAL)          //                                             // JR: todo: do we need to change this?
-//	///////////////////////////////////////////////////////////////////////////////////
-//
-//	// Calculate orbital velocity at some true anomaly psi - default is a circular orbit, V = sqrt(gm/a) = const.
-//    // Since this equation contains 'G', all other quantities must be in SI to get answer in ms^-1
-//
-//	vK                       *= KM;                                                                                                 // convert vK to m s^-1.  Would be nice to draw this in nicer units to avoid this secion
-//	m_VRel                    = sqrt(G * (totalMass * MSOL) * ((2.0 / (m_CurrentSeparation * AU)) - (1.0 / (m_SemiMajorAxisPrime * AU))));     // orbital velocity
-//	m_uK                      = OPTIONS->UseFixedUK() ? OPTIONS->FixedUK() : vK / m_VRel;                                           // fix uK to user-defined value if required, otherwise calculate it.  uK is dimensionless
-//	m_OrbitalVelocityPreSN    = m_VRel;                                                                                             // since the kick velocity always occurs in equations as vk/vrel, we need to know vrel
-//
-//	///////////////////////////////////////////////////////////////////////////////////
-//	//                       SHOULD BE BACK TO NICE UNITS NOW                        //
-//	///////////////////////////////////////////////////////////////////////////////////
-//
-//    m_Supernova->SetOrbitalEnergyPreSN(CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxisPrime));                      // pre-SN orbital energy - should be -ve by construction
-//
-//	// seemed to be getting into this loop occasionally with E > 0 but E ~ 0 (1e-37 for example) -- what's going on?
-//    // JR: todo: remove this if we're not seeing the problem...
-//    // don't use utils::Compare() here - let's see if this turns up as a problem
-//    DBG_ID_IF(m_Supernova->PreSNeOrbitalEnergy() > 0.0, "orbitalEnergy > 0! totalMass = " << totalMass << ", reducedMass = " << reducedMass << ", m_SemiMajorAxisPrime = " << m_SemiMajorAxisPrime);
-//
-//	// calculate post-SN orbital properties
-//
-//    // RTW list of parameters to set at the end
-//    m_SemiMajorAxisPreSN = m_SemiMajorAxisPrime;
-//    m_EccentricityPreSN  = m_Eccentricity;
-//    m_SemiMajorAxisPrime    = CalculateSemiMajorAxisPostSupernova(m_uK, totalMass, totalMassPrime, m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
-//    m_CosIPrime        = 0.0;
-//    m_IPrime           = 0.0;
-//    m_SystemicVelocity = 0.0;
-//    m_SystemicVelocity /= KM;                                                                                                   // convert to km s^-1
-//    m_Companion->CheckRunaway(m_Unbound);                                                                                           // flag companion if runaway
-//    m_MSN               = m_Supernova->MassPrev();                                                                                  // exploding star pre-SN mass
-//    m_MSNPrime          = m_Supernova->Mass();                                                                                      // exploding star post-SN mass
-//    m_MC                = m_Companion->MassPrev();                                                                                  // companion star pre-SN mass
-//    m_MCPrime           = m_Companion->Mass();                                                                                      // companion star post-SN mass
-//    m_EPrime            = m_Supernova->PostSNeOrbitalEnergy();
-//    m_Eccentricity      = ePrime;
-//    m_EccentricityPrime = ePrime;
-//
-//    // Record the semi major axis and eccentricity just before each supernova
-//    m_SemiMajorAxisPreSN = m_SemiMajorAxisPrime;
-//    m_EccentricityPreSN  = m_Eccentricity;
-//
-//    double ePrime           = CalculateOrbitalEccentricityPostSupernova(m_uK, totalMass, totalMassPrime, m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
-//    m_SemiMajorAxisPrime    = CalculateSemiMajorAxisPostSupernova(m_uK, totalMass, totalMassPrime, m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
-//
-//    m_Supernova->SetPostSNeOrbitalEnergy(CalculateOrbitalEnergy(reducedMassPrime, totalMassPrime, m_SemiMajorAxisPrime));           // post-SN orbital energy, check if still bound
-//    double epsilon     = -m_Supernova->PostSNeOrbitalEnergy() / m_Supernova->PreSNeOrbitalEnergy();                                 // dimensionless post-SN orbital energy
-//
-//    m_CosIPrime        = 0.0;
-//    m_IPrime           = 0.0;
-//    m_SystemicVelocity = 0.0;
-//
-//    if (utils::Compare(epsilon, 0.0) < 0) {		                                                                                    // still bound?
-//
-//        // Calculate post-SN orbital inclination using the equation for arbitrary eccentricity orbits
-//        m_CosIPrime   = CalculateCosFinalPlaneTilt(m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
-//        m_IPrime      = acos(m_CosIPrime);
-//
-//        m_SystemicVelocity = CalculatePostSNSystemicVelocity(m_Supernova->Mass(),                                                   // post-SN systemic (center-of-mass) velocity in ms s^-1
-//                                                             m_Supernova->MassPrev() - m_Supernova->Mass(),
-//                                                             m_Companion->Mass(),
-//                                                             totalMass,
-//                                                             totalMassPrime,
-//                                                             m_Supernova->SN_Theta(),
-//                                                             m_Supernova->SN_Phi());
-//        m_SystemicVelocity /= KM;                                                                                                   // convert to km s^-1
-//    }
-//    else {                                                                                                                          // no longer bound
-//        m_Unbound = true;
-//    }
-//
-//    m_Companion->CheckRunaway(m_Unbound);                                                                                           // flag companion if runaway
-//
-//
-//    // update some binary parameters
-//    m_Companion->CheckRunaway(m_Unbound);                                                                                           // flag companion if runaway
-//    m_MSN               = m_Supernova->MassPrev();                                                                                  // exploding star pre-SN mass
-//    m_MSNPrime          = m_Supernova->Mass();                                                                                      // exploding star post-SN mass
-//    m_MC                = m_Companion->MassPrev();                                                                                  // companion star pre-SN mass
-//    m_MCPrime           = m_Companion->Mass();                                                                                      // companion star post-SN mass
-//
-//    m_EPrime            = m_Supernova->PostSNeOrbitalEnergy();
-//
-//    m_Eccentricity      = ePrime;
-//    m_EccentricityPrime = ePrime;
-//
-//
-//
-//
-//}
-//
-//	*/
-
-
-
-
 /*
- * Update the Center of Mass velocity of the binary system following a Supernova
+ * Update the Center of Mass velocity and speed of the binary system following a Supernova.
  *
- * If this is the first Supernova, simply set the systemic velocity to this new velocity.
- * If this is the second Supernova, the underlying coordinate basis for the current 
- * system velocity is defined in terms of the orbital plane pre-1stSN, 
- * whereas the new velocity is defined in terms of the orbital plane post-1stSN. 
- *
- * (The coordinate plane is defined as (x, y, z) = (e, h x e, h), where e is the unit vector
- * in the direction of periapsis of the binary, or equivalently the LRL vector, and h
- * is the unit vector in the direction of the orbital angular momentum.
- * See Pfahl, Rappaport, Podsiadlowski 2002 for details)
- *
- * To properly add these together, we rotate the new vector into the old basis, using
- * the Euler angles calculated during the 1st SN (m_ThetaE, m_PhiE, m_PsiE)
+ * This simply adds a new CoM vector to the existing one, but note that the new vector
+ * must be rotated into the old coordinate frame (see vector3d.h)
  *
  * void UpdateSystemicVelocity(const double p_newVelocity[3] )
  *
@@ -2199,7 +1722,6 @@ void BaseBinaryStar::UpdateSystemicVelocity(Vector3d p_newVelocity) {
     m_SystemicVelocity += p_newVelocity;            
     m_SystemicSpeed     = m_SystemicVelocity.Magnitude();
 }
-
 
 
 
@@ -2243,15 +1765,15 @@ void BaseBinaryStar::EvaluateSupernovae() {
         // resolve star1 supernova
         m_Supernova = m_Star1;                                                                                          // supernova
         m_Companion = m_Star2;                                                                                          // companion
-        (void)ResolveSupernovaInBinary();                                                                                       // resolve supernova
+        (void)ResolveSupernovaInBinary();                                                                               // resolve supernova
     }
 
     if (m_Star2->IsSNevent()) { 																					    // star2 supernova
 
         // resolve star2 supernova
-        m_Supernova = m_Star2;                                                                                      // supernova
-        m_Companion = m_Star1;                                                                                      // companion
-        (void)ResolveSupernovaInBinary();                                                                                   // resolve supernova
+        m_Supernova = m_Star2;                                                                                          // supernova
+        m_Companion = m_Star1;                                                                                          // companion
+        (void)ResolveSupernovaInBinary();                                                                               // resolve supernova
     }
 }
 
@@ -3532,10 +3054,6 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
        !(OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {              // yes - avoid CEE if CH+CH
         ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
     }
-    else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) {
-        // RTW 19/05/20 - bug testing
-        std::cout << "SN flag is raised in the correct location! Investigate this system!" << std::endl;
-    }
     else {
         ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
     }
@@ -3548,11 +3066,9 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         PrintDetailedOutput(m_Id);                                                                                      // print detailed output record if stellar type changed
     }
 
-    // RTW 17/05/20 - TODO: investigate why this happens only here, not before ResolveMassChanges
     if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) { 
-        EvaluateSupernovae(); 
-        //std::cout << "Speed: " << m_SystemicSpeed << std::endl; 
-    } 										// evaluate supernovae if applicable
+        EvaluateSupernovae();                                                                                           // evaluate supernovae if applicable
+    } 										
 
     // assign new values to "previous" values, for following timestep
     m_EccentricityPrev	  = m_EccentricityPrime;
@@ -3565,6 +3081,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);  // update pulsar parameters for star1
     if (!(m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })))
         m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);  // update pulsar parameters for star2
+
 }
 
 
@@ -3799,6 +3316,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                         if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) PrintPulsarEvolutionParameters();                                     // print (log) pulsar evolution parameters    JR: todo: WD?
 
                         if (IsDCO()) {                                                                                                      // double compact object?
+
                             ResolveCoalescence();                                                                                           // yes - resolve coalescence
 
                             if (OPTIONS->AIS_ExploratoryPhase()) (void)m_AIS.CalculateDCOHit(this);                                         // track if we have an AIS DCO hit - internal counter is updated (don't need return value here)
