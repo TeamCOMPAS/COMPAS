@@ -289,8 +289,20 @@
 // 02.10.03      JR - Apr 17, 2020 - Defect repair:
 //                                      - added LBV and WR winds to SSE (issue #223)
 // 02.10.04	 IM - Apr 25, 2020 - Minor enhancement: moved Mueller & Mandel prescription constants to constants.h, other cleaning of this option
+// 02.10.05      JR - Apr 26, 2020 - Enhancements:
+//                                      - Issue #239 - added actual random seed to Run_Details
+//                                      - Issue #246 - changed Options.cpp to ignore --single-star-mass-max if --single-star-mass-steps = 1.  Already does in main.cpp.
+// 02.10.06      JR - Apr 26, 2020 - Defect repair:
+//                                      - Issue #233 - corrected cicularisation formalae used in both BaseBinartStar constructors
+// 02.11.00      JR - Apr 27, 2020 - Enhancement:
+//                                      - Issue #238 - add supernova kick functionality to SSE grid file (+ updated docs)
+//                                   Defect repairs:
+//                                      - fixed typo in Options.h: changed '#include "rand.h" to '#include "Rand.h"
+//                                      - fixed printing of actual random seed in Run_Details file (moved to Log.cpp from Options.cpp: initial random seed is set after options are set)
+// 02.11.01	 IM - May 20, 2020 - Defect repair: 
+//                                      - changed max NS mass for MULLERMANDEL prescription to a self-consistent value
 
-const std::string VERSION_STRING = "02.10.04";
+const std::string VERSION_STRING = "02.11.01";
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
 
@@ -623,8 +635,8 @@ constexpr double MULLERMANDEL_MUBH                    	= 0.8;
 constexpr double MULLERMANDEL_SIGMABH                   = 0.5;
 constexpr double MULLERMANDEL_MINNS                     = 1.13;
 constexpr double MULLERMANDEL_MAXNS                     = 2.0;
-constexpr double MULLERMANDEL_KICKNS                    = 250.0;
-constexpr double MULLERMANDEL_KICKBH                    = 100.0;
+constexpr double MULLERMANDEL_KICKNS                    = 400.0;
+constexpr double MULLERMANDEL_KICKBH                    = 200.0;
 constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3; 
 
 // object types
