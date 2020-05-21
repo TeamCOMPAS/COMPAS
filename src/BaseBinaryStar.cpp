@@ -1431,16 +1431,14 @@ void BaseBinaryStar::ResolveCoalescence() {
  *  /////////////////////////////////////////////////////////////////////////////
  *
  *
- * bool ResolveSupernovaInBinary()
+ * bool ResolveSupernova()
  *
  * @return                                      True if a supernova event occurred, otherwise false
  */
-bool BaseBinaryStar::ResolveSupernovaInBinary() {
-
+bool BaseBinaryStar::ResolveSupernova() {
 
     if (!m_Supernova->IsSNevent()) {
-        // RTW 15/05/20 - TODO: Make this throw an error, not std::cout
-        std::cout << "ResolveSupernovaInBinary function is called, but there is no supernova event ... ?" << std::endl;
+        SHOW_WARN(ERROR::RESOLVE_SUPERNOVA_IMPROPERLY_CALLED);
         return false;                                                                         // not a supernova event - bail out 
     }
 
@@ -1729,7 +1727,7 @@ void BaseBinaryStar::UpdateSystemicVelocity(Vector3d p_newVelocity) {
  * Determine if one or both of the stars are undergoing a supernova event and if so, 
  * 1) set the m_SupernovaState parameter which encodes information about which
  * stars have already undergone supernova, and 
- * 2) resolve the event(s) by calling ResolveSupernovaInBinary() for each of
+ * 2) resolve the event(s) by calling ResolveSupernova() for each of
  * the stars as appropriate.
  *
  * Note: This function is no longer backwards compatible with legacy:
@@ -1765,7 +1763,7 @@ void BaseBinaryStar::EvaluateSupernovae() {
         // resolve star1 supernova
         m_Supernova = m_Star1;                                                                                          // supernova
         m_Companion = m_Star2;                                                                                          // companion
-        (void)ResolveSupernovaInBinary();                                                                               // resolve supernova
+        (void)ResolveSupernova();                                                                               // resolve supernova
     }
 
     if (m_Star2->IsSNevent()) { 																					    // star2 supernova
@@ -1773,7 +1771,7 @@ void BaseBinaryStar::EvaluateSupernovae() {
         // resolve star2 supernova
         m_Supernova = m_Star2;                                                                                          // supernova
         m_Companion = m_Star1;                                                                                          // companion
-        (void)ResolveSupernovaInBinary();                                                                               // resolve supernova
+        (void)ResolveSupernova();                                                                               // resolve supernova
     }
 }
 
