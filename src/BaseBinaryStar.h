@@ -564,7 +564,7 @@ private:
     void    ResolveCoalescence();
     void    ResolveCommonEnvelopeEvent();
     void    ResolveMassChanges();
-    bool    ResolveSupernovaInBinary();
+    bool    ResolveSupernova();
 
     double  SampleSemiMajorAxisDistribution(const double p_Mass1, const double p_Mass2);
     double  SampleEccentricityDistribution();
