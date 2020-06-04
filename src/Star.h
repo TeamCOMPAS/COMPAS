@@ -119,6 +119,7 @@ public:
     double                      SN_TrueAnomaly() const                                                                      { return m_Star->SN_TrueAnomaly(); }
     SN_EVENT                    SN_Type() const                                                                             { return m_Star->SN_Type(); }
     COMPAS_VARIABLE             StellarPropertyValue(const T_ANY_PROPERTY p_Property) const                                 { return m_Star->StellarPropertyValue(p_Property); }
+    STELLAR_TYPE                StellarTypePrev() const                                                                     { return m_Star->StellarTypePrev(); }
     double                      Temperature() const                                                                         { return m_Star->Temperature(); }
     double                      ThermalTimescale() const                                                                    { return m_Star->ThermalTimescale(); }
     double                      Timescale(TIMESCALE p_Timescale) const                                                      { return m_Star->Timescale(p_Timescale); }
