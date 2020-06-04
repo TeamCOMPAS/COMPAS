@@ -118,6 +118,7 @@ public:
         m_OrbitalVelocityPrev              = p_Star.m_OrbitalVelocityPrev;
         m_OrbitalVelocityPrime             = p_Star.m_OrbitalVelocityPrime;
 
+        m_PrintExtraDetailedOutput         = p_Star.m_PrintExtraDetailedOutput;
         m_Radius                           = p_Star.m_Radius;
 
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
@@ -405,6 +406,8 @@ private:
     double              m_OrbitalVelocityPreSN;
     double              m_OrbitalVelocityPrev;
     double              m_OrbitalVelocityPrime;
+
+    bool                m_PrintExtraDetailedOutput;                                         // Flag to ensure that detailed output only gets printed once per timestep
 
     double              m_Radius;
 
