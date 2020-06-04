@@ -421,6 +421,8 @@ void BaseBinaryStar::SetRemainingCommonValues() {
 	m_SynchronizationTimescale                   = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CircularizationTimescale                   = DEFAULT_INITIAL_DOUBLE_VALUE;
 
+    m_PrintExtraDetailedOutput                   = false;
+
 	// RLOF details
     m_RLOFDetails.experiencedRLOF                = false;
     m_RLOFDetails.immediateRLOFPostCEE           = false;
@@ -1914,7 +1916,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         m_CircularizationTimescale = std::min(circularizationTimescale1, circularizationTimescale2);                    // binary circularisation timescale
 
         if (m_Star1->StellarType() != stellarType1 || m_Star2->StellarType() != stellarType2) {                         // stellar type change?
-            PrintDetailedOutput(m_Id);                                                                                  // yes - print detailed output record
+            m_PrintExtraDetailedOutput = true;                                                                          // yes - print detailed output record
         }
 
         m_Star1->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 1 - update default values
@@ -2517,9 +2519,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
                     case ENVELOPE::RADIATIVE: {                                                                                                             // RADIATIVE: case A
                                                   
-                        // RTW 
-                        std::cout << "Radiative Envelope" << std::endl;
-
                         // Need to know which is the donor star, make it lose enough mass to stay within its Roche lobe
 
                         // ALEJANDRO - 20/10/2017 - Code arbitrary zeta cut for case A mass transfer. To use in BNS paper. Should be properly coded.
@@ -2549,9 +2548,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                         } break;
 
                     case ENVELOPE::CONVECTIVE: {                                                                                                            // CONVECTIVE: case B or case C
-
-                        // RTW 
-                        std::cout << "Convective Envelope" << std::endl;
 
                         BinaryConstituentStar* donorCopy = new BinaryConstituentStar(*m_Donor);
                         BinaryConstituentStar* accretorCopy = new BinaryConstituentStar(*m_Accretor);
@@ -2596,9 +2592,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                             
                             m_Donor->ResolveEnvelopeLossAndSwitch();                                                                                        // only other interaction that adds/removes mass is winds. So, think its safe to update star here.
                             
-                            // RTW
                             if (m_Donor->StellarType() != stellarTypeDonor) {                                                                               // stellar type change?
-                                PrintDetailedOutput(m_Id);                                                                                                  // yes - print detailed output record
+                                m_PrintExtraDetailedOutput = true;                                                                                          // yes - print detailed output record
                             }
 
                             m_MassTransferTrackerHistory = m_Donor->IsPrimary() ? MT_TRACKING::STABLE_FROM_1_TO_2 : MT_TRACKING::STABLE_FROM_2_TO_1;
@@ -2688,7 +2683,7 @@ void BaseBinaryStar::InitialiseMassTransfer() {
                 double mass = (m_Star1->Mass() + m_Star2->Mass()) / 2.0;                                                        // share mass equally
                 if ((m_Star1->UpdateAttributes(mass - m_Star1->Mass(), mass - m_Star1->Mass0(), true) != stellarType1) ||       // set new mass, mass0 for star 1
                     (m_Star2->UpdateAttributes(mass - m_Star2->Mass(), mass - m_Star2->Mass0(), true) != stellarType2)) {       // set new mass, mass0 for star 2
-                    PrintDetailedOutput(m_Id);                                                                                  // print detailed output record if stellar type changed
+                    m_PrintExtraDetailedOutput = true;                                                                          // print detailed output record if stellar type changed
                 }
                 m_MassesEquilibrated = true;                                                                                    // record that we've equilbrated
             }
@@ -2944,24 +2939,6 @@ void BaseBinaryStar::CalculateEnergyAndAngularMomentum() {
  */
 void BaseBinaryStar::ResolveMassChanges() {
 
-    // RTW
-    if (m_Star1->MassTransferDiff() != 0 || m_Star2->MassTransferDiff() != 0) {
-        std::cout 
-            << "Star 1:"
-            << "\nMassPrev = " << m_Star1->MassPrev() 
-            << "\nMass = " << m_Star1->Mass() 
-            << "\nMassLossDiff = " << m_Star1->MassLossDiff() 
-            << "\nMassTransferDiff = " << m_Star1->MassTransferDiff()
-            << "\n"
-            << "\nStar 2:\n"
-            << "\nMassPrev = " << m_Star2->MassPrev() 
-            << "\nMass = " << m_Star2->Mass() 
-            << "\nMassLossDiff = " << m_Star2->MassLossDiff() 
-            << "\nMassTransferDiff = " << m_Star2->MassTransferDiff()
-            << std::endl;
-    }
-
-    // RTW test
     STELLAR_TYPE stellarType1 = m_Star1->StellarTypePrev();                                                 // star 1 stellar type before updating attributes
     STELLAR_TYPE stellarType2 = m_Star2->StellarTypePrev();                                                 // star 2 stellar type before updating attributes
 
@@ -2977,30 +2954,8 @@ void BaseBinaryStar::ResolveMassChanges() {
     m_Star2->UpdateAgeAfterMassLoss();                                                                  // update age of star2
     m_Star2->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star2
    
-    // RTW
-    if (m_Star1->MassTransferDiff() != 0 || m_Star2->MassTransferDiff() != 0) {
-        std::cout 
-            << "\nStar 1:"
-            << "\nMassPrev = " << m_Star1->MassPrev() 
-            << "\nMass = " << m_Star1->Mass() 
-            << "\nMassLossDiff = " << m_Star1->MassLossDiff() 
-            << "\nMassTransferDiff = " << m_Star1->MassTransferDiff()
-            << "\n"
-            << "\nStar 2:"
-            << "\nMassPrev = " << m_Star2->MassPrev() 
-            << "\nMass = " << m_Star2->Mass() 
-            << "\nMassLossDiff = " << m_Star2->MassLossDiff() 
-            << "\nMassTransferDiff = " << m_Star2->MassTransferDiff()
-            << std::endl;
-
-        if ((m_Star1->StellarType() != stellarType1) || (m_Star2->StellarType() != stellarType2)) {   
-            std::cout << "\n\n>>Detailed Output Printed Now\n";
-        }
-    }
-
-    if ((m_Star1->StellarType() != stellarType1) 
-            || (m_Star2->StellarType() != stellarType2)) {         // stellar type change?
-        PrintDetailedOutput(m_Id);                                                                      // yes - print detailed output record
+    if ((m_Star1->StellarType() != stellarType1) || (m_Star2->StellarType() != stellarType2)) {         // stellar type change?
+        m_PrintExtraDetailedOutput = true;                                                              // yes - print detailed output record
     }
 
     // update binary
@@ -3089,8 +3044,11 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     if ((m_Star1->UpdateAttributes(0.0, 0.0, true) != stellarType1) ||                                                  // recalculate stellar attributes for star 1
         (m_Star2->UpdateAttributes(0.0, 0.0, true) != stellarType2)) {                                                  // recalculate stellar attributes for star 2
-        PrintDetailedOutput(m_Id);                                                                                      // print detailed output record if stellar type changed
+        m_PrintExtraDetailedOutput = true;                                                                              // print detailed output record if stellar type changed
     }
+
+    if (m_PrintExtraDetailedOutput == true) { PrintDetailedOutput(m_Id); }                                              // print detailed output record if stellar type changed
+    m_PrintExtraDetailedOutput = false;                                                                                 // reset detailed output printing flag for the next timestep
 
     EvaluateSupernovae(false);                                                                                          // evaluate supernovae (both stars)
 
