@@ -107,11 +107,11 @@ public:
         m_Merged                           = p_Star.m_Merged;
         m_MergesInHubbleTime               = p_Star.m_MergesInHubbleTime;
 
-        m_OrbitalVelocity                  = p_Star.m_OrbitalVelocity;
+        m_OrbitalAngularVelocity           = p_Star.m_OrbitalAngularVelocity;
+        m_OrbitalAngularVelocityPrev       = p_Star.m_OrbitalAngularVelocityPrev;
+        m_OrbitalAngularVelocityPrime      = p_Star.m_OrbitalAngularVelocityPrime;
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
         m_OrbitalVelocityPostSN            = p_Star.m_OrbitalVelocityPostSN;
-        m_OrbitalVelocityPrev              = p_Star.m_OrbitalVelocityPrev;
-        m_OrbitalVelocityPrime             = p_Star.m_OrbitalVelocityPrime;
 
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
 
@@ -149,6 +149,7 @@ public:
         m_TotalEnergy                      = p_Star.m_TotalEnergy;
         m_TotalEnergyPrime                 = p_Star.m_TotalEnergyPrime;
 
+        // RTW
         m_TotalOrbitalAngularMomentumPrev  = p_Star.m_TotalOrbitalAngularMomentumPrev;
         m_TotalOrbitalAngularMomentumPrime = p_Star.m_TotalOrbitalAngularMomentumPrime;
 
@@ -259,7 +260,7 @@ public:
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
     bool                MergesInHubbleTime() const                  { return m_MergesInHubbleTime; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
-    double              OrbitalVelocity() const                     { return m_OrbitalVelocity; }
+    double              OrbitalAngularVelocity() const              { return m_OrbitalAngularVelocity; }
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
     double              OrbitalVelocityPostSN() const               { return m_OrbitalVelocityPostSN; }
     double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
@@ -394,11 +395,11 @@ private:
     bool                m_Merged;                                                           // Indicates if the stars merged
     bool                m_MergesInHubbleTime;                                               // Indicates if the stars merge in Hubble Time
 
-    double              m_OrbitalVelocity;
+    double              m_OrbitalAngularVelocity;
+    double              m_OrbitalAngularVelocityPrev;
+    double              m_OrbitalAngularVelocityPrime;
     double              m_OrbitalVelocityPreSN;
     double              m_OrbitalVelocityPostSN;
-    double              m_OrbitalVelocityPrev;
-    double              m_OrbitalVelocityPrime;
 
     BinaryRLOFDetailsT  m_RLOFDetails;                                                      // RLOF details
 
@@ -538,20 +539,20 @@ private:
                                  const double p_Star2Radius,
                                  const double p_Star1_OrbitalFrequency,
                                  const double p_Star2_OrbitalFrequency,
-                                 const double p_OrbitalVelocity,
+                                 const double p_OrbitalAngularVelocity,
                                  const double p_Star1GyrationRadius,
                                  const double p_Star2GyrationRadius);
 
-    double  CalculateTotalEnergy()                                          { return CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_OrbitalVelocity, m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
+    double  CalculateTotalEnergy()                                          { return CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_OrbitalAngularVelocity, m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
 
     double  CalculateTotalEnergy(const double p_SemiMajorAxis,
                                  const double p_Star1_OrbitalFrequency,
                                  const double p_Star2_OrbitalFrequency,
-                                 const double p_OrbitalVelocity,
+                                 const double p_OrbitalAngularVelocity,
                                  const double p_Star1_GyrationRadius,
-                                 const double p_Star2_GyrationRadius)       { return CalculateTotalEnergy(p_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), p_Star1_OrbitalFrequency, p_Star2_OrbitalFrequency, p_OrbitalVelocity, p_Star1_GyrationRadius, p_Star2_GyrationRadius); }
+                                 const double p_Star2_GyrationRadius)       { return CalculateTotalEnergy(p_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), p_Star1_OrbitalFrequency, p_Star2_OrbitalFrequency, p_OrbitalAngularVelocity, p_Star1_GyrationRadius, p_Star2_GyrationRadius); }
 
-    double  CalculateTotalEnergyPrime()                                     { return CalculateTotalEnergy(m_SemiMajorAxisPrime, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_OrbitalVelocityPrime, m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
+    double  CalculateTotalEnergyPrime()                                     { return CalculateTotalEnergy(m_SemiMajorAxisPrime, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_OrbitalAngularVelocityPrime, m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
 
     void    EvaluateBinary(const double p_Dt);
     void    EvaluateBinaryPreamble();

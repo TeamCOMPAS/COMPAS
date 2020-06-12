@@ -460,10 +460,10 @@ extern OBJECT_ID globalObjectId;                                                
 
 #undef COMPARE_WITH_TOLERANCE // define/undef this to compare floats with/without tolerance (see FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE and Compare() function)
 
-//constexpr double FLOAT_TOLERANCE_ABSOLUTE               = 0.0000005;                                                // Absolute tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
-//constexpr double FLOAT_TOLERANCE_RELATIVE               = 0.0000005;                                                // Relative tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
-constexpr double FLOAT_TOLERANCE_ABSOLUTE               = 0.0000000;                                                // Absolute tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
-constexpr double FLOAT_TOLERANCE_RELATIVE               = 0.0050000;                                                // Relative tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
+constexpr double FLOAT_TOLERANCE_ABSOLUTE               = 0.0000005;                                                // Absolute tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
+constexpr double FLOAT_TOLERANCE_RELATIVE               = 0.0000005;                                                // Relative tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
+//constexpr double FLOAT_TOLERANCE_ABSOLUTE               = 0.0000000;                                                // Absolute tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
+//constexpr double FLOAT_TOLERANCE_RELATIVE               = 0.0050000;                                                // Relative tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
 
 
 // initialisation constants
@@ -1991,7 +1991,7 @@ enum class BINARY_PROPERTY: int {
     MASS_TRANSFER_TRACKER_HISTORY,
     MERGES_IN_HUBBLE_TIME,
     OPTIMISTIC_COMMON_ENVELOPE,
-    ORBITAL_VELOCITY,
+    ORBITAL_ANGULAR_VELOCITY,
     ORBITAL_VELOCITY_PRE_SUPERNOVA,
     ORBITAL_VELOCITY_POST_SUPERNOVA,
     RADIUS_1_POST_COMMON_ENVELOPE,
@@ -2091,9 +2091,9 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,                      "MASS_TRANSFER_TRACKER_HISTORY" },
     { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                              "MERGES_IN_HUBBLE_TIME" },
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                         "OPTIMISTIC_COMMON_ENVELOPE" },
-    { BINARY_PROPERTY::ORBITAL_VELOCITY,                                   "ORBITAL_VELOCITY" },
+    { BINARY_PROPERTY::ORBITAL_ANGULAR_VELOCITY,                           "ORBITAL_ANGULAR_VELOCITY" },
     { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                     "ORBITAL_VELOCITY_PRE_SUPERNOVA" },
-    { BINARY_PROPERTY::ORBITAL_VELOCITY_POST_SUPERNOVA,                     "ORBITAL_VELOCITY_POST_SUPERNOVA" },
+    { BINARY_PROPERTY::ORBITAL_VELOCITY_POST_SUPERNOVA,                    "ORBITAL_VELOCITY_POST_SUPERNOVA" },
     { BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,                      "RADIUS_1_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::RADIUS_1_PRE_COMMON_ENVELOPE,                       "RADIUS_1_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE,                      "RADIUS_2_POST_COMMON_ENVELOPE" },
@@ -2377,7 +2377,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,                       { TYPENAME::MT_TRACKING,    "MT_History",           "-",                 4, 1 }},
     { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                               { TYPENAME::BOOL,           "Merges_Hubble_Time",   "State",             0, 0 }},
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                          { TYPENAME::BOOL,           "Optimistic_CE",        "State",             0, 0 }},
-    { BINARY_PROPERTY::ORBITAL_VELOCITY,                                    { TYPENAME::DOUBLE,         "Orbital_Velocity",     "kms^-1",           14, 6 }},
+    { BINARY_PROPERTY::ORBITAL_ANGULAR_VELOCITY,                            { TYPENAME::DOUBLE,         "Orbital_Angular_Velocity", "kms^-1",       14, 6 }},
     { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                      { TYPENAME::DOUBLE,         "Orb_Velocity<SN",      "kms^-1",           14, 6 }},
     { BINARY_PROPERTY::ORBITAL_VELOCITY_POST_SUPERNOVA,                     { TYPENAME::DOUBLE,         "Orb_Velocity>SN",      "kms^-1",           14, 6 }},
     { BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,         "Radius_1>CE",          "Rsol",             14, 6 }},
