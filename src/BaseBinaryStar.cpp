@@ -1419,7 +1419,7 @@ void BaseBinaryStar::ResolveCoalescence() {
  *  //                Continue vector algebra to find v1inf and v2inf.
  *  //                Add these values to previous component velocities (rotated if need be) which will be the systemic velocity if this is the 2nd SN. 
  *  //
- *  //                For unbound binary, new Euler Angles should be randomized.
+ *  //                For unbound binary, new Euler Angles should be randomized (see vector3d.cpp).
  *  //
  *  //        If still intact:
  *  //
@@ -1763,7 +1763,7 @@ void BaseBinaryStar::EvaluateSupernovae() {
         // resolve star1 supernova
         m_Supernova = m_Star1;                                                                                          // supernova
         m_Companion = m_Star2;                                                                                          // companion
-        (void)ResolveSupernova();                                                                               // resolve supernova
+        (void)ResolveSupernova();                                                                                       // resolve supernova
     }
 
     if (m_Star2->IsSNevent()) { 																					    // star2 supernova
@@ -1771,7 +1771,7 @@ void BaseBinaryStar::EvaluateSupernovae() {
         // resolve star2 supernova
         m_Supernova = m_Star2;                                                                                          // supernova
         m_Companion = m_Star1;                                                                                          // companion
-        (void)ResolveSupernova();                                                                               // resolve supernova
+        (void)ResolveSupernova();                                                                                       // resolve supernova
     }
 }
 

@@ -460,10 +460,10 @@ extern OBJECT_ID globalObjectId;                                                
 
 #undef COMPARE_WITH_TOLERANCE // define/undef this to compare floats with/without tolerance (see FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE and Compare() function)
 
-//constexpr double FLOAT_TOLERANCE_ABSOLUTE               = 0.0000005;                                                // Absolute tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
-//constexpr double FLOAT_TOLERANCE_RELATIVE               = 0.0000005;                                                // Relative tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
-constexpr double FLOAT_TOLERANCE_ABSOLUTE               = 0.0000000;                                                // Absolute tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
-constexpr double FLOAT_TOLERANCE_RELATIVE               = 0.0050000;                                                // Relative tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
+constexpr double FLOAT_TOLERANCE_ABSOLUTE               = 0.0000005;                                                // Absolute tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
+constexpr double FLOAT_TOLERANCE_RELATIVE               = 0.0000005;                                                // Relative tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
+//constexpr double FLOAT_TOLERANCE_ABSOLUTE               = 0.0000000;                                                // Absolute tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
+//constexpr double FLOAT_TOLERANCE_RELATIVE               = 0.0050000;                                                // Relative tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
 
 
 // initialisation constants
