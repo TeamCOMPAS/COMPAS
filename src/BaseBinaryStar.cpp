@@ -343,11 +343,11 @@ void BaseBinaryStar::SetRemainingCommonValues() {
 	m_TotalMassPrev						         = m_TotalMassPrime;
 	m_ReducedMassPrime					         = (m_Star1->Mass() * m_Star2->Mass()) / m_TotalMassPrime;
 	m_ReducedMassPrev					         = m_ReducedMassPrime;
-	m_TotalOrbitalEnergyPrime 			         = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
-	m_TotalOrbitalEnergyPrev 			         = m_TotalOrbitalEnergyPrime;
+	m_OrbitalEnergyPrime 			         = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
+	m_OrbitalEnergyPrev 			         = m_OrbitalEnergyPrime;
 
-	m_TotalOrbitalAngularMomentumPrime 	         = CalculateOrbitalAngularMomentum(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
-	m_TotalOrbitalAngularMomentumPrev 	         = m_TotalOrbitalAngularMomentumPrime;
+	m_OrbitalAngularMomentumPrime 	         = CalculateOrbitalAngularMomentum(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
+	m_OrbitalAngularMomentumPrev 	         = m_OrbitalAngularMomentumPrime;
 
     m_Time                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_Dt                                         = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -2473,8 +2473,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
     double aInitial = m_SemiMajorAxisPrime;                                                                                                                 // semi-major axis in default units, AU, current timestep
     double aFinal;                                                                                                                                          // semi-major axis in default units, AU, after next timestep
-    double wInitial = m_OrbitalAngularVelocityPrime;                                                                                                        // initial orbital angular speed of the system in yr-1 units, current timestep
-    double wFinal;                                                                                                                                          // initial orbital angular speed of the system in yr-1 units, after next timestep
+    double wInitial = m_OrbitalAngularVelocityPrime;                                                                                                        // initial orbital angular speed of the system in rad/yr units, current timestep
+    double wFinal;                                                                                                                                          // initial orbital angular speed of the system in rad/yr units, after next timestep
     double jLoss    = m_JLoss;                            		                                                                                            // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
 	bool   isCEE    = false;									                                                                                            // is there a CEE in this MT episode?
 
@@ -2743,8 +2743,9 @@ void BaseBinaryStar::InitialiseMassTransfer() {
 			    // Previous values have to be the ones for periastron as later orbit is modified according to previous values.
 			    // If you don't do this, you end up modifying pre-MT pre-circularisation orbit
 			    // JR: todo: check that this is proper functionality, or just a kludge - if kludge, resolve it
-			    m_SemiMajorAxisPrev   = m_SemiMajorAxisPrime;
-			    m_EccentricityPrev    = m_EccentricityPrime;
+                // RTW 12/06/20 - I agree with Jeff's kludge, I don't think we should be resetting Prev and Prime values here
+			    m_SemiMajorAxisPrev          = m_SemiMajorAxisPrime;
+			    m_EccentricityPrev           = m_EccentricityPrime;
 			    m_OrbitalAngularVelocityPrev = m_OrbitalAngularVelocityPrime;
 		    }
         }
@@ -2800,8 +2801,8 @@ void BaseBinaryStar::CheckMassTransfer(const double p_Dt) {
  *                             const double p_Star2Mass,
  *                             const double p_Star1Radius,
  *                             const double p_Star2Radius,
- *                             const double p_Star1_OrbitalFrequency,
- *                             const double p_Star1_OrbitalFrequency,
+ *                             const double p_Star1_AngularVelocity,
+ *                             const double p_Star2_AngularVelocity,
  *                             const double p_OrbitalAngularVelocity,
  *                             const double p_Star1_GyrationRadius,
  *                             const double p_Star2_GyrationRadius)
@@ -2811,8 +2812,8 @@ void BaseBinaryStar::CheckMassTransfer(const double p_Dt) {
  * @param   [IN]    p_Star2Mass                 Mass of the secondary
  * @param   [IN]    p_Star1Radius               Radius of the primary
  * @param   [IN]    p_Star2Radius               Radius of the secondary
- * @param   [IN]    p_Star1_OrbitalFrequency    Orbital frequency of the primary
- * @param   [IN]    p_Star1_OrbitalFrequency    Orbital frequency of the secondary
+ * @param   [IN]    p_Star1_AngularVelocity     Spin angular velocity of the primary
+ * @param   [IN]    p_Star2_AngularVelocity     Spin angular velocity of the secondary
  * @param   [IN]    p_OrbitalAngularVelocity    Orbital angular velocity of the binary
  * @param   [IN]    p_Star1_GyrationRadius      Gyration radius of the primary
  * @param   [IN]    p_Star2_GyrationRadius      Gyration radius of the secondary
@@ -2823,8 +2824,8 @@ double BaseBinaryStar::CalculateTotalEnergy(const double p_SemiMajorAxis,
                                             const double p_Star2Mass,
                                             const double p_Star1Radius,
                                             const double p_Star2Radius,
-                                            const double p_Star1_OrbitalFrequency,
-                                            const double p_Star2_OrbitalFrequency,
+                                            const double p_Star1_AngularVelocity,
+                                            const double p_Star2_AngularVelocity,
                                             const double p_OrbitalAngularVelocity,
                                             const double p_Star1_GyrationRadius,
                                             const double p_Star2_GyrationRadius) {
@@ -2834,8 +2835,8 @@ double BaseBinaryStar::CalculateTotalEnergy(const double p_SemiMajorAxis,
 	double R1  = p_Star1Radius;
 	double R2  = p_Star2Radius;
 
-	double w1  = p_Star1_OrbitalFrequency;
-	double w2  = p_Star2_OrbitalFrequency;
+	double w1  = p_Star1_AngularVelocity;
+	double w2  = p_Star2_AngularVelocity;
 
 	double w   = p_OrbitalAngularVelocity;
 
@@ -2868,8 +2869,8 @@ double BaseBinaryStar::CalculateTotalEnergy(const double p_SemiMajorAxis,
  *                             const double p_Star2Mass,
  *                             const double p_Star1Radius,
  *                             const double p_Star2Radius,
- *                             const double p_Star1_OrbitalFrequency,
- *                             const double p_Star1_OrbitalFrequency,
+ *                             const double p_Star1_AngularVelocity,
+ *                             const double p_Star1_AngularVelocity,
  *                             const double p_Star1_GyrationRadius,
  *                             const double p_Star2_GyrationRadius)
  *
@@ -2879,8 +2880,8 @@ double BaseBinaryStar::CalculateTotalEnergy(const double p_SemiMajorAxis,
  * @param   [IN]    p_Star2Mass                 Mass of the secondary
  * @param   [IN]    p_Star1Radius               Radius of the primary
  * @param   [IN]    p_Star2Radius               Radius of the secondary
- * @param   [IN]    p_Star1_OrbitalFrequency    Orbital frequency of the primary
- * @param   [IN]    p_Star1_OrbitalFrequency    Orbital frequency of the secondary
+ * @param   [IN]    p_Star1_AngularVelocity     Spin Angular Velocity of the primary
+ * @param   [IN]    p_Star1_AngularVelocity     Spin Angular Velocity of the secondary
  * @param   [IN]    p_Star1_GyrationRadius      Gyration radius of the primary
  * @param   [IN]    p_Star2_GyrationRadius      Gyration radius of the secondary
  * @return                                      Angular momentum of the binary
@@ -2891,8 +2892,8 @@ double BaseBinaryStar::CalculateAngularMomentum(const double p_SemiMajorAxis,
                                                 const double p_Star2Mass,
                                                 const double p_Star1Radius,
                                                 const double p_Star2Radius,
-                                                const double p_Star1_OrbitalFrequency,
-                                                const double p_Star2_OrbitalFrequency,
+                                                const double p_Star1_AngularVelocity,
+                                                const double p_Star2_AngularVelocity,
                                                 const double p_Star1_GyrationRadius,
                                                 const double p_Star2_GyrationRadius) {
 	double m1 = p_Star1Mass;
@@ -2901,8 +2902,8 @@ double BaseBinaryStar::CalculateAngularMomentum(const double p_SemiMajorAxis,
 	double R1 = p_Star1Radius * RSOL_TO_AU;
 	double R2 = p_Star2Radius * RSOL_TO_AU;
 
-	double w1 = p_Star1_OrbitalFrequency;
-	double w2 = p_Star2_OrbitalFrequency;
+	double w1 = p_Star1_AngularVelocity;
+	double w2 = p_Star2_AngularVelocity;
 
 	double ks1 = p_Star1_GyrationRadius;
 	double ks2 = p_Star2_GyrationRadius;
@@ -2931,13 +2932,13 @@ void BaseBinaryStar::CalculateEnergyAndAngularMomentum() {
     // ALEJANDRO - 16/11/2016 - calculate orbital energy and angular momentum
     m_TotalMassPrev                    = m_TotalMassPrime;
     m_ReducedMassPrev                  = m_ReducedMassPrime;
-    m_TotalOrbitalEnergyPrev           = m_TotalOrbitalEnergyPrime;
-    m_TotalOrbitalAngularMomentumPrev  = m_TotalOrbitalAngularMomentumPrime;
+    m_OrbitalEnergyPrev                = m_OrbitalEnergyPrime;
+    m_OrbitalAngularMomentumPrev       = m_OrbitalAngularMomentumPrime;
 
     m_TotalMassPrime                   = m_Star1->Mass() + m_Star2->Mass();
     m_ReducedMassPrime                 = (m_Star1->Mass() * m_Star2->Mass()) / m_TotalMassPrime;
-    m_TotalOrbitalEnergyPrime          = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
-    m_TotalOrbitalAngularMomentumPrime = CalculateOrbitalAngularMomentum(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
+    m_OrbitalEnergyPrime               = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
+    m_OrbitalAngularMomentumPrime      = CalculateOrbitalAngularMomentum(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
 
     // ALEJANDRO - 16/11/2016 - calculate energy and angular momentum using regular conservation of energy, specially useful for checking tides and rotational effects
     m_TotalEnergyPrime                 = CalculateTotalEnergyPrime();
@@ -3069,8 +3070,8 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
     } 										
 
     // assign new values to "previous" values, for following timestep
-    m_EccentricityPrev	  = m_EccentricityPrime;
-    m_SemiMajorAxisPrev   = m_SemiMajorAxisPrime;
+    m_EccentricityPrev	           = m_EccentricityPrime;
+    m_SemiMajorAxisPrev            = m_SemiMajorAxisPrime;
     m_OrbitalAngularVelocityPrev = m_OrbitalAngularVelocityPrime;    
 
     CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
