@@ -405,7 +405,7 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     if (p_NoCheck || utils::Compare(m_COCoreMass, m_Mass) > 0) {        // Envelope lost - determine what type of star to form
 
-        stellarType = (utils::Compare(m_COCoreMass, 1.6) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
+        stellarType = (utils::Compare(m_COCoreMass, MCBUR1) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
 
         m_CoreMass  = m_COCoreMass;
         m_Mass      = m_CoreMass;
