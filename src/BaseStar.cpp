@@ -2818,7 +2818,7 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
                                     const double p_RemnantMass) {					
 	double remnantKick=-1.0;
 	double muKick=0.0;
-        double rand=p_Rand;		//makes it possible to adjust if p_Rand is too low, to avoid getting stuck
+    double rand=p_Rand;		//makes it possible to adjust if p_Rand is too low, to avoid getting stuck
 
 	if (utils::Compare(p_RemnantMass, MULLERMANDEL_MAXNS) <  0) {
 		muKick=max(MULLERMANDEL_KICKNS*(p_COCoreMass-p_RemnantMass)/p_RemnantMass,0.0);
@@ -2828,7 +2828,7 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
 	}
 	while(remnantKick<0) {
 		remnantKick=muKick*(1.0+gsl_cdf_gaussian_Pinv(rand, MULLERMANDEL_SIGMAKICK));
-		rand=rand+p_Rand+0.0001;
+		rand=std::min(rand+p_Rand+0.0001,1.0);
 	}
 	return remnantKick;
 }
