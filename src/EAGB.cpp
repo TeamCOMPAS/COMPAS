@@ -817,7 +817,7 @@ bool EAGB::ShouldEvolveOnPhase() {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
 	double tDU = CalculateLifetimeTo2ndDredgeUp(timescales(tinf1_FAGB), timescales(tinf2_FAGB));
-    return (utils::Compare(m_Age, tDU) < 0 || utils::Compare(gbParams(McBAGB), 2.25) >= 0);
+    return (utils::Compare(m_Age, tDU) < 0 || utils::Compare(gbParams(McBAGB), MCBUR2) >= 0);
 
 #undef gbParams
 #undef timescales
