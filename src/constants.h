@@ -303,8 +303,10 @@
 //                                      - changed max NS mass for MULLERMANDEL prescription to a self-consistent value
 // 02.11.02  IM - June 15, 2020 - Defect repair:
 //                                      - added constants CBUR1 and CBUR2 to avoid hardcoded limits for He core masses leading to partially degenerate CO cores
+// 02.11.03      RTW - Jun 20, 2020 - Enhancement:
+//                                      - Issue #264 - fixed mass transfer printing bug 
 
-const std::string VERSION_STRING = "02.11.02";
+const std::string VERSION_STRING = "02.11.03";
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
 
