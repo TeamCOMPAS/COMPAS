@@ -301,8 +301,10 @@
 //                                      - fixed printing of actual random seed in Run_Details file (moved to Log.cpp from Options.cpp: initial random seed is set after options are set)
 // 02.11.01	 IM - May 20, 2020 - Defect repair: 
 //                                      - changed max NS mass for MULLERMANDEL prescription to a self-consistent value
+// 02.12.00      RTW - Jun 20, 2020 - Enhancement:
+//                                      - Issue #264 - fixed mass transfer printing bug 
 
-const std::string VERSION_STRING = "02.11.01";
+const std::string VERSION_STRING = "02.12.01";
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
 
