@@ -301,10 +301,12 @@
 //                                      - fixed printing of actual random seed in Run_Details file (moved to Log.cpp from Options.cpp: initial random seed is set after options are set)
 // 02.11.01	 IM - May 20, 2020 - Defect repair: 
 //                                      - changed max NS mass for MULLERMANDEL prescription to a self-consistent value
-// 02.12.00      RTW - Jun 20, 2020 - Enhancement:
+// 02.11.02  IM - June 15, 2020 - Defect repair:
+//                                      - added constants CBUR1 and CBUR2 to avoid hardcoded limits for He core masses leading to partially degenerate CO cores
+// 02.11.03      RTW - Jun 20, 2020 - Enhancement:
 //                                      - Issue #264 - fixed mass transfer printing bug 
 
-const std::string VERSION_STRING = "02.12.01";
+const std::string VERSION_STRING = "02.11.03";
 
 // Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
 
@@ -541,6 +543,8 @@ constexpr double MCH                                    = 1.44;                 
 constexpr double MECS                                   = 1.38;                                                     // Mass of Neutron-Star (NS) formed in electron capture supernova (ECS). From Belczysnki+2008, before eq. 3.
 constexpr double MECS_REM                               = 1.26;                                                     // Gravitational mass of Neutron-Star (NS) formed in electron capture supernova (ECS). From Belczysnki+2008, eq. 3
 constexpr double MASS_LOSS_ETA                          = 0.5;                                                      // Mass loss efficiency -- can be set in the code as an option easily enough
+constexpr double MCBUR1					= 1.6;							    // Minimum He core mass to avoid fully degenerate CO core formation 
+constexpr double MCBUR2					= 2.25;							    // He core mass above which the CO core is completely non-degenerate
 
 constexpr double LBV_LUMINOSITY_LIMIT_STARTRACK         = 6.0E5;                                                    // STARTRACK LBV luminosity limit
 constexpr double LBV_LUMINOSITY_LIMIT_VANBEVEREN        = 3.0E5;                                                    // VANBEVEREN LBV luminosity limit

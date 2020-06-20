@@ -1748,10 +1748,10 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
 
             stellarType = IsPairInstabilitySN();
         }
-        else if (utils::Compare(snMass, 1.6) < 0) {                                                 // Type IIa SuperNova
+        else if (utils::Compare(snMass, MCBUR1) < 0) {                                                 // Type IIa SuperNova
             stellarType = IsTypeIIaSN();
         }
-        else if (utils::Compare(snMass, 2.25) < 0) {                                                // Electron Capture SuperNova
+        else if (utils::Compare(snMass, MCBUR2) < 0) {                                                // Electron Capture SuperNova
             stellarType = IsElectronCaptureSN();
         }
         else {                                                                                      // Core Collapse SuperNova
