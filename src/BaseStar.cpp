@@ -1506,12 +1506,12 @@ double BaseStar::CalculateRadiusAtZAMS(const double p_MZAMS) {
  * Hurley et al. 2000, eq 89
  *
  *
- * double CalculateMaximumCoreMass(double p_Mass)
+ * double CalculateMaximumCoreMass(const double p_Mass)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Maximum core mass in Msol (McMax)
  */
-double BaseStar::CalculateMaximumCoreMass(double p_Mass) {
+double BaseStar::CalculateMaximumCoreMass(const double p_Mass) {
     return min(((1.45 * p_Mass) - 0.31), p_Mass);
 }
 
