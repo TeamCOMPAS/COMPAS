@@ -2804,7 +2804,7 @@ double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
 }
 
 /*
- * Draw kick velocity per Muller and Mandel 2020
+ * Draw kick velocity per Mandel and Mueller, 2020
  *
  * double DrawRemnantKickMuller(const double p_COCoreMass)
  * 
@@ -2818,7 +2818,7 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
                                     const double p_RemnantMass) {					
 	double remnantKick=-1.0;
 	double muKick=0.0;
-    double rand=p_Rand;		//makes it possible to adjust if p_Rand is too low, to avoid getting stuck
+    	double rand=p_Rand;		//makes it possible to adjust if p_Rand is too low, to avoid getting stuck
 
 	if (utils::Compare(p_RemnantMass, MULLERMANDEL_MAXNS) <  0) {
 		muKick=max(MULLERMANDEL_KICKNS*(p_COCoreMass-p_RemnantMass)/p_RemnantMass,0.0);
