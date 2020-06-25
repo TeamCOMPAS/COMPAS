@@ -627,7 +627,7 @@ constexpr double KROUPA_BREAK_1_POWER_1_2               = 0.08;                 
 
 constexpr double KROUPA_BREAK_2_PLUS1_2                 = 1.2311444133449162844993930691677431098761;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_2);
 constexpr double KROUPA_BREAK_2_PLUS1_3                 = 2.4622888266898325689987861383354862197522;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_3);
-constexpr double KROUPA_BREAK_2_POWER_2_3               = 0.5;                                                      // pow(KROUPA_BREAK_2, (KROUPA_POWER_2 - KROUPA_POWER_2));
+constexpr double KROUPA_BREAK_2_POWER_2_3               = 0.5;                                                      // pow(KROUPA_BREAK_2, (KROUPA_POWER_2 - KROUPA_POWER_3));
 
 // Constants for the Muller and Mandel remnant mass and kick prescriptions
 constexpr double MULLERMANDEL_M1                        = 2.0;	
