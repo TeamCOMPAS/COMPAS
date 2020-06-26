@@ -272,8 +272,8 @@
 //                                      - commented option --logfile-BSE-be-binaries to match Be-Binary options commented by AVG in v02.08.00
 // 02.09.04      JR - Apr 03, 2020 - Defect repair:
 //                                      - removed IsUSSN() from IsSNEvent() definition in BinaryConstituentStar.cpp (USSN flag indicates just US, not USSN. Needs to be tidied-up properly)
-// 02.09.05	 IM - Apr 03, 2020 - Defect repair:
-//			                - fixed timescale calculation issue for newly created HeHG stars (from stripped EAGB stars); fixes drop in CO core mass
+// 02.09.05	     IM - Apr 03, 2020 - Defect repair:
+//			                            - fixed timescale calculation issue for newly created HeHG stars (from stripped EAGB stars); fixes drop in CO core mass
 // 02.09.06      JR - Apr 07, 2020 - Defect repair:
 //                                      - corrected calculation in return statement for Rand::Random(const double p_Lower, const double p_Upper) (issue #201)
 //                                      - corrected calculation in return statement for Rand::RandomInt(const double p_Lower, const double p_Upper) (issue #201)
@@ -288,7 +288,7 @@
 // 02.10.02      SS - Apr 16, 2020 - Bug Fix for issue #105 ; core and envelope masses for HeHG and TPAGB stars
 // 02.10.03      JR - Apr 17, 2020 - Defect repair:
 //                                      - added LBV and WR winds to SSE (issue #223)
-// 02.10.04	 IM - Apr 25, 2020 - Minor enhancement: moved Mueller & Mandel prescription constants to constants.h, other cleaning of this option
+// 02.10.04	     IM - Apr 25, 2020 - Minor enhancement: moved Mueller & Mandel prescription constants to constants.h, other cleaning of this option
 // 02.10.05      JR - Apr 26, 2020 - Enhancements:
 //                                      - Issue #239 - added actual random seed to Run_Details
 //                                      - Issue #246 - changed Options.cpp to ignore --single-star-mass-max if --single-star-mass-steps = 1.  Already does in main.cpp.
@@ -299,16 +299,21 @@
 //                                   Defect repairs:
 //                                      - fixed typo in Options.h: changed '#include "rand.h" to '#include "Rand.h"
 //                                      - fixed printing of actual random seed in Run_Details file (moved to Log.cpp from Options.cpp: initial random seed is set after options are set)
-// 02.11.01	 IM - May 20, 2020 - Defect repair: 
+// 02.11.01	     IM - May 20, 2020 - Defect repair: 
 //                                      - changed max NS mass for MULLERMANDEL prescription to a self-consistent value
-// 02.11.02  IM - June 15, 2020 - Defect repair:
+// 02.11.02      IM - Jun 15, 2020 - Defect repair:
 //                                      - added constants CBUR1 and CBUR2 to avoid hardcoded limits for He core masses leading to partially degenerate CO cores
-// 02.11.03      RTW - Jun 20, 2020 - Enhancement:
+// 02.11.03     RTW - Jun 20, 2020 - Enhancement:
 //                                      - Issue #264 - fixed mass transfer printing bug 
+// 02.11.04      JR - Jun 25, 2020 - Defect repairs:
+//                                      - Issue #260 - Corrected recalculation of ZAMS values after eqilibration and cicularisation at birth when using grid files
+//                                      - Issue #266 - Corrected calculation in BaseBinaryStar::SampleInitialMassDistribution() for KROUPA IMF distribution
+//                                      - Issue #275 - Previous stellar type not set when stellar type is switched mid-timestep - now fixed
 
-const std::string VERSION_STRING = "02.11.03";
 
-// Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
+const std::string VERSION_STRING = "02.11.04";
+
+// Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
@@ -622,7 +627,7 @@ constexpr double KROUPA_BREAK_1_POWER_1_2               = 0.08;                 
 
 constexpr double KROUPA_BREAK_2_PLUS1_2                 = 1.2311444133449162844993930691677431098761;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_2);
 constexpr double KROUPA_BREAK_2_PLUS1_3                 = 2.4622888266898325689987861383354862197522;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_3);
-constexpr double KROUPA_BREAK_2_POWER_2_3               = 0.5;                                                      // pow(KROUPA_BREAK_2, (KROUPA_POWER_2 - KROUPA_POWER_2));
+constexpr double KROUPA_BREAK_2_POWER_2_3               = 0.5;                                                      // pow(KROUPA_BREAK_2, (KROUPA_POWER_2 - KROUPA_POWER_3));
 
 // Constants for the Muller and Mandel remnant mass and kick prescriptions
 constexpr double MULLERMANDEL_M1                        = 2.0;	

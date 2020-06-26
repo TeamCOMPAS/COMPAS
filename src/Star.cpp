@@ -28,13 +28,13 @@ Star::Star(const unsigned long int p_RandomSeed,
     // spinning fast enough for it to be chemically homogeneous
 
     if (OPTIONS->CHE_Option() != CHE_OPTION::NONE && utils::Compare(m_Star->Omega(), m_Star->OmegaCHE()) >= 0) {    // CHE?
-        SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                       // yes
+        (void)SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                 // yes
     }
     else if (p_MZAMS <= 0.7) {                                                                                      // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
-        SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                                                                    // MS <= 0.0 Msol
+        (void)SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                                                              // MS <= 0.0 Msol
     }
     else {
-        SwitchTo(STELLAR_TYPE::MS_GT_07, true);                                                                     // MS > 0.7 Msol
+        (void)SwitchTo(STELLAR_TYPE::MS_GT_07, true);                                                               // MS > 0.7 Msol
     }
 
     m_SaveStar = nullptr;
@@ -114,13 +114,16 @@ Star& Star::operator = (const Star& p_Star) {
  * replaces it with pointer to newly instantiated object
  *
  *
- * void SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialState)
+ * STELLAR_TYPE SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialState)
  *
  * @param   [IN]    p_StellarType               StellarType to switch to
  * @param   [IN]    p_SetInitialType            Indicates whether the initial stellar type of the star should be set to p_StellarType
  *                                              (optional, default = false)
+ * @return                                      Stellar type of star before switch (previous stellar type)
  */
-void Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType) {
+STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType) {
+
+    STELLAR_TYPE stellarTypePrev = m_Star->StellarType();
 
     if (p_StellarType != m_Star->StellarType()) {
         BaseStar *ptr = nullptr;
@@ -153,6 +156,8 @@ void Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType) {
             if (p_SetInitialType) m_Star->SetInitialType(p_StellarType);
         }
     }
+
+    return stellarTypePrev;
 }
 
 
@@ -268,8 +273,8 @@ STELLAR_TYPE Star::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
     STELLAR_TYPE stellarType = m_Star->UpdateAttributesAndAgeOneTimestep(p_DeltaMass, p_DeltaMass0, p_DeltaTime, p_ForceRecalculate);
 
     if (p_Switch && (stellarType != m_Star->StellarType())) {                               // switch to new stellar type if necessary?
-        STELLAR_TYPE stellarTypePrev = m_Star->StellarType();                               // yes - record current stellar type (will be previous...)
-        SwitchTo(stellarType);                                                              // switch
+        STELLAR_TYPE stellarTypePrev = SwitchTo(stellarType);                               // yes - switch
+        m_Star->SetStellarTypePrev(stellarTypePrev);                                        // record previous stellar type
         m_Star->CalculateAllTimescales();                                                   // calculate dynamical, thermal, nuclear and radial expansion timescales
         
         // recalculate stellar attributes after switching if necessary - transition may not be continuous (e.g. CH -> HeMS)
@@ -431,7 +436,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
 
     // take the timestep
 
-    SwitchTo(stellarType);                                                                                      // switch phase if required  JR: whether this goes before or after the log record is a little problematic, but in the end probably doesn't matter too much
+    (void)SwitchTo(stellarType);                                                                                // switch phase if required  JR: whether this goes before or after the log record is a little problematic, but in the end probably doesn't matter too much
 
     (void)m_Star->ResolveMassLoss();                                                                            // apply wind mass loss if required     JR: should this really be before the call to SwitchTo()?  It isn't in the original code
 
