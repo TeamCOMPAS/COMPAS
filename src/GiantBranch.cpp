@@ -1080,7 +1080,7 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
 /*
  * Calculate remnant mass given COCoreMass and HeCoreMass
  *
- * Muller and Mandel
+ * Mandel & Mueller, 2020
  *
  *
  * double CalculateRemnantMassByMullerMandel (const double p_COCoreMass, const double p_HeCoreMass)
@@ -1122,18 +1122,18 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
     }
     else {						// this is an NS
 	if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
-		while(remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS){
+		while(remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass+p_HeCoreMass) ){
 			remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
 		}
 	}
 	else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
-                while(remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS){
+                while(remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass+p_HeCoreMass) ){
                         remnantMass = MULLERMANDEL_MU2A + 
 			MULLERMANDEL_MU2B/(MULLERMANDEL_M2-MULLERMANDEL_M1)*(p_COCoreMass-MULLERMANDEL_M1)+RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
                 }
         }
         else {
-                while(remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS){
+                while(remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass+p_HeCoreMass) ){
                         remnantMass = MULLERMANDEL_MU3A + 
 			MULLERMANDEL_MU3B/(MULLERMANDEL_M3-MULLERMANDEL_M2)*(p_COCoreMass-MULLERMANDEL_M2)+RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
                 }
@@ -1498,7 +1498,7 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
             // JR: todo: fallback fraction not calculated here?
             break;
 
-	case REMNANT_MASS_PRESCRIPTION::MULLERMANDEL:                                                         // Muller + Mandel
+	case REMNANT_MASS_PRESCRIPTION::MULLERMANDEL:                                                         // Mandel & Mueller, 2020
 
             m_Mass = CalculateRemnantMassByMullerMandel(m_COCoreMass, m_HeCoreMass);
 
