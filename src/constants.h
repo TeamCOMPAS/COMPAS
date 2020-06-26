@@ -309,9 +309,10 @@
 //                                      - Issue #260 - Corrected recalculation of ZAMS values after eqilibration and cicularisation at birth when using grid files
 //                                      - Issue #266 - Corrected calculation in BaseBinaryStar::SampleInitialMassDistribution() for KROUPA IMF distribution
 //                                      - Issue #275 - Previous stellar type not set when stellar type is switched mid-timestep - now fixed
+// 02.11.05      IM - Jun 26, 2020 - Defect repair:
+//					- Issue #280 - Stars undergoing RLOF at ZAMS after masses are equalised are removed from run even if AllowRLOFatZAMS set
 
-
-const std::string VERSION_STRING = "02.11.04";
+const std::string VERSION_STRING = "02.11.05";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
