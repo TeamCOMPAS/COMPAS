@@ -79,9 +79,9 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
         m_MassesEquilibrated        = false;                                                                                                    // default
         m_MassesEquilibratedAtBirth = false;                                                                                                    // default
 
-        if (OPTIONS->AllowRLOFAtBirth() &&                                                                                                      // over-contact binaries at birth allowed?
-           (utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0)) {                                        // either star overflowing Roche Lobe?
-            rlof                        = false;                                                                                                // over-contact at birth allowed - set this false
+        rlof = utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0;					// either star overflowing Roche Lobe?
+
+        if (rlof && OPTIONS->AllowRLOFAtBirth()) {                                                                                                // over-contact binaries at birth allowed?    
             m_MassesEquilibratedAtBirth = true;                                                                                                 // record that we've equilbrated at birth
 
             mass1                       = (mass1 + mass2) / 2.0;                                                                                // equilibrate masses
@@ -103,8 +103,6 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
             rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass2, mass1));
         }
 
-        rlof = utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0;
-
         m_Star1->SetCompanion(m_Star2);
         m_Star2->SetCompanion(m_Star1);
 
@@ -120,7 +118,7 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
                                                      utils::Compare(m_SemiMajorAxis, OPTIONS->SemiMajorAxisDistributionMin()) < 0 ||            // semiMajorAxis is outside (below) parameter space
                                                      utils::Compare(m_SemiMajorAxis, OPTIONS->SemiMajorAxisDistributionMax()) > 0;              // semiMajorAxis is outside (above) parameter space
         }
-    } while (rlof || (!OPTIONS->AllowTouchingAtBirth() && merger) || secondarySmallerThanMinimumMass || initialParametersOutsideParameterSpace);
+    } while ( (!OPTIONS->AllowRLOFAtBirth() && rlof) || (!OPTIONS->AllowTouchingAtBirth() && merger) || secondarySmallerThanMinimumMass || initialParametersOutsideParameterSpace);
 
     SetRemainingCommonValues();                                                                                                             // complete the construction of the binary
 }
