@@ -93,7 +93,7 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
 
             m_Eccentricity              = 0.0;                                                                                                  // now circular
 
-            // create new stars with equal masses - eveything else is recalculated
+            // create new stars with equal masses - all other ZAMS values recalculated
             delete m_Star1;
             m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, {}, m_LBVfactor, m_WolfRayetFactor);
             delete m_Star2;
@@ -173,18 +173,23 @@ BaseBinaryStar::BaseBinaryStar(const AIS           &p_AIS,
 
         m_MassesEquilibratedAtBirth = true;                                                                                                     // record that we've equilbrated
 
-        double newMass1             = (mass1 + mass2) / 2.0;                                                                                    // equilibrate masses
-        double newMass2             = newMass1;                                                                                                 // ditto
+        mass1            = (mass1 + mass2) / 2.0;                                                                                               // equilibrate masses
+        mass2            = mass1;                                                                                                               // ditto
             
-        double M                    = newMass1 + newMass2;
-        double m1m2                 = newMass1 * newMass2;
-        m_SemiMajorAxis            *= 16.0 * m1m2 * m1m2 / (M * M * M * M) * (1.0 - (m_Eccentricity * m_Eccentricity));                         // circularise; conserve angular momentum
+        double M         = mass1 + mass2;
+        double m1m2      = mass1 * mass2;
+        m_SemiMajorAxis *= 16.0 * m1m2 * m1m2 / (M * M * M * M) * (1.0 - (m_Eccentricity * m_Eccentricity));                                    // circularise; conserve angular momentum
 
         m_Eccentricity              = 0.0;                                                                                                      // now circular
-
-        // equilibrate masses - recalculate everything else
-        (void)m_Star1->UpdateAttributesAndAgeOneTimestep(newMass1 - mass1, newMass1 - mass1, 0.0, true);
-        (void)m_Star2->UpdateAttributesAndAgeOneTimestep(newMass2 - mass2, newMass2 - mass2, 0.0, true);
+            
+        // create new stars with equal masses - all other ZAMS values recalculated
+        delete m_Star1;
+        m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, p_KickParameters1, m_LBVfactor, m_WolfRayetFactor);
+        delete m_Star2;
+        m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, p_KickParameters2, m_LBVfactor, m_WolfRayetFactor);
+        
+        m_Star1->SetCompanion(m_Star2);
+        m_Star2->SetCompanion(m_Star1);
     }
 
     SetRemainingCommonValues();                                                                                                                 // complete the construction of the binary
@@ -288,25 +293,25 @@ void BaseBinaryStar::SetRemainingCommonValues() {
         // newly-assigned rotational frequencies
 
         // star 1
-        if (utils::Compare(m_OrbitalVelocity, m_Star1->OmegaCHE()) >= 0) {                                                                      // star 1 CH?
-            if (m_Star1->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star1->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);  // yes, switch if not alread Chemically Homogeneous
+        if (utils::Compare(m_OrbitalVelocity, m_Star1->OmegaCHE()) >= 0) {                                                                              // star 1 CH?
+            if (m_Star1->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star1->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not alread Chemically Homogeneous
         }
-        else if (m_Star1->MZAMS() <= 0.7) {                                                                                                     // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
-            if (m_Star1->StellarType() != STELLAR_TYPE::MS_LTE_07) m_Star1->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                            // MS <= 0.7 Msol - switch if necessary
+        else if (m_Star1->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
+            if (m_Star1->StellarType() != STELLAR_TYPE::MS_LTE_07) (void)m_Star1->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                              // MS <= 0.7 Msol - switch if necessary
         }
         else {
-            if (m_Star1->StellarType() != STELLAR_TYPE::MS_GT_07) m_Star1->SwitchTo(STELLAR_TYPE::MS_GT_07, true);                              // MS > 0.7 Msol - switch if necessary
+            if (m_Star1->StellarType() != STELLAR_TYPE::MS_GT_07) (void)m_Star1->SwitchTo(STELLAR_TYPE::MS_GT_07, true);                                // MS > 0.7 Msol - switch if necessary
         }
 
         // star 2
-        if (utils::Compare(m_OrbitalVelocity, m_Star2->OmegaCHE()) >= 0) {                                                                      // star 2 CH?
-            if (m_Star2->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star2->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);  // yes, switch if not alread Chemically Homogeneous
+        if (utils::Compare(m_OrbitalVelocity, m_Star2->OmegaCHE()) >= 0) {                                                                              // star 2 CH?
+            if (m_Star2->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star2->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not alread Chemically Homogeneous
         }
-        else if (m_Star2->MZAMS() <= 0.7) {                                                                                                     // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
-            if (m_Star2->StellarType() != STELLAR_TYPE::MS_LTE_07) m_Star2->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                            // MS <= 0.0 Msol - switch if necessary
+        else if (m_Star2->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
+            if (m_Star2->StellarType() != STELLAR_TYPE::MS_LTE_07) (void)m_Star2->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                              // MS <= 0.0 Msol - switch if necessary
         }
         else {
-            if (m_Star2->StellarType() != STELLAR_TYPE::MS_GT_07) m_Star2->SwitchTo(STELLAR_TYPE::MS_GT_07, true);                              // MS > 0.7 Msol - switch if necessary
+            if (m_Star2->StellarType() != STELLAR_TYPE::MS_GT_07) (void)m_Star2->SwitchTo(STELLAR_TYPE::MS_GT_07, true);                                // MS > 0.7 Msol - switch if necessary
         }
     }
 
@@ -1030,8 +1035,8 @@ double BaseBinaryStar::SampleInitialMassDistribution() {
 
                     double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
                     double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
-                    double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2_POWER_2_3) - KROUPA_BREAK_2_PLUS1_3);
-
+                    double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+                    
                     double C1    = 1.0 / (term1 + term2 + term3);
                     double C2    = C1 * KROUPA_BREAK_1_POWER_1_2;
                     double C3    = C2 * KROUPA_BREAK_2_POWER_2_3;
