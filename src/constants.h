@@ -310,9 +310,11 @@
 //                                      - Issue #266 - Corrected calculation in BaseBinaryStar::SampleInitialMassDistribution() for KROUPA IMF distribution
 //                                      - Issue #275 - Previous stellar type not set when stellar type is switched mid-timestep - now fixed
 // 02.11.05      IM - Jun 26, 2020 - Defect repair:
-//					- Issue #280 - Stars undergoing RLOF at ZAMS after masses are equalised are removed from run even if AllowRLOFatZAMS set
+//					                    - Issue #280 - Stars undergoing RLOF at ZAMS after masses are equalised were removed from run even if AllowRLOFatZAMS set
+// 02.12.00      IM - Jun 29, 2020 - Defect repair:
+//                                      - Issue 277 - move UpdateAttributesAndAgeOneTimestepPreamble() to after ResolveSupernova() to avoid inconsistency
 
-const std::string VERSION_STRING = "02.11.05";
+const std::string VERSION_STRING = "02.12.00";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
