@@ -22,10 +22,10 @@ jobs:
         run: echo $COMPAS_VERSION
         
       - name: Build and tag Docker image
-        run: docker build -t ${{ secrets.DOCKER_REPO }}:$COMPAS_VERSION -t ${{ secrets.DOCKER_REPO }}:latest .
+        run: docker build -t timriley98/compas-ci-7:$COMPAS_VERSION -t timriley98/compas-ci-7:latest .
         
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.DOCKER_REPO }}:$COMPAS_VERSION
-          docker push${{ secrets.DOCKER_REPO }}:latest
+          docker push timriley98/compas-ci-7:$COMPAS_VERSION
+          docker pushtimriley98/compas-ci-7:latest
           
