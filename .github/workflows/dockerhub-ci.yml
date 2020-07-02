@@ -27,5 +27,5 @@ jobs:
       - name: Push Docker image
         run: |
           docker push timriley98/compas-ci-7:$COMPAS_VERSION
-          docker pushtimriley98/compas-ci-7:latest
+          docker push timriley98/compas-ci-7:latest
           
