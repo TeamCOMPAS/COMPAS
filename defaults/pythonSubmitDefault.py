@@ -17,8 +17,16 @@ class pythonProgramOptions:
 
     # Do './COMPAS --help' to see all options
     #-- Define variables
-    git_directory = os.environ.get('COMPAS_ROOT_DIR')
-    compas_executable = os.path.join(git_directory, 'src/COMPAS')
+    compas_executable_override = os.environ.get('COMPAS_EXECUTABLE_PATH')
+
+    if (compas_executable_override is None):
+        git_directory = os.environ.get('COMPAS_ROOT_DIR')
+        compas_executable = os.path.join(git_directory, 'src/COMPAS')
+    else:
+        compas_executable = compas_executable_override
+
+    print('Using', compas_executable, 'as COMPAS executable')
+
     number_of_binaries = 10  #number of binaries per batch
     populationPrinting = False
 
