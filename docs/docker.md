@@ -147,7 +147,7 @@ The `docker run ...` examples above both use the `-it` options.
 If you want to run multiple instances of COMPAS, I would highly recommend using [detached mode](https://docs.docker.com/engine/reference/run/#detached--d) (`-d`) instead.
 All container output will be hidden.
 
-An example where this would be useful is if you we're running 4 instances of COMPAS at once.
+An example where this would be useful is if you were running 4 instances of COMPAS at once.
 You could copy/paste the following into the terminal...
 ```
 docker run --rm -d -v $(pwd)/compas-logs/run_0:/app/COMPAS/logs -v $(pwd)/pythonSubmitMMsolar_01.py:/app/starts/pythonSubmit.py teamcompas/compas python3 /app/starts/pythonSubmit.py &
@@ -180,6 +180,8 @@ At time of writing, [GitHub Actions](https://github.com/features/actions) is fac
 You can realistically expect the latest COMPAS docker image to be available 5 - 10 minutes after pushing/merging.
 
 The Github Actions configuration is in `/.github/workflows/dockerhub-ci.yml`.
+
+Atlassian has a [good writeup](https://www.atlassian.com/continuous-delivery/principles/continuous-integration-vs-delivery-vs-deployment) about what CI/CD is.
 
 ---
 
