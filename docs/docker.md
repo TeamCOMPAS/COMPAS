@@ -5,7 +5,7 @@ Docker has been added to COMPAS to reduce time and effort required to set up the
 
 Instead of having to install and configure several libraries and tools (e.g. python/pip, numpy, g++, boost) which can vary considerably beween operating systems and existing toolchains, users can instead opt to install Docker and run COMPAS with a single command.
 
-This also give users the ability to run COMPAS on cloud solutions like [AWS EC2](https://aws.amazon.com/ec2/) or [Google Compute Engine](https://cloud.google.com/compute) where hundreds of cores can be provisioned without having to manually configure the environment.
+This also gives users the ability to run COMPAS on cloud solutions like [AWS EC2](https://aws.amazon.com/ec2/) or [Google Compute Engine](https://cloud.google.com/compute) where hundreds of cores can be provisioned without having to manually configure the environment.
 
 Docker works by creating an isolated and standalone environment known as a [container](https://www.docker.com/resources/what-container).
 Containers can be created or destroyed without affecting the host machine or other containers*.
@@ -80,8 +80,7 @@ the image to run
 the command to run when the container starts
 
 `--outputPath /app/COMPAS/logs`
-anything after the given start command is passed to that command
-in this case, forcing logs to go to the directory that is mapped to the host machine
+anything after the given start command is passed to that command, in this case, forcing logs to go to the directory that is mapped to the host machine
 
 
 #### Run pythonSubmit.py
