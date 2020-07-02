@@ -43,46 +43,6 @@ To see all available versions, go to the TeamCOMPAS docker hub page [here](https
 
 COMPAS can still be configured via command line arguments passed to the COMPAS executable or via a `pythonSubmit.py` file.
 
-#### Run the COMPAS executable
-
-To run the COMPAS executable directly (i.e. without `pythonSubmit.py`)
-```
-docker run                                  \
-    --rm                                    \
-    -it                                     \
-    -v $(pwd)/compas-logs:/app/COMPAS/logs  \
-    teamcompas/compas                       \
-    bin/COMPAS                              \
-    --outputPath /app/COMPAS/logs
-```
-
-Breaking down this command:
-
-`docker run`
-creates a container
-
-`--rm`
-[Clean up](https://docs.docker.com/engine/reference/run/#clean-up---rm)
-destroy the container once it finishes running the command
-
-`-it`
-short for [-i and -t](https://docs.docker.com/engine/reference/run/#foreground) - provides an interactive terminal
-
-`-v <path-on-host>:<path-in-container>`
-[Bind mounts](https://docs.docker.com/storage/bind-mounts/)
-mount `<path-on-host>` to `<path-in-container>`
-In this instance, make it so `$(pwd)/compas-logs on my machine is the same as `/app/COMPAS/logs` inside the container
-
-`teamcompas/compas`
-the image to run
-
-`bin/COMPAS`
-the command to run when the container starts
-
-`--outputPath /app/COMPAS/logs`
-anything after the given start command is passed to that command, in this case, forcing logs to go to the directory that is mapped to the host machine
-
-
 #### Run pythonSubmit.py
 
 To run COMPAS via a `pythonSubmit.py` file, the command is a little more complex.
@@ -125,6 +85,50 @@ the image to run
 
 `python3 /app/starts/pythonSubmit.py`
 the command to run when the container starts
+
+
+#### Run the COMPAS executable
+
+To run the COMPAS executable directly (i.e. without `pythonSubmit.py`)
+```
+docker run                                  \
+    --rm                                    \
+    -it                                     \
+    -v $(pwd)/compas-logs:/app/COMPAS/logs  \
+    teamcompas/compas                       \
+    bin/COMPAS                              \
+    --number-of-binaries                    \
+    --outputPath /app/COMPAS/logs
+```
+
+Breaking down this command:
+
+`docker run`
+creates a container
+
+`--rm`
+[Clean up](https://docs.docker.com/engine/reference/run/#clean-up---rm)
+destroy the container once it finishes running the command
+
+`-it`
+short for [-i and -t](https://docs.docker.com/engine/reference/run/#foreground) - provides an interactive terminal
+
+`-v <path-on-host>:<path-in-container>`
+[Bind mounts](https://docs.docker.com/storage/bind-mounts/)
+mount `<path-on-host>` to `<path-in-container>`
+In this instance, make it so `$(pwd)/compas-logs on my machine is the same as `/app/COMPAS/logs` inside the container
+
+`teamcompas/compas`
+the image to run
+
+`bin/COMPAS`
+the command to run when the container starts
+
+`--number-of-binaries`
+anything after the given start command is passed to that command, in this case, the flag to set the number of binaries
+
+`--outputPath /app/COMPAS/logs`
+same as above, anthing after the start command is given to that start command, here it forces logs to go to the directory that is mapped to the host machine
 
 
 More info on `docker run` [here](https://docs.docker.com/engine/reference/run/)
