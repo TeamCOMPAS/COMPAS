@@ -53,7 +53,7 @@ docker run                                                  \
     -it                                                     \
     -v $(pwd)/compas-logs:/app/COMPAS/logs                  \
     -v $(pwd)/pythonSubmit.py:/app/starts/pythonSubmit.py   \
-    -e COMPAS_EXECUTABLE_PATH=/app/COMPAS bin/COMPAS        \
+    -e COMPAS_EXECUTABLE_PATH=/app/COMPAS/bin/COMPAS        \
     -e COMPAS_LOGS_OUTPUT_DIR_PATH=/app/COMPAS/logs         \
     teamcompas/compas                                       \
     python3 /app/starts/pythonSubmit.py                     
@@ -97,8 +97,8 @@ docker run                                  \
     -v $(pwd)/compas-logs:/app/COMPAS/logs  \
     teamcompas/compas                       \
     bin/COMPAS                              \
-    --number-of-binaries                    \
-    --outputPath /app/COMPAS/logs
+    --number-of-binaries=5                  \
+    --outputPath=/app/COMPAS/logs
 ```
 
 Breaking down this command:
