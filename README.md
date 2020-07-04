@@ -25,7 +25,7 @@ If you use this code or parts of this code for results presented in a scientific
 
 We anticipate releasing a more detailed and comprehensive methods paper in the future. We also greatly appreciate an acknowledgement of the form: 
 
->_Simulations in this paper made use of the COMPAS rapid binary population synthesis code which is freely available at http://github.com/TeamCOMPAS/COMPAS_.
+>_Simulations in this paper made use of the COMPAS rapid binary population synthesis code (version X.X.X), which is freely available at http://github.com/TeamCOMPAS/COMPAS_.
 
 Furthermore,
   * If you use COMPAS's importance sampling algorithm STROOPWAFEL, please cite 
