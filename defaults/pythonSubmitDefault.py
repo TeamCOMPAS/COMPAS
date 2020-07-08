@@ -17,8 +17,15 @@ class pythonProgramOptions:
 
     # Do './COMPAS --help' to see all options
     #-- Define variables
-    git_directory = os.environ.get('COMPAS_ROOT_DIR')
-    compas_executable = os.path.join(git_directory, 'src/COMPAS')
+    compas_executable_override = os.environ.get('COMPAS_EXECUTABLE_PATH')
+    print('compas_executable_override', compas_executable_override)
+    
+    if (compas_executable_override is None):
+        git_directory = os.environ.get('COMPAS_ROOT_DIR')
+        compas_executable = os.path.join(git_directory, 'src/COMPAS')
+    else:
+        compas_executable = compas_executable_override
+
     number_of_binaries = 10  #number of binaries per batch
     populationPrinting = False
 
@@ -28,8 +35,14 @@ class pythonProgramOptions:
     else:
         random_seed = 0 # If you want a random seed, use: np.random.randint(2,2**63-1)
 
-    output = os.getcwd()
-    output_container = None                 # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
+    compas_logs_output_override = os.environ.get('COMPAS_LOGS_OUTPUT_DIR_PATH')
+    
+    if (compas_logs_output_override is None):
+        output = os.getcwd()
+        output_container = None                 # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
+    else:
+        output = compas_logs_output_override
+        output_container = None
 
     #-- option to make a grid of hyperparameter values at which to produce populations.
     #-- If this is set to true, it will divide the number_of_binaries parameter equally
