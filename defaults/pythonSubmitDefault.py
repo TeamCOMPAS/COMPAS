@@ -41,7 +41,8 @@ class pythonProgramOptions:
         output = os.getcwd()
         output_container = None                 # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
     else:
-        output_container = compas_logs_output_override
+        output = compas_logs_output_override
+        output_container = None
 
     #-- option to make a grid of hyperparameter values at which to produce populations.
     #-- If this is set to true, it will divide the number_of_binaries parameter equally
