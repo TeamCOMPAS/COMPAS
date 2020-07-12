@@ -119,6 +119,7 @@ public:
     double                      SN_TrueAnomaly() const                                                                      { return m_Star->SN_TrueAnomaly(); }
     SN_EVENT                    SN_Type() const                                                                             { return m_Star->SN_Type(); }
     COMPAS_VARIABLE             StellarPropertyValue(const T_ANY_PROPERTY p_Property) const                                 { return m_Star->StellarPropertyValue(p_Property); }
+    STELLAR_TYPE                StellarTypePrev() const                                                                     { return m_Star->StellarTypePrev(); }
     double                      Temperature() const                                                                         { return m_Star->Temperature(); }
     double                      ThermalTimescale() const                                                                    { return m_Star->ThermalTimescale(); }
     double                      Timescale(TIMESCALE p_Timescale) const                                                      { return m_Star->Timescale(p_Timescale); }
@@ -204,9 +205,9 @@ public:
 
     void            ResolveAccretion(const double p_AccretionMass)                                              { m_Star->ResolveAccretion(p_AccretionMass); }
 
-    void            ResolveEnvelopeLossAndSwitch()                                                              { SwitchTo(m_Star->ResolveEnvelopeLoss(true)); }
+    void            ResolveEnvelopeLossAndSwitch()                                                              { (void)SwitchTo(m_Star->ResolveEnvelopeLoss(true)); }
 
-    void            ResolveRemnantAfterEnvelopeLossAndSwitch()                                                  { SwitchTo(m_Star->ResolveRemnantAfterEnvelopeLoss()); }
+    void            ResolveRemnantAfterEnvelopeLossAndSwitch()                                                  { (void)SwitchTo(m_Star->ResolveRemnantAfterEnvelopeLoss()); }
 
     STELLAR_TYPE    ResolveRemnantAfterEnvelopeLoss()                                                           { return m_Star->ResolveRemnantAfterEnvelopeLoss(); }
 
@@ -217,9 +218,9 @@ public:
     void            SetSNCurrentEvent(const SN_EVENT p_SNEvent)                                                 { m_Star->SetSNCurrentEvent(p_SNEvent); }
     void            SetSNPastEvent(const SN_EVENT p_SNEvent)                                                    { m_Star->SetSNPastEvent(p_SNEvent); }
 
-    double     	    SN_KickVelocity()       									{ return m_Star->SN_KickVelocity() ; }
+    double     	    SN_KickVelocity()       									                                { return m_Star->SN_KickVelocity() ; }
 
-    void            SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
+    STELLAR_TYPE    SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
 
     void            UpdateAgeAfterMassLoss()                                                                    { m_Star->UpdateAgeAfterMassLoss(); }
 

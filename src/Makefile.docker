@@ -6,11 +6,13 @@
 # e.g. make CPP=clang will use clang instaed of g++
 # (note uppercase 'CPP' and no whitespace around '=')
 
-CPP = g++
+CPP := g++
 BOOST :=
 
+ODIR := ../obj
+BDIR := ../bin
 
-EXE := COMPAS
+EXE := $(BDIR)/COMPAS
 
 # build COMPAS
 ifeq ($(filter clean,$(MAKECMDGOALS)),)
@@ -21,64 +23,66 @@ endif
 OPTFLAGS :=
 ifneq ($(filter fast,$(MAKECMDGOALS)),)
   $(info Adding optimisation flags into the compilation - will take longer to build)
-  OPTFLAGS += -march=native -O3
+  OPTFLAGS += -O3
 endif
 
 ifneq ($(filter staticfast,$(MAKECMDGOALS)),)
   $(info Adding optimisation flags into the (static) compilation - will take longer to build)
-  OPTFLAGS += -march=native -O3
+  OPTFLAGS += -O3
 endif
 
 
-CXXFLAGS := -g -std=c++11 -Wall $(OPTFLAGS)
+CXXFLAGS := -std=c++11 -Wall --param=max-vartrack-size=0 $(OPTFLAGS)
 ICFLAGS := -I$(BOOST)/include -I.
 LFLAGS :=  -L$(BOOST)/lib -lgsl -lgslcblas -lstdc++ -lm -lz -ldl -lboost_filesystem -lboost_program_options -lboost_system -Xlinker -rpath -Xlinker $(BOOST)/lib
-SOURCES :=                                                               \
+
+SOURCES :=								\
 			utils.cpp					\
-									\
+										\
 			Rand.cpp					\
 			Options.cpp					\
 			Log.cpp						\
 			Errors.cpp					\
-									\
-			BaseStar.cpp					\
-									\
+										\
+			BaseStar.cpp				\
+										\
 			Star.cpp					\
-									\
-			MainSequence.cpp				\
-			MS_lte_07.cpp					\
-			MS_gt_07.cpp					\
-									\
+										\
+			MainSequence.cpp			\
+			MS_lte_07.cpp				\
+			MS_gt_07.cpp				\
+										\
 			CH.cpp						\
-									\
-			GiantBranch.cpp					\
+										\
+			GiantBranch.cpp				\
 			HG.cpp						\
 			FGB.cpp						\
 			CHeB.cpp					\
 			EAGB.cpp					\
 			TPAGB.cpp					\
-									\
+										\
 			HeMS.cpp					\
 			HeHG.cpp					\
 			HeGB.cpp					\
-									\
+										\
 			HeWD.cpp					\
 			COWD.cpp					\
 			ONeWD.cpp					\
-									\
+										\
 			NS.cpp						\
 			BH.cpp						\
 			MR.cpp						\
-									\
+										\
 			AIS.cpp						\
-									\
-			BinaryConstituentStar.cpp			\
-			BaseBinaryStar.cpp				\
-			BinaryStar.cpp					\
-									\
+										\
+			BinaryConstituentStar.cpp	\
+			BaseBinaryStar.cpp			\
+			BinaryStar.cpp				\
+										\
 			main.cpp
 
 OBJI := $(SOURCES:.cpp=.o)
+OBJS := $(patsubst %,$(ODIR)/%,$(OBJI))
 
 # Create the list of header files, and remove
 # main.h from this auto-generated list
@@ -86,23 +90,23 @@ INCL := $(SOURCES:.cpp=.h)
 INCL := $(filter-out main.h,$(INCL))
 
 all: $(EXE)
-	@echo $(OBJI)
+	@echo $(OBJS)
 
-$(EXE): $(OBJI)
+$(EXE): $(OBJS)
 	@echo $(SOURCES)
-	@echo $(OBJI)
-	$(CPP) $(OBJI) $(LFLAGS) -o $@
+	@echo $(OBJS)
+	$(CPP) $(OBJS) $(LFLAGS) -o $@
 
 static: $(EXE)_STATIC
-	@echo $(OBJI)
+	@echo $(OBJS)
 
-$(EXE)_STATIC: $(OBJI)
+$(EXE)_STATIC: $(OBJS)
 	@echo $(SOURCES)
-	@echo $(OBJI)
-	$(CPP) $(OBJI) $(LFLAGS) -static -o $@
+	@echo $(OBJS)
+	$(CPP) $(OBJS) $(LFLAGS) -static -o $@
 
-.cpp.o: $(SOURCES) $(INCL) Makefile
-	$(CPP) $(CXXFLAGS) $(ICFLAGS) -c $?
+$(ODIR)/%.o: %.cpp
+	$(CPP) $(CXXFLAGS) $(ICFLAGS) -o $@ -c $?
 
 .phony: clean static fast staticfast
 
@@ -110,4 +114,4 @@ fast: $(EXE)
 staticfast:$(EXE)_STATIC
 
 clean:
-	rm -f $(OBJI) $(EXE) $(EXE)_STATIC
+	rm -f $(OBJS) $(EXE) $(EXE)_STATIC

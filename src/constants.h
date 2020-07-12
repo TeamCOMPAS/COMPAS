@@ -273,7 +273,7 @@
 // 02.09.04      JR - Apr 03, 2020 - Defect repair:
 //                                      - removed IsUSSN() from IsSNEvent() definition in BinaryConstituentStar.cpp (USSN flag indicates just US, not USSN. Needs to be tidied-up properly)
 // 02.09.05	     IM - Apr 03, 2020 - Defect repair:
-//					                    - fixed timescale calculation issue for newly created HeHG stars (from stripped EAGB stars); fixes drop in CO core mass
+//			                            - fixed timescale calculation issue for newly created HeHG stars (from stripped EAGB stars); fixes drop in CO core mass
 // 02.09.06      JR - Apr 07, 2020 - Defect repair:
 //                                      - corrected calculation in return statement for Rand::Random(const double p_Lower, const double p_Upper) (issue #201)
 //                                      - corrected calculation in return statement for Rand::RandomInt(const double p_Lower, const double p_Upper) (issue #201)
@@ -288,10 +288,35 @@
 // 02.10.02      SS - Apr 16, 2020 - Bug Fix for issue #105 ; core and envelope masses for HeHG and TPAGB stars
 // 02.10.03      JR - Apr 17, 2020 - Defect repair:
 //                                      - added LBV and WR winds to SSE (issue #223)
+// 02.10.04	     IM - Apr 25, 2020 - Minor enhancement: moved Mueller & Mandel prescription constants to constants.h, other cleaning of this option
+// 02.10.05      JR - Apr 26, 2020 - Enhancements:
+//                                      - Issue #239 - added actual random seed to Run_Details
+//                                      - Issue #246 - changed Options.cpp to ignore --single-star-mass-max if --single-star-mass-steps = 1.  Already does in main.cpp.
+// 02.10.06      JR - Apr 26, 2020 - Defect repair:
+//                                      - Issue #233 - corrected cicularisation formalae used in both BaseBinartStar constructors
+// 02.11.00      JR - Apr 27, 2020 - Enhancement:
+//                                      - Issue #238 - add supernova kick functionality to SSE grid file (+ updated docs)
+//                                   Defect repairs:
+//                                      - fixed typo in Options.h: changed '#include "rand.h" to '#include "Rand.h"
+//                                      - fixed printing of actual random seed in Run_Details file (moved to Log.cpp from Options.cpp: initial random seed is set after options are set)
+// 02.11.01	     IM - May 20, 2020 - Defect repair: 
+//                                      - changed max NS mass for MULLERMANDEL prescription to a self-consistent value
+// 02.11.02      IM - Jun 15, 2020 - Defect repair:
+//                                      - added constants CBUR1 and CBUR2 to avoid hardcoded limits for He core masses leading to partially degenerate CO cores
+// 02.11.03     RTW - Jun 20, 2020 - Enhancement:
+//                                      - Issue #264 - fixed mass transfer printing bug 
+// 02.11.04      JR - Jun 25, 2020 - Defect repairs:
+//                                      - Issue #260 - Corrected recalculation of ZAMS values after eqilibration and cicularisation at birth when using grid files
+//                                      - Issue #266 - Corrected calculation in BaseBinaryStar::SampleInitialMassDistribution() for KROUPA IMF distribution
+//                                      - Issue #275 - Previous stellar type not set when stellar type is switched mid-timestep - now fixed
+// 02.11.05      IM - Jun 26, 2020 - Defect repair:
+//					                    - Issue #280 - Stars undergoing RLOF at ZAMS after masses are equalised were removed from run even if AllowRLOFatZAMS set
+// 02.12.00      IM - Jun 29, 2020 - Defect repair:
+//                                      - Issue 277 - move UpdateAttributesAndAgeOneTimestepPreamble() to after ResolveSupernova() to avoid inconsistency
 
-const std::string VERSION_STRING = "02.10.03";
+const std::string VERSION_STRING = "02.12.00";
 
-// Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
+// Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
@@ -526,6 +551,8 @@ constexpr double MCH                                    = 1.44;                 
 constexpr double MECS                                   = 1.38;                                                     // Mass of Neutron-Star (NS) formed in electron capture supernova (ECS). From Belczysnki+2008, before eq. 3.
 constexpr double MECS_REM                               = 1.26;                                                     // Gravitational mass of Neutron-Star (NS) formed in electron capture supernova (ECS). From Belczysnki+2008, eq. 3
 constexpr double MASS_LOSS_ETA                          = 0.5;                                                      // Mass loss efficiency -- can be set in the code as an option easily enough
+constexpr double MCBUR1					= 1.6;							    // Minimum He core mass to avoid fully degenerate CO core formation 
+constexpr double MCBUR2					= 2.25;							    // He core mass above which the CO core is completely non-degenerate
 
 constexpr double LBV_LUMINOSITY_LIMIT_STARTRACK         = 6.0E5;                                                    // STARTRACK LBV luminosity limit
 constexpr double LBV_LUMINOSITY_LIMIT_VANBEVEREN        = 3.0E5;                                                    // VANBEVEREN LBV luminosity limit
@@ -603,8 +630,28 @@ constexpr double KROUPA_BREAK_1_POWER_1_2               = 0.08;                 
 
 constexpr double KROUPA_BREAK_2_PLUS1_2                 = 1.2311444133449162844993930691677431098761;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_2);
 constexpr double KROUPA_BREAK_2_PLUS1_3                 = 2.4622888266898325689987861383354862197522;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_3);
-constexpr double KROUPA_BREAK_2_POWER_2_3               = 0.5;                                                      // pow(KROUPA_BREAK_2, (KROUPA_POWER_2 - KROUPA_POWER_2));
+constexpr double KROUPA_BREAK_2_POWER_2_3               = 0.5;                                                      // pow(KROUPA_BREAK_2, (KROUPA_POWER_2 - KROUPA_POWER_3));
 
+// Constants for the Muller and Mandel remnant mass and kick prescriptions
+constexpr double MULLERMANDEL_M1                        = 2.0;	
+constexpr double MULLERMANDEL_M2                        = 3.0; 
+constexpr double MULLERMANDEL_M3                        = 7.0; 
+constexpr double MULLERMANDEL_M4                        = 8.0; 
+constexpr double MULLERMANDEL_MU1                       = 1.2;
+constexpr double MULLERMANDEL_SIGMA1                    = 0.02;  
+constexpr double MULLERMANDEL_MU2A                      = 1.4; 
+constexpr double MULLERMANDEL_MU2B                      = 0.5;
+constexpr double MULLERMANDEL_SIGMA2                    = 0.05;
+constexpr double MULLERMANDEL_MU3A                      = 1.4;
+constexpr double MULLERMANDEL_MU3B                      = 0.4;
+constexpr double MULLERMANDEL_SIGMA3                    = 0.05;
+constexpr double MULLERMANDEL_MUBH                    	= 0.8;
+constexpr double MULLERMANDEL_SIGMABH                   = 0.5;
+constexpr double MULLERMANDEL_MINNS                     = 1.13;
+constexpr double MULLERMANDEL_MAXNS                     = 2.0;
+constexpr double MULLERMANDEL_KICKNS                    = 400.0;
+constexpr double MULLERMANDEL_KICKBH                    = 200.0;
+constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3; 
 
 // object types
 enum class OBJECT_TYPE: int { NONE, MAIN, UTILS, AIS, STAR, BASE_STAR, BINARY_STAR, BASE_BINARY_STAR, BINARY_CONSTITUENT_STAR };    //  if BASE_STAR, check STELLAR_TYPE

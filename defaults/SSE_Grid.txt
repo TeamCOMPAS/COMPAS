@@ -3,13 +3,13 @@
 # note the order of the columns is not significant
 
 
-Mass, Metallicity
+Mass, Metallicity, Kick_Velocity_Random, Kick_Velocity
 
 
-10.0						# default metallicity (OPTIONS->Metallicity()) will be used
+10.0						# default metallicity (OPTIONS->Metallicity()) will be used, 0.0 will be used for kick values
 
-25.5, 0.001
+25.5, 0.001, 0.375, 12.3    # all parameters specified
 
-35.0, 0.02
+35.0, 0.02                  # 0.0 will be used for kick values
 
-145.75						# default metallicity (OPTIONS->Metallicity()) will be used
+145.75,,0.7					# default metallicity (OPTIONS->Metallicity()) will be used

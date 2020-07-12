@@ -31,8 +31,8 @@ protected:
     void Initialise() {
         m_StellarType = STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS;                                                                                                                   // Set stellar type
         CalculateTimescales();                                                                                                                                                  // Initialise timescales
-        m_Age = 0.0;
-        m_CHE = true;                   // initially for CH stars                                                                                                                                                            // Set age appropriately
+        m_Age = 0.0;                                                                                                                                                            // Set age appropriately
+        m_CHE = true;                                                                                                                                                           // initially for CH stars                                                                                                                                                            // Set age appropriately
     }
 
     // member functions
