@@ -264,6 +264,8 @@ public:
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
     double              OrbitalVelocity() const                     { return m_OrbitalVelocity; }
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
+    double              Periastron() const                          { return m_SemiMajorAxis*(1.0-m_Eccentricity); }    
+    double              PeriastronPrime() const                     { return m_SemiMajorAxisPrime*(1.0-m_EccentricityPrime); }
 	double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
 	double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
 	double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }

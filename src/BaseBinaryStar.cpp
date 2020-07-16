@@ -1775,6 +1775,8 @@ void BaseBinaryStar::EvaluateSupernovae(const bool p_Resolve2ndSN) {
  */
 void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
+    // AVG - CHECKPOINT
+
     BinaryConstituentStar* star1Copy = new BinaryConstituentStar(*m_Star1);                                             // clone star1 before CEE
 	BinaryConstituentStar* star2Copy = new BinaryConstituentStar(*m_Star2);                                             // clone star2 before CEE
 	star1Copy->SetCompanion(star2Copy);                                                                                 // need companion for CalculateSynchronisationTimescale() & CalculateCircularisationTimescale() later
@@ -1782,8 +1784,12 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
     double alphaCE = m_CEDetails.alpha;                                                                                 // CE efficiency parameter
 
-    double semiMajorAxis = m_SemiMajorAxisPrime;                                                                        // current semi-major axis in default units, AU (before CEE)
-	double eccentricity  = m_EccentricityPrime;								                                            // current eccentricity (before CEE)
+    double semiMajorAxis    = m_SemiMajorAxisPrime;                                                                     // current semi-major axis in default units, AU (before CEE)
+	double eccentricity     = m_EccentricityPrime;								                                        // current eccentricity (before CEE)
+    double periastronRsol   = PeriastronPrime()*AU_TO_RSOL;                                                            // periastron, Rsol (before CEE)
+
+    // std::cout << "semiMajorAxis, eccentricity: " <<  semiMajorAxis << ", " << eccentricity << std::endl;
+    // std::cout << "periastronRsol: " <<  periastronRsol << std::endl;
 
     bool donorMS = false;                                                                                               // check for main sequence donor
     if (OPTIONS->AllowMainSequenceStarToSurviveCommonEnvelope()) {                                                      // allow main sequence stars to survive CEE?
@@ -1807,7 +1813,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             m_MassEnv2   = m_Star2->Mass() - m_Star2->CoreMass();                                                       // and envelope
         }
     }
-    else {                                                                                                              // no don't allow main sequence stars to survive CEE
+    else {                                                                                                              // no don't allow main sequence stars to survive CEE; should lead to stellar merger
         m_Mass1Final = m_Star1->CoreMass();                                                                             // set mass1
         m_MassEnv1   = m_Star1->Mass() - m_Star1->CoreMass();                                                           // and envelope1
         m_Mass2Final = m_Star2->CoreMass();                                                                             // set mass2
