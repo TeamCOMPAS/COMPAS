@@ -313,8 +313,10 @@
 //					                    - Issue #280 - Stars undergoing RLOF at ZAMS after masses are equalised were removed from run even if AllowRLOFatZAMS set
 // 02.12.00      IM - Jun 29, 2020 - Defect repair:
 //                                      - Issue 277 - move UpdateAttributesAndAgeOneTimestepPreamble() to after ResolveSupernova() to avoid inconsistency
+// 02.12.01      IM - Jul 18, 2020 - Enhancement:
+//                                      - Starting to clean up mass transfer functionality
 
-const std::string VERSION_STRING = "02.12.00";
+const std::string VERSION_STRING = "02.12.01";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
@@ -736,7 +738,7 @@ enum class ERROR: int {
     UNKNOWN_BINARY_PROPERTY,                                        // unknown binary property
     UNKNOWN_CE_ACCRETION_PRESCRIPTION,                              // unknown common envelope Accretion Prescription
     UNKNOWN_CE_LAMBDA_PRESCRIPTION,                                 // unknown common envelope Lambda Prescription
-    UNKNOWN_CE_ZETA_PRESCRIPTION,                                   // unknown common envelope Zeta prescription
+    UNKNOWN_ZETA_PRESCRIPTION,                                   // unknown common envelope Zeta prescription
     UNKNOWN_COMMON_ENVELOPE_PRESCRIPTION,                           // unknown Common Envelope Prescription
     UNKNOWN_ECCENTRICITY_DISTRIBUTION,                              // unknown eccentricity distribution
     UNKNOWN_INITIAL_MASS_FUNCTION,                                  // unknown initial mass function
@@ -764,7 +766,7 @@ enum class ERROR: int {
     UNKNOWN_STELLAR_PROPERTY,                                       // unknown stellar property
     UNKNOWN_STELLAR_TYPE,                                           // unknown stellar type
     UNKNOWN_VROT_PRESCRIPTION,                                      // unknown rorational velocity prescription
-    UNSUPPORTED_CE_ZETA_PRESCRIPTION,                               // unsupported common envelope Zeta prescription
+    UNSUPPORTED_ZETA_PRESCRIPTION,                               // unsupported common envelope Zeta prescription
     UNSUPPORTED_ECCENTRICITY_DISTRIBUTION,                          // unsupported eccentricity distribution
     UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,           // unsupported pulsar birth magnetic field distribution
     UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,              // unsupported pulsar birth spin period distribution
@@ -848,7 +850,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_BINARY_PROPERTY,                               { ERROR_SCOPE::ALWAYS,              "Unknown binary property - property details not found" }},
     { ERROR::UNKNOWN_CE_ACCRETION_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown common envelope accretion prescription" }},
     { ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unknown common envelope lambda prescription" }},
-    { ERROR::UNKNOWN_CE_ZETA_PRESCRIPTION,                          { ERROR_SCOPE::ALWAYS,              "Unknown common envelope Zeta prescription" }},
+    { ERROR::UNKNOWN_ZETA_PRESCRIPTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown stellar Zeta prescription" }},
     { ERROR::UNKNOWN_COMMON_ENVELOPE_PRESCRIPTION,                  { ERROR_SCOPE::ALWAYS,              "Unknown common envelope prescription" }},
     { ERROR::UNKNOWN_ECCENTRICITY_DISTRIBUTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown eccentricity distribution" }},
     { ERROR::UNKNOWN_INITIAL_MASS_FUNCTION,                         { ERROR_SCOPE::ALWAYS,              "Unknown initial mass function (IMF)" }},
@@ -877,7 +879,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_STELLAR_TYPE,                                  { ERROR_SCOPE::ALWAYS,              "Unknown stellar type" }},
     { ERROR::UNKNOWN_VROT_PRESCRIPTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown rotational velocity prescription" }},
     { ERROR::UNSUPPORTED_ECCENTRICITY_DISTRIBUTION,                 { ERROR_SCOPE::ALWAYS,              "Unsupported eccentricity distribution" }},
-    { ERROR::UNSUPPORTED_CE_ZETA_PRESCRIPTION,                      { ERROR_SCOPE::ALWAYS,              "Unsupported common envelope Zeta prescription" }},
+    { ERROR::UNSUPPORTED_ZETA_PRESCRIPTION,                         { ERROR_SCOPE::ALWAYS,              "Unsupported stellar Zeta prescription" }},
     { ERROR::UNSUPPORTED_MT_PRESCRIPTION,                           { ERROR_SCOPE::ALWAYS,              "Unsupported mass transfer prescription" }},
     { ERROR::UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,  { ERROR_SCOPE::ALWAYS,              "Unsupported pulsar birth magnetic field distribution" }},
     { ERROR::UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,     { ERROR_SCOPE::ALWAYS,              "Unsupported pulsar birth spin period distribution" }},
@@ -983,12 +985,12 @@ const COMPASUnorderedMap<CE_LAMBDA_PRESCRIPTION, std::string> CE_LAMBDA_PRESCRIP
 
 
 // Common envelope zeta prescription
-enum class CE_ZETA_PRESCRIPTION: int { STARTRACK, SOBERMAN, HURLEY, ARBITRARY };
-const COMPASUnorderedMap<CE_ZETA_PRESCRIPTION, std::string> CE_ZETA_PRESCRIPTION_LABEL = {
-    { CE_ZETA_PRESCRIPTION::STARTRACK, "STARTRACK" },
-    { CE_ZETA_PRESCRIPTION::SOBERMAN,  "SOBERMAN" },
-    { CE_ZETA_PRESCRIPTION::HURLEY,    "HURLEY" },
-    { CE_ZETA_PRESCRIPTION::ARBITRARY, "ARBITRARY" }
+enum class ZETA_PRESCRIPTION: int { STARTRACK, SOBERMAN, HURLEY, ARBITRARY };
+const COMPASUnorderedMap<ZETA_PRESCRIPTION, std::string> ZETA_PRESCRIPTION_LABEL = {
+    { ZETA_PRESCRIPTION::STARTRACK, "STARTRACK" },
+    { ZETA_PRESCRIPTION::SOBERMAN,  "SOBERMAN" },
+    { ZETA_PRESCRIPTION::HURLEY,    "HURLEY" },
+    { ZETA_PRESCRIPTION::ARBITRARY, "ARBITRARY" }
 };
 
 
