@@ -110,7 +110,7 @@ public:
     double                                      CommonEnvelopeRecombinationEnergyDensity() const                        { return commonEnvelopeRecombinationEnergyDensity; }
     double                                      CommonEnvelopeSlopeKruckow() const                                      { return commonEnvelopeSlopeKruckow; }
 
-    CE_ZETA_PRESCRIPTION                        CommonEnvelopeZetaPrescription() const                                  { return commonEnvelopeZetaPrescription; }
+    ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return stellarZetaPrescription; }
 
     vector<string>                              DebugClasses() const                                                    { return debugClasses; }
     int                                         DebugLevel() const                                                      { return debugLevel; }
@@ -547,8 +547,8 @@ private:
 
 
     // Which prescription to use for calculating zetas
-    CE_ZETA_PRESCRIPTION                        commonEnvelopeZetaPrescription;                                 // Which prescription to use for calculating CE zetas (default = ZETA_ADIABATIC)
-    string                                      commonEnvelopeZetaPrescriptionString;                           // String containing which prescription to use for calculating CE zetas (default = STARTRACK)
+    ZETA_PRESCRIPTION                           stellarZetaPrescription;                                 	// Which prescription to use for calculating stellar zetas (default = SOBERMAN)
+    string                                      stellarZetaPrescriptionString;                           	// String containing which prescription to use for calculating stellar zetas (default = HURLEY)
 
 	double                                      zetaAdiabaticArbitrary;
 	double                                      zetaHertzsprungGap;
