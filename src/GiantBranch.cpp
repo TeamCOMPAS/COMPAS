@@ -398,46 +398,6 @@ void GiantBranch::PerturbLuminosityAndRadius() { }
 #endif
 
 
-/*
- * Calculate the mass-radius response exponent Zeta
- *
- * Hurley et al. 2000, eqs 97 & 98
- *
- *
- * double CalculateZeta(CE_ZETA_PRESCRIPTION p_CEZetaPrescription)
- *
- * @return                                      mass-radius response exponent Zeta
- */
-double GiantBranch::CalculateZeta(CE_ZETA_PRESCRIPTION p_CEZetaPrescription) {
-
-    double zeta = 0.0;                                              // default value
-
-    switch (p_CEZetaPrescription) {                                 // which prescription?
-        case CE_ZETA_PRESCRIPTION::SOBERMAN:                        // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
-            zeta = CalculateZadiabaticSPH(m_HeCoreMass);
-            break;
-
-        case CE_ZETA_PRESCRIPTION::HURLEY:                          // HURLEY: Hurley, Tout, and Pols, 2002, eq 56
-            zeta = CalculateZadiabaticHurley2002(m_HeCoreMass);
-            break;
-
-        case CE_ZETA_PRESCRIPTION::ARBITRARY:                       // ARBITRARY: user program options thermal zeta value
-            zeta = OPTIONS->ZetaThermalArbitrary();
-            break;
-
-        case CE_ZETA_PRESCRIPTION::STARTRACK:                       // no longer implemented - JR: todo: remove this from program options (then remove from here)?  Currently it is the default option...
-            m_Error = ERROR::UNSUPPORTED_CE_ZETA_PRESCRIPTION;      // set error value
-            SHOW_ERROR(m_Error);                                    // warn that an error occurred
-            break;
-
-        default:                                                    // unknown common envelope prescription - shouldn't happen
-            m_Error = ERROR::UNKNOWN_CE_ZETA_PRESCRIPTION;          // set error value
-            SHOW_ERROR(m_Error);                                    // warn that an error occurred
-    }
-
-    return zeta;
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //

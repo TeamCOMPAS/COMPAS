@@ -26,6 +26,40 @@ double FGB::CalculateConvergedMassStepZetaThermal() {
     return -m_XExponent + (2.0 * coreMass_Mass * coreMass_Mass * coreMass_Mass * coreMass_Mass * coreMass_Mass);
 }
 
+/*
+ * Calculate the mass-radius response exponent Zeta
+ *
+ * Hurley et al. 2000, eqs 97 & 98
+ *
+ *
+ * double CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)
+ *
+ * @return                                      mass-radius response exponent Zeta
+ */
+double FGB::CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription) {
+    
+    double zeta = 0.0;                                              // default value
+    
+    switch (p_ZetaPrescription) {                                 // which prescription?
+        case ZETA_PRESCRIPTION::SOBERMAN:                        // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
+            zeta = CalculateZadiabaticSPH(m_HeCoreMass);
+            break;
+            
+        case ZETA_PRESCRIPTION::HURLEY:                          // HURLEY: Hurley, Tout, and Pols, 2002, eq 56
+            zeta = CalculateZadiabaticHurley2002(m_HeCoreMass);
+            break;
+            
+        case ZETA_PRESCRIPTION::ARBITRARY:                       // ARBITRARY: user program options thermal zeta value
+            zeta = OPTIONS->ZetaThermalArbitrary();
+            break;
+            
+        default:                                                    // unknown common envelope prescription - shouldn't happen
+            m_Error = ERROR::UNKNOWN_ZETA_PRESCRIPTION;          // set error value
+            SHOW_ERROR(m_Error);                                    // warn that an error occurred
+    }
+    
+    return zeta;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //

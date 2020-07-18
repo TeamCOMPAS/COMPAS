@@ -79,7 +79,7 @@ class pythonProgramOptions:
     common_envelope_lambda = 0.1                # Only if using 'LAMBDA_FIXED'
     common_envelope_lambda_prescription = 'LAMBDA_NANJING'  # Xu & Li 2010
     common_envelope_slope_Kruckow = -5.0/6.0
-    common_envelope_zeta_prescription = 'SOBERMAN'
+    stellar_zeta_prescription = 'SOBERMAN'
     common_envelope_revised_energy_formalism = False
     common_envelope_maximum_donor_mass_revised_energy_formalism = 2.0
     common_envelope_recombination_energy_density = 1.5E13
@@ -415,7 +415,7 @@ class pythonProgramOptions:
             self.output,
             self.output_container,
             self.common_envelope_lambda_prescription,
-            self.common_envelope_zeta_prescription,
+            self.stellar_zeta_prescription,
             self.mass_transfer_thermal_limit_accretor,
             self.pulsational_pair_instability_prescription,
             self.neutron_star_equation_of_state,
@@ -458,7 +458,7 @@ class pythonProgramOptions:
             '--outputPath',
             '--output-container',
             '--common-envelope-lambda-prescription',
-            '--common-envelope-zeta-prescription',
+            '--stellar-zeta-prescription',
             '--mass-transfer-thermal-limit-accretor',
             '--pulsational-pair-instability-prescription',
             '--neutron-star-equation-of-state',

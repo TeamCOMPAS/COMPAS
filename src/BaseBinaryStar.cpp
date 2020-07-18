@@ -2441,7 +2441,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
     if (!m_Star1->IsRLOF() && !m_Star2->IsRLOF()) return;                                                                                                   // neither star is overflowing its Roche Lobe - no mass transfer - nothing to do
 
-    if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                                                                                                           // both stars overflowing their Roche Lobe?
+    if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                                                                                                           // both both stars overflowing their Roche Lobe?
         m_CEDetails.CEEnow = true;                                                                                                                          // yes - common envelope event - no mass transfer
         return;                                                                                                                                             // and return - nothing (else) to do
     }
@@ -2461,7 +2461,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     double jLoss    = m_JLoss;                            		                                                                                            // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
 	bool   isCEE    = false;									                                                                                            // is there a CEE in this MT episode?
 
-    //Addition Coen 18-10-2017
     m_Donor->CalculateZetas();                                                                                                                              // calculate Zetas for donor
     m_Accretor->CalculateZetas();                                                                                                                           // calculate Zetas for accretor
 
@@ -2471,7 +2470,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 	                 OPTIONS->MassTransferCriticalMassRatioHeliumGiant() || OPTIONS->MassTransferCriticalMassRatioHeliumMS()    ||
                      OPTIONS->MassTransferCriticalMassRatioHeliumHG()    || OPTIONS->MassTransferCriticalMassRatioWhiteDwarf();
 
-    if (m_Donor->IsMassRatioUnstable(m_Accretor->Mass(), m_Accretor->IsDegenerate()) && qCritFlag) {
+    if (qCritFlag && m_Donor->IsMassRatioUnstable(m_Accretor->Mass(), m_Accretor->IsDegenerate()) ) {
         m_CEDetails.CEEnow = true;
     }
     else {
@@ -2514,107 +2513,75 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                     jLoss = CalculateGammaAngularMomentumLoss();                                                                                            // no - re-calculate angular momentum
                 }
 
-                double ZlobAna      = CalculateZRocheLobe(jLoss);
                 m_ZetaRLOFNumerical = CalculateNumericalZRocheLobe(jLoss);
-                m_ZetaRLOFAnalytic  = ZlobAna;                                                                                                              // addition by Coen 18-10-2017 for zeta study.  ALEJANDRO - 04/10/2017 - Moved this to calculate it for HURLEY MT.
+                m_ZetaRLOFAnalytic  = CalculateZRocheLobe(jLoss);
+                double zetaLobe     = m_ZetaRLOFAnalytic;
+                
+                double zetaStar = m_Donor->CalculateZeta(OPTIONS->StellarZetaPrescription());
+                m_ZetaStarCompare = zetaStar;
+                
+                if(utils::Compare(zetaStar, zetaLobe) > 0 ||
+                   (m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH }) &&
+                    OPTIONS->ForceCaseBBBCStabilityFlag() && OPTIONS->AlwaysStableCaseBBBCFlag()) ) {                                                      // Stable MT
+                       m_MassTransferTrackerHistory = m_Donor->IsPrimary() ? MT_TRACKING::STABLE_FROM_1_TO_2 : MT_TRACKING::STABLE_FROM_2_TO_1;            // record what happened - for later printing
+                       double envMassDonor  = m_Donor->Mass() - m_Donor->CoreMass();
+                       double MdDot;
+                       
+                       if(m_Donor->CoreMass()>0 && envMassDonor>0){                                                                                                                 //donor has a core and an envelope
+                           BinaryConstituentStar* donorCopy = new BinaryConstituentStar(*m_Donor);
+                           BinaryConstituentStar* accretorCopy = new BinaryConstituentStar(*m_Accretor);
+                           double mdEnvAccreted = envMassDonor * m_FractionAccreted;
+                           MdDot         = -envMassDonor / p_Dt;
+                           
+                           m_Donor->SetMassTransferDiff(-envMassDonor);
+                           m_Accretor->SetMassTransferDiff(mdEnvAccreted);
+                           
+                           STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                                         // donor stellar type before resolving envelope loss
+                           
+                           m_Donor->ResolveEnvelopeLossAndSwitch();                                                                                        // only other interaction that adds/removes mass is winds, so it is safe to update star here
+                           
+                           if (m_Donor->StellarType() != stellarTypeDonor) {                                                                               // stellar type change?
+                               m_PrintExtraDetailedOutput = true;                                                                                          // yes - print detailed output record
+                           }
 
-                switch (m_Donor->DetermineEnvelopeType()) {                                                                                                 // which enveleope type?
+                           aFinal                  = CalculateMassTransferOrbit(*donorCopy, *accretorCopy, MdDot, p_Dt, jLoss);
+                           wFinal                  = sqrt(G1 * (donorCopy->Mass() + accretorCopy->Mass()) / (aFinal * aFinal * aFinal));
+                           delete donorCopy; donorCopy = nullptr;
+                           delete accretorCopy; accretorCopy = nullptr;
+                       }
+                       else{                                                                                                                                //donor has no envelope
+                           double dM    = m_Donor->FastPhaseCaseA() ? CalculateAdaptiveRocheLobeOverFlow(jLoss) : CalculateMassTransferFastPhaseCaseA(jLoss);  // amount of mass transferred by donor
+                           MdDot = dM / p_Dt;                                                                                                           // mass transfer rate of donor
+                           
+                           m_Donor->SetFastPhaseCaseA();                                                                                                       // will be true when we get here   JR: todo: revisit this
+                           m_Donor->SetMassTransferDiff(dM);                                                                                                   // mass transferred by donor
+                           m_Accretor->SetMassTransferDiff(-dM * m_FractionAccreted);                                                                          // mass accreted by accretor
+                      
+                           aFinal                  = CalculateMassTransferOrbit(*m_Donor, *m_Accretor, MdDot, p_Dt, jLoss);
+                           wFinal                  = sqrt(G1 * (m_Donor->Mass() + m_Accretor->Mass()) / (aFinal * aFinal * aFinal));
+                       }
+                       
 
-                    case ENVELOPE::RADIATIVE: {                                                                                                             // RADIATIVE: case A
-                                                  
-                        // Need to know which is the donor star, make it lose enough mass to stay within its Roche lobe
+                       m_aMassTransferDiff     = aFinal - aInitial;                                                                                        // change in orbit (semi-major axis)
+                       m_OmegaMassTransferDiff = wFinal - wInitial;                                                                                        // change in orbital speed
+                
+                       // Check for stable mass transfer after any CEE
+                       if (m_CEDetails.CEEcount > 0 && !m_RLOFDetails.stableRLOFPostCEE) {
+                           m_RLOFDetails.stableRLOFPostCEE = m_MassTransferTrackerHistory == MT_TRACKING::STABLE_FROM_2_TO_1 ||
+                           m_MassTransferTrackerHistory == MT_TRACKING::STABLE_FROM_1_TO_2;
+                       }
+                
 
-                        // ALEJANDRO - 20/10/2017 - Code arbitrary zeta cut for case A mass transfer. To use in BNS paper. Should be properly coded.
-                        // JR: todo: is this still required?  If so, find out what "properley coded" means...
-                        if (m_Donor->IsOneOf({ STELLAR_TYPE::MS_GT_07 })) {
-                            if (utils::Compare(OPTIONS->ZetaMainSequence(), ZlobAna) < 0) {
-                                m_StellarMerger = true;
-                                isCEE           = true;
-                            }
-                        }
 
-                        m_MassTransferTrackerHistory = m_Donor->IsPrimary() ? MT_TRACKING::STABLE_FROM_1_TO_2 : MT_TRACKING::STABLE_FROM_2_TO_1;            // record what happened - for later printing
-
-                        double dM    = m_Donor->FastPhaseCaseA() ? CalculateAdaptiveRocheLobeOverFlow(jLoss) : CalculateMassTransferFastPhaseCaseA(jLoss);  // amount of mass transferred by donor
-                        double MdDot = dM / p_Dt;                                                                                                           // mass transfer rate of donor
-
-                        m_Donor->SetFastPhaseCaseA();                                                                                                       // will be true when we get here   JR: todo: revisit this
-                        m_Donor->SetMassTransferDiff(dM);                                                                                                   // mass transferred by donor
-                        m_Accretor->SetMassTransferDiff(-dM * m_FractionAccreted);                                                                          // mass accreted by accretor
-
-                        aFinal = CalculateMassTransferOrbit(*m_Donor, *m_Accretor, MdDot, p_Dt, jLoss);                                                     // before solving for orbit
-                        wFinal = sqrt(G1 * (m_Donor->Mass() + m_Accretor->Mass()) / (aFinal * aFinal * aFinal));                                            // after solving for orbit
-
-                        m_aMassTransferDiff     = aFinal - aInitial;                                                                                        // change in orbit (semi-major axis)
-                        m_OmegaMassTransferDiff = wFinal - wInitial;                                                                                        // change in orbital speed
-
-                        } break;
-
-                    case ENVELOPE::CONVECTIVE: {                                                                                                            // CONVECTIVE: case B or case C
-
-                        BinaryConstituentStar* donorCopy = new BinaryConstituentStar(*m_Donor);
-                        BinaryConstituentStar* accretorCopy = new BinaryConstituentStar(*m_Accretor);
-
-                        double zetaCompare = m_Donor->CalculateZeta(OPTIONS->CommonEnvelopeZetaPrescription());
-
-                        if (OPTIONS->ForceCaseBBBCStabilityFlag()) {
-
-                            // ALEJANDRO - 24/08/2017 - Check for case BB or BC mass transfer; particularly for BNS project
-                            if (m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH })) {
-
-                                if (m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
+                       if (m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH}) &&
+                           m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
                                     m_Donor->SetSNCurrentEvent(SN_EVENT::USSN);                                                                             // donor ultra-stripped SN happening now
                                     m_Donor->SetSNPastEvent(SN_EVENT::USSN);                                                                                // ... and will be a past event
-                                }                                                                                                                           // JR: todo: check "else false"
-
-                                // Hard code stability
-                                zetaCompare = OPTIONS->AlwaysStableCaseBBBCFlag() ? 1.0 : 0.0;
-                                ZlobAna		= OPTIONS->AlwaysStableCaseBBBCFlag() ? 0.0 : 1.0;
-                            }
                         }
+                }
 
-                        // ALEJANDRO - 20/10/2017 - Code arbitrary zeta cut for case B mass transfer. To use in BNS paper. Should be properly coded.
-                        if (m_Donor->IsOneOf({ STELLAR_TYPE::HERTZSPRUNG_GAP })) {
-                            zetaCompare = OPTIONS->ZetaHertzsprungGap();
-                        }
-
-                        // ALEJANDRO - 07/08/2018 - Added m_zetaStarCompare for CE study.       JR: todo: is this still required?
-                        m_ZetaStarCompare = zetaCompare;                                                                                                    // beware as this variable may have different values, e.g. fixed for MS, fixed for HG, different for Soberman, '1' for case BB.
-
-                        if (utils::Compare(zetaCompare, ZlobAna) > 0) {                                                                                     // stable Mass Transfer
-
-                            // Check for conservative or non-conservative MT
-                            double envMassDonor  = donorCopy->Mass() - donorCopy->CoreMass();
-                            double mdEnvAccreted = envMassDonor * m_FractionAccreted;
-                            double MdDot         = -envMassDonor / p_Dt;
-
-                            m_Donor->SetMassTransferDiff(-envMassDonor);
-                            m_Accretor->SetMassTransferDiff(mdEnvAccreted);
-
-                            STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                                         // donor stellar type before resolving envelope loss
-                            
-                            m_Donor->ResolveEnvelopeLossAndSwitch();                                                                                        // only other interaction that adds/removes mass is winds. So, think its safe to update star here.
-                            
-                            if (m_Donor->StellarType() != stellarTypeDonor) {                                                                               // stellar type change?
-                                m_PrintExtraDetailedOutput = true;                                                                                          // yes - print detailed output record
-                            }
-
-                            m_MassTransferTrackerHistory = m_Donor->IsPrimary() ? MT_TRACKING::STABLE_FROM_1_TO_2 : MT_TRACKING::STABLE_FROM_2_TO_1;
-
-                            // Update and solve the orbit
-                            aFinal                  = CalculateMassTransferOrbit(*donorCopy, *accretorCopy, MdDot, p_Dt, jLoss);
-                            wFinal                  = sqrt(G1 * (donorCopy->Mass() + accretorCopy->Mass()) / (aFinal * aFinal * aFinal));
-                            m_aMassTransferDiff     = aFinal - aInitial;
-                            m_OmegaMassTransferDiff = wFinal - wInitial;
-
-                            // Check for stable mass transfer after any CEE
-                            if (m_CEDetails.CEEcount > 0 && !m_RLOFDetails.stableRLOFPostCEE) {
-                                m_RLOFDetails.stableRLOFPostCEE = m_MassTransferTrackerHistory == MT_TRACKING::STABLE_FROM_2_TO_1 ||
-                                                                  m_MassTransferTrackerHistory == MT_TRACKING::STABLE_FROM_1_TO_2;
-                            }
-                        }
-                        else {                                                                                                                              // Unstable Mass Transfer
-                           if (m_Donor->IsOneOf( MAIN_SEQUENCE )) {                                                                                        // How to deal with CEE here? Just worry about donor?
+                else {                                                                                                                              // Unstable Mass Transfer
+                           if (m_Donor->IsOneOf( MAIN_SEQUENCE )) {
                                 m_StellarMerger    = true;
                                 isCEE              = true;
                             }
@@ -2622,23 +2589,9 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                                 m_CEDetails.CEEnow = true;
                                 isCEE              = true;
                             }
-                        }
-
-                        delete donorCopy; donorCopy = nullptr;
-                        delete accretorCopy; accretorCopy = nullptr;
-
-                        } break;
-
-                    case ENVELOPE::REMNANT:                                                                                                                 // invalid - donor is NS, BH or Massless remnant
-                        m_Error = ERROR::INVALID_MASS_TRANSFER_DONOR;                                                                                       // set error value
-                        SHOW_WARN(m_Error);                                                                                                                 // warn that an error occurred
-                        break;
-
-                    default:
-                        m_Error = ERROR::INVALID_ENVELOPE_TYPE;                                                                                             // set error value
-                        SHOW_WARN(m_Error);                                                                                                                 // warn that an error occurred
                 }
-                } break;
+                
+            } break;
 
             case MT_PRESCRIPTION::BELCZYNSKI:                                                                                                               // Belczynski - not yet supported
                 m_Error = ERROR::UNSUPPORTED_MT_PRESCRIPTION;                                                                                               // set error value
