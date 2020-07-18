@@ -79,6 +79,8 @@ protected:
     double       CalculateTauAtPhaseEnd()                                       { return 1.0; }                                                                             // tau = 1.0 at end of HG
     double       CalculateTauOnPhase();
 
+    double       CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)		{ return OPTIONS->ZetaHertzsprungGap(); }
+
     double       ChooseTimestep(const double p_Time);
 
     ENVELOPE     DetermineEnvelopeType();

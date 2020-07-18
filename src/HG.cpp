@@ -29,6 +29,7 @@ double HG::CalculateRho(const double p_Mass) {
 }
 
 
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                                LAMBDA CALCULATIONS                                //

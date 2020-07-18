@@ -182,7 +182,7 @@ public:
 
     double          CalculateTimestep()                                                                         { return m_Star->CalculateTimestep(); }
 
-    double          CalculateZeta(CE_ZETA_PRESCRIPTION p_CEZetaPrescription)                                    { return m_Star->CalculateZeta(p_CEZetaPrescription); }
+    double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                                         { return m_Star->CalculateZeta(p_ZetaPrescription); }
 
     void            CalculateZetas()                                                                            { m_Star->CalculateZetas(); }
 
