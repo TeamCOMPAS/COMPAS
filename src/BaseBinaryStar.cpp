@@ -2441,7 +2441,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
     if (!m_Star1->IsRLOF() && !m_Star2->IsRLOF()) return;                                                                                                   // neither star is overflowing its Roche Lobe - no mass transfer - nothing to do
 
-    if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                                                                                                           // both both stars overflowing their Roche Lobe?
+    if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                                                                                                           // both stars overflowing their Roche Lobe?
         m_CEDetails.CEEnow = true;                                                                                                                          // yes - common envelope event - no mass transfer
         return;                                                                                                                                             // and return - nothing (else) to do
     }
