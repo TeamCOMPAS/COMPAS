@@ -1776,20 +1776,23 @@ void BaseBinaryStar::EvaluateSupernovae(const bool p_Resolve2ndSN) {
  */
 void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
-    // AVG - CHECKPOINT
-
     BinaryConstituentStar* star1Copy = new BinaryConstituentStar(*m_Star1);                                             // clone star1 before CEE
 	BinaryConstituentStar* star2Copy = new BinaryConstituentStar(*m_Star2);                                             // clone star2 before CEE
 	star1Copy->SetCompanion(star2Copy);                                                                                 // need companion for CalculateSynchronisationTimescale() & CalculateCircularisationTimescale() later
 	star2Copy->SetCompanion(star1Copy);                                                                                 // need companion for CalculateSynchronisationTimescale() & CalculateCircularisationTimescale() later
-
+    // Alejandro - We are not calculating the tidal timescales here anymore, remove or leave?
+    
     double alphaCE = m_CEDetails.alpha;                                                                                 // CE efficiency parameter
 
 	double eccentricity     = m_EccentricityPrime;								                                        // current eccentricity (before CEE)
     double semiMajorAxisRsol= m_SemiMajorAxisPrime*AU_TO_RSOL;                                                          // current semi-major axis in default units, Rsol (before CEE)
     double periastronRsol   = PeriastronPrime()*AU_TO_RSOL;                                                             // periastron, Rsol (before CEE)
 
+    // ALEJANDRO - bug checking - To be deleted
+    std::cout << "Before CEE:" << std::endl;    
     std::cout << "semiMajorAxisRsol, eccentricity, periastronRsol: " <<  semiMajorAxisRsol << ", " << eccentricity << ", " << periastronRsol << std::endl;
+    std::cout << "Radius1, Radius2: " <<  m_Star1->Radius() << ", " << m_Star2->Radius() << std::endl; 
+    std::cout << "StellarType1, StellarType2: " <<  m_Star1->StellarType() << ", " << m_Star2->StellarType() << std::endl;     
 
     bool donorMS = false;                                                                                               // check for main sequence donor
     if (OPTIONS->AllowMainSequenceStarToSurviveCommonEnvelope()) {                                                      // allow main sequence stars to survive CEE?
@@ -1825,6 +1828,8 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
     double rRLd1Rsol = periastronRsol * CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass());                   // Roche-lobe radius at periastron in Rsol at the moment where CEE begins, seen by star1
     double rRLd2Rsol = periastronRsol * CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass());                   // Roche-lobe radius at periastron in Rsol at the moment where CEE begins, seen by star2
+
+    std::cout << "RRL1, RRL2: " <<  rRLd1Rsol << ", " << rRLd2Rsol << std::endl;  
 
     m_CEDetails.CEEcount++;                                                                                             // increment CEE count
     m_RLOFDetails.simultaneousRLOF = m_Star1->IsRLOF() && m_Star2->IsRLOF();                                            // ALEJANDRO - 29/01/2019 - Check for simultaneous RLOF
@@ -1888,7 +1893,6 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     m_Star2->ResolveCommonEnvelopeAccretion(m_Mass2Final);                                                              // update star's mass after accretion
 
     // update stellar type after losing its envelope. Star1, Star2 or both if double CEE.
-	// Alejandro - 18/02018 - Calculate tidal timescales
 
     if (donorMS || (!envelopeFlag1 && !envelopeFlag2)) {                                                                // stellar merger
         m_MassTransferTrackerHistory = HasTwoOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_MS }) ? MT_TRACKING::CE_BOTH_MS : MT_TRACKING::CE_MS_WITH_CO; // Here MS-WD systems are flagged as CE_BOTH_MS
@@ -1932,8 +1936,10 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
 	SetPostCEEValues(aFinalRsol, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                                                       // squirrel away post CEE binary values.  ALEJANDRO - 06/12/2016 - for populations studies. All separations in Rsol.
 
-    std::cout << "semiMajorAxisRsol, eccentricity, periastronRsol: " <<  semiMajorAxisRsol << ", " << m_Eccentricity << ", " << periastronRsol << std::endl;
-    std::cout << "m_SemiMajorAxisPrime, eccentricity, periastronPrimeRsol: " <<  m_SemiMajorAxisPrime*AU_TO_RSOL << ", " << m_EccentricityPrime << ", " << PeriastronPrime()*AU_TO_RSOL << std::endl;
+    // ALEJANDRO - bug checking - To be deleted
+    std::cout << "After CEE:" << std::endl;
+    std::cout << "m_SemiMajorAxisPrimeRsol, eccentricityPrime, periastronPrimeRsol: " <<  m_SemiMajorAxisPrime*AU_TO_RSOL << ", " << m_EccentricityPrime << ", " << PeriastronPrime()*AU_TO_RSOL << std::endl;
+    std::cout << "Radius1, Radius2: " <<  m_Star1->Radius() << ", " << m_Star2->Radius() << std::endl; 
 
     PrintCommonEnvelope();
 }

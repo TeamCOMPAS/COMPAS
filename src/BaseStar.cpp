@@ -1025,7 +1025,7 @@ double BaseStar::CalculateLambdaKruckow(const double p_Radius, const double p_Al
  * double CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss)
  *
  * @param   [IN]    p_IsMassLoss                Boolean indicating whether mass-loss correction should be applied
- * @return                                      log binding energy in ergs
+ * @return                                      log binding energy in erg
  */
 double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) {
 
@@ -1090,7 +1090,7 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) {
 /*
  * Calculata lambda parameter from the so-called energy formalism of CE (Webbink 1984).
  *
- * Binding energy from detailed models (Loveridge et al. 2011) is given in [E]=ergs, so use cgs
+ * Binding energy from detailed models (Loveridge et al. 2011) is given in [E]=erg, so use cgs
  *
  *
  * double CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss)
@@ -3153,7 +3153,7 @@ void BaseStar::CalculateSNAnomalies(const double p_Eccentricity) {
  * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
  * @param   [IN]    p_EnvMass                   Envelope mass of the star (Msol)
  * @param   [IN]    p_Radius                    Radius of the star (Rsol)
- * @return                                      Binding energy (ergs)
+ * @return                                      Binding energy (erg)
  */
 double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_EnvMass, const double p_Radius, const double p_Lambda) {
 
@@ -3174,7 +3174,7 @@ double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_
 
         double totalMass = coreMass + envMass;                                          // total mass
 
-		bindingEnergy    = G_CGS * totalMass * envMass / (p_Lambda * radius);           // ergs
+		bindingEnergy    = G_CGS * totalMass * envMass / (p_Lambda * radius);           // erg
 	}
 
 	return bindingEnergy;

@@ -266,6 +266,8 @@ public:
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
     double              Periastron() const                          { return m_SemiMajorAxis*(1.0-m_Eccentricity); }    
     double              PeriastronPrime() const                     { return m_SemiMajorAxisPrime*(1.0-m_EccentricityPrime); }
+    double              PeriastronRsol() const                      { return m_SemiMajorAxis*(1.0-m_Eccentricity)*AU_TO_RSOL; }    
+    double              PeriastronPrimeRsol() const                 { return m_SemiMajorAxisPrime*(1.0-m_EccentricityPrime)*AU_TO_RSOL; }    
 	double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
 	double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
 	double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }
@@ -287,7 +289,7 @@ public:
     double              SemiMajorAxisPostCEE() const                { return m_CEDetails.postCEE.semiMajorAxis; }
     double              SemiMajorAxisPreSN() const                  { return m_SemiMajorAxisPreSN; }
     double              SemiMajorAxisPreCEE() const                 { return m_CEDetails.preCEE.semiMajorAxis; }
-    double              SemiMajorAxisPrime() const                  { return m_SemiMajorAxisPrime; }
+    double              SemiMajorAxisPrime() const                  { return m_SemiMajorAxisPrime; }    
     bool                SimultaneousRLOF() const                    { return m_RLOFDetails.simultaneousRLOF; }
     bool                StableRLOFPostCEE() const                   { return m_RLOFDetails.stableRLOFPostCEE; }
     bool                StellarMerger() const                       { return m_StellarMerger; }
