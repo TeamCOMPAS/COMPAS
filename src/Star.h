@@ -193,7 +193,6 @@ public:
     BaseStar*       Clone(const BaseStar& p_Star);
 
     ENVELOPE        DetermineEnvelopeType() const                                                               { return m_Star->DetermineEnvelopeType(); }
-    ENVELOPE        DetermineEnvelopeTypeHurley2002() const                                                     { return m_Star->DetermineEnvelopeTypeHurley2002(); }
 
     MT_CASE         DetermineMassTransferCase()                                                                 { return m_Star->DetermineMassTransferCase(); }
 

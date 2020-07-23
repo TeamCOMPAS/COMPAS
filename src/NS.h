@@ -79,7 +79,6 @@ protected:
                                                          double const p_Alpha);
 
             ENVELOPE        DetermineEnvelopeType()                                 { return ENVELOPE::REMNANT; }                                                   // Always REMNANT
-            ENVELOPE        DetermineEnvelopeTypeHurley2002()                       { return ENVELOPE::REMNANT; }                                                   // Always REMNANT
 
             void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
                                                        const double p_Stepsize,

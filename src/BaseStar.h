@@ -198,7 +198,6 @@ public:
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
 
     virtual ENVELOPE        DetermineEnvelopeType()                                                             { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
-    virtual ENVELOPE        DetermineEnvelopeTypeHurley2002()                                                   { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
 
     virtual MT_CASE         DetermineMassTransferCase() { return MT_CASE::NONE; }                                                                                                   // Use inheritance hierarchy
 

@@ -118,7 +118,6 @@ protected:
             STELLAR_TYPE    EvolveToNextPhase();
 
             ENVELOPE        DetermineEnvelopeType()                                              { return ENVELOPE::RADIATIVE; }                                         // Always RADIATIVE
-            ENVELOPE        DetermineEnvelopeTypeHurley2002()                                    { return ENVELOPE::RADIATIVE; }                                         // Always RADIATIVE
 
             bool            IsEndOfPhase()                                                       { return !ShouldEvolveOnPhase(); }
             bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate);

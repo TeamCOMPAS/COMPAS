@@ -1028,6 +1028,39 @@ double CHeB::CalculateLifetimeOnBluePhase(const double p_Mass) {
 
 
 /*
+ * Determine the star's envelope type.
+ *
+ *
+ *
+ * ENVELOPE DetermineEnvelopeType()
+ *
+ * @return                                      ENVELOPE::{ RADIATIVE, CONVECTIVE, REMNANT }
+ */
+ENVELOPE CHeB::DetermineEnvelopeType() {
+    
+    ENVELOPE envelope = ENVELOPE::CONVECTIVE;                                                        // default envelope type  is CONVECTIVE
+    
+    switch (OPTIONS->EnvelopeStatePrescription()) {                                         // which envelope prescription?
+            
+        case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
+        case ENVELOPE_STATE_PRESCRIPTION::HURLEY:
+            envelope = ENVELOPE::CONVECTIVE;
+            break;
+            
+        case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
+            // to be filled in, for now convective
+            envelope =  ENVELOPE::CONVECTIVE;
+            break;
+            
+        default:                                                                                    // unknown prescription - use default envelope type
+            SHOW_WARN(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION, "Using Envelope = CONVECTIVE");   // show warning
+    }
+    
+    return envelope;
+}
+
+
+/*
  * Choose timestep for evolution
  *
  * Can obviously do this your own way
