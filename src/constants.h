@@ -315,8 +315,10 @@
 //                                      - Issue 277 - move UpdateAttributesAndAgeOneTimestepPreamble() to after ResolveSupernova() to avoid inconsistency
 // 02.12.01      IM - Jul 18, 2020 - Enhancement:
 //                                      - Starting to clean up mass transfer functionality
+// 02.12.02      IM - Jul 23, 2020 - Enhancement:
+//                                      - Change to thermal timescale MT for both donor and accretor to determine MT stability
 
-const std::string VERSION_STRING = "02.12.01";
+const std::string VERSION_STRING = "02.12.02";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
