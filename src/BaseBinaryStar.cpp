@@ -2482,32 +2482,12 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
             case MT_PRESCRIPTION::HURLEY: {                                                                                                                 // HURLEY
 
-                switch (m_Donor->DetermineMassTransferCase()) {                                                                                             // which MT case?
-
-                    case MT_CASE::A:                                                                                                                        // A, or
-                    case MT_CASE::B: {                                                                                                                       // B
-
-                        double thermalRateDonor    = m_Donor->CalculateThermalMassLossRate();
-                        double thermalRateAccretor = OPTIONS->MassTransferThermallyLimitedVariation() == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE
-                                                        ? m_Accretor->Mass() / m_Accretor->CalculateThermalTimescale(m_Accretor->Mass(), m_Accretor->RocheLobeRadius() * AU_TO_RSOL, m_Accretor->Luminosity(), m_Accretor->Mass() - m_Accretor->CoreMass()) // assume Radius = RL
-                                                        : m_Accretor->CalculateThermalMassLossRate();
-
-
-
-                        std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(thermalRateDonor, m_FractionAccreted, thermalRateAccretor);
-
-                        } break;
-
-                    case MT_CASE::C:                                                                                                                        // C
-                        std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateDynamicalMassLossRate(),
-                                                                                                            m_FractionAccreted,
-                                                                                                            m_Accretor->CalculateDynamicalMassLossRate());
-                        break;
-
-                    default:                                                                                                                                // unknown MT_CASE
-                        SHOW_ERROR(ERROR::UNKNOWN_MT_CASE);                                                                                                 // show error
-                }
-
+                double thermalRateDonor    = m_Donor->CalculateThermalMassLossRate();
+                double thermalRateAccretor = OPTIONS->MassTransferThermallyLimitedVariation() == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE
+                    ? m_Accretor->Mass() / m_Accretor->CalculateThermalTimescale(m_Accretor->Mass(), m_Accretor->RocheLobeRadius() * AU_TO_RSOL, m_Accretor->Luminosity(), m_Accretor->Mass() - m_Accretor->CoreMass()) // assume Radius = RL
+                    : m_Accretor->CalculateThermalMassLossRate();
+                
+                std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(thermalRateDonor, m_FractionAccreted, thermalRateAccretor);
 
                 if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {                           // arbitray angular momentum loss prescription?
                     jLoss = CalculateGammaAngularMomentumLoss();                                                                                            // no - re-calculate angular momentum
