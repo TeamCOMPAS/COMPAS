@@ -1785,7 +1785,6 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
     double alphaCE = m_CEDetails.alpha;                                                                                 // CE efficiency parameter
 
-    // double semiMajorAxis    = m_SemiMajorAxisPrime;                                                                     // current semi-major axis in default units, AU (before CEE)
 	double eccentricity     = m_EccentricityPrime;								                                        // current eccentricity (before CEE)
     double semiMajorAxisRsol= m_SemiMajorAxisPrime*AU_TO_RSOL;                                                          // current semi-major axis in default units, Rsol (before CEE)
     double periastronRsol   = PeriastronPrime()*AU_TO_RSOL;                                                             // periastron, Rsol (before CEE)
@@ -1902,8 +1901,6 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         if (envelopeFlag1) {                                                                                            // star1 donor
             m_Star1->ResolveEnvelopeLossAndSwitch();                                                                    // resolve envelope loss for star1 and switch to new stellar type
 
-            // m_SynchronizationTimescale = star1Copy->CalculateSynchronisationTimescale(periastronRsol);
-
             if (envelopeFlag2) {                                                                                        // correction - double CEE   JR: todo: why do we check envelopeFlags and not value of m_CEDetails.doubleCoreCE calculated above?
                 m_Star2->ResolveEnvelopeLossAndSwitch();                                                                // resolve envelope loss for star2 and switch to new stellar type
                 m_MassTransferTrackerHistory = MT_TRACKING::CE_DOUBLE_CORE;                                             // record history - double CEE
@@ -1914,18 +1911,9 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         }
         else {                                                                                                          // star2 donor
             m_Star2->ResolveEnvelopeLossAndSwitch();                                                                    // resolve envelope loss for star2 and switch to new stellar type
-
-            // m_SynchronizationTimescale   = star2Copy->CalculateSynchronisationTimescale(periastronRsol);
             m_MassTransferTrackerHistory = MT_TRACKING::CE_FROM_2_TO_1;                                                 // record history - star2 -> star1
         }
 
-        // calculate circularisation timescale
-        // binary circularisation timescale = minimum of constitiuent star circularisation timescales (each clamped to (0, infinity))
-
-        // double circularizationTimescale1 = std::max(0.0, star1Copy->CalculateCircularisationTimescale(periastronRsol)); // circularisation timescale for star1
-        // double circularizationTimescale2 = std::max(0.0, star2Copy->CalculateCircularisationTimescale(periastronRsol)); // circularisation timescale for star2
-
-        // m_CircularizationTimescale = std::min(circularizationTimescale1, circularizationTimescale2);                    // binary circularisation timescale
 
         if (m_Star1->StellarType() != stellarType1 || m_Star2->StellarType() != stellarType2) {                         // stellar type change?
             m_PrintExtraDetailedOutput = true;                                                                          // yes - print detailed output record
