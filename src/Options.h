@@ -532,7 +532,7 @@ private:
 	// Common envelope Nandez and Ivanova energy formalism
 	bool                                        revisedEnergyFormalismNandezIvanova	= false;				    // Use the revised energy formalism from Nandez & Ivanova 2016 (default = false)
 	double                                      maximumMassDonorNandezIvanova;								    // Maximum mass allowed to use the revised energy formalism in Msol (default = 2.0)
-	double                                      commonEnvelopeRecombinationEnergyDensity;					    // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 ergs/g)
+	double                                      commonEnvelopeRecombinationEnergyDensity;					    // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 erg/g)
 
 
     //  Adaptive Importance Sampling options
