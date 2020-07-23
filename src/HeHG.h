@@ -96,8 +96,7 @@ protected:
 
             double          ChooseTimestep(const double p_Time);
 
-            ENVELOPE        DetermineEnvelopeType()                                                          { return ENVELOPE::CONVECTIVE; }                                       // Always CONVECTIVE
-            ENVELOPE        DetermineEnvelopeTypeHurley2002()                                                { return ENVELOPE::CONVECTIVE; }                                       // Always CONVECTIVE
+            ENVELOPE        DetermineEnvelopeType();
 
             MT_CASE         DetermineMassTransferCase()                                                      { return MT_CASE::B; }                                                 // Mass Transfer Case B for HeHG stars
 

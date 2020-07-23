@@ -2495,6 +2495,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
                 m_ZetaRLOFNumerical = CalculateNumericalZRocheLobe(jLoss);
                 m_ZetaRLOFAnalytic  = CalculateZRocheLobe(jLoss);
+                                
                 double zetaLobe     = m_ZetaRLOFAnalytic;
                 
                 double zetaStar = m_Donor->CalculateZeta(OPTIONS->StellarZetaPrescription());

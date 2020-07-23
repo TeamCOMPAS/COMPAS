@@ -60,7 +60,6 @@ protected:
             std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase()                                    { return CalculateRadiusAndStellarTypeOnPhase(m_Mass, m_Luminosity); }
             
             ENVELOPE    DetermineEnvelopeType()                                                                         { return ENVELOPE::CONVECTIVE; }                        // Always CONVECTIVE
-            ENVELOPE    DetermineEnvelopeTypeHurley2002()                                                               { return ENVELOPE::CONVECTIVE; }                        // Always CONVECTIVE
 
             bool        IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate);
 };

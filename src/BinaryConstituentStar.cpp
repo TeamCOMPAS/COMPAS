@@ -319,7 +319,7 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
 
     double timescale;
 
-	switch (DetermineEnvelopeTypeHurley2002()) {                                                                                        // JR: todo: this differs from envelopeType() in star.cpp and DetermineEnvelopeType() in new code - ok?
+	switch (DetermineEnvelopeType()) {
 
         case ENVELOPE::CONVECTIVE: {                                                                                                    // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
 
@@ -372,7 +372,7 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
 
 	double timescale;
 
-	switch (DetermineEnvelopeTypeHurley2002()) {                                // JR: todo: this differs from envelopeType() in star.cpp and DetermineEnvelopeType() in new code - ok?
+	switch (DetermineEnvelopeType()) {
 
         case ENVELOPE::CONVECTIVE: {                                            // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
 
