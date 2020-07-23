@@ -289,7 +289,8 @@ public:
     double              SemiMajorAxisPostCEE() const                { return m_CEDetails.postCEE.semiMajorAxis; }
     double              SemiMajorAxisPreSN() const                  { return m_SemiMajorAxisPreSN; }
     double              SemiMajorAxisPreCEE() const                 { return m_CEDetails.preCEE.semiMajorAxis; }
-    double              SemiMajorAxisPrime() const                  { return m_SemiMajorAxisPrime; }    
+    double              SemiMajorAxisPrime() const                  { return m_SemiMajorAxisPrime; }
+    double              SemiMajorAxisPrimeRsol() const              { return m_SemiMajorAxisPrime*AU_TO_RSOL; }
     bool                SimultaneousRLOF() const                    { return m_RLOFDetails.simultaneousRLOF; }
     bool                StableRLOFPostCEE() const                   { return m_RLOFDetails.stableRLOFPostCEE; }
     bool                StellarMerger() const                       { return m_StellarMerger; }
