@@ -738,23 +738,25 @@ void HG::UpdateAgeAfterMassLoss() {
  */
 ENVELOPE HG::DetermineEnvelopeType() {
 
-    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                        // default envelope type  is RADIATIVE
-
-    switch (OPTIONS->CommonEnvelopeHertzsprungGapDonor()) {                                         // which common envelope prescription?
-
-        case COMMON_ENVELOPE_PRESCRIPTION::STABLE_HG:                                               // STABLE_HG
-            envelope = ENVELOPE::RADIATIVE;                                                         // envelope type = RADIATIVE
+ 
+    ENVELOPE envelope = ENVELOPE::CONVECTIVE;                                                        // default envelope type  is CONVECTIVE
+    
+    switch (OPTIONS->EnvelopeStatePrescription()) {                                         // which envelope prescription?
+            
+        case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
+        case ENVELOPE_STATE_PRESCRIPTION::HURLEY: // Eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual growth of convective envelope over HG, but we approximate it as already convective here
+            envelope = ENVELOPE::CONVECTIVE;
             break;
-
-        case COMMON_ENVELOPE_PRESCRIPTION::OPTIMISTIC_HG:                                           // OPTIMISTIG_HG
-        case COMMON_ENVELOPE_PRESCRIPTION::PESSIMISTIC_HG:                                          // PESSIMISTIC_HG
-            envelope = ENVELOPE::CONVECTIVE;                                                        // envelope type = CONVECTIVE
+            
+        case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
+            // to be filled in, for now convective
+            envelope =  ENVELOPE::CONVECTIVE;
             break;
-
+            
         default:                                                                                    // unknown prescription - use default envelope type
-            SHOW_WARN(ERROR::UNKNOWN_COMMON_ENVELOPE_PRESCRIPTION, "Using Envelope = RADIATIVE");   // show warning
+            SHOW_WARN(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION, "Using Envelope = CONVECTIVE");   // show warning
     }
-
+    
     return envelope;
 }
 

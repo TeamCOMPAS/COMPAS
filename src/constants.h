@@ -317,8 +317,11 @@
 //                                      - Starting to clean up mass transfer functionality
 // 02.12.02      IM - Jul 23, 2020 - Enhancement:
 //                                      - Change to thermal timescale MT for both donor and accretor to determine MT stability
+// 02.12.03      IM - Jul 23, 2020 - Enhancement:
+//                                      - Introduced a new ENVELOPE_STATE_PRESCRIPTION to deal with different prescriptions for convective vs. radiative envelopes (no actual behaviour changes yet for ENVELOPE_STATE_PRESCRIPTION::LEGACY);
+//                                      - Removed unused COMMON_ENVELOPE_PRESCRIPTION
 
-const std::string VERSION_STRING = "02.12.02";
+const std::string VERSION_STRING = "02.12.03";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
@@ -739,9 +742,9 @@ enum class ERROR: int {
     UNKNOWN_BH_KICK_OPTION,                                         // unknown black hole kick option (in program options)
     UNKNOWN_BINARY_PROPERTY,                                        // unknown binary property
     UNKNOWN_CE_ACCRETION_PRESCRIPTION,                              // unknown common envelope Accretion Prescription
+    UNKNOWN_ENVELOPE_STATE_PRESCRIPTION,                            // unknown envelope state prescription
     UNKNOWN_CE_LAMBDA_PRESCRIPTION,                                 // unknown common envelope Lambda Prescription
-    UNKNOWN_ZETA_PRESCRIPTION,                                   // unknown common envelope Zeta prescription
-    UNKNOWN_COMMON_ENVELOPE_PRESCRIPTION,                           // unknown Common Envelope Prescription
+    UNKNOWN_ZETA_PRESCRIPTION,                                      // unknown stellar Zeta prescription
     UNKNOWN_ECCENTRICITY_DISTRIBUTION,                              // unknown eccentricity distribution
     UNKNOWN_INITIAL_MASS_FUNCTION,                                  // unknown initial mass function
     UNKNOWN_KICK_DIRECTION_DISTRIBUTION,                            // unknown kick direction distribution
@@ -851,9 +854,9 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_BH_KICK_OPTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown black hole kick option" }},
     { ERROR::UNKNOWN_BINARY_PROPERTY,                               { ERROR_SCOPE::ALWAYS,              "Unknown binary property - property details not found" }},
     { ERROR::UNKNOWN_CE_ACCRETION_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown common envelope accretion prescription" }},
+    { ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION,                   { ERROR_SCOPE::ALWAYS,              "Unknown envelope state prescription" }},
     { ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unknown common envelope lambda prescription" }},
     { ERROR::UNKNOWN_ZETA_PRESCRIPTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown stellar Zeta prescription" }},
-    { ERROR::UNKNOWN_COMMON_ENVELOPE_PRESCRIPTION,                  { ERROR_SCOPE::ALWAYS,              "Unknown common envelope prescription" }},
     { ERROR::UNKNOWN_ECCENTRICITY_DISTRIBUTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown eccentricity distribution" }},
     { ERROR::UNKNOWN_INITIAL_MASS_FUNCTION,                         { ERROR_SCOPE::ALWAYS,              "Unknown initial mass function (IMF)" }},
     { ERROR::UNKNOWN_KICK_DIRECTION_DISTRIBUTION,                   { ERROR_SCOPE::ALWAYS,              "Unknown kick direction distribution" }},
@@ -974,6 +977,14 @@ const COMPASUnorderedMap<CE_ACCRETION_PRESCRIPTION, std::string> CE_ACCRETION_PR
     { CE_ACCRETION_PRESCRIPTION::MACLEOD,  "MACLEOD" }
 };
 
+// Envelope State Prescriptions
+enum class ENVELOPE_STATE_PRESCRIPTION: int { LEGACY, HURLEY, FIXED_TEMPERATURE };
+const COMPASUnorderedMap<ENVELOPE_STATE_PRESCRIPTION, std::string> ENVELOPE_STATE_PRESCRIPTION_LABEL = {
+    { ENVELOPE_STATE_PRESCRIPTION::LEGACY,   "LEGACY" },
+    { ENVELOPE_STATE_PRESCRIPTION::HURLEY,   "HURLEY" },
+    { ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE,  "FIXED_TEMPERATURE" }
+};
+
 
 // Common Envelope Lambda Prescriptions
 enum class CE_LAMBDA_PRESCRIPTION: int { FIXED, LOVERIDGE, NANJING, KRUCKOW, DEWI };
@@ -1004,15 +1015,6 @@ const COMPASUnorderedMap<CHE_OPTION, std::string> CHE_OPTION_LABEL = {
     { CHE_OPTION::PESSIMISTIC, "PESSIMISTIC" }
 };
 
-
-// Common envelope prescriptions
-enum class COMMON_ENVELOPE_PRESCRIPTION: int { WEBBINK, OPTIMISTIC_HG, PESSIMISTIC_HG, STABLE_HG };
-const COMPASUnorderedMap<COMMON_ENVELOPE_PRESCRIPTION, std::string> COMMON_ENVELOPE_PRESCRIPTION_LABEL = {
-    { COMMON_ENVELOPE_PRESCRIPTION::WEBBINK,        "WEBBINK_CE" },
-    { COMMON_ENVELOPE_PRESCRIPTION::OPTIMISTIC_HG,  "OPTIMISTIC_HG_CE" },   // Assume HG donors onto compact objects can initiate and survive CE
-    { COMMON_ENVELOPE_PRESCRIPTION::PESSIMISTIC_HG, "PESSIMISTIC_HG_CE" },  // Assume HG donors onto compact objects can initiate but not survive CE
-    { COMMON_ENVELOPE_PRESCRIPTION::STABLE_HG,      "STABLE_HG_CE" }        // HG donors onto compact object are stable Pavlovski+ 2016
-};
 
 
 // Logfile delimiters

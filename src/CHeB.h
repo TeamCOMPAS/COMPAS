@@ -109,8 +109,7 @@ protected:
 
     double          ChooseTimestep(const double p_Time);
 
-    ENVELOPE        DetermineEnvelopeType()                                      { return ENVELOPE::CONVECTIVE; }                                               // Always CONVECTIVE (JR: should be RADIATIVE?  See http://gitlab.sr.bham.ac.uk/COMPAS/COMPAS/issues/135 and Hurley et al., 2002)
-    ENVELOPE        DetermineEnvelopeTypeHurley2002()                            { return ENVELOPE::RADIATIVE; }                                                // Always RADIATIVE
+    ENVELOPE        DetermineEnvelopeType();
 
     STELLAR_TYPE    EvolveToNextPhase();
 

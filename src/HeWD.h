@@ -111,7 +111,6 @@ protected:
     double          ChooseTimestep(const double p_Time);
 
     ENVELOPE        DetermineEnvelopeType()                                                             { return ENVELOPE::CONVECTIVE; }                                                // Always CONVECTIVE
-    ENVELOPE        DetermineEnvelopeTypeHurley2002()                                                   { return ENVELOPE::REMNANT; }                                                   // JR: todo: not convective according to Hurley et al. 2002, but not radiative - so set remnant.  is this right?
 
     MT_CASE         DetermineMassTransferCase()                                                         { return MT_CASE::NONE; }                                                       // No Mass Transfer Case for WDs/Remnants
 
