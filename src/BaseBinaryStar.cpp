@@ -1781,18 +1781,12 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 	star1Copy->SetCompanion(star2Copy);                                                                                 // need companion for CalculateSynchronisationTimescale() & CalculateCircularisationTimescale() later
 	star2Copy->SetCompanion(star1Copy);                                                                                 // need companion for CalculateSynchronisationTimescale() & CalculateCircularisationTimescale() later
     // Alejandro - We are not calculating the tidal timescales here anymore, remove or leave?
-    
+
     double alphaCE = m_CEDetails.alpha;                                                                                 // CE efficiency parameter
 
 	double eccentricity     = m_EccentricityPrime;								                                        // current eccentricity (before CEE)
     double semiMajorAxisRsol= m_SemiMajorAxisPrime*AU_TO_RSOL;                                                          // current semi-major axis in default units, Rsol (before CEE)
     double periastronRsol   = PeriastronPrime()*AU_TO_RSOL;                                                             // periastron, Rsol (before CEE)
-
-    // ALEJANDRO - bug checking - To be deleted
-    std::cout << "Before CEE:" << std::endl;    
-    std::cout << "semiMajorAxisRsol, eccentricity, periastronRsol: " <<  semiMajorAxisRsol << ", " << eccentricity << ", " << periastronRsol << std::endl;
-    std::cout << "Radius1, Radius2: " <<  m_Star1->Radius() << ", " << m_Star2->Radius() << std::endl; 
-    std::cout << "StellarType1, StellarType2: " <<  m_Star1->StellarType() << ", " << m_Star2->StellarType() << std::endl;     
 
     bool donorMS = false;                                                                                               // check for main sequence donor
     if (OPTIONS->AllowMainSequenceStarToSurviveCommonEnvelope()) {                                                      // allow main sequence stars to survive CEE?
@@ -1826,8 +1820,8 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     bool envelopeFlag1 = utils::Compare(m_MassEnv1, 0.0) > 0 && utils::Compare(m_Mass1Final, 0.0) > 0;                  // star1 not massless remnant and has envelope?
     bool envelopeFlag2 = utils::Compare(m_MassEnv2, 0.0) > 0 && utils::Compare(m_Mass2Final, 0.0) > 0;                  // star1 not massless remnant and has envelope?
 
-    double rRLd1Rsol = periastronRsol * CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass());                   // Roche-lobe radius at periastron in Rsol at the moment where CEE begins, seen by star1
-    double rRLd2Rsol = periastronRsol * CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass());                   // Roche-lobe radius at periastron in Rsol at the moment where CEE begins, seen by star2
+    double rRLd1Rsol = periastronRsol * CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass());              // Roche-lobe radius at periastron in Rsol at the moment where CEE begins, seen by star1
+    double rRLd2Rsol = periastronRsol * CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass());              // Roche-lobe radius at periastron in Rsol at the moment where CEE begins, seen by star2
 
     std::cout << "RRL1, RRL2: " <<  rRLd1Rsol << ", " << rRLd2Rsol << std::endl;  
 
@@ -1935,11 +1929,6 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     }
 
 	SetPostCEEValues(aFinalRsol, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                                                       // squirrel away post CEE binary values.  ALEJANDRO - 06/12/2016 - for populations studies. All separations in Rsol.
-
-    // ALEJANDRO - bug checking - To be deleted
-    std::cout << "After CEE:" << std::endl;
-    std::cout << "m_SemiMajorAxisPrimeRsol, eccentricityPrime, periastronPrimeRsol: " <<  m_SemiMajorAxisPrime*AU_TO_RSOL << ", " << m_EccentricityPrime << ", " << PeriastronPrime()*AU_TO_RSOL << std::endl;
-    std::cout << "Radius1, Radius2: " <<  m_Star1->Radius() << ", " << m_Star2->Radius() << std::endl; 
 
     PrintCommonEnvelope();
 }
