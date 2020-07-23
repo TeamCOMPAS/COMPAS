@@ -89,6 +89,7 @@ class pythonProgramOptions:
     common_envelope_mass_accretion_prescription = 'ZERO'
     common_envelope_mass_accretion_min = 0.04           # For 'MACLEOD+2014' [Msol]
     common_envelope_mass_accretion_max = 0.10           # For 'MACLEOD+2014' [Msol]
+    envelope_state_prescription = 'LEGACY'
 
     mass_loss_prescription = 'VINK'
     luminous_blue_variable_multiplier = 1.5
@@ -422,6 +423,7 @@ class pythonProgramOptions:
             self.pulsar_birth_magnetic_field_distribution,
             self.pulsar_birth_spin_period_distribution,
             self.common_envelope_mass_accretion_prescription,
+            self.envelope_state_prescription,
             self.logfile_name_prefix,
             self.logfile_delimiter,
             self.logfile_definitions,
@@ -465,6 +467,7 @@ class pythonProgramOptions:
             '--pulsar-birth-magnetic-field-distribution',
             '--pulsar-birth-spin-period-distribution',
             '--common-envelope-mass-accretion-prescription',
+            '--envelope-state-prescription',
             '--logfile-name-prefix',
             '--logfile-delimiter',
             '--logfile-definitions',
