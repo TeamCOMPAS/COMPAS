@@ -320,8 +320,10 @@
 // 02.12.03      IM - Jul 23, 2020 - Enhancement:
 //                                      - Introduced a new ENVELOPE_STATE_PRESCRIPTION to deal with different prescriptions for convective vs. radiative envelopes (no actual behaviour changes yet for ENVELOPE_STATE_PRESCRIPTION::LEGACY);
 //                                      - Removed unused COMMON_ENVELOPE_PRESCRIPTION
+// 02.12.04      IM - Jul 24, 2020 - Enhancement:
+//                                      - Changed temperatures to be written in Kelvin (see issue #278)
 
-const std::string VERSION_STRING = "02.12.03";
+const std::string VERSION_STRING = "02.12.04";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
@@ -2290,9 +2292,9 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::MEAN_ANOMALY,                                      { TYPENAME::DOUBLE,         "SN_Kick_Mean_Anomaly", "-",                14, 6 }},
     { ANY_STAR_PROPERTY::SUPERNOVA_PHI,                                     { TYPENAME::DOUBLE,         "SN_Kick_Phi",          "-",                14, 6 }},
     { ANY_STAR_PROPERTY::SUPERNOVA_THETA,                                   { TYPENAME::DOUBLE,         "SN_Kick_Theta",        "-",                14, 6 }},
-    { ANY_STAR_PROPERTY::TEMPERATURE,                                       { TYPENAME::DOUBLE,         "Teff",                 "Tsol",             14, 6 }},
-    { ANY_STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE,                  { TYPENAME::DOUBLE,         "Teff>CE",              "Tsol",             14, 6 }},
-    { ANY_STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Teff<CE",              "Tsol",             14, 6 }},
+    { ANY_STAR_PROPERTY::TEMPERATURE,                                       { TYPENAME::DOUBLE,         "Teff",                 "K",             14, 6 }},
+    { ANY_STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE,                  { TYPENAME::DOUBLE,         "Teff>CE",              "K",             14, 6 }},
+    { ANY_STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Teff<CE",              "K",             14, 6 }},
     { ANY_STAR_PROPERTY::THERMAL_TIMESCALE,                                 { TYPENAME::DOUBLE,         "Tau_Thermal",          "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::THERMAL_TIMESCALE_POST_COMMON_ENVELOPE,            { TYPENAME::DOUBLE,         "Tau_Thermal>CE",       "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::THERMAL_TIMESCALE_PRE_COMMON_ENVELOPE,             { TYPENAME::DOUBLE,         "Tau_Thermal<CE",       "Myr",              16, 8 }},
@@ -2315,7 +2317,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_LUMINOSITY,              { TYPENAME::DOUBLE,         "Companion_Lum",        "Lsol",             14, 6 }},
     { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_MASS,                    { TYPENAME::DOUBLE,         "Companion_Mass",       "Msol",             14, 6 }},
     { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_RADIUS,                  { TYPENAME::DOUBLE,         "Companion_Radius",     "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_TEFF,                    { TYPENAME::DOUBLE,         "Companion_Teff",       "Tsol",             14, 6 }},
+    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_TEFF,                    { TYPENAME::DOUBLE,         "Companion_Teff",       "K",             14, 6 }},
     { BINARY_PROPERTY::BE_BINARY_CURRENT_DT,                                { TYPENAME::DOUBLE,         "dT",                   "Myr",              16, 8 }},
     { BINARY_PROPERTY::BE_BINARY_CURRENT_ECCENTRICITY,                      { TYPENAME::DOUBLE,         "Eccentricity",         "-",                14, 6 }},
     { BINARY_PROPERTY::BE_BINARY_CURRENT_ID,                                { TYPENAME::OBJECT_ID,      "ID",                   "-",                12, 1 }},
