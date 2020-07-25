@@ -322,8 +322,12 @@
 //                                      - Removed unused COMMON_ENVELOPE_PRESCRIPTION
 // 02.12.04      IM - Jul 24, 2020 - Enhancement:
 //                                      - Changed temperatures to be written in Kelvin (see issue #278)
+// 02.12.05      IM - Jul 25, 2020 - Enhancement:
+//                                      - Added definition of FIXED_TEMPERATURE prescription to DetermineEnvelopeType()
+//                                      - Removed unnecessary (and inaccurate) numerical zeta Roche lobe calculation
 
-const std::string VERSION_STRING = "02.12.04";
+
+const std::string VERSION_STRING = "02.12.05";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
@@ -543,7 +547,7 @@ constexpr double C                                      = 3.0E8;                
 
 constexpr double MU_0                                   = 4.0 * M_PI * 1.0E-7;                                      // Vacuum permeability in m kg s-2 A-2
 
-constexpr double NEUTRINO_LOSS_FALLBACK_FACTOR          = 1.0;                                                      // Factor which accounts for mass loss in neutrino winds during a supernovae. Should be made a flag and added to pythonSubmit.p
+constexpr double NEUTRINO_LOSS_FALLBACK_FACTOR          = 1.0;                                                      // Factor which accounts for mass loss in neutrino winds during a supernovae. Should be made a flag and added to pythonSubmit.py
 
 constexpr double MC_L_C1                                = 9.20925E-5;                                               // Core Mass - Luminosity relation constant c1 (Hurley et al. 2000, eq 44)
 constexpr double MC_L_C2                                = 5.402216;                                                 // Core Mass - Luminosity relation constant c2 (Hurley et al. 2000, eq 44)
@@ -566,6 +570,8 @@ constexpr double MCBUR2					= 2.25;							    // He core mass above which the CO
 constexpr double LBV_LUMINOSITY_LIMIT_STARTRACK         = 6.0E5;                                                    // STARTRACK LBV luminosity limit
 constexpr double LBV_LUMINOSITY_LIMIT_VANBEVEREN        = 3.0E5;                                                    // VANBEVEREN LBV luminosity limit
 
+constexpr double CONVECTIVE_BOUNDARY_TEMPERATURE        = 5.3703E3;                                                 // Threshold temperature for the star to develop a convective envelope, in Kelvin (10^3.73 K, from Belczynski+, 2008)
+
 constexpr double ABSOLUTE_MINIMUM_TIMESTEP              = 100.0 / SECONDS_IN_MYR;                                   // 100 seconds expressed in Myr (3.1688765E-12 Myr)
 constexpr double NUCLEAR_MINIMUM_TIMESTEP               = 1.0E-4;                                                   // Minimum time step for nuclear evolution = 100 years expressed in Myr
 constexpr double TIMESTEP_REDUCTION_FACTOR              = 1.0;                                                      // JR: todo: descriotion.  Should make this a program option
@@ -576,7 +582,6 @@ constexpr double MAXIMUM_MASS_LOSS_FRACTION             = 0.01;                 
 constexpr double MAXIMUM_RADIAL_CHANGE                  = 0.01;                                                     // Maximum allowable radial change - 1% (of radius) expressed as a fraction
 constexpr double FAKE_MASS_LOSS_PERCENTAGE              = 0.01;                                                     // Percentage mass loss for fake mass loss prescription (0.01% = 0.0001 fraction)
 constexpr double MINIMUM_MASS_SECONDARY                 = 4.0;                                                      // Minimum mass of secondary to evolve
-constexpr double RL_MASS_LOSS_FRACTION                  = 0.01;                                                     // Mass loss - 1.0% (of mass) expressed as a fraction - for calculating Roche Lobe resposne to mass transfer
 
 constexpr double ZETA_THERMAL_PERCENTAGE_MASS_CHANGE    = 1.0E-3;                                                   // Initial guess for percentage mass change when calculating zeta_thermal (use -ve for loss, +ve for gain)
 constexpr double ZETA_THERMAL_TOLERANCE                 = 1.0E-3;                                                   // Tolerance between iterations when calculating zeta thermal
@@ -2024,9 +2029,8 @@ enum class BINARY_PROPERTY: int {
     TOTAL_ANGULAR_MOMENTUM_PRIME,
     TOTAL_ENERGY_PRIME,
     WOLF_RAYET_FACTOR,
-    ZETA_RLOF_ANALYTIC,
-    ZETA_RLOF_NUMERICAL,
-    ZETA_STAR_COMPARE
+    ZETA_LOBE,
+    ZETA_STAR
 };
 
 
@@ -2120,9 +2124,8 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM_PRIME,                       "TOTAL_ANGULAR_MOMENTUM_PRIME" },
     { BINARY_PROPERTY::TOTAL_ENERGY_PRIME,                                 "TOTAL_ENERGY_PRIME" },
     { BINARY_PROPERTY::WOLF_RAYET_FACTOR,                                  "WOLF_RAYET_FACTOR" },
-    { BINARY_PROPERTY::ZETA_RLOF_ANALYTIC,                                 "ZETA_RLOF_ANALYTIC" },
-    { BINARY_PROPERTY::ZETA_RLOF_NUMERICAL,                                "ZETA_RLOF_NUMERICAL" },
-    { BINARY_PROPERTY::ZETA_STAR_COMPARE,                                  "ZETA_STAR_COMPARE" }
+    { BINARY_PROPERTY::ZETA_LOBE,                                          "ZETA_LOBE" },
+    { BINARY_PROPERTY::ZETA_STAR,                                          "ZETA_STAR" }
 };
 
 
@@ -2401,9 +2404,8 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM_PRIME,                        { TYPENAME::DOUBLE,         "Ang_Momentum_Total",   "Msol*AU^2*yr^-1",  14, 6 }},
     { BINARY_PROPERTY::TOTAL_ENERGY_PRIME,                                  { TYPENAME::DOUBLE,         "Energy_Total",         "Msol*AU^2*yr^-2",  14, 6 }},
     { BINARY_PROPERTY::WOLF_RAYET_FACTOR,                                   { TYPENAME::DOUBLE,         "WR_Multiplier",        "-",                14, 6 }},
-    { BINARY_PROPERTY::ZETA_RLOF_ANALYTIC,                                  { TYPENAME::DOUBLE,         "Zeta_RLOF_Analytic",   "-",                14, 6 }},
-    { BINARY_PROPERTY::ZETA_RLOF_NUMERICAL,                                 { TYPENAME::DOUBLE,         "Zeta_RLOF_Numerical",  "-",                14, 6 }},
-    { BINARY_PROPERTY::ZETA_STAR_COMPARE,                                   { TYPENAME::DOUBLE,         "Zeta_Star_Compare",    "-",                14, 6 }}
+    { BINARY_PROPERTY::ZETA_LOBE,                                           { TYPENAME::DOUBLE,         "Zeta_Lobe",   "-",                14, 6 }},
+    { BINARY_PROPERTY::ZETA_STAR,                                           { TYPENAME::DOUBLE,         "Zeta_Star",    "-",                14, 6 }}
 };
 
 // enum class PROGRAM_OPTION_DETAIL
@@ -2763,8 +2765,8 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
     STAR_2_PROPERTY::DYNAMICAL_TIMESCALE_PRE_COMMON_ENVELOPE,
     STAR_2_PROPERTY::THERMAL_TIMESCALE_PRE_COMMON_ENVELOPE,
     STAR_2_PROPERTY::NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE,
-    BINARY_PROPERTY::ZETA_STAR_COMPARE,
-    BINARY_PROPERTY::ZETA_RLOF_ANALYTIC,
+    BINARY_PROPERTY::ZETA_STAR,
+    BINARY_PROPERTY::ZETA_LOBE,
     BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE,
     BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE,
     STAR_1_PROPERTY::RADIAL_EXPANSION_TIMESCALE_PRE_COMMON_ENVELOPE,

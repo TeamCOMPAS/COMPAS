@@ -394,9 +394,8 @@ void BaseBinaryStar::SetRemainingCommonValues() {
     m_MassEnv1                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_MassEnv2                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_ZetaRLOFAnalytic                           = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_ZetaRLOFNumerical                          = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_ZetaStarCompare	                         = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_ZetaLobe                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_ZetaStar	                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // Initialise other parameters to 0
     m_MSN                                        = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -611,9 +610,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM_PRIME:                         value = TotalAngularMomentumPrime();                                        break;
         case BINARY_PROPERTY::TOTAL_ENERGY_PRIME:                                   value = TotalEnergyPrime();                                                 break;
         case BINARY_PROPERTY::WOLF_RAYET_FACTOR:                                    value = WolfRayetFactor();                                                  break;
-        case BINARY_PROPERTY::ZETA_RLOF_ANALYTIC:                                   value = ZetaRLOFAnalytic();                                                 break;
-        case BINARY_PROPERTY::ZETA_RLOF_NUMERICAL:                                  value = ZetaRLOFNumerical();                                                break;
-        case BINARY_PROPERTY::ZETA_STAR_COMPARE:                                    value = ZetaStarCompare();                                                  break;
+        case BINARY_PROPERTY::ZETA_LOBE:                                            value = ZetaLobe();                                                         break;
+        case BINARY_PROPERTY::ZETA_STAR:                                            value = ZetaStar();                                                         break;
 
         default:                                                                                                        // unknown property
             ok    = false;                                                                                              // that's not ok...
@@ -2317,46 +2315,6 @@ double BaseBinaryStar::CalculateMassTransferOrbit(BinaryConstituentStar& p_Donor
 }
 
 
-/*
- * Calculate the response of the donor Roche Lobe to mass loss during mass transfer per Belczynski et al. 2008
- *
- * Numerical calculation of the Roche Lobe after mass transfer as in StarTrack.
- * Described in Belczynski et al. 2008. Used for a regular star accretor and non-conservative Mass Transfer.
- * Belczynsky et al. (2008), eq 41, using Woods et al. (2012) formula
- *
- *    dJ=Beta*((1.0-Fa)*(Ma2-Ma1)/(Ma1+Mb1))*Jorb1;
- *    a2=((Ma2+Mb2)*pow(Jorb1+dJ,2.0))/(GGG*Ma2*Ma2*Mb2*Mb2);  (non-conservative MT assumption)
- *
- * JR: todo: What does "(Numerical) ZRocheLobe" mean?  Why don't we call this function "CalculateRocheLobResponseToMasslossBelczynski" (or something)?
- *
- *
- * double CalculateNumericalZRocheLobe(const double p_jLoss)
- *
- * @param   [IN]    p_jLoss                     Specific angular momentum with which mass is lost during non-conservative mass transfer
- *                                              (Podsiadlowski et al. 1992, Beta: specific angular momentum of matter [2Pia^2/P])
- * @return                                      Roche Lobe response
- */
-double BaseBinaryStar::CalculateNumericalZRocheLobe(const double p_jLoss) {
-
-    double initialDonorMass    = m_Donor->Mass();                                                                                           // donor mass before mass transfer
-    double initialAccretorMass = m_Accretor->Mass();                                                                                        // accretor mass before mass transfer
-
-    double initialMassAplusMassD = initialAccretorMass + initialDonorMass;                                                                  // accretor mass + donor mass before mass transfer
-
-    double donorMass    = (1.0 - RL_MASS_LOSS_FRACTION) * initialDonorMass;                                                                 // donor mass after mass transfer
-    double accretorMass = initialAccretorMass + m_FractionAccreted * RL_MASS_LOSS_FRACTION * initialDonorMass;                              // accretor mass after mass transfer
-
-    double J  = initialAccretorMass * initialDonorMass * sqrt(G1 * initialMassAplusMassD * m_SemiMajorAxisPrime) / initialMassAplusMassD;   // angular momentum before mass transfer
-           J += J * p_jLoss * ((1.0 - m_FractionAccreted) * (donorMass - initialDonorMass) / initialMassAplusMassD);                        // angular momentum after mass transfer
-
-    double semiMajorAxis = (donorMass + accretorMass) * (J * J) / (G1 * donorMass * donorMass * accretorMass * accretorMass);               // semi major axis adjusted for mass transfer
-
-    double RLRadiusBefore = m_SemiMajorAxisPrime * CalculateRocheLobeRadius_Static(initialDonorMass, initialAccretorMass);                  // Roche Lobe radius before mass transfer
-    double RLRadiusAfter  = semiMajorAxis * CalculateRocheLobeRadius_Static(donorMass, accretorMass);                                       // Roche Lobe radius after mass transfer
-
-    return (log(RLRadiusAfter) - log(RLRadiusBefore)) / (log(donorMass) - log(initialDonorMass));                                           // Response of the donor Roche Lobe to mass loss during mass transfer
-}
-
 
 /*
  * Calculate the response of the donor Roche Lobe to mass loss during mass transfer per Sluys 2013, Woods et al., 2012
@@ -2383,7 +2341,7 @@ double BaseBinaryStar::CalculateZRocheLobe(const double p_jLoss) {
     double q_1_3 = pow(q, 1.0 / 3.0);
 
     double k1 = -2.0 * (1.0 - (beta * q) - (1.0 - beta) * (gamma + 0.5) * (q / (1.0 + q)));
-    double k2 = (2.0 / 3.0) - ((q_1_3 * ((1.2 * q_1_3) + (1.0 / (1.0 + q_1_3)))) / (3.0 * ((0.6 * pow(q, 2.0 / 3.0)) + (log(1.0 + q_1_3)))));
+    double k2 = (2.0 / 3.0) - q_1_3 * (1.2 * q_1_3 + 1.0 / (1.0 + q_1_3)) / (3.0 * (0.6 * q_1_3 * q_1_3 + log(1.0 + q_1_3)));
     double k3 = 1.0 + (beta * q);
 
     return k1 + (k2 * k3);
@@ -2493,15 +2451,10 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                     jLoss = CalculateGammaAngularMomentumLoss();                                                                                            // no - re-calculate angular momentum
                 }
 
-                m_ZetaRLOFNumerical = CalculateNumericalZRocheLobe(jLoss);
-                m_ZetaRLOFAnalytic  = CalculateZRocheLobe(jLoss);
+                m_ZetaLobe = CalculateZRocheLobe(jLoss);
+                m_ZetaStar = m_Donor->CalculateZeta(OPTIONS->StellarZetaPrescription());
                 
-                double zetaLobe     = m_ZetaRLOFAnalytic;
-                
-                double zetaStar = m_Donor->CalculateZeta(OPTIONS->StellarZetaPrescription());
-                m_ZetaStarCompare = zetaStar;
-                
-                if(utils::Compare(zetaStar, zetaLobe) > 0 ||
+                if(utils::Compare(m_ZetaStar, m_ZetaLobe) > 0 ||
                    (m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH }) &&
                     OPTIONS->ForceCaseBBBCStabilityFlag() && OPTIONS->AlwaysStableCaseBBBCFlag()) ) {                                                      // Stable MT
                        m_MassTransferTrackerHistory = m_Donor->IsPrimary() ? MT_TRACKING::STABLE_FROM_1_TO_2 : MT_TRACKING::STABLE_FROM_2_TO_1;            // record what happened - for later printing
