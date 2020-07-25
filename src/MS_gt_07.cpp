@@ -91,13 +91,16 @@ ENVELOPE MS_gt_07::DetermineEnvelopeType() {
     switch (OPTIONS->EnvelopeStatePrescription()) {                                         // which envelope prescription?
             
         case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
-        case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
             envelope = ENVELOPE::RADIATIVE;
             break;
             
         case ENVELOPE_STATE_PRESCRIPTION::HURLEY:
             // there is some convective envelope for stars below 1.25 solar masses according to Eq. (36) of Hurley+ (2002), but we simplify
             envelope =  utils::Compare(m_Mass, 1.25) < 0 ? ENVELOPE::CONVECTIVE : ENVELOPE::RADIATIVE;
+            break;
+            
+        case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
+            envelope =  utils::Compare(Temperature()*TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             break;
             
         default:                                                                                    // unknown prescription - use default envelope type

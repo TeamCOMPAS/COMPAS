@@ -163,9 +163,8 @@ public:
 
         m_WolfRayetFactor                  = p_Star.m_WolfRayetFactor;
 
-        m_ZetaRLOFAnalytic                 = p_Star.m_ZetaRLOFAnalytic;
-        m_ZetaRLOFNumerical                = p_Star.m_ZetaRLOFNumerical;
-        m_ZetaStarCompare                  = p_Star.m_ZetaStarCompare;
+        m_ZetaLobe                         = p_Star.m_ZetaLobe;
+        m_ZetaStar                         = p_Star.m_ZetaStar;
 
         // copy the constituent stars and pointers
 
@@ -305,9 +304,8 @@ public:
     double              TotalEnergyPrime() const                    { return m_TotalEnergyPrime; }
     double              UK() const                                  { return m_uK; }
     double              WolfRayetFactor() const                     { return m_WolfRayetFactor; }
-    double              ZetaRLOFAnalytic() const                    { return m_ZetaRLOFAnalytic; }
-    double              ZetaRLOFNumerical() const                   { return m_ZetaRLOFNumerical; }
-    double              ZetaStarCompare() const                     { return m_ZetaStarCompare; }
+    double              ZetaLobe() const                    	    { return m_ZetaLobe; }
+    double              ZetaStar() const                            { return m_ZetaStar; }
 
 
     // member functions - alphabetically
@@ -453,9 +451,8 @@ private:
 
     double              m_WolfRayetFactor;
 
-    double              m_ZetaRLOFAnalytic;
-    double              m_ZetaRLOFNumerical;
-    double              m_ZetaStarCompare;
+    double              m_ZetaLobe;
+    double              m_ZetaStar;
 
 
     // Binaries contain two stars
@@ -544,7 +541,6 @@ private:
                                             const double p_KickPhi);
 
     double  CalculateAdaptiveRocheLobeOverFlow(const double p_JLoss);
-    double  CalculateNumericalZRocheLobe(const double p_jLoss);
     double  CalculateZRocheLobe(const double p_jLoss);
 
     double  CalculateSemiMajorAxisPostSupernova(const double p_KickVelocity,
