@@ -2640,10 +2640,11 @@ void BaseBinaryStar::InitialiseMassTransfer() {
  */
 void BaseBinaryStar::CheckMassTransfer(const double p_Dt) {
 
-    if(Unbound())                          
-        return;                                                                                                                 // do nothing for unbound binaries
     InitialiseMassTransfer();                                                                                                   // initialise - even if not using mass transfer (sets some flags we might need)
 
+    if(Unbound())
+        return;                                                                                                                 // do nothing for unbound binaries
+    
     if (OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}) && HasStarsTouching()) {  // CHE enabled and both stars CH?
         m_StellarMerger = true;                                                                                                 // just merge
     }

@@ -419,6 +419,9 @@ void BinaryConstituentStar::SetRocheLobeFlags(const bool p_CommonEnvelope, const
     m_RLOFDetails.isRLOF = false;                                                                                       // default - not overflowing Roche Lobe
 
     m_RocheLobeTracker = (Radius() * RSOL_TO_AU) / (m_RocheLobeRadius * p_SemiMajorAxis * (1.0 - p_Eccentricity));      // ratio of star's size to its Roche Lobe radius, calculated at the point of closest approach, periapsis
+    
+    if((utils::Compare(p_SemiMajorAxis, 0.0) <= 0) || (utils::Compare(p_Eccentricity, 1.0) > 0))
+        m_RocheLobeTracker = 0.0;         // binary is unbound, so not in RLOF
 
     if (utils::Compare(m_RocheLobeTracker, 1.0) >= 0) {                                                                 // if star is equal to or larger than its Roche Lobe...
 		m_RLOFDetails.isRLOF          = true;                                                                           // ... it is currently Roche Lobe overflowing
