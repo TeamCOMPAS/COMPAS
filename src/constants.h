@@ -313,8 +313,9 @@
 //					                    - Issue #280 - Stars undergoing RLOF at ZAMS after masses are equalised were removed from run even if AllowRLOFatZAMS set
 // 02.12.00      IM - Jun 29, 2020 - Defect repair:
 //                                      - Issue 277 - move UpdateAttributesAndAgeOneTimestepPreamble() to after ResolveSupernova() to avoid inconsistency
+// 02.12.XX		AVG - Jul 26, 2020 - Bug Fix for issue #269 ; legacy bug in eccentric RLOF leading to a CEE 
 
-const std::string VERSION_STRING = "02.12.00";
+const std::string VERSION_STRING = "02.12.XX";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
