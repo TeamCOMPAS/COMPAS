@@ -1320,6 +1320,41 @@ double BaseStar::CalculateZadiabaticSPH(const double p_CoreMass) {
 
 
 /*
+ * Calculate the Adiabatic Exponent (for convective-envelope giant-like stars)
+ *
+ *
+ * double CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription)
+ *
+ * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
+ * @return                                      Adiabatic exponent
+ */
+double BaseStar::CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) {
+    
+    double zeta = 0.0;                                              // default value
+    
+    switch (p_ZetaPrescription) {                                 // which prescription?
+        case ZETA_PRESCRIPTION::SOBERMAN:                        // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
+            zeta = CalculateZadiabaticSPH(m_HeCoreMass);
+            break;
+            
+        case ZETA_PRESCRIPTION::HURLEY:                          // HURLEY: Hurley, Tout, and Pols, 2002, eq 56
+            zeta = CalculateZadiabaticHurley2002(m_HeCoreMass);
+            break;
+            
+        case ZETA_PRESCRIPTION::ARBITRARY:                       // ARBITRARY: user program options thermal zeta value
+            zeta = OPTIONS->ZetaThermalArbitrary();
+            break;
+            
+        default:                                                    // unknown common envelope prescription - shouldn't happen
+            m_Error = ERROR::UNKNOWN_ZETA_PRESCRIPTION;          // set error value
+            SHOW_ERROR(m_Error);                                    // warn that an error occurred
+    }
+    
+    return zeta;
+}
+
+
+/*
  * Calculate all Lambdas
  *
  * ALEJANDRO - 04/11/2016 - Lambda calculations as tracker for binding energy;

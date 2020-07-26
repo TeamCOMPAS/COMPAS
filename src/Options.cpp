@@ -432,7 +432,7 @@ void Options::InitialiseMemberVariables(void) {
 	zetaAdiabaticArbitrary                                          = 10000.0;                                                                          // large value, which will favour stable MT
 	zetaThermalArbitrary                                            = 10000.0;                                                                          // large value, which will favour stable MT
     zetaMainSequence 	                                            = 2.0;
-	zetaHertzsprungGap	                                            = 6.5;
+	zetaRadiativeEnvelopeGiant	                                    = 6.5;
 
 
     // Adaptive Importance Sampling options
@@ -817,8 +817,8 @@ void Options::SetToFiducialValues(void) {
 
 	zetaAdiabaticArbitrary                                          = 10000.0;                                                                          // large value, which will favour stable MT
 	zetaThermalArbitrary                                            = 10000.0;                                                                          // large value, which will favour stable MT
-    	zetaMainSequence 	                                            = 2.0;
-	zetaHertzsprungGap	                                            = 6.5;
+    zetaMainSequence 	                                            = 2.0;
+	zetaRadiativeEnvelopeGiant	                                    = 6.5;
     
     // Adaptive Importance Sampling Exploratory phase
     AISexploratoryPhase                                             = false;                                                                            // Flag for whether to run the AIS exploratory phase
@@ -1149,7 +1149,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		    ("zeta-adiabatic-arbitrary",                                    po::value<double>(&zetaAdiabaticArbitrary)->default_value(zetaAdiabaticArbitrary),                                                                          ("Value of mass-radius exponent zeta adiabatic (default = " + std::to_string(zetaAdiabaticArbitrary) + ")").c_str())
 		    ("zeta-thermal-arbitrary",                                      po::value<double>(&zetaThermalArbitrary)->default_value(zetaThermalArbitrary),                                                                          ("Value of mass-radius exponent zeta adiabatic (default = " + std::to_string(zetaAdiabaticArbitrary) + ")").c_str())
-		    ("zeta-hertzsprung-gap",                                        po::value<double>(&zetaHertzsprungGap)->default_value(zetaHertzsprungGap),                                                                                  ("Value of mass-radius exponent zeta on the hertzstrpung gap (default = " + std::to_string(zetaHertzsprungGap) + ")").c_str())
+		    ("zeta-radiative-envelope-giant",                               po::value<double>(&zetaRadiativeEnvelopeGiant)->default_value(zetaRadiativeEnvelopeGiant),                                                                                  ("Value of mass-radius exponent zeta for radiative envelope giants (default = " + std::to_string(zetaRadiativeEnvelopeGiant) + ")").c_str())
 		    ("zeta-main-sequence",                                          po::value<double>(&zetaMainSequence)->default_value(zetaMainSequence),                                                                                      ("Value of mass-radius exponent zeta on the main sequence (default = " + std::to_string(zetaMainSequence) + ")").c_str())
 
 
