@@ -727,6 +727,41 @@ void HG::UpdateAgeAfterMassLoss() {
 
 
 /*
+ * Calculate the mass-radius response exponent Zeta
+ *
+ * Hurley et al. 2000, eqs 97 & 98
+ *
+ *
+ * double CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)
+ *
+ * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
+ * @return                                      mass-radius response exponent Zeta
+ */
+double HG::CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription) {
+    
+    double zeta = 0.0;                                              // default value
+    
+    // Use ZetaRadiativeEnvelopeGiant() for radiative envelope giant-like stars, CalculateZadiabatic for convective-envelope giants
+    switch (DetermineEnvelopeType()) {                           // which envelope?
+        case ENVELOPE::RADIATIVE:
+            zeta = OPTIONS->ZetaRadiativeEnvelopeGiant();
+            break;
+            
+        case ENVELOPE::CONVECTIVE:
+            zeta = CalculateZadiabatic(p_ZetaPrescription);
+            if(OPTIONS->EnvelopeStatePrescription()==ENVELOPE_STATE_PRESCRIPTION::LEGACY && StellarType()==STELLAR_TYPE::HERTZSPRUNG_GAP)
+                zeta=OPTIONS->ZetaRadiativeEnvelopeGiant();         // HG stars within LEGACY  prescription are hardcoded to use zeta=ZetaRadiativeEnvelopeGiant despite nominally being convective
+            break;
+            
+        default:                                                    // shouldn't happen
+            m_Error = ERROR::INVALID_TYPE_ZETA_CALCULATION;         // set error value
+            SHOW_ERROR(m_Error);                                    // warn that an error occurred
+    }
+    
+    return zeta;
+}
+
+/*
  * Determine the star's envelope type.
  *
  * Some calculations on this can be found in sec. 2.3.4 of Belczynski et al. 2008.  For now, we will only do the calculation using stellarType.
@@ -739,12 +774,12 @@ void HG::UpdateAgeAfterMassLoss() {
 ENVELOPE HG::DetermineEnvelopeType() {
 
  
-    ENVELOPE envelope = ENVELOPE::CONVECTIVE;                                                        // default envelope type  is CONVECTIVE
+    ENVELOPE envelope = ENVELOPE::CONVECTIVE;                                                        // default envelope type is CONVECTIVE
     
     switch (OPTIONS->EnvelopeStatePrescription()) {                                         // which envelope prescription?
             
         case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
-        case ENVELOPE_STATE_PRESCRIPTION::HURLEY: // Eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual growth of convective envelope over HG, but we approximate it as already convective here
+        case ENVELOPE_STATE_PRESCRIPTION::HURLEY: // Eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual growth of convective envelope over HG; we approximate it as convective here
             envelope = ENVELOPE::CONVECTIVE;
             break;
             
