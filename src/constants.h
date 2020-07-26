@@ -327,9 +327,11 @@
 //                                      - Removed unnecessary (and inaccurate) numerical zeta Roche lobe calculation
 // 02.12.06      IM - Jul 26, 2020 - Enhancement:
 //                                      - Extended use of zetaRadiativeEnvelopeGiant (formerley zetaHertzsprungGap) for all radiative envelope giant-like stars
+// 02.12.07      IM - Jul 26, 2020  - Defect repair:
+//                                      - Issue 295: do not engage in mass transfer if the binary is unbound
 
 
-const std::string VERSION_STRING = "02.12.06";
+const std::string VERSION_STRING = "02.12.07";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 

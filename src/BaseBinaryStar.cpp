@@ -2453,7 +2453,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
                 m_ZetaLobe = CalculateZRocheLobe(jLoss);
                 m_ZetaStar = m_Donor->CalculateZeta(OPTIONS->StellarZetaPrescription());
-                                
+                
                 if(utils::Compare(m_ZetaStar, m_ZetaLobe) > 0 ||
                    (m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH }) &&
                     OPTIONS->ForceCaseBBBCStabilityFlag() && OPTIONS->AlwaysStableCaseBBBCFlag()) ) {                                                      // Stable MT
@@ -2640,6 +2640,8 @@ void BaseBinaryStar::InitialiseMassTransfer() {
  */
 void BaseBinaryStar::CheckMassTransfer(const double p_Dt) {
 
+    if(Unbound())                          
+        return;                                                                                                                 // do nothing for unbound binaries
     InitialiseMassTransfer();                                                                                                   // initialise - even if not using mass transfer (sets some flags we might need)
 
     if (OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}) && HasStarsTouching()) {  // CHE enabled and both stars CH?
