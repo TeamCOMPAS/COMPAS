@@ -325,9 +325,11 @@
 // 02.12.05      IM - Jul 25, 2020 - Enhancement:
 //                                      - Added definition of FIXED_TEMPERATURE prescription to DetermineEnvelopeType()
 //                                      - Removed unnecessary (and inaccurate) numerical zeta Roche lobe calculation
+// 02.12.06      IM - Jul 26, 2020 - Enhancement:
+//                                      - Extended use of zetaRadiativeEnvelopeGiant (formerley zetaHertzsprungGap) for all radiative envelope giant-like stars
 
 
-const std::string VERSION_STRING = "02.12.05";
+const std::string VERSION_STRING = "02.12.06";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 

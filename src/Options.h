@@ -295,7 +295,7 @@ public:
 
     double                                      WolfRayetFactor() const                                                 { return wolfRayetFactor; }
     bool                                        ZetaCalculationEveryTimeStep() const                                    { return zetaCalculationEveryTimeStep; }
-    double                                      ZetaHertzsprungGap() const                                              { return zetaHertzsprungGap; }
+    double                                      ZetaRadiativeEnvelopeGiant() const                                      { return zetaRadiativeEnvelopeGiant; }
     double                                      ZetaMainSequence() const                                                { return zetaMainSequence; }
     double                                      ZetaAdiabaticArbitrary() const                                          { return zetaAdiabaticArbitrary; }
     double                                      ZetaThermalArbitrary() const                                            { return zetaThermalArbitrary; }
@@ -550,9 +550,9 @@ private:
     string                                      stellarZetaPrescriptionString;                           	// String containing which prescription to use for calculating stellar zetas (default = HURLEY)
 
 	double                                      zetaAdiabaticArbitrary;
-	double                                      zetaHertzsprungGap;
 	double                                      zetaThermalArbitrary;
 	double                                      zetaMainSequence;
+    double                                      zetaRadiativeEnvelopeGiant;
 
     // Metallicity options
     bool                                        fixedMetallicity;                                               // Whether user has specified a metallicity to use

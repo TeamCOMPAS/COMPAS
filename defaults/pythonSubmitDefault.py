@@ -111,7 +111,7 @@ class pythonProgramOptions:
     force_case_BB_BC_stability = True                   # Case BB/BC is either stable or unstable
     always_stable_case_BB_BC = True                     # Stable = Ture, Unstable = False. Default = True
     zeta_Main_Sequence = 2.0
-    zeta_Hertzsprung_Gap = 6.5
+    zeta_Radiative_Envelope_Giant = 6.5
 
     maximum_evolution_time = 13700.0                    # Maximum physical time a system can be evolved [Myrs]
     maximum_number_timesteps = 99999
@@ -320,7 +320,7 @@ class pythonProgramOptions:
             self.common_envelope_mass_accretion_max,
             self.common_envelope_mass_accretion_min,
             self.zeta_Main_Sequence,
-            self.zeta_Hertzsprung_Gap,
+            self.zeta_Radiative_Envelope_Giant,
             self.kick_velocity_maximum,
             self.log_level,
             self.debug_level,
@@ -384,7 +384,7 @@ class pythonProgramOptions:
             '--common-envelope-mass-accretion-max',
             '--common-envelope-mass-accretion-min',
             '--zeta-main-sequence',
-            '--zeta-hertzsprung-gap',
+            '--zeta-radiative-envelope-giant',
             '--kick-velocity-max',
             '--log-level',
             '--debug-level',
