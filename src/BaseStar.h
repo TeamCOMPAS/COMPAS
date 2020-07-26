@@ -502,6 +502,7 @@ protected:
 
             double          CalculateZadiabaticHurley2002(const double p_CoreMass);
             double          CalculateZadiabaticSPH(const double p_CoreMass);
+            double          CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription);
 
             double          CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS);
 

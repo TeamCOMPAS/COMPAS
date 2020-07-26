@@ -68,8 +68,6 @@ protected:
     double          CalculateTauAtPhaseEnd()                                                    { return m_Tau; }                                                                               // NO-OP
     double          CalculateTauOnPhase();
 
-    double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription);
-
     double          ChooseTimestep(const double p_Time);
 
     ENVELOPE        DetermineEnvelopeType()                                                     { return ENVELOPE::CONVECTIVE; }                                                                // Always CONVECTIVE
