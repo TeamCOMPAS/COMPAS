@@ -27,6 +27,7 @@ double FGB::CalculateConvergedMassStepZetaThermal() {
 }
 
 
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                              LUMINOSITY CALCULATIONS                              //

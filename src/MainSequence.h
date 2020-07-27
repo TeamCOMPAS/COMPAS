@@ -75,9 +75,7 @@ protected:
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
     void            CalculateTimescales()                                           { CalculateTimescales(m_Mass0, m_Timescales); }                                 // Use class member variables
 
-    double          CalculateZeta(CE_ZETA_PRESCRIPTION p_CEZetaPrescription)        { m_Error = ERROR::INVALID_TYPE_ZETA_CALCULATION;                               // Set error value
-                                                                                      SHOW_WARN(m_Error);                                                           // Warn that an error occurred
-                                                                                      return 0.0; }                                                                 // Should never be called...
+    double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)             { return OPTIONS->ZetaMainSequence(); }
 
     double          ChooseTimestep(const double p_Time);
 

@@ -79,7 +79,7 @@ class pythonProgramOptions:
     common_envelope_lambda = 0.1                # Only if using 'LAMBDA_FIXED'
     common_envelope_lambda_prescription = 'LAMBDA_NANJING'  # Xu & Li 2010
     common_envelope_slope_Kruckow = -5.0/6.0
-    common_envelope_zeta_prescription = 'SOBERMAN'
+    stellar_zeta_prescription = 'SOBERMAN'
     common_envelope_revised_energy_formalism = False
     common_envelope_maximum_donor_mass_revised_energy_formalism = 2.0
     common_envelope_recombination_energy_density = 1.5E13
@@ -89,6 +89,7 @@ class pythonProgramOptions:
     common_envelope_mass_accretion_prescription = 'ZERO'
     common_envelope_mass_accretion_min = 0.04           # For 'MACLEOD+2014' [Msol]
     common_envelope_mass_accretion_max = 0.10           # For 'MACLEOD+2014' [Msol]
+    envelope_state_prescription = 'LEGACY'
 
     mass_loss_prescription = 'VINK'
     luminous_blue_variable_multiplier = 1.5
@@ -110,7 +111,7 @@ class pythonProgramOptions:
     force_case_BB_BC_stability = True                   # Case BB/BC is either stable or unstable
     always_stable_case_BB_BC = True                     # Stable = Ture, Unstable = False. Default = True
     zeta_Main_Sequence = 2.0
-    zeta_Hertzsprung_Gap = 6.5
+    zeta_Radiative_Envelope_Giant = 6.5
 
     maximum_evolution_time = 13700.0                    # Maximum physical time a system can be evolved [Myrs]
     maximum_number_timesteps = 99999
@@ -319,7 +320,7 @@ class pythonProgramOptions:
             self.common_envelope_mass_accretion_max,
             self.common_envelope_mass_accretion_min,
             self.zeta_Main_Sequence,
-            self.zeta_Hertzsprung_Gap,
+            self.zeta_Radiative_Envelope_Giant,
             self.kick_velocity_maximum,
             self.log_level,
             self.debug_level,
@@ -383,7 +384,7 @@ class pythonProgramOptions:
             '--common-envelope-mass-accretion-max',
             '--common-envelope-mass-accretion-min',
             '--zeta-main-sequence',
-            '--zeta-hertzsprung-gap',
+            '--zeta-radiative-envelope-giant',
             '--kick-velocity-max',
             '--log-level',
             '--debug-level',
@@ -415,13 +416,14 @@ class pythonProgramOptions:
             self.output,
             self.output_container,
             self.common_envelope_lambda_prescription,
-            self.common_envelope_zeta_prescription,
+            self.stellar_zeta_prescription,
             self.mass_transfer_thermal_limit_accretor,
             self.pulsational_pair_instability_prescription,
             self.neutron_star_equation_of_state,
             self.pulsar_birth_magnetic_field_distribution,
             self.pulsar_birth_spin_period_distribution,
             self.common_envelope_mass_accretion_prescription,
+            self.envelope_state_prescription,
             self.logfile_name_prefix,
             self.logfile_delimiter,
             self.logfile_definitions,
@@ -458,13 +460,14 @@ class pythonProgramOptions:
             '--outputPath',
             '--output-container',
             '--common-envelope-lambda-prescription',
-            '--common-envelope-zeta-prescription',
+            '--stellar-zeta-prescription',
             '--mass-transfer-thermal-limit-accretor',
             '--pulsational-pair-instability-prescription',
             '--neutron-star-equation-of-state',
             '--pulsar-birth-magnetic-field-distribution',
             '--pulsar-birth-spin-period-distribution',
             '--common-envelope-mass-accretion-prescription',
+            '--envelope-state-prescription',
             '--logfile-name-prefix',
             '--logfile-delimiter',
             '--logfile-definitions',

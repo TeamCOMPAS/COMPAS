@@ -394,12 +394,8 @@ void Options::InitialiseMemberVariables(void) {
     massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor       = 1.6;                                                                              // Critical mass ratio for MT from a White Dwarf on to a degenerate accretor (Claeys+ 2014 = 1.6)
 
 
-    // Common Envelope parameters
-    commonEnvelopePrescriptionFlag                                  = COMMON_ENVELOPE_PRESCRIPTION::WEBBINK;                                            // Which common envelope prescription to use
     commonEnvelopeAlpha                                             = 1.0;                                                                              // Common envelope efficiency alpha parameter
     commonEnvelopeLambda                                            = 0.1;                                                                              // Common envelope Lambda parameter
-    commonEnvelopeHertzsprungGapDonor                               = COMMON_ENVELOPE_PRESCRIPTION::OPTIMISTIC_HG;                                      // Which prescription to use for Hertzsprung gap donors in a CE
-    commonEnvelopeHertzsprungGapDonorString                         = COMMON_ENVELOPE_PRESCRIPTION_LABEL.at(commonEnvelopeHertzsprungGapDonor);         // String containing which prescription to use for Hertzsprung gap donors in a CE
 	commonEnvelopeAlphaThermal                                      = 1.0;                                                                              // lambda = (alpha_th * lambda_b) + (1-alpha_th) * lambda_g
     commonEnvelopeLambdaMultiplier                                  = 1.0;                                                                              // Multiply common envelope lambda by some constant
     allowMainSequenceStarToSurviveCommonEnvelope                    = false;                                                                            // Whether or not to allow a main sequence star to survive a common envelope event
@@ -407,11 +403,16 @@ void Options::InitialiseMemberVariables(void) {
     // Accretion during common envelope
     commonEnvelopeMassAccretionPrescription                         = CE_ACCRETION_PRESCRIPTION::ZERO;
     commonEnvelopeMassAccretionPrescriptionString                   = CE_ACCRETION_PRESCRIPTION_LABEL.at(commonEnvelopeMassAccretionPrescription);
-
+    
     commonEnvelopeMassAccretionMin                                  = 0.04;                                                                             // Minimum amount of mass accreted during CE in solar masses
     commonEnvelopeMassAccretionMax                                  = 0.1;                                                                              // Maximum amount of mass accreted during CE in solar masses
     commonEnvelopeMassAccretionConstant                             = 0.0;                                                                              // Constant value
 
+    // Prescription for envelope state (radiative or convective)
+    envelopeStatePrescription                                       = ENVELOPE_STATE_PRESCRIPTION::LEGACY;
+    envelopeStatePrescriptionString                                 = ENVELOPE_STATE_PRESCRIPTION_LABEL.at(envelopeStatePrescription);
+
+    
 	// Common envelope lambda prescription
 	commonEnvelopeLambdaPrescription                                = CE_LAMBDA_PRESCRIPTION::NANJING;                                                  // Which prescription to use for CE lambda
 	commonEnvelopeLambdaPrescriptionString                          = CE_LAMBDA_PRESCRIPTION_LABEL.at(commonEnvelopeLambdaPrescription);                // String containing which prescription to use for CE lambda
@@ -425,13 +426,13 @@ void Options::InitialiseMemberVariables(void) {
 	commonEnvelopeSlopeKruckow                                      = -4.0/5.0;								                                            // Common envelope power factor for Kruckow fit normalized according to Kruckow+2016, Fig. 1
 
 	// Which prescription to use for calculating zetas
-	commonEnvelopeZetaPrescription                                  = CE_ZETA_PRESCRIPTION::SOBERMAN;					                                // Which prescription to use for calculating CE zetas
-	commonEnvelopeZetaPrescriptionString                            = CE_ZETA_PRESCRIPTION_LABEL.at(commonEnvelopeZetaPrescription);				    // String containing which prescription to use for calculating CE zetas
+	stellarZetaPrescription                                  = ZETA_PRESCRIPTION::SOBERMAN;					                        // Prescription to use for calculating stellar zeta
+	stellarZetaPrescriptionString                            = ZETA_PRESCRIPTION_LABEL.at(stellarZetaPrescription);				    	// String containing prescription to use for calculating stellar zetas
 
 	zetaAdiabaticArbitrary                                          = 10000.0;                                                                          // large value, which will favour stable MT
 	zetaThermalArbitrary                                            = 10000.0;                                                                          // large value, which will favour stable MT
     zetaMainSequence 	                                            = 2.0;
-	zetaHertzsprungGap	                                            = 6.5;
+	zetaRadiativeEnvelopeGiant	                                    = 6.5;
 
 
     // Adaptive Importance Sampling options
@@ -775,11 +776,8 @@ void Options::SetToFiducialValues(void) {
 
 
     // Common Envelope parameters
-    commonEnvelopePrescriptionFlag                                  = COMMON_ENVELOPE_PRESCRIPTION::WEBBINK;                                            // Which common envelope prescription to use
     commonEnvelopeAlpha                                             = 1.0;                                                                              // Common envelope efficiency alpha parameter
     commonEnvelopeLambda                                            = 0.1;                                                                              // Common envelope Lambda parameter
-    commonEnvelopeHertzsprungGapDonor                               = COMMON_ENVELOPE_PRESCRIPTION::PESSIMISTIC_HG;                                     // Which prescription to use for Hertzsprung gap donors in a CE
-    commonEnvelopeHertzsprungGapDonorString                         = COMMON_ENVELOPE_PRESCRIPTION_LABEL.at(commonEnvelopeHertzsprungGapDonor);         // String containing which prescription to use for Hertzsprung gap donors in a CE
     commonEnvelopeAlphaThermal                                      = 1.0;                                                                              // lambda = (alpha_th * lambda_b) + (1-alpha_th) * lambda_g
     commonEnvelopeLambdaMultiplier                                  = 1.0;                                                                              // Multiply common envelope lambda by some constant
     allowMainSequenceStarToSurviveCommonEnvelope                    = false;                                                                            // Whether or not to allow a main sequence star to survive a common envelope event
@@ -793,6 +791,9 @@ void Options::SetToFiducialValues(void) {
     commonEnvelopeMassAccretionMax                                  = 0.1;                                                                              // Maximum amount of mass accreted during CE in solar masses
     commonEnvelopeMassAccretionConstant                             = 0.0;                                                                              // Constant value
 
+    // Prescription for envelope state (radiative or convective)
+    envelopeStatePrescription                                       = ENVELOPE_STATE_PRESCRIPTION::LEGACY;
+    envelopeStatePrescriptionString                                 = ENVELOPE_STATE_PRESCRIPTION_LABEL.at(envelopeStatePrescription);
 
 	// Common envelope lambda prescription
 	commonEnvelopeLambdaPrescription                                = CE_LAMBDA_PRESCRIPTION::NANJING;                                                  // Which prescription to use for CE lambda
@@ -810,14 +811,14 @@ void Options::SetToFiducialValues(void) {
 
 
 	// Which prescription to use for calculating zetas
-	commonEnvelopeZetaPrescription                                  = CE_ZETA_PRESCRIPTION::SOBERMAN;					                                // Which prescription to use for calculating CE zetas
-	commonEnvelopeZetaPrescriptionString                            = CE_ZETA_PRESCRIPTION_LABEL.at(commonEnvelopeZetaPrescription);					// String containing which prescription to use for calculating CE zetas
+	stellarZetaPrescription                                  = ZETA_PRESCRIPTION::SOBERMAN;					                        // Prescription to use for calculating stellar zeta
+	stellarZetaPrescriptionString                            = ZETA_PRESCRIPTION_LABEL.at(stellarZetaPrescription);					// String containing prescription to use for calculating stellar zeta
 
 
 	zetaAdiabaticArbitrary                                          = 10000.0;                                                                          // large value, which will favour stable MT
 	zetaThermalArbitrary                                            = 10000.0;                                                                          // large value, which will favour stable MT
     zetaMainSequence 	                                            = 2.0;
-	zetaHertzsprungGap	                                            = 6.5;
+	zetaRadiativeEnvelopeGiant	                                    = 6.5;
     
     // Adaptive Importance Sampling Exploratory phase
     AISexploratoryPhase                                             = false;                                                                            // Flag for whether to run the AIS exploratory phase
@@ -1148,7 +1149,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		    ("zeta-adiabatic-arbitrary",                                    po::value<double>(&zetaAdiabaticArbitrary)->default_value(zetaAdiabaticArbitrary),                                                                          ("Value of mass-radius exponent zeta adiabatic (default = " + std::to_string(zetaAdiabaticArbitrary) + ")").c_str())
 		    ("zeta-thermal-arbitrary",                                      po::value<double>(&zetaThermalArbitrary)->default_value(zetaThermalArbitrary),                                                                          ("Value of mass-radius exponent zeta adiabatic (default = " + std::to_string(zetaAdiabaticArbitrary) + ")").c_str())
-		    ("zeta-hertzsprung-gap",                                        po::value<double>(&zetaHertzsprungGap)->default_value(zetaHertzsprungGap),                                                                                  ("Value of mass-radius exponent zeta on the hertzstrpung gap (default = " + std::to_string(zetaHertzsprungGap) + ")").c_str())
+		    ("zeta-radiative-envelope-giant",                               po::value<double>(&zetaRadiativeEnvelopeGiant)->default_value(zetaRadiativeEnvelopeGiant),                                                                                  ("Value of mass-radius exponent zeta for radiative envelope giants (default = " + std::to_string(zetaRadiativeEnvelopeGiant) + ")").c_str())
 		    ("zeta-main-sequence",                                          po::value<double>(&zetaMainSequence)->default_value(zetaMainSequence),                                                                                      ("Value of mass-radius exponent zeta on the main sequence (default = " + std::to_string(zetaMainSequence) + ")").c_str())
 
 
@@ -1160,10 +1161,12 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		  	("chemically-homogeneous-evolution",                            po::value<string>(&cheString)->default_value(cheString),                                                                                                    ("Chemically Homogeneous Evolution (options: NONE, OPTIMISTIC, PESSIMISTIC), default = " + cheString + ")").c_str())
 
-			("common-envelope-hertzsprung-gap-assumption",                  po::value<string>(&commonEnvelopeHertzsprungGapDonorString)->default_value(commonEnvelopeHertzsprungGapDonorString),                                        ("Assumption to make about HG stars in CE (default = " + commonEnvelopeHertzsprungGapDonorString + ")").c_str())
 			("common-envelope-lambda-prescription",                         po::value<string>(&commonEnvelopeLambdaPrescriptionString)->default_value(commonEnvelopeLambdaPrescriptionString),                                          ("CE lambda prescription (options: LAMBDA_FIXED, LAMBDA_LOVERIDGE, LAMBDA_NANJING, LAMBDA_KRUCKOW, LAMBDA_DEWI), default = " + commonEnvelopeLambdaPrescriptionString + ")").c_str())
 		    ("common-envelope-mass-accretion-prescription",                 po::value<string>(&commonEnvelopeMassAccretionPrescriptionString)->default_value(commonEnvelopeMassAccretionPrescriptionString),                            ("Assumption about whether NS/BHs can accrete mass during common envelope evolution (options: ZERO, CONSTANT, UNIFORM, MACLEOD), default = " + commonEnvelopeMassAccretionPrescriptionString + ")").c_str())
-			("common-envelope-zeta-prescription",                           po::value<string>(&commonEnvelopeZetaPrescriptionString)->default_value(commonEnvelopeZetaPrescriptionString),                                              ("Prescription for CE zeta (default = " + commonEnvelopeZetaPrescriptionString + ")").c_str())
+        
+            ("envelope-state-prescription",                                 po::value<string>(&envelopeStatePrescriptionString)->default_value(envelopeStatePrescriptionString),                                   ("Prescription for whether the envelope is radiative or convective (options: LEGACY, HURLEY, FIXED_TEMPERATURE), default = " + envelopeStatePrescriptionString + ")").c_str())
+        
+			("stellar-zeta-prescription",                           po::value<string>(&stellarZetaPrescriptionString)->default_value(stellarZetaPrescriptionString),                                              ("Prescription for stellar zeta (default = " + stellarZetaPrescriptionString + ")").c_str())
 
 		    ("eccentricity-distribution,e",                                 po::value<string>(&eccentricityDistributionString)->default_value(eccentricityDistributionString),                                                          ("Initial eccentricity distribution, e (options: ZERO, FIXED, FLAT, THERMALISED, GELLER+2013), default = " + eccentricityDistributionString + ")").c_str())
 
@@ -1267,11 +1270,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 COMPLAIN_IF(!found, "Unknown Chemically Homogeneous Evolution Option");
             }
 
-            if (!vm["common-envelope-hertzsprung-gap-assumption"].defaulted()) {                                                        // common envelope hertzsprung gap assumption
-                std::tie(found, commonEnvelopeHertzsprungGapDonor) = utils::GetMapKey(commonEnvelopeHertzsprungGapDonorString, COMMON_ENVELOPE_PRESCRIPTION_LABEL, commonEnvelopeHertzsprungGapDonor);
-                COMPLAIN_IF(!found, "Unknown CE HG Assumption");
-            }
-
             if (!vm["common-envelope-lambda-prescription"].defaulted()) {                                                               // common envelope lambda prescription
                 std::tie(found, commonEnvelopeLambdaPrescription) = utils::GetMapKey(commonEnvelopeLambdaPrescriptionString, CE_LAMBDA_PRESCRIPTION_LABEL, commonEnvelopeLambdaPrescription);
                 COMPLAIN_IF(!found, "Unknown CE Lambda Prescription");
@@ -1281,10 +1279,15 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 std::tie(found, commonEnvelopeMassAccretionPrescription) = utils::GetMapKey(commonEnvelopeMassAccretionPrescriptionString, CE_ACCRETION_PRESCRIPTION_LABEL, commonEnvelopeMassAccretionPrescription);
                 COMPLAIN_IF(!found, "Unknown CE Mass Accretion Prescription");
             }
+            
+            if (!vm["envelope-state-prescription"].defaulted()) {                                                       // envelope state prescription
+                std::tie(found, envelopeStatePrescription) = utils::GetMapKey(envelopeStatePrescriptionString, ENVELOPE_STATE_PRESCRIPTION_LABEL, envelopeStatePrescription);
+                COMPLAIN_IF(!found, "Unknown Envelope State Prescription");
+            }
 
-            if (!vm["common-envelope-zeta-prescription"].defaulted()) {                                                                 // common envelope zeta prescription
-                std::tie(found, commonEnvelopeZetaPrescription) = utils::GetMapKey(commonEnvelopeZetaPrescriptionString, CE_ZETA_PRESCRIPTION_LABEL, commonEnvelopeZetaPrescription);
-                COMPLAIN_IF(!found, "Unknown CE Zeta Prescription");
+            if (!vm["stellar-zeta-prescription"].defaulted()) {                                                                 // common envelope zeta prescription
+                std::tie(found, stellarZetaPrescription) = utils::GetMapKey(stellarZetaPrescriptionString, ZETA_PRESCRIPTION_LABEL, stellarZetaPrescription);
+                COMPLAIN_IF(!found, "Unknown stellar Zeta Prescription");
             }
 
             if (!vm["eccentricity-distribution"].defaulted()) {                                                                         // eccentricity distribution
