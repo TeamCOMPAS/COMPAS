@@ -99,7 +99,6 @@ public:
 
     double                                      CommonEnvelopeAlpha() const                                             { return commonEnvelopeAlpha; }
     double                                      CommonEnvelopeAlphaThermal() const                                      { return commonEnvelopeAlphaThermal; }
-    COMMON_ENVELOPE_PRESCRIPTION                CommonEnvelopeHertzsprungGapDonor() const                               { return commonEnvelopeHertzsprungGapDonor; }
     double                                      CommonEnvelopeLambda() const                                            { return commonEnvelopeLambda; }
     double                                      CommonEnvelopeLambdaMultiplier() const                                  { return commonEnvelopeLambdaMultiplier; }
     CE_LAMBDA_PRESCRIPTION                      CommonEnvelopeLambdaPrescription() const                                { return commonEnvelopeLambdaPrescription; }
@@ -107,10 +106,11 @@ public:
     double                                      CommonEnvelopeMassAccretionMax() const                                  { return commonEnvelopeMassAccretionMax; }
     double                                      CommonEnvelopeMassAccretionMin() const                                  { return commonEnvelopeMassAccretionMin; }
     CE_ACCRETION_PRESCRIPTION                   CommonEnvelopeMassAccretionPrescription() const                         { return commonEnvelopeMassAccretionPrescription; }
+    ENVELOPE_STATE_PRESCRIPTION                 EnvelopeStatePrescription() const                                       { return envelopeStatePrescription; }
     double                                      CommonEnvelopeRecombinationEnergyDensity() const                        { return commonEnvelopeRecombinationEnergyDensity; }
     double                                      CommonEnvelopeSlopeKruckow() const                                      { return commonEnvelopeSlopeKruckow; }
 
-    CE_ZETA_PRESCRIPTION                        CommonEnvelopeZetaPrescription() const                                  { return commonEnvelopeZetaPrescription; }
+    ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return stellarZetaPrescription; }
 
     vector<string>                              DebugClasses() const                                                    { return debugClasses; }
     int                                         DebugLevel() const                                                      { return debugLevel; }
@@ -295,7 +295,7 @@ public:
 
     double                                      WolfRayetFactor() const                                                 { return wolfRayetFactor; }
     bool                                        ZetaCalculationEveryTimeStep() const                                    { return zetaCalculationEveryTimeStep; }
-    double                                      ZetaHertzsprungGap() const                                              { return zetaHertzsprungGap; }
+    double                                      ZetaRadiativeEnvelopeGiant() const                                      { return zetaRadiativeEnvelopeGiant; }
     double                                      ZetaMainSequence() const                                                { return zetaMainSequence; }
     double                                      ZetaAdiabaticArbitrary() const                                          { return zetaAdiabaticArbitrary; }
     double                                      ZetaThermalArbitrary() const                                            { return zetaThermalArbitrary; }
@@ -505,7 +505,6 @@ private:
     double                                      massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor;      // Critical mass ratio for MT from a white dwarf on to a degenerate accretor
 
     // Common Envelope options
-    COMMON_ENVELOPE_PRESCRIPTION                commonEnvelopePrescriptionFlag;                                 // Which common envelope prescription to use
     double                                      commonEnvelopeAlpha;                                            // Common envelope efficiency alpha parameter (default = X)
     double                                      commonEnvelopeLambda;                                           // Common envelope Lambda parameter (default = X)
 	double                                      commonEnvelopeSlopeKruckow;									    // Common envelope power factor for Kruckow fit normalized according to Kruckow+2016, Fig. 1
@@ -519,10 +518,10 @@ private:
     double                                      commonEnvelopeMassAccretionMin;
     double                                      commonEnvelopeMassAccretionMax;
     double                                      commonEnvelopeMassAccretionConstant;
+    
+    ENVELOPE_STATE_PRESCRIPTION                 envelopeStatePrescription;
+    string                                      envelopeStatePrescriptionString;
 
-    // Common envelope dealing with HG stars
-    COMMON_ENVELOPE_PRESCRIPTION                commonEnvelopeHertzsprungGapDonor;                              // Which prescription to use for Hertzsprung gap donors in a CE (default = OPTIMISTIC_HG_CE)
-    string                                      commonEnvelopeHertzsprungGapDonorString;                        // String containing which prescription to use for Hertzsprung gap donors in a CE (default = "OPTIMISTIC_HG_CE")
 
 	// Common envelope lambda prescription
 	CE_LAMBDA_PRESCRIPTION                      commonEnvelopeLambdaPrescription;								// Which prescription to use for CE lambda (default = LAMBDA_FIXED)
@@ -547,13 +546,13 @@ private:
 
 
     // Which prescription to use for calculating zetas
-    CE_ZETA_PRESCRIPTION                        commonEnvelopeZetaPrescription;                                 // Which prescription to use for calculating CE zetas (default = ZETA_ADIABATIC)
-    string                                      commonEnvelopeZetaPrescriptionString;                           // String containing which prescription to use for calculating CE zetas (default = STARTRACK)
+    ZETA_PRESCRIPTION                           stellarZetaPrescription;                                 	// Which prescription to use for calculating stellar zetas (default = SOBERMAN)
+    string                                      stellarZetaPrescriptionString;                           	// String containing which prescription to use for calculating stellar zetas (default = HURLEY)
 
 	double                                      zetaAdiabaticArbitrary;
-	double                                      zetaHertzsprungGap;
 	double                                      zetaThermalArbitrary;
 	double                                      zetaMainSequence;
+    double                                      zetaRadiativeEnvelopeGiant;
 
     // Metallicity options
     bool                                        fixedMetallicity;                                               // Whether user has specified a metallicity to use

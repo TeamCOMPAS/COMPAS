@@ -39,8 +39,7 @@ protected:
     double   CalculateMassLossRateHurley();
     double   CalculateMassTransferRejuvenationFactor();
 
-    ENVELOPE DetermineEnvelopeType()                        { return ENVELOPE::RADIATIVE; }                                                             // Always RADIATIVE
-    ENVELOPE DetermineEnvelopeTypeHurley2002()              { return utils::Compare(m_Mass, 1.25) < 0 ? ENVELOPE::CONVECTIVE : ENVELOPE::RADIATIVE; }   // Sometimes CONVECTIVE... JR: todo: why is this different?
+    ENVELOPE DetermineEnvelopeType();
 
     bool     IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate);
 };
