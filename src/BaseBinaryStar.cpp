@@ -1242,10 +1242,10 @@ void BaseBinaryStar::SetPreCEEValues(const double p_SemiMajorAxis,
                                      const double p_RocheLobe1to2,
                                      const double p_RocheLobe2to1) {
 
-	m_CEDetails.preCEE.semiMajorAxis = p_SemiMajorAxis * AU_TO_RSOL;        // convert to Rsol
+	m_CEDetails.preCEE.semiMajorAxis = p_SemiMajorAxis;
 	m_CEDetails.preCEE.eccentricity  = p_Eccentricity;
-	m_CEDetails.preCEE.rocheLobe1to2 = p_RocheLobe1to2 * AU_TO_RSOL;        // convert to Rsol
-	m_CEDetails.preCEE.rocheLobe2to1 = p_RocheLobe2to1 * AU_TO_RSOL;        // convert to Rsol
+	m_CEDetails.preCEE.rocheLobe1to2 = p_RocheLobe1to2;
+	m_CEDetails.preCEE.rocheLobe2to1 = p_RocheLobe2to1;
 }
 
 
@@ -1274,14 +1274,15 @@ void BaseBinaryStar::SetPostCEEValues(const double p_SemiMajorAxis,
                                       const double p_RocheLobe1to2,
                                       const double p_RocheLobe2to1) {
 
-	m_CEDetails.postCEE.semiMajorAxis = p_SemiMajorAxis * AU_TO_RSOL;                               // convert to Rsol
+	m_CEDetails.postCEE.semiMajorAxis = p_SemiMajorAxis;
     m_CEDetails.postCEE.eccentricity  = p_Eccentricity;
-	m_CEDetails.postCEE.rocheLobe1to2 = p_RocheLobe1to2 * AU_TO_RSOL;                               // convert to Rsol
-	m_CEDetails.postCEE.rocheLobe2to1 = p_RocheLobe2to1 * AU_TO_RSOL;                               // convert to Rsol
+	m_CEDetails.postCEE.rocheLobe1to2 = p_RocheLobe1to2;
+	m_CEDetails.postCEE.rocheLobe2to1 = p_RocheLobe2to1;
 
     if (utils::Compare(m_Star1->RadiusPostCEE(), m_CEDetails.postCEE.rocheLobe1to2) >= 0 ||         // ALEJANDRO - 28/01/2019 - Check for RLOF immediatedly after the CEE.
         utils::Compare(m_Star2->RadiusPostCEE(), m_CEDetails.postCEE.rocheLobe2to1) >= 0) {         // A check for it during the next timestep is done in evaluateBinary funtion.
         m_RLOFDetails.immediateRLOFPostCEE = true;			                                        // JR: todo: is else false (always)?  or do we want to preserve previous true value?
+                                                                                                    // ALEJANDRO: m_RLOFDetails.immediateRLOFPostCEE = false by default, therefore else not needed. Shall we add it and be redundant?
     }
 }
 
@@ -1773,15 +1774,11 @@ void BaseBinaryStar::EvaluateSupernovae(const bool p_Resolve2ndSN) {
  */
 void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
-    BinaryConstituentStar* star1Copy = new BinaryConstituentStar(*m_Star1);                                             // clone star1 before CEE
-	BinaryConstituentStar* star2Copy = new BinaryConstituentStar(*m_Star2);                                             // clone star2 before CEE
-	star1Copy->SetCompanion(star2Copy);                                                                                 // need companion for CalculateSynchronisationTimescale() & CalculateCircularisationTimescale() later
-	star2Copy->SetCompanion(star1Copy);                                                                                 // need companion for CalculateSynchronisationTimescale() & CalculateCircularisationTimescale() later
-
     double alphaCE = m_CEDetails.alpha;                                                                                 // CE efficiency parameter
 
-    double semiMajorAxis = m_SemiMajorAxisPrime;                                                                        // current semi-major axis in default units, AU (before CEE)
-	double eccentricity  = m_EccentricityPrime;								                                            // current eccentricity (before CEE)
+	double eccentricity     = EccentricityPrime();								                                        // current eccentricity (before CEE)
+    double semiMajorAxisRsol= SemiMajorAxisPrimeRsol();                                                                 // current semi-major axis in default units, Rsol (before CEE)
+    double periastronRsol   = PeriastronPrimeRsol();                                                                    // periastron, Rsol (before CEE)
 
     bool donorMS = false;                                                                                               // check for main sequence donor
     if (OPTIONS->AllowMainSequenceStarToSurviveCommonEnvelope()) {                                                      // allow main sequence stars to survive CEE?
@@ -1805,7 +1802,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             m_MassEnv2   = m_Star2->Mass() - m_Star2->CoreMass();                                                       // and envelope
         }
     }
-    else {                                                                                                              // no don't allow main sequence stars to survive CEE
+    else {                                                                                                              // no don't allow main sequence stars to survive CEE; should lead to stellar merger
         m_Mass1Final = m_Star1->CoreMass();                                                                             // set mass1
         m_MassEnv1   = m_Star1->Mass() - m_Star1->CoreMass();                                                           // and envelope1
         m_Mass2Final = m_Star2->CoreMass();                                                                             // set mass2
@@ -1815,8 +1812,8 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     bool envelopeFlag1 = utils::Compare(m_MassEnv1, 0.0) > 0 && utils::Compare(m_Mass1Final, 0.0) > 0;                  // star1 not massless remnant and has envelope?
     bool envelopeFlag2 = utils::Compare(m_MassEnv2, 0.0) > 0 && utils::Compare(m_Mass2Final, 0.0) > 0;                  // star1 not massless remnant and has envelope?
 
-    double rRLd1 = semiMajorAxis * CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass());                   // Roche Lobe radius in AU at the moment where CEE begins, seen by star1
-    double rRLd2 = semiMajorAxis * CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass());                   // Roche Lobe radius in AU at the moment where CEE begins, seen by star2
+    double rRLd1Rsol = periastronRsol * CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass());              // Roche-lobe radius at periastron in Rsol at the moment where CEE begins, seen by star1
+    double rRLd2Rsol = periastronRsol * CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass());              // Roche-lobe radius at periastron in Rsol at the moment where CEE begins, seen by star2
 
     m_CEDetails.CEEcount++;                                                                                             // increment CEE count
     m_RLOFDetails.simultaneousRLOF = m_Star1->IsRLOF() && m_Star2->IsRLOF();                                            // ALEJANDRO - 29/01/2019 - Check for simultaneous RLOF
@@ -1842,18 +1839,19 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
     m_Star1->SetPreCEEValues();                                                                                         // squirrel away pre CEE stellar values for star 1
     m_Star2->SetPreCEEValues();                                                                                         // squirrel away pre CEE stellar values for star 2
-  	SetPreCEEValues(semiMajorAxis, eccentricity, rRLd1, rRLd2);                                                         // squirrel away pre CEE binary values
+  	SetPreCEEValues(semiMajorAxisRsol, eccentricity, rRLd1Rsol, rRLd2Rsol);                                             // squirrel away pre CEE binary values
 
     m_Star1->SetPostCEEValues();                                                                                        // squirrel away (initial) post CEE stellar values for star 1 - default is just pre CEE values
     m_Star2->SetPostCEEValues();                                                                                        // squirrel away (initial) post CEE stellar values for star 2 - default is just pre CEE values
 
 	// double common envelope phase prescription (Brown 1995) to calculate new semi-major axis
 	// due to the CEE as described in Belczynsky et al. 2002, eq. (12)
-    double k1            = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda1 * alphaCE)) * m_Star1->Mass() * m_MassEnv1 / rRLd1;
-    double k2            = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda2 * alphaCE)) * m_Star2->Mass() * m_MassEnv2 / rRLd2;
-    double k3            = m_Star1->Mass() * m_Star2->Mass() / semiMajorAxis;
+    double k1            = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda1 * alphaCE)) * m_Star1->Mass() * m_MassEnv1 / rRLd1Rsol;
+    double k2            = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda2 * alphaCE)) * m_Star2->Mass() * m_MassEnv2 / rRLd2Rsol;
+    double k3            = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;
     double k4            = (m_Mass1Final * m_Mass2Final);
-    double aFinal        = k4 / (k1 + k2 + k3);    
+    double aFinalRsol    = k4 / (k1 + k2 + k3);    
+    double aFinal        = aFinalRsol*RSOL_TO_AU;
     m_SemiMajorAxisPrime = aFinal;
 
     m_CEDetails.doubleCoreCE = utils::Compare(k1, 0.0) > 0 && utils::Compare(k2, 0.0) > 0 && utils::Compare(k3, 0.0) > 0 && utils::Compare(k4, 0.0) > 0;
@@ -1865,8 +1863,10 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star1->SetOmega(m_OrbitalVelocityPrime);
     if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star2->SetOmega(m_OrbitalVelocityPrime);
 
-	double rRLdfin1 = aFinal * CalculateRocheLobeRadius_Static(m_Mass1Final, m_Mass2Final);                             // Roche Lobe radius in AU after CEE, seen by star1
-	double rRLdfin2 = aFinal * CalculateRocheLobeRadius_Static(m_Mass2Final, m_Mass1Final);                             // Roche Lobe radius in AU after CEE, seen by star2
+	double rRLdfin1        = aFinal * CalculateRocheLobeRadius_Static(m_Mass1Final, m_Mass2Final);                             // Roche-lobe radius in AU after CEE, seen by star1
+	double rRLdfin2        = aFinal * CalculateRocheLobeRadius_Static(m_Mass2Final, m_Mass1Final);                             // Roche-lobe radius in AU after CEE, seen by star2
+    double rRLdfin1Rsol    = rRLdfin1 * AU_TO_RSOL;                                                                            // Roche-lobe radius in Rsol after CEE, seen by star1
+    double rRLdfin2Rsol    = rRLdfin2 * AU_TO_RSOL;                                                                            // Roche-lobe radius in Rsol after CEE, seen by star2
 
     // Correct for stellar types, stellar mass, separation and period
     // We assume that a common envelope event (CEE) circularises the binary
@@ -1877,21 +1877,17 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     m_Star2->ResolveCommonEnvelopeAccretion(m_Mass2Final);                                                              // update star's mass after accretion
 
     // update stellar type after losing its envelope. Star1, Star2 or both if double CEE.
-	// Alejandro - 18/02018 - Calculate tidal timescales
 
     if (donorMS || (!envelopeFlag1 && !envelopeFlag2)) {                                                                // stellar merger
         m_MassTransferTrackerHistory = HasTwoOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_MS }) ? MT_TRACKING::CE_BOTH_MS : MT_TRACKING::CE_MS_WITH_CO; // Here MS-WD systems are flagged as CE_BOTH_MS
         m_StellarMerger              = true;
     }
 	else {
-        double periastronRsol = semiMajorAxis * AU_TO_RSOL * (1.0 - eccentricity);                                      // periastron in Rsol
 
         STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                             // star 1 stellar type before resolving envelope loss
         STELLAR_TYPE stellarType2 = m_Star2->StellarType();                                                             // star 2 stellar type before resolving envelope loss
         if (envelopeFlag1) {                                                                                            // star1 donor
             m_Star1->ResolveEnvelopeLossAndSwitch();                                                                    // resolve envelope loss for star1 and switch to new stellar type
-
-            m_SynchronizationTimescale = star1Copy->CalculateSynchronisationTimescale(periastronRsol);
 
             if (envelopeFlag2) {                                                                                        // correction - double CEE   JR: todo: why do we check envelopeFlags and not value of m_CEDetails.doubleCoreCE calculated above?
                 m_Star2->ResolveEnvelopeLossAndSwitch();                                                                // resolve envelope loss for star2 and switch to new stellar type
@@ -1903,18 +1899,9 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         }
         else {                                                                                                          // star2 donor
             m_Star2->ResolveEnvelopeLossAndSwitch();                                                                    // resolve envelope loss for star2 and switch to new stellar type
-
-            m_SynchronizationTimescale   = star2Copy->CalculateSynchronisationTimescale(periastronRsol);
             m_MassTransferTrackerHistory = MT_TRACKING::CE_FROM_2_TO_1;                                                 // record history - star2 -> star1
         }
 
-        // calculate circularisation timescale
-        // binary circularisation timescale = minimum of constitiuent star circularisation timescales (each clamped to (0, infinity))
-
-        double circularizationTimescale1 = std::max(0.0, star1Copy->CalculateCircularisationTimescale(periastronRsol)); // circularisation timescale for star1
-        double circularizationTimescale2 = std::max(0.0, star2Copy->CalculateCircularisationTimescale(periastronRsol)); // circularisation timescale for star2
-
-        m_CircularizationTimescale = std::min(circularizationTimescale1, circularizationTimescale2);                    // binary circularisation timescale
 
         if (m_Star1->StellarType() != stellarType1 || m_Star2->StellarType() != stellarType2) {                         // stellar type change?
             m_PrintExtraDetailedOutput = true;                                                                          // yes - print detailed output record
@@ -1924,14 +1911,11 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         m_Star2->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 2 - update default values
 	}
 
-	delete star1Copy; star1Copy = nullptr;
-	delete star2Copy; star2Copy = nullptr;
-
     if (utils::Compare(aFinal, 0.0) <= 0 || utils::Compare(m_Star1->RadiusPostCEE() + m_Star2->RadiusPostCEE(), aFinal * AU_TO_RSOL) > 0) {
         m_StellarMerger = true;			                                                                                // JR: todo: is else false (always)?  or do we want to preserve previous true value?
     }
 
-	SetPostCEEValues(aFinal, m_Eccentricity, rRLdfin1, rRLdfin2);                                                       // squirrel away post CEE binary values.  ALEJANDRO - 06/12/2016 - for populations studies. All separations in Rsol.
+	SetPostCEEValues(aFinalRsol, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                                                       // squirrel away post CEE binary values.  ALEJANDRO - 06/12/2016 - for populations studies. All separations in Rsol.
 
     PrintCommonEnvelope();
 }

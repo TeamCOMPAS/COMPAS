@@ -87,7 +87,7 @@
 //                                       changed CalculateSNKickVelocity() in BaseStar.cpp to set m_SupernovaDetails.kickVelocity correctly after adjusting for fallback
 // 02.03.04      FSB - Dec 04, 2019 - Defect repairs:
 //                                       fixed bug in Fryer+2012 CalculateGravitationalRemnantMassadded() function to compare baryon mass of star remnant with
-//										 baryon mass of MaximumNeutronStarMass instead of just MaximumNeutronStarMass. 
+//										                   baryon mass of MaximumNeutronStarMass instead of just MaximumNeutronStarMass. 
 //                                       added m_BaryonicMassOfMaximumNeutronStarMass to BaseStar.h and BaseStar.cpp
 // 02.03.05      JR - Dec 05, 2019 - Defect repairs:
 //                                       fixed EvolveSingleStars() in main.cpp to print correct initial mass
@@ -232,13 +232,13 @@
 //                                                   - other parameters - calculated/determined - are recorded
 //                                   Defect repair:
 //                                       - changed "--outut" option name to "--outpuPath" in stringCommands in pythonSubmitDefault.py
-// 02.08.00		AVG - Mar 17, 2020 - Changed functionality:
-//										- removed post-newtonian spin evolution	code & associated pythonSubmitDefault.py options
-//										- removed only_double_compact_objects code & associated pythonSubmitDefault.py options
-//										- removed tides code & associated pythonSubmitDefault.py options
-//										- removed deprecated options from pythonSubmitDefault.py options
-//										- renamed options: mass transfer, iterations -> timestep-iterations
-//										- commented AIS Options until fully implemented
+// 02.08.00		  AVG - Mar 17, 2020 - Changed functionality:
+//										                   - removed post-newtonian spin evolution	code & associated pythonSubmitDefault.py options
+//										                   - removed only_double_compact_objects code & associated pythonSubmitDefault.py options
+//										                   - removed tides code & associated pythonSubmitDefault.py options
+//										                   - removed deprecated options from pythonSubmitDefault.py options
+//										                   - renamed options: mass transfer, iterations -> timestep-iterations
+//										                   - commented AIS Options until fully implemented
 // 02.08.01      JR - Mar 18, 2020 - Defect repairs:
 //                                      - restored initialisation of AIS options in Options.cpp (AIS now defaults off instead of on)
 //                                      - fixed retrieval of values for:
@@ -284,7 +284,7 @@
 // 02.09.10	     IM - Apr 12, 2020 - Minor enhancement: added Mueller & Mandel 2020 remnant mass and kick prescription, MULLERMANDEL
 //				                     Defect repair: corrected spelling of output help string for MULLER2016 and MULLER2016MAXWELLIAN
 // 02.10.01	     IM - Apr 14, 2020 - Minor enhancement: 
-//					                    - moved code so that SSE will also sample SN kicks, following same code branch as BSE 
+//					                            - moved code so that SSE will also sample SN kicks, following same code branch as BSE 
 // 02.10.02      SS - Apr 16, 2020 - Bug Fix for issue #105 ; core and envelope masses for HeHG and TPAGB stars
 // 02.10.03      JR - Apr 17, 2020 - Defect repair:
 //                                      - added LBV and WR winds to SSE (issue #223)
@@ -310,7 +310,7 @@
 //                                      - Issue #266 - Corrected calculation in BaseBinaryStar::SampleInitialMassDistribution() for KROUPA IMF distribution
 //                                      - Issue #275 - Previous stellar type not set when stellar type is switched mid-timestep - now fixed
 // 02.11.05      IM - Jun 26, 2020 - Defect repair:
-//					                    - Issue #280 - Stars undergoing RLOF at ZAMS after masses are equalised were removed from run even if AllowRLOFatZAMS set
+//					                            - Issue #280 - Stars undergoing RLOF at ZAMS after masses are equalised were removed from run even if AllowRLOFatZAMS set
 // 02.12.00      IM - Jun 29, 2020 - Defect repair:
 //                                      - Issue 277 - move UpdateAttributesAndAgeOneTimestepPreamble() to after ResolveSupernova() to avoid inconsistency
 // 02.12.01      IM - Jul 18, 2020 - Enhancement:
@@ -327,11 +327,11 @@
 //                                      - Removed unnecessary (and inaccurate) numerical zeta Roche lobe calculation
 // 02.12.06      IM - Jul 26, 2020 - Enhancement:
 //                                      - Extended use of zetaRadiativeEnvelopeGiant (formerley zetaHertzsprungGap) for all radiative envelope giant-like stars
-// 02.12.07      IM - Jul 26, 2020  - Defect repair:
+// 02.12.07      IM - Jul 26, 2020 - Defect repair:
 //                                      - Issue 295: do not engage in mass transfer if the binary is unbound
+// 02.12.08   	AVG - Jul 26, 2020 - Bug Fix for issue #269 ; legacy bug in eccentric RLOF leading to a CEE 
 
-
-const std::string VERSION_STRING = "02.12.07";
+const std::string VERSION_STRING = "02.12.08";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
@@ -503,7 +503,7 @@ constexpr double KM_TO_M                                = 1000 ;                
 constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
 constexpr double GAUSS_TO_TESLA                         = 1.0E-4;                                                   // convert Gauss to Tesla
 
-constexpr double JOULES_TO_ERG                          = 1.0E7;                                                    // convert Joules to Ergs
+constexpr double JOULES_TO_ERG                          = 1.0E7;                                                    // convert Joules to Erg
 
 constexpr double SECONDS_IN_YEAR                        = 31556926.0;                                               // number of second in 1 year
 constexpr double SECONDS_IN_DAY                         = SECONDS_IN_YEAR * 4.0 / 1461.0;                           // number of second in 1 day
@@ -2201,14 +2201,14 @@ typedef std::tuple<TYPENAME, std::string, std::string, int, int> PROPERTY_DETAIL
 const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::AGE,                                               { TYPENAME::DOUBLE,         "Age",                  "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::ANGULAR_MOMENTUM,                                  { TYPENAME::DOUBLE,         "Ang_Momentum",         "Msol*AU^2*yr^-1",  14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,         "Binding_Energy@CE",    "ergs",             14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_FIXED,                              { TYPENAME::DOUBLE,         "BE_Fixed",             "ergs",             14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_NANJING,                            { TYPENAME::DOUBLE,         "BE_Nanjing",           "ergs",             14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_POST_COMMON_ENVELOPE,               { TYPENAME::DOUBLE,         "Binding_Energy>CE",    "ergs",             14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_PRE_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,         "Binding_Energy<CE",    "ergs",             14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE,                          { TYPENAME::DOUBLE,         "BE_Loveridge",         "ergs",             14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS,                    { TYPENAME::DOUBLE,         "BE_Loveridge_Winds",   "ergs",             14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_KRUCKOW,                            { TYPENAME::DOUBLE,         "BE_Kruckow",           "ergs",             14, 6 }},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,         "Binding_Energy@CE",    "erg",              14, 6 }},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_FIXED,                              { TYPENAME::DOUBLE,         "BE_Fixed",             "erg",              14, 6 }},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_NANJING,                            { TYPENAME::DOUBLE,         "BE_Nanjing",           "erg",              14, 6 }},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_POST_COMMON_ENVELOPE,               { TYPENAME::DOUBLE,         "Binding_Energy>CE",    "erg",              14, 6 }},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_PRE_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,         "Binding_Energy<CE",    "erg",              14, 6 }},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE,                          { TYPENAME::DOUBLE,         "BE_Loveridge",         "erg",              14, 6 }},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS,                    { TYPENAME::DOUBLE,         "BE_Loveridge_Winds",   "erg",              14, 6 }},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_KRUCKOW,                            { TYPENAME::DOUBLE,         "BE_Kruckow",           "erg",              14, 6 }},
     { ANY_STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,              { TYPENAME::BOOL,           "CH_on_MS",             "State",             0, 0 }},
     { ANY_STAR_PROPERTY::CO_CORE_MASS,                                      { TYPENAME::DOUBLE,         "Mass_CO_Core",         "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Mass_CO_Core@CE",      "Msol",             14, 6 }},
@@ -2365,7 +2365,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                               { TYPENAME::BOOL,           "Merges_Hubble_Time",   "State",             0, 0 }},
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                          { TYPENAME::BOOL,           "Optimistic_CE",        "State",             0, 0 }},
     { BINARY_PROPERTY::ORBITAL_VELOCITY,                                    { TYPENAME::DOUBLE,         "Orbital_Velocity",     "kms^-1",           14, 6 }},
-    { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                  { TYPENAME::DOUBLE,         "Orb_Velocity<SN",   "kms^-1",           14, 6 }},
+    { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                  	{ TYPENAME::DOUBLE,         "Orb_Velocity<SN",   	"kms^-1",           14, 6 }},
     { BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,         "Radius_1>CE",          "Rsol",             14, 6 }},
     { BINARY_PROPERTY::RADIUS_1_PRE_COMMON_ENVELOPE,                        { TYPENAME::DOUBLE,         "Radius_1<CE",          "Rsol",             14, 6 }},
     { BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,         "Radius_2>CE",          "Rsol",             14, 6 }},
@@ -2382,10 +2382,10 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::SECONDARY_TOO_SMALL_FOR_DCO,                         { TYPENAME::BOOL,           "Secondary<<DCO",       "State",             0, 0 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION,                    { TYPENAME::DOUBLE,         "Separation@DCO",       "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,                             { TYPENAME::DOUBLE,         "Separation@ZAMS",      "AU",               14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,         "Separation>CE",        "AU",               14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                   { TYPENAME::DOUBLE,         "Separation<SN",     "AU",               14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,              { TYPENAME::DOUBLE,         "Separation<SN",     "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,         "Separation<CE",        "AU",               14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,         "Separation>CE",        "Rsol",             14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                   	{ TYPENAME::DOUBLE,         "Separation<SN",     	"AU",               14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,              	{ TYPENAME::DOUBLE,         "Separation<SN",     	"Rsol",             14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,         "Separation<CE",        "Rsol",             14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME,                               { TYPENAME::DOUBLE,         "Separation",           "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL,                          { TYPENAME::DOUBLE,         "Separation",           "Rsol",             14, 6 }},
     { BINARY_PROPERTY::SIMULTANEOUS_RLOF,                                   { TYPENAME::BOOL,           "Simultaneous_RLOF",    "Event",             0, 0 }},
