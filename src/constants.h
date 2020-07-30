@@ -329,9 +329,11 @@
 //                                      - Extended use of zetaRadiativeEnvelopeGiant (formerley zetaHertzsprungGap) for all radiative envelope giant-like stars
 // 02.12.07      IM - Jul 26, 2020 - Defect repair:
 //                                      - Issue 295: do not engage in mass transfer if the binary is unbound
-// 02.12.08   	AVG - Jul 26, 2020 - Bug Fix for issue #269 ; legacy bug in eccentric RLOF leading to a CEE 
+// 02.12.08   	AVG - Jul 26, 2020 - Bug Fix for issue #269 ; legacy bug in eccentric RLOF leading to a CEE
+// 02.12.09      IM - Jul 30, 2020 - Enhancement:
+//                                      - Cleaning of BaseBinaryStar::CalculateMassTransferOrbit(); dispensed with mass-transfer-prescription option
 
-const std::string VERSION_STRING = "02.12.08";
+const std::string VERSION_STRING = "02.12.09";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
@@ -594,7 +596,7 @@ constexpr double ZETA_NUCLEAR_TIMESTEP                  = 1.0E-3;               
 constexpr double ZETA_NUCLEAR_TOLERANCE                 = 1.0E-3;                                                   // Tolerance between iterations when calculating zeta nuclear
 constexpr int    ZETA_NUCLEAR_ITERATIONS                = 10;                                                       // Maximum number of iterations to use when calculating zeta nuclear
 
-constexpr int    HURLEY_MASS_TRANSFER_ORBIT_ITERATIONS	= 1000;                                                     // Number of iterations for solving mass transfer orbit for HURLEY mass transfer prescription
+constexpr double   MASS_TRANSFER_FRACTION	            = 0.001;                                                    // Maximal fraction of donor mass that can be transferred in one step of stable mass transfer
 
 constexpr double LAMBDA_NANJING_ZLIMIT                  = 0.0105;                                                   // Metallicity cutoff for Nanjing lambda calculations
 
