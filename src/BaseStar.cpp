@@ -381,7 +381,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::SUPERNOVA_KICK_VELOCITY_MAGNITUDE_RANDOM_NUMBER:    value = SN_KickVelocityRandom();                                break;
             case ANY_STAR_PROPERTY::SUPERNOVA_PHI:                                      value = SN_Phi();                                               break;
             case ANY_STAR_PROPERTY::SUPERNOVA_THETA:                                    value = SN_Theta();                                             break;
-            case ANY_STAR_PROPERTY::TEMPERATURE:                                        value = Temperature();                                          break;
+            case ANY_STAR_PROPERTY::TEMPERATURE:                                        value = Temperature()*TSOL;                                     break;
             case ANY_STAR_PROPERTY::THERMAL_TIMESCALE:                                  value = ThermalTimescale();                                     break;
             case ANY_STAR_PROPERTY::TIME:                                               value = Time();                                                 break;
             case ANY_STAR_PROPERTY::TIMESCALE_MS:                                       value = Timescale(TIMESCALE::tMS);                              break;
@@ -1029,7 +1029,7 @@ double BaseStar::CalculateLambdaKruckow(const double p_Radius, const double p_Al
  * double CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss)
  *
  * @param   [IN]    p_IsMassLoss                Boolean indicating whether mass-loss correction should be applied
- * @return                                      log binding energy in ergs
+ * @return                                      log binding energy in erg
  */
 double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) {
 
@@ -1094,7 +1094,7 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) {
 /*
  * Calculata lambda parameter from the so-called energy formalism of CE (Webbink 1984).
  *
- * Binding energy from detailed models (Loveridge et al. 2011) is given in [E]=ergs, so use cgs
+ * Binding energy from detailed models (Loveridge et al. 2011) is given in [E]=erg, so use cgs
  *
  *
  * double CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss)
@@ -1324,6 +1324,41 @@ double BaseStar::CalculateZadiabaticSPH(const double p_CoreMass) {
 
 
 /*
+ * Calculate the Adiabatic Exponent (for convective-envelope giant-like stars)
+ *
+ *
+ * double CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription)
+ *
+ * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
+ * @return                                      Adiabatic exponent
+ */
+double BaseStar::CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) {
+    
+    double zeta = 0.0;                                              // default value
+    
+    switch (p_ZetaPrescription) {                                 // which prescription?
+        case ZETA_PRESCRIPTION::SOBERMAN:                        // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
+            zeta = CalculateZadiabaticSPH(m_HeCoreMass);
+            break;
+            
+        case ZETA_PRESCRIPTION::HURLEY:                          // HURLEY: Hurley, Tout, and Pols, 2002, eq 56
+            zeta = CalculateZadiabaticHurley2002(m_HeCoreMass);
+            break;
+            
+        case ZETA_PRESCRIPTION::ARBITRARY:                       // ARBITRARY: user program options thermal zeta value
+            zeta = OPTIONS->ZetaThermalArbitrary();
+            break;
+            
+        default:                                                    // unknown common envelope prescription - shouldn't happen
+            m_Error = ERROR::UNKNOWN_ZETA_PRESCRIPTION;          // set error value
+            SHOW_ERROR(m_Error);                                    // warn that an error occurred
+    }
+    
+    return zeta;
+}
+
+
+/*
  * Calculate all Lambdas
  *
  * ALEJANDRO - 04/11/2016 - Lambda calculations as tracker for binding energy;
@@ -1510,12 +1545,12 @@ double BaseStar::CalculateRadiusAtZAMS(const double p_MZAMS) {
  * Hurley et al. 2000, eq 89
  *
  *
- * double CalculateMaximumCoreMass(double p_Mass)
+ * double CalculateMaximumCoreMass(const double p_Mass)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Maximum core mass in Msol (McMax)
  */
-double BaseStar::CalculateMaximumCoreMass(double p_Mass) {
+double BaseStar::CalculateMaximumCoreMass(const double p_Mass) {
     return min(((1.45 * p_Mass) - 0.31), p_Mass);
 }
 
@@ -2808,7 +2843,7 @@ double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
 }
 
 /*
- * Draw kick velocity per Muller and Mandel 2020
+ * Draw kick velocity per Mandel and Mueller, 2020
  *
  * double DrawRemnantKickMuller(const double p_COCoreMass)
  * 
@@ -2822,7 +2857,7 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
                                     const double p_RemnantMass) {					
 	double remnantKick=-1.0;
 	double muKick=0.0;
-        double rand=p_Rand;		//makes it possible to adjust if p_Rand is too low, to avoid getting stuck
+    	double rand=p_Rand;		//makes it possible to adjust if p_Rand is too low, to avoid getting stuck
 
 	if (utils::Compare(p_RemnantMass, MULLERMANDEL_MAXNS) <  0) {
 		muKick=max(MULLERMANDEL_KICKNS*(p_COCoreMass-p_RemnantMass)/p_RemnantMass,0.0);
@@ -2832,7 +2867,7 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
 	}
 	while(remnantKick<0) {
 		remnantKick=muKick*(1.0+gsl_cdf_gaussian_Pinv(rand, MULLERMANDEL_SIGMAKICK));
-		rand=rand+p_Rand+0.0001;
+		rand=std::min(rand+p_Rand+0.0001,1.0);
 	}
 	return remnantKick;
 }
@@ -3177,7 +3212,7 @@ void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity) {
  * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
  * @param   [IN]    p_EnvMass                   Envelope mass of the star (Msol)
  * @param   [IN]    p_Radius                    Radius of the star (Rsol)
- * @return                                      Binding energy (ergs)
+ * @return                                      Binding energy (erg)
  */
 double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_EnvMass, const double p_Radius, const double p_Lambda) {
 
@@ -3198,7 +3233,7 @@ double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_
 
         double totalMass = coreMass + envMass;                                          // total mass
 
-		bindingEnergy    = G_CGS * totalMass * envMass / (p_Lambda * radius);           // ergs
+		bindingEnergy    = G_CGS * totalMass * envMass / (p_Lambda * radius);           // erg
 	}
 
 	return bindingEnergy;
@@ -3416,14 +3451,16 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
     STELLAR_TYPE stellarType = m_StellarType;                                               // default is no change
 
 
-    UpdateAttributesAndAgeOneTimestepPreamble(p_DeltaMass, p_DeltaMass0, p_DeltaTime);      // apply mass changes and save current values if required
-
     if (ShouldBeMasslessRemnant()) {                                                        // ALEJANDRO - 02/12/2016 - Attempt to fix updating the star if it lost all of its mass
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;                                       // JR: should also pick up already massless remnant
     }
     else {
         stellarType = ResolveSupernova();                                                   // handle supernova     JR: moved this to start of timestep
+        
+        
         if (stellarType == m_StellarType) {                                                 // still on phase?
+            
+            UpdateAttributesAndAgeOneTimestepPreamble(p_DeltaMass, p_DeltaMass0, p_DeltaTime);      // apply mass changes and save current values if required
 
             if (p_ForceRecalculate                     ||                                   // force recalculate?
                 utils::Compare(p_DeltaMass,  0.0) != 0 ||                                   // mass change? or...

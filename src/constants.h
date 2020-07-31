@@ -87,7 +87,7 @@
 //                                       changed CalculateSNKickVelocity() in BaseStar.cpp to set m_SupernovaDetails.kickVelocity correctly after adjusting for fallback
 // 02.03.04      FSB - Dec 04, 2019 - Defect repairs:
 //                                       fixed bug in Fryer+2012 CalculateGravitationalRemnantMassadded() function to compare baryon mass of star remnant with
-//										 baryon mass of MaximumNeutronStarMass instead of just MaximumNeutronStarMass. 
+//										     baryon mass of MaximumNeutronStarMass instead of just MaximumNeutronStarMass. 
 //                                       added m_BaryonicMassOfMaximumNeutronStarMass to BaseStar.h and BaseStar.cpp
 // 02.03.05      JR - Dec 05, 2019 - Defect repairs:
 //                                       fixed EvolveSingleStars() in main.cpp to print correct initial mass
@@ -232,13 +232,13 @@
 //                                                   - other parameters - calculated/determined - are recorded
 //                                   Defect repair:
 //                                       - changed "--outut" option name to "--outpuPath" in stringCommands in pythonSubmitDefault.py
-// 02.08.00		AVG - Mar 17, 2020 - Changed functionality:
-//										- removed post-newtonian spin evolution	code & associated pythonSubmitDefault.py options
-//										- removed only_double_compact_objects code & associated pythonSubmitDefault.py options
-//										- removed tides code & associated pythonSubmitDefault.py options
-//										- removed deprecated options from pythonSubmitDefault.py options
-//										- renamed options: mass transfer, iterations -> timestep-iterations
-//										- commented AIS Options until fully implemented
+// 02.08.00		 AVG - Mar 17, 2020 - Changed functionality:
+//										                   - removed post-newtonian spin evolution	code & associated pythonSubmitDefault.py options
+//										                   - removed only_double_compact_objects code & associated pythonSubmitDefault.py options
+//										                   - removed tides code & associated pythonSubmitDefault.py options
+//										                   - removed deprecated options from pythonSubmitDefault.py options
+//										                   - renamed options: mass transfer, iterations -> timestep-iterations
+//										                   - commented AIS Options until fully implemented
 // 02.08.01      JR - Mar 18, 2020 - Defect repairs:
 //                                      - restored initialisation of AIS options in Options.cpp (AIS now defaults off instead of on)
 //                                      - fixed retrieval of values for:
@@ -272,8 +272,8 @@
 //                                      - commented option --logfile-BSE-be-binaries to match Be-Binary options commented by AVG in v02.08.00
 // 02.09.04      JR - Apr 03, 2020 - Defect repair:
 //                                      - removed IsUSSN() from IsSNEvent() definition in BinaryConstituentStar.cpp (USSN flag indicates just US, not USSN. Needs to be tidied-up properly)
-// 02.09.05	 IM - Apr 03, 2020 - Defect repair:
-//			                - fixed timescale calculation issue for newly created HeHG stars (from stripped EAGB stars); fixes drop in CO core mass
+// 02.09.05	     IM - Apr 03, 2020 - Defect repair:
+//			                            - fixed timescale calculation issue for newly created HeHG stars (from stripped EAGB stars); fixes drop in CO core mass
 // 02.09.06      JR - Apr 07, 2020 - Defect repair:
 //                                      - corrected calculation in return statement for Rand::Random(const double p_Lower, const double p_Upper) (issue #201)
 //                                      - corrected calculation in return statement for Rand::RandomInt(const double p_Lower, const double p_Upper) (issue #201)
@@ -284,11 +284,11 @@
 // 02.09.10	     IM - Apr 12, 2020 - Minor enhancement: added Mueller & Mandel 2020 remnant mass and kick prescription, MULLERMANDEL
 //				                     Defect repair: corrected spelling of output help string for MULLER2016 and MULLER2016MAXWELLIAN
 // 02.10.01	     IM - Apr 14, 2020 - Minor enhancement: 
-//					                    - moved code so that SSE will also sample SN kicks, following same code branch as BSE 
+//					                            - moved code so that SSE will also sample SN kicks, following same code branch as BSE 
 // 02.10.02      SS - Apr 16, 2020 - Bug Fix for issue #105 ; core and envelope masses for HeHG and TPAGB stars
 // 02.10.03      JR - Apr 17, 2020 - Defect repair:
 //                                      - added LBV and WR winds to SSE (issue #223)
-// 02.10.04	 IM - Apr 25, 2020 - Minor enhancement: moved Mueller & Mandel prescription constants to constants.h, other cleaning of this option
+// 02.10.04	     IM - Apr 25, 2020 - Minor enhancement: moved Mueller & Mandel prescription constants to constants.h, other cleaning of this option
 // 02.10.05      JR - Apr 26, 2020 - Enhancements:
 //                                      - Issue #239 - added actual random seed to Run_Details
 //                                      - Issue #246 - changed Options.cpp to ignore --single-star-mass-max if --single-star-mass-steps = 1.  Already does in main.cpp.
@@ -299,21 +299,50 @@
 //                                   Defect repairs:
 //                                      - fixed typo in Options.h: changed '#include "rand.h" to '#include "Rand.h"
 //                                      - fixed printing of actual random seed in Run_Details file (moved to Log.cpp from Options.cpp: initial random seed is set after options are set)
-// 02.12.00		 RW - May 07, 2020 - Enhancement:
+// 02.11.01	     IM - May 20, 2020 - Defect repair: 
+//                                      - changed max NS mass for MULLERMANDEL prescription to a self-consistent value
+// 02.11.02      IM - Jun 15, 2020 - Defect repair:
+//                                      - added constants CBUR1 and CBUR2 to avoid hardcoded limits for He core masses leading to partially degenerate CO cores
+// 02.11.03     RTW - Jun 20, 2020 - Enhancement:
+//                                      - Issue #264 - fixed mass transfer printing bug 
+// 02.11.04      JR - Jun 25, 2020 - Defect repairs:
+//                                      - Issue #260 - Corrected recalculation of ZAMS values after eqilibration and cicularisation at birth when using grid files
+//                                      - Issue #266 - Corrected calculation in BaseBinaryStar::SampleInitialMassDistribution() for KROUPA IMF distribution
+//                                      - Issue #275 - Previous stellar type not set when stellar type is switched mid-timestep - now fixed
+// 02.11.05      IM - Jun 26, 2020 - Defect repair:
+//					                            - Issue #280 - Stars undergoing RLOF at ZAMS after masses are equalised were removed from run even if AllowRLOFatZAMS set
+// 02.12.00      IM - Jun 29, 2020 - Defect repair:
+//                                      - Issue 277 - move UpdateAttributesAndAgeOneTimestepPreamble() to after ResolveSupernova() to avoid inconsistency
+// 02.12.01      IM - Jul 18, 2020 - Enhancement:
+//                                      - Starting to clean up mass transfer functionality
+// 02.12.02      IM - Jul 23, 2020 - Enhancement:
+//                                      - Change to thermal timescale MT for both donor and accretor to determine MT stability
+// 02.12.03      IM - Jul 23, 2020 - Enhancement:
+//                                      - Introduced a new ENVELOPE_STATE_PRESCRIPTION to deal with different prescriptions for convective vs. radiative envelopes (no actual behaviour changes yet for ENVELOPE_STATE_PRESCRIPTION::LEGACY);
+//                                      - Removed unused COMMON_ENVELOPE_PRESCRIPTION
+// 02.12.04      IM - Jul 24, 2020 - Enhancement:
+//                                      - Changed temperatures to be written in Kelvin (see issue #278)
+// 02.12.05      IM - Jul 25, 2020 - Enhancement:
+//                                      - Added definition of FIXED_TEMPERATURE prescription to DetermineEnvelopeType()
+//                                      - Removed unnecessary (and inaccurate) numerical zeta Roche lobe calculation
+// 02.12.06      IM - Jul 26, 2020 - Enhancement:
+//                                      - Extended use of zetaRadiativeEnvelopeGiant (formerley zetaHertzsprungGap) for all radiative envelope giant-like stars
+// 02.12.07      IM - Jul 26, 2020 - Defect repair:
+//                                      - Issue 295: do not engage in mass transfer if the binary is unbound
+// 02.12.08   	AVG - Jul 26, 2020 - Bug Fix for issue #269 
+//                                      - Legacy bug in eccentric RLOF leading to a CEE 
+// 02.12.09		 RW - Jul 31, 2020 - Enhancement:
 // 										- Issue #254 - Remove ID from output files (SEED accomplishes this functionality better)
 // 										- Issue #255 - Update meaning of SN_STATE to reflect which SN occured and in what order
 // 									 Defect repairs:
 // 									 	- Issue #236 - 2nd SN not printed in disrupted systems
-// 02.12.01	 IM - May 20, 2020 - Defect repair: 
-//                                      - changed max NS mass for MULLERMANDEL prescription to a self-consistent value
-// 02.13.00      RW - May 20, 2020 - Defect repairs:
+// 02.13.00      RW - Jul 31, 2020 - Minor code rewrite
 //                                      - Added vector3d.h/.cpp and functionality for vector addition of velocities from both SNe (for more accurate system and component velocities)
-
+//                                      - Rewrote ResolveSupernova function for binaries to incorporate new vector3d objects
 
 const std::string VERSION_STRING = "02.13.00";
 
-// Todo: still to do for Options code - name class member variables in same estyle as other classes (i.e. m_*)
-
+// Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
 
@@ -462,8 +491,6 @@ extern OBJECT_ID globalObjectId;                                                
 
 constexpr double FLOAT_TOLERANCE_ABSOLUTE               = 0.0000005;                                                // Absolute tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
 constexpr double FLOAT_TOLERANCE_RELATIVE               = 0.0000005;                                                // Relative tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
-//constexpr double FLOAT_TOLERANCE_ABSOLUTE               = 0.0000000;                                                // Absolute tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
-//constexpr double FLOAT_TOLERANCE_RELATIVE               = 0.0050000;                                                // Relative tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
 
 
 // initialisation constants
@@ -541,7 +568,7 @@ constexpr double C                                      = 3.0E8;                
 
 constexpr double MU_0                                   = 4.0 * M_PI * 1.0E-7;                                      // Vacuum permeability in m kg s-2 A-2
 
-constexpr double NEUTRINO_LOSS_FALLBACK_FACTOR          = 1.0;                                                      // Factor which accounts for mass loss in neutrino winds during a supernovae. Should be made a flag and added to pythonSubmit.p
+constexpr double NEUTRINO_LOSS_FALLBACK_FACTOR          = 1.0;                                                      // Factor which accounts for mass loss in neutrino winds during a supernovae. Should be made a flag and added to pythonSubmit.py
 
 constexpr double MC_L_C1                                = 9.20925E-5;                                               // Core Mass - Luminosity relation constant c1 (Hurley et al. 2000, eq 44)
 constexpr double MC_L_C2                                = 5.402216;                                                 // Core Mass - Luminosity relation constant c2 (Hurley et al. 2000, eq 44)
@@ -558,9 +585,13 @@ constexpr double MCH                                    = 1.44;                 
 constexpr double MECS                                   = 1.38;                                                     // Mass of Neutron-Star (NS) formed in electron capture supernova (ECS). From Belczysnki+2008, before eq. 3.
 constexpr double MECS_REM                               = 1.26;                                                     // Gravitational mass of Neutron-Star (NS) formed in electron capture supernova (ECS). From Belczysnki+2008, eq. 3
 constexpr double MASS_LOSS_ETA                          = 0.5;                                                      // Mass loss efficiency -- can be set in the code as an option easily enough
+constexpr double MCBUR1					                = 1.6;							                            // Minimum He core mass to avoid fully degenerate CO core formation 
+constexpr double MCBUR2					                = 2.25;							                            // He core mass above which the CO core is completely non-degenerate
 
 constexpr double LBV_LUMINOSITY_LIMIT_STARTRACK         = 6.0E5;                                                    // STARTRACK LBV luminosity limit
 constexpr double LBV_LUMINOSITY_LIMIT_VANBEVEREN        = 3.0E5;                                                    // VANBEVEREN LBV luminosity limit
+
+constexpr double CONVECTIVE_BOUNDARY_TEMPERATURE        = 5.3703E3;                                                 // Threshold temperature for the star to develop a convective envelope, in Kelvin (10^3.73 K, from Belczynski+, 2008)
 
 constexpr double ABSOLUTE_MINIMUM_TIMESTEP              = 100.0 / SECONDS_IN_MYR;                                   // 100 seconds expressed in Myr (3.1688765E-12 Myr)
 constexpr double NUCLEAR_MINIMUM_TIMESTEP               = 1.0E-4;                                                   // Minimum time step for nuclear evolution = 100 years expressed in Myr
@@ -572,7 +603,6 @@ constexpr double MAXIMUM_MASS_LOSS_FRACTION             = 0.01;                 
 constexpr double MAXIMUM_RADIAL_CHANGE                  = 0.01;                                                     // Maximum allowable radial change - 1% (of radius) expressed as a fraction
 constexpr double FAKE_MASS_LOSS_PERCENTAGE              = 0.01;                                                     // Percentage mass loss for fake mass loss prescription (0.01% = 0.0001 fraction)
 constexpr double MINIMUM_MASS_SECONDARY                 = 4.0;                                                      // Minimum mass of secondary to evolve
-constexpr double RL_MASS_LOSS_FRACTION                  = 0.01;                                                     // Mass loss - 1.0% (of mass) expressed as a fraction - for calculating Roche Lobe resposne to mass transfer
 
 constexpr double ZETA_THERMAL_PERCENTAGE_MASS_CHANGE    = 1.0E-3;                                                   // Initial guess for percentage mass change when calculating zeta_thermal (use -ve for loss, +ve for gain)
 constexpr double ZETA_THERMAL_TOLERANCE                 = 1.0E-3;                                                   // Tolerance between iterations when calculating zeta thermal
@@ -635,7 +665,7 @@ constexpr double KROUPA_BREAK_1_POWER_1_2               = 0.08;                 
 
 constexpr double KROUPA_BREAK_2_PLUS1_2                 = 1.2311444133449162844993930691677431098761;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_2);
 constexpr double KROUPA_BREAK_2_PLUS1_3                 = 2.4622888266898325689987861383354862197522;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_3);
-constexpr double KROUPA_BREAK_2_POWER_2_3               = 0.5;                                                      // pow(KROUPA_BREAK_2, (KROUPA_POWER_2 - KROUPA_POWER_2));
+constexpr double KROUPA_BREAK_2_POWER_2_3               = 0.5;                                                      // pow(KROUPA_BREAK_2, (KROUPA_POWER_2 - KROUPA_POWER_3));
 
 // Constants for the Muller and Mandel remnant mass and kick prescriptions
 constexpr double MULLERMANDEL_M1                        = 2.0;	
@@ -741,9 +771,9 @@ enum class ERROR: int {
     UNKNOWN_BH_KICK_OPTION,                                         // unknown black hole kick option (in program options)
     UNKNOWN_BINARY_PROPERTY,                                        // unknown binary property
     UNKNOWN_CE_ACCRETION_PRESCRIPTION,                              // unknown common envelope Accretion Prescription
+    UNKNOWN_ENVELOPE_STATE_PRESCRIPTION,                            // unknown envelope state prescription
     UNKNOWN_CE_LAMBDA_PRESCRIPTION,                                 // unknown common envelope Lambda Prescription
-    UNKNOWN_CE_ZETA_PRESCRIPTION,                                   // unknown common envelope Zeta prescription
-    UNKNOWN_COMMON_ENVELOPE_PRESCRIPTION,                           // unknown Common Envelope Prescription
+    UNKNOWN_ZETA_PRESCRIPTION,                                      // unknown stellar Zeta prescription
     UNKNOWN_ECCENTRICITY_DISTRIBUTION,                              // unknown eccentricity distribution
     UNKNOWN_INITIAL_MASS_FUNCTION,                                  // unknown initial mass function
     UNKNOWN_KICK_DIRECTION_DISTRIBUTION,                            // unknown kick direction distribution
@@ -770,7 +800,7 @@ enum class ERROR: int {
     UNKNOWN_STELLAR_PROPERTY,                                       // unknown stellar property
     UNKNOWN_STELLAR_TYPE,                                           // unknown stellar type
     UNKNOWN_VROT_PRESCRIPTION,                                      // unknown rorational velocity prescription
-    UNSUPPORTED_CE_ZETA_PRESCRIPTION,                               // unsupported common envelope Zeta prescription
+    UNSUPPORTED_ZETA_PRESCRIPTION,                               // unsupported common envelope Zeta prescription
     UNSUPPORTED_ECCENTRICITY_DISTRIBUTION,                          // unsupported eccentricity distribution
     UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,           // unsupported pulsar birth magnetic field distribution
     UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,              // unsupported pulsar birth spin period distribution
@@ -854,9 +884,9 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_BH_KICK_OPTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown black hole kick option" }},
     { ERROR::UNKNOWN_BINARY_PROPERTY,                               { ERROR_SCOPE::ALWAYS,              "Unknown binary property - property details not found" }},
     { ERROR::UNKNOWN_CE_ACCRETION_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown common envelope accretion prescription" }},
+    { ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION,                   { ERROR_SCOPE::ALWAYS,              "Unknown envelope state prescription" }},
     { ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unknown common envelope lambda prescription" }},
-    { ERROR::UNKNOWN_CE_ZETA_PRESCRIPTION,                          { ERROR_SCOPE::ALWAYS,              "Unknown common envelope Zeta prescription" }},
-    { ERROR::UNKNOWN_COMMON_ENVELOPE_PRESCRIPTION,                  { ERROR_SCOPE::ALWAYS,              "Unknown common envelope prescription" }},
+    { ERROR::UNKNOWN_ZETA_PRESCRIPTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown stellar Zeta prescription" }},
     { ERROR::UNKNOWN_ECCENTRICITY_DISTRIBUTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown eccentricity distribution" }},
     { ERROR::UNKNOWN_INITIAL_MASS_FUNCTION,                         { ERROR_SCOPE::ALWAYS,              "Unknown initial mass function (IMF)" }},
     { ERROR::UNKNOWN_KICK_DIRECTION_DISTRIBUTION,                   { ERROR_SCOPE::ALWAYS,              "Unknown kick direction distribution" }},
@@ -884,7 +914,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_STELLAR_TYPE,                                  { ERROR_SCOPE::ALWAYS,              "Unknown stellar type" }},
     { ERROR::UNKNOWN_VROT_PRESCRIPTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown rotational velocity prescription" }},
     { ERROR::UNSUPPORTED_ECCENTRICITY_DISTRIBUTION,                 { ERROR_SCOPE::ALWAYS,              "Unsupported eccentricity distribution" }},
-    { ERROR::UNSUPPORTED_CE_ZETA_PRESCRIPTION,                      { ERROR_SCOPE::ALWAYS,              "Unsupported common envelope Zeta prescription" }},
+    { ERROR::UNSUPPORTED_ZETA_PRESCRIPTION,                         { ERROR_SCOPE::ALWAYS,              "Unsupported stellar Zeta prescription" }},
     { ERROR::UNSUPPORTED_MT_PRESCRIPTION,                           { ERROR_SCOPE::ALWAYS,              "Unsupported mass transfer prescription" }},
     { ERROR::UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,  { ERROR_SCOPE::ALWAYS,              "Unsupported pulsar birth magnetic field distribution" }},
     { ERROR::UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,     { ERROR_SCOPE::ALWAYS,              "Unsupported pulsar birth spin period distribution" }},
@@ -977,6 +1007,14 @@ const COMPASUnorderedMap<CE_ACCRETION_PRESCRIPTION, std::string> CE_ACCRETION_PR
     { CE_ACCRETION_PRESCRIPTION::MACLEOD,  "MACLEOD" }
 };
 
+// Envelope State Prescriptions
+enum class ENVELOPE_STATE_PRESCRIPTION: int { LEGACY, HURLEY, FIXED_TEMPERATURE };
+const COMPASUnorderedMap<ENVELOPE_STATE_PRESCRIPTION, std::string> ENVELOPE_STATE_PRESCRIPTION_LABEL = {
+    { ENVELOPE_STATE_PRESCRIPTION::LEGACY,   "LEGACY" },
+    { ENVELOPE_STATE_PRESCRIPTION::HURLEY,   "HURLEY" },
+    { ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE,  "FIXED_TEMPERATURE" }
+};
+
 
 // Common Envelope Lambda Prescriptions
 enum class CE_LAMBDA_PRESCRIPTION: int { FIXED, LOVERIDGE, NANJING, KRUCKOW, DEWI };
@@ -990,12 +1028,12 @@ const COMPASUnorderedMap<CE_LAMBDA_PRESCRIPTION, std::string> CE_LAMBDA_PRESCRIP
 
 
 // Common envelope zeta prescription
-enum class CE_ZETA_PRESCRIPTION: int { STARTRACK, SOBERMAN, HURLEY, ARBITRARY };
-const COMPASUnorderedMap<CE_ZETA_PRESCRIPTION, std::string> CE_ZETA_PRESCRIPTION_LABEL = {
-    { CE_ZETA_PRESCRIPTION::STARTRACK, "STARTRACK" },
-    { CE_ZETA_PRESCRIPTION::SOBERMAN,  "SOBERMAN" },
-    { CE_ZETA_PRESCRIPTION::HURLEY,    "HURLEY" },
-    { CE_ZETA_PRESCRIPTION::ARBITRARY, "ARBITRARY" }
+enum class ZETA_PRESCRIPTION: int { STARTRACK, SOBERMAN, HURLEY, ARBITRARY };
+const COMPASUnorderedMap<ZETA_PRESCRIPTION, std::string> ZETA_PRESCRIPTION_LABEL = {
+    { ZETA_PRESCRIPTION::STARTRACK, "STARTRACK" },
+    { ZETA_PRESCRIPTION::SOBERMAN,  "SOBERMAN" },
+    { ZETA_PRESCRIPTION::HURLEY,    "HURLEY" },
+    { ZETA_PRESCRIPTION::ARBITRARY, "ARBITRARY" }
 };
 
 
@@ -1007,15 +1045,6 @@ const COMPASUnorderedMap<CHE_OPTION, std::string> CHE_OPTION_LABEL = {
     { CHE_OPTION::PESSIMISTIC, "PESSIMISTIC" }
 };
 
-
-// Common envelope prescriptions
-enum class COMMON_ENVELOPE_PRESCRIPTION: int { WEBBINK, OPTIMISTIC_HG, PESSIMISTIC_HG, STABLE_HG };
-const COMPASUnorderedMap<COMMON_ENVELOPE_PRESCRIPTION, std::string> COMMON_ENVELOPE_PRESCRIPTION_LABEL = {
-    { COMMON_ENVELOPE_PRESCRIPTION::WEBBINK,        "WEBBINK_CE" },
-    { COMMON_ENVELOPE_PRESCRIPTION::OPTIMISTIC_HG,  "OPTIMISTIC_HG_CE" },   // Assume HG donors onto compact objects can initiate and survive CE
-    { COMMON_ENVELOPE_PRESCRIPTION::PESSIMISTIC_HG, "PESSIMISTIC_HG_CE" },  // Assume HG donors onto compact objects can initiate but not survive CE
-    { COMMON_ENVELOPE_PRESCRIPTION::STABLE_HG,      "STABLE_HG_CE" }        // HG donors onto compact object are stable Pavlovski+ 2016
-};
 
 
 // Logfile delimiters
@@ -2038,9 +2067,8 @@ enum class BINARY_PROPERTY: int {
     TOTAL_ANGULAR_MOMENTUM_PRIME,
     TOTAL_ENERGY_PRIME,
     WOLF_RAYET_FACTOR,
-    ZETA_RLOF_ANALYTIC,
-    ZETA_RLOF_NUMERICAL,
-    ZETA_STAR_COMPARE
+    ZETA_LOBE,
+    ZETA_STAR
 };
 
 
@@ -2138,9 +2166,8 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM_PRIME,                       "TOTAL_ANGULAR_MOMENTUM_PRIME" },
     { BINARY_PROPERTY::TOTAL_ENERGY_PRIME,                                 "TOTAL_ENERGY_PRIME" },
     { BINARY_PROPERTY::WOLF_RAYET_FACTOR,                                  "WOLF_RAYET_FACTOR" },
-    { BINARY_PROPERTY::ZETA_RLOF_ANALYTIC,                                 "ZETA_RLOF_ANALYTIC" },
-    { BINARY_PROPERTY::ZETA_RLOF_NUMERICAL,                                "ZETA_RLOF_NUMERICAL" },
-    { BINARY_PROPERTY::ZETA_STAR_COMPARE,                                  "ZETA_STAR_COMPARE" }
+    { BINARY_PROPERTY::ZETA_LOBE,                                          "ZETA_LOBE" },
+    { BINARY_PROPERTY::ZETA_STAR,                                          "ZETA_STAR" }
 };
 
 
@@ -2212,14 +2239,14 @@ typedef std::tuple<TYPENAME, std::string, std::string, int, int> PROPERTY_DETAIL
 const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::AGE,                                               { TYPENAME::DOUBLE,         "Age",                  "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::ANGULAR_MOMENTUM,                                  { TYPENAME::DOUBLE,         "Ang_Momentum",         "Msol*AU^2*yr^-1",  14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,         "Binding_Energy@CE",    "ergs",             14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_FIXED,                              { TYPENAME::DOUBLE,         "BE_Fixed",             "ergs",             14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_NANJING,                            { TYPENAME::DOUBLE,         "BE_Nanjing",           "ergs",             14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_POST_COMMON_ENVELOPE,               { TYPENAME::DOUBLE,         "Binding_Energy>CE",    "ergs",             14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_PRE_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,         "Binding_Energy<CE",    "ergs",             14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE,                          { TYPENAME::DOUBLE,         "BE_Loveridge",         "ergs",             14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS,                    { TYPENAME::DOUBLE,         "BE_Loveridge_Winds",   "ergs",             14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_KRUCKOW,                            { TYPENAME::DOUBLE,         "BE_Kruckow",           "ergs",             14, 6 }},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,         "Binding_Energy@CE",    "erg",              14, 6 }},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_FIXED,                              { TYPENAME::DOUBLE,         "BE_Fixed",             "erg",              14, 6 }},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_NANJING,                            { TYPENAME::DOUBLE,         "BE_Nanjing",           "erg",              14, 6 }},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_POST_COMMON_ENVELOPE,               { TYPENAME::DOUBLE,         "Binding_Energy>CE",    "erg",              14, 6 }},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_PRE_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,         "Binding_Energy<CE",    "erg",              14, 6 }},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE,                          { TYPENAME::DOUBLE,         "BE_Loveridge",         "erg",              14, 6 }},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS,                    { TYPENAME::DOUBLE,         "BE_Loveridge_Winds",   "erg",              14, 6 }},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_KRUCKOW,                            { TYPENAME::DOUBLE,         "BE_Kruckow",           "erg",              14, 6 }},
     { ANY_STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,              { TYPENAME::BOOL,           "CH_on_MS",             "State",             0, 0 }},
     { ANY_STAR_PROPERTY::CO_CORE_MASS,                                      { TYPENAME::DOUBLE,         "Mass_CO_Core",         "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Mass_CO_Core@CE",      "Msol",             14, 6 }},
@@ -2311,9 +2338,9 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::MEAN_ANOMALY,                                      { TYPENAME::DOUBLE,         "SN_Kick_Mean_Anomaly", "-",                14, 6 }},
     { ANY_STAR_PROPERTY::SUPERNOVA_PHI,                                     { TYPENAME::DOUBLE,         "SN_Kick_Phi",          "-",                14, 6 }},
     { ANY_STAR_PROPERTY::SUPERNOVA_THETA,                                   { TYPENAME::DOUBLE,         "SN_Kick_Theta",        "-",                14, 6 }},
-    { ANY_STAR_PROPERTY::TEMPERATURE,                                       { TYPENAME::DOUBLE,         "Teff",                 "Tsol",             14, 6 }},
-    { ANY_STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE,                  { TYPENAME::DOUBLE,         "Teff>CE",              "Tsol",             14, 6 }},
-    { ANY_STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Teff<CE",              "Tsol",             14, 6 }},
+    { ANY_STAR_PROPERTY::TEMPERATURE,                                       { TYPENAME::DOUBLE,         "Teff",                 "K",             14, 6 }},
+    { ANY_STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE,                  { TYPENAME::DOUBLE,         "Teff>CE",              "K",             14, 6 }},
+    { ANY_STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Teff<CE",              "K",             14, 6 }},
     { ANY_STAR_PROPERTY::THERMAL_TIMESCALE,                                 { TYPENAME::DOUBLE,         "Tau_Thermal",          "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::THERMAL_TIMESCALE_POST_COMMON_ENVELOPE,            { TYPENAME::DOUBLE,         "Tau_Thermal>CE",       "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::THERMAL_TIMESCALE_PRE_COMMON_ENVELOPE,             { TYPENAME::DOUBLE,         "Tau_Thermal<CE",       "Myr",              16, 8 }},
@@ -2336,7 +2363,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_LUMINOSITY,              { TYPENAME::DOUBLE,         "Companion_Lum",        "Lsol",             14, 6 }},
     { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_MASS,                    { TYPENAME::DOUBLE,         "Companion_Mass",       "Msol",             14, 6 }},
     { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_RADIUS,                  { TYPENAME::DOUBLE,         "Companion_Radius",     "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_TEFF,                    { TYPENAME::DOUBLE,         "Companion_Teff",       "Tsol",             14, 6 }},
+    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_TEFF,                    { TYPENAME::DOUBLE,         "Companion_Teff",       "K",             14, 6 }},
     { BINARY_PROPERTY::BE_BINARY_CURRENT_DT,                                { TYPENAME::DOUBLE,         "dT",                   "Myr",              16, 8 }},
     { BINARY_PROPERTY::BE_BINARY_CURRENT_ECCENTRICITY,                      { TYPENAME::DOUBLE,         "Eccentricity",         "-",                14, 6 }},
     { BINARY_PROPERTY::BE_BINARY_CURRENT_ID,                                { TYPENAME::OBJECT_ID,      "ID",                   "-",                12, 1 }},
@@ -2396,12 +2423,12 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::SECONDARY_TOO_SMALL_FOR_DCO,                         { TYPENAME::BOOL,           "Secondary<<DCO",       "State",             0, 0 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION,                    { TYPENAME::DOUBLE,         "Separation@DCO",       "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,                             { TYPENAME::DOUBLE,         "Separation@ZAMS",      "AU",               14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,         "Separation>CE",        "AU",               14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                       { TYPENAME::DOUBLE,         "Separation<SN",        "AU",               14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,                  { TYPENAME::DOUBLE,         "Separation<SN",        "Rsol",             14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,         "Separation>CE",        "Rsol",             14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_SUPERNOVA,                      { TYPENAME::DOUBLE,         "Separation>SN",        "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_SUPERNOVA_RSOL,                 { TYPENAME::DOUBLE,         "Separation>SN",        "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,         "Separation<CE",        "AU",               14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,         "Separation<CE",        "Rsol",             14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                       { TYPENAME::DOUBLE,         "Separation<SN",        "AU",               14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,                  { TYPENAME::DOUBLE,         "Separation<SN",        "Rsol",             14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME,                               { TYPENAME::DOUBLE,         "Separation",           "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL,                          { TYPENAME::DOUBLE,         "Separation",           "Rsol",             14, 6 }},
     { BINARY_PROPERTY::SIMULTANEOUS_RLOF,                                   { TYPENAME::BOOL,           "Simultaneous_RLOF",    "Event",             0, 0 }},
@@ -2424,9 +2451,8 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM_PRIME,                        { TYPENAME::DOUBLE,         "Ang_Momentum_Total",   "Msol*AU^2*yr^-1",  14, 6 }},
     { BINARY_PROPERTY::TOTAL_ENERGY_PRIME,                                  { TYPENAME::DOUBLE,         "Energy_Total",         "Msol*AU^2*yr^-2",  14, 6 }},
     { BINARY_PROPERTY::WOLF_RAYET_FACTOR,                                   { TYPENAME::DOUBLE,         "WR_Multiplier",        "-",                14, 6 }},
-    { BINARY_PROPERTY::ZETA_RLOF_ANALYTIC,                                  { TYPENAME::DOUBLE,         "Zeta_RLOF_Analytic",   "-",                14, 6 }},
-    { BINARY_PROPERTY::ZETA_RLOF_NUMERICAL,                                 { TYPENAME::DOUBLE,         "Zeta_RLOF_Numerical",  "-",                14, 6 }},
-    { BINARY_PROPERTY::ZETA_STAR_COMPARE,                                   { TYPENAME::DOUBLE,         "Zeta_Star_Compare",    "-",                14, 6 }}
+    { BINARY_PROPERTY::ZETA_LOBE,                                           { TYPENAME::DOUBLE,         "Zeta_Lobe",   "-",                14, 6 }},
+    { BINARY_PROPERTY::ZETA_STAR,                                           { TYPENAME::DOUBLE,         "Zeta_Star",    "-",                14, 6 }}
 };
 
 // enum class PROGRAM_OPTION_DETAIL
@@ -2683,7 +2709,7 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     SUPERNOVA_PROPERTY::SUPERNOVA_THETA,              // remove?  (its in systemParameters)
     SUPERNOVA_PROPERTY::SUPERNOVA_PHI,                // remove?  (its in systemParameters)
     SUPERNOVA_PROPERTY::SN_TYPE,
-    BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,  // floor: we want a Eccentricity<SN and Eccentricity>SN; how to do this? - RTW done
+    BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,  
 	BINARY_PROPERTY::ECCENTRICITY_POST_SUPERNOVA,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,
 	BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_SUPERNOVA_RSOL,
@@ -2782,8 +2808,8 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
     STAR_2_PROPERTY::DYNAMICAL_TIMESCALE_PRE_COMMON_ENVELOPE,
     STAR_2_PROPERTY::THERMAL_TIMESCALE_PRE_COMMON_ENVELOPE,
     STAR_2_PROPERTY::NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE,
-    BINARY_PROPERTY::ZETA_STAR_COMPARE,
-    BINARY_PROPERTY::ZETA_RLOF_ANALYTIC,
+    BINARY_PROPERTY::ZETA_STAR,
+    BINARY_PROPERTY::ZETA_LOBE,
     BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE,
     BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE,
     STAR_1_PROPERTY::RADIAL_EXPANSION_TIMESCALE_PRE_COMMON_ENVELOPE,

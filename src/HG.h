@@ -79,10 +79,11 @@ protected:
     double       CalculateTauAtPhaseEnd()                                       { return 1.0; }                                                                             // tau = 1.0 at end of HG
     double       CalculateTauOnPhase();
 
+    double       CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription);
+
     double       ChooseTimestep(const double p_Time);
 
     ENVELOPE     DetermineEnvelopeType();
-    ENVELOPE     DetermineEnvelopeTypeHurley2002()                              { return ENVELOPE::CONVECTIVE; }                                                            // Always CONVECTIVE
 
     MT_CASE      DetermineMassTransferCase()                                    { return MT_CASE::B; }                                                                      // Mass Transfer Case B for HG stars
 
