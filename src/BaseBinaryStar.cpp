@@ -2943,16 +2943,12 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         m_PrintExtraDetailedOutput = true;                                                                              // print detailed output record if stellar type changed
     }
 
-<<<<<<< HEAD
     if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) { 
         EvaluateSupernovae();                                                                                           // evaluate supernovae if applicable
     } 										
-=======
+
     if (m_PrintExtraDetailedOutput == true) { PrintDetailedOutput(m_Id); }                                              // print detailed output record if stellar type changed
     m_PrintExtraDetailedOutput = false;                                                                                 // reset detailed output printing flag for the next timestep
-
-    EvaluateSupernovae(false);                                                                                          // evaluate supernovae (both stars)
->>>>>>> dev
 
     // assign new values to "previous" values, for following timestep
     m_EccentricityPrev	  = m_EccentricityPrime;
