@@ -73,3 +73,39 @@ bool MS_gt_07::IsMassRatioUnstable(const double p_AccretorMass, const bool p_Acc
 
     return result;
 }
+
+
+/*
+ * Determine the star's envelope type.
+ *
+ *
+ *
+ * ENVELOPE DetermineEnvelopeType()
+ *
+ * @return                                      ENVELOPE::{ RADIATIVE, CONVECTIVE, REMNANT }
+ */
+ENVELOPE MS_gt_07::DetermineEnvelopeType() {
+    
+    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                        // default envelope type  is RADIATIVE
+    
+    switch (OPTIONS->EnvelopeStatePrescription()) {                                         // which envelope prescription?
+            
+        case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
+            envelope = ENVELOPE::RADIATIVE;
+            break;
+            
+        case ENVELOPE_STATE_PRESCRIPTION::HURLEY:
+            // there is some convective envelope for stars below 1.25 solar masses according to Eq. (36) of Hurley+ (2002), but we simplify
+            envelope =  utils::Compare(m_Mass, 1.25) < 0 ? ENVELOPE::CONVECTIVE : ENVELOPE::RADIATIVE;
+            break;
+            
+        case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
+            envelope =  utils::Compare(Temperature()*TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            break;
+            
+        default:                                                                                    // unknown prescription - use default envelope type
+            SHOW_WARN(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION, "Using Envelope = RADIATIVE");   // show warning
+    }
+    
+    return envelope;
+}

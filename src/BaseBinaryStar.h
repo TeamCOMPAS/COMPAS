@@ -112,6 +112,7 @@ public:
         m_OrbitalAngularVelocityPrime      = p_Star.m_OrbitalAngularVelocityPrime;
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
         m_OrbitalVelocityPostSN            = p_Star.m_OrbitalVelocityPostSN;
+        m_PrintExtraDetailedOutput         = p_Star.m_PrintExtraDetailedOutput;
 
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
 
@@ -160,9 +161,8 @@ public:
 
         m_WolfRayetFactor                  = p_Star.m_WolfRayetFactor;
 
-        m_ZetaRLOFAnalytic                 = p_Star.m_ZetaRLOFAnalytic;
-        m_ZetaRLOFNumerical                = p_Star.m_ZetaRLOFNumerical;
-        m_ZetaStarCompare                  = p_Star.m_ZetaStarCompare;
+        m_ZetaLobe                         = p_Star.m_ZetaLobe;
+        m_ZetaStar                         = p_Star.m_ZetaStar;
 
 
         // copy the constituent stars and pointers
@@ -263,12 +263,16 @@ public:
     double              OrbitalAngularVelocity() const              { return m_OrbitalAngularVelocity; }
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
     double              OrbitalVelocityPostSN() const               { return m_OrbitalVelocityPostSN; }
-    double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
-    double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
-    double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }
-    double              Radius2PreCEE() const                       { return m_Star2->RadiusPreCEE(); }
-    unsigned long int   RandomSeed() const                          { return m_RandomSeed; }
-    BinaryRLOFDetailsT  RLOFDetails() const                         { return m_RLOFDetails; }
+    double              Periastron() const                          { return m_SemiMajorAxis*(1.0-m_Eccentricity); }    
+    double              PeriastronPrime() const                     { return m_SemiMajorAxisPrime*(1.0-m_EccentricityPrime); }
+    double              PeriastronRsol() const                      { return m_SemiMajorAxis*(1.0-m_Eccentricity)*AU_TO_RSOL; }    
+    double              PeriastronPrimeRsol() const                 { return m_SemiMajorAxisPrime*(1.0-m_EccentricityPrime)*AU_TO_RSOL; }    
+	double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
+	double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
+	double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }
+	double              Radius2PreCEE() const                       { return m_Star2->RadiusPreCEE(); }
+	unsigned long int   RandomSeed() const                          { return m_RandomSeed; }
+	BinaryRLOFDetailsT  RLOFDetails() const                         { return m_RLOFDetails; }
     bool                RLOFSecondaryPostCEE() const                { return m_Star2->RLOFPostCEE(); }
     double              RocheLobe1to2PostCEE() const                { return m_CEDetails.postCEE.rocheLobe1to2; }
     double              RocheLobe1to2PreCEE() const                 { return m_CEDetails.preCEE.rocheLobe1to2; }
@@ -286,6 +290,7 @@ public:
     double              SemiMajorAxisPostSN() const                 { return m_SemiMajorAxisPostSN; }
     double              SemiMajorAxisPreCEE() const                 { return m_CEDetails.preCEE.semiMajorAxis; }
     double              SemiMajorAxisPrime() const                  { return m_SemiMajorAxisPrime; }
+    double              SemiMajorAxisPrimeRsol() const              { return m_SemiMajorAxisPrime*AU_TO_RSOL; }
     bool                SimultaneousRLOF() const                    { return m_RLOFDetails.simultaneousRLOF; }
     bool                StableRLOFPostCEE() const                   { return m_RLOFDetails.stableRLOFPostCEE; }
     bool                StellarMerger() const                       { return m_StellarMerger; }
@@ -305,9 +310,8 @@ public:
     double              TotalEnergyPrime() const                    { return m_TotalEnergyPrime; }
     double              UK() const                                  { return m_uK; }
     double              WolfRayetFactor() const                     { return m_WolfRayetFactor; }
-    double              ZetaRLOFAnalytic() const                    { return m_ZetaRLOFAnalytic; }
-    double              ZetaRLOFNumerical() const                   { return m_ZetaRLOFNumerical; }
-    double              ZetaStarCompare() const                     { return m_ZetaStarCompare; }
+    double              ZetaLobe() const                    	    { return m_ZetaLobe; }
+    double              ZetaStar() const                            { return m_ZetaStar; }
 
 
     // member functions - alphabetically
@@ -400,6 +404,7 @@ private:
     double              m_OrbitalAngularVelocityPrime;
     double              m_OrbitalVelocityPreSN;
     double              m_OrbitalVelocityPostSN;
+    bool                m_PrintExtraDetailedOutput;                                         // Flag to ensure that detailed output only gets printed once per timestep
 
     BinaryRLOFDetailsT  m_RLOFDetails;                                                      // RLOF details
 
@@ -445,9 +450,8 @@ private:
 
     double               m_WolfRayetFactor;
 
-    double               m_ZetaRLOFAnalytic;
-    double               m_ZetaRLOFNumerical;
-    double               m_ZetaStarCompare;
+    double              m_ZetaLobe;
+    double              m_ZetaStar;
 
 
     // Binaries contain two stars
@@ -520,7 +524,6 @@ private:
                                    const double p_SemiMajorAxis)            { return -(G1 * p_Mu * p_Mass) / (2.0 * p_SemiMajorAxis); }
 
     double  CalculateAdaptiveRocheLobeOverFlow(const double p_JLoss);
-    double  CalculateNumericalZRocheLobe(const double p_jLoss);
     double  CalculateZRocheLobe(const double p_jLoss);
 
     double  CalculateDt(const double p_Dt, const Star* const p_Primary, const Star* const p_Secondary);

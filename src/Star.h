@@ -121,6 +121,7 @@ public:
     SN_EVENT                    SN_Type() const                                                                             { return m_Star->SN_Type(); }
     double                      Speed() const                                                                               { return m_Star->Speed(); }
     COMPAS_VARIABLE             StellarPropertyValue(const T_ANY_PROPERTY p_Property) const                                 { return m_Star->StellarPropertyValue(p_Property); }
+    STELLAR_TYPE                StellarTypePrev() const                                                                     { return m_Star->StellarTypePrev(); }
     double                      Temperature() const                                                                         { return m_Star->Temperature(); }
     double                      ThermalTimescale() const                                                                    { return m_Star->ThermalTimescale(); }
     double                      Timescale(TIMESCALE p_Timescale) const                                                      { return m_Star->Timescale(p_Timescale); }
@@ -183,7 +184,7 @@ public:
 
     double          CalculateTimestep()                                                                         { return m_Star->CalculateTimestep(); }
 
-    double          CalculateZeta(CE_ZETA_PRESCRIPTION p_CEZetaPrescription)                                    { return m_Star->CalculateZeta(p_CEZetaPrescription); }
+    double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                                         { return m_Star->CalculateZeta(p_ZetaPrescription); }
 
     void            CalculateZetas()                                                                            { m_Star->CalculateZetas(); }
 
@@ -194,7 +195,6 @@ public:
     BaseStar*       Clone(const BaseStar& p_Star);
 
     ENVELOPE        DetermineEnvelopeType() const                                                               { return m_Star->DetermineEnvelopeType(); }
-    ENVELOPE        DetermineEnvelopeTypeHurley2002() const                                                     { return m_Star->DetermineEnvelopeTypeHurley2002(); }
 
     MT_CASE         DetermineMassTransferCase()                                                                 { return m_Star->DetermineMassTransferCase(); }
 
@@ -206,9 +206,9 @@ public:
 
     void            ResolveAccretion(const double p_AccretionMass)                                              { m_Star->ResolveAccretion(p_AccretionMass); }
 
-    void            ResolveEnvelopeLossAndSwitch()                                                              { SwitchTo(m_Star->ResolveEnvelopeLoss(true)); }
+    void            ResolveEnvelopeLossAndSwitch()                                                              { (void)SwitchTo(m_Star->ResolveEnvelopeLoss(true)); }
 
-    void            ResolveRemnantAfterEnvelopeLossAndSwitch()                                                  { SwitchTo(m_Star->ResolveRemnantAfterEnvelopeLoss()); }
+    void            ResolveRemnantAfterEnvelopeLossAndSwitch()                                                  { (void)SwitchTo(m_Star->ResolveRemnantAfterEnvelopeLoss()); }
 
     STELLAR_TYPE    ResolveRemnantAfterEnvelopeLoss()                                                           { return m_Star->ResolveRemnantAfterEnvelopeLoss(); }
 
@@ -219,9 +219,9 @@ public:
     void            SetSNCurrentEvent(const SN_EVENT p_SNEvent)                                                 { m_Star->SetSNCurrentEvent(p_SNEvent); }
     void            SetSNPastEvent(const SN_EVENT p_SNEvent)                                                    { m_Star->SetSNPastEvent(p_SNEvent); }
 
-    double     	    SN_KickVelocity()       																	{ return m_Star->SN_KickVelocity() ; }
+    double     	    SN_KickVelocity()       									                                { return m_Star->SN_KickVelocity() ; }
 
-    void            SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
+    STELLAR_TYPE    SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
 
     void            UpdateAgeAfterMassLoss()                                                                    { m_Star->UpdateAgeAfterMassLoss(); }
 

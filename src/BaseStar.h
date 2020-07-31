@@ -195,7 +195,7 @@ public:
 
             double          CalculateTimestep();
 
-    virtual double          CalculateZeta(CE_ZETA_PRESCRIPTION p_CEZetaPrescription) { return 0.0; }                                                                                // Use inheritance hierarchy
+    virtual double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription) { return 0.0; }                                                                                // Use inheritance hierarchy
             void            CalculateZetas();
 
     virtual void            CheckRunaway(const bool p_Unbound)                                                  { if (p_Unbound) SetSNPastEvent(SN_EVENT::RUNAWAY); }
@@ -203,7 +203,6 @@ public:
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
 
     virtual ENVELOPE        DetermineEnvelopeType()                                                             { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
-    virtual ENVELOPE        DetermineEnvelopeTypeHurley2002()                                                   { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
 
     virtual MT_CASE         DetermineMassTransferCase() { return MT_CASE::NONE; }                                                                                                   // Use inheritance hierarchy
 
@@ -220,6 +219,8 @@ public:
     virtual void            ResolveMassLoss();
 
     virtual STELLAR_TYPE    ResolveRemnantAfterEnvelopeLoss()                                                   { return m_StellarType; }
+
+            void            SetStellarTypePrev(const STELLAR_TYPE p_StellarTypePrev)                            { m_StellarTypePrev = p_StellarTypePrev; }
 
     virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                            // Default is NO-OP
 
@@ -510,6 +511,7 @@ protected:
 
             double          CalculateZadiabaticHurley2002(const double p_CoreMass);
             double          CalculateZadiabaticSPH(const double p_CoreMass);
+            double          CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription);
 
             double          CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS);
 

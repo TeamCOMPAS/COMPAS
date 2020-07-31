@@ -86,8 +86,8 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
             case ANY_STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA:                       value = OrbitalEnergyPreSN();                           break;
             case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_POST_COMMON_ENVELOPE:    value = RadialExpansionTimescalePostCEE();              break;
             case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_PRE_COMMON_ENVELOPE:     value = RadialExpansionTimescalePreCEE();               break;
-            case ANY_STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE:                   value = TemperaturePostCEE();                           break;
-            case ANY_STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE:                    value = TemperaturePreCEE();                            break;
+            case ANY_STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE:                   value = TemperaturePostCEE()*TSOL;                      break;
+            case ANY_STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE:                    value = TemperaturePreCEE()*TSOL;                       break;
             case ANY_STAR_PROPERTY::THERMAL_TIMESCALE_POST_COMMON_ENVELOPE:             value = ThermalTimescalePostCEE();                      break;
             case ANY_STAR_PROPERTY::THERMAL_TIMESCALE_PRE_COMMON_ENVELOPE:              value = ThermalTimescalePreCEE();                       break;
 
@@ -318,7 +318,7 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
 
     double timescale;
 
-	switch (DetermineEnvelopeTypeHurley2002()) {                                                                                        // JR: todo: this differs from envelopeType() in star.cpp and DetermineEnvelopeType() in new code - ok?
+	switch (DetermineEnvelopeType()) {
 
         case ENVELOPE::CONVECTIVE: {                                                                                                    // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
 
@@ -371,7 +371,7 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
 
 	double timescale;
 
-	switch (DetermineEnvelopeTypeHurley2002()) {                                // JR: todo: this differs from envelopeType() in star.cpp and DetermineEnvelopeType() in new code - ok?
+	switch (DetermineEnvelopeType()) {
 
         case ENVELOPE::CONVECTIVE: {                                            // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
 
@@ -418,6 +418,9 @@ void BinaryConstituentStar::SetRocheLobeFlags(const bool p_CommonEnvelope, const
     m_RLOFDetails.isRLOF = false;                                                                                       // default - not overflowing Roche Lobe
 
     m_RocheLobeTracker = (Radius() * RSOL_TO_AU) / (m_RocheLobeRadius * p_SemiMajorAxis * (1.0 - p_Eccentricity));      // ratio of star's size to its Roche Lobe radius, calculated at the point of closest approach, periapsis
+    
+    if((utils::Compare(p_SemiMajorAxis, 0.0) <= 0) || (utils::Compare(p_Eccentricity, 1.0) > 0))
+        m_RocheLobeTracker = 0.0;         // binary is unbound, so not in RLOF
 
     if (utils::Compare(m_RocheLobeTracker, 1.0) >= 0) {                                                                 // if star is equal to or larger than its Roche Lobe...
 		m_RLOFDetails.isRLOF          = true;                                                                           // ... it is currently Roche Lobe overflowing
