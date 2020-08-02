@@ -572,7 +572,7 @@ void Options::SetToFiducialValues(void) {
 
 
     // Specify how long to evolve binaries for
-    maxEvolutionTime                                                = 13700.0;                                                                          // Maximum evolution time in Myrs
+    maxEvolutionTime                                                = 15000.0;                                                                          // Maximum evolution time in Myrs
     maxNumberOfTimestepIterations                                   = 99999;                                                                            // Maximum number of timesteps to evolve binary for before giving up
 
 

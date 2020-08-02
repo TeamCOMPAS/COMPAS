@@ -10,6 +10,18 @@
 #include "AIS.h"
 #include "BinaryConstituentStar.h"
 
+#include <boost/math/tools/roots.hpp>
+//using boost::math::policies::policy;
+//using boost::math::tools::newton_raphson_iterate;
+//using boost::math::tools::halley_iterate; //
+//using boost::math::tools::eps_tolerance; // Binary functor for specified number of bits.
+//using boost::math::tools::bracket_and_solve_root;
+//using boost::math::tools::toms748_solve;
+
+#include <boost/math/special_functions/next.hpp> // For float_distance.
+#include <tuple> // for std::tuple and std::make_tuple.
+#include <boost/math/special_functions/cbrt.hpp> // For boost::math::cbrt.
+
 
 class Log;
 class Star;
@@ -68,8 +80,6 @@ public:
         m_EccentricityPreSN                = p_Star.m_EccentricityPreSN;
         m_EccentricityPrev                 = p_Star.m_EccentricityPrev;
         m_EccentricityPrime                = p_Star.m_EccentricityPrime;
-
-        m_FastPhaseCaseA                   = p_Star.m_FastPhaseCaseA;
 
         m_FractionAccreted                 = p_Star.m_FractionAccreted;
 
@@ -233,6 +243,7 @@ public:
     double              EccentricityPreCEE() const                  { return m_CEDetails.preCEE.eccentricity; }
     double              EccentricityPrime() const                   { return m_EccentricityPrime; }
     ERROR               Error() const                               { return m_Error; }
+    double              FractionAccreted() const                    { return m_FractionAccreted; }
     bool                HasOneOf(STELLAR_TYPE_LIST p_List) const;
     bool                HasStarsTouching() const                    { return (utils::Compare(m_SemiMajorAxisPrime, 0.0) > 0) && (m_SemiMajorAxisPrime <= RSOL_TO_AU * (m_Star1->Radius() + m_Star2->Radius())); }
     bool                HasTwoOf(STELLAR_TYPE_LIST p_List) const;
@@ -360,8 +371,6 @@ private:
     double              m_EccentricityPreSN;                                             // Eccentricity prior to 2nd supernova
     double              m_EccentricityPrev;                                                 // Eccentricity at previous timestep
     double              m_EccentricityPrime;                                                // Initial eccentricity
-
-    bool 	            m_FastPhaseCaseA;                                                   // Indicates if the system just entered a case A MT for the first time
 
     double	            m_FractionAccreted;	                                                // Fraction of mass accreted from the donor during mass transfer
 
@@ -517,8 +526,7 @@ private:
 
 
     void    CalculateMassTransfer(const double p_Dt);
-    double  CalculateMassTransferFastPhaseCaseA(const double p_JLoss);
-    double  CalculateMassTransferOrbit(const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor);
+    double CalculateMassTransferOrbit(const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor);
     void    CalculateWindsMassLoss();
     void    CheckMassTransfer(const double p_Dt);
     void    InitialiseMassTransfer();
@@ -545,7 +553,6 @@ private:
                                             const double p_KickTheta,
                                             const double p_KickPhi);
 
-    double  CalculateAdaptiveRocheLobeOverFlow(const double p_JLoss);
     double  CalculateZRocheLobe(const double p_jLoss);
 
     double  CalculateSemiMajorAxisPostSupernova(const double p_KickVelocity,
@@ -554,9 +561,7 @@ private:
                                                 const double p_KickTheta,
                                                 const double p_KickPhi);
 
-    double  CalculateDt(const double p_Dt, const Star* const p_Primary, const Star* const p_Secondary);
     double  CalculateTimestep(const double p_Dt);
-    double  ChooseTimestep(const double p_Dt);
 
     double  CalculateTimeToCoalescence(double a0, double e0, double m1, double m2);
 
@@ -626,6 +631,80 @@ private:
     void PrintPulsarEvolutionParameters()       { if (OPTIONS->EvolvePulsars())     LOGGING->LogPulsarEvolutionParameters(this); }
     void PrintSupernovaDetails()                {                                   LOGGING->LogSupernovaDetails(this); }
 
+    
+    //Functor for the boost root finder to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
+    template <class T>
+    struct RadiusEqualsRocheLobeFunctor
+    {
+        RadiusEqualsRocheLobeFunctor(BaseBinaryStar * p_Binary, BinaryConstituentStar * p_Donor, BinaryConstituentStar * p_Accretor)
+        {
+            m_Binary=p_Binary;
+            m_Donor=p_Donor;
+            m_Accretor=p_Accretor;
+        }
+        T operator()(double const& dM)
+        {
+            double donorMass=m_Donor->Mass();
+            double accretorMass=m_Accretor->Mass();
+            BinaryConstituentStar* donorCopy = new BinaryConstituentStar(*m_Donor);
+            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -dM , donorCopy->CalculateThermalMassLossRate(), *m_Accretor);
+            double RLRadius      = semiMajorAxis * (1-m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - dM, accretorMass + (m_Binary->FractionAccreted() * dM)) * AU_TO_RSOL;
+            (void)donorCopy->UpdateAttributes(-dM, -dM*donorCopy->Mass0()/donorCopy->Mass());
+            
+            // Modify donor Mass0 and Age for MS (including HeMS) and HG stars
+            donorCopy->UpdateInitialMass();                                                                                                                 // update initial mass (MS, HG & HeMS)  JR: todo: fix this kludge - mass0 is overloaded, and isn't always "initial mass"
+            donorCopy->UpdateAgeAfterMassLoss();                                                                                                            // update age (MS, HG & HeMS)
+            
+            (void)donorCopy->AgeOneTimestep(0.0);                                                                                                           // recalculate radius of star - don't age - just update values
+            
+            double thisRadiusAfterMassLoss = donorCopy->Radius();
+            
+            delete donorCopy; donorCopy = nullptr;
+            
+            return (RLRadius-thisRadiusAfterMassLoss);
+        }
+    private:
+        BaseBinaryStar * m_Binary;
+        BinaryConstituentStar * m_Donor;
+        BinaryConstituentStar * m_Accretor;
+    };
+    
+  
+    //Root solver to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
+    double MassLossToFitInsideRocheLobe(BaseBinaryStar * p_Binary, BinaryConstituentStar * p_Donor, BinaryConstituentStar * p_Accretor)
+    {
+        using namespace std;                          // Help ADL of std functions.
+        using namespace boost::math::tools;           // For bracket_and_solve_root.
+        
+        double guess = ADAPTIVE_RLOF_FRACTION_DONOR_GUESS * p_Donor->Mass();    // Rough guess at solution
+        double factor = ADAPTIVE_RLOF_SEARCH_FACTOR;  // Size of search steps
+        
+        const boost::uintmax_t maxit = ADAPTIVE_RLOF_MAX_ITERATIONS;            // Limit to maximum iterations.
+        boost::uintmax_t it = maxit;                  // Initally our chosen max iterations, but updated with actual.
+        bool is_rising = true;                        // So if result with guess is too low, then try increasing guess.
+        int digits = std::numeric_limits<double>::digits;  // Maximum possible binary digits accuracy for type T.
+        // Some fraction of digits is used to control how accurate to try to make the result.
+        int get_digits = digits - 5;                  // We have to have a non-zero interval at each step, so
+        // maximum accuracy is digits - 1.  But we also have to
+        // allow for inaccuracy in f(x), otherwise the last few
+        // iterations just thrash around.
+        eps_tolerance<double> tol(get_digits);             // Set the tolerance.
+        std::pair<double, double> r = bracket_and_solve_root(RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor), guess, factor, is_rising, tol, it);
+        
+        SHOW_WARN_IF(it>=maxit, ERROR::TOO_MANY_RLOF_ITERATIONS);
+        
+        if (it >= maxit)
+        {
+            std::cout << "Unable to locate solution in " << maxit << " iterations:"
+            " Current best guess is between " << r.first << " and " << r.second << std::endl;
+        }
+        
+        return r.first + (r.second - r.first)/2;      // Midway between brackets is our result, if necessary we could
+        // return the result as an interval here.
+    }
+
+    
+    
 };
 
 #endif // __BaseBinaryStar_h__

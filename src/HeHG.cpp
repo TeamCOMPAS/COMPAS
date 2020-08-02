@@ -390,12 +390,11 @@ bool HeHG::IsMassRatioUnstable(const double p_AccretorMass, const bool p_Accreto
 double HeHG::ChooseTimestep(const double p_Time) {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
-    double dtk = utils::Compare(p_Time, timescales(tx_HeGB)) > 0
-                    ? 0.02 * (timescales(tinf2_SAGB) - p_Time)
-                    : 0.02 * (timescales(tinf1_SAGB) - p_Time);
-    double dte = dtk;
+    double dt = utils::Compare(p_Time, timescales(tx_HeGB)) > 0
+                    ? 0.02 * (timescales(tinf2_HeGB) - p_Time)
+                    : 0.02 * (timescales(tinf1_HeGB) - p_Time);
 
-    return std::max(dte, NUCLEAR_MINIMUM_TIMESTEP);
+    return std::max(dt, NUCLEAR_MINIMUM_TIMESTEP);
 
 #undef timescales
 }
