@@ -644,13 +644,16 @@ private:
         }
         T operator()(double const& dM)
         {
+            if(dM >= m_Donor->Mass()){                    // Can't remove more than the donor's mass
+                SHOW_WARN(ERROR::TOO_MANY_RLOF_ITERATIONS);
+                return m_Donor->Radius();
+            }
             double donorMass=m_Donor->Mass();
             double accretorMass=m_Accretor->Mass();
             BinaryConstituentStar* donorCopy = new BinaryConstituentStar(*m_Donor);
             double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -dM , donorCopy->CalculateThermalMassLossRate(), *m_Accretor);
             double RLRadius      = semiMajorAxis * (1-m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - dM, accretorMass + (m_Binary->FractionAccreted() * dM)) * AU_TO_RSOL;
             (void)donorCopy->UpdateAttributes(-dM, -dM*donorCopy->Mass0()/donorCopy->Mass());
-            
             // Modify donor Mass0 and Age for MS (including HeMS) and HG stars
             donorCopy->UpdateInitialMass();                                                                                                                 // update initial mass (MS, HG & HeMS)  JR: todo: fix this kludge - mass0 is overloaded, and isn't always "initial mass"
             donorCopy->UpdateAgeAfterMassLoss();                                                                                                            // update age (MS, HG & HeMS)
@@ -692,12 +695,6 @@ private:
         std::pair<double, double> r = bracket_and_solve_root(RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor), guess, factor, is_rising, tol, it);
         
         SHOW_WARN_IF(it>=maxit, ERROR::TOO_MANY_RLOF_ITERATIONS);
-        
-        if (it >= maxit)
-        {
-            std::cout << "Unable to locate solution in " << maxit << " iterations:"
-            " Current best guess is between " << r.first << " and " << r.second << std::endl;
-        }
         
         return r.first + (r.second - r.first)/2;      // Midway between brackets is our result, if necessary we could
         // return the result as an interval here.
