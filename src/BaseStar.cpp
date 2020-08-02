@@ -1217,7 +1217,7 @@ double BaseStar::CalculateZetaThermal(double p_PercentageMassChange) {
     BaseStar* starCopy = new BaseStar(*this);	                                                                                // copy of star - about to be updated for fake mass loss
 
     starCopy->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                           // allow star to respond to previous mass loss changes      JR: todo: is this really necessary?
-    starCopy->UpdateAttributesAndAgeOneTimestep(-(starCopy->Mass() * FAKE_MASS_LOSS_PERCENTAGE / 100.0), 0.0, 0.0, false);      // apply fake mass loss                                     JR: todo: why do we do this...?
+    //starCopy->UpdateAttributesAndAgeOneTimestep(-(starCopy->Mass() * FAKE_MASS_LOSS_PERCENTAGE / 100.0), 0.0, 0.0, false);      // apply fake mass loss                                     JR: todo: why do we do this...?
 
     // record properties of the star before fake mass change
     double radiusBeforeMassLoss = starCopy->Radius();                                                                           // radius before fake mass change       JR: todo: didn't we just do fake mass loss...?
@@ -3263,8 +3263,6 @@ bool BaseStar::IsOneOf(const STELLAR_TYPE_LIST p_List) const {
 /*
  * Limit timestep to 1% mass change
  *
- * May modify m_Mdot  -  JR: todo: revisit this
- *
  *
  * double LimitTimestep()
  *
@@ -3274,7 +3272,7 @@ double BaseStar::LimitTimestep(const double p_Dt) {
 
     double dt = p_Dt;
 
-    // COEN NEIJSSEL 16/11/2016: cap timestep according to max 1% change in mass star.
+    // cap timestep to maximum of MAXIMUM_MASS_LOSS_FRACTION change in mass star.
     if (OPTIONS->UseMassLoss()) {
         double mDot     = CalculateMassLossRate();                                          // First, calculate mass loss rate
         double massLoss = CalculateMassLoss_Static(m_Mass, mDot, dt);                       // Next, calculate mass loss - limited to (mass * MAXIMUM_MASS_LOSS_FRACTION)
@@ -3282,7 +3280,6 @@ double BaseStar::LimitTimestep(const double p_Dt) {
         if (utils::Compare(massLoss, 0.0) > 0) {                                            // No change if no mass loss
             double dtWind = massLoss / (mDot * 1.0E6);                                      // Calculate timestep to match (possibly limited) mass loss
                    dt     = min(dt, dtWind);                                                // choose dt
-                   m_Mdot = massLoss / (dt * 1.0E6);                                        // Reset mass loss rate to match (possibly limited) mass loss
         }
     }
 
@@ -3311,11 +3308,6 @@ double BaseStar::CalculateTimestep() {
     CalculateTimescales();                                                              // calculate timescales
 
     double dt = ChooseTimestep(m_Age);
-    if (utils::Compare(TIMESTEP_REDUCTION_FACTOR, 1.0) != 0) {                          // timestep reduction factor == 1.0?
-        if (!IsOneOf({ STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07 })) {            // no - check stellar type
-            dt /= TIMESTEP_REDUCTION_FACTOR;                                            // apply timestep reduction factor
-        }
-    }
 
     return LimitTimestep(dt);
 }
@@ -3566,3 +3558,7 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase() {
 
     return stellarType;
 }
+
+
+
+
