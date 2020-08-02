@@ -329,9 +329,18 @@
 //                                      - Extended use of zetaRadiativeEnvelopeGiant (formerley zetaHertzsprungGap) for all radiative envelope giant-like stars
 // 02.12.07      IM - Jul 26, 2020 - Defect repair:
 //                                      - Issue 295: do not engage in mass transfer if the binary is unbound
-// 02.12.08   	AVG - Jul 26, 2020 - Bug Fix for issue #269 ; legacy bug in eccentric RLOF leading to a CEE 
+// 02.12.08   	AVG - Jul 26, 2020 - Defect repair:
+//                                      - Issue #269: legacy bug in eccentric RLOF leading to a CEE
+// 02.12.09      IM - Jul 30, 2020 - Enhancement:
+//                                      - Cleaning of BaseBinaryStar::CalculateMassTransferOrbit(); dispensed with mass-transfer-prescription option
+// 02.13.00      IM - Aug 2, 2020  - Enhancements and defect reparis:
+//                                      - Simplified timescale calculations in BaseBinaryStar
+//                                      - Replaced Fast Phase Case A MT and regular RLOF MT from non-envelope stars with a single function based on a root solver rather than random guesses (significantly improves accuracy)
+//                                      - Removed all references to fast phase case A MT
+//                                      - Corrected failure to update stars in InitialiseMassTransfer if orbit circularised on mass transfer
+//                                      - Corrected incorrect timestep calculation for HeHG stars
 
-const std::string VERSION_STRING = "02.12.08";
+const std::string VERSION_STRING = "02.13.00";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
@@ -578,13 +587,11 @@ constexpr double CONVECTIVE_BOUNDARY_TEMPERATURE        = 5.3703E3;             
 
 constexpr double ABSOLUTE_MINIMUM_TIMESTEP              = 100.0 / SECONDS_IN_MYR;                                   // 100 seconds expressed in Myr (3.1688765E-12 Myr)
 constexpr double NUCLEAR_MINIMUM_TIMESTEP               = 1.0E-4;                                                   // Minimum time step for nuclear evolution = 100 years expressed in Myr
-constexpr double TIMESTEP_REDUCTION_FACTOR              = 1.0;                                                      // JR: todo: descriotion.  Should make this a program option
 
 constexpr int    MAX_TIMESTEP_RETRIES                   = 30;                                                       // Maximum retries to find a good timestep for stellar evolution
 
 constexpr double MAXIMUM_MASS_LOSS_FRACTION             = 0.01;                                                     // Maximum allowable mass loss - 1.0% (of mass) expressed as a fraction
 constexpr double MAXIMUM_RADIAL_CHANGE                  = 0.01;                                                     // Maximum allowable radial change - 1% (of radius) expressed as a fraction
-constexpr double FAKE_MASS_LOSS_PERCENTAGE              = 0.01;                                                     // Percentage mass loss for fake mass loss prescription (0.01% = 0.0001 fraction)
 constexpr double MINIMUM_MASS_SECONDARY                 = 4.0;                                                      // Minimum mass of secondary to evolve
 
 constexpr double ZETA_THERMAL_PERCENTAGE_MASS_CHANGE    = 1.0E-3;                                                   // Initial guess for percentage mass change when calculating zeta_thermal (use -ve for loss, +ve for gain)
@@ -594,20 +601,19 @@ constexpr double ZETA_NUCLEAR_TIMESTEP                  = 1.0E-3;               
 constexpr double ZETA_NUCLEAR_TOLERANCE                 = 1.0E-3;                                                   // Tolerance between iterations when calculating zeta nuclear
 constexpr int    ZETA_NUCLEAR_ITERATIONS                = 10;                                                       // Maximum number of iterations to use when calculating zeta nuclear
 
-constexpr int    HURLEY_MASS_TRANSFER_ORBIT_ITERATIONS	= 1000;                                                     // Number of iterations for solving mass transfer orbit for HURLEY mass transfer prescription
+constexpr double   MASS_TRANSFER_FRACTION	            = 0.001;                                                    // Maximal fraction of donor mass that can be transferred in one step of stable mass transfer
 
 constexpr double LAMBDA_NANJING_ZLIMIT                  = 0.0105;                                                   // Metallicity cutoff for Nanjing lambda calculations
-
-constexpr double ROCHE_LOBE_LOWER_THRESHOLD             = 0.70;                                                     // Indicates star is getting close to overflowing its Roche lobe
-constexpr double ROCHE_LOBE_UPPER_THRESHOLD             = 0.9;                                                      // Indicates star is getting very close to overflowing its Roche lobe
-constexpr double ROCHE_LOBE_OVERFLOW                    = 1.0;                                                      // Indicates star is overflowing its Roche lobe
-
-constexpr double MASS_TRANSFER_THRESHOLD                = 0.95;                                                     // JR: todo: description
 
 constexpr int    MAX_KEPLER_ITERATIONS                  = 1000;                                                     // Maximum number of iterations to solve Kepler's equation
 constexpr double NEWTON_RAPHSON_EPSILON                 = 1.0E-5;                                                   // Accuracy for Newton-Raphson method
 
 constexpr double EPSILON_PULSAR                         = 1.0;                                                      // JR: todo: description
+
+constexpr double ADAPTIVE_RLOF_FRACTION_DONOR_GUESS     = 0.001;                                                    // Fraction of donor mass to use as guess in MassLossToFitInsideRocheLobe()
+constexpr int ADAPTIVE_RLOF_MAX_ITERATIONS              = 50;                                                       // Maximum number of iterations in MassLossToFitInsideRocheLobe()
+constexpr double ADAPTIVE_RLOF_SEARCH_FACTOR            = 2.0;                                                      // Search factor in MassLossToFitInsideRocheLobe()
+
 
 
 // string constants
@@ -747,6 +753,7 @@ enum class ERROR: int {
     RADIUS_NOT_POSITIVE_ONCE,                                       // radius is <= 0.0 - invalid
     STELLAR_EVOLUTION_STOPPED,                                      // evolution of current star stopped
     STELLAR_SIMULATION_STOPPED,                                     // stellar simulation stopped
+    TOO_MANY_RLOF_ITERATIONS,                                       // too many iterations in RLOF root finder
     UNEXPECTED_END_OF_FILE,                                         // unexpected end of file
     UNEXPECTED_SN_EVENT,                                            // unexpected supernova event in this context
     UNKNOWN_A_DISTRIBUTION,                                         // unknown a-distribution
@@ -859,6 +866,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::RADIUS_NOT_POSITIVE_ONCE,                              { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Radius <= 0.0" }},
     { ERROR::STELLAR_EVOLUTION_STOPPED,                             { ERROR_SCOPE::ALWAYS,              "Evolution of current star stopped" }},
     { ERROR::STELLAR_SIMULATION_STOPPED,                            { ERROR_SCOPE::ALWAYS,              "Stellar simulation stopped" }},
+    { ERROR::TOO_MANY_RLOF_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maxmimum number of iterations when fitting star inside Roche Lobe in RLOF" }},
     { ERROR::UNEXPECTED_END_OF_FILE,                                { ERROR_SCOPE::ALWAYS,              "Unexpected end of file" }},
     { ERROR::UNEXPECTED_SN_EVENT,                                   { ERROR_SCOPE::ALWAYS,              "Unexpected supernova event in this context" }},
     { ERROR::UNKNOWN_A_DISTRIBUTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown semi-major-axis (a) distribution" }},
@@ -923,7 +931,7 @@ enum class EVOLUTION_STATUS: int {
     AIS_EXPLORATORY
 };
 
-// JR: deliberately kept these message succinct (where I could) so running status doesn't scroll of fthe page...
+// JR: deliberately kept these message succinct (where I could) so running status doesn't scroll off the page...
 const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL = {
     { EVOLUTION_STATUS::DONE,                        "Simulation completed" },
     { EVOLUTION_STATUS::CONTINUE,                    "Continue evolution" },
@@ -937,7 +945,7 @@ const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL =
     { EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH,     "Stars merged at birth" },
     { EVOLUTION_STATUS::UNBOUND,                     "Unbound binary" },
     { EVOLUTION_STATUS::WD_WD,                       "Double White Dwarf" },
-    { EVOLUTION_STATUS::TIMES_UP,                    "Time exceeded" },
+    { EVOLUTION_STATUS::TIMES_UP,                    "Evolution stopped after 15 Gyr" },
     { EVOLUTION_STATUS::STEPS_UP,                    "Timesteps exceeded" },
     { EVOLUTION_STATUS::STOPPED,                     "Evolution stopped" },
     { EVOLUTION_STATUS::AIS_EXPLORATORY,             "AIS fraction exceeded" }
