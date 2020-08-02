@@ -378,8 +378,7 @@ bool HeHG::IsMassRatioUnstable(const double p_AccretorMass, const bool p_Accreto
 /*
  * Choose timestep for evolution
  *
- * Can obviously do this your own way
- * Given in the discussion in Hurley et al. 2000
+ * Follows the Discussion in Hurley et al. 2000
  *
  *
  * ChooseTimestep(const double p_Time)
@@ -390,6 +389,7 @@ bool HeHG::IsMassRatioUnstable(const double p_AccretorMass, const bool p_Accreto
 double HeHG::ChooseTimestep(const double p_Time) {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
+    // Implementation of timestep recommendation from Section 8 of Hurley et al., 2000
     double dt = utils::Compare(p_Time, timescales(tx_HeGB)) > 0
                     ? 0.02 * (timescales(tinf2_HeGB) - p_Time)
                     : 0.02 * (timescales(tinf1_HeGB) - p_Time);

@@ -866,7 +866,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::RADIUS_NOT_POSITIVE_ONCE,                              { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Radius <= 0.0" }},
     { ERROR::STELLAR_EVOLUTION_STOPPED,                             { ERROR_SCOPE::ALWAYS,              "Evolution of current star stopped" }},
     { ERROR::STELLAR_SIMULATION_STOPPED,                            { ERROR_SCOPE::ALWAYS,              "Stellar simulation stopped" }},
-    { ERROR::TOO_MANY_RLOF_ITERATIONS,                              { ERROR_SCOPE:: ALWAYS,             "Reached maxmimum number of iterations when fitting star inside Roche Lobe in RLOF" }},
+    { ERROR::TOO_MANY_RLOF_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maxmimum number of iterations when fitting star inside Roche Lobe in RLOF" }},
     { ERROR::UNEXPECTED_END_OF_FILE,                                { ERROR_SCOPE::ALWAYS,              "Unexpected end of file" }},
     { ERROR::UNEXPECTED_SN_EVENT,                                   { ERROR_SCOPE::ALWAYS,              "Unexpected supernova event in this context" }},
     { ERROR::UNKNOWN_A_DISTRIBUTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown semi-major-axis (a) distribution" }},
@@ -931,7 +931,7 @@ enum class EVOLUTION_STATUS: int {
     AIS_EXPLORATORY
 };
 
-// JR: deliberately kept these message succinct (where I could) so running status doesn't scroll of the page...
+// JR: deliberately kept these message succinct (where I could) so running status doesn't scroll off the page...
 const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL = {
     { EVOLUTION_STATUS::DONE,                        "Simulation completed" },
     { EVOLUTION_STATUS::CONTINUE,                    "Continue evolution" },

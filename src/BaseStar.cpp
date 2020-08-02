@@ -1217,10 +1217,9 @@ double BaseStar::CalculateZetaThermal(double p_PercentageMassChange) {
     BaseStar* starCopy = new BaseStar(*this);	                                                                                // copy of star - about to be updated for fake mass loss
 
     starCopy->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                           // allow star to respond to previous mass loss changes      JR: todo: is this really necessary?
-    //starCopy->UpdateAttributesAndAgeOneTimestep(-(starCopy->Mass() * FAKE_MASS_LOSS_PERCENTAGE / 100.0), 0.0, 0.0, false);      // apply fake mass loss                                     JR: todo: why do we do this...?
 
     // record properties of the star before fake mass change
-    double radiusBeforeMassLoss = starCopy->Radius();                                                                           // radius before fake mass change       JR: todo: didn't we just do fake mass loss...?
+    double radiusBeforeMassLoss = starCopy->Radius();                                                                           // radius before fake mass change       
     double massBeforeMassLoss   = starCopy->MassPrev();                                                                         // mass before fake mass change - due to order of updating radius bug     JR: todo: check this
 
     SHOW_ERROR_IF(utils::Compare(radiusBeforeMassLoss, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "Before fake mass change");  // show error if radius <= 0
