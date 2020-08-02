@@ -203,8 +203,8 @@ double HeGB::CalculateCoreMassOnPhase_Static(const double      p_Mass,
 
     double LtHe  = HeMS::CalculateLuminosityAtPhaseEnd_Static(p_Mass);
     double tinf1 = p_tHeMS + ((1.0 / (p1 * gbParams(AHe) * gbParams(D))) * pow(gbParams(D) / LtHe, p1_p));
-    double tx    = tinf1 - ((tinf1 - p_tHeMS) * pow(LtHe / gbParams(Lx), p1_p));
-
+    double tx    = tinf1 - (tinf1 - p_tHeMS) * pow((LtHe / gbParams(Lx)), p1_p);
+    
     if (utils::Compare(p_Time, tx) > 0) {
         double q1    = gbParams(q) - 1.0;
         double tinf2 = tx + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * pow(gbParams(B) / gbParams(Lx), q1 / gbParams(q)));

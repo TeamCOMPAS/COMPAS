@@ -71,8 +71,6 @@ public:
         m_PreSNeOrbitalEnergy                        = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_PostSNeOrbitalEnergy                       = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-        m_FastPhaseCaseA                             = false;
-
         m_FirstMassTransferEpisode                   = false;
         m_MassTransferCaseInitial                    = MT_CASE::NONE;
 
@@ -106,8 +104,6 @@ public:
         m_PreSNeOrbitalEnergy      = p_Star.m_PreSNeOrbitalEnergy;
         m_PostSNeOrbitalEnergy     = p_Star.m_PostSNeOrbitalEnergy;
 
-        m_FastPhaseCaseA           = p_Star.m_FastPhaseCaseA;
-
         m_FirstMassTransferEpisode = p_Star.m_FirstMassTransferEpisode;
         m_MassTransferCaseInitial  = p_Star.m_MassTransferCaseInitial;
 
@@ -140,8 +136,6 @@ public:
 
             m_PreSNeOrbitalEnergy      = p_Star.m_PreSNeOrbitalEnergy;
             m_PostSNeOrbitalEnergy     = p_Star.m_PostSNeOrbitalEnergy;
-
-            m_FastPhaseCaseA           = p_Star.m_FastPhaseCaseA;
 
             m_FirstMassTransferEpisode = p_Star.m_FirstMassTransferEpisode;
             m_MassTransferCaseInitial  = p_Star.m_MassTransferCaseInitial;
@@ -192,7 +186,6 @@ public:
     double          ThermalTimescalePreCEE() const                                      { return m_CEDetails.preCEE.thermalTimescale; }
 
     bool            ExperiencedRLOF() const                                             { return m_RLOFDetails.experiencedRLOF; }
-    bool            FastPhaseCaseA() const                                              { return m_FastPhaseCaseA ; }
     bool            IsPrimary() const                                                   { return m_IsPrimary; }
     bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsPISN() || IsPPISN(); }
     bool            IsRLOF() const                                                      { return m_RLOFDetails.isRLOF; }
@@ -209,8 +202,6 @@ public:
 
     // setters
     void            SetCompanion(BinaryConstituentStar* p_Companion)                    { m_Companion = p_Companion; }                              // this star's companion star
-
-    void            SetFastPhaseCaseA()                                                 { m_FastPhaseCaseA = true; }                                // JR: todo: revisit this
 
     void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  JR: todo:  sanity check?
     void            SetMassTransferDiff(const double p_MassTransferDiff)                { m_MassTransferDiff = p_MassTransferDiff; }                // JR: todo: better way?  JR: todo:  sanity check?
@@ -258,8 +249,6 @@ private:
     StellarCEDetailsT       m_CEDetails;                            // Common envelope details
 
     bool                    m_IsPrimary;
-
-    bool 	                m_FastPhaseCaseA;                       // Indicates if the star just entered a case A MT for the first time        JR: todo: cf binary value of same name
 
     bool                    m_FirstMassTransferEpisode;             // Activated for the initial Mass Transfer Episode
 

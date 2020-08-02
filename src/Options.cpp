@@ -324,9 +324,6 @@ void Options::InitialiseMemberVariables(void) {
 	alwaysStableCaseBBBCFlag                                        = false;									                                        // Whether if case BB/BC is always stable
 	angularMomentumConservationDuringCircularisation                = false;		                                                                    // Whether to conserve angular momentum while circularising or circularise to periastron
 
-    massTransferPrescription                                        = MT_PRESCRIPTION::HURLEY;
-	massTransferPrescriptionString                                  = MT_PRESCRIPTION_LABEL.at(massTransferPrescription);
-
 
     // Options adaptive Roche Lobe Overflow prescription
     massTransferAdaptiveAlphaParameter                              = 0.5;
@@ -575,7 +572,7 @@ void Options::SetToFiducialValues(void) {
 
 
     // Specify how long to evolve binaries for
-    maxEvolutionTime                                                = 13700.0;                                                                          // Maximum evolution time in Myrs
+    maxEvolutionTime                                                = 15000.0;                                                                          // Maximum evolution time in Myrs
     maxNumberOfTimestepIterations                                   = 99999;                                                                            // Maximum number of timesteps to evolve binary for before giving up
 
 
@@ -703,9 +700,6 @@ void Options::SetToFiducialValues(void) {
 	forceCaseBBBCStabilityFlag                                      = false;									                                        // Whether if all case BB/BC systems are forced to be stable or unstable
 	alwaysStableCaseBBBCFlag                                        = false;							                                                // Whether if case BB/BC is always stable
 	angularMomentumConservationDuringCircularisation                = false;		                                                                    // Whether to conserve angular momentum while circularising or circularise to periastron
-
-    massTransferPrescription                                        = MT_PRESCRIPTION::HURLEY;
-    massTransferPrescriptionString                                  = MT_PRESCRIPTION_LABEL.at(massTransferPrescription);
 
 
     // Options adaptive Roche Lobe Overflow prescription
@@ -1196,7 +1190,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("mass-ratio-distribution,q",                                   po::value<string>(&massRatioDistributionString)->default_value(massRatioDistributionString),                                                                ("Initial mass ratio distribution for q=m2/m1 (options: FLAT, DuquennoyMayor1991, SANA2012), default = " + massRatioDistributionString + ")").c_str())
 		    ("mass-transfer-accretion-efficiency-prescription",             po::value<string>(&massTransferAccretionEfficiencyPrescriptionString)->default_value(massTransferAccretionEfficiencyPrescriptionString),                    ("Mass Transfer Accretion Efficiency prescription (options: THERMAL, FIXED, CENTRIFUGAL), default = " + massTransferAngularMomentumLossPrescriptionString + ")").c_str())
 		    ("mass-transfer-angular-momentum-loss-prescription",            po::value<string>(&massTransferAngularMomentumLossPrescriptionString)->default_value(massTransferAngularMomentumLossPrescriptionString),                    ("Mass Transfer Angular Momentum Loss prescription (options: JEANS, ISOTROPIC, CIRCUMBINARY, ARBITRARY), default = " + massTransferAngularMomentumLossPrescriptionString + ")").c_str())
-		    ("mass-transfer-prescription",                                  po::value<string>(&massTransferPrescriptionString)->default_value(massTransferPrescriptionString),                                                          ("Mass Transfer prescription (default = " + massTransferPrescriptionString + ")").c_str())
 		    ("mass-transfer-rejuvenation-prescription",                     po::value<string>(&massTransferRejuvenationPrescriptionString)->default_value(massTransferRejuvenationPrescriptionString),                                  ("Mass Transfer Rejuvenation prescription (options: NONE, STARTRACK), default = " + massTransferRejuvenationPrescriptionString + ")").c_str())
 			("mass-transfer-thermal-limit-accretor",                        po::value<string>(&massTransferThermallyLimitedVariationString)->default_value(massTransferThermallyLimitedVariationString),                                ("Mass Transfer Thermal Accretion limit (default = " + massTransferThermallyLimitedVariationString + ")").c_str())
 
@@ -1330,10 +1323,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 COMPLAIN_IF(!found, "Unknown Mass Ratio Distribution");
             }
 
-            if (useMassTransfer && !vm["mass-transfer-prescription"].defaulted()) {                                                     // mass transfer prescription
-                std::tie(found, massTransferPrescription) = utils::GetMapKey(massTransferPrescriptionString, MT_PRESCRIPTION_LABEL, massTransferPrescription);
-                COMPLAIN_IF(!found, "Unknown Mass Transfer Prescription");
-            }
 
             if (useMassTransfer && !vm["mass-transfer-accretion-efficiency-prescription"].defaulted()) {                                // mass transfer accretion efficiency prescription
                 std::tie(found, massTransferAccretionEfficiencyPrescription) = utils::GetMapKey(massTransferAccretionEfficiencyPrescriptionString, MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL, massTransferAccretionEfficiencyPrescription);
