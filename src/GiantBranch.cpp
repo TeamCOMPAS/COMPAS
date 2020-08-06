@@ -1117,16 +1117,15 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
  * @return                                      Remnant mass in Msol
  */
 double GiantBranch::CalculateRemnantMassByMuller2016(const double p_Mass, const double p_COCoreMass) {
-	// ALEJANDRO - 14/03/2017 - Updated prescription of Bernhard Muller's models, incorporating lower metallicity models for core masses 1.372 <= m_{C/O} < 1.65
-	// Where m_{C/O} = M_{C/O}/M_{\odot}
-	// First approach is to model the lower limit using Chnadrasekhar mass, m_{C/O} > Mch = 1.44
-
+    // Muller+2016 remnant mass prescription as described in Appendix B of Vigna-Gomez+2018
     double	remnantMass; 					                                                                        // Limit mass for a White Dwarf units Msun.
 
-    if (utils::Compare(p_COCoreMass, 1.44) < 0) {
-        remnantMass = 1.4;
+    if (utils::Compare(p_COCoreMass, 1.37) < 0) {
+        // Not explicitly pointed out in Appendix B of Vigna-Gomez+2018 but assumed for continuity and simplicity
+        // Muller+2016 didn't go as low as this in CO Core mass (see Figure A1 in that paper)
+        remnantMass = 1.21;                         
     }
-	else if (utils::Compare(p_COCoreMass, 1.49) < 0) { remnantMass = 1.21 - (0.4  * (p_COCoreMass - 1.372)); }
+	else if (utils::Compare(p_COCoreMass, 1.49) < 0) { remnantMass = 1.21 - (0.4  * (p_COCoreMass - 1.37)); }
 	else if (utils::Compare(p_COCoreMass, 1.65) < 0) { remnantMass = 1.16;                                   }
     else if (utils::Compare(p_COCoreMass, 2.4 ) < 0) { remnantMass = 1.32 + (0.3  * (p_COCoreMass - 1.65));  }
     else if (utils::Compare(p_COCoreMass, 3.2 ) < 0) { remnantMass = 1.42 + (0.7  * (p_COCoreMass - 2.4));   }
