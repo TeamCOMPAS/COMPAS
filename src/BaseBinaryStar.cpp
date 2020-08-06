@@ -371,8 +371,6 @@ void BaseBinaryStar::SetRemainingCommonValues() {
 
 	m_FractionAccreted                           = OPTIONS->MassTransferFractionAccreted();
 
-    m_FastPhaseCaseA                             = false;
-
     // Common Envelope
     m_CEDetails.CEEcount                         = 0;
     m_CEDetails.CEEnow                           = false;
@@ -1795,7 +1793,7 @@ void BaseBinaryStar::EvaluateSupernovae() {
  * void ResolveCommonEnvelopeEvent()
  */
 void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
-
+    
     double alphaCE = m_CEDetails.alpha;                                                                                 // CE efficiency parameter
 
 	double eccentricity     = EccentricityPrime();								                                        // current eccentricity (before CEE)
@@ -1840,9 +1838,6 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     m_CEDetails.CEEcount++;                                                                                             // increment CEE count
     m_RLOFDetails.simultaneousRLOF = m_Star1->IsRLOF() && m_Star2->IsRLOF();                                            // ALEJANDRO - 29/01/2019 - Check for simultaneous RLOF
 
-    // SIMON: Do we really need to calculate all of these?
-	// Alejandro: Not really, but I like to have them handy for the common envelopes file.
-	// It is only done once or twice per run, so I think it should be fine.
 	m_Star1->CalculateLambdas(m_MassEnv1);                                                                              // calculate lambdas for star1
 	m_Star2->CalculateLambdas(m_MassEnv2);                                                                              // calculate lambdas for star2
 
@@ -1961,214 +1956,6 @@ double BaseBinaryStar::CalculateRocheLobeRadius_Static(const double p_MassPrimar
 }
 
 
-/*
- * Calculate the amount of mass that a star with radiative envelope needs to lose in order to just fill its Roche Lobe.
- *
- * Based on the function –rlof_method in binary_c.      JR: todo: reference?
- *
- * JR: todo: felsh-out this documentation
- *
- *
- * double CalculateAdaptiveRocheLobeOverFlow(const double p_JLoss)
- * @param   [IN]    p_JLoss                     Specific angular momentum with which mass is lost during non-conservative mass transfer
- * @return                                      Amount of mass lost from the donor in order to barely fill its own Roche Lobe
- */
-double BaseBinaryStar::CalculateAdaptiveRocheLobeOverFlow(const double p_JLoss) {
-
-    // JR: todo: should this be a program option?
-    bool fixedRL = true;                                                                                                                                            // recalulate Roche Lobe radius after mass loss? (conservative vs non-conservative mass transfer)
-
-    // record properties of the star before any changes
-	// JR: todo: check this - should this really be updateDonor instead?
-    double donorMass    = m_Donor->Mass();                                                                                                                          // donor mass as passed
-    double accretorMass = m_Accretor->Mass();                                                                                                                       // accretor mass as passed
-
-    double RLRadius     = m_SemiMajorAxisPrime * CalculateRocheLobeRadius_Static(donorMass, accretorMass) * AU_TO_RSOL;                                             // Roche Lobe radius - if fixedRL = true
-    double jInitial     = (donorMass * accretorMass) * sqrt(G1 * (donorMass + accretorMass) * m_SemiMajorAxisPrime) / (donorMass + accretorMass);                   // initial orbital angular momentum
-
-    // allow star to respond to previous mass loss changes
-    BinaryConstituentStar* updatedDonor = new BinaryConstituentStar(*m_Donor);	                                                                                    // copy of donor star - about to be updated for mass loss
-
-    double deltaMass = -donorMass * FAKE_MASS_LOSS_PERCENTAGE;                                                                                                      // mass loss amount
-    (void)updatedDonor->UpdateAttributes(deltaMass, 0.0);                                                                                                           // apply fake mass loss: update mass - no change to mass0
-
-    // record properties of the star before fake mass loss
-    double radiusBeforeMassLoss = updatedDonor->RadiusPrev();                                                                                                       // radius before fake mass loss  JR: todo: why is this PREV, but not in CalculateMassTransferFastPhaseCaseA?
-    double massBeforeMassLoss   = updatedDonor->MassPrev();                                                                                                         // mass before fake mass loss  JR: todo: why is this PREV, but not in CalculateMassTransferFastPhaseCaseA?
-
-    SHOW_ERROR_IF(utils::Compare(radiusBeforeMassLoss, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "Before fake mass loss");                                        // show error if radius <= 0
-    SHOW_ERROR_IF(utils::Compare(massBeforeMassLoss, 0.0) <= 0, ERROR::MASS_NOT_POSITIVE_ONCE, "Before fake mass loss");                                            // show error if mass <= 0
-
-    double radiusAfterMassLoss;                                                                                                                                     // for error checking/comparison
-    double massAfterMassLoss;                                                                                                                                       // what we need to calculate
-
-    constexpr double ABSOLUTE_ERROR_THRESHOLD = 0.001;                                                                                                              // JR: todo: should this be in constants.h?
-    constexpr double ITERATIONS               = 100;                                                                                                                // 100 iterations - JR: todo: should this be in constants.h?
-
-    double absoluteErrorThreshold = std::numeric_limits<double>::max();                                                                                             // guaranteed to be >= any double - set to constant later
-    double absoluteError          = std::numeric_limits<double>::max();                                                                                             // guaranteed to be >= any double - set to actual value later;
-
-    double percentageMassLossPerIteration = OPTIONS->MaxPercentageAdaptiveMassTransfer() / ITERATIONS;                                                              // percentage mass loss per iteration
-    double percentageMassLoss             = percentageMassLossPerIteration;                                                                                         // cumulative percentage mass loss (initialised for first iteration)
-
-    for (int i = 0; i < ITERATIONS; i++) {
-
-        BinaryConstituentStar* donorCopy = new BinaryConstituentStar(*updatedDonor);                                                                                // new temporary copy of star - set to updated donor
-
-        if (!fixedRL) {                                                                                                                                             // calculate new Roche Lobe radius according to the mass lost
-            double thisDonorMass    = (1.0 - percentageMassLoss) * donorMass;                                                                                       // new donor mass
-            double thisAccretorMass = accretorMass + (m_FractionAccreted * percentageMassLoss * donorMass);                                                         // new accretor mass
-            double dJ               = p_JLoss * ((1.0 - m_FractionAccreted) * (thisDonorMass - donorMass) / (donorMass + accretorMass)) * jInitial;                 // change in orbital angular momentum
-            double jInitial_dJ      = jInitial + dJ;
-            double aTop             = (thisDonorMass + thisAccretorMass) * (jInitial_dJ * jInitial_dJ);                                                             // new semi-major axis - numerator
-            double aBottom          = G1 * thisDonorMass * thisDonorMass * thisAccretorMass * thisAccretorMass;                                                     // new semi-major axis - denominator
-            double semiMajorAxis    = aTop / aBottom;                                                                                                               // new simi-major axis
-            RLRadius                = semiMajorAxis * CalculateRocheLobeRadius_Static(thisDonorMass, thisAccretorMass) * AU_TO_RSOL;                                // new Roche Lobe radius
-        }
-
-        // Reduce mass of star by percentageMassLoss and recalculate the radius
-        double deltaMass  = -donorCopy->Mass() * percentageMassLoss;                                                                                                // mass loss amount
-        double deltaMass0 = -donorCopy->Mass0() * percentageMassLoss;                                                                                               // mass loss amount
-        (void)donorCopy->UpdateAttributes(deltaMass, deltaMass0);                                                                                                   // apply fake mass loss: update mass and mass0
-
-        double thisMassAfterMassLoss = donorCopy->Mass();                                                                                                           // record mass loss for donor
-
-        // Modify donor Mass0 and Age for MS (including HeMS) and HG stars
-        donorCopy->UpdateInitialMass();                                                                                                                             // update initial mass (MS, HG & HeMS)  JR: todo: fix this kludge - mass0 is overloaded, and isn't always "initial mass"
-        donorCopy->UpdateAgeAfterMassLoss();                                                                                                                        // update age (MS, HG & HeMS)
-
-        (void)donorCopy->AgeOneTimestep(0.0);                                                                                                                       // recalculate radius of star - don't age - just update values
-
-        double thisRadiusAfterMassLoss = donorCopy->Radius();                                                                                                       // record new radius for donor
-        double thisAbsoluteError       = std::abs(thisRadiusAfterMassLoss - RLRadius);                                                                              // absolute error in radius
-
-        // record values for lowest relative error
-        if (utils::Compare(thisAbsoluteError, absoluteErrorThreshold) <= 0) {                                                                                       // absolute error below threshold?  (will always be on first iteration)
-            absoluteErrorThreshold = ABSOLUTE_ERROR_THRESHOLD;                                                                                                      // set threshold to actual constant value
-            if (utils::Compare(thisAbsoluteError, absoluteError) < 0) {                                                                                             // this iteration absolute error < lowest absolute error?  (will always be on first iteration)
-                absoluteError       = thisAbsoluteError;                                                                                                            // set lowest absolute error
-                massAfterMassLoss   = thisMassAfterMassLoss;                                                                                                        // lowest error mass after mass loss
-                radiusAfterMassLoss = thisRadiusAfterMassLoss;                                                                                                      // lowest error radius after mass loss
-            }
-        }
-
-        percentageMassLoss += percentageMassLossPerIteration;                                                                                                       // increment percentage mass loss for next iteration
-
-        SHOW_ERROR_IF(utils::Compare(radiusAfterMassLoss, radiusBeforeMassLoss) > 0, ERROR::INVALID_RADIUS_INCREASE_ONCE, "After fake mass loss");                  // show error if radius increased
-
-        delete donorCopy; donorCopy = nullptr;
-    }
-
-    delete updatedDonor; updatedDonor = nullptr;
-
-    SHOW_ERROR_IF(utils::Compare(radiusAfterMassLoss, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "After fake mass loss");                                          // show error if updated radius <= 0
-    SHOW_ERROR_IF(utils::Compare(massAfterMassLoss, 0.0) <= 0, ERROR::MASS_NOT_POSITIVE_ONCE, "After fake mass loss");                                              // show error if updated mass <= 0
-
-    return massAfterMassLoss - massBeforeMassLoss;                                                                                                                  // return change in mass
-}
-
-
-/*
- * Calculate the amount of mass that a star with radiative envelope needs to lose in order to just fill its Roche Lobe.
- *
- * Based on the function –rlof_method in binary_c.      JR: todo: reference?
- *
- * For fast phase case A MT, we solve the orbit numerically for the thermal timescale of the donor
- *
- *
- * double CalculateMassTransferFastPhaseCaseA(const double p_JLoss)
- * @param   [IN]    p_JLoss                     Specific angular momentum with which mass is lost during non-conservative mass transfer
- * @return                                      Amount of mass lost from the donor in order to barely fill its own Roche Lobe
- */
-double BaseBinaryStar::CalculateMassTransferFastPhaseCaseA(const double p_JLoss) {
-
-    // record properties of the star before any changes
-	// JR: todo: check this - should this really be updateDonor instead?
-    double donorMass    = m_Donor->Mass();                                                                                                              // donor mass
-    double accretorMass = m_Accretor->Mass();                                                                                                           // accretor mass
-
-    double dt = m_Donor->CalculateThermalTimescale();                                                                                                   // dt is donor's thermal timescale
-
-    // allow star to respond to previous mass loss changes
-    BinaryConstituentStar* updatedDonor = new BinaryConstituentStar(*m_Donor);	                                                                        // copy of donor star - about to be updated for mass loss
-
-    double deltaMass = -donorMass * FAKE_MASS_LOSS_PERCENTAGE;                                                                                          // mass loss amount
-    (void)updatedDonor->UpdateAttributes(deltaMass, 0.0);                                                                                               // apply fake mass loss: update mass - no change to mass0
-
-    // record properties of the star before fake mass loss
-    double radiusBeforeMassLoss = updatedDonor->Radius();                                                                                               // radius before fake mass loss (but after previous mass loss)
-    double massBeforeMassLoss   = updatedDonor->Mass();                                                                                                 // mass before fake mass loss (but after previous mass loss)
-
-    SHOW_ERROR_IF(utils::Compare(radiusBeforeMassLoss, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "Before fake mass loss");                            // show error if radius <= 0
-    SHOW_ERROR_IF(utils::Compare(massBeforeMassLoss, 0.0) <= 0, ERROR::MASS_NOT_POSITIVE_ONCE, "Before fake mass loss");                                // show error if mass <= 0
-
-    double radiusAfterMassLoss;                                                                                                                         // for error checking/comparison
-    double massAfterMassLoss;                                                                                                                           // what we need to calculate
-
-    constexpr double RELATIVE_ERROR_THRESHOLD = 0.1;                                                                                                    // JR: todo: should this be in constants.h?
-    constexpr double MAX_PERCENTAGE_MASS_LOSS = 0.99;                                                                                                   // In fast phase case A mass transfer, we allow to strip almost all of the star in order to see if it fits in it's Roche lobe         JR: todo: should this be in constants.h?
-    constexpr double ITERATIONS               = 100;                                                                                                    // 100 iterations - JR: todo: should this be in constants.h?
-
-    double relativeErrorThreshold = std::numeric_limits<double>::max();                                                                                 // guaranteed to be >= any double - set to constant later
-    double relativeError          = std::numeric_limits<double>::max();                                                                                 // guaranteed to be >= any double - set to actual value later;
-
-    double percentageMassLossPerIteration = MAX_PERCENTAGE_MASS_LOSS / ITERATIONS;                                                                      // percentage mass loss per iteration
-    double percentageMassLoss             = percentageMassLossPerIteration;                                                                             // cumulative percentage mass loss (initialised for first iteration)
-
-    for (int i = 0; i < ITERATIONS; i++) {
-
-        BinaryConstituentStar* donorCopy = new BinaryConstituentStar(*updatedDonor);                                                                    // new temporary copy of star - set to updated donor
-
-        double dM		     = percentageMassLoss * donorMass;                                                                                          // change in donor mass
-
-        double semiMajorAxis = CalculateMassTransferOrbit(*updatedDonor, *m_Accretor, -dM / dt, dt, p_JLoss);                                           // new semi major axis     JR: todo: check donor values ok (before/after one time step...)
-        double RLRadius      = semiMajorAxis * CalculateRocheLobeRadius_Static(donorMass - dM, accretorMass + (m_FractionAccreted * dM)) * AU_TO_RSOL;  // calculate new Roche Lobe Radius according to the mass lost
-
-        // Reduce mass of star by percentageMassLoss and recalculate the radius
-        double deltaMass  = -donorCopy->Mass() * percentageMassLoss;                                                                                    // mass loss amount
-        double deltaMass0 = -donorCopy->Mass0() * percentageMassLoss;                                                                                   // mass loss amount
-        (void)donorCopy->UpdateAttributes(deltaMass, deltaMass0);                                                                                       // apply fake mass loss: update mass and mass0
-
-        double thisMassAfterMassLoss = donorCopy->Mass();                                                                                               // record mass loss for donor
-        // Modify donor Mass0 and Age for MS (including HeMS) and HG stars
-        donorCopy->UpdateInitialMass();                                                                                                                 // update initial mass (MS, HG & HeMS)  JR: todo: fix this kludge - mass0 is overloaded, and isn't always "initial mass"
-        donorCopy->UpdateAgeAfterMassLoss();                                                                                                            // update age (MS, HG & HeMS)
-
-        (void)donorCopy->AgeOneTimestep(0.0);                                                                                                           // recalculate radius of star - don't age - just update values
-
-        double thisRadiusAfterMassLoss = donorCopy->Radius();                                                                                           // record new radius for donor
-        double thisRelativeError       = std::abs(thisRadiusAfterMassLoss - RLRadius) / RLRadius;                                                       // relative error in radius
-
-        // record values for lowest relative error
-        if (utils::Compare(thisRelativeError, relativeErrorThreshold) <= 0) {                                                                           // relative error below threshold?  (will always be on first iteration)
-            relativeErrorThreshold = RELATIVE_ERROR_THRESHOLD;                                                                                          // set threshold to actual constant value
-            if (utils::Compare(thisRelativeError, relativeError) < 0) {                                                                                 // this iteration relative error < lowest relative error?  (will always be on first iteration)
-                relativeError       = thisRelativeError;                                                                                                // set lowest relative error
-                massAfterMassLoss   = thisMassAfterMassLoss;                                                                                            // lowest error mass after mass loss
-                radiusAfterMassLoss = thisRadiusAfterMassLoss;                                                                                          // lowest error radius after mass loss
-            }
-        }
-
-        percentageMassLoss += percentageMassLossPerIteration;                                                                                           // increment percentage mass loss for next iteration
-
-        SHOW_ERROR_IF(utils::Compare(radiusAfterMassLoss, radiusBeforeMassLoss) > 0, ERROR::INVALID_RADIUS_INCREASE_ONCE, "After fake mass loss");      // show error if radius increased
-
-        delete donorCopy; donorCopy = nullptr;
-    }
-
-    delete updatedDonor; updatedDonor = nullptr;
-
-    SHOW_ERROR_IF(utils::Compare(radiusAfterMassLoss, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "After fake mass loss");                              // show error if updated radius <= 0
-    SHOW_ERROR_IF(utils::Compare(massAfterMassLoss, 0.0) <= 0, ERROR::MASS_NOT_POSITIVE_ONCE, "After fake mass loss");                                  // show error if updated mass <= 0
-
-    // JR: todo: is this still needed?
-	// ALEJANDRO - 19/01/2017 - Following error message may not classify as an error per se, but want
-	// to check it in the error file to see if there is any correlation with the error in the slow phase.
-    SHOW_WARN_IF(utils::Compare(massAfterMassLoss, massBeforeMassLoss * MAX_PERCENTAGE_MASS_LOSS) == 0, ERROR::MAXIMUM_MASS_LOST);
-
-    return massAfterMassLoss - massBeforeMassLoss;                                                                                                      // return change in mass
-}
-
 
 /*
  * Calculate the fraction of specific angular momentum with which the non-accreted mass leaves the system
@@ -2192,7 +1979,7 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
 	switch (OPTIONS->MassTransferAngularMomentumLossPrescription()) {                                                       // which precription?
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS                : gamma = p_AccretorMass / p_DonorMass; break;
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION: gamma = p_DonorMass / p_AccretorMass; break;
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::CIRCUMBINARY_RING    : gamma = (M_SQRT2 * (p_DonorMass + p_AccretorMass) * (p_DonorMass + p_AccretorMass)) / (p_DonorMass * p_AccretorMass); break; // Based on the assumption that a_ring ~= a*sqrt(2) in Evernote Notebook based on talks with deMink, or as tricky people call it, "private communication"
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::CIRCUMBINARY_RING    : gamma = (M_SQRT2 * (p_DonorMass + p_AccretorMass) * (p_DonorMass + p_AccretorMass)) / (p_DonorMass * p_AccretorMass); break; // Based on the assumption that a_ring ~= 2*a*, Vinciguerra+, 2020
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY            : gamma = OPTIONS->MassTransferJloss(); break;
 
         default:                                                                                                            // unknown mass transfer angular momentum loss prescription - shouldn't happen
@@ -2208,113 +1995,44 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
 /*
  * Calculate new semi-major axis due to angular momentum loss
  *
- * Belczynski et al. 2008, eq 32, 33, de Mink ????          JR: todo: find deMink reference
- *
- * Calculation based on user-specified Mass Loss prescription
+ * Pols et al. notes; Belczynski et al. 2008, eq 32, 33
  *
  *
- * double CalculateMassTransferOrbit(const double p_MDotDonor, const double p_Dt, const double p_Jloss)
+ * double CalculateMassTransferOrbit (const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor)
  *
- * @param   [IN]    p_MDotDonor                 Mass loss rate of the donor
- * @param   [IN]    p_Dt                        Timestep
- * @param   [IN]    p_JLoss                     Specific angular momentum with which mass is lost during non-conservative mass transfer
+ * @param   [IN]    p_DonorMass                 Donor mass
+ * @param   [IN]    p_AccretorMass              Accretor mass
+ * @param   [IN]    p_DeltaMassDonor            Change in donor mass
+ * @param   [IN]    p_ThermalRateDonor          Donor thermal mass loss rate
+ * @param   [IN]    p_Accretor                  Pointer to accretor
  * @return                                      Semi-major axis
  */
-double BaseBinaryStar::CalculateMassTransferOrbit(BinaryConstituentStar& p_Donor, BinaryConstituentStar& p_Accretor, const double p_MDotDonor, const double p_Dt, const double p_Jloss) {
+double BaseBinaryStar::CalculateMassTransferOrbit(const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor) {
 
     double semiMajorAxis   = m_SemiMajorAxisPrime;                                                              // new semi-major axis value - default is no change
     double massA           = p_Accretor.Mass();                                                                 // accretor mass
-    double massD           = p_Donor.Mass();                                                                    // donor mass
+    double massD           = p_DonorMass;                                                                       // donor mass
     double massAtimesMassD = massA * massD;                                                                     // accretor mass * donor mass
     double massAplusMassD  = massA + massD;                                                                     // accretor mass + donor mass
     double jOrb            = (massAtimesMassD / massAplusMassD) * sqrt(semiMajorAxis * G1 * massAplusMassD);    // orbital angular momentum
-    double jLoss           = p_Jloss;                                                                           // specific angular momentum (for non-conservative mass transfer)
+    double jLoss;                                                                                               // specific angular momentum carried away by non-conservative mass transfer
+    
+    int numberIterations   = fmax( floor (fabs(p_DeltaMassDonor/(MASS_TRANSFER_FRACTION*massD))), 1);           // number of iterations
 
-    // determine which mass loss prescription to use:
-    // default is the prescription specified by the program options,
-    // but we also choose to use BELCZYNSKI if the donor has a RADIATIVE envelope
+    double fractionAccreted    = m_FractionAccreted;
+    double dM                  = p_DeltaMassDonor / numberIterations;                                           // mass change per time step
 
-    MT_PRESCRIPTION prescription = p_Donor.DetermineEnvelopeType() == ENVELOPE::RADIATIVE ? MT_PRESCRIPTION::BELCZYNSKI : OPTIONS->MassTransferPrescription();
+    for(int i = 0; i < numberIterations ; i++) {
+        
+        jLoss = CalculateGammaAngularMomentumLoss(massD, massA);
+        jOrb = jOrb + ((jLoss * jOrb * (1.0 - fractionAccreted) / massAplusMassD) * dM);
+        semiMajorAxis = semiMajorAxis + (((-2.0 * dM / massD) * (1.0 - (fractionAccreted * (massD / massA)) - ((1.0 - fractionAccreted) * (jLoss + 0.5) * (massD / massAplusMassD)))) * semiMajorAxis);
 
-    // calculate new semi-major axis value using the chosen prescription
-    switch (prescription) {                                                                                     // which mass transfer prescription?
-
-        case MT_PRESCRIPTION::HURLEY: {                                                                         // using HURLEY mass transfer prescription
-                                                                                                                // degenerate and non-degenerate accretor solutions same for de Mink
-            double jPrime;
-            double aPrime;
-
-            double fractionAccreted    = m_FractionAccreted;
-            double thermalRateAccretor = p_Accretor.CalculateThermalMassLossRate();
-            double thermalRateDonor    = p_Donor.CalculateThermalMassLossRate();
-            double dt                  = p_Dt / HURLEY_MASS_TRANSFER_ORBIT_ITERATIONS;                                        // delta t per iteration
-
-            for(int i = 0; i < HURLEY_MASS_TRANSFER_ORBIT_ITERATIONS ; i++) {
-
-                jPrime = jOrb + ((jLoss * jOrb * (1.0 - fractionAccreted) * p_MDotDonor / massAplusMassD) * dt);
-                aPrime = semiMajorAxis + (((-2.0 * (p_MDotDonor / massD)) * (1.0 - (fractionAccreted * (massD / massA)) - ((1.0 - fractionAccreted) * (jLoss + 0.5) * (massD / massAplusMassD)))) * semiMajorAxis * dt);
-
-                // JR: todo: check convergence and stop early?
-                // If we're not going to check for convergence then we don't really need jPrime or aPrime - just assign jOrb and semiMajorAxis directly
-                jOrb           = jPrime;
-                semiMajorAxis  = aPrime;
-
-                massD          = massD + (p_MDotDonor * dt);
-                massA          = massA - (p_MDotDonor * dt * fractionAccreted);
-                massAplusMassD = massA + massD;
-
-                jLoss = CalculateGammaAngularMomentumLoss(massD, massA);
-
-                std::tie(std::ignore, fractionAccreted) = p_Accretor.CalculateMassAcceptanceRate(thermalRateDonor, fractionAccreted, thermalRateAccretor);
-            }
-
-            double mPrime    = massD + massA;
-            double jPrime_mm = jPrime / (massD * massA);
-
-            semiMajorAxis    = jPrime_mm * jPrime_mm * mPrime / G1;                                             // change in the orbit due to angular momentum loss from MT
-
-            } break;
-
-        case MT_PRESCRIPTION::BELCZYNSKI: {                                                                     // using Belczynski mass transfer prescription
-
-            if (p_Accretor.IsDegenerate()) {                                                                    // degenerate accretor - Belczynski et al. 2008, eq 32
-
-                // ALEJANDRO - 29/11/2016 -
-                // Disabled this for RADIATIVE ENVELOPE donor as it didn't allow case A MT
-                // to solve properly for the orbit, specially in the fast phase.
-                // This should be revisited in order to make it efficient.
-                //
-                // JR: todo: check this
-
-                if (p_Donor.DetermineEnvelopeType() != ENVELOPE::RADIATIVE) {
-
-                    double rCom   = (semiMajorAxis * massD) / massAplusMassD;                                   // distance from the compact object to the centre of mass
-                    double jPrime = jOrb + ((rCom * rCom) * m_OrbitalAngularVelocityPrime * (1.0 - m_FractionAccreted) * p_MDotDonor * p_Dt);
-
-                    double massDprime = (p_MDotDonor * p_Dt ) + massD;                                          // mass of the donor after mass transfer
-                    double massAprime = (-m_FractionAccreted * p_MDotDonor * p_Dt) + massA;                     // mass of the accretor after mass transfer
-                    double mPrime     = massDprime + massAprime;
-                    double mAmD_Prime = massDprime * massAprime;
-
-                    semiMajorAxis      = jPrime * jPrime * mPrime / (G1 * mAmD_Prime * mAmD_Prime);             // change in the orbit due to angular momentum loss from MT
-                }
-            }
-            else {                                                                                              // non-degenerate accretor - Belczynski et al. 2008, eq 33
-
-                double massDprime = (p_MDotDonor * p_Dt) + massD;                                               // mass of the donor after mass transfer
-                double massAprime = (-m_FractionAccreted * p_MDotDonor * p_Dt) + massA;                         // mass of the accretor after mass transfer
-                double mPrime     = massDprime + massAprime;
-
-                double jPrime     = jOrb + ((jLoss * jOrb * (1.0 - m_FractionAccreted) * p_MDotDonor / massAplusMassD) * p_Dt);
-                double jPrime_mm  = jPrime / (massDprime * massAprime);
-
-                semiMajorAxis     = jPrime_mm * jPrime_mm * mPrime / G1;                                        // change in the orbit due to angular momentum loss from MT
-            }
-            } break;
-
-        case MT_PRESCRIPTION::NONE:                                                                             // unknown prescription
-        default:                                                                                                // unknown prescription
-            SHOW_WARN(ERROR::UNKNOWN_MT_PRESCRIPTION);                                                          // warn that an error occurred
+        massD          = massD + dM;
+        massA          = massA - (dM * fractionAccreted);
+        massAplusMassD = massA + massD;
+                
+        std::tie(std::ignore, fractionAccreted) = p_Accretor.CalculateMassAcceptanceRate(p_ThermalRateDonor, fractionAccreted, p_Accretor.CalculateThermalMassLossRate());
     }
 
     return semiMajorAxis;
@@ -2400,7 +2118,7 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
  * @param   [IN]    p_Dt                        timestep in Myr
  */
 void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
-
+    
     if (!OPTIONS->UseMassTransfer()) return;                                                                                                                // mass transfer not enabled - nothing to do
 
     if (!m_Star1->IsRLOF() && !m_Star2->IsRLOF()) return;                                                                                                   // neither star is overflowing its Roche Lobe - no mass transfer - nothing to do
@@ -2442,106 +2160,84 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         m_Donor->DetermineInitialMassTransferCase();                                                                                                        // record first mass transfer event type (case A, B or C)
 
 		// Begin Mass Transfer
-        switch (OPTIONS->MassTransferPrescription()) {                                                                                                      // which mass transfer prescription?
-
-            case MT_PRESCRIPTION::HURLEY: {                                                                                                                 // HURLEY
-
-                double thermalRateDonor    = m_Donor->CalculateThermalMassLossRate();
-                double thermalRateAccretor = OPTIONS->MassTransferThermallyLimitedVariation() == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE
+        double thermalRateDonor    = m_Donor->CalculateThermalMassLossRate();
+        double thermalRateAccretor = OPTIONS->MassTransferThermallyLimitedVariation() == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE
                     ? m_Accretor->Mass() / m_Accretor->CalculateThermalTimescale(m_Accretor->Mass(), m_Accretor->RocheLobeRadius() * AU_TO_RSOL, m_Accretor->Luminosity(), m_Accretor->Mass() - m_Accretor->CoreMass()) // assume Radius = RL
                     : m_Accretor->CalculateThermalMassLossRate();
                 
-                std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(thermalRateDonor, m_FractionAccreted, thermalRateAccretor);
+        std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(thermalRateDonor, m_FractionAccreted, thermalRateAccretor);
 
-                if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {                           // arbitray angular momentum loss prescription?
-                    jLoss = CalculateGammaAngularMomentumLoss();                                                                                            // no - re-calculate angular momentum
-                }
+        if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {                           // arbitray angular momentum loss prescription?
+            jLoss = CalculateGammaAngularMomentumLoss();                                                                                            // no - re-calculate angular momentum
+        }
 
-                m_ZetaLobe = CalculateZRocheLobe(jLoss);
-                m_ZetaStar = m_Donor->CalculateZeta(OPTIONS->StellarZetaPrescription());
-                
-                if(utils::Compare(m_ZetaStar, m_ZetaLobe) > 0 ||
+        m_ZetaLobe = CalculateZRocheLobe(jLoss);
+        m_ZetaStar = m_Donor->CalculateZeta(OPTIONS->StellarZetaPrescription());
+
+        if(utils::Compare(m_ZetaStar, m_ZetaLobe) > 0 ||
                    (m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH }) &&
                     OPTIONS->ForceCaseBBBCStabilityFlag() && OPTIONS->AlwaysStableCaseBBBCFlag()) ) {                                                      // Stable MT
-                       m_MassTransferTrackerHistory = m_Donor->IsPrimary() ? MT_TRACKING::STABLE_FROM_1_TO_2 : MT_TRACKING::STABLE_FROM_2_TO_1;            // record what happened - for later printing
-                       double envMassDonor  = m_Donor->Mass() - m_Donor->CoreMass();
-                       double MdDot;
-                       
-                       if(m_Donor->CoreMass()>0 && envMassDonor>0){                                                                                                                 //donor has a core and an envelope
-                           BinaryConstituentStar* donorCopy = new BinaryConstituentStar(*m_Donor);
-                           BinaryConstituentStar* accretorCopy = new BinaryConstituentStar(*m_Accretor);
-                           double mdEnvAccreted = envMassDonor * m_FractionAccreted;
-                           MdDot         = -envMassDonor / p_Dt;
-                           
-                           m_Donor->SetMassTransferDiff(-envMassDonor);
-                           m_Accretor->SetMassTransferDiff(mdEnvAccreted);
-                           
-                           STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                                         // donor stellar type before resolving envelope loss
-                           
-                           m_Donor->ResolveEnvelopeLossAndSwitch();                                                                                        // only other interaction that adds/removes mass is winds, so it is safe to update star here
-                           
-                           if (m_Donor->StellarType() != stellarTypeDonor) {                                                                               // stellar type change?
-                               m_PrintExtraDetailedOutput = true;                                                                                          // yes - print detailed output record
-                           }
+                m_MassTransferTrackerHistory = m_Donor->IsPrimary() ? MT_TRACKING::STABLE_FROM_1_TO_2 : MT_TRACKING::STABLE_FROM_2_TO_1;            // record what happened - for later printing
+                double envMassDonor  = m_Donor->Mass() - m_Donor->CoreMass();
 
-                           aFinal                  = CalculateMassTransferOrbit(*donorCopy, *accretorCopy, MdDot, p_Dt, jLoss);
-                           wFinal                  = sqrt(G1 * (donorCopy->Mass() + accretorCopy->Mass()) / (aFinal * aFinal * aFinal));
-                           delete donorCopy; donorCopy = nullptr;
-                           delete accretorCopy; accretorCopy = nullptr;
-                       }
-                       else{                                                                                                                                //donor has no envelope
-                           double dM    = m_Donor->FastPhaseCaseA() ? CalculateAdaptiveRocheLobeOverFlow(jLoss) : CalculateMassTransferFastPhaseCaseA(jLoss);  // amount of mass transferred by donor
-                           MdDot = dM / p_Dt;                                                                                                           // mass transfer rate of donor
-                           
-                           m_Donor->SetFastPhaseCaseA();                                                                                                       // will be true when we get here   JR: todo: revisit this
-                           m_Donor->SetMassTransferDiff(dM);                                                                                                   // mass transferred by donor
-                           m_Accretor->SetMassTransferDiff(-dM * m_FractionAccreted);                                                                          // mass accreted by accretor
+                if(m_Donor->CoreMass()>0 && envMassDonor>0){                                                                                                            //donor has a core and an envelope
+                    double mdEnvAccreted = envMassDonor * m_FractionAccreted;
+                    
+                    m_Donor->SetMassTransferDiff(-envMassDonor);
+                    m_Accretor->SetMassTransferDiff(mdEnvAccreted);
+
+                    STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                                         // donor stellar type before resolving envelope loss
+                    
+
+                    aFinal                  = CalculateMassTransferOrbit(m_Donor->Mass(), -envMassDonor, m_Donor->CalculateThermalMassLossRate(), *m_Accretor);
+                    wFinal                  = sqrt(G1 * (m_Donor->Mass() + m_Accretor->Mass()) / (aFinal * aFinal * aFinal));
+                    
+                    m_Donor->ResolveEnvelopeLossAndSwitch();                                                                                        // only other interaction that adds/removes mass is winds, so it is safe to update star here
+                    
+                    if (m_Donor->StellarType() != stellarTypeDonor) {                                                                               // stellar type change?
+                        m_PrintExtraDetailedOutput = true;                                                                                          // yes - print detailed output record
+                    }
+                }
+                else{                                                                                                                               // donor has no envelope
+                    double dM = - MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor);                                                          // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
+                    m_Donor->SetMassTransferDiff(dM);                                                                                                // mass transferred by donor
+                    m_Accretor->SetMassTransferDiff(-dM * m_FractionAccreted);                                                                       // mass accreted by accretor
                       
-                           aFinal                  = CalculateMassTransferOrbit(*m_Donor, *m_Accretor, MdDot, p_Dt, jLoss);
-                           wFinal                  = sqrt(G1 * (m_Donor->Mass() + m_Accretor->Mass()) / (aFinal * aFinal * aFinal));
-                       }
+                    aFinal                  = CalculateMassTransferOrbit(m_Donor->Mass(), dM, m_Donor->CalculateThermalMassLossRate(), *m_Accretor);
+                    wFinal                  = sqrt(G1 * (m_Donor->Mass() + m_Accretor->Mass()) / (aFinal * aFinal * aFinal));
+
+                }
                        
 
-                       m_aMassTransferDiff     = aFinal - aInitial;                                                                                        // change in orbit (semi-major axis)
-                       m_OmegaMassTransferDiff = wFinal - wInitial;                                                                                        // change in orbital speed
+                m_aMassTransferDiff     = aFinal - aInitial;                                                                                        // change in orbit (semi-major axis)
+                m_OmegaMassTransferDiff = wFinal - wInitial;                                                                                        // change in orbital speed
                 
-                       // Check for stable mass transfer after any CEE
-                       if (m_CEDetails.CEEcount > 0 && !m_RLOFDetails.stableRLOFPostCEE) {
-                           m_RLOFDetails.stableRLOFPostCEE = m_MassTransferTrackerHistory == MT_TRACKING::STABLE_FROM_2_TO_1 ||
+                // Check for stable mass transfer after any CEE
+                if (m_CEDetails.CEEcount > 0 && !m_RLOFDetails.stableRLOFPostCEE) {
+                    m_RLOFDetails.stableRLOFPostCEE = m_MassTransferTrackerHistory == MT_TRACKING::STABLE_FROM_2_TO_1 ||
                            m_MassTransferTrackerHistory == MT_TRACKING::STABLE_FROM_1_TO_2;
-                       }
-                
-
-
-                       if (m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH}) &&
-                           m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-                                    m_Donor->SetSNCurrentEvent(SN_EVENT::USSN);                                                                             // donor ultra-stripped SN happening now
-                                    m_Donor->SetSNPastEvent(SN_EVENT::USSN);                                                                                // ... and will be a past event
-                        }
-                }
-
-                else {                                                                                                                              // Unstable Mass Transfer
-                           if (m_Donor->IsOneOf( MAIN_SEQUENCE )) {
-                                m_StellarMerger    = true;
-                                isCEE              = true;
-                            }
-                            else {
-                                m_CEDetails.CEEnow = true;
-                                isCEE              = true;
-                            }
                 }
                 
-            } break;
 
-            case MT_PRESCRIPTION::BELCZYNSKI:                                                                                                               // Belczynski - not yet supported
-                m_Error = ERROR::UNSUPPORTED_MT_PRESCRIPTION;                                                                                               // set error value
-                SHOW_WARN(m_Error);                                                                                                                         // warn that an error occurred
-                break;
 
-            default:                                                                                                                                        // unknown mass transfer prescription - shouldn't happen
-                m_Error = ERROR::UNKNOWN_MT_PRESCRIPTION;                                                                                                   // set error value
-                SHOW_WARN(m_Error);                                                                                                                         // warn that an error occurred
+                if (m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH}) &&
+                        m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
+                    m_Donor->SetSNCurrentEvent(SN_EVENT::USSN);                                                                             // donor ultra-stripped SN happening now
+                    m_Donor->SetSNPastEvent(SN_EVENT::USSN);                                                                                // ... and will be a past event
+                }
         }
+
+        else {                                                                                                                              // Unstable Mass Transfer
+                if (m_Donor->IsOneOf( MAIN_SEQUENCE )) {
+                        m_StellarMerger    = true;
+                        isCEE              = true;
+                }
+                else {
+                        m_CEDetails.CEEnow = true;
+                        isCEE              = true;
+                }
+        }
+
     }
 
 	// Check for recycled pulsars. Not considering CEE as a way of recycling NSs.
@@ -2585,7 +2281,6 @@ void BaseBinaryStar::InitialiseMassTransfer() {
             }
 
             // circularise if not already
-
             if (utils::Compare(m_Eccentricity, 0.0) != 0) {                                                                     // eccentricity = 0.0?
                                                                                                                                 // no - circularise
                 // conserve angular momentum
@@ -2597,6 +2292,8 @@ void BaseBinaryStar::InitialiseMassTransfer() {
                 m_Eccentricity        = 0.0;                                                                                    // now circular
             }
 
+            
+            
             m_Star1->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxisPrime, m_Eccentricity);                          // re-initialise mass transfer for star1
             m_Star2->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxisPrime, m_Eccentricity);                          // re-initialise mass transfer for star2
 
@@ -2610,11 +2307,14 @@ void BaseBinaryStar::InitialiseMassTransfer() {
 		    if (OPTIONS->CirculariseBinaryDuringMassTransfer()) {                                                               // circularise binary to the periapsis separation?
                 m_SemiMajorAxisPrime *= OPTIONS->AngularMomentumConservationDuringCircularisation()                             // yes - conserve angular momentum?
                                         ? (1.0 - (m_Eccentricity * m_Eccentricity))                                             // yes - conserve angular momentum
-                                        : (1.0 - m_Eccentricity);                                                               // no - angular momentum not coneserved
+                                        : (1.0 - m_Eccentricity);                                                               // no - angular momentum not conserved
 
 			    m_Eccentricity        = 0.0;			                                                                        // ALEJANDRO - 22/11/2016 - Think shouldn't use m_Eccentricity but m_EccentricityPrime. Right now setting both. Check later.     JR: todo: check this
 			    m_EccentricityPrime   = 0.0;                                                                                    // JR: todo: check comment above
 
+                m_Star1->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxisPrime, m_Eccentricity);                          // re-initialise mass transfer for star1
+                m_Star2->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxisPrime, m_Eccentricity);                          // re-initialise mass transfer for star2
+                
 			    // ALEJANDRO - 23/11/2016 - Bug fix for systems which enter MT being eccentric.
 			    // Previous values have to be the ones for periastron as later orbit is modified according to previous values.
 			    // If you don't do this, you end up modifying pre-MT pre-circularisation orbit
@@ -2965,80 +2665,6 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 }
 
 
-/*
- * Calculate timestep (dt)
- *
- * Calculates the new timestep
- *
- * JR: todo: flesh-out this documentation
- *
- *
- * double CalculateDt(const double p_Dt, const Star* const p_Primary, const Star* const p_Secondary)
- *
- * @param   [in]        p_Dt                    Existing timestep value (in Myr)
- * @param   [in]        p_Primary               Primary star (for this calculation)
- * @param   [in]        p_Secondary             Secondary star (for this calculation)
- * @return                                      New timestep value (in Myr)
- */
-double BaseBinaryStar::CalculateDt(const double p_Dt, const Star* const p_Primary, const Star* const p_Secondary) {
-
-    double newDt = p_Dt;                                                                                                    // default is unchanged
-
-    double tmp     = RSOL_TO_AU / (m_SemiMajorAxisPrime * (1.0 - m_Eccentricity));
-    double RLRatio = tmp * p_Primary->Radius() / CalculateRocheLobeRadius_Static(p_Primary->Mass(), p_Secondary->Mass());
-
-    // calculate new dt
-    // JR: todo: this code is broken in the original code
-    //
-    // JR: todo: NOTE: m_FastPhaseCaseA (binary variable, not stellar) is NEVER set TRUE.  cf STELLAR value
-
-    if (utils::Compare(RLRatio, MASS_TRANSFER_THRESHOLD) >= 0) {                                                            // should be done in this or in previous timestep values?
-        if (p_Primary->DetermineEnvelopeType() == ENVELOPE::RADIATIVE) {
-            newDt = m_FastPhaseCaseA ? p_Primary->CalculateThermalTimescale() : p_Primary->CalculateDynamicalTimescale();   // should only do this for fastPhase aRLOF, just one timestep.
-        }
-        else {
-            newDt = p_Primary->CalculateThermalTimescale();
-        }
-    }
-    else if (utils::Compare(RLRatio, ROCHE_LOBE_UPPER_THRESHOLD) >= 0) {
-        newDt /= 10.0;
-    }
-    else if (utils::Compare(RLRatio, ROCHE_LOBE_LOWER_THRESHOLD) >= 0) {
-        newDt /= 5.0;
-    }
-
-    return newDt;
-}
-
-
-/*
- * Calculate the timestep based on:
- *
- *    stellar nuclear timescales,
- *    angular momentum loss timescales, or
- *    the specific case of the shortest timescales with RLOF
- *
- * Based onHurley et al., 2002, section 2.8
- *
- *
- * double ChooseTimestep(const double p_Dt)
- *
- * @param   [IN]    p_Dt                        The suggested timestep to evolve
- * @return                                      Calculated/recommended timestep
- */
-double BaseBinaryStar::ChooseTimestep(const double p_Dt) {
-
-    double timestep = 0.0;      // ALEJANDRO - 02/12/2015 - MASSLESS_REMNANT timescale = 0.0
-
-	if (!m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) && !m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {
-        double dt1 = CalculateDt(p_Dt, m_Star1, m_Star2);
-        double dt2 = CalculateDt(p_Dt, m_Star2, m_Star1);
-
-        timestep = std::min(dt1, dt2);
-	}
-
-    return std::max(timestep, NUCLEAR_MINIMUM_TIMESTEP);
-}
 
 
 /*
@@ -3220,9 +2846,9 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                            // continue evolution?
 
                 dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep());                                                  // new timestep
-
+                if ((m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) || dt<NUCLEAR_MINIMUM_TIMESTEP)
+                    dt=NUCLEAR_MINIMUM_TIMESTEP;                                                                                            // but not less than minimum
                 stepNum++;                                                                                                                  // increment stepNum
-                dt = CalculateTimestep(ChooseTimestep(dt));                                                                                 // calculate next timestep
             }
         }
         PrintDetailedOutput(m_Id);                                                                                                          // print (log) detailed output for binary
@@ -3236,3 +2862,4 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
     return evolutionStatus;
 }
+
