@@ -339,8 +339,10 @@
 //                                      - Removed all references to fast phase case A MT
 //                                      - Corrected failure to update stars in InitialiseMassTransfer if orbit circularised on mass transfer
 //                                      - Corrected incorrect timestep calculation for HeHG stars
+// 02.13.01     AVG - Aug 6, 2020  - Defect repair:
+//										- Issue #267: Use radius of the star instead of Roche-lobe radius throughout ResolveCommonEnvelopeEvent()
 
-const std::string VERSION_STRING = "02.13.00";
+const std::string VERSION_STRING = "02.13.01";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
