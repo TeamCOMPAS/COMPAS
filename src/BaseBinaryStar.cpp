@@ -1458,7 +1458,6 @@ bool BaseBinaryStar::ResolveSupernova() {
     Vector3d natalKickVector = m_Supernova->SN_KickVelocity() * Vector3d(cos(theta)*cos(phi), 
                                                                          cos(theta)*sin(phi),
                                                                          sin(theta));
-
     // Check if the system is already unbound
     if (IsUnbound()) {                                                                                    // Is system already unbound?
 
@@ -1569,7 +1568,6 @@ bool BaseBinaryStar::ResolveSupernova() {
         // (H_ x E_) defines the Y'-axis
         ////////////////////////////////
          
-
         UpdateSystemicVelocity( Vcm_.RotateVector(m_ThetaE, m_PhiE, m_PsiE) );          // Update the system velocity with the new center of mass velocity
 
 
