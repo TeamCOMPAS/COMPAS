@@ -339,16 +339,18 @@
 //                                      - Removed all references to fast phase case A MT
 //                                      - Corrected failure to update stars in InitialiseMassTransfer if orbit circularised on mass transfer
 //                                      - Corrected incorrect timestep calculation for HeHG stars
-// 02.13.01		 RW - Jul 31, 2020 - Enhancement:
+// 02.13.01     AVG - Aug 6, 2020  - Defect repair:
+//										- Issue #267: Use radius of the star instead of Roche-lobe radius throughout ResolveCommonEnvelopeEvent()
+// 02.13.02		 RW - Jul 31, 2020 - Enhancement:
 // 										- Issue #254 - Remove ID from output files (SEED accomplishes this functionality better)
 // 										- Issue #255 - Update meaning of SN_STATE to reflect which SN occured and in what order
 // 									 Defect repairs:
 // 									 	- Issue #236 - 2nd SN not printed in disrupted systems
-// 02.13.02      RW - Jul 31, 2020 - Minor code rewrite
+// 02.13.03      RW - Jul 31, 2020 - Minor code rewrite
 //                                      - Added vector3d.h/.cpp and functionality for vector addition of velocities from both SNe (for more accurate system and component velocities)
 //                                      - Rewrote ResolveSupernova function for binaries to incorporate new vector3d objects
 
-const std::string VERSION_STRING = "02.13.02";
+const std::string VERSION_STRING = "02.13.01";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
