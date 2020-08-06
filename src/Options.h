@@ -203,7 +203,6 @@ public:
 
     double                                      MassTransferFractionAccreted() const                                    { return massTransferFractionAccreted; }
     double                                      MassTransferJloss() const                                               { return massTransferJloss; }
-    MT_PRESCRIPTION                             MassTransferPrescription() const                                        { return massTransferPrescription; }
     MT_REJUVENATION_PRESCRIPTION                MassTransferRejuvenationPrescription() const                            { return massTransferRejuvenationPrescription; }
     MT_THERMALLY_LIMITED_VARIATION              MassTransferThermallyLimitedVariation() const                           { return massTransferThermallyLimitedVariation; }
     double                                      MaxEvolutionTime() const                                                { return maxEvolutionTime; }
@@ -444,11 +443,8 @@ private:
 	bool                                        alwaysStableCaseBBBCFlag;									    // Whether if case BB/BC is always stable (default = true)
 	bool                                        angularMomentumConservationDuringCircularisation;			    // Whether to conserve angular momentum while circularising or circularise to periastron (default = false)
 
-    MT_PRESCRIPTION                             massTransferPrescription;                                       // Which mass transfer prescription will be used by the code (default = MASS_TRANSFER_PRESCRIPTION_NONE)
-    string                                      massTransferPrescriptionString;                                 // String containing which mass transfer prescription to use (defaul = "None")
-
-    MT_ACCRETION_EFFICIENCY_PRESCRIPTION        massTransferAccretionEfficiencyPrescription;                    // Which mass transfer prescription will be used by the code (default = MASS_TRANSFER_PRESCRIPTION_NONE)
-    string                                      massTransferAccretionEfficiencyPrescriptionString;              // String containing which mass transfer prescription to use (defaul = "None")
+    MT_ACCRETION_EFFICIENCY_PRESCRIPTION        massTransferAccretionEfficiencyPrescription;                    // Which accretion efficiency prescription will be used by the code (default = THERMALLY_LIMITED)
+    string                                      massTransferAccretionEfficiencyPrescriptionString;              // String containing which accretion efficiency prescription to use (defaul = "None")
 
     double                                      massTransferFractionAccreted;                                   // In mass transfer, ammount of mass transferred that is accreted. 1 for conservative, 0 for fully-non conservative.
     double                                      massTransferCParameter;                                         // Detailed model parameter used in mass transfer
