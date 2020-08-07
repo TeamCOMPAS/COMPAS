@@ -341,8 +341,10 @@
 //                                      - Corrected incorrect timestep calculation for HeHG stars
 // 02.13.01     AVG - Aug 6, 2020  - Defect repair:
 //										- Issue #267: Use radius of the star instead of Roche-lobe radius throughout ResolveCommonEnvelopeEvent()
+// 02.13.02     AVG - Aug 7, 2020  - Defect repair:
+//										- Issue #229: Corrected fitting parameters in Muller 16 SN kick function
 
-const std::string VERSION_STRING = "02.13.01";
+const std::string VERSION_STRING = "02.13.02";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
