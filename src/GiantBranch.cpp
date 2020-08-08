@@ -1456,7 +1456,7 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
             m_SupernovaDetails.fallbackFraction = 0.0;                                                      // No subsequent kick adjustment by fallback fraction needed
             break;
 
-	case REMNANT_MASS_PRESCRIPTION::MULLERMANDEL:                                                           // Mandel & Mueller, 2020
+        case REMNANT_MASS_PRESCRIPTION::MULLERMANDEL:                                                       // Mandel & Mueller, 2020
 
             m_Mass = CalculateRemnantMassByMullerMandel(m_COCoreMass, m_HeCoreMass);
             m_SupernovaDetails.fallbackFraction = 0.0;                                                      // No subsequent kick adjustment by fallback fraction needed
