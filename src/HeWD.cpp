@@ -86,7 +86,6 @@ double HeWD::CalculateMassLossRateHurley() {
  *
  *    1) Kelvin-Helmholtz (thermal) timescale if THERMALLY_LIMITED_MASS_TRANSFER
  *    2) Choose a fraction of the mass rate that will be effectively accreted for FIXED_FRACTION_MASS_TRANSFER (as in StarTrack)
- *    3) Disk vs impact accretion for CENTRIFUGALLY_LIMITED_MASS_TRANSFER
  *
  *
  * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_FractionAccreted, const double p_AccretorMassRate)

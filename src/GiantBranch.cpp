@@ -1451,17 +1451,15 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
             break;
 
         case REMNANT_MASS_PRESCRIPTION::MULLER2016:                                                         // Muller 2016
-        case REMNANT_MASS_PRESCRIPTION::MULLER2016MAXWELLIAN:                                               // Muller 260016 - Maxwellian
 
             m_Mass = CalculateRemnantMassByMuller2016(m_Mass, m_COCoreMass);
-
-            // JR: todo: fallback fraction not calculated here?
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // No subsequent kick adjustment by fallback fraction needed
             break;
 
-	case REMNANT_MASS_PRESCRIPTION::MULLERMANDEL:                                                         // Mandel & Mueller, 2020
+	case REMNANT_MASS_PRESCRIPTION::MULLERMANDEL:                                                           // Mandel & Mueller, 2020
 
             m_Mass = CalculateRemnantMassByMullerMandel(m_COCoreMass, m_HeCoreMass);
-
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // No subsequent kick adjustment by fallback fraction needed
             break;
 
         default:                                                                                            // unknown prescription
@@ -1478,10 +1476,10 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
         stellarType = CalculateRemnantTypeByMuller2016(m_COCoreMass);
     }
     else if (OPTIONS->RemnantMassPrescription() == REMNANT_MASS_PRESCRIPTION::MULLERMANDEL) {
-	if(utils::Compare(m_Mass, MULLERMANDEL_MAXNS ) > 0) 
-		stellarType = STELLAR_TYPE::BLACK_HOLE; 
+        if(utils::Compare(m_Mass, MULLERMANDEL_MAXNS ) > 0)
+            stellarType = STELLAR_TYPE::BLACK_HOLE;
         else
-		stellarType = STELLAR_TYPE::NEUTRON_STAR;
+            stellarType = STELLAR_TYPE::NEUTRON_STAR;
     }	
 
     else if (utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass()) > 0) {

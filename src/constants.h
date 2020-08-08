@@ -601,7 +601,7 @@ constexpr double ZETA_NUCLEAR_TIMESTEP                  = 1.0E-3;               
 constexpr double ZETA_NUCLEAR_TOLERANCE                 = 1.0E-3;                                                   // Tolerance between iterations when calculating zeta nuclear
 constexpr int    ZETA_NUCLEAR_ITERATIONS                = 10;                                                       // Maximum number of iterations to use when calculating zeta nuclear
 
-constexpr double   MASS_TRANSFER_FRACTION	            = 0.001;                                                    // Maximal fraction of donor mass that can be transferred in one step of stable mass transfer
+constexpr double   MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP	 = 0.001;                                               // Maximal fraction of donor mass that can be transferred in one step of stable mass transfer
 
 constexpr double LAMBDA_NANJING_ZLIMIT                  = 0.0105;                                                   // Metallicity cutoff for Nanjing lambda calculations
 
@@ -1083,17 +1083,16 @@ const COMPASUnorderedMap<HYDROGEN_CONTENT, std::string> HYDROGEN_CONTENT_LABEL =
 
 
 // Kick velocity distribution
-enum class KICK_VELOCITY_DISTRIBUTION: int { ZERO, FIXED, FLAT, MAXWELLIAN, MAXWELL, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL };
+enum class KICK_VELOCITY_DISTRIBUTION: int { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL };
 const COMPASUnorderedMap<KICK_VELOCITY_DISTRIBUTION, std::string> KICK_VELOCITY_DISTRIBUTION_LABEL = {
     { KICK_VELOCITY_DISTRIBUTION::ZERO,                 "ZERO" },
     { KICK_VELOCITY_DISTRIBUTION::FIXED,                "FIXED" },
     { KICK_VELOCITY_DISTRIBUTION::FLAT,                 "FLAT" },
     { KICK_VELOCITY_DISTRIBUTION::MAXWELLIAN,           "MAXWELLIAN" },
-    { KICK_VELOCITY_DISTRIBUTION::MAXWELL,              "MAXWELL" },
     { KICK_VELOCITY_DISTRIBUTION::BRAYELDRIDGE,         "BRAYELDRIDGE" },
     { KICK_VELOCITY_DISTRIBUTION::MULLER2016,           "MULLER2016" },
     { KICK_VELOCITY_DISTRIBUTION::MULLER2016MAXWELLIAN, "MULLER2016MAXWELLIAN" },
-    { KICK_VELOCITY_DISTRIBUTION::MULLERMANDEL, "MULLERMANDEL" }
+    { KICK_VELOCITY_DISTRIBUTION::MULLERMANDEL,         "MULLERMANDEL" }
 };
 
 
@@ -1149,11 +1148,10 @@ const COMPASUnorderedMap<MASS_TRANSFER, std::string> MASS_TRANSFER_LABEL = {
 
 
 // Mass transfer accretion efficiency prescriptions
-enum class MT_ACCRETION_EFFICIENCY_PRESCRIPTION: int { THERMALLY_LIMITED, FIXED_FRACTION, CENTRIFUGALLY_LIMITED };
+enum class MT_ACCRETION_EFFICIENCY_PRESCRIPTION: int { THERMALLY_LIMITED, FIXED_FRACTION};
 const COMPASUnorderedMap<MT_ACCRETION_EFFICIENCY_PRESCRIPTION, std::string> MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL = {
     { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED,     "THERMAL" },
-    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION,        "FIXED" },
-    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::CENTRIFUGALLY_LIMITED, "CENTRIFUGAL" }
+    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION,        "FIXED" }
 };
 
 
@@ -1263,15 +1261,14 @@ const COMPASUnorderedMap<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PUL
 
 
 // Remnant Mass Prescriptions
-enum class REMNANT_MASS_PRESCRIPTION: int { POSTITNOTE, HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL };
+enum class REMNANT_MASS_PRESCRIPTION: int { POSTITNOTE, HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL };
 const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PRESCRIPTION_LABEL = {
     { REMNANT_MASS_PRESCRIPTION::POSTITNOTE,           "POSTITNOTE" },
     { REMNANT_MASS_PRESCRIPTION::HURLEY2000,           "HURLEY2000" },
     { REMNANT_MASS_PRESCRIPTION::BELCZYNSKI2002,       "BELCZYNSKI2002" },
     { REMNANT_MASS_PRESCRIPTION::FRYER2012,            "FRYER2012" },
     { REMNANT_MASS_PRESCRIPTION::MULLER2016,           "MULLER2016" },
-    { REMNANT_MASS_PRESCRIPTION::MULLER2016MAXWELLIAN, "MULLER2016MAXWELLIAN" },
-    { REMNANT_MASS_PRESCRIPTION::MULLERMANDEL, "MULLERMANDEL" }
+    { REMNANT_MASS_PRESCRIPTION::MULLERMANDEL,         "MULLERMANDEL" }
 };
 
 
