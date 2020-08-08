@@ -152,15 +152,7 @@ public:
     void            CalculateLambdas()                                                                          { m_Star->CalculateLambdas(); }
     void            CalculateLambdas(const double p_EnvMass)                                                    { m_Star->CalculateLambdas(p_EnvMass); }
 
-    DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                const double p_FractionAccreted,
-                                                const double p_AccretorMassRate)                                { return m_Star->CalculateMassAcceptanceRate(p_DonorMassRate,
-                                                                                                                                                             p_FractionAccreted,
-                                                                                                                                                             p_AccretorMassRate); }
-    DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                const double p_FractionAccreted)                                { return m_Star->CalculateMassAcceptanceRate(p_DonorMassRate,
-                                                                                                                                                             p_FractionAccreted,
-                                                                                                                                                             CalculateThermalMassLossRate()); }
+    DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)  { return m_Star->CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate); }
 
     double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false)    { return m_Star->CalculateMassLossValues(p_UpdateMDot, p_UpdateMDt); }
 

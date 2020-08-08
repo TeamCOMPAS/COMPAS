@@ -1219,7 +1219,7 @@ double BaseStar::CalculateZetaThermal(double p_PercentageMassChange) {
     starCopy->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                           // allow star to respond to previous mass loss changes      JR: todo: is this really necessary?
 
     // record properties of the star before fake mass change
-    double radiusBeforeMassLoss = starCopy->Radius();                                                                           // radius before fake mass change       
+    double radiusBeforeMassLoss = starCopy->Radius();                                                                           // radius before fake mass change
     double massBeforeMassLoss   = starCopy->MassPrev();                                                                         // mass before fake mass change - due to order of updating radius bug     JR: todo: check this
 
     SHOW_ERROR_IF(utils::Compare(radiusBeforeMassLoss, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "Before fake mass change");  // show error if radius <= 0
@@ -2058,59 +2058,34 @@ double BaseStar::CalculateCoreMassGivenLuminosity_Static(const double p_Luminosi
  *
  * For non compact objects:
  *
- *    1) Kelvin-Helmholtz (thermal) timescale if THERMALLY_LIMITED_MASS_TRANSFER
- *    2) Choose a fraction of the mass rate that will be effectively accreted for FIXED_FRACTION_MASS_TRANSFER (as in StarTrack)
- *    3) Disk vs impact accretion for CENTRIFUGALLY_LIMITED_MASS_TRANSFER
+ *    1) Kelvin-Helmholtz (thermal) timescale if THERMAL (thermally limited) mass transfer efficiency
+ *    2) Choose a fraction of the mass rate that will be effectively accreted for FIXED fraction mass transfer (as in StarTrack)
  *
  *
- * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_FractionAccreted, const double p_AccretorMassRate)
+ * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)
  *
  * @param   [IN]    p_DonorMassRate             Mass transfer rate of the donor
- * @param   [IN]    p_FractionAccreted          Accretion efficiency parameter - may be returned unchanged
  * @param   [IN]    p_AccretorMassRate          Thermal mass loss rate of the accretor (this star)
  * @return                                      Tuple containing the Maximum Mass Acceptance Rate and the Accretion Efficiency Parameter
  */
-DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_FractionAccreted, const double p_AccretorMassRate) {
+DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
 
     double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
-    double fractionAccreted = p_FractionAccreted;                                           // accretion fraction - default is unchanged
+    double fractionAccreted = 0.0;                                           // accretion fraction - default  = 0.0
 
     switch (OPTIONS->MassTransferAccretionEfficiencyPrescription()) {
 
         case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED:                       // thermally limited mass transfer:
 
-            if(utils::Compare(p_AccretorMassRate, p_DonorMassRate) < 0) {                   // the accretor cannot accrete at the rate the donor is providing mass
-
-                acceptanceRate = min(OPTIONS->MassTransferCParameter() * p_AccretorMassRate, p_DonorMassRate);
-
-                switch (OPTIONS->MassTransferThermallyLimitedVariation()) {
-
-                    case MT_THERMALLY_LIMITED_VARIATION::C_FACTOR:
-                        fractionAccreted = min(1.0, OPTIONS->MassTransferCParameter() * (p_AccretorMassRate / p_DonorMassRate));
-                        break;
-
-                    case MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE:
-                        fractionAccreted = min(1.0, OPTIONS->MassTransferCParameter() * (p_AccretorMassRate / p_DonorMassRate));
-                        break;
-
-                    default:                                                                // unknown thermally limited variation - shouldn't happen
-                        m_Error = ERROR::UNKNOWN_MT_THERMALLY_LIMITED_VARIATION;            // set error value
-                        SHOW_WARN(m_Error);                                                 // warn that an error occurred
-                }
-            }
-            else {                                                                          // accretor can accrete more than the donor is providing
-                acceptanceRate   = p_DonorMassRate;
-                fractionAccreted = 1.0;
-            }
+            acceptanceRate = min(OPTIONS->MassTransferCParameter() * p_AccretorMassRate, p_DonorMassRate);
+            fractionAccreted = acceptanceRate / p_DonorMassRate;
             break;
 
         case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION:                          // fixed fraction of mass accreted, as in StarTrack
-            acceptanceRate = min(p_DonorMassRate, p_FractionAccreted * p_DonorMassRate);
+            fractionAccreted = OPTIONS-> MassTransferFractionAccreted();                    
+            acceptanceRate = min(p_DonorMassRate, fractionAccreted * p_DonorMassRate);
             break;
 
-        case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::CENTRIFUGALLY_LIMITED:                   // centrifugally limited mass transfer
-            acceptanceRate = 0.0;
-            break;
 
         default:                                                                            // unknown mass transfer accretion efficiency prescription - shouldn't happen
             m_Error = ERROR::UNKNOWN_MT_ACCRETION_EFFICIENCY_PRESCRIPTION;                  // set error value
@@ -2624,63 +2599,7 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
 
 
 /*
- * Inverse sampling from the Maxwell CDF for MCMC and importance sampling
- * Generates a random sample from the distribution
- *
- * From https://en.wikipedia.org/wiki/Maxwell-Boltzmann_distribution
- *
- * the Maxwell CDF is:
- *
- * erf(x/(sqrt(2.0)*sigma)) - (sqrt(2.0/pi) * x * exp(-(x*x)/(2.0*sigma*sigma))/sigma)
- *
- * where erf is the error function which has the form:
- *
- *   erf(x) = (2/\sqrt(\pi)) \int_0^x dt \exp(-t^2).
- *
- * We use the gsl error function https://www.gnu.org/software/gsl/manual/html_node/Error-Function.html
- *
- *
- * double InverseSampleFromMaxwellCDF_Static(const double p_X, const double p_Sigma)
- *
- * @param   [IN]    p_X                         The value of X for which the distribution function is evaluated
- * @param   [IN]    p_Sigma                     Distribution scale parameter - affects the spread of the distribution
- * @return                                      Maxwell CDF value
- */
-double BaseStar::InverseSampleFromMaxwellCDF_Static(const double p_X, const double p_Sigma) {
-    return gsl_sf_erf(p_X / (M_SQRT2 * p_Sigma)) - (SQRT_M_2_PI * p_X * exp(-(p_X * p_X) / (2.0 * p_Sigma * p_Sigma)) / p_Sigma);
-}
-
-
-/*
- * Calculate the inverse of the Maxwell CDF
- *
- *
- * double CalculateInverseMaxwellCDF_Static(const double p_X, void* p_Paramsa)
- *
- * @param   [IN]    p_X                         Value of the kick vk which we want to find
- * @param   [IN]    p_Params                    Structure containing:
- *                                                 y    : the CDF draw U(0,1), and
- *                                                 sigma: which sets the characteristic kick of the Maxwellian distribution
- * @return                                      Inverse Maxwell CDF value (Should be zero when x = vk, the value of the kick to draw)
- */
-double BaseStar::CalculateInverseMaxwellCDF_Static(const double p_X, void* p_Params) {
-    KickVelocityParams* params = (KickVelocityParams*)p_Params;
-    return InverseSampleFromMaxwellCDF_Static(p_X, params->sigma) - params->y;
-}
-
-
-/*
  * Draw a kick velocity in km s^-1 from a Maxwellian distribution of the form:
- *
- *    sqrt(2/pi) * (x * x * exp(-(x * x)/(2.0 * a * a)) / (a*a*a))
- *
- * Roughly factor of 10 slower than old method, 10^-4 s vs 10^-5 s for old method.
- *
- * Implement option to only do it this way if using mcmc or importance sampling,
- * otherwise use old method     JR: todo: what is the old method?
- *
- *   Inverse sampling done using root finding in GSL, adapted from the examples here:
- *   https://www.gnu.org/software/gsl/doc/html/roots.html
  *
  *
  * double DrawKickVelocityDistributionMaxwell(const double p_Sigma, const double p_Rand)
@@ -2690,67 +2609,7 @@ double BaseStar::CalculateInverseMaxwellCDF_Static(const double p_X, void* p_Par
  * @return                                      Drawn kick velocity (km s^-1)
  */
 double BaseStar::DrawKickVelocityDistributionMaxwell(const double p_Sigma, const double p_Rand) {
-
-    double result = 0.0;
-
-    bool useOldMethod = false;
-    if (useOldMethod) {                                     // Old method - JR: todo: is this !OPTIONS->useMCMC ?
-
-        double rms = 0.0;
-        for (int i=0; i<3; i++) {                           // generate each component of a 3 dimensional velocity vector
-            double vel = RAND->RandomGaussian(p_Sigma);
-            rms       += vel * vel;                         // sum the squares (because we need the magnitude
-        }
-
-        result = sqrt(rms);                                 // magnitude
-    }
-    else {
-
-    	double xMin = 0.0;
-    	double xMax = 5.0 * p_Sigma;                        // options.kickmax or whatever it is called.        JR: todo: find out...
-
-        double maximumInverse = InverseSampleFromMaxwellCDF_Static(xMin, p_Sigma);
-
-        double rand = p_Rand;
-        while (utils::Compare(rand, maximumInverse) > 0) {
-            xMax *= 2.0;
-            maximumInverse = InverseSampleFromMaxwellCDF_Static(xMax, p_Sigma);
-        }
-        rand = min(rand, maximumInverse);
-
-        const gsl_root_fsolver_type *T;
-        gsl_root_fsolver            *s;
-        gsl_function                 F;
-
-        KickVelocityParams           params = {rand, p_Sigma};
-
-        F.function = &CalculateInverseMaxwellCDF_Static;
-        F.params   = &params;
-
-        // gsl_root_fsolver_brent
-        // gsl_root_fsolver_bisection
-        T = gsl_root_fsolver_brent;
-        s = gsl_root_fsolver_alloc (T);
-
-        gsl_root_fsolver_set (s, &F, xMin, xMax);
-
-	    int status  = GSL_CONTINUE;
-        int iter    = 0;
-        int maxIter = 100;
-
-    	while (status == GSL_CONTINUE && iter < maxIter) {
-            iter++;
-            status = gsl_root_fsolver_iterate (s);
-            result = gsl_root_fsolver_root (s);
-            xMin   = gsl_root_fsolver_x_lower (s);
-            xMax   = gsl_root_fsolver_x_upper (s);
-            status = gsl_root_test_interval (xMin, xMax, 0, 0.001);
-        }
-
-        gsl_root_fsolver_free (s);                          // de-allocate memory for root solver
-    }
-
-    return result;
+    return p_Sigma*sqrt(gsl_cdf_chisq_Pinv(p_Rand, 3)); // a Maxwellian is a chi distribution with three degrees of freedom
 }
 
 
@@ -2765,12 +2624,7 @@ double BaseStar::DrawKickVelocityDistributionMaxwell(const double p_Sigma, const
  * @return                                      Drawn kick velocity (km s^-1)
  */
 double BaseStar::DrawKickVelocityDistributionFlat(const double p_MaxVK, const double p_Rand) {
-
-    bool useOldMethod = false;          //  JR: todo: program option?
-
-    double rand = useOldMethod ? RAND->Random() : p_Rand;
-
-    return rand * p_MaxVK;
+    return p_Rand * p_MaxVK;
 }
 
 
@@ -2852,7 +2706,7 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
                                     const double p_RemnantMass) {					
 	double remnantKick=-1.0;
 	double muKick=0.0;
-    	double rand=p_Rand;		//makes it possible to adjust if p_Rand is too low, to avoid getting stuck
+    double rand=p_Rand;		//makes it possible to adjust if p_Rand is too low, to avoid getting stuck
 
 	if (utils::Compare(p_RemnantMass, MULLERMANDEL_MAXNS) <  0) {
 		muKick=max(MULLERMANDEL_KICKNS*(p_COCoreMass-p_RemnantMass)/p_RemnantMass,0.0);
@@ -2895,7 +2749,6 @@ double BaseStar::DrawSNKickVelocity(const double p_Sigma,
     switch (OPTIONS->KickVelocityDistribution()) {                                              // which distribution
 
         case KICK_VELOCITY_DISTRIBUTION::MAXWELLIAN:
-        case KICK_VELOCITY_DISTRIBUTION::MAXWELL:
             kickVelocity = DrawKickVelocityDistributionMaxwell(p_Sigma, p_Rand);                // MAXWELLIAN, MAXWELL
             break;
 
@@ -3012,7 +2865,7 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
                                     p_RemnantMass);
         }
     }
-    else {                                                                                          // user supplied kick parameters and wants tu use supplied kick velocity, so ...
+    else {                                                                                          // user supplied kick parameters and wants to use supplied kick velocity, so ...
         vK = m_SupernovaDetails.initialKickParameters.velocity;                                     // ... use it 
     }
 

@@ -1995,9 +1995,11 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double p_DonorMass, cons
     double jOrb            = (massAtimesMassD / massAplusMassD) * sqrt(semiMajorAxis * G1 * massAplusMassD);    // orbital angular momentum
     double jLoss;                                                                                               // specific angular momentum carried away by non-conservative mass transfer
     
-    int numberIterations   = fmax( floor (fabs(p_DeltaMassDonor/(MASS_TRANSFER_FRACTION*massD))), 1);           // number of iterations
+    int numberIterations   = fmax( floor (fabs(p_DeltaMassDonor/(MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP*massD))), 1);   // number of iterations
 
-    double fractionAccreted    = m_FractionAccreted;
+    double fractionAccreted;
+    std::tie(std::ignore, fractionAccreted) = p_Accretor.CalculateMassAcceptanceRate(p_ThermalRateDonor, p_Accretor.CalculateThermalMassLossRate());
+
     double dM                  = p_DeltaMassDonor / numberIterations;                                           // mass change per time step
 
     for(int i = 0; i < numberIterations ; i++) {
@@ -2010,7 +2012,7 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double p_DonorMass, cons
         massA          = massA - (dM * fractionAccreted);
         massAplusMassD = massA + massD;
                 
-        std::tie(std::ignore, fractionAccreted) = p_Accretor.CalculateMassAcceptanceRate(p_ThermalRateDonor, fractionAccreted, p_Accretor.CalculateThermalMassLossRate());
+        std::tie(std::ignore, fractionAccreted) = p_Accretor.CalculateMassAcceptanceRate(p_ThermalRateDonor, p_Accretor.CalculateThermalMassLossRate());
     }
 
     return semiMajorAxis;
@@ -2143,9 +2145,9 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                     ? m_Accretor->Mass() / m_Accretor->CalculateThermalTimescale(m_Accretor->Mass(), m_Accretor->RocheLobeRadius() * AU_TO_RSOL, m_Accretor->Luminosity(), m_Accretor->Mass() - m_Accretor->CoreMass()) // assume Radius = RL
                     : m_Accretor->CalculateThermalMassLossRate();
                 
-        std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(thermalRateDonor, m_FractionAccreted, thermalRateAccretor);
+        std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(thermalRateDonor, thermalRateAccretor);
 
-        if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {                           // arbitray angular momentum loss prescription?
+        if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {                           // arbitrary angular momentum loss prescription?
             jLoss = CalculateGammaAngularMomentumLoss();                                                                                            // no - re-calculate angular momentum
         }
 
