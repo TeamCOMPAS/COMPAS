@@ -333,7 +333,7 @@
 //                                      - Issue #269: legacy bug in eccentric RLOF leading to a CEE
 // 02.12.09      IM - Jul 30, 2020 - Enhancement:
 //                                      - Cleaning of BaseBinaryStar::CalculateMassTransferOrbit(); dispensed with mass-transfer-prescription option
-// 02.13.00      IM - Aug 2, 2020  - Enhancements and defect reparis:
+// 02.13.00      IM - Aug 2, 2020  - Enhancements and defect repairs:
 //                                      - Simplified timescale calculations in BaseBinaryStar
 //                                      - Replaced Fast Phase Case A MT and regular RLOF MT from non-envelope stars with a single function based on a root solver rather than random guesses (significantly improves accuracy)
 //                                      - Removed all references to fast phase case A MT
@@ -341,8 +341,13 @@
 //                                      - Corrected incorrect timestep calculation for HeHG stars
 // 02.13.01     AVG - Aug 6, 2020  - Defect repair:
 //										- Issue #267: Use radius of the star instead of Roche-lobe radius throughout ResolveCommonEnvelopeEvent()
+// 02.13.02     AVG - Aug 8, 2020  - Enhancements and defect repairs:
+//                                      - Simplified random draw from Maxwellian distribution to use gsl libraries
+//                                      - Fixed mass transfer with fixed accretion rate
+//                                      - Cleaned up code and removed unused code
+//                                      - Updated documentation
 
-const std::string VERSION_STRING = "02.13.01";
+const std::string VERSION_STRING = "02.13.02";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 

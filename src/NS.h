@@ -63,7 +63,6 @@ protected:
             double          CalculateLuminosityOnPhase()                            { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age); }                    // Use class member variables
 
             DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                        const double p_FractionAccreted,
                                                         const double p_AccretorMassRate = 0.0 );
 
     static  double          CalculateMomentOfInertia_Static(const double p_Mass, const double p_Radius);
