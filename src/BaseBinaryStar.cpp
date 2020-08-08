@@ -2147,7 +2147,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 
         std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(thermalRateDonor, thermalRateAccretor);
 
-        if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {                           // arbitray angular momentum loss prescription?
+        if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {                           // arbitrary angular momentum loss prescription?
             jLoss = CalculateGammaAngularMomentumLoss();                                                                                            // no - re-calculate angular momentum
         }
 
