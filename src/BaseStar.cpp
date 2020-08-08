@@ -2058,8 +2058,8 @@ double BaseStar::CalculateCoreMassGivenLuminosity_Static(const double p_Luminosi
  *
  * For non compact objects:
  *
- *    1) Kelvin-Helmholtz (thermal) timescale if THERMALLY_LIMITED mass transfer
- *    2) Choose a fraction of the mass rate that will be effectively accreted for FIXED_FRACTION mass fraction (as in StarTrack)
+ *    1) Kelvin-Helmholtz (thermal) timescale if THERMAL (thermally limited) mass transfer efficiency
+ *    2) Choose a fraction of the mass rate that will be effectively accreted for FIXED fraction mass transfer (as in StarTrack)
  *
  *
  * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)
@@ -2083,7 +2083,7 @@ DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
 
         case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION:                          // fixed fraction of mass accreted, as in StarTrack
             fractionAccreted = OPTIONS-> MassTransferFractionAccreted();                    // default mass transfer fraction accreted
-            std::cout<<fractionAccreted<<std:endl;
+            std::cout<<fractionAccreted<<std::endl;
             acceptanceRate = min(p_DonorMassRate, fractionAccreted * p_DonorMassRate);
             break;
 
