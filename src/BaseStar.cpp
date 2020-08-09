@@ -1332,12 +1332,12 @@ double BaseStar::CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) {
     double zeta = 0.0;                                              // default value
     
     switch (p_ZetaPrescription) {                                 // which prescription?
-        case ZETA_PRESCRIPTION::SOBERMAN:                        // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
-            zeta = CalculateZadiabaticSPH(m_HeCoreMass);
+        case ZETA_PRESCRIPTION::SOBERMAN:                         // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
+            zeta = CalculateZadiabaticSPH(m_CoreMass);
             break;
             
         case ZETA_PRESCRIPTION::HURLEY:                          // HURLEY: Hurley, Tout, and Pols, 2002, eq 56
-            zeta = CalculateZadiabaticHurley2002(m_HeCoreMass);
+            zeta = CalculateZadiabaticHurley2002(m_CoreMass);
             break;
             
         case ZETA_PRESCRIPTION::ARBITRARY:                       // ARBITRARY: user program options thermal zeta value
@@ -2082,7 +2082,7 @@ DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
             break;
 
         case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION:                          // fixed fraction of mass accreted, as in StarTrack
-            fractionAccreted = OPTIONS-> MassTransferFractionAccreted();                    
+            fractionAccreted = OPTIONS-> MassTransferFractionAccreted();
             acceptanceRate = min(p_DonorMassRate, fractionAccreted * p_DonorMassRate);
             break;
 
@@ -2817,11 +2817,11 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
         double sigma;
         switch (utils::SNEventType(m_SupernovaDetails.events.current)) {                            // what type of supernova event happening now?
 
-		    case SN_EVENT::ECSN:                                                                    // ALEJANDRO - 04/05/2017 - Allow for ECSN to have kicks different than zero. Still, should be low kicks. Default set to zero.  (JR: todo: check default = 30.0?)
+		    case SN_EVENT::ECSN:                                                                    //  ECSN may have a separate kick prescription
 			    sigma = OPTIONS->KickVelocityDistributionSigmaForECSN();
                 break;
 
-		    case SN_EVENT::USSN:                                                                    // ALEJANDRO - 25/08/2017 - Allow for USSN to have a separate kick.
+		    case SN_EVENT::USSN:                                                                    // USSN may have a separate kick prescription
 			    sigma = OPTIONS->KickVelocityDistributionSigmaForUSSN();
                 break;
 
