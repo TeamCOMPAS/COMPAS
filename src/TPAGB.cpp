@@ -629,6 +629,7 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
         stellarType = utils::Compare(gbParams(McBAGB), MCBUR1) < 0 ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
         
         m_Mass      = m_CoreMass;
+        m_HeCoreMass= m_COCoreMass;
         m_Mass0     = m_Mass;
         m_Age       = 0.0;
         m_EnvMass   = 0.0;

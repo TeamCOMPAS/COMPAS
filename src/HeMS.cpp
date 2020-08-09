@@ -361,6 +361,7 @@ STELLAR_TYPE HeMS::ResolveEnvelopeLoss(bool p_NoCheck) {
         stellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;
 
         m_CoreMass  = m_COCoreMass;
+        m_HeCoreMass= m_COCoreMass;
         m_Mass      = m_CoreMass;
         m_Mass0     = m_Mass;
         m_EnvMass   = 0.0;

@@ -2197,14 +2197,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                     m_RLOFDetails.stableRLOFPostCEE = m_MassTransferTrackerHistory == MT_TRACKING::STABLE_FROM_2_TO_1 ||
                            m_MassTransferTrackerHistory == MT_TRACKING::STABLE_FROM_1_TO_2;
                 }
-                
-
-
-                if (m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH}) &&
-                        m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-                    m_Donor->SetSNCurrentEvent(SN_EVENT::USSN);                                                                             // donor ultra-stripped SN happening now
-                    m_Donor->SetSNPastEvent(SN_EVENT::USSN);                                                                                // ... and will be a past event
-                }
         }
 
         else {                                                                                                                              // Unstable Mass Transfer
@@ -2219,7 +2211,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         }
 
     }
-
+    
 	// Check for recycled pulsars. Not considering CEE as a way of recycling NSs.
 	if (!isCEE && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {                                                                                    // accretor is a neutron star
         m_Donor->SetSNPastEvent(SN_EVENT::RLOF_ONTO_NS);                                                                                                    // donor donated mass to a neutron star
