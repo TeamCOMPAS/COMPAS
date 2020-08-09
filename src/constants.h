@@ -348,8 +348,8 @@
 //                                      - Updated documentation
 //02.13.03       IM - Aug 9, 2020  - Enhancements and defect repairs:
 //                                      - Use total core mass rather than He core mass in calls to CalculateZAdiabtic (see Issue #300)
-//                                      - Set He core mass to equal the CO core mass when the He shell is stripped
-//                                      - Ultra-stripped SNe are set at core collapse (do not confusingly refer to stripped stars as previously)
+//                                      - Set He core mass to equal the CO core mass when the He shell is stripped (see issue #277)
+//                                      - Ultra-stripped SNe are set at core collapse (do not confusingly refer to stripped stars as previously, see issue #189)
 
 const std::string VERSION_STRING = "02.13.03";
 
