@@ -341,13 +341,16 @@
 //                                      - Corrected incorrect timestep calculation for HeHG stars
 // 02.13.01     AVG - Aug 6, 2020  - Defect repair:
 //										- Issue #267: Use radius of the star instead of Roche-lobe radius throughout ResolveCommonEnvelopeEvent()
-// 02.13.02     AVG - Aug 8, 2020  - Enhancements and defect repairs:
+// 02.13.02      IM - Aug 8, 2020  - Enhancements and defect repairs:
 //                                      - Simplified random draw from Maxwellian distribution to use gsl libraries
 //                                      - Fixed mass transfer with fixed accretion rate
 //                                      - Cleaned up code and removed unused code
 //                                      - Updated documentation
+//02.13.03       IM - Aug 9, 2020  - Enhancements and defect repairs:
+//                                      - Use total core mass rather than He core mass in calls to CalculateZAdiabtic (see Issue #300)
+//                                      - 
 
-const std::string VERSION_STRING = "02.13.02";
+const std::string VERSION_STRING = "02.13.03";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
