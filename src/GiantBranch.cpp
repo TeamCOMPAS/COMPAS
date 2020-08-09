@@ -1424,6 +1424,7 @@ double GiantBranch::CalculateRemnantMassByBelczynski2002(const double p_Mass, co
 STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
 
     STELLAR_TYPE stellarType = m_StellarType;
+    double mass = m_Mass;                                                                                   // initial mass
 
     switch (OPTIONS->RemnantMassPrescription()) {                                                           // which prescription?
 
@@ -1480,8 +1481,7 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
             stellarType = STELLAR_TYPE::BLACK_HOLE;
         else
             stellarType = STELLAR_TYPE::NEUTRON_STAR;
-    }	
-
+    }
     else if (utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass()) > 0) {
         std::tie(m_Luminosity, m_Radius, m_Temperature) = BH::CalculateCoreCollapseSNParams_Static(m_Mass);
         stellarType = STELLAR_TYPE::BLACK_HOLE;
@@ -1489,6 +1489,11 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
     else {
         std::tie(m_Luminosity, m_Radius, m_Temperature) = NS::CalculateCoreCollapseSNParams_Static(m_Mass);
         stellarType = STELLAR_TYPE::NEUTRON_STAR;
+    }
+
+    if(utils::Compare(mass,m_CoreMass)==0 && utils::Compare(m_HeCoreMass, m_COCoreMass)==0) {               // entire star is CO core, so this is a USSN
+        SetSNCurrentEvent(SN_EVENT::USSN);                                                                  // flag ultra-stripped SN happening now
+        SetSNPastEvent(SN_EVENT::USSN);                                                                     // ... and will be a past event
     }
 
     SetSNCurrentEvent(SN_EVENT::CCSN);                                                                      // flag core-collapse SN happening now

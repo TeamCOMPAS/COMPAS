@@ -2817,11 +2817,11 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
         double sigma;
         switch (utils::SNEventType(m_SupernovaDetails.events.current)) {                            // what type of supernova event happening now?
 
-		    case SN_EVENT::ECSN:                                                                    // ALEJANDRO - 04/05/2017 - Allow for ECSN to have kicks different than zero. Still, should be low kicks. Default set to zero.  (JR: todo: check default = 30.0?)
+		    case SN_EVENT::ECSN:                                                                    //  ECSN may have a separate kick prescription
 			    sigma = OPTIONS->KickVelocityDistributionSigmaForECSN();
                 break;
 
-		    case SN_EVENT::USSN:                                                                    // ALEJANDRO - 25/08/2017 - Allow for USSN to have a separate kick.
+		    case SN_EVENT::USSN:                                                                    // USSN may have a separate kick prescription
 			    sigma = OPTIONS->KickVelocityDistributionSigmaForUSSN();
                 break;
 
