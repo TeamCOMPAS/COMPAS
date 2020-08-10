@@ -84,33 +84,25 @@ double HeWD::CalculateMassLossRateHurley() {
  *
  * For non compact objects:
  *
- *    1) Kelvin-Helmholtz (thermal) timescale if THERMALLY_LIMITED_MASS_TRANSFER
- *    2) Choose a fraction of the mass rate that will be effectively accreted for FIXED_FRACTION_MASS_TRANSFER (as in StarTrack)
- *    3) Disk vs impact accretion for CENTRIFUGALLY_LIMITED_MASS_TRANSFER
+ *    1) Kelvin-Helmholtz (thermal) timescale if THERMAL (thermally limited) mass transfer efficiency
+ *    2) Choose a fraction of the mass rate that will be effectively accreted for FIXED fraction mass transfer (as in StarTrack)
  *
  *
- * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_FractionAccreted, const double p_AccretorMassRate)
+ * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)
  *
  * @param   [IN]    p_DonorMassRate             Mass transfer rate of the donor
- * @param   [IN]    p_FractionAccreted          Accretion efficiency parameter - may be returned unchanged
  * @param   [IN]    p_AccretorMassRate          Thermal mass loss rate of the accretor (this star) - ignored here
  * @return                                      Tuple containing the Maximum Mass Acceptance Rate and the Accretion Efficiency Parameter
  */
-DBL_DBL HeWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_FractionAccreted, const double p_AccretorMassRate) {
+DBL_DBL HeWD::CalculateMassAcceptanceRate(const double p_DonorMassRate,  const double p_AccretorMassRate) {
 
     double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
-    double fractionAccreted = p_FractionAccreted;                                           // accretion fraction - default is unchanged
+    double fractionAccreted = 0.0;                                                          // accretion fraction - default=0.0
 
     double mDotEddington    = CalculateEddingtonCriticalRate();
 
-    if (utils::Compare(mDotEddington, p_DonorMassRate) < 0) {
-        fractionAccreted = std::min(1.0, mDotEddington / p_DonorMassRate);
-        acceptanceRate   = std::min(mDotEddington, p_DonorMassRate);
-    }
-    else {
-        fractionAccreted = 1.0;
-        acceptanceRate   = p_DonorMassRate;
-    }
+    acceptanceRate   = std::min(mDotEddington, p_DonorMassRate);
+    fractionAccreted = acceptanceRate / p_DonorMassRate;
 
     return std::make_tuple(acceptanceRate, fractionAccreted);
 }

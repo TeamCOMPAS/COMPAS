@@ -71,7 +71,6 @@ protected:
     double          CalculateLuminosityOnPhase()                                                        { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age, m_Metallicity); }     // Use class member variables
 
     DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                const double p_FractionAccreted,
                                                 const double p_AccretorMassRate = 0.0 );
 
     double          CalculateMassLossRateHurley();
