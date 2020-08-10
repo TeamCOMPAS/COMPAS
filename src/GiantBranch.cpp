@@ -1424,6 +1424,7 @@ double GiantBranch::CalculateRemnantMassByBelczynski2002(const double p_Mass, co
 STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
 
     STELLAR_TYPE stellarType = m_StellarType;
+    double mass = m_Mass;                                                                                   // initial mass
 
     switch (OPTIONS->RemnantMassPrescription()) {                                                           // which prescription?
 
@@ -1451,17 +1452,15 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
             break;
 
         case REMNANT_MASS_PRESCRIPTION::MULLER2016:                                                         // Muller 2016
-        case REMNANT_MASS_PRESCRIPTION::MULLER2016MAXWELLIAN:                                               // Muller 260016 - Maxwellian
 
             m_Mass = CalculateRemnantMassByMuller2016(m_Mass, m_COCoreMass);
-
-            // JR: todo: fallback fraction not calculated here?
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // No subsequent kick adjustment by fallback fraction needed
             break;
 
-	case REMNANT_MASS_PRESCRIPTION::MULLERMANDEL:                                                         // Mandel & Mueller, 2020
+        case REMNANT_MASS_PRESCRIPTION::MULLERMANDEL:                                                       // Mandel & Mueller, 2020
 
             m_Mass = CalculateRemnantMassByMullerMandel(m_COCoreMass, m_HeCoreMass);
-
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // No subsequent kick adjustment by fallback fraction needed
             break;
 
         default:                                                                                            // unknown prescription
@@ -1478,12 +1477,11 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
         stellarType = CalculateRemnantTypeByMuller2016(m_COCoreMass);
     }
     else if (OPTIONS->RemnantMassPrescription() == REMNANT_MASS_PRESCRIPTION::MULLERMANDEL) {
-	if(utils::Compare(m_Mass, MULLERMANDEL_MAXNS ) > 0) 
-		stellarType = STELLAR_TYPE::BLACK_HOLE; 
+        if(utils::Compare(m_Mass, MULLERMANDEL_MAXNS ) > 0)
+            stellarType = STELLAR_TYPE::BLACK_HOLE;
         else
-		stellarType = STELLAR_TYPE::NEUTRON_STAR;
-    }	
-
+            stellarType = STELLAR_TYPE::NEUTRON_STAR;
+    }
     else if (utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass()) > 0) {
         std::tie(m_Luminosity, m_Radius, m_Temperature) = BH::CalculateCoreCollapseSNParams_Static(m_Mass);
         stellarType = STELLAR_TYPE::BLACK_HOLE;
@@ -1491,6 +1489,11 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
     else {
         std::tie(m_Luminosity, m_Radius, m_Temperature) = NS::CalculateCoreCollapseSNParams_Static(m_Mass);
         stellarType = STELLAR_TYPE::NEUTRON_STAR;
+    }
+
+    if(utils::Compare(mass,m_CoreMass)==0 && utils::Compare(m_HeCoreMass, m_COCoreMass)==0) {               // entire star is CO core, so this is a USSN
+        SetSNCurrentEvent(SN_EVENT::USSN);                                                                  // flag ultra-stripped SN happening now
+        SetSNPastEvent(SN_EVENT::USSN);                                                                     // ... and will be a past event
     }
 
     SetSNCurrentEvent(SN_EVENT::CCSN);                                                                      // flag core-collapse SN happening now

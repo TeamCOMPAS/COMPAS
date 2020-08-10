@@ -333,7 +333,7 @@
 //                                      - Issue #269: legacy bug in eccentric RLOF leading to a CEE
 // 02.12.09      IM - Jul 30, 2020 - Enhancement:
 //                                      - Cleaning of BaseBinaryStar::CalculateMassTransferOrbit(); dispensed with mass-transfer-prescription option
-// 02.13.00      IM - Aug 2, 2020  - Enhancements and defect reparis:
+// 02.13.00      IM - Aug 2, 2020  - Enhancements and defect repairs:
 //                                      - Simplified timescale calculations in BaseBinaryStar
 //                                      - Replaced Fast Phase Case A MT and regular RLOF MT from non-envelope stars with a single function based on a root solver rather than random guesses (significantly improves accuracy)
 //                                      - Removed all references to fast phase case A MT
@@ -341,16 +341,25 @@
 //                                      - Corrected incorrect timestep calculation for HeHG stars
 // 02.13.01     AVG - Aug 6, 2020  - Defect repair:
 //										- Issue #267: Use radius of the star instead of Roche-lobe radius throughout ResolveCommonEnvelopeEvent()
-// 02.13.02		 RW - Jul 31, 2020 - Enhancement:
+// 02.13.02      IM - Aug 8, 2020  - Enhancements and defect repairs:
+//                                      - Simplified random draw from Maxwellian distribution to use gsl libraries
+//                                      - Fixed mass transfer with fixed accretion rate
+//                                      - Cleaned up code and removed unused code
+//                                      - Updated documentation
+//02.13.03       IM - Aug 9, 2020  - Enhancements and defect repairs:
+//                                      - Use total core mass rather than He core mass in calls to CalculateZAdiabtic (see Issue #300)
+//                                      - Set He core mass to equal the CO core mass when the He shell is stripped (see issue #277)
+//                                      - Ultra-stripped SNe are set at core collapse (do not confusingly refer to stripped stars as previously, see issue #189)
+// 02.13.04		 RW - May 20, 2020 - Enhancement:
 // 										- Issue #254 - Remove ID from output files (SEED accomplishes this functionality better)
 // 										- Issue #255 - Update meaning of SN_STATE to reflect which SN occured and in what order
 // 									 Defect repairs:
 // 									 	- Issue #236 - 2nd SN not printed in disrupted systems
-// 02.13.03      RW - Jul 31, 2020 - Minor code rewrite
+// 02.13.05      RW - May 20, 2020 - Minor code rewrite
 //                                      - Added vector3d.h/.cpp and functionality for vector addition of velocities from both SNe (for more accurate system and component velocities)
 //                                      - Rewrote ResolveSupernova function for binaries to incorporate new vector3d objects
 
-const std::string VERSION_STRING = "02.13.01";
+const std::string VERSION_STRING = "02.13.05";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
@@ -619,7 +628,7 @@ constexpr double ZETA_NUCLEAR_TIMESTEP                  = 1.0E-3;               
 constexpr double ZETA_NUCLEAR_TOLERANCE                 = 1.0E-3;                                                   // Tolerance between iterations when calculating zeta nuclear
 constexpr int    ZETA_NUCLEAR_ITERATIONS                = 10;                                                       // Maximum number of iterations to use when calculating zeta nuclear
 
-constexpr double   MASS_TRANSFER_FRACTION	            = 0.001;                                                    // Maximal fraction of donor mass that can be transferred in one step of stable mass transfer
+constexpr double   MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP	 = 0.001;                                               // Maximal fraction of donor mass that can be transferred in one step of stable mass transfer
 
 constexpr double LAMBDA_NANJING_ZLIMIT                  = 0.0105;                                                   // Metallicity cutoff for Nanjing lambda calculations
 
@@ -1103,17 +1112,16 @@ const COMPASUnorderedMap<HYDROGEN_CONTENT, std::string> HYDROGEN_CONTENT_LABEL =
 
 
 // Kick velocity distribution
-enum class KICK_VELOCITY_DISTRIBUTION: int { ZERO, FIXED, FLAT, MAXWELLIAN, MAXWELL, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL };
+enum class KICK_VELOCITY_DISTRIBUTION: int { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL };
 const COMPASUnorderedMap<KICK_VELOCITY_DISTRIBUTION, std::string> KICK_VELOCITY_DISTRIBUTION_LABEL = {
     { KICK_VELOCITY_DISTRIBUTION::ZERO,                 "ZERO" },
     { KICK_VELOCITY_DISTRIBUTION::FIXED,                "FIXED" },
     { KICK_VELOCITY_DISTRIBUTION::FLAT,                 "FLAT" },
     { KICK_VELOCITY_DISTRIBUTION::MAXWELLIAN,           "MAXWELLIAN" },
-    { KICK_VELOCITY_DISTRIBUTION::MAXWELL,              "MAXWELL" },
     { KICK_VELOCITY_DISTRIBUTION::BRAYELDRIDGE,         "BRAYELDRIDGE" },
     { KICK_VELOCITY_DISTRIBUTION::MULLER2016,           "MULLER2016" },
     { KICK_VELOCITY_DISTRIBUTION::MULLER2016MAXWELLIAN, "MULLER2016MAXWELLIAN" },
-    { KICK_VELOCITY_DISTRIBUTION::MULLERMANDEL, "MULLERMANDEL" }
+    { KICK_VELOCITY_DISTRIBUTION::MULLERMANDEL,         "MULLERMANDEL" }
 };
 
 
@@ -1169,11 +1177,10 @@ const COMPASUnorderedMap<MASS_TRANSFER, std::string> MASS_TRANSFER_LABEL = {
 
 
 // Mass transfer accretion efficiency prescriptions
-enum class MT_ACCRETION_EFFICIENCY_PRESCRIPTION: int { THERMALLY_LIMITED, FIXED_FRACTION, CENTRIFUGALLY_LIMITED };
+enum class MT_ACCRETION_EFFICIENCY_PRESCRIPTION: int { THERMALLY_LIMITED, FIXED_FRACTION};
 const COMPASUnorderedMap<MT_ACCRETION_EFFICIENCY_PRESCRIPTION, std::string> MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL = {
     { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED,     "THERMAL" },
-    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION,        "FIXED" },
-    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::CENTRIFUGALLY_LIMITED, "CENTRIFUGAL" }
+    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION,        "FIXED" }
 };
 
 
@@ -1283,15 +1290,14 @@ const COMPASUnorderedMap<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PUL
 
 
 // Remnant Mass Prescriptions
-enum class REMNANT_MASS_PRESCRIPTION: int { POSTITNOTE, HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL };
+enum class REMNANT_MASS_PRESCRIPTION: int { POSTITNOTE, HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL };
 const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PRESCRIPTION_LABEL = {
     { REMNANT_MASS_PRESCRIPTION::POSTITNOTE,           "POSTITNOTE" },
     { REMNANT_MASS_PRESCRIPTION::HURLEY2000,           "HURLEY2000" },
     { REMNANT_MASS_PRESCRIPTION::BELCZYNSKI2002,       "BELCZYNSKI2002" },
     { REMNANT_MASS_PRESCRIPTION::FRYER2012,            "FRYER2012" },
     { REMNANT_MASS_PRESCRIPTION::MULLER2016,           "MULLER2016" },
-    { REMNANT_MASS_PRESCRIPTION::MULLER2016MAXWELLIAN, "MULLER2016MAXWELLIAN" },
-    { REMNANT_MASS_PRESCRIPTION::MULLERMANDEL, "MULLERMANDEL" }
+    { REMNANT_MASS_PRESCRIPTION::MULLERMANDEL,         "MULLERMANDEL" }
 };
 
 

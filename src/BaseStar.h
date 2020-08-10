@@ -171,7 +171,6 @@ public:
             void            CalculateLambdas(const double p_EnvMass);
 
     virtual DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                        const double p_FractionAccreted,
                                                         const double p_AccretorMassRate = 0.0);
 
             double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false);                                                               // JR: todo: better name?
@@ -412,8 +411,6 @@ protected:
 
     static  double          CalculateInitialEnvelopeMass_Static(const double p_Mass);
 
-    static  double          CalculateInverseMaxwellCDF_Static(const double p_X, void* p_Params);
-
     virtual double          CalculateLambdaDewi()                                                               { SHOW_WARN(ERROR::NO_LAMBDA_DEWI, "Default used: 1.0"); return 1.0; }      // Not supported: show error
             double          CalculateLambdaKruckow(const double p_Radius, const double p_Alpha);
             double          CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss = false);
@@ -549,7 +546,6 @@ protected:
 
     virtual STELLAR_TYPE    EvolveToNextPhase()                                                                 { return m_StellarType; }
 
-    static  double          InverseSampleFromMaxwellCDF_Static(const double p_X, const double p_Sigma);
 
     virtual bool            IsEndOfPhase()                                                                      { return false; }
     virtual bool            IsSupernova()                                                                       { return false; }
