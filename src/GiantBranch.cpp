@@ -1730,6 +1730,9 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         m_EnvMass     = 0.0;
         m_Age         = 0.0;
 
+        if(m_Mass>m_SupernovaDetails.totalMassAtCOFormation){
+            std::cout<<"SNERROR: "<< m_Mass<<" "<<m_SupernovaDetails.totalMassAtCOFormation<<std::endl;
+        }
     	CalculateSNKickVelocity(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
     }
 
