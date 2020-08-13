@@ -35,6 +35,14 @@ protected:
         m_StellarType = STELLAR_TYPE::HERTZSPRUNG_GAP;                                                                                                                      // Set stellar type
         CalculateTimescales();                                                                                                                                              // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tMS)];                                                                                                             // Set age appropriately
+        
+        //Update stellar properties at start of HG phase (since core defintion changes)
+        CalculateGBParams();
+        m_COCoreMass  = CalculateCOCoreMassOnPhase();
+        m_CoreMass    = CalculateCoreMassOnPhase();
+        m_HeCoreMass  = CalculateHeCoreMassOnPhase();
+        m_Luminosity  = CalculateLuminosityOnPhase();
+        std::tie(m_Radius, std::ignore) = CalculateRadiusAndStellarTypeOnPhase();   // Update radius
     }
 
 

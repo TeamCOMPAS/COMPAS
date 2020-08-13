@@ -36,6 +36,14 @@ protected:
         // JR: Age for HeHG is calculated before switching -
         // can get here via EvolveOneTimestep() and ResolveEnvelopeLoss(),
         // and Age is calculated differently in those cases
+        
+        //Update stellar properties at start of HeHG phase (since core defintion changes)
+        CalculateGBParams();
+        m_COCoreMass  = CalculateCOCoreMassOnPhase();
+        m_CoreMass    = CalculateCoreMassOnPhase();
+        m_HeCoreMass  = CalculateHeCoreMassOnPhase();
+        m_Luminosity  = CalculateLuminosityOnPhase();
+        std::tie(m_Radius, std::ignore) = CalculateRadiusAndStellarTypeOnPhase();   // Update radius
     }
 
 

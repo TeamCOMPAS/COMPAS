@@ -350,6 +350,10 @@
 //                                      - Use total core mass rather than He core mass in calls to CalculateZAdiabtic (see Issue #300)
 //                                      - Set He core mass to equal the CO core mass when the He shell is stripped (see issue #277)
 //                                      - Ultra-stripped SNe are set at core collapse (do not confusingly refer to stripped stars as previously, see issue #189)
+//02.13.04       IM - Aug 14, 2020 - Enhancements and defect repairs:
+//                                      - Catch exception in boost root finder for mass transfer (resolve issue #317)
+//                                      - Update core masses during Initialisation of HG and HeHG stars to be consistent with Hurley models
+//                                      - Avoid division by zero in mass transfer rates of WDs
 
 const std::string VERSION_STRING = "02.13.03";
 
