@@ -90,13 +90,16 @@ protected:
     double          CalculateThermalTimescale(const double p_Mass,
                                                   const double p_Radius,
                                                   const double p_Luminosity,
-                                                  const double p_EnvMass = 1.0)                         { m_Error = ERROR::INVALID_TYPE_MT_THERMAL_TIMESCALE;                           // Set error value
-                                                                                                          SHOW_WARN(m_Error);                                                           // Warn that an error occurred
-                                                                                                          return 0.0; }                                                                 // Should never be called...
+                                                  const double p_EnvMass = 1.0)
+        { m_Error = ERROR::INVALID_TYPE_MT_THERMAL_TIMESCALE;                           // Set error value
+            SHOW_WARN(m_Error);                                                           // Warn that an error occurred
+            return 0.0; }                                                                 // Should never be called...
 
-    double          CalculateThermalMassLossRate()                                                      { return BaseStar::CalculateThermalMassLossRate(); }                            // Use BaseStar
-
-    double          CalculateThermalTimescale()                                                         { return CalculateThermalTimescale(m_Mass, m_Radius, m_Luminosity); }           // Should never be called...
+    double          CalculateThermalMassLossRate()                                                      { return std::numeric_limits<double>::max();    }
+        //Set thermal mass gain rate to be effectively infinite (in practice, will be Eddington limited), avoid division by zero
+    
+    double          CalculateThermalTimescale()                                                         { return 0.0; }
+        //Set thermal timescale to be zero
 
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
     void            CalculateTimescales()                                                               { CalculateTimescales(m_Mass0, m_Timescales); }                                 // Use class member variables

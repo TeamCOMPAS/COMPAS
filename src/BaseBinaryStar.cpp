@@ -2168,7 +2168,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
                     STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                                         // donor stellar type before resolving envelope loss
                     
-
                     aFinal                  = CalculateMassTransferOrbit(m_Donor->Mass(), -envMassDonor, m_Donor->CalculateThermalMassLossRate(), *m_Accretor);
                     wFinal                  = sqrt(G1 * (m_Donor->Mass() + m_Accretor->Mass()) / (aFinal * aFinal * aFinal));
                     
