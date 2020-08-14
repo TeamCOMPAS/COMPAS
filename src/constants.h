@@ -354,6 +354,7 @@
 //                                      - Catch exception in boost root finder for mass transfer (resolve issue #317)
 //                                      - Update core masses during Initialisation of HG and HeHG stars to be consistent with Hurley models
 //                                      - Avoid division by zero in mass transfer rates of WDs
+//                                      - Remove POSTITNOTE remnant mass prescription
 
 const std::string VERSION_STRING = "02.13.03";
 
@@ -1276,9 +1277,8 @@ const COMPASUnorderedMap<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PUL
 
 
 // Remnant Mass Prescriptions
-enum class REMNANT_MASS_PRESCRIPTION: int { POSTITNOTE, HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL };
+enum class REMNANT_MASS_PRESCRIPTION: int { HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL };
 const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PRESCRIPTION_LABEL = {
-    { REMNANT_MASS_PRESCRIPTION::POSTITNOTE,           "POSTITNOTE" },
     { REMNANT_MASS_PRESCRIPTION::HURLEY2000,           "HURLEY2000" },
     { REMNANT_MASS_PRESCRIPTION::BELCZYNSKI2002,       "BELCZYNSKI2002" },
     { REMNANT_MASS_PRESCRIPTION::FRYER2012,            "FRYER2012" },

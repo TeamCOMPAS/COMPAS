@@ -93,13 +93,13 @@ protected:
                                                   const double p_EnvMass = 1.0)
         { m_Error = ERROR::INVALID_TYPE_MT_THERMAL_TIMESCALE;                           // Set error value
             SHOW_WARN(m_Error);                                                           // Warn that an error occurred
-            return 0.0; }                                                                 // Should never be called...
+            return CalculateDynamicalTimescale(); }                                                                 // Should never be called...
 
-    double          CalculateThermalMassLossRate()                                                      { return std::numeric_limits<double>::max();    }
+    double          CalculateThermalMassLossRate()                                                      { return m_Mass / CalculateThermalTimescale(); }
         //Set thermal mass gain rate to be effectively infinite (in practice, will be Eddington limited), avoid division by zero
     
-    double          CalculateThermalTimescale()                                                         { return 0.0; }
-        //Set thermal timescale to be zero
+    double          CalculateThermalTimescale()                                                         { return CalculateDynamicalTimescale(); }
+        //Use dynamical timescale for mass transfer purposes
 
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
     void            CalculateTimescales()                                                               { CalculateTimescales(m_Mass0, m_Timescales); }                                 // Use class member variables

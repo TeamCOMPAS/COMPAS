@@ -1428,12 +1428,6 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
 
     switch (OPTIONS->RemnantMassPrescription()) {                                                           // which prescription?
 
-        case REMNANT_MASS_PRESCRIPTION::POSTITNOTE:                                                         // POSTITNOTE
-
-            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // Not defined
-            m_Mass                              = BH::CalculateRemnantMass_Static(m_MZAMS);
-            break;
-
         case REMNANT_MASS_PRESCRIPTION::HURLEY2000:                                                         // Hurley 2000
 
             m_SupernovaDetails.fallbackFraction = 0.0;                                                      // Not defined
