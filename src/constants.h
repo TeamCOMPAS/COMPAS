@@ -356,7 +356,7 @@
 //                                      - Avoid division by zero in mass transfer rates of WDs
 //                                      - Remove POSTITNOTE remnant mass prescription
 
-const std::string VERSION_STRING = "02.13.03";
+const std::string VERSION_STRING = "02.13.04";
 
 // Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
