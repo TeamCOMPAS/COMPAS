@@ -32,6 +32,7 @@ protected:
 
     void Initialise() {
         m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP;                                                                                                            // Set stellar type
+        m_Tau = 0.0;                                                                                      // Start of phase
         CalculateTimescales();                                                                                                                                                      // Initialise timescales
         // JR: Age for HeHG is calculated before switching -
         // can get here via EvolveOneTimestep() and ResolveEnvelopeLoss(),

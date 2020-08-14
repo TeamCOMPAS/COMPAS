@@ -33,6 +33,7 @@ protected:
 
     void Initialise() {
         m_StellarType = STELLAR_TYPE::HERTZSPRUNG_GAP;                                                                                                                      // Set stellar type
+        m_Tau = 0.0;                                                                                      // Start of phase
         CalculateTimescales();                                                                                                                                              // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tMS)];                                                                                                             // Set age appropriately
         
