@@ -3334,7 +3334,7 @@ STELLAR_TYPE BaseStar::EvolveOnPhase() {
         //if(m_StellarType == STELLAR_TYPE::NAKED_HELIUM_STAR_MS){
             //m_HeCoreMass  = CalculateHeCoreMassOnPhase();
             //std::cout<<" mass:"<<m_Mass<<" CO: "<<m_COCoreMass<<" He: "<<m_HeCoreMass<<" core: "<<m_CoreMass<<" type: "<<(int) m_StellarType<<" tau: "<< m_Tau<<" age: "<<m_Age<<std::endl;
-            std::cout<<" On the fly He core mass for star of type "<<(int) m_StellarType<< " and previous type "<<(int) m_StellarTypePrev  <<" and ID " << ObjectId()<< " is:  "<<CalculateHeCoreMassOnPhase()<<std::endl;
+            std::cout<<" On the fly He core mass for star of type "<<(int) m_StellarType<< " and previous type "<<(int) m_StellarTypePrev  <<" and ID " << ObjectId()<< " is:  "<<CalculateHeCoreMassOnPhase()<<", mass is "<<m_Mass<<std::endl;
         //}
         
         if(m_HeCoreMass>m_Mass){

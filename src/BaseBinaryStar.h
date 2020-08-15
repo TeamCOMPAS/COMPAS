@@ -561,8 +561,6 @@ private:
                                                 const double p_KickTheta,
                                                 const double p_KickPhi);
 
-    double  CalculateTimestep(const double p_Dt);
-
     double  CalculateTimeToCoalescence(double a0, double e0, double m1, double m2);
 
     // CalculateTotalEnergy - the actual function takes 10 parameters because of the various calling permutations
