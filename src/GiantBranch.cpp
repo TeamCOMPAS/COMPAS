@@ -1416,12 +1416,12 @@ double GiantBranch::CalculateRemnantMassByBelczynski2002(const double p_Mass, co
  *      Luminosity, Radius, Temperature, supernova events: current = SN, past = CCSN
  *
  *
- * STELLAR_TYPE IsCoreCollapseSN(const SNE SNEngine)
+ * STELLAR_TYPE ResolveCoreCollapseSN(const SNE SNEngine)
  *
  * @param   [IN]    SNEngine                    Fryer SN Engine to use (if required)
  * @return                                      The stellar type to which the star should evolve
  */
-STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
+STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN(const SN_ENGINE SNEngine) {
 
     STELLAR_TYPE stellarType = m_StellarType;
     double mass = m_Mass;                                                                                   // initial mass
@@ -1465,6 +1465,8 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
             m_Error = ERROR::UNKNOWN_REMNANT_MASS_PRESCRIPTION;                                             // set error number
             SHOW_ERROR(ERROR::UNKNOWN_REMNANT_MASS_PRESCRIPTION, "Using default");                          // show error
     }
+    
+    std::cout<<"CCSN: init mass, CO, He, remnant:" <<mass<<" "<<m_COCoreMass<<" "<<m_HeCoreMass<<" "<<m_Mass<<std::endl;
 
     // Set the stellar type to which the star should evolve (either use prescription or MAXIMUM_NS_MSS)
     if (OPTIONS->RemnantMassPrescription() == REMNANT_MASS_PRESCRIPTION::MULLER2016) {
@@ -1510,11 +1512,11 @@ STELLAR_TYPE GiantBranch::IsCoreCollapseSN(const SN_ENGINE SNEngine) {
  * TODO a nice reference (Nomoto 1984 for thorough discussion and a summary in Nomoto 1987)
  *
  *
- * STELLAR_TYPE IsElectronCaptureSN()
+ * STELLAR_TYPE ResolveElectronCaptureSN()
  *
  * @return                                      Stellar type of remnant (always STELLAR_TYPE::NEUTRON_STAR)
  */
-STELLAR_TYPE GiantBranch::IsElectronCaptureSN() {
+STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
 
     m_Mass       = MECS_REM;                                                        // defined in constant.h
     m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                       // neutronStarRadius in Rsol
@@ -1533,11 +1535,11 @@ STELLAR_TYPE GiantBranch::IsElectronCaptureSN() {
  * Zero attributes - leaves a Massless remnant
  *
  *
- * STELLAR_TYPE IsTypeIIaSN()
+ * STELLAR_TYPE ResolveTypeIIaSN()
  *
  * @return                                      Stellar type of remnant (always STELLAR_TYPE::MASSLESS_REMNANT)
  */
-STELLAR_TYPE GiantBranch::IsTypeIIaSN() {
+STELLAR_TYPE GiantBranch::ResolveTypeIIaSN() {
 
     m_Mass              = 0.0;
     m_Radius            = 0.0;
@@ -1566,11 +1568,11 @@ STELLAR_TYPE GiantBranch::IsTypeIIaSN() {
  * leaving a remnant.
  *
  *
- * STELLAR_TYPE IsPulsationalPairInstabilitySN()
+ * STELLAR_TYPE ResolvePairInstabilitySN()
  *
  * @return                                      Stellar type of remnant
  */
-STELLAR_TYPE GiantBranch::IsPairInstabilitySN() {
+STELLAR_TYPE GiantBranch::ResolvePairInstabilitySN() {
 
     m_Luminosity  = 0.0;
     m_Radius      = 0.0;
@@ -1594,11 +1596,11 @@ STELLAR_TYPE GiantBranch::IsPairInstabilitySN() {
  * Updates attributes of star; sets SN events
  *
  *
- * STELLAR_TYPE IsPulsationalPairInstabilitySN()
+ * STELLAR_TYPE ResolvePulsationalPairInstabilitySN()
  *
  * @return                                      Stellar type of remnant
  */
-STELLAR_TYPE GiantBranch::IsPulsationalPairInstabilitySN() {
+STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
@@ -1647,10 +1649,9 @@ STELLAR_TYPE GiantBranch::IsPulsationalPairInstabilitySN() {
     }
 
     if (utils::Compare(m_Mass, 0.0) <= 0) {                                                             // remnant mass <= 0?
-        stellarType = IsPairInstabilitySN();                                                            // yes - PISN rather than PPISN
+        stellarType = ResolvePairInstabilitySN();                                                       // yes - PISN rather than PPISN
     }
     else {                                                                                              // no - PPISN
-
         SetSNCurrentEvent(SN_EVENT::PPISN);                                                             // pulsational pair instability SN happening now
         SetSNPastEvent(SN_EVENT::PPISN);                                                                // ... and will be a past event
 
@@ -1697,33 +1698,28 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
             utils::Compare(m_HeCoreMass, OPTIONS->PulsationalPairInstabilityLowerLimit()) >= 0 &&
             utils::Compare(m_HeCoreMass, OPTIONS->PulsationalPairInstabilityUpperLimit()) <= 0) {   // Pulsational Pair Instability SuperNova
 
-            stellarType = IsPulsationalPairInstabilitySN();
+            stellarType = ResolvePulsationalPairInstabilitySN();
         }
         else if (                        OPTIONS->UsePairInstabilitySupernovae()    &&
             utils::Compare(m_HeCoreMass, OPTIONS->PairInstabilityLowerLimit()) >= 0 &&
             utils::Compare(m_HeCoreMass, OPTIONS->PairInstabilityUpperLimit()) <= 0) {              // Pair Instability SuperNova
 
-            stellarType = IsPairInstabilitySN();
+            stellarType = ResolvePairInstabilitySN();
         }
         else if (utils::Compare(snMass, MCBUR1) < 0) {                                                 // Type IIa SuperNova
-            stellarType = IsTypeIIaSN();
+            stellarType = ResolveTypeIIaSN();
         }
         else if (utils::Compare(snMass, MCBUR2) < 0) {                                                // Electron Capture SuperNova
-            stellarType = IsElectronCaptureSN();
+            stellarType = ResolveElectronCaptureSN();
         }
         else {                                                                                      // Core Collapse SuperNova
-            stellarType = IsCoreCollapseSN(OPTIONS->FryerSupernovaEngine());
+            stellarType = ResolveCoreCollapseSN(OPTIONS->FryerSupernovaEngine());
         }
 
-        // SIMON : What is this line for? Why 'reset' things to 0?                                  // JR: todo: check this
-        // reset values to zero
-        m_COCoreMass  = 0.0;
-        m_HeCoreMass  = 0.0;
-        m_CoreMass    = 0.0;
-        m_Mass0       = 0.0;
-        m_EnvMass     = 0.0;
-        m_Age         = 0.0;
-
+        if(m_Mass>m_SupernovaDetails.totalMassAtCOFormation){
+            std::cout<<"SNERROR: "<< m_Mass<<" "<<m_SupernovaDetails.totalMassAtCOFormation<<" SN type: "<<(int) utils::SNEventType(m_SupernovaDetails.events.current)<<std::endl;
+        }
+            
     	CalculateSNKickVelocity(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
     }
 

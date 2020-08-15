@@ -441,7 +441,6 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
         m_HeCoreMass= m_COCoreMass;
         m_Mass      = m_CoreMass;
         m_Mass0     = m_Mass;
-        m_EnvMass   = 0.0;
         m_Age       = 0.0;
         m_Radius    = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
     }

@@ -50,7 +50,6 @@ public:
             double              Dt() const                                                      { return m_Dt; }
             double              DtPrev() const                                                  { return m_DtPrev; }
             double              DynamicalTimescale() const                                      { return m_DynamicalTimescale; }
-            double              EnvMass() const                                                 { return m_EnvMass; }
             ERROR               Error() const                                                   { return m_Error; }
             bool                ExperiencedCCSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
             bool                ExperiencedECSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::ECSN) == SN_EVENT::ECSN; }
@@ -208,7 +207,7 @@ public:
 
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative
 
-    virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false)                                         { m_EnvMass = 0.0; return m_StellarType; }
+    virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false)                                         { return m_StellarType; }
 
     virtual void            ResolveMassLoss();
 
@@ -269,7 +268,6 @@ protected:
     double                  m_CoreMass;                                 // Current core mass (Msol)
     double                  m_CoreRadius;                               // Current core radius (Rsol)                   JR: todo: I don't think this is used anywhere...
     double                  m_Dt;                                       // Current timestep (myrs)
-    double                  m_EnvMass;                                  // Current envelope mass (Msol)
     double                  m_HeCoreMass;                               // Current He core mass (Msol)
     bool                    m_LBVphaseFlag;                             // Flag to know if the star satisfied the conditions, at any point in its evolution, to be considered a Luminous Blue Variable (LBV)
     double                  m_Luminosity;                               // Current luminosity (Lsol)
@@ -389,13 +387,10 @@ protected:
                                                                                                                   SHOW_WARN(m_Error);                                                       // Warn that an error occurred
                                                                                                                   return 1.5E-8 * (m_Radius * RSOL_TO_KM / 10.0) * MYR_TO_YEAR; }           // Should never be called...
 
-    virtual double          CalculateEnvelopeMassAtPhaseEnd(const double p_Tau)                                 { return CalculateEnvelopeMassOnPhase(p_Tau); }                             // Same as on phase
-    virtual double          CalculateEnvelopeMassOnPhase(const double p_Tau);
-
             double          CalculateGBRadiusXExponent();
 
     virtual double          CalculateHeCoreMassAtPhaseEnd()                                                     { return m_HeCoreMass; }                                                    // Default is NO-OP
-    virtual double          CalculateHeCoreMassOnPhase()                                                        { return m_HeCoreMass; }                                                    // Default is NO-OP
+    virtual double          CalculateHeCoreMassOnPhase()                                                        { std::cout<<"Base"; return m_HeCoreMass; }                                                    // Default is NO-OP
 
     static  double          CalculateHeRateConstant_Static()                                                    { return HE_RATE_CONSTANT; }                                                // Only >= CHeB stars need AHe, but no drama if other stars calculate (retrieve it) - it's only a constant (we could just use the constant inline...)
     static  double          CalculateHHeRateConstant_Static()                                                   { return HHE_RATE_CONSTANT; }                                               // Only TPAGB stars need AHHe, but no drama if other stars calculate (retrieve it) - it's only a constant (we could just use the constant inline...)
@@ -566,8 +561,6 @@ protected:
     virtual void            PerturbLuminosityAndRadiusOnPhase()                                                 { PerturbLuminosityAndRadius(); }
 
             STELLAR_TYPE    ResolveEndOfPhase();
-    virtual void            ResolveEnvelopeMassAtPhaseEnd(const double p_Tau)                                   { m_EnvMass = CalculateEnvelopeMassAtPhaseEnd(p_Tau); }
-    virtual void            ResolveEnvelopeMassOnPhase(const double p_Tau)                                      { m_EnvMass = CalculateEnvelopeMassOnPhase(p_Tau); }
     virtual void            ResolveHeliumFlash() { }
     virtual STELLAR_TYPE    ResolveSkippedPhase()                                                               { return EvolveToNextPhase(); }                                                 // Default is evolve to next phase
     virtual STELLAR_TYPE    ResolveSupernova()                                                                  { return m_StellarType; }                                                       // Default is NO-OP

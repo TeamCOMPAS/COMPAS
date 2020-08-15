@@ -53,7 +53,7 @@ protected:
     double          CalculateGyrationRadius()                                                   { return 0.1; }                                                     // Hurley et al., 2000, after eq 109 for giants. Single number approximation.   JR: todo: should this be in constants.h?
 
     double          CalculateHeCoreMassAtPhaseEnd()                                             { return CalculateHeCoreMassOnPhase(); }                            // Same as on phase
-    double          CalculateHeCoreMassOnPhase()                                                { return m_HeCoreMass; }                                            // NO-OP
+    double          CalculateHeCoreMassOnPhase()                                                { std::cout<<"EAGB"; return m_HeCoreMass; }                                            // NO-OP
 
     double          CalculateInitialSupernovaMass()                                             { return m_GBParams[static_cast<int>(GBP::McBAGB)]; }               // For EAGB & TPAGB we use the mass at Base Asymptotic Giant Branch to determine SN type
 

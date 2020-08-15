@@ -136,7 +136,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Luminosity                               = m_LZAMS;
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
-    m_EnvMass                                  = CalculateInitialEnvelopeMass_Static(m_Mass);
 
     m_CoreMass                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_COCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -315,7 +314,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::DT:                                                 value = Dt();                                                   break;
             case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE:                                value = DynamicalTimescale();                                   break;
             case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
-            case ANY_STAR_PROPERTY::ENV_MASS:                                           value = EnvMass();                                              break;
+            case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass()-CoreMass();                                             break;
             case ANY_STAR_PROPERTY::ERROR:                                              value = Error();                                                break;
             case ANY_STAR_PROPERTY::EXPERIENCED_CCSN:                                   value = ExperiencedCCSN();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_ECSN:                                   value = ExperiencedECSN();                                      break;
@@ -1596,26 +1595,6 @@ double BaseStar::CalculateInitialEnvelopeMass_Static(const double p_Mass) {
 }
 
 
-/*
- * Calculate envelope mass on phase as a function of time
- *
- * Given just after Eq 111 in Hurley et al. 2000
- *
- * This function works for most phases.  Stellar types MS_lte_07, MS_gt_07 and HertzsprungGap
- * have specialised functions.
- *
- *
- * double CalculateEnvelopeMassOnPhase(const double p_Tau)
- *
- * @param   [IN]    p_Tau                       Relative lifetime
- * @return                                      ZAMS envelope mass - Menv in Hurley et al. 2000
- *
- * Parameter p_Tau not required here - but we want same signature for all classes.  (JR: revisit this)
- */
-double BaseStar::CalculateEnvelopeMassOnPhase(const double p_Tau) {
-    return m_Mass - m_CoreMass; // For most phases with core envelope separation
-}
-
 
 /*
  * Calculate rejuvenation factor for stellar age based on mass lost/gained during mass transfer
@@ -2013,7 +1992,12 @@ void BaseStar::ResolveMassLoss() {
 
     if (OPTIONS->UseMassLoss()) {
         m_Mass = CalculateMassLossValues(true, true);                           // calculate new values assuming mass loss applied
-
+        
+        m_HeCoreMass=std::min(m_HeCoreMass,m_Mass);                             // update He mass if mass loss is happening from He stars
+        
+        m_COCoreMass=std::min(m_COCoreMass,m_Mass);                             // Not expected, only a precaution to avoid inconsistencies
+        m_CoreMass=std::min(m_CoreMass, m_Mass);
+        
         UpdateInitialMass();                                                    // update initial mass (MS, HG & HeMS)  JR: todo: fix this kludge one day - mass0 is overloaded, and isn't always "initial mass"
         UpdateAgeAfterMassLoss();                                               // update age (MS, HG & HeMS)
         ApplyMassTransferRejuvenationFactor();                                  // apply age rejuvenation factor
@@ -3346,12 +3330,24 @@ STELLAR_TYPE BaseStar::EvolveOnPhase() {
         m_COCoreMass  = CalculateCOCoreMassOnPhase();
         m_CoreMass    = CalculateCoreMassOnPhase();
         m_HeCoreMass  = CalculateHeCoreMassOnPhase();
-
+        
+        //if(m_StellarType == STELLAR_TYPE::NAKED_HELIUM_STAR_MS){
+            //m_HeCoreMass  = CalculateHeCoreMassOnPhase();
+            //std::cout<<" mass:"<<m_Mass<<" CO: "<<m_COCoreMass<<" He: "<<m_HeCoreMass<<" core: "<<m_CoreMass<<" type: "<<(int) m_StellarType<<" tau: "<< m_Tau<<" age: "<<m_Age<<std::endl;
+            std::cout<<" On the fly He core mass for star of type "<<(int) m_StellarType<< " and previous type "<<(int) m_StellarTypePrev  <<" and ID " << ObjectId()<< " is:  "<<CalculateHeCoreMassOnPhase()<<std::endl;
+        //}
+        
+        if(m_HeCoreMass>m_Mass){
+            std::cout<<"TOO MUCH HE mass:"<<m_Mass<<" He: "<<m_HeCoreMass<<" type: "<<(int) m_StellarType<<std::endl;
+        }
+        
+        if(m_CoreMass>m_Mass){
+            std::cout<<"TOO MUCH CORE mass:"<<m_Mass<<" core: "<<m_CoreMass<<" type: "<<(int) m_StellarType<<std::endl;
+        }
+        
         m_Luminosity  = CalculateLuminosityOnPhase();
 
         std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // Radius and possibly new stellar type
-
-        ResolveEnvelopeMassOnPhase(m_Tau);
 
         m_Mu          = CalculatePerturbationMuOnPhase();
 
@@ -3395,8 +3391,6 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase() {
             m_Luminosity  = CalculateLuminosityAtPhaseEnd();
             
             m_Radius      = CalculateRadiusAtPhaseEnd();
-
-            ResolveEnvelopeMassAtPhaseEnd(m_Tau);
 
             m_Mu          = CalculatePerturbationMuAtPhaseEnd();
 
