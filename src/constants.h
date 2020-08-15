@@ -355,10 +355,13 @@
 //                                      - Update core masses during Initialisation of HG and HeHG stars to be consistent with Hurley models
 //                                      - Avoid division by zero in mass transfer rates of WDs
 //                                      - Remove POSTITNOTE remnant mass prescription
+//02.13.05       IM - Aug 15, 2020 - Enhancements and defect repairs:
+//                                      - General code cleaning
+//                                      - Removed some redundant variables (e.g., m_EnvMass, which can be computed from m_Mass and m_CoreMass)
+//
 
-const std::string VERSION_STRING = "02.13.04";
+const std::string VERSION_STRING = "02.13.05";
 
-// Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type

@@ -77,7 +77,7 @@ protected:
             DBL_DBL         CalculateRemnantMassByFryer2012(const SN_ENGINE p_Engine, const double p_Mass, const double p_COCoreMass);
             double          CalculateRemnantMassByMuller2016(const double p_Mass, const double p_COCoreMass);
 	    double          CalculateRemnantMassByMullerMandel(const double p_COCoreMass, const double p_HeCoreMass);
-            double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0)             { return (0.1 * m_EnvMass * m_Radius * m_Radius) + (0.21 * m_CoreMass * p_RemnantRadius * p_RemnantRadius); }   // k2 = 0.1 and k3 = 0.21 as defined in Hurley et al. 2000, after eq 109
+            double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0)             { return (0.1 * (m_Mass-m_CoreMass) * m_Radius * m_Radius) + (0.21 * m_CoreMass * p_RemnantRadius * p_RemnantRadius); }   // k2 = 0.1 and k3 = 0.21 as defined in Hurley et al. 2000, after eq 109
             double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)           { return CalculateMomentOfInertia(p_RemnantRadius * RSOL_TO_AU) * RSOL_TO_AU * RSOL_TO_AU; }
 
             double          CalculatePerturbationMu();
@@ -113,17 +113,17 @@ protected:
 
             MT_CASE         DetermineMassTransferCase()                                             { return MT_CASE::C; }                                              // Mass Transfer Case C for GiamtBranch stars
 
-            STELLAR_TYPE    IsCoreCollapseSN(const SN_ENGINE SNEngine);
-            STELLAR_TYPE    IsElectronCaptureSN();
             bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate);
-            STELLAR_TYPE    IsPairInstabilitySN();
-            STELLAR_TYPE    IsPulsationalPairInstabilitySN();
-            STELLAR_TYPE    IsTypeIIaSN();
 
     virtual void            PerturbLuminosityAndRadius();
 
             STELLAR_TYPE    ResolveSupernova();
-
+            STELLAR_TYPE    ResolveCoreCollapseSN(const SN_ENGINE SNEngine);
+            STELLAR_TYPE    ResolveElectronCaptureSN();
+            STELLAR_TYPE    ResolvePairInstabilitySN();
+            STELLAR_TYPE    ResolvePulsationalPairInstabilitySN();
+            STELLAR_TYPE    ResolveTypeIIaSN();
+    
             void            UpdateAgeAfterMassLoss() { }                                                                                                                // NO-OP for most stellar types
 
             void            UpdateInitialMass() { }                                                                                                                     // NO-OP for most stellar types

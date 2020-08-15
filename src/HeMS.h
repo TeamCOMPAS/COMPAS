@@ -64,7 +64,7 @@ protected:
 
             double          CalculateGyrationRadius()                                            { return 0.1; }                                                         // JR: todo: Nobody seems sure about this...
 
-            double          CalculateHeCoreMassOnPhase()                                         { return m_Mass; }                                                      // McHe(HeMS) = Mass
+    double          CalculateHeCoreMassOnPhase();                                         //{ std::cout<<m_Mass<<std::endl; return m_Mass; }                                                      // McHe(HeMS) = Mass
             double          CalculateHeCoreMassAtPhaseEnd()                                      { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
 
             double          CalculateInitialSupernovaMass()                                      { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch

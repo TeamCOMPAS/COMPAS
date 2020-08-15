@@ -528,21 +528,6 @@ double HG::CalculateRadialExtentConvectiveEnvelope() {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-/*
- * Calculate envelope mass on the Hertzsprung Gap
- *
- * Hurley et al. 2000, just after eq 111
- *
- *
- * double CalculateEnvelopeMassOnPhase(const double p_Tau)
- *
- * @param   [IN]    p_Tau                       Relative lifetime
- * @return                                      Envelope mass on the Hertzsprung Gap (Menv in Hurley et al. 2000)
- */
-double HG::CalculateEnvelopeMassOnPhase(const double p_Tau) {
-    return p_Tau * (m_Mass - m_CoreMass);
-}
-
 
 /*
  * Calculate core mass at the end of the Hertzsprung Gap
@@ -895,7 +880,6 @@ STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_NoCheck) {
             m_Age        = 0.0;                                                 // JR: can't use Hurley et al. 2000, eq 76 here - timescales(tHe) not calculated yet
         }
 
-        m_EnvMass = 0.0;
     }
 
     return stellarType;
@@ -924,8 +908,6 @@ STELLAR_TYPE HG::EvolveToNextPhase() {
     else {
         stellarType = STELLAR_TYPE::CORE_HELIUM_BURNING;
     }
-
-    m_EnvMass = CalculateEnvelopeMassOnPhase(1.0);          // ...before we evolve
 
     return stellarType;
 

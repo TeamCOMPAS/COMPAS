@@ -44,7 +44,14 @@ protected:
     void Initialise() {
         m_StellarType = STELLAR_TYPE::NEUTRON_STAR;                                                                                                                 // Set stellar type
         CalculateTimescales();                                                                                                                                      // Initialise timescales
-        m_Age = 0.0;                                                                                                                                                // Set age appropriately
+        
+        //Set internal properties to zero to avoid meaningless values
+        m_Age = 0.0;
+        m_COCoreMass  = 0.0;
+        m_HeCoreMass  = 0.0;
+        m_CoreMass    = 0.0;
+        m_Mass0       = 0.0;
+        
         CalculateAndSetPulsarParameters();
     }
 
@@ -56,7 +63,7 @@ protected:
 
             double          CalculateConvergedMassStepZetaThermal()                 { return 1.0; }                                                                 // For NS & BH  JR: todo: check this - BH seems to be different...
 
-            double          CalculateHeCoreMassOnPhase()                            { return m_Mass; }                                                              // Return m_Mass
+            double          CalculateHeCoreMassOnPhase()                            { std::cout<<"NS"; return m_Mass; }                                                              // Return m_Mass
 
             double          CalculateInitialSupernovaMass()                         { return GiantBranch::CalculateInitialSupernovaMass(); }                        // Use GiantBranch
 

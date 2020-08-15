@@ -59,12 +59,10 @@ protected:
     double       CalculateCoreMassOnPhase(const double p_Mass, const double p_Time);
     double       CalculateCoreMassOnPhase()                                     { return CalculateCoreMassOnPhase(m_Mass0, m_Age); }                                        // Use class member variables
 
-    double       CalculateEnvelopeMassOnPhase(const double p_Tau);
-
     double       CalculateGyrationRadius()                                      { return 0.21; }                                                                            // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 
     double       CalculateHeCoreMassAtPhaseEnd()                                { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
-    double       CalculateHeCoreMassOnPhase()                                   { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
+    double       CalculateHeCoreMassOnPhase()                                   { std::cout<<"HG"; return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
 
     double       CalculateLambdaDewi();
     double       CalculateLambdaNanjing();

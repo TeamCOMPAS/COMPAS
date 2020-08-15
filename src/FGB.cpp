@@ -214,7 +214,6 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
             m_Radius     = HeMS::CalculateRadiusAtZAMS_Static(m_Mass);
         }
 
-        m_EnvMass = 0.0;
     }
 
     return stellarType;

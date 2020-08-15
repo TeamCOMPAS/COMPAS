@@ -40,12 +40,10 @@ protected:
     double          CalculateCoreMassAtPhaseEnd()                                   { return CalculateCoreMassOnPhase(); }                                          // Same as on phase
     double          CalculateCoreMassOnPhase()                                      { return 0.0; }                                                                 // Mc(MS) = 0.0 (Hurley et al. 2000, just before eq 28)
 
-    double          CalculateEnvelopeMassOnPhase(const double p_Tau);
-
     double          CalculateGyrationRadius();
 
     double          CalculateHeCoreMassAtPhaseEnd()                                 { return CalculateHeCoreMassOnPhase(); }                                        // Same as on phase
-    double          CalculateHeCoreMassOnPhase()                                    { return 0.0; }                                                                 // McHe(MS) = 0.0
+    double          CalculateHeCoreMassOnPhase()                                    { std::cout<<"MS"; return 0.0; }                                                                 // McHe(MS) = 0.0
 
     double          CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB);
 
