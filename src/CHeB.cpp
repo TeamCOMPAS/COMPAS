@@ -866,14 +866,14 @@ double CHeB::CalculateRemnantRadius() {
  * Hurley et al. 2000, eq 67
  *
  *
- * double CalculateCoreMassOnPhase(const double p_Mass, const double p_Time)
+ * double CalculateCoreMassOnPhase(const double p_Mass, const double p_Tau)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
- * @param   [IN]    p_Time                      Time after ZAMS in MYRS (tBGB <= time <= tHeI)
+ * @param   [IN]    p_Tau                       Relative age on phase
  * @return                                      Core mass on the First Giant Branch in Msol
  */
 double CHeB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Tau) {
-    return ((1.0 - p_Tau) * CalculateCoreMassAtHeIgnition(p_Mass)) + (p_Tau * CalculateCoreMassAtBAGB(p_Mass));
+    return std::min(((1.0 - p_Tau) * CalculateCoreMassAtHeIgnition(p_Mass)) + (p_Tau * CalculateCoreMassAtBAGB(p_Mass)), m_Mass);               //He mass capped at total mass (should become HeMS star)
 }
 
 
@@ -1019,6 +1019,22 @@ double CHeB::CalculateLifetimeOnBluePhase(const double p_Mass) {
 #undef b
 }
 
+/*
+ * Determine whether star should continue to evolve on phase
+ *
+ *
+ * bool            ShouldEvolveOnPhase()
+ *
+ * @return         true if evolution should continue on phase, false otherwise
+ */
+
+bool CHeB::ShouldEvolveOnPhase() {
+    bool afterHeIgnition = (m_Age >= m_Timescales[static_cast<int>(TIMESCALE::tHeI)]);
+    bool beforeEndOfHeBurning = (m_Age < (m_Timescales[static_cast<int>(TIMESCALE::tHeI)] + m_Timescales[static_cast<int>(TIMESCALE::tHe)]));
+    bool coreIsNotTooMassive = (m_HeCoreMass < m_Mass);
+    // Evolve on CHeB phase if age after He Ign and while He Burning and He core mass does not exceed total mass (could happen due to mass loss)
+    return (afterHeIgnition && beforeEndOfHeBurning && coreIsNotTooMassive);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
@@ -1168,7 +1184,6 @@ STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
         m_Mass       = m_CoreMass;
         m_Mass0      = m_Mass;
         m_COCoreMass = 0.0;
-        m_EnvMass    = 0.0;
 
  		// set evolved time for naked helium star since already has some core mass.
 		// Coen 10-01-2016 added prime parameters

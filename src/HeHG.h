@@ -52,16 +52,12 @@ protected:
             double          CalculateCOCoreMassAtPhaseEnd()                                                  { return m_COCoreMass; }                                               // NO-OP
             double          CalculateCOCoreMassOnPhase();
 
-            double          CalculateConvergedMassStepZetaThermal()                                          { return FGB::CalculateConvergedMassStepZetaThermal(); }               // Skip HeMS
-
             double          CalculateCoreMassAtBAGB()                                                        { return m_Mass0; }                                                    // McBAGB = M0 (Hurely et al. 2000, discussion just before eq 89)
             double          CalculateCoreMassAtPhaseEnd()                                                    { return m_CoreMass; }                                                 // NO-OP
             double          CalculateCoreMassOnPhase()                                                       { return m_COCoreMass; }                                               // Mc(HeMS) = McCOMass
 
     static  double          CalculateCoreMass_Luminosity_B_Static()                                          { return 4.1E4; }
     static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass)                       { return 5.5E4 / (1.0 + (0.4 * p_Mass * p_Mass * p_Mass * p_Mass)); }  // pow() is slow - use multiplication
-
-            double          CalculateEnvelopeMassOnPhase(const double p_Tau)                                 { return BaseStar::CalculateEnvelopeMassOnPhase(p_Tau); }
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
             void            CalculateGBParams()                                                              { CalculateGBParams(m_Mass0, m_GBParams); }                            // Use class member variables
