@@ -61,9 +61,7 @@ protected:
 
             double          CalculateCOCoreMassOnPhase()                            { return m_Mass; }                                                              // Return m_Mass
 
-            double          CalculateConvergedMassStepZetaThermal()                 { return 1.0; }                                                                 // For NS & BH  JR: todo: check this - BH seems to be different...
-
-            double          CalculateHeCoreMassOnPhase()                            { std::cout<<"NS"; return m_Mass; }                                                              // Return m_Mass
+            double          CalculateHeCoreMassOnPhase()                            { return m_Mass; }                                                              // Return m_Mass
 
             double          CalculateInitialSupernovaMass()                         { return GiantBranch::CalculateInitialSupernovaMass(); }                        // Use GiantBranch
 

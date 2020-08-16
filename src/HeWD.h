@@ -47,8 +47,6 @@ protected:
     // Stellar types beyond HeWD (i.e. ONeWD, NS, BH, MR) will default to these by following the inheritance hierarchy
     double          CalculateCOCoreMassOnPhase()                                                        { return m_COCoreMass; }                                                        // NO-OP
 
-    double          CalculateConvergedMassStepZetaThermal()                                             { return BaseStar::CalculateConvergedMassStepZetaThermal(); }                   // Use BaseStar
-
     double          CalculateCoreMassOnPhase()                                                          { return m_Mass; }                                                              // Return m_Mass
 
     double          CalculateEddingtonCriticalRate()                                                    { return 1.5E-8 * (m_Radius * RSOL_TO_KM / 10.0) * MYR_TO_YEAR; }               // Sluys 2013 ("Binary Evolution in a Nutshell"), eq 70
@@ -58,7 +56,7 @@ protected:
     double          CalculateGyrationRadius()                                                           { return 0.21; }                                                                // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 
 
-    double          CalculateHeCoreMassOnPhase()                                                        { std::cout<<"HeWD"; return m_HeCoreMass; }                                                        // NO-OP
+    double          CalculateHeCoreMassOnPhase()                                                        { return m_HeCoreMass; }                                                        // NO-OP
 
     double          CalculateLambdaDewi()                                                               { return BaseStar::CalculateLambdaDewi(); }                                     // Not supported - use BaseStar
     double          CalculateLambdaNanjing()                                                            { return BaseStar::CalculateLambdaNanjing(); }                                  // Not supported - use BaseStar     JR: todo: check this (type 10 not mentioned as not supported in original code)

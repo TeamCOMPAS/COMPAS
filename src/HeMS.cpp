@@ -389,10 +389,3 @@ STELLAR_TYPE HeMS::EvolveToNextPhase() {
 
 #undef timescales
 }
-
-
-double          HeMS::CalculateHeCoreMassOnPhase()
-{
-    std::cout<<" [In HeMS::CalculateHeCoreMassOnPhase mass is " << m_Mass<<"] ";
-    return m_Mass;
-}

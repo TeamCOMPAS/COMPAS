@@ -127,10 +127,8 @@ public:
             double              XExponent() const                                               { return m_XExponent; }
             double              Zeta_Hurley() const                                             { return m_Zetas.hurley; }
             double              Zeta_HurleyHe() const                                           { return m_Zetas.hurleyHe; }
-            double              Zeta_Nuclear() const                                            { return m_Zetas.nuclear; }
             double              Zeta_Soberman() const                                           { return m_Zetas.soberman; }
             double              Zeta_SobermanHe() const                                         { return m_Zetas.sobermanHe; }
-            double              Zeta_Thermal() const                                            { return m_Zetas.thermal; }
 
 
     // setters
@@ -373,10 +371,6 @@ protected:
     virtual double          CalculateCOCoreMassAtPhaseEnd()                                                     { return m_COCoreMass; }                                                    // Default is NO-OP
     virtual double          CalculateCOCoreMassOnPhase()                                                        { return m_COCoreMass; }                                                    // Default is NO-OP
 
-    virtual double          CalculateConvergedMassStepZetaThermal();
-
-            double          CalculateConvergedTimestepZetaNuclear();
-
     virtual double          CalculateCoreMassAtPhaseEnd()                                                       { return m_CoreMass; }                                                      // Default is NO-OP
     static  double          CalculateCoreMassGivenLuminosity_Static(const double p_Luminosity, const DBL_VECTOR &p_GBParams);
     virtual double          CalculateCoreMassOnPhase()                                                          { return m_CoreMass; }                                                      // Default is NO-OP
@@ -390,7 +384,7 @@ protected:
             double          CalculateGBRadiusXExponent();
 
     virtual double          CalculateHeCoreMassAtPhaseEnd()                                                     { return m_HeCoreMass; }                                                    // Default is NO-OP
-    virtual double          CalculateHeCoreMassOnPhase()                                                        { std::cout<<"Base"; return m_HeCoreMass; }                                                    // Default is NO-OP
+    virtual double          CalculateHeCoreMassOnPhase()                                                        { return m_HeCoreMass; }                                                    // Default is NO-OP
 
     static  double          CalculateHeRateConstant_Static()                                                    { return HE_RATE_CONSTANT; }                                                // Only >= CHeB stars need AHe, but no drama if other stars calculate (retrieve it) - it's only a constant (we could just use the constant inline...)
     static  double          CalculateHHeRateConstant_Static()                                                   { return HHE_RATE_CONSTANT; }                                               // Only TPAGB stars need AHHe, but no drama if other stars calculate (retrieve it) - it's only a constant (we could just use the constant inline...)
@@ -497,10 +491,6 @@ protected:
             double          CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription);
 
             double          CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS);
-
-            double          CalculateZetaNuclear(const double p_DeltaTime);
-
-            double          CalculateZetaThermal(double p_PercentageMassChange);
 
     virtual double          ChooseTimestep(const double p_Time)                                                 { return m_Dt; }
 

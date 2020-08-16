@@ -51,8 +51,6 @@ protected:
     double       CalculateCOCoreMassAtPhaseEnd()                                { return 0.0; }                                                                             // McCO(HG) = 0.0
     double       CalculateCOCoreMassOnPhase()                                   { return 0.0; }                                                                             // McCO(HG) = 0.0
 
-    double       CalculateConvergedMassStepZetaThermal()                        { return BaseStar::CalculateConvergedMassStepZetaThermal(); }                               // Not GiantBranch this time
-
     double       CalculateCoreMassAt2ndDredgeUp(const DBL_VECTOR &p_GBParams)   { return p_GBParams[static_cast<int>(GBP::McDU)]; }                                         // NO-OP
     double       CalculateCoreMassAtPhaseEnd(const double p_Mass);
     double       CalculateCoreMassAtPhaseEnd()                                  { return CalculateCoreMassAtPhaseEnd(m_Mass0); }                                            // Use class member variables
@@ -62,7 +60,7 @@ protected:
     double       CalculateGyrationRadius()                                      { return 0.21; }                                                                            // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 
     double       CalculateHeCoreMassAtPhaseEnd()                                { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
-    double       CalculateHeCoreMassOnPhase()                                   { std::cout<<"HG"; return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
+    double       CalculateHeCoreMassOnPhase()                                   { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
 
     double       CalculateLambdaDewi();
     double       CalculateLambdaNanjing();
