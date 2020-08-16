@@ -396,7 +396,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
     int          retryCount   = 0;
 
     while (!takeTimestep) {                                                                                     // do this until a suitable timestep is found (or the maximum retry count is reached)
-
+        
         SaveState();                                                                                            // save the state of the star - in case we want to revert
 
         double minTimestep = std::max(m_Star->CalculateDynamicalTimescale(), ABSOLUTE_MINIMUM_TIMESTEP);        // calculate the minimum timestep - maximum of dynamical timescale for this star and the aboslute minimum timestep

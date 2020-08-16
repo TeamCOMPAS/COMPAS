@@ -355,10 +355,16 @@
 //                                      - Update core masses during Initialisation of HG and HeHG stars to be consistent with Hurley models
 //                                      - Avoid division by zero in mass transfer rates of WDs
 //                                      - Remove POSTITNOTE remnant mass prescription
+//02.13.05       IM - Aug 16, 2020 - Enhancements and defect repairs:
+//                                      - General code cleaning
+//                                      - Removed some redundant variables (e.g., m_EnvMass, which can be computed from m_Mass and m_CoreMass)
+//                                      - Removed calculations of ZetaThermal and ZetaNuclear (these were previously incorrect because they relied on the evolution of a stellar copy which reverted to BaseStar and therefore didn't have the correct behaviour)
+//                                      - Fixed CalculateZadiabatic to use ZetaAdiabaticArbitrary rather than ZetaThermalArbitrary; removed the latter
+//                                      - Capped He core mass gain during shell H burning for CHeB and TPAGB stars, whose on-phase evolution now ends promptly when this limit is reached; this change also resolves issue #315 (higher mass SN remnants than total stellar mass)
 
-const std::string VERSION_STRING = "02.13.04";
 
-// Todo: still to do for Options code - name class member variables in same style as other classes (i.e. m_*)
+const std::string VERSION_STRING = "02.13.05";
+
 
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
@@ -610,13 +616,6 @@ constexpr double MAXIMUM_MASS_LOSS_FRACTION             = 0.01;                 
 constexpr double MAXIMUM_RADIAL_CHANGE                  = 0.01;                                                     // Maximum allowable radial change - 1% (of radius) expressed as a fraction
 constexpr double MINIMUM_MASS_SECONDARY                 = 4.0;                                                      // Minimum mass of secondary to evolve
 
-constexpr double ZETA_THERMAL_PERCENTAGE_MASS_CHANGE    = 1.0E-3;                                                   // Initial guess for percentage mass change when calculating zeta_thermal (use -ve for loss, +ve for gain)
-constexpr double ZETA_THERMAL_TOLERANCE                 = 1.0E-3;                                                   // Tolerance between iterations when calculating zeta thermal
-constexpr int    ZETA_THERMAL_ITERATIONS                = 10;                                                       // Maximum number of iterations to use when calculating zeta thermal
-constexpr double ZETA_NUCLEAR_TIMESTEP                  = 1.0E-3;                                                   // Initial guess for timestep when calculating zeta nuclear
-constexpr double ZETA_NUCLEAR_TOLERANCE                 = 1.0E-3;                                                   // Tolerance between iterations when calculating zeta nuclear
-constexpr int    ZETA_NUCLEAR_ITERATIONS                = 10;                                                       // Maximum number of iterations to use when calculating zeta nuclear
-
 constexpr double   MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP	 = 0.001;                                               // Maximal fraction of donor mass that can be transferred in one step of stable mass transfer
 
 constexpr double LAMBDA_NANJING_ZLIMIT                  = 0.0105;                                                   // Metallicity cutoff for Nanjing lambda calculations
@@ -805,7 +804,7 @@ enum class ERROR: int {
     UNKNOWN_STELLAR_PROPERTY,                                       // unknown stellar property
     UNKNOWN_STELLAR_TYPE,                                           // unknown stellar type
     UNKNOWN_VROT_PRESCRIPTION,                                      // unknown rorational velocity prescription
-    UNSUPPORTED_ZETA_PRESCRIPTION,                               // unsupported common envelope Zeta prescription
+    UNSUPPORTED_ZETA_PRESCRIPTION,                                  // unsupported common envelope Zeta prescription
     UNSUPPORTED_ECCENTRICITY_DISTRIBUTION,                          // unsupported eccentricity distribution
     UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,           // unsupported pulsar birth magnetic field distribution
     UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,              // unsupported pulsar birth spin period distribution
@@ -1782,10 +1781,8 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     TRUE_ANOMALY,                                    \
     ZETA_HURLEY,                                     \
     ZETA_HURLEY_HE,                                  \
-    ZETA_NUCLEAR,                                    \
     ZETA_SOBERMAN,                                   \
-    ZETA_SOBERMAN_HE,                                \
-    ZETA_THERMAL
+    ZETA_SOBERMAN_HE
 
 
 // enum class STAR_PROPERTY
@@ -1925,10 +1922,8 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::TRUE_ANOMALY,                                    "TRUE_ANOMALY" },
     { STAR_PROPERTY::ZETA_HURLEY,                                     "ZETA_HURLEY" },
     { STAR_PROPERTY::ZETA_HURLEY_HE,                                  "ZETA_HURLEY_HE" },
-    { STAR_PROPERTY::ZETA_NUCLEAR,                                    "ZETA_NUCLEAR" },
     { STAR_PROPERTY::ZETA_SOBERMAN,                                   "ZETA_SOBERMAN" },
-    { STAR_PROPERTY::ZETA_SOBERMAN_HE,                                "ZETA_SOBERMAN_HE" },
-    { STAR_PROPERTY::ZETA_THERMAL,                                    "ZETA_THERMAL" }
+    { STAR_PROPERTY::ZETA_SOBERMAN_HE,                                "ZETA_SOBERMAN_HE" }
 };
 
 
@@ -2331,10 +2326,8 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::TRUE_ANOMALY,                                      { TYPENAME::DOUBLE,         "True_Anomaly(psi)",    "-",                14, 6 }},
     { ANY_STAR_PROPERTY::ZETA_HURLEY,                                       { TYPENAME::DOUBLE,         "Zeta_Hurley",          "-",                14, 6 }},
     { ANY_STAR_PROPERTY::ZETA_HURLEY_HE,                                    { TYPENAME::DOUBLE,         "Zeta_Hurley_He",       "-",                14, 6 }},
-    { ANY_STAR_PROPERTY::ZETA_NUCLEAR,                                      { TYPENAME::DOUBLE,         "Zeta_Nuclear",         "-",                14, 6 }},
     { ANY_STAR_PROPERTY::ZETA_SOBERMAN,                                     { TYPENAME::DOUBLE,         "Zeta_Soberman",        "-",                14, 6 }},
-    { ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE,                                  { TYPENAME::DOUBLE,         "Zeta_SoberMan_He",     "-",                14, 6 }},
-    { ANY_STAR_PROPERTY::ZETA_THERMAL,                                      { TYPENAME::DOUBLE,         "Zeta_Thermal",         "-",                14, 6 }}
+    { ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE,                                  { TYPENAME::DOUBLE,         "Zeta_SoberMan_He",     "-",                14, 6 }}
 };
 
 // enum class BINARY_PROPERTY_DETAIL
@@ -2608,10 +2601,6 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     STAR_2_PROPERTY::THERMAL_TIMESCALE,
     STAR_1_PROPERTY::NUCLEAR_TIMESCALE,
     STAR_2_PROPERTY::NUCLEAR_TIMESCALE,
-    STAR_1_PROPERTY::ZETA_THERMAL,
-    STAR_2_PROPERTY::ZETA_THERMAL,
-    STAR_1_PROPERTY::ZETA_NUCLEAR,
-    STAR_2_PROPERTY::ZETA_NUCLEAR,
     STAR_1_PROPERTY::ZETA_SOBERMAN,
     STAR_2_PROPERTY::ZETA_SOBERMAN,
     STAR_1_PROPERTY::ZETA_SOBERMAN_HE,
