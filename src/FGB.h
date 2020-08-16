@@ -39,8 +39,6 @@ protected:
     double          CalculateCOCoreMassAtPhaseEnd()                                             { return CalculateCOCoreMassOnPhase(); }                                                        // Same as on phase
     double          CalculateCOCoreMassOnPhase()                                                { return 0.0; }                                                                                 // McCO(FGB) = 0.0
 
-    double          CalculateConvergedMassStepZetaThermal();
-
     double          CalculateCoreMassAtPhaseEnd(const double p_Mass, const double p_Time)       { return CalculateCoreMassOnPhase(p_Mass, p_Time); }                                            // Same as on phase
     double          CalculateCoreMassAtPhaseEnd()                                               { return CalculateCoreMassAtPhaseEnd(m_Mass0, m_Age); }                                         // Use class member variables
     double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Time);
@@ -48,7 +46,7 @@ protected:
 
     double          CalculateGyrationRadius()                                                   { return 0.1; }                                                                                 // Hurley et al., 2000, after eq 109 for giants. Single number approximation.
 
-    double          CalculateHeCoreMassOnPhase()                                                { std::cout<<"FGB"; return m_CoreMass; }                                                                          // McHe(FGB) = Core Mass
+    double          CalculateHeCoreMassOnPhase()                                                { return m_CoreMass; }                                                                          // McHe(FGB) = Core Mass
     double          CalculateHeCoreMassAtPhaseEnd()                                             { return CalculateHeCoreMassOnPhase(); }                                                        // Same as on phase
 
     double          CalculateLuminosityAtPhaseEnd(const double p_Time)                          { return CalculateLuminosityOnPhase(p_Time); }                                                  // Same as on phase

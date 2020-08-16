@@ -1772,8 +1772,6 @@ void BaseBinaryStar::EvaluateSupernovae(const bool p_Resolve2ndSN) {
  */
 void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     
-    std::cout<<"Start of ResolveCommonEnvelopeEvent"<<(int) m_Star1->ObjectType()<<" "<<(int) m_Star2->ObjectType()<<std::endl;
-    
     double alphaCE = m_CEDetails.alpha;                                                                                 // CE efficiency parameter
 
 	double eccentricity     = EccentricityPrime();								                                        // current eccentricity (before CEE)
@@ -1916,8 +1914,6 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
     PrintCommonEnvelope();
     
-    std::cout<<"End of ResolveCommonEnvelopeEvent"<<(int) m_Star1->ObjectType()<<" "<<(int) m_Star2->ObjectType()<<std::endl;
-
 }
 
 

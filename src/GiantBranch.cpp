@@ -1466,8 +1466,6 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN(const SN_ENGINE SNEngine) {
             SHOW_ERROR(ERROR::UNKNOWN_REMNANT_MASS_PRESCRIPTION, "Using default");                          // show error
     }
     
-    std::cout<<"CCSN: init mass, CO, He, remnant:" <<mass<<" "<<m_COCoreMass<<" "<<m_HeCoreMass<<" "<<m_Mass<<std::endl;
-
     // Set the stellar type to which the star should evolve (either use prescription or MAXIMUM_NS_MSS)
     if (OPTIONS->RemnantMassPrescription() == REMNANT_MASS_PRESCRIPTION::MULLER2016) {
         stellarType = CalculateRemnantTypeByMuller2016(m_COCoreMass);
@@ -1714,10 +1712,6 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         }
         else {                                                                                      // Core Collapse SuperNova
             stellarType = ResolveCoreCollapseSN(OPTIONS->FryerSupernovaEngine());
-        }
-
-        if(m_Mass>m_SupernovaDetails.totalMassAtCOFormation){
-            std::cout<<"SNERROR: "<< m_Mass<<" "<<m_SupernovaDetails.totalMassAtCOFormation<<" SN type: "<<(int) utils::SNEventType(m_SupernovaDetails.events.current)<<std::endl;
         }
             
     	CalculateSNKickVelocity(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);

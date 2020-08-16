@@ -560,7 +560,7 @@ double TPAGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time)
     double m_5    = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass;     // pow() is slow - use ultiplication
     double lambda = std::min(0.9, 0.3 + (0.001 * m_5));             // Hurley et al. 2000, eq 73
 
-    return gbParams(McDU) +  ((1.0 - lambda) * (CalculateMcPrime(p_Time) - gbParams(McDU)));
+    return std::min( (gbParams(McDU) +  ((1.0 - lambda) * (CalculateMcPrime(p_Time) - gbParams(McDU)))), m_Mass);                                 // Core should never exceed total mass
 
 #undef gbParams
 }

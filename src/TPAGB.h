@@ -46,7 +46,7 @@ protected:
             double          CalculateGyrationRadius()                                                        { return 0.1; }                                                                                 // Hurley et al., 2000, after eq 109 for giants. Single number approximation.
 
             double          CalculateHeCoreMassAtPhaseEnd()                                                  { return m_HeCoreMass; }                                                                        // NO-OP
-            double          CalculateHeCoreMassOnPhase()                                                     { std::cout<<"TPAGB"; return m_CoreMass; }                                                                        // NO-OP
+            double          CalculateHeCoreMassOnPhase()                                                     { return m_CoreMass; }                                                                        // NO-OP
 
             double          CalculateLambdaDewi();
             double          CalculateLambdaNanjing();

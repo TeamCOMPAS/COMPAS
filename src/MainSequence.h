@@ -43,7 +43,7 @@ protected:
     double          CalculateGyrationRadius();
 
     double          CalculateHeCoreMassAtPhaseEnd()                                 { return CalculateHeCoreMassOnPhase(); }                                        // Same as on phase
-    double          CalculateHeCoreMassOnPhase()                                    { std::cout<<"MS"; return 0.0; }                                                                 // McHe(MS) = 0.0
+    double          CalculateHeCoreMassOnPhase()                                    { return 0.0; }                                                                 // McHe(MS) = 0.0
 
     double          CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB);
 
