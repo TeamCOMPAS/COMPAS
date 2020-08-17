@@ -297,7 +297,6 @@ public:
     double                                      ZetaRadiativeEnvelopeGiant() const                                      { return zetaRadiativeEnvelopeGiant; }
     double                                      ZetaMainSequence() const                                                { return zetaMainSequence; }
     double                                      ZetaAdiabaticArbitrary() const                                          { return zetaAdiabaticArbitrary; }
-    double                                      ZetaThermalArbitrary() const                                            { return zetaThermalArbitrary; }
 
 
     COMPAS_VARIABLE OptionValue(const T_ANY_PROPERTY p_Property) const;
@@ -546,7 +545,6 @@ private:
     string                                      stellarZetaPrescriptionString;                           	// String containing which prescription to use for calculating stellar zetas (default = HURLEY)
 
 	double                                      zetaAdiabaticArbitrary;
-	double                                      zetaThermalArbitrary;
 	double                                      zetaMainSequence;
     double                                      zetaRadiativeEnvelopeGiant;
 

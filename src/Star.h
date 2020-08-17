@@ -79,7 +79,6 @@ public:
     double                      COCoreMass() const                                                                          { return m_Star->COCoreMass(); }
     double                      CoreMass() const                                                                            { return m_Star->CoreMass(); }
     double                      DynamicalTimescale() const                                                                  { return m_Star->DynamicalTimescale(); }
-    double                      EnvMass() const                                                                             { return m_Star->EnvMass(); }
     bool                        ExperiencedCCSN() const                                                                     { return m_Star->ExperiencedCCSN(); }
     bool                        ExperiencedECSN() const                                                                     { return m_Star->ExperiencedECSN(); }
     bool                        ExperiencedPISN() const                                                                     { return m_Star->ExperiencedPISN() ; }
