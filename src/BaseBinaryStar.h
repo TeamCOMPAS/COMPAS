@@ -534,12 +534,6 @@ private:
     double  CalculateAdaptiveRocheLobeOverFlow(const double p_JLoss);
     double  CalculateZRocheLobe(const double p_jLoss);
 
-    double  CalculateSemiMajorAxisPostSupernova(const double p_KickVelocity,
-                                                const double p_TotalMassPreSN,
-                                                const double p_TotalMassPostSN,
-                                                const double p_KickTheta,
-                                                const double p_KickPhi);
-
     double  CalculateTimeToCoalescence(double a0, double e0, double m1, double m2);
 
     // CalculateTotalEnergy - the actual function takes 10 parameters because of the various calling permutations
