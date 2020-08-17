@@ -502,35 +502,7 @@ protected:
             double          CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS);
 
     virtual double          ChooseTimestep(const double p_Time)                                                 { return m_Dt; }
-
-            DBL_DBL         DrawKickDirection();
-
-            double          DrawKickVelocityBrayEldridge(const double p_EjectaMass,
-                                                         const double p_RemnantMass,
-                                                         const double p_Alpha,
-                                                         const double p_Beta);
-
-            double          DrawKickVelocityDistributionFlat(const double p_MaxVK, const double p_Rand);
-            double          DrawKickVelocityDistributionMaxwell(const double p_Sigma, const double p_Rand);
-
-            double          DrawRemnantKickMuller(const double p_COCoreMass);
-
-            double          DrawRemnantKickMullerMandel(const double p_COCoreMass,
-                                                        const double p_Rand,
-                                                        const double p_RemnantMass);
-
-            double          DrawSNKickVelocity(const double p_Sigma,
-                                               const double p_COCoreMass,
-                                               const double p_Rand,
-                                               const double p_EjectaMass,
-                                               const double p_RemnantMass);
-
-    virtual void            EvolveOneTimestepPreamble() { };                                                                                                                                    // Default is NO-OP
-
-            STELLAR_TYPE    EvolveOnPhase();
-
-    virtual STELLAR_TYPE    EvolveToNextPhase()                                                                 { return m_StellarType; }
-
+    
 
     virtual bool            IsEndOfPhase()                                                                      { return false; }
     virtual bool            IsSupernova()                                                                       { return false; }
