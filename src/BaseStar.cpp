@@ -137,6 +137,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Luminosity                               = m_LZAMS;
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
+    m_EnvMass                                  = CalculateInitialEnvelopeMass_Static(m_Mass);
 	m_ComponentVelocity						   = Vector3d();
 	m_ComponentSpeed						   = DEFAULT_INITIAL_DOUBLE_VALUE;
 
