@@ -560,7 +560,7 @@ double TPAGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time)
     double m_5    = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass;     // pow() is slow - use ultiplication
     double lambda = std::min(0.9, 0.3 + (0.001 * m_5));             // Hurley et al. 2000, eq 73
 
-    return gbParams(McDU) +  ((1.0 - lambda) * (CalculateMcPrime(p_Time) - gbParams(McDU)));
+    return std::min( (gbParams(McDU) +  ((1.0 - lambda) * (CalculateMcPrime(p_Time) - gbParams(McDU)))), m_Mass);                                 // Core should never exceed total mass
 
 #undef gbParams
 }
@@ -624,7 +624,7 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;               // default is unchanged
 
-    if (p_NoCheck || (utils::Compare(m_EnvMass, 0.0) <= 0) || (utils::Compare(m_CoreMass, m_Mass) >= 0)){
+    if (p_NoCheck || (utils::Compare(m_CoreMass, m_Mass)) >= 0){
 
         stellarType = utils::Compare(gbParams(McBAGB), MCBUR1) < 0 ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
         
@@ -632,7 +632,6 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
         m_HeCoreMass= m_COCoreMass;
         m_Mass0     = m_Mass;
         m_Age       = 0.0;
-        m_EnvMass   = 0.0;
         m_Radius    = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
     }
 

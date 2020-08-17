@@ -47,13 +47,9 @@ protected:
     // Stellar types beyond HeWD (i.e. ONeWD, NS, BH, MR) will default to these by following the inheritance hierarchy
     double          CalculateCOCoreMassOnPhase()                                                        { return m_COCoreMass; }                                                        // NO-OP
 
-    double          CalculateConvergedMassStepZetaThermal()                                             { return BaseStar::CalculateConvergedMassStepZetaThermal(); }                   // Use BaseStar
-
     double          CalculateCoreMassOnPhase()                                                          { return m_Mass; }                                                              // Return m_Mass
 
     double          CalculateEddingtonCriticalRate()                                                    { return 1.5E-8 * (m_Radius * RSOL_TO_KM / 10.0) * MYR_TO_YEAR; }               // Sluys 2013 ("Binary Evolution in a Nutshell"), eq 70
-
-    double          CalculateEnvelopeMassOnPhase(const double p_Tau)                                    { return 0.0; }
 
     void            CalculateGBParams()                                                                 { GiantBranch::CalculateGBParams(); }                                           // Default to GiantBranch
 
@@ -90,13 +86,16 @@ protected:
     double          CalculateThermalTimescale(const double p_Mass,
                                                   const double p_Radius,
                                                   const double p_Luminosity,
-                                                  const double p_EnvMass = 1.0)                         { m_Error = ERROR::INVALID_TYPE_MT_THERMAL_TIMESCALE;                           // Set error value
-                                                                                                          SHOW_WARN(m_Error);                                                           // Warn that an error occurred
-                                                                                                          return 0.0; }                                                                 // Should never be called...
+                                                  const double p_EnvMass = 1.0)
+        { m_Error = ERROR::INVALID_TYPE_MT_THERMAL_TIMESCALE;                           // Set error value
+            SHOW_WARN(m_Error);                                                           // Warn that an error occurred
+            return CalculateDynamicalTimescale(); }                                                                 // Should never be called...
 
-    double          CalculateThermalMassLossRate()                                                      { return BaseStar::CalculateThermalMassLossRate(); }                            // Use BaseStar
-
-    double          CalculateThermalTimescale()                                                         { return CalculateThermalTimescale(m_Mass, m_Radius, m_Luminosity); }           // Should never be called...
+    double          CalculateThermalMassLossRate()                                                      { return m_Mass / CalculateThermalTimescale(); }
+        //Set thermal mass gain rate to be effectively infinite (in practice, will be Eddington limited), avoid division by zero
+    
+    double          CalculateThermalTimescale()                                                         { return CalculateDynamicalTimescale(); }
+        //Use dynamical timescale for mass transfer purposes
 
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
     void            CalculateTimescales()                                                               { CalculateTimescales(m_Mass0, m_Timescales); }                                 // Use class member variables

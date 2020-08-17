@@ -1933,6 +1933,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 	SetPostCEEValues(aFinalRsol, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                                                       // squirrel away post CEE binary values.  ALEJANDRO - 06/12/2016 - for populations studies. All separations in Rsol.
 
     PrintCommonEnvelope();
+    
 }
 
 
@@ -2188,7 +2189,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
                     STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                                         // donor stellar type before resolving envelope loss
                     
-
                     aFinal                  = CalculateMassTransferOrbit(m_Donor->Mass(), -envMassDonor, m_Donor->CalculateThermalMassLossRate(), *m_Accretor);
                     wFinal                  = sqrt(G1 * (m_Donor->Mass() + m_Accretor->Mass()) / (aFinal * aFinal * aFinal));
                     
@@ -2658,41 +2658,6 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
 
 
-
-/*
- * Calculate next timestep for binary evolution
- *
- * Timesteps are calculated for each individual star, based on stellar type, age, etc.
- * The minimum of the calculated timesteps is returned as the timestep.
- *
- * Rather than evolve and revert here we just create copies of the constituent stars,
- * evolve them for one times step to get the new timestep, then discard them.  Maybe
- * one day we can figure out how to do this without the overhead of evolving and
- * discarding.
- *
- *
- * double CalculateTimestep(const double p_Dt)
- *
- * @param   [IN]    p_Dt                        The suggested timestep to evolve
- * @return                                      Calculated/recommended timestep
- */
-double BaseBinaryStar::CalculateTimestep(const double p_Dt) {
-
-    BinaryConstituentStar* star1Copy = new BinaryConstituentStar(*m_Star1);             // copy star1
-    double dt1 = star1Copy->EvolveOneTimestep(p_Dt);                                    // evolve the copy one timestep and get suggested timestep
-
-    delete star1Copy; star1Copy = nullptr;                                              // nuke the copy
-
-    // rinse and repeat for star2
-    BinaryConstituentStar* star2Copy = new BinaryConstituentStar(*m_Star2);             // copy star2
-    double dt2 = star2Copy->EvolveOneTimestep(p_Dt);                                    // evolve the copy one timestep and get suggested timestep
-
-    delete star2Copy; star2Copy = nullptr;                                              // nuke the copy
-
-    return std::min(dt1, dt2);
-}
-
-
 /*
  * Set parameters required before evolving one timestep - modify binary attributes
  *
@@ -2826,7 +2791,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                         // check for problems
                         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                // continue evolution?
                                  if (m_Error != ERROR::NONE)               evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR;                // error in binary evolution
-                            else if (IsWDandWD())                          evolutionStatus = EVOLUTION_STATUS::WD_WD;                       // ALEJANDRO - 16/03/2017 - Check for double WD systems so we stop evolving them as they take time to process and we are currently not interested in dealing with them.
+                            else if (IsWDandWD())                          evolutionStatus = EVOLUTION_STATUS::WD_WD;                       // do not evolve double WD systems for now
                             else if (m_Time > OPTIONS->MaxEvolutionTime()) evolutionStatus = EVOLUTION_STATUS::TIMES_UP;                    // evolution time exceeds maximum
                         }
                     }

@@ -534,8 +534,11 @@ private:
     double  CalculateAdaptiveRocheLobeOverFlow(const double p_JLoss);
     double  CalculateZRocheLobe(const double p_jLoss);
 
-    double  CalculateDt(const double p_Dt, const Star* const p_Primary, const Star* const p_Secondary);
-    double  CalculateTimestep(const double p_Dt);
+    double  CalculateSemiMajorAxisPostSupernova(const double p_KickVelocity,
+                                                const double p_TotalMassPreSN,
+                                                const double p_TotalMassPostSN,
+                                                const double p_KickTheta,
+                                                const double p_KickPhi);
 
     double  CalculateTimeToCoalescence(double a0, double e0, double m1, double m2);
 
@@ -667,12 +670,18 @@ private:
         // allow for inaccuracy in f(x), otherwise the last few
         // iterations just thrash around.
         eps_tolerance<double> tol(get_digits);             // Set the tolerance.
-        std::pair<double, double> r = bracket_and_solve_root(RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor), guess, factor, is_rising, tol, it);
         
+        std::pair<double, double> root;
+        try {
+            root = bracket_and_solve_root(RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor), guess, factor, is_rising, tol, it);
+        }
+        catch(exception& e) {
+            SHOW_ERROR(ERROR::TOO_MANY_RLOF_ITERATIONS, e.what());  //Catch generic boost root finding error
+            m_Donor->Radius();
+        }
         SHOW_WARN_IF(it>=maxit, ERROR::TOO_MANY_RLOF_ITERATIONS);
         
-        return r.first + (r.second - r.first)/2;      // Midway between brackets is our result, if necessary we could
-        // return the result as an interval here.
+        return root.first + (root.second - root.first)/2;      // Midway between brackets is our result, if necessary we could return the result as an interval here.
     }
 
     

@@ -674,7 +674,6 @@ STELLAR_TYPE EAGB::ResolveRemnantAfterEnvelopeLoss() {
     m_Mass     = m_HeCoreMass;
     m_Mass0    = m_Mass;
     m_CoreMass = m_COCoreMass;
-    m_EnvMass  = m_Mass - m_CoreMass;
 
     double p1   = gbParams(p) - 1.0;
     double q1   = gbParams(q) - 1.0;
@@ -735,7 +734,6 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
         m_Mass     = m_HeCoreMass;
         m_Mass0    = m_Mass;
         m_CoreMass = m_COCoreMass;
-        m_EnvMass  = m_Mass - m_CoreMass;
 
         double p1   = gbParams(p) - 1.0;
         double q1   = gbParams(q) - 1.0;
