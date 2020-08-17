@@ -1538,15 +1538,12 @@ bool BaseBinaryStar::ResolveSupernova() {
         //
 
         // RTW temp hack - redefine phi for the natalKickVector
-        bool applyPhiSwitch = false;
-        if (applyPhiSwitch) {
-            double psi = m_Supernova->SN_TrueAnomaly();
-            double beta = cross(R, V).mag /(R.mag * V.mag); 
-            double newPhi   = m_Supernova->SN_Phi() + psi + M_PI - beta;           // Angle in the binary plane
-            natalKickVector = m_Supernova->SN_KickVelocity() * Vector3d(cos(theta)*cos(newPhi), 
-                                                                        cos(theta)*sin(newPhi),
-                                                                        sin(theta));
-        }
+        double psi = m_Supernova->SN_TrueAnomaly();
+        double beta = cross(R, V).mag /(R.mag * V.mag); 
+        double newPhi   = m_Supernova->SN_Phi() + psi + M_PI - beta;           // Angle in the binary plane
+        natalKickVector = m_Supernova->SN_KickVelocity() * Vector3d(cos(theta)*cos(newPhi), 
+                                                                    cos(theta)*sin(newPhi),
+                                                                    sin(theta));
 
         Vector3d dV1 = natalKickVector;                                  // km/s - The supernova natal kick
         Vector3d dV2 = Vector3d(0.0, 0.0, 0.0);                          // km/s - The recoil of the companion due to ablation
