@@ -488,27 +488,6 @@ double MainSequence::CalculateRadialExtentConvectiveEnvelope() {
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////////
-//                                                                                   //
-//                                 MASS CALCULATIONS                                 //
-//                                                                                   //
-///////////////////////////////////////////////////////////////////////////////////////
-
-
-/*
- * Calculate envelope mass on phase as a function of time
- *
- * Hurley et al. 2000, just after eq 111
- *
- *
- * double CalculateEnvelopeMassOnPhase(const double p_Tau)
- *
- * @param   [IN]    p_Tau                       MS relative age
- * @return                                      Envelope mass
- */
-double MainSequence::CalculateEnvelopeMassOnPhase(const double p_Tau) {
-    return BaseStar::CalculateInitialEnvelopeMass_Static(m_Mass) * sqrt(sqrt(1.0 - p_Tau));    // sqrt() is much faster than pow()
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -3,7 +3,7 @@
 # Getting Started
 
   * [1. Installing COMPAS and Dependencies](#1-installing-compas-and-dependencies)
-    + [1.1 Instructions for Ubuntu](#11-instructions-for-ubuntu)
+    + [1.1 Instructions for Linux](#11-instructions-for-linux)
     + [1.2 Instructions for macOS](#12-instructions-for-macos)
     + [1.3 Setting up the Makefile and Compiling](#13-setting-up-the-makefile-and-compiling)
     + [1.4 Installing Python](#14-installing-python)
@@ -18,8 +18,8 @@ First change to the directory within which you wish to store your copy of COMPAS
     cd ~/codes
 
 Use `git clone` to download the COMPAS repository. If you do not have git installed, you may follow the instructions on https://www.atlassian.com/git/tutorials/install-git.
- 
-If you have not yet configured Github with SSH, you can clone over HTTPS:
+
+If you have not yet configured GitHub with SSH, you can clone over HTTPS:
 
     git clone https://github.com/TeamCOMPAS/COMPAS.git
 
@@ -27,26 +27,28 @@ With SSH configured, you can clone with
 
     git clone git@github.com:TeamCOMPAS/COMPAS.git
 
-COMPAS requires a C++ compiller, and the libraries gsl and boost. We include installation instructions for Ubuntu/Linux OS and macOS. 
+COMPAS requires a C++ compiler, and the libraries gsl and boost. We include installation instructions for Ubuntu/Linux OS and macOS.
 
-### 1.1 Instructions for Ubuntu
-While we provide instructions for Ubuntu, other Linux distros will be similar; consult your documentation if you are unsure of which package manager to use.
+### 1.1 Instructions for Linux
+You will need to install the following packages (and their prerequisites) using your package manager:
 
-If you do not have a C++ compiler, you may download the g++ compiler using
+| Package | Ubuntu (apt)     | Fedora (dnf)<br />CentOS (yum)<br />RHEL (yum) |
+|---------|------------------|---------------|
+| g++     | g++              | gcc           |
+| Boost   | libboost-all-dev | boost-devel   |
+| GSL     | libgsl-dev       | gsl gsl-devel |
 
-    sudo apt-get install g++
+So, in Ubuntu, type
 
-To download, install, and compile boost,
+    sudo apt-get install g++ libboost-all-dev libgsl-dev
 
-    sudo apt-get install libboost-all-dev
+In Fedora,
 
-To download, install, and compile gsl,
+    sudo dnf install gcc boost-devel gsl gsl-devel
 
-    sudo apt-get install libgsl-dev
+In RHEL or CentOS,
 
-For RHEL family OSs, Red Hat, Fedora, and related distributions, use the yum package manager:
-
-    sudo yum install gcc boost-devel gsl gsl-devel   
+    sudo yum install gcc boost-devel gsl gsl-devel
 
 ### 1.2 Instructions for macOS
 We suggest you first update to the latest version of macOS through the App Store. You can find what macOS version you are using by clicking on the Apple symbol on the top left of your screen and clicking "About This Mac".
@@ -112,7 +114,7 @@ First check if you have python3 installed. If you do, the following should give 
 If you do not have python3 installed, install it by following the instructions below for your OS:
 
 * For macOS: We recommend installing python and its libraries using MacPorts. You can follow the instructions on https://astrofrog.github.io/macports-python/
-* For Linux/Ubuntu OS, run `sudo apt-get install python3`. We recommend installing the required python libraries using the package installer pip. E.g. To install numpy, run `pip install numpy`.
+* For Linux, install `python3` using your package manager (e.g. in Ubuntu, run `sudo apt-get install python3`). We recommend installing the required python libraries using the package installer pip. E.g. To install numpy, run `pip install numpy`.
 
 
 ## 2. Evolving your first binary

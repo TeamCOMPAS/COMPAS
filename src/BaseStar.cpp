@@ -136,7 +136,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Luminosity                               = m_LZAMS;
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
-    m_EnvMass                                  = CalculateInitialEnvelopeMass_Static(m_Mass);
 
     m_CoreMass                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_COCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -315,7 +314,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::DT:                                                 value = Dt();                                                   break;
             case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE:                                value = DynamicalTimescale();                                   break;
             case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
-            case ANY_STAR_PROPERTY::ENV_MASS:                                           value = EnvMass();                                              break;
+            case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass()-CoreMass();                                             break;
             case ANY_STAR_PROPERTY::ERROR:                                              value = Error();                                                break;
             case ANY_STAR_PROPERTY::EXPERIENCED_CCSN:                                   value = ExperiencedCCSN();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_ECSN:                                   value = ExperiencedECSN();                                      break;
@@ -385,11 +384,8 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::TRUE_ANOMALY:                                       value = SN_TrueAnomaly();                                       break;
             case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = Zeta_Hurley();                                          break;
             case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = Zeta_HurleyHe();                                        break;
-            case ANY_STAR_PROPERTY::ZETA_NUCLEAR:                                       value = Zeta_Nuclear();                                         break;
             case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = Zeta_Soberman();                                        break;
             case ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE:                                   value = Zeta_SobermanHe();                                      break;
-            case ANY_STAR_PROPERTY::ZETA_THERMAL:                                       value = Zeta_Thermal();                                         break;
-
         default:                                                                                                        // unknown property
             ok    = false;                                                                                              // that's not ok...
             value = "UNKNOWN";                                                                                          // default value
@@ -1114,178 +1110,6 @@ double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass,
 
 
 /*
- * Calculate the radius-time exponent zeta
- * Derived by the nuclear evolution of the star according to SSE, calculated using a fake time step and recomputing the stars radius.
- *
- *
- * double CalculateZetaNuclear(const double p_DeltaTime)
- *
- * @param   [IN]    p_DeltaTime                 Timestep (Myr)
- * @return                                      Radius-Time exponent Zeta for the nuclear timescale
- */
-double BaseStar::CalculateZetaNuclear(const double p_DeltaTime) {
-
-    BaseStar* starCopy = new BaseStar(*this);	                                                                                // copy of star - about to be updated for fake mass loss
-
-    double radiusBeforeTimeStep = starCopy->Radius();                                                                           // radius before timestep
-    double ageBeforeTimeStep    = starCopy->Age();
-
-    SHOW_ERROR_IF(utils::Compare(radiusBeforeTimeStep, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "Before fake timestep");     // show error if radius <= 0
-    SHOW_ERROR_IF(utils::Compare(ageBeforeTimeStep,    0.0) <  0, ERROR::AGE_NEGATIVE_ONCE,        "Before fake timestep");     // show error if age < 0
-
-    double logRadiusBeforeTimeStep = utils::Compare(radiusBeforeTimeStep, 0.0) > 0 ? log(radiusBeforeTimeStep) : 0.0;
-
-    starCopy->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                           // allow star to respond to previous mass loss changes      JR: todo: is this really necessary?
-
-    // With the current way of doing things, this star has already lost a bunch of mass due to the mass loss caller,
-    // need to update radius of star to respond to this, before we evolve it for a short amount of time assuming no mass loss.
-    // When Alejandro moves the massLossCaller function, we will need to do things differently, and this will need fixing.
-    // JR: todo: what does this actually mean?
-
-    ageBeforeTimeStep = starCopy->Age();                                                                                        // age before timestep      JR: todo: why don't we get the (possibly) new radius here too?
-    starCopy->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, p_DeltaTime, false);                                                  // age the star 'p_DeltaTime' Myr
-
-    double radiusAfterTimeStep = starCopy->Radius();
-    double ageAfterTimeStep    = starCopy->Age();
-
-    delete starCopy; starCopy = nullptr;
-
-    SHOW_ERROR_IF(utils::Compare(radiusAfterTimeStep, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "After fake timestep");       // show error if radius <= 0
-    SHOW_ERROR_IF(utils::Compare(ageAfterTimeStep,    0.0) <  0, ERROR::AGE_NEGATIVE_ONCE,        "After fake timestep");       // show error if age < 0
-
-    double logRadiusAfterTimeStep = utils::Compare(radiusAfterTimeStep, 0.0) > 0 ? log(radiusAfterTimeStep) : 0.0;
-
-    return (logRadiusAfterTimeStep - logRadiusBeforeTimeStep) / (ageAfterTimeStep - ageBeforeTimeStep);
-
-}
-
-
-/*
- * Calculate the radius response of a star to mass loss on the nuclear timescale as characterised
- * by the mass-radius exponent Zeta nuclear
- *
- * This calculation is good for all stars except Black Holes
- *
- *
- * double CalculateConvergedTimestepZetaNuclear()
- *
- * @return                                      Mass-radius exponent Zeta nuclear (= dlnR/dt)
- */
-double BaseStar::CalculateConvergedTimestepZetaNuclear() {
-
-    double timestep  = ZETA_NUCLEAR_TIMESTEP;                                                                                   // timestep
-    double tolerance = 1.0 - ZETA_NUCLEAR_TOLERANCE;                                                                            // max change allowed in zeta nuclear between iterations - signals convergence
-
-    double thisZetaNuclear;                                                                                                     // value of mass-radius exponent calculated at current iteration
-    double lastZetaNuclear = 0.0;                                                                                               // value of mass-radius exponent calculated at previous iteration
-
-    int    i    = 0;
-    bool   done = false;
-    while (!done) {                                                                                                             // iterate until convergence or max iterations reached
-
-        thisZetaNuclear = CalculateZetaNuclear(timestep);                                                                       // calculate zeta nuclear for this percentage mass loss
-
-        if (i >= ZETA_NUCLEAR_ITERATIONS || std::abs(lastZetaNuclear / thisZetaNuclear) > tolerance) {                          // max iterations or convergence?   (Don't use Compare() here)
-            done = true;                                                                                                        // yes - we're done
-        }
-        else {                                                                                                                  // no - go again
-            lastZetaNuclear = thisZetaNuclear;                                                                                  // remember this zeta nuclear value for comparison next iteration
-            timestep       /= ZETA_NUCLEAR_ITERATIONS;                                                                          // reduce timestep   JR: todo: is this factor right?
-            i++;                                                                                                                // increment number of iterations
-        }
-    }
-
-    SHOW_ERROR_IF(std::abs(lastZetaNuclear / thisZetaNuclear) <= tolerance, ERROR::NO_CONVERGENCE, "Zeta Nuclear calculation"); // show error if no convergence
-
-    return thisZetaNuclear;
-}
-
-
-/*
- * Calculate the radius-mass exponent Zeta, assuming the star has had time to recover its thermal equilibrium.
- * Zeta is calculated using a fake mass change step and recomputing the star's attributes.
- *
- *
- * double CalculateZetaThermal(double p_PercentageMassChange)
- *
- * @param   [IN]    p_PercentageMassChange      Percentage of mass the star should artificially lose/gain in order to calcluate Zeta (thermal)
- *                                              (sign of p_PercentageMassChange determine if loss or gain - -ve is loss, +ve is gain)
- * @return                                      Radius-Mass exponent Zeta for the thermal timescale
- */
-double BaseStar::CalculateZetaThermal(double p_PercentageMassChange) {
-
-    BaseStar* starCopy = new BaseStar(*this);	                                                                                // copy of star - about to be updated for fake mass loss
-
-    starCopy->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                           // allow star to respond to previous mass loss changes      JR: todo: is this really necessary?
-
-    // record properties of the star before fake mass change
-    double radiusBeforeMassLoss = starCopy->Radius();                                                                           // radius before fake mass change
-    double massBeforeMassLoss   = starCopy->MassPrev();                                                                         // mass before fake mass change - due to order of updating radius bug     JR: todo: check this
-
-    SHOW_ERROR_IF(utils::Compare(radiusBeforeMassLoss, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "Before fake mass change");  // show error if radius <= 0
-    SHOW_ERROR_IF(utils::Compare(massBeforeMassLoss,   0.0) <= 0, ERROR::MASS_NOT_POSITIVE_ONCE,   "Before fake mass change");  // show error if mass <= 0
-
-    double logRadiusBeforeMassLoss = utils::Compare(radiusBeforeMassLoss, 0.0) > 0 ? log(radiusBeforeMassLoss) : 0.0;
-    double logMassBeforeMassLoss   = utils::Compare(massBeforeMassLoss,   0.0) > 0 ? log(massBeforeMassLoss  ) : 0.0;
-
-    double deltaMass           = starCopy->Mass() * p_PercentageMassChange / 100.0;                                             // fake mass change - sign of p_PercentageMassChange determines whether loss or gain
-    double massAfterMassLoss   = starCopy->Mass() + deltaMass;                                                                  // mass after (just) fake mass change
-    starCopy->UpdateAttributesAndAgeOneTimestep(starCopy->Mass() * p_PercentageMassChange / 100.0, 0.0, 0.0, false);            // apply fake mass change and recalculate attributes of star
-    double radiusAfterMassLoss = starCopy->m_Radius;                                                                            // radius after fake mass change
-    delete starCopy; starCopy  = nullptr;
-
-    SHOW_ERROR_IF(utils::Compare(radiusAfterMassLoss, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "After fake mass change");    // show error if radius <= 0
-    SHOW_ERROR_IF(utils::Compare(massAfterMassLoss,   0.0) <= 0, ERROR::MASS_NOT_POSITIVE_ONCE,   "After fake mass change");    // show error if mass <= 0
-
-    double logRadiusAfterMassLoss = utils::Compare(radiusAfterMassLoss, 0.0) > 0 ? log(radiusAfterMassLoss) : 0.0;
-    double logMassAfterMassLoss   = utils::Compare(massAfterMassLoss,   0.0) > 0 ? log(massAfterMassLoss  ) : 0.0;
-
-    return (logRadiusAfterMassLoss - logRadiusBeforeMassLoss) / (logMassAfterMassLoss - logMassBeforeMassLoss);                 // zeta thermal
-}
-
-
-/*
- * Calculate the radius response of a star to mass loss on the thermal timescale as characterised
- * by the mass-radius exponent Zeta thermal
- *
- * This calculation is good for MS, HG, HeMS, HeWD, COWD, and ONeWD stars
- *
- *
- * double CalculateConvergedMassStepZetaThermal()
- *
- * @return                                      Mass-radius exponent Zeta thermal (= dlnR/dlnM)
- */
-double BaseStar::CalculateConvergedMassStepZetaThermal() {
-
-    double percentageMassLoss = -ZETA_THERMAL_PERCENTAGE_MASS_CHANGE;                                                       // percentage mass loss
-    double tolerance          = 1.0 - ZETA_THERMAL_TOLERANCE;                                                               // max change allowed in zeta thermal between iterations - signals convergence
-
-    double thisZetaThermal;                                                                                                 // value of mass-radius exponent calculated at current iteration
-    double lastZetaThermal = 0.0;                                                                                           // value of mass-radius exponent calculated at previous iteration
-
-    int    i    = 0;
-    bool   done = false;
-    while (!done) {                                                                                                         // iterate until convergence or max iterations reached
-
-        thisZetaThermal = CalculateZetaThermal(percentageMassLoss);                                                         // calculate zeta thermal for this percentage mass loss
-
-        if (i >= ZETA_THERMAL_ITERATIONS || std::abs(lastZetaThermal / thisZetaThermal) > tolerance) {                      // max iterations or convergence?   (Don't use Compare() here)
-            done = true;                                                                                                    // yes - we're done
-        }
-        else {                                                                                                              // no - go again
-            lastZetaThermal     = thisZetaThermal;                                                                          // remember this zeta thermal value for comparison next iteration
-            percentageMassLoss /= ZETA_THERMAL_ITERATIONS;                                                                  // reduce mass loss   JR: todo: is this factor right?
-            i++;                                                                                                            // increment number of iterations
-        }
-    }
-
-    SHOW_ERROR_IF(std::abs(lastZetaThermal / thisZetaThermal) <= tolerance, ERROR::NO_CONVERGENCE, "Zeta Thermal calculation");    // show error if no convergence
-
-    return thisZetaThermal;
-}
-
-
-/*
  * Calculate the Adiabatic Exponent per Hurley et al. 2002
  *
  *
@@ -1341,7 +1165,7 @@ double BaseStar::CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) {
             break;
             
         case ZETA_PRESCRIPTION::ARBITRARY:                       // ARBITRARY: user program options thermal zeta value
-            zeta = OPTIONS->ZetaThermalArbitrary();
+            zeta = OPTIONS->ZetaAdiabaticArbitrary();
             break;
             
         default:                                                    // unknown common envelope prescription - shouldn't happen
@@ -1389,8 +1213,6 @@ void BaseStar::CalculateLambdas(const double p_EnvMass) {
  * void CalculateZetas()
  */
 void BaseStar::CalculateZetas() {
-	m_Zetas.thermal    = CalculateConvergedMassStepZetaThermal();
-	m_Zetas.nuclear    = CalculateConvergedTimestepZetaNuclear();
 	m_Zetas.soberman   = CalculateZadiabaticSPH(m_CoreMass);
 	m_Zetas.sobermanHe = CalculateZadiabaticSPH(m_HeCoreMass);
 	m_Zetas.hurley     = CalculateZadiabaticHurley2002(m_CoreMass);
@@ -1595,26 +1417,6 @@ double BaseStar::CalculateInitialEnvelopeMass_Static(const double p_Mass) {
     return envMass;
 }
 
-
-/*
- * Calculate envelope mass on phase as a function of time
- *
- * Given just after Eq 111 in Hurley et al. 2000
- *
- * This function works for most phases.  Stellar types MS_lte_07, MS_gt_07 and HertzsprungGap
- * have specialised functions.
- *
- *
- * double CalculateEnvelopeMassOnPhase(const double p_Tau)
- *
- * @param   [IN]    p_Tau                       Relative lifetime
- * @return                                      ZAMS envelope mass - Menv in Hurley et al. 2000
- *
- * Parameter p_Tau not required here - but we want same signature for all classes.  (JR: revisit this)
- */
-double BaseStar::CalculateEnvelopeMassOnPhase(const double p_Tau) {
-    return m_Mass - m_CoreMass; // For most phases with core envelope separation
-}
 
 
 /*
@@ -2013,7 +1815,12 @@ void BaseStar::ResolveMassLoss() {
 
     if (OPTIONS->UseMassLoss()) {
         m_Mass = CalculateMassLossValues(true, true);                           // calculate new values assuming mass loss applied
-
+        
+        m_HeCoreMass=std::min(m_HeCoreMass,m_Mass);                             // update He mass if mass loss is happening from He stars
+        
+        m_COCoreMass=std::min(m_COCoreMass,m_Mass);                             // Not expected, only a precaution to avoid inconsistencies
+        m_CoreMass=std::min(m_CoreMass, m_Mass);
+        
         UpdateInitialMass();                                                    // update initial mass (MS, HG & HeMS)  JR: todo: fix this kludge one day - mass0 is overloaded, and isn't always "initial mass"
         UpdateAgeAfterMassLoss();                                               // update age (MS, HG & HeMS)
         ApplyMassTransferRejuvenationFactor();                                  // apply age rejuvenation factor
@@ -3346,12 +3153,10 @@ STELLAR_TYPE BaseStar::EvolveOnPhase() {
         m_COCoreMass  = CalculateCOCoreMassOnPhase();
         m_CoreMass    = CalculateCoreMassOnPhase();
         m_HeCoreMass  = CalculateHeCoreMassOnPhase();
-
+        
         m_Luminosity  = CalculateLuminosityOnPhase();
 
         std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // Radius and possibly new stellar type
-
-        ResolveEnvelopeMassOnPhase(m_Tau);
 
         m_Mu          = CalculatePerturbationMuOnPhase();
 
@@ -3395,8 +3200,6 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase() {
             m_Luminosity  = CalculateLuminosityAtPhaseEnd();
             
             m_Radius      = CalculateRadiusAtPhaseEnd();
-
-            ResolveEnvelopeMassAtPhaseEnd(m_Tau);
 
             m_Mu          = CalculatePerturbationMuAtPhaseEnd();
 
