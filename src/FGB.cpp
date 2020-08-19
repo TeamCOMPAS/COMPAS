@@ -3,30 +3,6 @@
 #include "HeWD.h"
 
 
-///////////////////////////////////////////////////////////////////////////////////////
-//                                                                                   //
-//             PARAMETERS, MISCELLANEOUS CALCULATIONS AND FUNCTIONS ETC.             //
-//                                                                                   //
-///////////////////////////////////////////////////////////////////////////////////////
-
-
-/*
- * Calculate the radius response of a star to mass loss on the thermal timescale as characterised
- * by the mass-radius exponent Zeta thermal
- *
- * This calculations good for FGB, CHeB, EAGB, TPAGB, HeHG, and HeGB stars
- *
- *
- * double CalculateConvergedMassStepZetaThermal()
- *
- * @return                                      Mass-radius exponent Zeta thermal (= dlnR/dlnM)
- */
-double FGB::CalculateConvergedMassStepZetaThermal() {
-    double coreMass_Mass = m_CoreMass / m_Mass;
-    return -m_XExponent + (2.0 * coreMass_Mass * coreMass_Mass * coreMass_Mass * coreMass_Mass * coreMass_Mass);
-}
-
-
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
@@ -214,7 +190,6 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
             m_Radius     = HeMS::CalculateRadiusAtZAMS_Static(m_Mass);
         }
 
-        m_EnvMass = 0.0;
     }
 
     return stellarType;

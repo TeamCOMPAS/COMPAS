@@ -33,8 +33,17 @@ protected:
 
     void Initialise() {
         m_StellarType = STELLAR_TYPE::HERTZSPRUNG_GAP;                                                                                                                      // Set stellar type
+        m_Tau = 0.0;                                                                                      // Start of phase
         CalculateTimescales();                                                                                                                                              // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tMS)];                                                                                                             // Set age appropriately
+        
+        //Update stellar properties at start of HG phase (since core defintion changes)
+        CalculateGBParams();
+        m_COCoreMass  = CalculateCOCoreMassOnPhase();
+        m_CoreMass    = CalculateCoreMassOnPhase();
+        m_HeCoreMass  = CalculateHeCoreMassOnPhase();
+        m_Luminosity  = CalculateLuminosityOnPhase();
+        std::tie(m_Radius, std::ignore) = CalculateRadiusAndStellarTypeOnPhase();   // Update radius
     }
 
 
@@ -42,15 +51,11 @@ protected:
     double       CalculateCOCoreMassAtPhaseEnd()                                { return 0.0; }                                                                             // McCO(HG) = 0.0
     double       CalculateCOCoreMassOnPhase()                                   { return 0.0; }                                                                             // McCO(HG) = 0.0
 
-    double       CalculateConvergedMassStepZetaThermal()                        { return BaseStar::CalculateConvergedMassStepZetaThermal(); }                               // Not GiantBranch this time
-
     double       CalculateCoreMassAt2ndDredgeUp(const DBL_VECTOR &p_GBParams)   { return p_GBParams[static_cast<int>(GBP::McDU)]; }                                         // NO-OP
     double       CalculateCoreMassAtPhaseEnd(const double p_Mass);
     double       CalculateCoreMassAtPhaseEnd()                                  { return CalculateCoreMassAtPhaseEnd(m_Mass0); }                                            // Use class member variables
     double       CalculateCoreMassOnPhase(const double p_Mass, const double p_Time);
     double       CalculateCoreMassOnPhase()                                     { return CalculateCoreMassOnPhase(m_Mass0, m_Age); }                                        // Use class member variables
-
-    double       CalculateEnvelopeMassOnPhase(const double p_Tau);
 
     double       CalculateGyrationRadius()                                      { return 0.21; }                                                                            // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 

@@ -427,7 +427,6 @@ void Options::InitialiseMemberVariables(void) {
 	stellarZetaPrescriptionString                            = ZETA_PRESCRIPTION_LABEL.at(stellarZetaPrescription);				    	// String containing prescription to use for calculating stellar zetas
 
 	zetaAdiabaticArbitrary                                          = 10000.0;                                                                          // large value, which will favour stable MT
-	zetaThermalArbitrary                                            = 10000.0;                                                                          // large value, which will favour stable MT
     zetaMainSequence 	                                            = 2.0;
 	zetaRadiativeEnvelopeGiant	                                    = 6.5;
 
@@ -810,7 +809,6 @@ void Options::SetToFiducialValues(void) {
 
 
 	zetaAdiabaticArbitrary                                          = 10000.0;                                                                          // large value, which will favour stable MT
-	zetaThermalArbitrary                                            = 10000.0;                                                                          // large value, which will favour stable MT
     zetaMainSequence 	                                            = 2.0;
 	zetaRadiativeEnvelopeGiant	                                    = 6.5;
     
@@ -1142,7 +1140,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("wolf-rayet-multiplier",                                       po::value<double>(&wolfRayetFactor)->default_value(wolfRayetFactor),                                                                                        ("Multiplicitive constant for WR winds (default = " + std::to_string(wolfRayetFactor) + ")").c_str())
 
 		    ("zeta-adiabatic-arbitrary",                                    po::value<double>(&zetaAdiabaticArbitrary)->default_value(zetaAdiabaticArbitrary),                                                                          ("Value of mass-radius exponent zeta adiabatic (default = " + std::to_string(zetaAdiabaticArbitrary) + ")").c_str())
-		    ("zeta-thermal-arbitrary",                                      po::value<double>(&zetaThermalArbitrary)->default_value(zetaThermalArbitrary),                                                                          ("Value of mass-radius exponent zeta adiabatic (default = " + std::to_string(zetaAdiabaticArbitrary) + ")").c_str())
 		    ("zeta-radiative-envelope-giant",                               po::value<double>(&zetaRadiativeEnvelopeGiant)->default_value(zetaRadiativeEnvelopeGiant),                                                                                  ("Value of mass-radius exponent zeta for radiative envelope giants (default = " + std::to_string(zetaRadiativeEnvelopeGiant) + ")").c_str())
 		    ("zeta-main-sequence",                                          po::value<double>(&zetaMainSequence)->default_value(zetaMainSequence),                                                                                      ("Value of mass-radius exponent zeta on the main sequence (default = " + std::to_string(zetaMainSequence) + ")").c_str())
 
@@ -1204,7 +1201,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("pulsar-birth-spin-period-distribution",                       po::value<string>(&pulsarBirthSpinPeriodDistributionString)->default_value(pulsarBirthSpinPeriodDistributionString),                                        ("Pulsar Birth Spin Period distribution (options: ZERO, FIXED, UNIFORM, NORMAL), default = " + pulsarBirthSpinPeriodDistributionString + ")").c_str())
 		    ("pulsational-pair-instability-prescription",                   po::value<string>(&pulsationalPairInstabilityPrescriptionString)->default_value(pulsationalPairInstabilityPrescriptionString),                              ("Pulsational Pair Instability prescription (options: COMPAS, STARTRACK, MARCHANT), default = " + pulsationalPairInstabilityPrescriptionString + ")").c_str())
 
-		    ("remnant-mass-prescription",                                   po::value<string>(&remnantMassPrescriptionString)->default_value(remnantMassPrescriptionString),                                                            ("Choose remnant mass prescription (options: POSTITNOTE, HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL), default = " + remnantMassPrescriptionString + ")").c_str())
+		    ("remnant-mass-prescription",                                   po::value<string>(&remnantMassPrescriptionString)->default_value(remnantMassPrescriptionString),                                                            ("Choose remnant mass prescription (options: HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL), default = " + remnantMassPrescriptionString + ")").c_str())
 		    ("rotational-velocity-distribution",                            po::value<string>(&rotationalVelocityDistributionString)->default_value(rotationalVelocityDistributionString),                                              ("Initial rotational velocity distribution (options: ZERO, HURLEY, VLTFLAMES), default = " + rotationalVelocityDistributionString + ")").c_str())
 
 		    ("semi-major-axis-distribution,a",                              po::value<string>(&semiMajorAxisDistributionString)->default_value(semiMajorAxisDistributionString),                                                        ("Initial semi-major axis distribution, a (options: FLATINLOG, CUSTOM, DuquennoyMayor1991, SANA2012), default = " + semiMajorAxisDistributionString + ")").c_str())
