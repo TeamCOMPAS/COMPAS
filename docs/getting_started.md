@@ -3,7 +3,7 @@
 # Getting Started
 
   * [1. Installing COMPAS and Dependencies](#1-installing-compas-and-dependencies)
-    + [1.1 Instructions for Ubuntu](#11-instructions-for-ubuntu)
+    + [1.1 Instructions for Linux](#11-instructions-for-linux)
     + [1.2 Instructions for macOS](#12-instructions-for-macos)
     + [1.3 Setting up the Makefile and Compiling](#13-setting-up-the-makefile-and-compiling)
     + [1.4 Installing Python](#14-installing-python)
@@ -114,7 +114,7 @@ First check if you have python3 installed. If you do, the following should give 
 If you do not have python3 installed, install it by following the instructions below for your OS:
 
 * For macOS: We recommend installing python and its libraries using MacPorts. You can follow the instructions on https://astrofrog.github.io/macports-python/
-* For Linux/Ubuntu OS, run `sudo apt-get install python3`. We recommend installing the required python libraries using the package installer pip. E.g. To install numpy, run `pip install numpy`.
+* For Linux, install `python3` using your package manager (e.g. in Ubuntu, run `sudo apt-get install python3`). We recommend installing the required python libraries using the package installer pip. E.g. To install numpy, run `pip install numpy`.
 
 
 ## 2. Evolving your first binary
