@@ -18,8 +18,8 @@ First change to the directory within which you wish to store your copy of COMPAS
     cd ~/codes
 
 Use `git clone` to download the COMPAS repository. If you do not have git installed, you may follow the instructions on https://www.atlassian.com/git/tutorials/install-git.
- 
-If you have not yet configured Github with SSH, you can clone over HTTPS:
+
+If you have not yet configured GitHub with SSH, you can clone over HTTPS:
 
     git clone https://github.com/TeamCOMPAS/COMPAS.git
 
@@ -27,26 +27,28 @@ With SSH configured, you can clone with
 
     git clone git@github.com:TeamCOMPAS/COMPAS.git
 
-COMPAS requires a C++ compiller, and the libraries gsl and boost. We include installation instructions for Ubuntu/Linux OS and macOS. 
+COMPAS requires a C++ compiler, and the libraries gsl and boost. We include installation instructions for Ubuntu/Linux OS and macOS.
 
-### 1.1 Instructions for Ubuntu
-While we provide instructions for Ubuntu, other Linux distros will be similar; consult your documentation if you are unsure of which package manager to use.
+### 1.1 Instructions for Linux
+You will need to install the following packages (and their prerequisites) using your package manager:
 
-If you do not have a C++ compiler, you may download the g++ compiler using
+| Package | Ubuntu (apt)     | Fedora (dnf)<br />CentOS (yum)<br />RHEL (yum) |
+|---------|------------------|---------------|
+| g++     | g++              | gcc           |
+| Boost   | libboost-all-dev | boost-devel   |
+| GSL     | libgsl-dev       | gsl gsl-devel |
 
-    sudo apt-get install g++
+So, in Ubuntu, type
 
-To download, install, and compile boost,
+    sudo apt-get install g++ libboost-all-dev libgsl-dev
 
-    sudo apt-get install libboost-all-dev
+In Fedora,
 
-To download, install, and compile gsl,
+    sudo dnf install gcc boost-devel gsl gsl-devel
 
-    sudo apt-get install libgsl-dev
+In RHEL or CentOS,
 
-For RHEL family OSs, Red Hat, Fedora, and related distributions, use the yum package manager:
-
-    sudo yum install gcc boost-devel gsl gsl-devel   
+    sudo yum install gcc boost-devel gsl gsl-devel
 
 ### 1.2 Instructions for macOS
 We suggest you first update to the latest version of macOS through the App Store. You can find what macOS version you are using by clicking on the Apple symbol on the top left of your screen and clicking "About This Mac".
