@@ -363,9 +363,16 @@
 //                                      - Capped He core mass gain during shell H burning for CHeB and TPAGB stars, whose on-phase evolution now ends promptly when this limit is reached; this change also resolves issue #315 (higher mass SN remnants than total stellar mass)
 // 02.13.06     AVG - Aug 20, 2020  - Defect repair:
 //										- Issue #229: Corrected fitting parameters in Muller 16 SN kick function
+// 02.13.07      IM - Aug 20, 2020  - Enhancements:
+//                                      - ONeWDs can now undergo ECSN if their mass rises above MECS=1.38 solar masses (previously, they could only undergo CCSN on rising above 1.38 solar masses).  ONeWD::CalculateInitialSupernovaMass now returns MCBUR1 rather than 5.0 to ensure this happens
+//                                      - BaseStar::CalculateMaximumCoreMassSN() has been removed — it’s superfluous since  GiantBranch::CalculateCoreMassAtSupernova_Static does the same thing
+//                                      - Some misleading comments in TPAGB dealing with SNe have been clarified
+//                                      - Option to set MCBUR1 [minimum core mass at base of the AGB to avoid fully degenerate CO core formation] to a value different from the Hurley default of 1.6 solar masses added, Issue #65 resolved
+//                                      - Removed unused Options::SetToFiducialValues()
+//                                      - Documentation updated
 
 
-const std::string VERSION_STRING = "02.13.06";
+const std::string VERSION_STRING = "02.13.07";
 
 
 

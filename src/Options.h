@@ -208,7 +208,7 @@ public:
     int                                         MaxNumberOfTimestepIterations() const                                   { return maxNumberOfTimestepIterations; }
     double                                      MaxPercentageAdaptiveMassTransfer() const                               { return maxPercentageAdaptiveMassTransfer; }
 
-    double                                      MCBUR1() const                                                          { return MCBUR1; }
+    double                                      MCBUR1() const                                                          { return mCBUR1; }
 
     double                                      Metallicity() const                                                     { return metallicity; }
 
@@ -553,7 +553,7 @@ private:
     bool                                        fixedMetallicity;                                               // Whether user has specified a metallicity to use
     double                                      metallicity;                                                    // Metallicity default = solar
 
-    double                                      MCBUR1;                                                         // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation
+    double                                      mCBUR1;                                                         // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation
 
     // Neutron star equation of state
     NS_EOS                                      neutronStarEquationOfState;                                     // which NS EOS to use
