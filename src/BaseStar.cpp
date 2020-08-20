@@ -1373,25 +1373,6 @@ double BaseStar::CalculateMaximumCoreMass(const double p_Mass) {
 
 
 /*
- * Calculate the core mass at which the AGB phase is terminated in a SN/loss of envelope
- *
- * Hurley et al. 2000, eq 75
- *
- *
- * double Star::CalculateMaximumCoreMassSN()
- *
- * @return                                      Maximum core mass before supernova (McSN)
- */
-double BaseStar::CalculateMaximumCoreMassSN() {
-#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]        // for convenience and readability - undefined at end of function
-
-    return max(MECS, (0.773 * gbParams(McBAGB)) - 0.35);        // Mch constant in constants.h
-
-#undef gbParams
-}
-
-
-/*
  * Calculate the initial convective envelope mass
  *
  * Hurley et al. 2000, just after eq 111

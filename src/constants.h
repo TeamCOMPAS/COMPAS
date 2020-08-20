@@ -363,9 +363,16 @@
 //                                      - Capped He core mass gain during shell H burning for CHeB and TPAGB stars, whose on-phase evolution now ends promptly when this limit is reached; this change also resolves issue #315 (higher mass SN remnants than total stellar mass)
 // 02.13.06     AVG - Aug 20, 2020  - Defect repair:
 //										- Issue #229: Corrected fitting parameters in Muller 16 SN kick function
+// 02.13.07      IM - Aug 20, 2020  - Enhancements:
+//                                      - ONeWDs can now undergo ECSN if their mass rises above MECS=1.38 solar masses (previously, they could only undergo CCSN on rising above 1.38 solar masses).  ONeWD::CalculateInitialSupernovaMass now returns MCBUR1 rather than 5.0 to ensure this happens
+//                                      - BaseStar::CalculateMaximumCoreMassSN() has been removed — it’s superfluous since  GiantBranch::CalculateCoreMassAtSupernova_Static does the same thing
+//                                      - Some misleading comments in TPAGB dealing with SNe have been clarified
+//                                      - Option to set MCBUR1 [minimum core mass at base of the AGB to avoid fully degenerate CO core formation] to a value different from the Hurley default of 1.6 solar masses added, Issue #65 resolved
+//                                      - Removed unused Options::SetToFiducialValues()
+//                                      - Documentation updated
 
 
-const std::string VERSION_STRING = "02.13.06";
+const std::string VERSION_STRING = "02.13.07";
 
 
 
@@ -601,8 +608,8 @@ constexpr double MCH                                    = 1.44;                 
 constexpr double MECS                                   = 1.38;                                                     // Mass of Neutron-Star (NS) formed in electron capture supernova (ECS). From Belczysnki+2008, before eq. 3.
 constexpr double MECS_REM                               = 1.26;                                                     // Gravitational mass of Neutron-Star (NS) formed in electron capture supernova (ECS). From Belczysnki+2008, eq. 3
 constexpr double MASS_LOSS_ETA                          = 0.5;                                                      // Mass loss efficiency -- can be set in the code as an option easily enough
-constexpr double MCBUR1					= 1.6;							    // Minimum He core mass to avoid fully degenerate CO core formation 
-constexpr double MCBUR2					= 2.25;							    // He core mass above which the CO core is completely non-degenerate
+constexpr double MCBUR1HURLEY					        = 1.6;							                            // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation (Hurley value, Fryer+ and Belczynski+ use 1.83)
+constexpr double MCBUR2					                = 2.25;							                            // Core mass at base of the AGB above which the CO core is completely non-degenerate
 
 constexpr double LBV_LUMINOSITY_LIMIT_STARTRACK         = 6.0E5;                                                    // STARTRACK LBV luminosity limit
 constexpr double LBV_LUMINOSITY_LIMIT_VANBEVEREN        = 3.0E5;                                                    // VANBEVEREN LBV luminosity limit
