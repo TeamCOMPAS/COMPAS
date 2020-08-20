@@ -1010,7 +1010,7 @@ double GiantBranch::CalculateThermalTimescale(const double p_Mass, const double 
 /*
  * Calculate remnant type given COCoreMass
  *
- * Muller et al. 2016
+ * Muller et al. 2016 as presented in appendix B of Vigna-Gomez et al. 2018 (arXiv:1805.07974)
  *
  *
  * STELLAR_TYPE CalculateRemnantTypeByMuller2016(const double p_COCoreMass)
@@ -1021,10 +1021,6 @@ double GiantBranch::CalculateThermalTimescale(const double p_Mass, const double 
 STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCoreMass) {
 
     STELLAR_TYPE stellarType;
-
-    if (utils::Compare(p_COCoreMass, MCH) < 0) {
-        stellarType = STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
-    }
 
          if (utils::Compare(p_COCoreMass, 3.6 ) < 0) { stellarType = STELLAR_TYPE::NEUTRON_STAR; }
     else if (utils::Compare(p_COCoreMass, 4.05) < 0) { stellarType = STELLAR_TYPE::BLACK_HOLE; }
@@ -1105,10 +1101,7 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
 
 
 /*
- * Calculate remnant mass given Mass and COCoreMass
- *
- * Muller et al. 2016
- *
+ * Calculate remnant mass given Mass and COCoreMass per Muller et al. 2016 as presented in eq. B4 of Vigna-Gomez et al. 2018 (arXiv:1805.07974)
  *
  * double CalculateRemnantMassByMuller2016(const double p_Mass, const double p_COCoreMass)
  *
@@ -1117,7 +1110,6 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
  * @return                                      Remnant mass in Msol
  */
 double GiantBranch::CalculateRemnantMassByMuller2016(const double p_Mass, const double p_COCoreMass) {
-    // Muller+2016 remnant mass prescription as described in Appendix B of Vigna-Gomez+2018
     double	remnantMass; 					                                                                        // Limit mass for a White Dwarf units Msun.
 
     if (utils::Compare(p_COCoreMass, 1.37) < 0) {

@@ -993,7 +993,7 @@ double BaseStar::CalculatePerturbationR(const double p_Mu, const double p_Mass, 
  * Kruckow et al. 2016 (arXiv:1610.04417), fig 1
  *
  * Spectrum fit to the region bounded by the upper and lower limits as shown in Kruckow+ 2016.
- * Made by Alejandro Vigna-Gomez
+ * Fit as presented in Vigna-Gomez et al. 2018 (arXiv:1805.07974)
  *
  *
  * double CalculateLambdaKruckow(const double p_Radius, const double p_Alpha)
@@ -2464,14 +2464,9 @@ double BaseStar::DrawKickVelocityBrayEldridge(const double p_EjectaMass,
 
 
 /*
- * Draw kick velocity per Muller et al. 2016
+ * Draw kick velocity per Muller et al. 2016 as presented in eq. B5 of Vigna-Gomez et al. 2018 (arXiv:1805.07974)
  *
- * For BH assume complete fallback so no ejecta hence no rocket effect
- * If BH doesnt assumes complete fallback, e.g. neutrino mass loss, a Blauuw Kick should be calculated
- *
- * ALEJANDRO - 17/03/2017 - It seems from Bernhard's notes he gives us V_kick = V_kick_3D.
- * Checking with some of the highest kicks he gives, we get V_kick>1000 km s^-1
- *
+ * BHs do not get natal kicks
  *
  * double DrawRemnantKickMuller(const double p_COCoreMass)
  *
@@ -2481,7 +2476,7 @@ double BaseStar::DrawKickVelocityBrayEldridge(const double p_EjectaMass,
 double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
 
     double	remnantKick = 0.0;	                // units km/s
-	double	lowerRegimeKick = 35.0;		        // Bernhard proposes to use 10 km s^-1 to replicate ECSN. He quotes Bray & Eldridge 2016 on this.
+	double	lowerRegimeKick = 35.0;		        // Following Vigna-Gomez et al. 2018 using 35 km/s as the peak of a low-kick Maxwellian (e.g. USSN, ECSN)
 
 	     if (utils::Compare(p_COCoreMass, 1.37) <  0) remnantKick = 0.0;
 	else if (utils::Compare(p_COCoreMass, 1.49) <  0) remnantKick = lowerRegimeKick + (1000.0 * (p_COCoreMass - 1.37));
@@ -2489,11 +2484,11 @@ double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
 	else if (utils::Compare(p_COCoreMass, 2.4 ) <  0) remnantKick = 100.0 + (175.0  * (p_COCoreMass - 1.65));
     else if (utils::Compare(p_COCoreMass, 3.2 ) <  0) remnantKick = 200.0 + (550.0 * (p_COCoreMass - 2.4));
     else if (utils::Compare(p_COCoreMass, 3.6 ) <  0) remnantKick = 80.0 + (120.0  * (p_COCoreMass - 3.2));
-    else if (utils::Compare(p_COCoreMass, 4.05) <  0) remnantKick = 0.0;
+    else if (utils::Compare(p_COCoreMass, 4.05) <  0) remnantKick = 0.0;                                                // Going to be a Black Hole
     else if (utils::Compare(p_COCoreMass, 4.6 ) <  0) remnantKick = 350.0 + (50.0  * (p_COCoreMass - 4.05));
-    else if (utils::Compare(p_COCoreMass, 5.7 ) <  0) remnantKick = 0.0;
+    else if (utils::Compare(p_COCoreMass, 5.7 ) <  0) remnantKick = 0.0;                                                // Going to be a Black Hole
     else if (utils::Compare(p_COCoreMass, 6.0 ) <  0) remnantKick = 275.0 - (300.0  * (p_COCoreMass - 5.7));
-    else if (utils::Compare(p_COCoreMass, 6.0 ) >= 0) remnantKick = 0.0;
+    else if (utils::Compare(p_COCoreMass, 6.0 ) >= 0) remnantKick = 0.0;                                                // Going to be a Black Hole
 
     return remnantKick;
 }
