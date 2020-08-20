@@ -378,7 +378,7 @@
 //                                      - changed RadiusEqualsRocheLobeFunctor() in BinaryBaseStar.h to not use the SHOW_WARN macro (can't uset ObjectId() function inside a templated function - no object)
 //                                      - changed COMMANDLINE_STATUS to PROGRAM_STATUS (better description)
 //                                      - moved ERROR:NONE to top of enum in constants.h (so ERROR = 0 = NONE - makes more sense...)
-//                                      - added new program option to enable warnings (via SHOW_WARN macros).  Default is false.  SHOW_WARN macros were previously #undefined
+//                                      - added new program option '--enable-warnings' to enable warning messages (via SHOW_WARN macros).  Default is false.  SHOW_WARN macros were previously #undefined
 
 
 const std::string VERSION_STRING = "02.13.08";
