@@ -1251,9 +1251,9 @@ std::tuple<int, int> EvolveBinaryStars() {
  */
 int main(int argc, char * argv[]) {
 
-    COMMANDLINE_STATUS programStatus = OPTIONS->Initialise(argc, argv);                 // Get the program options from the commandline
+    PROGRAM_STATUS programStatus = OPTIONS->Initialise(argc, argv);                     // Get the program options from the commandline
 
-    if (programStatus == COMMANDLINE_STATUS::CONTINUE) {
+    if (programStatus == PROGRAM_STATUS::CONTINUE) {
 
         // start the logging service
         LOGGING->Start(OPTIONS->OutputPathString(),                                     // location of logfiles
@@ -1269,7 +1269,7 @@ int main(int argc, char * argv[]) {
 
         (void)utils::SplashScreen();                                                    // announce ourselves
 
-        if (!LOGGING->Enabled()) programStatus = COMMANDLINE_STATUS::LOGGING_FAILED;    // logging failed to start
+        if (!LOGGING->Enabled()) programStatus = PROGRAM_STATUS::LOGGING_FAILED;        // logging failed to start
         else {
 
             RAND->Initialise();                                                         // initialise the random number service
@@ -1288,7 +1288,7 @@ int main(int argc, char * argv[]) {
 
             LOGGING->Stop(std::make_tuple(objectsRequested, objectsCreated));           // stop the logging service
 
-            programStatus = COMMANDLINE_STATUS::SUCCESS;                                // set program status, and...
+            programStatus = PROGRAM_STATUS::SUCCESS;                                    // set program status, and...
         }
     }
 
