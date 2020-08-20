@@ -1,5 +1,3 @@
-#define WARNINGS          // define/undef this to turn warnings on/off       JR: todo: make this a program option
-
 #define ERROR_PREFIX "ERROR: "
 #define WARNING_PREFIX "WARNING: "
 
@@ -23,8 +21,6 @@
 #define SHOW_ERROR_IF(...)                          GET_MACRO(_0, ##__VA_ARGS__, SHOW_ERROR_IF_5, SHOW_ERROR_IF_4, SHOW_ERROR_IF_3, SHOW_ERROR_IF_2, SHOW_ERROR_IF_1, SHOW_ERROR_IF_0) (__VA_ARGS__)
 
 
-#ifdef WARNINGS
-
 #define SHOW_WARN_0()
 #define SHOW_WARN_1(error)                          { ERRORS->ShowIt(WARNING_PREFIX, error, "", ObjectId(), ObjectType(), StellarType(), __PRETTY_FUNCTION__); }
 #define SHOW_WARN_2(error, qualifyingStr)           { ERRORS->ShowIt(WARNING_PREFIX, error, qualifyingStr, ObjectId(), ObjectType(), StellarType(), __PRETTY_FUNCTION__); }
@@ -40,11 +36,6 @@
 #define SHOW_WARN_IF_4()
 #define SHOW_WARN_IF_5()
 #define SHOW_WARN_IF(...)                           GET_MACRO(_0, ##__VA_ARGS__, SHOW_WARN_IF_5, SHOW_WARN_IF_4, SHOW_WARN_IF_3, SHOW_WARN_IF_2, SHOW_WARN_IF_1, SHOW_WARN_IF_0) (__VA_ARGS__)
-
-#else
-    #define SHOW_WARN(...)
-    #define SHOW_WARN_IF(...)
-#endif
 
 
 // macros for static functions
@@ -65,8 +56,6 @@
 #define SHOW_ERROR_IF_STATIC(...)                   GET_MACRO(_0, ##__VA_ARGS__, SHOW_ERROR_IF_STATIC_5, SHOW_ERROR_IF_STATIC_4, SHOW_ERROR_IF_STATIC_3, SHOW_ERROR_IF_STATIC_2, SHOW_ERROR_IF_STATIC_1, SHOW_ERROR_IF_STATIC_0) (__VA_ARGS__)
 
 
-#ifdef WARNINGS
-
 #define SHOW_WARN_STATIC_0()
 #define SHOW_WARN_STATIC_1()
 #define SHOW_WARN_STATIC_2()
@@ -82,8 +71,3 @@
 #define SHOW_WARN_IF_STATIC_4()
 #define SHOW_WARN_IF_STATIC_5()
 #define SHOW_WARN_IF_STATIC(...)                    GET_MACRO(_0, ##__VA_ARGS__, SHOW_WARN_IF_STATIC_5, SHOW_WARN_IF_STATIC_4, SHOW_WARN_IF_STATIC_3, SHOW_WARN_IF_STATIC_2, SHOW_WARN_IF_STATIC_1, SHOW_WARN_IF_STATIC_0) (__VA_ARGS__)
-
-#else
-    #define SHOW_WARN_STATIC(...)
-    #define SHOW_WARN_IF_STATIC(...)
-#endif
