@@ -431,7 +431,6 @@ protected:
     virtual double          CalculateMassTransferRejuvenationFactor();
 
             double          CalculateMaximumCoreMass(double p_Mass);
-            double          CalculateMaximumCoreMassSN();
 
             double          CalculateNuclearTimescale()                                                         { return CalculateNuclearTimescale_Static(m_Mass, m_Luminosity); }         // Use class member variables
     static  double          CalculateNuclearTimescale_Static(const double p_Mass, const double p_Luminosity);
