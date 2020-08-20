@@ -130,7 +130,7 @@ std::ostream &operator <<(std::ostream &os, Vector3d const vec) {
  *
  * @return                                       The magnitude of the velocity vector (speed)
  */
-double Vector3d::Magnitude() {
+double Vector3d::Magnitude() const {
 
     // Straightforward application of pythagorean theorem 
     double speed2 = linalg::dot((*this), (*this));
@@ -280,8 +280,8 @@ namespace linalg {
      * @return                                      angle between them, in radians
      */
     double angleBetween(const Vector3d& a, const Vector3d& b) {
-        // Angle between 2 vectors, between [0, 2pi] 
-        return acos(linalg::dot(a,b));
+        // Angle between 2 vectors, between [0, pi] 
+        return acos(linalg::dot(a,b)/(a.Magnitude()*b.Magnitude()));
     }
 
 }
