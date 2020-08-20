@@ -34,7 +34,7 @@ public:
     double      xValue() const       { return m_0; }
     double      yValue() const       { return m_1; }
     double      zValue() const       { return m_2; }
-    double      Magnitude();
+    double      Magnitude() const;
 
     DBL_VECTOR  asDBL_VECTOR();
     
