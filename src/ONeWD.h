@@ -36,7 +36,7 @@ protected:
 
     // member functions
 
-           double       CalculateInitialSupernovaMass()                         { return 5.0; }                                                                 // Force ONeWD to ccSN, 5.0 doesn't change a physical parameter of the star.
+           double       CalculateInitialSupernovaMass()                         { return MCBUR1; }                                                                 // Force ONeWD to undergo ECSN 
 
            double       CalculateLuminosityOnPhase(const double p_Mass,
                                                    const double p_Time,
@@ -46,11 +46,11 @@ protected:
 
            STELLAR_TYPE EvolveToNextPhase()                                     { return BaseStar::EvolveToNextPhase(); }                                       // Default to BaseStar
 
-           bool         IsSupernova()                                           { return (utils::Compare(m_Mass, MCH) > 0); }                                   // Going supernova if mass large enough
+           bool         IsSupernova()                                           { return (utils::Compare(m_Mass, MECS) > 0); }                                   // Going supernova if mass large enough
 
            STELLAR_TYPE ResolveSupernova()                                      { return GiantBranch::ResolveSupernova(); }                                     // Use GiantBranch
 
-           bool         ShouldEvolveOnPhase()                                   { return (utils::Compare(m_Mass, MCH) <= 0); }                                  // Evolve on phase unless mass > Chandrasekhar mass
+           bool         ShouldEvolveOnPhase()                                   { return (utils::Compare(m_Mass, MECS) <= 0); }                                  // Evolve on phase unless mass > ECSN threshold mass
            bool         ShouldSkipPhase()                                       { return false; }                                                               // Never skip HeMS phase
 
 };
