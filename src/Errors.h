@@ -16,7 +16,6 @@
 #include "Options.h"
 
 class Log;
-class Options;
 
 
 /*
