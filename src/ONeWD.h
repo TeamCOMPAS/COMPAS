@@ -36,7 +36,7 @@ protected:
 
     // member functions
 
-           double       CalculateInitialSupernovaMass()                         { return MCBUR1; }                                                                 // Force ONeWD to undergo ECSN 
+           double       CalculateInitialSupernovaMass()                         { return OPTIONS->MCBUR1(); }                                                                 // Force ONeWD to undergo ECSN 
 
            double       CalculateLuminosityOnPhase(const double p_Mass,
                                                    const double p_Time,

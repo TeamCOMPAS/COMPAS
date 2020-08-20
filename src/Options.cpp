@@ -293,7 +293,7 @@ void Options::InitialiseMemberVariables(void) {
 
 	maximumNeutronStarMass                                          = 3.0;									                                            // Maximum mass of a neutron star allowed, value in StarTrack is 3.0
     
-    MCBUR1                                                          = MCBUR1HURLEY;                                                                     // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation (Hurley value, Fryer+ and Belczynski+ use 1.83)
+    mCBUR1                                                          = MCBUR1HURLEY;                                                                     // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation (Hurley value, Fryer+ and Belczynski+ use 1.83)
 
 
     // Kick direction option
@@ -722,7 +722,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("maximum-evolution-time",                                      po::value<double>(&maxEvolutionTime)->default_value(maxEvolutionTime),                                                                                      ("Maximum time to evolve binaries in Myrs (default = " + std::to_string(maxEvolutionTime) + ")").c_str())
 		    ("maximum-mass-donor-Nandez-Ivanova",                           po::value<double>(&maximumMassDonorNandezIvanova)->default_value(maximumMassDonorNandezIvanova),                                                            ("Maximum donor mass allowed for the revised common envelope formalism in Msol (default = " + std::to_string(maximumMassDonorNandezIvanova) + ")").c_str())
 			("maximum-neutron-star-mass",                                   po::value<double>(&maximumNeutronStarMass)->default_value(maximumNeutronStarMass),                                                                          ("Maximum mass of a neutron star (default = " + std::to_string(maximumNeutronStarMass) + ")").c_str())
-            ("MCBUR1",                                                      po::value<double>(&MCBUR1)->default_value(MCBUR1),                                                                          ("MCBUR1: Min core mass at BAGB to avoid fully degenerate CO core  (default = " + std::to_string(MCBUR1) + ")").c_str())
+            ("MCBUR1",                                                      po::value<double>(&mCBUR1)->default_value(mCBUR1),                                                                          ("MCBUR1: Min core mass at BAGB to avoid fully degenerate CO core  (default = " + std::to_string(mCBUR1) + ")").c_str())
             ("metallicity,z",                                               po::value<double>(&metallicity)->default_value(metallicity),                                                                                                ("Metallicity to use (default " + std::to_string(metallicity) + " Zsol)").c_str())
 		    ("minimum-secondary-mass",                                      po::value<double>(&minimumMassSecondary)->default_value(minimumMassSecondary),                                                                              ("Minimum mass of secondary to generate in Msol (default = " + std::to_string(minimumMassSecondary) + ")").c_str())
 
