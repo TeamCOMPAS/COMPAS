@@ -346,16 +346,16 @@
 //                                      - Fixed mass transfer with fixed accretion rate
 //                                      - Cleaned up code and removed unused code
 //                                      - Updated documentation
-//02.13.03       IM - Aug 9, 2020  - Enhancements and defect repairs:
+// 02.13.03       IM - Aug 9, 2020  - Enhancements and defect repairs:
 //                                      - Use total core mass rather than He core mass in calls to CalculateZAdiabtic (see Issue #300)
 //                                      - Set He core mass to equal the CO core mass when the He shell is stripped (see issue #277)
 //                                      - Ultra-stripped SNe are set at core collapse (do not confusingly refer to stripped stars as previously, see issue #189)
-//02.13.04       IM - Aug 14, 2020 - Enhancements and defect repairs:
+// 02.13.04       IM - Aug 14, 2020 - Enhancements and defect repairs:
 //                                      - Catch exception in boost root finder for mass transfer (resolve issue #317)
 //                                      - Update core masses during Initialisation of HG and HeHG stars to be consistent with Hurley models
 //                                      - Avoid division by zero in mass transfer rates of WDs
 //                                      - Remove POSTITNOTE remnant mass prescription
-//02.13.05       IM - Aug 16, 2020 - Enhancements and defect repairs:
+// 02.13.05       IM - Aug 16, 2020 - Enhancements and defect repairs:
 //                                      - General code cleaning
 //                                      - Removed some redundant variables (e.g., m_EnvMass, which can be computed from m_Mass and m_CoreMass)
 //                                      - Removed calculations of ZetaThermal and ZetaNuclear (these were previously incorrect because they relied on the evolution of a stellar copy which reverted to BaseStar and therefore didn't have the correct behaviour)
@@ -370,9 +370,18 @@
 //                                      - Option to set MCBUR1 [minimum core mass at base of the AGB to avoid fully degenerate CO core formation] to a value different from the Hurley default of 1.6 solar masses added, Issue #65 resolved
 //                                      - Removed unused Options::SetToFiducialValues()
 //                                      - Documentation updated
+// 02.13.08       JR - Aug 20, 2020 - Code cleanup:
+//                                      - moved BaseStar::SolveKeplersEquation() to utils
+//                                      - changed call to (now) utils::SolveKeplersEquation() in BaseStar::CalculateSNAnomalies() to accept tuple with error and show error/warning as necessary
+//                                      - removed call to std::cerr from utils::SolveQuadratic() - now returns error if equation has no real roots
+//                                      - changed call to utils::SolveQuadratic() in GiantBranch::CalculateGravitationalRemnantMass() to accept tuple with error and show warning as necessary
+//                                      - changed RadiusEqualsRocheLobeFunctor() in BinaryBaseStar.h to not use the SHOW_WARN macro (can't uset ObjectId() function inside a templated function - no object)
+//                                      - changed COMMANDLINE_STATUS to PROGRAM_STATUS (better description)
+//                                      - moved ERROR:NONE to top of enum in constants.h (so ERROR = 0 = NONE - makes more sense...)
+//                                      - added new program option '--enable-warnings' to enable warning messages (via SHOW_WARN macros).  Default is false.  SHOW_WARN macros were previously #undefined
 
 
-const std::string VERSION_STRING = "02.13.07";
+const std::string VERSION_STRING = "02.13.08";
 
 
 
@@ -717,13 +726,14 @@ const COMPASUnorderedMap<OBJECT_TYPE, std::string> OBJECT_TYPE_LABEL = {
 
 
 // Commandline Status constants
-enum class COMMANDLINE_STATUS: int { SUCCESS, CONTINUE, ERROR_IN_COMMAND_LINE, LOGGING_FAILED, ERROR_UNHANDLED_EXCEPTION };         // JR: todo: change name to "PROGRAM_STATUS"
+enum class PROGRAM_STATUS: int { SUCCESS, CONTINUE, ERROR_IN_COMMAND_LINE, LOGGING_FAILED, ERROR_UNHANDLED_EXCEPTION };
 
 
 // enum class ERROR
 // Symbolic names for errors and warnings (error strings below in ERRORLabel map)
-// Listed alphabetically
+// Listed alphabetically (except for 'NONE' - first so ERROR = 0 = NONE)
 enum class ERROR: int {
+    NONE,                                                           // no error
     AGE_NEGATIVE_ONCE,                                              // age is < 0.0 - invalid
     BAD_LOGFILE_RECORD_SPECIFICATIONS,                              // error in logfile record specifications
     BINARY_EVOLUTION_STOPPED,                                       // evolution of current binary stopped
@@ -770,7 +780,7 @@ enum class ERROR: int {
     NO_CONVERGENCE,                                                 // iterative process did not converge
     NO_LAMBDA_DEWI,                                                 // Dewi lambda calculation not supported for stellar type
     NO_LAMBDA_NANJING,                                              // Nanjing lambda calculation not supported for stellar type
-    NONE,                                                           // no error
+    NO_REAL_ROOTS,                                                  // equation has no real roots
     NOT_INITIALISED,                                                // object not initialised
     OUT_OF_BOUNDS,                                                  // value out of bounds
     RADIUS_NOT_POSITIVE,                                            // radius is <= 0.0 - invalid
@@ -883,6 +893,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::NO_CONVERGENCE,                                        { ERROR_SCOPE::ALWAYS,              "No convergence" }},
     { ERROR::NO_LAMBDA_DEWI,                                        { ERROR_SCOPE::ALWAYS,              "Dewi lambda calculation not supported for stellar type" }},
     { ERROR::NO_LAMBDA_NANJING,                                     { ERROR_SCOPE::ALWAYS,              "Nanjing lambda calculation not supported for stellar type" }},
+    { ERROR::NO_REAL_ROOTS,                                         { ERROR_SCOPE::ALWAYS,              "No real roots" }},
     { ERROR::NONE,                                                  { ERROR_SCOPE::NEVER,               "No error" }},
     { ERROR::NOT_INITIALISED,                                       { ERROR_SCOPE::ALWAYS,              "Object not initialised" }},
     { ERROR::OUT_OF_BOUNDS,                                         { ERROR_SCOPE::ALWAYS,              "Value out of bounds" }},

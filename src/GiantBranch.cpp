@@ -1161,11 +1161,26 @@ double GiantBranch::CalculateBaryonicRemnantMass(const double p_ProtoMass, doubl
  * @return                                      Gravitational mass of the remnant in Msol
  */
 double GiantBranch::CalculateGravitationalRemnantMass(const double p_BaryonicRemnantMass) {
+
+    ERROR  error = ERROR::NONE;
+
+    double root;
+
     // decide whether to calculate GravitationalRemnantMass from Fryer+2012, Eq.13 for Neutron Star or Black Hole 
     // then calculate GravitationalRemnantMass 
-    return (utils::Compare(p_BaryonicRemnantMass, m_BaryonicMassOfMaximumNeutronStarMass) < 0) 
-            ? utils::SolveQuadratic(0.075, 1.0, -p_BaryonicRemnantMass)                 // Neutron Star
-            : 0.9 * p_BaryonicRemnantMass;                                              // Black Hole
+    
+    if (utils::Compare(p_BaryonicRemnantMass, m_BaryonicMassOfMaximumNeutronStarMass) < 0) {
+        std::tie(error, root) = utils::SolveQuadratic(0.075, 1.0, -p_BaryonicRemnantMass);                      // Neutron Star
+        if (error == ERROR::NO_REAL_ROOTS) { 
+            SHOW_WARN(error, "No real roots for quadratic: using 0.0");                                         // show warning
+            root = 0.0;                                                                                         // should be returned as 0.0, but set it anyway
+        }
+    } 
+    else {
+        root = 0.9 * p_BaryonicRemnantMass;                                                                     // Black Hole
+    }
+
+    return root;
 }
 
 

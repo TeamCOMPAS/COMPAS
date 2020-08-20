@@ -26,6 +26,8 @@ class pythonProgramOptions:
     else:
         compas_executable = compas_executable_override
 
+    enable_warnings = False                                     # option to enable/disable warning messages
+
     number_of_binaries = 10  #number of binaries per batch
     populationPrinting = False
 
@@ -213,6 +215,7 @@ class pythonProgramOptions:
 
     def booleanChoices(self):
         booleanChoices = [
+            self.enable_warnings,
             self.single_star,
             self.use_mass_loss,
             self.mass_transfer,
@@ -240,6 +243,7 @@ class pythonProgramOptions:
 
     def booleanCommands(self):
         booleanCommands = [
+            '--enable-warnings',
             '--single-star',
             '--use-mass-loss',
             '--massTransfer',

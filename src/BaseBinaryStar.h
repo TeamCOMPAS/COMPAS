@@ -634,16 +634,17 @@ private:
     template <class T>
     struct RadiusEqualsRocheLobeFunctor
     {
-        RadiusEqualsRocheLobeFunctor(BaseBinaryStar * p_Binary, BinaryConstituentStar * p_Donor, BinaryConstituentStar * p_Accretor)
+        RadiusEqualsRocheLobeFunctor(BaseBinaryStar * p_Binary, BinaryConstituentStar * p_Donor, BinaryConstituentStar * p_Accretor, ERROR * p_Error)
         {
             m_Binary=p_Binary;
             m_Donor=p_Donor;
             m_Accretor=p_Accretor;
+            m_Error = p_Error;
         }
         T operator()(double const& dM)
         {
             if(dM >= m_Donor->Mass()){                    // Can't remove more than the donor's mass
-                SHOW_WARN(ERROR::TOO_MANY_RLOF_ITERATIONS);
+                *m_Error = ERROR::TOO_MANY_RLOF_ITERATIONS;
                 return m_Donor->Radius();
             }
             double donorMass=m_Donor->Mass();
@@ -668,6 +669,7 @@ private:
         BaseBinaryStar * m_Binary;
         BinaryConstituentStar * m_Donor;
         BinaryConstituentStar * m_Accretor;
+        ERROR * m_Error;
     };
     
   
@@ -693,7 +695,9 @@ private:
         
         std::pair<double, double> root;
         try {
-            root = bracket_and_solve_root(RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor), guess, factor, is_rising, tol, it);
+            ERROR error = ERROR::NONE;
+            root = bracket_and_solve_root(RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor, &error), guess, factor, is_rising, tol, it);
+            if (error != ERROR::NONE) SHOW_WARN(error);
         }
         catch(exception& e) {
             SHOW_ERROR(ERROR::TOO_MANY_RLOF_ITERATIONS, e.what());  //Catch generic boost root finding error

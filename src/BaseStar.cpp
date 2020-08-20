@@ -2750,48 +2750,6 @@ DBL_DBL BaseStar::DrawKickDirection() {
 
 
 /*
- * Solve Kepler's Equation using root finding techniques. Here we use Newton-Raphson.
- *
- * For a definition of all the anomalies see here:
- *
- *    https://en.wikipedia.org/wiki/Mean_anomaly
- *    https://en.wikipedia.org/wiki/True_anomaly
- *    https://en.wikipedia.org/wiki/Eccentric_anomaly
- *
- *
- * DBL_DBL SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity)
- *
- * @param   [IN]    p_MeanAnomaly               The mean anomaly
- * @param   [IN]    p_Eccentricity              Eccentricity of the binary
- * @return                                      Tuple containing the eccentric anomaly and the true anomaly
- */
-DBL_DBL BaseStar::SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity) {
-
-    double e = p_Eccentricity;
-    double M = p_MeanAnomaly;
-    double E = p_MeanAnomaly;                                                                                                       // inital guess at E is M - correct for e = 0
-
-    double kepler = E - (e * sin(E)) - M;                                                                                           // let f(E) = 0.  Equation (92) in my "A simple toy model" document
-
-    int iteration = 0;
-    while (std::abs(kepler) >= NEWTON_RAPHSON_EPSILON && iteration++ < MAX_KEPLER_ITERATIONS) {                                     // repeat the approximation until E is within the specified error of the true value, or max iterations exceeded
-        double keplerPrime = 1.0 - (e * cos(E));                                                                                    // derivative of f(E), f'(E).  Equation (94) in my "A simple toy model" document
-        E = E - kepler / keplerPrime;
-        kepler = E - (e * sin(E)) - M;                                                                                              // let f(E) = 0.  Equation (92) in my "A simple toy model" document
-    }
-
-    if (iteration >= MAX_KEPLER_ITERATIONS) SHOW_ERROR(ERROR::NO_CONVERGENCE, "Solving Kepler's equation");                         // show error
-
-    double nu = 2.0 * atan((sqrt((1.0 + e) / (1.0 - e))) * tan(0.5*E));                                                             // convert eccentric anomaly into true anomaly.  Equation (96) in my "A simple toy model" document
-
-         if (utils::Compare(E, M_PI) >= 0 && utils::Compare(E, _2_PI) <= 0) nu += _2_PI;                                            // add 2PI if necessary
-    else if (utils::Compare(E, 0.0)  <  0 || utils::Compare(E, _2_PI) >  0) SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Eccentric anomaly");   // out of bounds - show warning
-
-    return std::make_tuple(E, nu);
-}
-
-
-/*
  * Calculate eccentric anomaly and true anomaly - uses kepler's equation
  *
  * Modifies class member variables m_SupernovaDetails.eccentricAnomaly and m_SupernovaDetails.trueAnomaly
@@ -2802,7 +2760,15 @@ DBL_DBL BaseStar::SolveKeplersEquation(const double p_MeanAnomaly, const double 
  * @param   [IN]    p_Eccentricity              Eccentricity of the binary
  */
 void BaseStar::CalculateSNAnomalies(const double p_Eccentricity) {
-    std::tie(m_SupernovaDetails.eccentricAnomaly, m_SupernovaDetails.trueAnomaly) = SolveKeplersEquation(m_SupernovaDetails.meanAnomaly, p_Eccentricity);
+
+    ERROR  error = ERROR::NONE;
+
+    std::tie(error, m_SupernovaDetails.eccentricAnomaly, m_SupernovaDetails.trueAnomaly) = utils::SolveKeplersEquation(m_SupernovaDetails.meanAnomaly, p_Eccentricity);
+
+         if (error == ERROR::NO_CONVERGENCE) { SHOW_ERROR(error, "Solving Kepler's equation"); }        // show error
+    else if (error == ERROR::OUT_OF_BOUNDS ) { SHOW_WARN(error, "Eccentric anomaly"); }                 // eccentric anomaly out of bounds - show warning
+
+    return;
 }
 
 

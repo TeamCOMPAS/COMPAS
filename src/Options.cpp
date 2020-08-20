@@ -156,7 +156,7 @@ string Options::ProgramOptionDetails(const boost::program_options::variables_map
 }
 
 
-COMMANDLINE_STATUS Options::Initialise(int argc, char *argv[]) {
+PROGRAM_STATUS Options::Initialise(int argc, char *argv[]) {
 
     InitialiseMemberVariables();
 
@@ -175,6 +175,8 @@ void Options::InitialiseMemberVariables(void) {
 
     debugToFile                                                     = false;                                                                            // default is do not log debug statements to a log file
     errorsToFile                                                    = false;                                                                            // default is do not log error messages to a log file
+
+    enableWarnings                                                  = false;                                                                            // default is to not display warnings (via SHOW_WARN macros)
 
     singleStar                                                      = false;                                                                            // Flag to evolve a single star
 
@@ -543,15 +545,15 @@ void Options::InitialiseMemberVariables(void) {
  * Read and process command line arguments using BOOST
  *
  *
- * COMMANDLINE_STATUS CommandLineSorter(int argc, char* argv[])
+ * PROGRAM_STATUS CommandLineSorter(int argc, char* argv[])
  *
  * @param   [IN]    argc                        Argument count - number of strings pointed to by parameter argv
  * @param   [IN]    argv                        Array of strings (char* actually) - fisrt string is program name
  * @return                                      Status
  */
-COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
+PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
-    COMMANDLINE_STATUS programStatus = COMMANDLINE_STATUS::CONTINUE;
+    PROGRAM_STATUS programStatus = PROGRAM_STATUS::CONTINUE;
 
     
     // create default strings for vector<string> types (too hard to do inline)
@@ -617,6 +619,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 			("debug-to-file",                                               po::value<bool>(&debugToFile)->default_value(debugToFile)->implicit_value(true),                                                                            ("Write debug statements to file (default = " + std::string(debugToFile ? "TRUE" : "FALSE") + ")").c_str())
 		    ("detailedOutput",                                              po::value<bool>(&detailedOutput)->default_value(detailedOutput)->implicit_value(true),                                                                      ("Print detailed output to file (default = " + std::string(detailedOutput ? "TRUE" : "FALSE") + ")").c_str())
 			("errors-to-file",                                              po::value<bool>(&errorsToFile)->default_value(errorsToFile)->implicit_value(true),                                                                          ("Write error messages to file (default = " + std::string(errorsToFile ? "TRUE" : "FALSE") + ")").c_str())
+
+			("enable-warnings",                                             po::value<bool>(&enableWarnings)->default_value(enableWarnings)->implicit_value(true),                                                                          ("Display warning messages to stdout (default = " + std::string(enableWarnings ? "TRUE" : "FALSE") + ")").c_str())
 
 		    ("evolve-pulsars",                                              po::value<bool>(&evolvePulsars)->default_value(evolvePulsars)->implicit_value(true),                                                                        ("Evolve pulsars (default = " + std::string(evolvePulsars ? "TRUE" : "FALSE") + ")").c_str())
 			("evolve-unbound-systems",                                      po::value<bool>(&evolveUnboundSystems)->default_value(evolveUnboundSystems)->implicit_value(true),                                                          ("Continue evolving stars even if the binary is disrupted (default = " + std::string(evolveUnboundSystems ? "TRUE" : "FALSE") + ")").c_str())
@@ -845,13 +849,13 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             if (vm["help"].as<bool>()) {                                                                                                // user requested help?
                 utils::SplashScreen();                                                                                                  // yes - show splash screen
                 ANNOUNCE(desc);                                                                                                         // and help
-                programStatus = COMMANDLINE_STATUS::SUCCESS;                                                                            // ok
+                programStatus = PROGRAM_STATUS::SUCCESS;                                                                                // ok
             }
 
             // --version option
             if (vm["version"].as<bool>()) {                                                                                             // user requested version?
                 ANNOUNCE("COMPAS v" << VERSION_STRING);                                                                                 // yes, show version string
-                programStatus = COMMANDLINE_STATUS::SUCCESS;                                                                            // ok
+                programStatus = PROGRAM_STATUS::SUCCESS;                                                                                // ok
             }
 
 
@@ -1093,17 +1097,17 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
         catch (po::error& e) {                                                                                                          // program options exception
             std::cerr << "Program Options error: " << e.what() << std::endl;
             std::cerr << desc << std::endl;
-            programStatus = COMMANDLINE_STATUS::ERROR_IN_COMMAND_LINE;                                                                  // set status
+            programStatus = PROGRAM_STATUS::ERROR_IN_COMMAND_LINE;                                                                      // set status
         }
 
         catch (...) {                                                                                                                   // unhandled problem - command line error
             std::cerr << "Error in CommandLine: unknown or invalid option" << std::endl;                                                // announce error
-            programStatus = COMMANDLINE_STATUS::ERROR_IN_COMMAND_LINE;                                                                  // set status
+            programStatus = PROGRAM_STATUS::ERROR_IN_COMMAND_LINE;                                                                      // set status
         }
 
     } catch (std::exception& e) {                                                                                                       // unhandled exception - command line error
         std::cerr << "Unhandled exception: " << e.what() << std::endl;                                                                  // announce error
-        programStatus = COMMANDLINE_STATUS::ERROR_UNHANDLED_EXCEPTION;                                                                  // set status
+        programStatus = PROGRAM_STATUS::ERROR_UNHANDLED_EXCEPTION;                                                                      // set status
     }
 
     return programStatus;

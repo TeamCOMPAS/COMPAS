@@ -560,8 +560,6 @@ protected:
     virtual bool            ShouldEvolveOnPhase()                                                               { return true; }
     virtual bool            ShouldSkipPhase()                                                                   { return false; }                                                               // Default is false
 
-            DBL_DBL         SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity);
-
             void            UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMass, const double p_DeltaMass0, const double p_DeltaTime);
 
 };
