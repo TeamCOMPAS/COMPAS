@@ -1112,12 +1112,12 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
 double GiantBranch::CalculateRemnantMassByMuller2016(const double p_Mass, const double p_COCoreMass) {
     double	remnantMass; 					                                                                        // Limit mass for a White Dwarf units Msun.
 
-    if (utils::Compare(p_COCoreMass, 1.37) < 0) {
+    if (utils::Compare(p_COCoreMass, 1.372) < 0) {
         // Not explicitly pointed out in Appendix B of Vigna-Gomez+2018 but assumed for continuity and simplicity
         // Muller+2016 didn't go as low as this in CO Core mass (see Figure A1 in that paper)
         remnantMass = 1.21;                         
     }
-	else if (utils::Compare(p_COCoreMass, 1.49) < 0) { remnantMass = 1.21 - (0.4  * (p_COCoreMass - 1.37)); }
+	else if (utils::Compare(p_COCoreMass, 1.49) < 0) { remnantMass = 1.21 - (0.4  * (p_COCoreMass - 1.372)); }
 	else if (utils::Compare(p_COCoreMass, 1.65) < 0) { remnantMass = 1.16;                                   }
     else if (utils::Compare(p_COCoreMass, 2.4 ) < 0) { remnantMass = 1.32 + (0.3  * (p_COCoreMass - 1.65));  }
     else if (utils::Compare(p_COCoreMass, 3.2 ) < 0) { remnantMass = 1.42 + (0.7  * (p_COCoreMass - 2.4));   }

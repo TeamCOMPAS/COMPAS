@@ -2478,17 +2478,17 @@ double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
     double	remnantKick = 0.0;	                // units km/s
 	double	lowerRegimeKick = 35.0;		        // Following Vigna-Gomez et al. 2018 using 35 km/s as the peak of a low-kick Maxwellian (e.g. USSN, ECSN)
 
-	     if (utils::Compare(p_COCoreMass, 1.37) <  0) remnantKick = 0.0;
-	else if (utils::Compare(p_COCoreMass, 1.49) <  0) remnantKick = lowerRegimeKick + (1000.0 * (p_COCoreMass - 1.37));
-    else if (utils::Compare(p_COCoreMass, 1.65) <  0) remnantKick = 90.0 + (650.0 * (p_COCoreMass - 1.49));
-	else if (utils::Compare(p_COCoreMass, 2.4 ) <  0) remnantKick = 100.0 + (175.0  * (p_COCoreMass - 1.65));
-    else if (utils::Compare(p_COCoreMass, 3.2 ) <  0) remnantKick = 200.0 + (550.0 * (p_COCoreMass - 2.4));
-    else if (utils::Compare(p_COCoreMass, 3.6 ) <  0) remnantKick = 80.0 + (120.0  * (p_COCoreMass - 3.2));
-    else if (utils::Compare(p_COCoreMass, 4.05) <  0) remnantKick = 0.0;                                                // Going to be a Black Hole
-    else if (utils::Compare(p_COCoreMass, 4.6 ) <  0) remnantKick = 350.0 + (50.0  * (p_COCoreMass - 4.05));
-    else if (utils::Compare(p_COCoreMass, 5.7 ) <  0) remnantKick = 0.0;                                                // Going to be a Black Hole
-    else if (utils::Compare(p_COCoreMass, 6.0 ) <  0) remnantKick = 275.0 - (300.0  * (p_COCoreMass - 5.7));
-    else if (utils::Compare(p_COCoreMass, 6.0 ) >= 0) remnantKick = 0.0;                                                // Going to be a Black Hole
+	     if (utils::Compare(p_COCoreMass, 1.372) <  0) remnantKick = 0.0;
+	else if (utils::Compare(p_COCoreMass, 1.49 ) <  0) remnantKick = lowerRegimeKick + (1000.0 * (p_COCoreMass - 1.372));
+    else if (utils::Compare(p_COCoreMass, 1.65 ) <  0) remnantKick = 90.0 + (650.0 * (p_COCoreMass - 1.49));
+	else if (utils::Compare(p_COCoreMass, 2.4  ) <  0) remnantKick = 100.0 + (175.0  * (p_COCoreMass - 1.65));
+    else if (utils::Compare(p_COCoreMass, 3.2  ) <  0) remnantKick = 200.0 + (550.0 * (p_COCoreMass - 2.4));
+    else if (utils::Compare(p_COCoreMass, 3.6  ) <  0) remnantKick = 80.0 + (120.0  * (p_COCoreMass - 3.2));
+    else if (utils::Compare(p_COCoreMass, 4.05 ) <  0) remnantKick = 0.0;                                                // Going to be a Black Hole
+    else if (utils::Compare(p_COCoreMass, 4.6  ) <  0) remnantKick = 350.0 + (50.0  * (p_COCoreMass - 4.05));
+    else if (utils::Compare(p_COCoreMass, 5.7  ) <  0) remnantKick = 0.0;                                                // Going to be a Black Hole
+    else if (utils::Compare(p_COCoreMass, 6.0  ) <  0) remnantKick = 275.0 - (300.0  * (p_COCoreMass - 5.7));
+    else if (utils::Compare(p_COCoreMass, 6.0  ) >= 0) remnantKick = 0.0;                                                // Going to be a Black Hole
 
     return remnantKick;
 }
