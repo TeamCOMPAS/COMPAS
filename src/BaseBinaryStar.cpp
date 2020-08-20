@@ -1480,7 +1480,6 @@ bool BaseBinaryStar::ResolveSupernova() {
         // 
         //////////////////////////////////////////////////////////////////////////////////////////////////
         
-        std::cout << "NSK outputs" << std::endl;
         
         // Functions defined in vector3d.h
         #define cross(x,y)          linalg::cross(x,y)
@@ -1577,68 +1576,13 @@ bool BaseBinaryStar::ResolveSupernova() {
         double a_ = (h_*h_) / (G*mb_ * (1-(e_*e_))) ;                    // km         - PostSN semi-major axis
 
         // RTW
-        std::cout << std::endl; 
-        //std::cout << "Inputs to simon_aPrime" << std::endl;
-        //std::cout << "m_uK = " << m_uK << std::endl;
-        //std::cout << "mb = " << mb << std::endl;
-        //std::cout << "mb_ = " << mb_ << std::endl;
-        //std::cout << "theta = " << theta << std::endl;
-        //std::cout << "phi = " << phi << std::endl;
-        //std::cout << "r (AU) = " << r*KM_TO_AU << std::endl;
-        //std::cout << "a (AU) = " << a*KM_TO_AU << std::endl;
 
-        //double simon_aPrime = 1.0 / (2/r - (mb/mb_)*(2/r-1/a)*(1+2*m_uK*cos(theta)*cos(phi) + m_uK*m_uK));
-        //double simon_aPrime2 = 1.0 / (2/r - (mb/mb_)*(2/r-1/a)*(1+2*m_uK*cos(theta)*cos(newPhi) + m_uK*m_uK));
 
-        //std::cout << "simon_aPrime  (AU) = " << simon_aPrime*KM_TO_AU << std::endl; 
-        //std::cout << "simon_aPrime2 (AU) = " << simon_aPrime2*KM_TO_AU << std::endl; 
-        //std::cout << std::endl; 
 
-        std::cout << "m1 = " << m1 << std::endl;
-        std::cout << "m2 = " << m2 << std::endl;
 
-        //std::cout << "mb = " << mb << std::endl;
-        //std::cout << "dm1 = " << dm1 << std::endl; 
-        //std::cout << "dm2 = " << dm2 << std::endl; 
-        //std::cout << std::endl; 
 
-        std::cout << std::endl; 
-        //std::cout << "a (AU) = " << m_SemiMajorAxisPrev << std::endl; 
-        std::cout << "e = " << e << std::endl; 
-        std::cout << "a (KM) = " << a << std::endl; 
-        //std::cout << "R = " << R << std::endl; 
-        std::cout << "r (KM) = " << r << std::endl; 
-        std::cout << std::endl; 
-        //std::cout << "PhiDrawn = " << m_Supernova->SN_Phi() << std::endl;
-        std::cout << "beta = " << beta << std::endl;
-        //std::cout << "psi = " << psi << std::endl;
-        //std::cout << "newPhi = " << newPhi << std::endl;
-        //std::cout << std::endl; 
-        //std::cout << "V = " << V << std::endl; 
-        std::cout << "v = " << v << std::endl; 
-        std::cout << "uK = " << m_uK << std::endl; 
 
-        std::cout << std::endl; 
-        //std::cout << "E = " << E << std::endl; 
-        //std::cout << "cosEA = " << cosEA << std::endl; 
-        //std::cout << "sinEA = " << sinEA << std::endl; 
-        //std::cout << "omega = " << omega << std::endl; 
-        //std::cout << "H = " << H << std::endl; 
-        //std::cout << "h = " << h << std::endl; 
-        //std::cout << std::endl; 
 
-        //std::cout << "Vcm_ = " << Vcm_ << std::endl; 
-        //std::cout << "V_ = " << V_ << std::endl; 
-        //std::cout << "v_ = " << v_ << std::endl; 
-        //std::cout << "H_ = " << H_ << std::endl; 
-        //std::cout << "h_ = " << h_ << std::endl; 
-        //std::cout << "E_ = " << E_ << std::endl; 
-        std::cout << "m1_ = " << m1 << std::endl;
-        std::cout << "m2_ = " << m2 << std::endl;
-        std::cout << "e_ = " << e_ << std::endl; 
-        std::cout << "a_ = " << a_ << std::endl; 
-        //std::cout << "simon_aPrime = " << simon_aPrime << std::endl; 
-        //std::cout << "simon_aPrime2 = " << simon_aPrime2 << std::endl; 
 
         ////////////////////////////////
         // Note: similar to above,
@@ -1775,10 +1719,6 @@ bool BaseBinaryStar::ResolveSupernova() {
     m_IPrime           = m_ThetaE;                                                                                        // Inclination angle between preSN and postSN orbital planes 
     m_CosIPrime        = cos(m_IPrime);
 
-    std::cout << "m_IPrime = " << m_IPrime << std::endl; 
-    std::cout << "m_CosIPrime = " << m_CosIPrime << std::endl; 
-    std::cout << "SystemicSpeed = " << m_SystemicSpeed << std::endl; 
-    std::cout << std::endl; 
 
     PrintSupernovaDetails();                                                                                              // Log record to supernovae logfile
     m_Supernova->ClearCurrentSNEvent();
@@ -2898,11 +2838,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED);                                                                                    // show error
         }
     }
-    else {
-        std::cout << "Evolution ending because: " << EVOLUTION_STATUS_LABEL.at(evolutionStatus) << std::endl;
-    }
 
-    std::cout << "Evolution ending because: " << EVOLUTION_STATUS_LABEL.at(evolutionStatus) << std::endl;
 
     PrintBinarySystemParameters();                                                                                                          // print (log) binary system parameters
 
