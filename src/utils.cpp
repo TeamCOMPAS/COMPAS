@@ -261,7 +261,6 @@ namespace utils {
         double root = 0.0;                                          // root found
 
         // JR: check < 0 first so don't have to check = 0.0 (will almost never happen after calculation - need epsilon)
-        discriminant = -1.0;
         if (discriminant < 0.0) {                                   // no real roots? (leave this as an absolute compare)
             error = ERROR::NO_REAL_ROOTS;                           // no real roots - set error
         }
