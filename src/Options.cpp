@@ -427,7 +427,6 @@ void Options::InitialiseMemberVariables(void) {
 	stellarZetaPrescriptionString                            = ZETA_PRESCRIPTION_LABEL.at(stellarZetaPrescription);				    	// String containing prescription to use for calculating stellar zetas
 
 	zetaAdiabaticArbitrary                                          = 10000.0;                                                                          // large value, which will favour stable MT
-	zetaThermalArbitrary                                            = 10000.0;                                                                          // large value, which will favour stable MT
     zetaMainSequence 	                                            = 2.0;
 	zetaRadiativeEnvelopeGiant	                                    = 6.5;
 
@@ -810,7 +809,6 @@ void Options::SetToFiducialValues(void) {
 
 
 	zetaAdiabaticArbitrary                                          = 10000.0;                                                                          // large value, which will favour stable MT
-	zetaThermalArbitrary                                            = 10000.0;                                                                          // large value, which will favour stable MT
     zetaMainSequence 	                                            = 2.0;
 	zetaRadiativeEnvelopeGiant	                                    = 6.5;
     
@@ -1095,7 +1093,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		    ("mass-ratio-max",                                              po::value<double>(&massRatioDistributionMax)->default_value(massRatioDistributionMax),                                                                      ("Maximum mass ratio m2/m1 to generate (default = " + std::to_string(massRatioDistributionMax) + ")").c_str())
 		    ("mass-ratio-min",                                              po::value<double>(&massRatioDistributionMin)->default_value(massRatioDistributionMin),                                                                      ("Minimum mass ratio m2/m1 to generate (default = " + std::to_string(massRatioDistributionMin) + ")").c_str())
-		    ("mass-transfer-fa",                                            po::value<double>(&massTransferFractionAccreted)->default_value(massTransferFractionAccreted),                                                              ("Mass Transfer fraction accreted (default = " + std::to_string(massTransferFractionAccreted) + ", fully conservative)").c_str())
+		    ("mass-transfer-fa",                                            po::value<double>(&massTransferFractionAccreted)->default_value(massTransferFractionAccreted),                                                              ("Mass Transfer fraction accreted in FIXED prescription (default = " + std::to_string(massTransferFractionAccreted) + ", fully conservative)").c_str())
 		    ("mass-transfer-jloss",                                         po::value<double>(&massTransferJloss)->default_value(massTransferJloss),                                                                                    ("Specific angular momentum with which the non-accreted system leaves the system (default = " + std::to_string(massTransferJloss) + ")").c_str())
 			("mass-transfer-thermal-limit-C",                               po::value<double>(&massTransferCParameter)->default_value(massTransferCParameter),                                                                          ("Mass Transfer Thermal rate factor fo the accretor (default = " + std::to_string(massTransferCParameter) + ")").c_str())
 		    ("maximum-evolution-time",                                      po::value<double>(&maxEvolutionTime)->default_value(maxEvolutionTime),                                                                                      ("Maximum time to evolve binaries in Myrs (default = " + std::to_string(maxEvolutionTime) + ")").c_str())
@@ -1142,7 +1140,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("wolf-rayet-multiplier",                                       po::value<double>(&wolfRayetFactor)->default_value(wolfRayetFactor),                                                                                        ("Multiplicitive constant for WR winds (default = " + std::to_string(wolfRayetFactor) + ")").c_str())
 
 		    ("zeta-adiabatic-arbitrary",                                    po::value<double>(&zetaAdiabaticArbitrary)->default_value(zetaAdiabaticArbitrary),                                                                          ("Value of mass-radius exponent zeta adiabatic (default = " + std::to_string(zetaAdiabaticArbitrary) + ")").c_str())
-		    ("zeta-thermal-arbitrary",                                      po::value<double>(&zetaThermalArbitrary)->default_value(zetaThermalArbitrary),                                                                          ("Value of mass-radius exponent zeta adiabatic (default = " + std::to_string(zetaAdiabaticArbitrary) + ")").c_str())
 		    ("zeta-radiative-envelope-giant",                               po::value<double>(&zetaRadiativeEnvelopeGiant)->default_value(zetaRadiativeEnvelopeGiant),                                                                                  ("Value of mass-radius exponent zeta for radiative envelope giants (default = " + std::to_string(zetaRadiativeEnvelopeGiant) + ")").c_str())
 		    ("zeta-main-sequence",                                          po::value<double>(&zetaMainSequence)->default_value(zetaMainSequence),                                                                                      ("Value of mass-radius exponent zeta on the main sequence (default = " + std::to_string(zetaMainSequence) + ")").c_str())
 
@@ -1171,7 +1168,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("initial-mass-function,i",                                     po::value<string>(&initialMassFunctionString)->default_value(initialMassFunctionString),                                                                    ("Initial mass function (options: SALPETER, POWERLAW, UNIFORM, KROUPA), default = " + initialMassFunctionString + ")").c_str())
 
 		    ("kick-direction",                                              po::value<string>(&kickDirectionDistributionString)->default_value(kickDirectionDistributionString),                                                        ("Natal kick direction distribution (options: ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW, WEDGE, POLES), default = " + kickDirectionDistributionString + ")").c_str())
-		    ("kick-velocity-distribution",                                  po::value<string>(&kickVelocityDistributionString)->default_value(kickVelocityDistributionString),                                                          ("Natal kick velocity distribution (options: ZERO, FLAT, MAXWELLIAN, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL, BRAYELDRIDGE), default = " + kickVelocityDistributionString + ")").c_str())
+		    ("kick-velocity-distribution",                                  po::value<string>(&kickVelocityDistributionString)->default_value(kickVelocityDistributionString),                                                          ("Natal kick velocity distribution (options: ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL), default = " + kickVelocityDistributionString + ")").c_str())
 
             // JR - 01/04/2020 - Serena will uncomment when tested.
             // ("logfile-BSE-be-binaries",                                     po::value<string>(&logfileBSEBeBinaries)->default_value(logfileBSEBeBinaries),                                                                              ("Filename for BSE Be Binaries logfile (default = " + logfileBSEBeBinaries + ")").c_str())
@@ -1188,7 +1185,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		    ("mass-loss-prescription",                                      po::value<string>(&massLossPrescriptionString)->default_value(massLossPrescriptionString),                                                                  ("Mass loss prescription (options: NONE, HURLEY, VINK), default = " + massLossPrescriptionString + ")").c_str())
 		    ("mass-ratio-distribution,q",                                   po::value<string>(&massRatioDistributionString)->default_value(massRatioDistributionString),                                                                ("Initial mass ratio distribution for q=m2/m1 (options: FLAT, DuquennoyMayor1991, SANA2012), default = " + massRatioDistributionString + ")").c_str())
-		    ("mass-transfer-accretion-efficiency-prescription",             po::value<string>(&massTransferAccretionEfficiencyPrescriptionString)->default_value(massTransferAccretionEfficiencyPrescriptionString),                    ("Mass Transfer Accretion Efficiency prescription (options: THERMAL, FIXED, CENTRIFUGAL), default = " + massTransferAngularMomentumLossPrescriptionString + ")").c_str())
+		    ("mass-transfer-accretion-efficiency-prescription",             po::value<string>(&massTransferAccretionEfficiencyPrescriptionString)->default_value(massTransferAccretionEfficiencyPrescriptionString),                    ("Mass Transfer Accretion Efficiency prescription (options: THERMAL, FIXED), default = " + massTransferAccretionEfficiencyPrescriptionString + ")").c_str())
 		    ("mass-transfer-angular-momentum-loss-prescription",            po::value<string>(&massTransferAngularMomentumLossPrescriptionString)->default_value(massTransferAngularMomentumLossPrescriptionString),                    ("Mass Transfer Angular Momentum Loss prescription (options: JEANS, ISOTROPIC, CIRCUMBINARY, ARBITRARY), default = " + massTransferAngularMomentumLossPrescriptionString + ")").c_str())
 		    ("mass-transfer-rejuvenation-prescription",                     po::value<string>(&massTransferRejuvenationPrescriptionString)->default_value(massTransferRejuvenationPrescriptionString),                                  ("Mass Transfer Rejuvenation prescription (options: NONE, STARTRACK), default = " + massTransferRejuvenationPrescriptionString + ")").c_str())
 			("mass-transfer-thermal-limit-accretor",                        po::value<string>(&massTransferThermallyLimitedVariationString)->default_value(massTransferThermallyLimitedVariationString),                                ("Mass Transfer Thermal Accretion limit (default = " + massTransferThermallyLimitedVariationString + ")").c_str())
@@ -1204,7 +1201,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("pulsar-birth-spin-period-distribution",                       po::value<string>(&pulsarBirthSpinPeriodDistributionString)->default_value(pulsarBirthSpinPeriodDistributionString),                                        ("Pulsar Birth Spin Period distribution (options: ZERO, FIXED, UNIFORM, NORMAL), default = " + pulsarBirthSpinPeriodDistributionString + ")").c_str())
 		    ("pulsational-pair-instability-prescription",                   po::value<string>(&pulsationalPairInstabilityPrescriptionString)->default_value(pulsationalPairInstabilityPrescriptionString),                              ("Pulsational Pair Instability prescription (options: COMPAS, STARTRACK, MARCHANT), default = " + pulsationalPairInstabilityPrescriptionString + ")").c_str())
 
-		    ("remnant-mass-prescription",                                   po::value<string>(&remnantMassPrescriptionString)->default_value(remnantMassPrescriptionString),                                                            ("Choose remnant mass prescription (options: postitnote, hurley2000, belczynski2002, fryer2012, muller2016, muller2016Maxwellian), default = " + remnantMassPrescriptionString + ")").c_str())
+		    ("remnant-mass-prescription",                                   po::value<string>(&remnantMassPrescriptionString)->default_value(remnantMassPrescriptionString),                                                            ("Choose remnant mass prescription (options: HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL), default = " + remnantMassPrescriptionString + ")").c_str())
 		    ("rotational-velocity-distribution",                            po::value<string>(&rotationalVelocityDistributionString)->default_value(rotationalVelocityDistributionString),                                              ("Initial rotational velocity distribution (options: ZERO, HURLEY, VLTFLAMES), default = " + rotationalVelocityDistributionString + ")").c_str())
 
 		    ("semi-major-axis-distribution,a",                              po::value<string>(&semiMajorAxisDistributionString)->default_value(semiMajorAxisDistributionString),                                                        ("Initial semi-major axis distribution, a (options: FLATINLOG, CUSTOM, DuquennoyMayor1991, SANA2012), default = " + semiMajorAxisDistributionString + ")").c_str())
@@ -1343,13 +1340,13 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 std::tie(found, massTransferThermallyLimitedVariation) = utils::GetMapKey(massTransferThermallyLimitedVariationString, MT_THERMALLY_LIMITED_VARIATION_LABEL, massTransferThermallyLimitedVariation);
                 COMPLAIN_IF(!found, "Unknown Mass Transfer Accretor Thermal Limit");
 
-                if (found) {
+                if (found) {                                                                                                            // if user didn't specify choice of C factor, use default based on choice of thermally limited variation
                     if (massTransferThermallyLimitedVariation == MT_THERMALLY_LIMITED_VARIATION::C_FACTOR) {
-                        massTransferCParameter = vm["mass-transfer-thermal-limit-C"].defaulted() ? 10.0 : massTransferCParameter;       // if user didn't specify choice of C factor, use default based on choice of thermally limited variation
+                        massTransferCParameter = vm["mass-transfer-thermal-limit-C"].defaulted() ? 10.0 : massTransferCParameter;
                     }
 
                     if (massTransferThermallyLimitedVariation == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE) {
-                        massTransferCParameter = vm["mass-transfer-thermal-limit-C"].defaulted() ? 1.0 : massTransferCParameter;        // if user didn't specify choice of C factor, use default based on choice of thermally limited variation
+                        massTransferCParameter = vm["mass-transfer-thermal-limit-C"].defaulted() ? 1.0 : massTransferCParameter;
                     }
                 }
             }

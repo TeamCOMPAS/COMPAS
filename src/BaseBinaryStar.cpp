@@ -1913,6 +1913,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 	SetPostCEEValues(aFinalRsol, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                                                       // squirrel away post CEE binary values.  ALEJANDRO - 06/12/2016 - for populations studies. All separations in Rsol.
 
     PrintCommonEnvelope();
+    
 }
 
 
@@ -1995,9 +1996,11 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double p_DonorMass, cons
     double jOrb            = (massAtimesMassD / massAplusMassD) * sqrt(semiMajorAxis * G1 * massAplusMassD);    // orbital angular momentum
     double jLoss;                                                                                               // specific angular momentum carried away by non-conservative mass transfer
     
-    int numberIterations   = fmax( floor (fabs(p_DeltaMassDonor/(MASS_TRANSFER_FRACTION*massD))), 1);           // number of iterations
+    int numberIterations   = fmax( floor (fabs(p_DeltaMassDonor/(MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP*massD))), 1);   // number of iterations
 
-    double fractionAccreted    = m_FractionAccreted;
+    double fractionAccreted;
+    std::tie(std::ignore, fractionAccreted) = p_Accretor.CalculateMassAcceptanceRate(p_ThermalRateDonor, p_Accretor.CalculateThermalMassLossRate());
+
     double dM                  = p_DeltaMassDonor / numberIterations;                                           // mass change per time step
 
     for(int i = 0; i < numberIterations ; i++) {
@@ -2010,7 +2013,7 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double p_DonorMass, cons
         massA          = massA - (dM * fractionAccreted);
         massAplusMassD = massA + massD;
                 
-        std::tie(std::ignore, fractionAccreted) = p_Accretor.CalculateMassAcceptanceRate(p_ThermalRateDonor, fractionAccreted, p_Accretor.CalculateThermalMassLossRate());
+        std::tie(std::ignore, fractionAccreted) = p_Accretor.CalculateMassAcceptanceRate(p_ThermalRateDonor, p_Accretor.CalculateThermalMassLossRate());
     }
 
     return semiMajorAxis;
@@ -2143,9 +2146,9 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                     ? m_Accretor->Mass() / m_Accretor->CalculateThermalTimescale(m_Accretor->Mass(), m_Accretor->RocheLobeRadius() * AU_TO_RSOL, m_Accretor->Luminosity(), m_Accretor->Mass() - m_Accretor->CoreMass()) // assume Radius = RL
                     : m_Accretor->CalculateThermalMassLossRate();
                 
-        std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(thermalRateDonor, m_FractionAccreted, thermalRateAccretor);
+        std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(thermalRateDonor, thermalRateAccretor);
 
-        if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {                           // arbitray angular momentum loss prescription?
+        if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {                           // arbitrary angular momentum loss prescription?
             jLoss = CalculateGammaAngularMomentumLoss();                                                                                            // no - re-calculate angular momentum
         }
 
@@ -2166,7 +2169,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
                     STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                                         // donor stellar type before resolving envelope loss
                     
-
                     aFinal                  = CalculateMassTransferOrbit(m_Donor->Mass(), -envMassDonor, m_Donor->CalculateThermalMassLossRate(), *m_Accretor);
                     wFinal                  = sqrt(G1 * (m_Donor->Mass() + m_Accretor->Mass()) / (aFinal * aFinal * aFinal));
                     
@@ -2195,14 +2197,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                     m_RLOFDetails.stableRLOFPostCEE = m_MassTransferTrackerHistory == MT_TRACKING::STABLE_FROM_2_TO_1 ||
                            m_MassTransferTrackerHistory == MT_TRACKING::STABLE_FROM_1_TO_2;
                 }
-                
-
-
-                if (m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH}) &&
-                        m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-                    m_Donor->SetSNCurrentEvent(SN_EVENT::USSN);                                                                             // donor ultra-stripped SN happening now
-                    m_Donor->SetSNPastEvent(SN_EVENT::USSN);                                                                                // ... and will be a past event
-                }
         }
 
         else {                                                                                                                              // Unstable Mass Transfer
@@ -2217,7 +2211,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         }
 
     }
-
+    
 	// Check for recycled pulsars. Not considering CEE as a way of recycling NSs.
 	if (!isCEE && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {                                                                                    // accretor is a neutron star
         m_Donor->SetSNPastEvent(SN_EVENT::RLOF_ONTO_NS);                                                                                                    // donor donated mass to a neutron star
@@ -2644,41 +2638,6 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
 
 
-
-/*
- * Calculate next timestep for binary evolution
- *
- * Timesteps are calculated for each individual star, based on stellar type, age, etc.
- * The minimum of the calculated timesteps is returned as the timestep.
- *
- * Rather than evolve and revert here we just create copies of the constituent stars,
- * evolve them for one times step to get the new timestep, then discared them.  Maybe
- * one day we can figure out how to do this without the overhead of evolving and
- * discarding,
- *
- *
- * double CalculateTimestep(const double p_Dt)
- *
- * @param   [IN]    p_Dt                        The suggested timestep to evolve
- * @return                                      Calculated/recommended timestep
- */
-double BaseBinaryStar::CalculateTimestep(const double p_Dt) {
-
-    BinaryConstituentStar* star1Copy = new BinaryConstituentStar(*m_Star1);             // copy star1
-    double dt1 = star1Copy->EvolveOneTimestep(p_Dt);                                    // evolve the copy one timestep and get suggested timestep
-
-    delete star1Copy; star1Copy = nullptr;                                              // nuke the copy
-
-    // rinse and repeat for star2
-    BinaryConstituentStar* star2Copy = new BinaryConstituentStar(*m_Star2);             // copy star2
-    double dt2 = star2Copy->EvolveOneTimestep(p_Dt);                                    // evolve the copy one timestep and get suggested timestep
-
-    delete star2Copy; star2Copy = nullptr;                                              // nuke the copy
-
-    return std::min(dt1, dt2);
-}
-
-
 /*
  * Set parameters required before evolving one timestep - modify binary attributes
  *
@@ -2814,7 +2773,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                         // check for problems
                         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                // continue evolution?
                                  if (m_Error != ERROR::NONE)               evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR;                // error in binary evolution
-                            else if (IsWDandWD())                          evolutionStatus = EVOLUTION_STATUS::WD_WD;                       // ALEJANDRO - 16/03/2017 - Check for double WD systems so we stop evolving them as they take time to process and we are currently not interested in dealing with them.
+                            else if (IsWDandWD())                          evolutionStatus = EVOLUTION_STATUS::WD_WD;                       // do not evolve double WD systems for now
                             else if (m_Time > OPTIONS->MaxEvolutionTime()) evolutionStatus = EVOLUTION_STATUS::TIMES_UP;                    // evolution time exceeds maximum
                         }
                     }

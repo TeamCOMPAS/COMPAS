@@ -66,9 +66,6 @@ protected:
     double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Tau);
     double          CalculateCoreMassOnPhase()                                   { return CalculateCoreMassOnPhase(m_Mass0, m_Tau); }                           // Use class member variables
 
-    double          CalculateEnvelopeMassAtPhaseEnd(const double p_Tau)          { return m_EnvMass; }                                                          // NO-OP
-    double          CalculateEnvelopeMassOnPhase(const double p_Tau)             { return BaseStar::CalculateEnvelopeMassOnPhase(p_Tau); }
-
     double          CalculateHeCoreMassAtPhaseEnd()                              { return m_CoreMass; }
 
     double          CalculateGyrationRadius()                                    { return 0.21; }                                                               // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
@@ -120,7 +117,7 @@ protected:
     void            ResolveHeliumFlash() {  }                                                                                                                   // NO-OP
     STELLAR_TYPE    ResolveRemnantAfterEnvelopeLoss();
 
-    bool            ShouldEvolveOnPhase()                                        { return (m_Age < (m_Timescales[static_cast<int>(TIMESCALE::tHeI)] + m_Timescales[static_cast<int>(TIMESCALE::tHe)])); }  // Evolve on CHeB phase if age after He Ign and while He Burning
+    bool            ShouldEvolveOnPhase();
     bool            ShouldSkipPhase()                                            { return false; }                                                              // Never skip CHeB phase
 
 };

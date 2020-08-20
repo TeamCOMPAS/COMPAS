@@ -57,14 +57,12 @@ protected:
             double          CalculateCOCoreMassAtPhaseEnd()                                      { return CalculateCOCoreMassOnPhase(); }                                // Same as on phase
             double          CalculateCOCoreMassOnPhase()                                         { return 0.0; }                                                         // McCO(HeMS) = 0.0
 
-            double          CalculateConvergedMassStepZetaThermal()                              { return BaseStar::CalculateConvergedMassStepZetaThermal(); }           // Use BaseStar
-
             double          CalculateCoreMassAtPhaseEnd()                                        { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
             double          CalculateCoreMassOnPhase()                                           { return m_COCoreMass; }                                                // Mc(HeMS) = McCOMass
 
             double          CalculateGyrationRadius()                                            { return 0.1; }                                                         // JR: todo: Nobody seems sure about this...
 
-            double          CalculateHeCoreMassOnPhase()                                         { return m_Mass; }                                                      // McHe(HeMS) = Mass
+            double          CalculateHeCoreMassOnPhase()                                        { return m_Mass; }                                                     // McHe(HeMS) = Mass
             double          CalculateHeCoreMassAtPhaseEnd()                                      { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
 
             double          CalculateInitialSupernovaMass()                                      { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch
