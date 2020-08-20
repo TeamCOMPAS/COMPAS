@@ -136,7 +136,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Luminosity                               = m_LZAMS;
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
-    m_EnvMass                                  = CalculateInitialEnvelopeMass_Static(m_Mass);
 
     m_CoreMass                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_COCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -315,7 +314,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::DT:                                                 value = Dt();                                                   break;
             case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE:                                value = DynamicalTimescale();                                   break;
             case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
-            case ANY_STAR_PROPERTY::ENV_MASS:                                           value = EnvMass();                                              break;
+            case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass()-CoreMass();                                             break;
             case ANY_STAR_PROPERTY::ERROR:                                              value = Error();                                                break;
             case ANY_STAR_PROPERTY::EXPERIENCED_CCSN:                                   value = ExperiencedCCSN();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_ECSN:                                   value = ExperiencedECSN();                                      break;
@@ -385,11 +384,8 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::TRUE_ANOMALY:                                       value = SN_TrueAnomaly();                                       break;
             case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = Zeta_Hurley();                                          break;
             case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = Zeta_HurleyHe();                                        break;
-            case ANY_STAR_PROPERTY::ZETA_NUCLEAR:                                       value = Zeta_Nuclear();                                         break;
             case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = Zeta_Soberman();                                        break;
             case ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE:                                   value = Zeta_SobermanHe();                                      break;
-            case ANY_STAR_PROPERTY::ZETA_THERMAL:                                       value = Zeta_Thermal();                                         break;
-
         default:                                                                                                        // unknown property
             ok    = false;                                                                                              // that's not ok...
             value = "UNKNOWN";                                                                                          // default value
@@ -1114,178 +1110,6 @@ double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass,
 
 
 /*
- * Calculate the radius-time exponent zeta
- * Derived by the nuclear evolution of the star according to SSE, calculated using a fake time step and recomputing the stars radius.
- *
- *
- * double CalculateZetaNuclear(const double p_DeltaTime)
- *
- * @param   [IN]    p_DeltaTime                 Timestep (Myr)
- * @return                                      Radius-Time exponent Zeta for the nuclear timescale
- */
-double BaseStar::CalculateZetaNuclear(const double p_DeltaTime) {
-
-    BaseStar* starCopy = new BaseStar(*this);	                                                                                // copy of star - about to be updated for fake mass loss
-
-    double radiusBeforeTimeStep = starCopy->Radius();                                                                           // radius before timestep
-    double ageBeforeTimeStep    = starCopy->Age();
-
-    SHOW_ERROR_IF(utils::Compare(radiusBeforeTimeStep, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "Before fake timestep");     // show error if radius <= 0
-    SHOW_ERROR_IF(utils::Compare(ageBeforeTimeStep,    0.0) <  0, ERROR::AGE_NEGATIVE_ONCE,        "Before fake timestep");     // show error if age < 0
-
-    double logRadiusBeforeTimeStep = utils::Compare(radiusBeforeTimeStep, 0.0) > 0 ? log(radiusBeforeTimeStep) : 0.0;
-
-    starCopy->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                           // allow star to respond to previous mass loss changes      JR: todo: is this really necessary?
-
-    // With the current way of doing things, this star has already lost a bunch of mass due to the mass loss caller,
-    // need to update radius of star to respond to this, before we evolve it for a short amount of time assuming no mass loss.
-    // When Alejandro moves the massLossCaller function, we will need to do things differently, and this will need fixing.
-    // JR: todo: what does this actually mean?
-
-    ageBeforeTimeStep = starCopy->Age();                                                                                        // age before timestep      JR: todo: why don't we get the (possibly) new radius here too?
-    starCopy->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, p_DeltaTime, false);                                                  // age the star 'p_DeltaTime' Myr
-
-    double radiusAfterTimeStep = starCopy->Radius();
-    double ageAfterTimeStep    = starCopy->Age();
-
-    delete starCopy; starCopy = nullptr;
-
-    SHOW_ERROR_IF(utils::Compare(radiusAfterTimeStep, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "After fake timestep");       // show error if radius <= 0
-    SHOW_ERROR_IF(utils::Compare(ageAfterTimeStep,    0.0) <  0, ERROR::AGE_NEGATIVE_ONCE,        "After fake timestep");       // show error if age < 0
-
-    double logRadiusAfterTimeStep = utils::Compare(radiusAfterTimeStep, 0.0) > 0 ? log(radiusAfterTimeStep) : 0.0;
-
-    return (logRadiusAfterTimeStep - logRadiusBeforeTimeStep) / (ageAfterTimeStep - ageBeforeTimeStep);
-
-}
-
-
-/*
- * Calculate the radius response of a star to mass loss on the nuclear timescale as characterised
- * by the mass-radius exponent Zeta nuclear
- *
- * This calculation is good for all stars except Black Holes
- *
- *
- * double CalculateConvergedTimestepZetaNuclear()
- *
- * @return                                      Mass-radius exponent Zeta nuclear (= dlnR/dt)
- */
-double BaseStar::CalculateConvergedTimestepZetaNuclear() {
-
-    double timestep  = ZETA_NUCLEAR_TIMESTEP;                                                                                   // timestep
-    double tolerance = 1.0 - ZETA_NUCLEAR_TOLERANCE;                                                                            // max change allowed in zeta nuclear between iterations - signals convergence
-
-    double thisZetaNuclear;                                                                                                     // value of mass-radius exponent calculated at current iteration
-    double lastZetaNuclear = 0.0;                                                                                               // value of mass-radius exponent calculated at previous iteration
-
-    int    i    = 0;
-    bool   done = false;
-    while (!done) {                                                                                                             // iterate until convergence or max iterations reached
-
-        thisZetaNuclear = CalculateZetaNuclear(timestep);                                                                       // calculate zeta nuclear for this percentage mass loss
-
-        if (i >= ZETA_NUCLEAR_ITERATIONS || std::abs(lastZetaNuclear / thisZetaNuclear) > tolerance) {                          // max iterations or convergence?   (Don't use Compare() here)
-            done = true;                                                                                                        // yes - we're done
-        }
-        else {                                                                                                                  // no - go again
-            lastZetaNuclear = thisZetaNuclear;                                                                                  // remember this zeta nuclear value for comparison next iteration
-            timestep       /= ZETA_NUCLEAR_ITERATIONS;                                                                          // reduce timestep   JR: todo: is this factor right?
-            i++;                                                                                                                // increment number of iterations
-        }
-    }
-
-    SHOW_ERROR_IF(std::abs(lastZetaNuclear / thisZetaNuclear) <= tolerance, ERROR::NO_CONVERGENCE, "Zeta Nuclear calculation"); // show error if no convergence
-
-    return thisZetaNuclear;
-}
-
-
-/*
- * Calculate the radius-mass exponent Zeta, assuming the star has had time to recover its thermal equilibrium.
- * Zeta is calculated using a fake mass change step and recomputing the star's attributes.
- *
- *
- * double CalculateZetaThermal(double p_PercentageMassChange)
- *
- * @param   [IN]    p_PercentageMassChange      Percentage of mass the star should artificially lose/gain in order to calcluate Zeta (thermal)
- *                                              (sign of p_PercentageMassChange determine if loss or gain - -ve is loss, +ve is gain)
- * @return                                      Radius-Mass exponent Zeta for the thermal timescale
- */
-double BaseStar::CalculateZetaThermal(double p_PercentageMassChange) {
-
-    BaseStar* starCopy = new BaseStar(*this);	                                                                                // copy of star - about to be updated for fake mass loss
-
-    starCopy->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                           // allow star to respond to previous mass loss changes      JR: todo: is this really necessary?
-
-    // record properties of the star before fake mass change
-    double radiusBeforeMassLoss = starCopy->Radius();                                                                           // radius before fake mass change       
-    double massBeforeMassLoss   = starCopy->MassPrev();                                                                         // mass before fake mass change - due to order of updating radius bug     JR: todo: check this
-
-    SHOW_ERROR_IF(utils::Compare(radiusBeforeMassLoss, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "Before fake mass change");  // show error if radius <= 0
-    SHOW_ERROR_IF(utils::Compare(massBeforeMassLoss,   0.0) <= 0, ERROR::MASS_NOT_POSITIVE_ONCE,   "Before fake mass change");  // show error if mass <= 0
-
-    double logRadiusBeforeMassLoss = utils::Compare(radiusBeforeMassLoss, 0.0) > 0 ? log(radiusBeforeMassLoss) : 0.0;
-    double logMassBeforeMassLoss   = utils::Compare(massBeforeMassLoss,   0.0) > 0 ? log(massBeforeMassLoss  ) : 0.0;
-
-    double deltaMass           = starCopy->Mass() * p_PercentageMassChange / 100.0;                                             // fake mass change - sign of p_PercentageMassChange determines whether loss or gain
-    double massAfterMassLoss   = starCopy->Mass() + deltaMass;                                                                  // mass after (just) fake mass change
-    starCopy->UpdateAttributesAndAgeOneTimestep(starCopy->Mass() * p_PercentageMassChange / 100.0, 0.0, 0.0, false);            // apply fake mass change and recalculate attributes of star
-    double radiusAfterMassLoss = starCopy->m_Radius;                                                                            // radius after fake mass change
-    delete starCopy; starCopy  = nullptr;
-
-    SHOW_ERROR_IF(utils::Compare(radiusAfterMassLoss, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "After fake mass change");    // show error if radius <= 0
-    SHOW_ERROR_IF(utils::Compare(massAfterMassLoss,   0.0) <= 0, ERROR::MASS_NOT_POSITIVE_ONCE,   "After fake mass change");    // show error if mass <= 0
-
-    double logRadiusAfterMassLoss = utils::Compare(radiusAfterMassLoss, 0.0) > 0 ? log(radiusAfterMassLoss) : 0.0;
-    double logMassAfterMassLoss   = utils::Compare(massAfterMassLoss,   0.0) > 0 ? log(massAfterMassLoss  ) : 0.0;
-
-    return (logRadiusAfterMassLoss - logRadiusBeforeMassLoss) / (logMassAfterMassLoss - logMassBeforeMassLoss);                 // zeta thermal
-}
-
-
-/*
- * Calculate the radius response of a star to mass loss on the thermal timescale as characterised
- * by the mass-radius exponent Zeta thermal
- *
- * This calculation is good for MS, HG, HeMS, HeWD, COWD, and ONeWD stars
- *
- *
- * double CalculateConvergedMassStepZetaThermal()
- *
- * @return                                      Mass-radius exponent Zeta thermal (= dlnR/dlnM)
- */
-double BaseStar::CalculateConvergedMassStepZetaThermal() {
-
-    double percentageMassLoss = -ZETA_THERMAL_PERCENTAGE_MASS_CHANGE;                                                       // percentage mass loss
-    double tolerance          = 1.0 - ZETA_THERMAL_TOLERANCE;                                                               // max change allowed in zeta thermal between iterations - signals convergence
-
-    double thisZetaThermal;                                                                                                 // value of mass-radius exponent calculated at current iteration
-    double lastZetaThermal = 0.0;                                                                                           // value of mass-radius exponent calculated at previous iteration
-
-    int    i    = 0;
-    bool   done = false;
-    while (!done) {                                                                                                         // iterate until convergence or max iterations reached
-
-        thisZetaThermal = CalculateZetaThermal(percentageMassLoss);                                                         // calculate zeta thermal for this percentage mass loss
-
-        if (i >= ZETA_THERMAL_ITERATIONS || std::abs(lastZetaThermal / thisZetaThermal) > tolerance) {                      // max iterations or convergence?   (Don't use Compare() here)
-            done = true;                                                                                                    // yes - we're done
-        }
-        else {                                                                                                              // no - go again
-            lastZetaThermal     = thisZetaThermal;                                                                          // remember this zeta thermal value for comparison next iteration
-            percentageMassLoss /= ZETA_THERMAL_ITERATIONS;                                                                  // reduce mass loss   JR: todo: is this factor right?
-            i++;                                                                                                            // increment number of iterations
-        }
-    }
-
-    SHOW_ERROR_IF(std::abs(lastZetaThermal / thisZetaThermal) <= tolerance, ERROR::NO_CONVERGENCE, "Zeta Thermal calculation");    // show error if no convergence
-
-    return thisZetaThermal;
-}
-
-
-/*
  * Calculate the Adiabatic Exponent per Hurley et al. 2002
  *
  *
@@ -1332,16 +1156,16 @@ double BaseStar::CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) {
     double zeta = 0.0;                                              // default value
     
     switch (p_ZetaPrescription) {                                 // which prescription?
-        case ZETA_PRESCRIPTION::SOBERMAN:                        // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
-            zeta = CalculateZadiabaticSPH(m_HeCoreMass);
+        case ZETA_PRESCRIPTION::SOBERMAN:                         // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
+            zeta = CalculateZadiabaticSPH(m_CoreMass);
             break;
             
         case ZETA_PRESCRIPTION::HURLEY:                          // HURLEY: Hurley, Tout, and Pols, 2002, eq 56
-            zeta = CalculateZadiabaticHurley2002(m_HeCoreMass);
+            zeta = CalculateZadiabaticHurley2002(m_CoreMass);
             break;
             
         case ZETA_PRESCRIPTION::ARBITRARY:                       // ARBITRARY: user program options thermal zeta value
-            zeta = OPTIONS->ZetaThermalArbitrary();
+            zeta = OPTIONS->ZetaAdiabaticArbitrary();
             break;
             
         default:                                                    // unknown common envelope prescription - shouldn't happen
@@ -1389,8 +1213,6 @@ void BaseStar::CalculateLambdas(const double p_EnvMass) {
  * void CalculateZetas()
  */
 void BaseStar::CalculateZetas() {
-	m_Zetas.thermal    = CalculateConvergedMassStepZetaThermal();
-	m_Zetas.nuclear    = CalculateConvergedTimestepZetaNuclear();
 	m_Zetas.soberman   = CalculateZadiabaticSPH(m_CoreMass);
 	m_Zetas.sobermanHe = CalculateZadiabaticSPH(m_HeCoreMass);
 	m_Zetas.hurley     = CalculateZadiabaticHurley2002(m_CoreMass);
@@ -1595,26 +1417,6 @@ double BaseStar::CalculateInitialEnvelopeMass_Static(const double p_Mass) {
     return envMass;
 }
 
-
-/*
- * Calculate envelope mass on phase as a function of time
- *
- * Given just after Eq 111 in Hurley et al. 2000
- *
- * This function works for most phases.  Stellar types MS_lte_07, MS_gt_07 and HertzsprungGap
- * have specialised functions.
- *
- *
- * double CalculateEnvelopeMassOnPhase(const double p_Tau)
- *
- * @param   [IN]    p_Tau                       Relative lifetime
- * @return                                      ZAMS envelope mass - Menv in Hurley et al. 2000
- *
- * Parameter p_Tau not required here - but we want same signature for all classes.  (JR: revisit this)
- */
-double BaseStar::CalculateEnvelopeMassOnPhase(const double p_Tau) {
-    return m_Mass - m_CoreMass; // For most phases with core envelope separation
-}
 
 
 /*
@@ -2013,7 +1815,12 @@ void BaseStar::ResolveMassLoss() {
 
     if (OPTIONS->UseMassLoss()) {
         m_Mass = CalculateMassLossValues(true, true);                           // calculate new values assuming mass loss applied
-
+        
+        m_HeCoreMass=std::min(m_HeCoreMass,m_Mass);                             // update He mass if mass loss is happening from He stars
+        
+        m_COCoreMass=std::min(m_COCoreMass,m_Mass);                             // Not expected, only a precaution to avoid inconsistencies
+        m_CoreMass=std::min(m_CoreMass, m_Mass);
+        
         UpdateInitialMass();                                                    // update initial mass (MS, HG & HeMS)  JR: todo: fix this kludge one day - mass0 is overloaded, and isn't always "initial mass"
         UpdateAgeAfterMassLoss();                                               // update age (MS, HG & HeMS)
         ApplyMassTransferRejuvenationFactor();                                  // apply age rejuvenation factor
@@ -2058,59 +1865,34 @@ double BaseStar::CalculateCoreMassGivenLuminosity_Static(const double p_Luminosi
  *
  * For non compact objects:
  *
- *    1) Kelvin-Helmholtz (thermal) timescale if THERMALLY_LIMITED_MASS_TRANSFER
- *    2) Choose a fraction of the mass rate that will be effectively accreted for FIXED_FRACTION_MASS_TRANSFER (as in StarTrack)
- *    3) Disk vs impact accretion for CENTRIFUGALLY_LIMITED_MASS_TRANSFER
+ *    1) Kelvin-Helmholtz (thermal) timescale if THERMAL (thermally limited) mass transfer efficiency
+ *    2) Choose a fraction of the mass rate that will be effectively accreted for FIXED fraction mass transfer (as in StarTrack)
  *
  *
- * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_FractionAccreted, const double p_AccretorMassRate)
+ * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)
  *
  * @param   [IN]    p_DonorMassRate             Mass transfer rate of the donor
- * @param   [IN]    p_FractionAccreted          Accretion efficiency parameter - may be returned unchanged
  * @param   [IN]    p_AccretorMassRate          Thermal mass loss rate of the accretor (this star)
  * @return                                      Tuple containing the Maximum Mass Acceptance Rate and the Accretion Efficiency Parameter
  */
-DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_FractionAccreted, const double p_AccretorMassRate) {
+DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
 
     double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
-    double fractionAccreted = p_FractionAccreted;                                           // accretion fraction - default is unchanged
+    double fractionAccreted = 0.0;                                           // accretion fraction - default  = 0.0
 
     switch (OPTIONS->MassTransferAccretionEfficiencyPrescription()) {
 
         case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED:                       // thermally limited mass transfer:
 
-            if(utils::Compare(p_AccretorMassRate, p_DonorMassRate) < 0) {                   // the accretor cannot accrete at the rate the donor is providing mass
-
-                acceptanceRate = min(OPTIONS->MassTransferCParameter() * p_AccretorMassRate, p_DonorMassRate);
-
-                switch (OPTIONS->MassTransferThermallyLimitedVariation()) {
-
-                    case MT_THERMALLY_LIMITED_VARIATION::C_FACTOR:
-                        fractionAccreted = min(1.0, OPTIONS->MassTransferCParameter() * (p_AccretorMassRate / p_DonorMassRate));
-                        break;
-
-                    case MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE:
-                        fractionAccreted = min(1.0, OPTIONS->MassTransferCParameter() * (p_AccretorMassRate / p_DonorMassRate));
-                        break;
-
-                    default:                                                                // unknown thermally limited variation - shouldn't happen
-                        m_Error = ERROR::UNKNOWN_MT_THERMALLY_LIMITED_VARIATION;            // set error value
-                        SHOW_WARN(m_Error);                                                 // warn that an error occurred
-                }
-            }
-            else {                                                                          // accretor can accrete more than the donor is providing
-                acceptanceRate   = p_DonorMassRate;
-                fractionAccreted = 1.0;
-            }
+            acceptanceRate = min(OPTIONS->MassTransferCParameter() * p_AccretorMassRate, p_DonorMassRate);
+            fractionAccreted = acceptanceRate / p_DonorMassRate;
             break;
 
         case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION:                          // fixed fraction of mass accreted, as in StarTrack
-            acceptanceRate = min(p_DonorMassRate, p_FractionAccreted * p_DonorMassRate);
+            fractionAccreted = OPTIONS-> MassTransferFractionAccreted();
+            acceptanceRate = min(p_DonorMassRate, fractionAccreted * p_DonorMassRate);
             break;
 
-        case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::CENTRIFUGALLY_LIMITED:                   // centrifugally limited mass transfer
-            acceptanceRate = 0.0;
-            break;
 
         default:                                                                            // unknown mass transfer accretion efficiency prescription - shouldn't happen
             m_Error = ERROR::UNKNOWN_MT_ACCRETION_EFFICIENCY_PRESCRIPTION;                  // set error value
@@ -2624,63 +2406,7 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
 
 
 /*
- * Inverse sampling from the Maxwell CDF for MCMC and importance sampling
- * Generates a random sample from the distribution
- *
- * From https://en.wikipedia.org/wiki/Maxwell-Boltzmann_distribution
- *
- * the Maxwell CDF is:
- *
- * erf(x/(sqrt(2.0)*sigma)) - (sqrt(2.0/pi) * x * exp(-(x*x)/(2.0*sigma*sigma))/sigma)
- *
- * where erf is the error function which has the form:
- *
- *   erf(x) = (2/\sqrt(\pi)) \int_0^x dt \exp(-t^2).
- *
- * We use the gsl error function https://www.gnu.org/software/gsl/manual/html_node/Error-Function.html
- *
- *
- * double InverseSampleFromMaxwellCDF_Static(const double p_X, const double p_Sigma)
- *
- * @param   [IN]    p_X                         The value of X for which the distribution function is evaluated
- * @param   [IN]    p_Sigma                     Distribution scale parameter - affects the spread of the distribution
- * @return                                      Maxwell CDF value
- */
-double BaseStar::InverseSampleFromMaxwellCDF_Static(const double p_X, const double p_Sigma) {
-    return gsl_sf_erf(p_X / (M_SQRT2 * p_Sigma)) - (SQRT_M_2_PI * p_X * exp(-(p_X * p_X) / (2.0 * p_Sigma * p_Sigma)) / p_Sigma);
-}
-
-
-/*
- * Calculate the inverse of the Maxwell CDF
- *
- *
- * double CalculateInverseMaxwellCDF_Static(const double p_X, void* p_Paramsa)
- *
- * @param   [IN]    p_X                         Value of the kick vk which we want to find
- * @param   [IN]    p_Params                    Structure containing:
- *                                                 y    : the CDF draw U(0,1), and
- *                                                 sigma: which sets the characteristic kick of the Maxwellian distribution
- * @return                                      Inverse Maxwell CDF value (Should be zero when x = vk, the value of the kick to draw)
- */
-double BaseStar::CalculateInverseMaxwellCDF_Static(const double p_X, void* p_Params) {
-    KickVelocityParams* params = (KickVelocityParams*)p_Params;
-    return InverseSampleFromMaxwellCDF_Static(p_X, params->sigma) - params->y;
-}
-
-
-/*
  * Draw a kick velocity in km s^-1 from a Maxwellian distribution of the form:
- *
- *    sqrt(2/pi) * (x * x * exp(-(x * x)/(2.0 * a * a)) / (a*a*a))
- *
- * Roughly factor of 10 slower than old method, 10^-4 s vs 10^-5 s for old method.
- *
- * Implement option to only do it this way if using mcmc or importance sampling,
- * otherwise use old method     JR: todo: what is the old method?
- *
- *   Inverse sampling done using root finding in GSL, adapted from the examples here:
- *   https://www.gnu.org/software/gsl/doc/html/roots.html
  *
  *
  * double DrawKickVelocityDistributionMaxwell(const double p_Sigma, const double p_Rand)
@@ -2690,67 +2416,7 @@ double BaseStar::CalculateInverseMaxwellCDF_Static(const double p_X, void* p_Par
  * @return                                      Drawn kick velocity (km s^-1)
  */
 double BaseStar::DrawKickVelocityDistributionMaxwell(const double p_Sigma, const double p_Rand) {
-
-    double result = 0.0;
-
-    bool useOldMethod = false;
-    if (useOldMethod) {                                     // Old method - JR: todo: is this !OPTIONS->useMCMC ?
-
-        double rms = 0.0;
-        for (int i=0; i<3; i++) {                           // generate each component of a 3 dimensional velocity vector
-            double vel = RAND->RandomGaussian(p_Sigma);
-            rms       += vel * vel;                         // sum the squares (because we need the magnitude
-        }
-
-        result = sqrt(rms);                                 // magnitude
-    }
-    else {
-
-    	double xMin = 0.0;
-    	double xMax = 5.0 * p_Sigma;                        // options.kickmax or whatever it is called.        JR: todo: find out...
-
-        double maximumInverse = InverseSampleFromMaxwellCDF_Static(xMin, p_Sigma);
-
-        double rand = p_Rand;
-        while (utils::Compare(rand, maximumInverse) > 0) {
-            xMax *= 2.0;
-            maximumInverse = InverseSampleFromMaxwellCDF_Static(xMax, p_Sigma);
-        }
-        rand = min(rand, maximumInverse);
-
-        const gsl_root_fsolver_type *T;
-        gsl_root_fsolver            *s;
-        gsl_function                 F;
-
-        KickVelocityParams           params = {rand, p_Sigma};
-
-        F.function = &CalculateInverseMaxwellCDF_Static;
-        F.params   = &params;
-
-        // gsl_root_fsolver_brent
-        // gsl_root_fsolver_bisection
-        T = gsl_root_fsolver_brent;
-        s = gsl_root_fsolver_alloc (T);
-
-        gsl_root_fsolver_set (s, &F, xMin, xMax);
-
-	    int status  = GSL_CONTINUE;
-        int iter    = 0;
-        int maxIter = 100;
-
-    	while (status == GSL_CONTINUE && iter < maxIter) {
-            iter++;
-            status = gsl_root_fsolver_iterate (s);
-            result = gsl_root_fsolver_root (s);
-            xMin   = gsl_root_fsolver_x_lower (s);
-            xMax   = gsl_root_fsolver_x_upper (s);
-            status = gsl_root_test_interval (xMin, xMax, 0, 0.001);
-        }
-
-        gsl_root_fsolver_free (s);                          // de-allocate memory for root solver
-    }
-
-    return result;
+    return p_Sigma*sqrt(gsl_cdf_chisq_Pinv(p_Rand, 3)); // a Maxwellian is a chi distribution with three degrees of freedom
 }
 
 
@@ -2765,12 +2431,7 @@ double BaseStar::DrawKickVelocityDistributionMaxwell(const double p_Sigma, const
  * @return                                      Drawn kick velocity (km s^-1)
  */
 double BaseStar::DrawKickVelocityDistributionFlat(const double p_MaxVK, const double p_Rand) {
-
-    bool useOldMethod = false;          //  JR: todo: program option?
-
-    double rand = useOldMethod ? RAND->Random() : p_Rand;
-
-    return rand * p_MaxVK;
+    return p_Rand * p_MaxVK;
 }
 
 
@@ -2852,7 +2513,7 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
                                     const double p_RemnantMass) {					
 	double remnantKick=-1.0;
 	double muKick=0.0;
-    	double rand=p_Rand;		//makes it possible to adjust if p_Rand is too low, to avoid getting stuck
+    double rand=p_Rand;		//makes it possible to adjust if p_Rand is too low, to avoid getting stuck
 
 	if (utils::Compare(p_RemnantMass, MULLERMANDEL_MAXNS) <  0) {
 		muKick=max(MULLERMANDEL_KICKNS*(p_COCoreMass-p_RemnantMass)/p_RemnantMass,0.0);
@@ -2895,7 +2556,6 @@ double BaseStar::DrawSNKickVelocity(const double p_Sigma,
     switch (OPTIONS->KickVelocityDistribution()) {                                              // which distribution
 
         case KICK_VELOCITY_DISTRIBUTION::MAXWELLIAN:
-        case KICK_VELOCITY_DISTRIBUTION::MAXWELL:
             kickVelocity = DrawKickVelocityDistributionMaxwell(p_Sigma, p_Rand);                // MAXWELLIAN, MAXWELL
             break;
 
@@ -2964,11 +2624,11 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
         double sigma;
         switch (utils::SNEventType(m_SupernovaDetails.events.current)) {                            // what type of supernova event happening now?
 
-		    case SN_EVENT::ECSN:                                                                    // ALEJANDRO - 04/05/2017 - Allow for ECSN to have kicks different than zero. Still, should be low kicks. Default set to zero.  (JR: todo: check default = 30.0?)
+		    case SN_EVENT::ECSN:                                                                    //  ECSN may have a separate kick prescription
 			    sigma = OPTIONS->KickVelocityDistributionSigmaForECSN();
                 break;
 
-		    case SN_EVENT::USSN:                                                                    // ALEJANDRO - 25/08/2017 - Allow for USSN to have a separate kick.
+		    case SN_EVENT::USSN:                                                                    // USSN may have a separate kick prescription
 			    sigma = OPTIONS->KickVelocityDistributionSigmaForUSSN();
                 break;
 
@@ -3012,7 +2672,7 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
                                     p_RemnantMass);
         }
     }
-    else {                                                                                          // user supplied kick parameters and wants tu use supplied kick velocity, so ...
+    else {                                                                                          // user supplied kick parameters and wants to use supplied kick velocity, so ...
         vK = m_SupernovaDetails.initialKickParameters.velocity;                                     // ... use it 
     }
 
@@ -3493,12 +3153,10 @@ STELLAR_TYPE BaseStar::EvolveOnPhase() {
         m_COCoreMass  = CalculateCOCoreMassOnPhase();
         m_CoreMass    = CalculateCoreMassOnPhase();
         m_HeCoreMass  = CalculateHeCoreMassOnPhase();
-
+        
         m_Luminosity  = CalculateLuminosityOnPhase();
 
         std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // Radius and possibly new stellar type
-
-        ResolveEnvelopeMassOnPhase(m_Tau);
 
         m_Mu          = CalculatePerturbationMuOnPhase();
 
@@ -3542,8 +3200,6 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase() {
             m_Luminosity  = CalculateLuminosityAtPhaseEnd();
             
             m_Radius      = CalculateRadiusAtPhaseEnd();
-
-            ResolveEnvelopeMassAtPhaseEnd(m_Tau);
 
             m_Mu          = CalculatePerturbationMuAtPhaseEnd();
 

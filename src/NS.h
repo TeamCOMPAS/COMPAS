@@ -44,7 +44,14 @@ protected:
     void Initialise() {
         m_StellarType = STELLAR_TYPE::NEUTRON_STAR;                                                                                                                 // Set stellar type
         CalculateTimescales();                                                                                                                                      // Initialise timescales
-        m_Age = 0.0;                                                                                                                                                // Set age appropriately
+        
+        //Set internal properties to zero to avoid meaningless values
+        m_Age = 0.0;
+        m_COCoreMass  = 0.0;
+        m_HeCoreMass  = 0.0;
+        m_CoreMass    = 0.0;
+        m_Mass0       = 0.0;
+        
         CalculateAndSetPulsarParameters();
     }
 
@@ -54,8 +61,6 @@ protected:
 
             double          CalculateCOCoreMassOnPhase()                            { return m_Mass; }                                                              // Return m_Mass
 
-            double          CalculateConvergedMassStepZetaThermal()                 { return 1.0; }                                                                 // For NS & BH  JR: todo: check this - BH seems to be different...
-
             double          CalculateHeCoreMassOnPhase()                            { return m_Mass; }                                                              // Return m_Mass
 
             double          CalculateInitialSupernovaMass()                         { return GiantBranch::CalculateInitialSupernovaMass(); }                        // Use GiantBranch
@@ -63,7 +68,6 @@ protected:
             double          CalculateLuminosityOnPhase()                            { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age); }                    // Use class member variables
 
             DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                        const double p_FractionAccreted,
                                                         const double p_AccretorMassRate = 0.0 );
 
     static  double          CalculateMomentOfInertia_Static(const double p_Mass, const double p_Radius);

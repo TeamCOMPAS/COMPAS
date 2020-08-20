@@ -1,22 +1,6 @@
 #include "BH.h"
 
 
-/*
- * Calculate the final mass of the Black Hole
- *
- * COMPAS post-it note prescription based on Woosley and Heger 2002
- * Only applicable to zero metallicity stars with no mass loss.
- *
- *
- * double CalculateRemnantMass_Static(const double p_Mass0)
- *
- * @param   [IN]    p_Mass0                     Initial mass in Msol
- * @return                                      Final mass in Msol
- */
-double BH::CalculateRemnantMass_Static(const double p_Mass0) {
-    return utils::Compare(p_Mass0, 25.0) <= 0 ? 0.0 : (utils::Compare(p_Mass0, 50.0) <= 0 ? 30.0 * pow(p_Mass0 / 50.0, 3.9) : p_Mass0);   // alpha = 3.9, beta = 1.0
-}
-
 
 /*
  * Calculate the gravitational mass of the Black Hole in Msol

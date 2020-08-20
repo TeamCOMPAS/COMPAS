@@ -39,14 +39,10 @@ protected:
     double          CalculateCOCoreMassAtPhaseEnd()                                             { return CalculateCOCoreMassOnPhase(); }                                                        // Same as on phase
     double          CalculateCOCoreMassOnPhase()                                                { return 0.0; }                                                                                 // McCO(FGB) = 0.0
 
-    double          CalculateConvergedMassStepZetaThermal();
-
     double          CalculateCoreMassAtPhaseEnd(const double p_Mass, const double p_Time)       { return CalculateCoreMassOnPhase(p_Mass, p_Time); }                                            // Same as on phase
     double          CalculateCoreMassAtPhaseEnd()                                               { return CalculateCoreMassAtPhaseEnd(m_Mass0, m_Age); }                                         // Use class member variables
     double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Time);
     double          CalculateCoreMassOnPhase()                                                  { return CalculateCoreMassOnPhase(m_Mass0, m_Age); }                                            // Use class member variables
-
-    double          CalculateEnvelopeMassOnPhase(const double p_Tau)                            { return m_EnvMass; }                                                                           // NO-OP
 
     double          CalculateGyrationRadius()                                                   { return 0.1; }                                                                                 // Hurley et al., 2000, after eq 109 for giants. Single number approximation.
 
