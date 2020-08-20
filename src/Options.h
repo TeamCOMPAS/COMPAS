@@ -73,7 +73,6 @@ public:
     static Options* Instance();
 
     PROGRAM_STATUS Initialise(int argc, char *argv[]);
-    void SetToFiducialValues(void);
 
     AIS_DCO                                     AIS_DCOType() const                                                     { return AISDCOtype; }
     string                                      AIS_DCOTypeString() const                                               { return AISDCOtypeString; }
@@ -92,7 +91,7 @@ public:
     bool                                        BeBinaries() const                                                      { return beBinaries; }
 
     BLACK_HOLE_KICK_OPTION                      BlackHoleKicksOption() const                                            { return blackHoleKicksOption; }
-
+    
     CHE_OPTION                                  CHE_Option() const                                                      { return cheOption; }
 
     bool                                        CirculariseBinaryDuringMassTransfer() const                             { return circulariseBinaryDuringMassTransfer; }
@@ -106,7 +105,6 @@ public:
     double                                      CommonEnvelopeMassAccretionMax() const                                  { return commonEnvelopeMassAccretionMax; }
     double                                      CommonEnvelopeMassAccretionMin() const                                  { return commonEnvelopeMassAccretionMin; }
     CE_ACCRETION_PRESCRIPTION                   CommonEnvelopeMassAccretionPrescription() const                         { return commonEnvelopeMassAccretionPrescription; }
-    ENVELOPE_STATE_PRESCRIPTION                 EnvelopeStatePrescription() const                                       { return envelopeStatePrescription; }
     double                                      CommonEnvelopeRecombinationEnergyDensity() const                        { return commonEnvelopeRecombinationEnergyDensity; }
     double                                      CommonEnvelopeSlopeKruckow() const                                      { return commonEnvelopeSlopeKruckow; }
 
@@ -122,6 +120,7 @@ public:
     double                                      EccentricityDistributionMax() const                                     { return eccentricityDistributionMax; }
     double                                      EccentricityDistributionMin() const                                     { return eccentricityDistributionMin; }
     double                                      EddingtonAccretionFactor() const                                        { return eddingtonAccretionFactor; }
+    ENVELOPE_STATE_PRESCRIPTION                 EnvelopeStatePrescription() const                                       { return envelopeStatePrescription; }
     bool                                        EvolvePulsars() const                                                   { return evolvePulsars; }
     bool                                        EvolveUnboundSystems() const                                            { return evolveUnboundSystems; }
 
@@ -209,6 +208,8 @@ public:
     double                                      MaxEvolutionTime() const                                                { return maxEvolutionTime; }
     int                                         MaxNumberOfTimestepIterations() const                                   { return maxNumberOfTimestepIterations; }
     double                                      MaxPercentageAdaptiveMassTransfer() const                               { return maxPercentageAdaptiveMassTransfer; }
+
+    double                                      MCBUR1() const                                                          { return mCBUR1; }
 
     double                                      Metallicity() const                                                     { return metallicity; }
 
@@ -555,6 +556,7 @@ private:
     bool                                        fixedMetallicity;                                               // Whether user has specified a metallicity to use
     double                                      metallicity;                                                    // Metallicity default = solar
 
+    double                                      mCBUR1;                                                         // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation
 
     // Neutron star equation of state
     NS_EOS                                      neutronStarEquationOfState;                                     // which NS EOS to use

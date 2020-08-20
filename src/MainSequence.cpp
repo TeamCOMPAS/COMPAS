@@ -699,7 +699,7 @@ double MainSequence::ChooseTimestep(const double p_Time) {
  * JR: todo: why is this different from ResolveEnvelopeLoss()?
  * JR: todo: original code: Star::radiusRemnantStarAfterLosingEnvelope() vs Star::modifyStarAfterLosingEnvelope(int stellarType, double mass)
  * JR: todo: why is stellar type changed for some types, but not others?  CheB and EAGB stars have stellar type changed, but no other types do...
- * JR: todo: probably not a huge issue - only called in TIDES() and ResolveRemnantAfterEnvelopeLoss(), and with a copy of the star - probably ok there that attributes are changed (except maybe TIDES()????) <<<<<<<<<<
+ * JR: todo: probably not a huge issue - only called in TIDES() and ResolveRemnantAfterEnvelopeLoss(), and with a copy of the star - probably ok there that attributes are changed (except maybe TIDES()????)
  *
  *
  * STELLAR_TYPE ResolveRemnantAfterEnvelopeLoss()
