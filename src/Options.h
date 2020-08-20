@@ -64,7 +64,7 @@ private:
     string m_OptionsDetails;
 
     void InitialiseMemberVariables(void);
-    COMMANDLINE_STATUS CommandLineSorter(int argc, char * argv[]);
+    PROGRAM_STATUS CommandLineSorter(int argc, char * argv[]);
 
     string ProgramOptionDetails(const boost::program_options::variables_map p_VM);
 
@@ -72,7 +72,7 @@ public:
 
     static Options* Instance();
 
-    COMMANDLINE_STATUS Initialise(int argc, char *argv[]);
+    PROGRAM_STATUS Initialise(int argc, char *argv[]);
 
     AIS_DCO                                     AIS_DCOType() const                                                     { return AISDCOtype; }
     string                                      AIS_DCOTypeString() const                                               { return AISDCOtypeString; }
@@ -114,6 +114,7 @@ public:
     int                                         DebugLevel() const                                                      { return debugLevel; }
     bool                                        DebugToFile() const                                                     { return debugToFile; }
     bool                                        DetailedOutput() const                                                  { return detailedOutput; }
+    bool                                        EnableWarnings() const                                                  { return enableWarnings; }
     bool                                        ErrorsToFile() const                                                    { return errorsToFile; }
     ECCENTRICITY_DISTRIBUTION                   EccentricityDistribution() const                                        { return eccentricityDistribution; }
     double                                      EccentricityDistributionMax() const                                     { return eccentricityDistributionMax; }
@@ -312,6 +313,8 @@ private:
     bool                                        debugToFile;                                                    // flag used to determine whether debug statements should also be written to a log file
     bool                                        errorsToFile;                                                   // flag used to determine whether error statements should also be written to a log file
 
+    bool                                        enableWarnings;                                                 // flag used to determine if warnings (via SHOW_WARN macros) should be displayed
+    
     bool                                        singleStar;                                                     // Whether to evolve a single star or a binary
 
 	bool                                        lambdaCalculationEveryTimeStep;							        // Flag indicates if lambda is calculated at each timestep or no

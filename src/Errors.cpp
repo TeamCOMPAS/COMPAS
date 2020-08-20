@@ -114,6 +114,8 @@ bool Errors::ShowIt(const std::string  p_Prefix,
 
     if (p_Error == ERROR::NONE) return false;                                                                                                   // nothing to do if no error
 
+    if (p_Prefix == WARNING_PREFIX && !OPTIONS->EnableWarnings()) return false;                                                                      // do nothing
+
     bool print = false;                                                                                                                         // default - don't print
 
     COMPASUnorderedMap<
