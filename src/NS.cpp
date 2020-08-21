@@ -414,9 +414,9 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const double p_
         double alfvenRadius = constant * q * pow(m_PulsarDetails.magneticField, 4.0 / 7.0);
   
         // calculate the difference in the keplerian angular velocity and surface angular velocity of the neutron star in m - see Equation 2 in 1994MNRAS.269..455J       
-        double keplarianVelocityAtAlfvenRadius        = sqrt(G * mass) / sqrt(alfvenRadius / 2.0);
-        double keplarianAngularVelocityAtAlfvenRadius = 2.0 * (keplarianVelocityAtAlfvenRadius / alfvenRadius);
-        double velocityDifference                     = keplarianAngularVelocityAtAlfvenRadius - m_PulsarDetails.spinFrequency;
+        double keplerianVelocityAtAlfvenRadius        = sqrt(G * mass) / sqrt(alfvenRadius / 2.0);
+        double keplerianAngularVelocityAtAlfvenRadius = 2.0 * (keplerianVelocityAtAlfvenRadius / alfvenRadius);
+        double velocityDifference                     = keplerianAngularVelocityAtAlfvenRadius - m_PulsarDetails.spinFrequency;
 
         // calculate accretion induced magnetic field decay for an accreting neutron star, see Equation 7 in arXiv:0903.3538v2       
         m_PulsarDetails.magneticField = magFieldLowerLimit + exp(-(1.0 / kappa) * p_MassGainPerTimeStep) * (m_PulsarDetails.magneticField - magFieldLowerLimit);  // pulsar magnetic field
