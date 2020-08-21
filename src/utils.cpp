@@ -5,6 +5,7 @@
 #include <cstring>
 #include "utils.h"
 #include "Rand.h"
+#include "changelog.h"
 
 
 /*
