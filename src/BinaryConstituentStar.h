@@ -236,7 +236,7 @@ public:
 
     void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
                                                const double p_Stepsize,
-                                               const double p_Epsilon)                  { Star::UpdateMagneticFieldAndSpin(p_CommonEnvelope, p_Stepsize, m_MassTransferDiff * MSOL, p_Epsilon); }  // JR: todo: revisit this
+                                               const double p_Epsilon)                  { Star::UpdateMagneticFieldAndSpin(p_CommonEnvelope, p_Stepsize, m_MassTransferDiff * MSOL_TO_KG, p_Epsilon); }  // JR: todo: revisit this
 
 
 private:
