@@ -345,11 +345,11 @@ void BaseBinaryStar::SetRemainingCommonValues() {
 	m_TotalMassPrev						         = m_TotalMassPrime;
 	m_ReducedMassPrime					         = (m_Star1->Mass() * m_Star2->Mass()) / m_TotalMassPrime;
 	m_ReducedMassPrev					         = m_ReducedMassPrime;
-	m_TotalOrbitalEnergyPrime 			         = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
-	m_TotalOrbitalEnergyPrev 			         = m_TotalOrbitalEnergyPrime;
+	m_OrbitalEnergyPrime 			         = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
+	m_OrbitalEnergyPrev 			         = m_OrbitalEnergyPrime;
 
-	m_TotalOrbitalAngularMomentumPrime 	         = CalculateOrbitalAngularMomentum(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
-	m_TotalOrbitalAngularMomentumPrev 	         = m_TotalOrbitalAngularMomentumPrime;
+	m_OrbitalAngularMomentumPrime 	         = CalculateOrbitalAngularMomentum(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
+	m_OrbitalAngularMomentumPrev 	         = m_OrbitalAngularMomentumPrime;
 
     m_Time                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_Dt                                         = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -2482,13 +2482,13 @@ void BaseBinaryStar::CalculateEnergyAndAngularMomentum() {
     // ALEJANDRO - 16/11/2016 - calculate orbital energy and angular momentum
     m_TotalMassPrev                    = m_TotalMassPrime;
     m_ReducedMassPrev                  = m_ReducedMassPrime;
-    m_TotalOrbitalEnergyPrev           = m_TotalOrbitalEnergyPrime;
-    m_TotalOrbitalAngularMomentumPrev  = m_TotalOrbitalAngularMomentumPrime;
+    m_OrbitalEnergyPrev           = m_OrbitalEnergyPrime;
+    m_OrbitalAngularMomentumPrev  = m_OrbitalAngularMomentumPrime;
 
     m_TotalMassPrime                   = m_Star1->Mass() + m_Star2->Mass();
     m_ReducedMassPrime                 = (m_Star1->Mass() * m_Star2->Mass()) / m_TotalMassPrime;
-    m_TotalOrbitalEnergyPrime          = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
-    m_TotalOrbitalAngularMomentumPrime = CalculateOrbitalAngularMomentum(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
+    m_OrbitalEnergyPrime          = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
+    m_OrbitalAngularMomentumPrime = CalculateOrbitalAngularMomentum(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
 
     // ALEJANDRO - 16/11/2016 - calculate energy and angular momentum using regular conservation of energy, specially useful for checking tides and rotational effects
     m_TotalEnergyPrime                 = CalculateTotalEnergyPrime();

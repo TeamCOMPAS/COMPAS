@@ -162,11 +162,11 @@ public:
         m_TotalEnergy                      = p_Star.m_TotalEnergy;
         m_TotalEnergyPrime                 = p_Star.m_TotalEnergyPrime;
 
-        m_TotalOrbitalAngularMomentumPrev  = p_Star.m_TotalOrbitalAngularMomentumPrev;
-        m_TotalOrbitalAngularMomentumPrime = p_Star.m_TotalOrbitalAngularMomentumPrime;
+        m_OrbitalAngularMomentumPrev  = p_Star.m_OrbitalAngularMomentumPrev;
+        m_OrbitalAngularMomentumPrime = p_Star.m_OrbitalAngularMomentumPrime;
 
-        m_TotalOrbitalEnergyPrev           = p_Star.m_TotalOrbitalEnergyPrev;
-        m_TotalOrbitalEnergyPrime          = p_Star.m_TotalOrbitalEnergyPrime;
+        m_OrbitalEnergyPrev           = p_Star.m_OrbitalEnergyPrev;
+        m_OrbitalEnergyPrime          = p_Star.m_OrbitalEnergyPrime;
 
         m_uK                               = p_Star.m_uK;
 
@@ -454,11 +454,11 @@ private:
     double              m_TotalEnergy;
     double              m_TotalEnergyPrime;
 
-	double              m_TotalOrbitalAngularMomentumPrev;
-	double              m_TotalOrbitalAngularMomentumPrime;
+	double              m_OrbitalAngularMomentumPrev;
+	double              m_OrbitalAngularMomentumPrime;
 
-	double              m_TotalOrbitalEnergyPrev;
-	double              m_TotalOrbitalEnergyPrime;
+	double              m_OrbitalEnergyPrev;
+	double              m_OrbitalEnergyPrime;
 
     double              m_uK;
 
