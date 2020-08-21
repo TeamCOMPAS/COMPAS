@@ -109,8 +109,7 @@ class pythonProgramOptions:
     eddington_accretion_factor = 1    #multiplication Factor for eddington accretion onto NS&BH
 
     #-- Stability criteria for case BB/BC mass transfer (for BNS project)
-    force_case_BB_BC_stability = True                   # Case BB/BC is either stable or unstable
-    always_stable_case_BB_BC = True                     # Stable = Ture, Unstable = False. Default = True
+    case_bb_stability_prescription = 'ALWAYS_STABLE'
     zeta_Main_Sequence = 2.0
     zeta_Radiative_Envelope_Giant = 6.5
 
@@ -225,8 +224,6 @@ class pythonProgramOptions:
             self.lambda_calculation_every_timestep,
             self.zeta_calculation_every_timestep,
             self.circularise_binary_during_mass_transfer,
-            self.force_case_BB_BC_stability,
-            self.always_stable_case_BB_BC,
             self.angular_momentum_conservation_during_circularisation,
             self.pair_instability_supernovae,
             self.pulsation_pair_instability,
@@ -253,8 +250,6 @@ class pythonProgramOptions:
             '--lambda-calculation-every-timeStep',
             '--zeta-Calculation-Every-Time-Step',
             '--circulariseBinaryDuringMassTransfer',
-            '--forceCaseBBBCStabilityFlag',
-            '--alwaysStableCaseBBBCFlag',
             '--angularMomentumConservationDuringCircularisation',
             '--pair-instability-supernovae',
             '--pulsational-pair-instability',
@@ -400,6 +395,7 @@ class pythonProgramOptions:
 
     def stringChoices(self):
         stringChoices = [
+            self.case_bb_stability_prescription,
             self.chemically_homogeneous_evolution,
             self.mass_loss_prescription,
             self.mass_transfer_angular_momentum_loss_prescription,
@@ -443,6 +439,7 @@ class pythonProgramOptions:
 
     def stringCommands(self):
         stringCommands = [
+            '--case-bb-stability-prescription',
             '--chemically-homogeneous-evolution',
             '--mass-loss-prescription',
             '--mass-transfer-angular-momentum-loss-prescription',

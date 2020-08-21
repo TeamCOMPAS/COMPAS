@@ -425,7 +425,8 @@ enum class ERROR: int {
     UNKNOWN_A_DISTRIBUTION,                                         // unknown a-distribution
     UNKNOWN_BH_KICK_OPTION,                                         // unknown black hole kick option (in program options)
     UNKNOWN_BINARY_PROPERTY,                                        // unknown binary property
-    UNKNOWN_CE_ACCRETION_PRESCRIPTION,                              // unknown common envelope Accretion Prescription
+    UNKNOWN_CASE_BB_STABILITY_PRESCRIPTION,                         // unknown case BB/BC mass transfer stability prescription
+    UNKNOWN_CE_ACCRETION_PRESCRIPTION,                              // unknown common envelope accretion prescription
     UNKNOWN_ENVELOPE_STATE_PRESCRIPTION,                            // unknown envelope state prescription
     UNKNOWN_CE_LAMBDA_PRESCRIPTION,                                 // unknown common envelope Lambda Prescription
     UNKNOWN_ZETA_PRESCRIPTION,                                      // unknown stellar Zeta prescription
@@ -539,6 +540,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_A_DISTRIBUTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown semi-major-axis (a) distribution" }},
     { ERROR::UNKNOWN_BH_KICK_OPTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown black hole kick option" }},
     { ERROR::UNKNOWN_BINARY_PROPERTY,                               { ERROR_SCOPE::ALWAYS,              "Unknown binary property - property details not found" }},
+    { ERROR::UNKNOWN_CASE_BB_STABILITY_PRESCRIPTION,                { ERROR_SCOPE::ALWAYS,              "Unknown case BB/BC mass transfer stability prescription" }},
     { ERROR::UNKNOWN_CE_ACCRETION_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown common envelope accretion prescription" }},
     { ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION,                   { ERROR_SCOPE::ALWAYS,              "Unknown envelope state prescription" }},
     { ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unknown common envelope lambda prescription" }},
@@ -624,7 +626,6 @@ const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL =
 // user specified distributions, assumptions etc.
 
 // Adaptive Importance Sampling DCO types
-// Floor 25/04/2018
 // DCOtype names for exploratory phase Adaptive Importance Sampling  - AIS
 enum class AIS_DCO: int { ALL, BBH, BNS, BHNS, NSBH };
 const COMPASUnorderedMap<AIS_DCO, std::string> AIS_DCO_LABEL = {
@@ -653,6 +654,13 @@ const COMPASUnorderedMap<BRAY_ELDRIDGE_CONSTANT, double> BRAY_ELDRIDGE_CONSTANT_
     { BRAY_ELDRIDGE_CONSTANT::BETA, -170.0 }
 };
 
+enum class CASE_BB_STABILITY_PRESCRIPTION: int{ ALWAYS_STABLE, ALWAYS_STABLE_ONTO_NSBH, TREAT_AS_OTHER_MT, ALWAYS_UNSTABLE };
+const COMPASUnorderedMap<CASE_BB_STABILITY_PRESCRIPTION, std::string> CASE_BB_STABILITY_PRESCRIPTION_LABEL = {
+    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE,              "ALWAYS_STABLE" },
+    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH,    "ALWAYS_STABLE_ONTO_NSBH" },
+    { CASE_BB_STABILITY_PRESCRIPTION::TREAT_AS_OTHER_MT,          "TREAT_AS_OTHER_MT" },
+    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_UNSTABLE,            "ALWAYS_UNSTABLE" }
+};
 
 // Common Envelope Accretion Prescriptions
 enum class CE_ACCRETION_PRESCRIPTION: int { ZERO, CONSTANT, UNIFORM, MACLEOD };
@@ -666,9 +674,9 @@ const COMPASUnorderedMap<CE_ACCRETION_PRESCRIPTION, std::string> CE_ACCRETION_PR
 // Envelope State Prescriptions
 enum class ENVELOPE_STATE_PRESCRIPTION: int { LEGACY, HURLEY, FIXED_TEMPERATURE };
 const COMPASUnorderedMap<ENVELOPE_STATE_PRESCRIPTION, std::string> ENVELOPE_STATE_PRESCRIPTION_LABEL = {
-    { ENVELOPE_STATE_PRESCRIPTION::LEGACY,   "LEGACY" },
-    { ENVELOPE_STATE_PRESCRIPTION::HURLEY,   "HURLEY" },
-    { ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE,  "FIXED_TEMPERATURE" }
+    { ENVELOPE_STATE_PRESCRIPTION::LEGACY,              "LEGACY" },
+    { ENVELOPE_STATE_PRESCRIPTION::HURLEY,              "HURLEY" },
+    { ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE,   "FIXED_TEMPERATURE" }
 };
 
 

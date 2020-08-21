@@ -325,10 +325,11 @@ void Options::InitialiseMemberVariables(void) {
     // Mass transfer options
     useMassTransfer                                                 = true;                                                                             // Whether to use mass transfer
 	circulariseBinaryDuringMassTransfer         	                = false;						                                                    // Whether to circularise binary when it starts
-	forceCaseBBBCStabilityFlag                                      = false;									                                        // Whether if all case BB/BC systems are forced to be stable or unstable
-	alwaysStableCaseBBBCFlag                                        = false;									                                        // Whether if case BB/BC is always stable
 	angularMomentumConservationDuringCircularisation                = false;		                                                                    // Whether to conserve angular momentum while circularising or circularise to periastron
 
+    // Case BB/BC mass transfer stability prescription
+    caseBBStabilityPrescription                                     = CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE;                                                  // Which prescription to use for case BB/BC mass transfer stability
+    caseBBStabilityPrescriptionString                               = CASE_BB_STABILITY_PRESCRIPTION_LABEL.at(caseBBStabilityPrescription);                // String containing which prescription to use for case BB/BC mass transfer stability
 
     // Options adaptive Roche Lobe Overflow prescription
     massTransferAdaptiveAlphaParameter                              = 0.5;
@@ -610,7 +611,6 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("allow-rlof-at-birth",                                         po::value<bool>(&allowRLOFAtBirth)->default_value(allowRLOFAtBirth)->implicit_value(true),                                                                  ("Allow binaries that have one or both stars in RLOF at birth to evolve (default = " + std::string(allowRLOFAtBirth ? "TRUE" : "FALSE") + ")").c_str())
 		    ("allow-touching-at-birth",                                     po::value<bool>(&allowTouchingAtBirth)->default_value(allowTouchingAtBirth)->implicit_value(true),                                                          ("Allow binaries that are touching at birth to evolve (default = " + std::string(allowTouchingAtBirth ? "TRUE" : "FALSE") + ")").c_str())
 
-			("alwaysStableCaseBBBCFlag",                                    po::value<bool>(&alwaysStableCaseBBBCFlag)->default_value(alwaysStableCaseBBBCFlag)->implicit_value(true),                                                  ("Choose case BB/BC mass transfer to be always stable (default = " + std::string(alwaysStableCaseBBBCFlag ? "TRUE" : "FALSE") + ")").c_str())
 			("angularMomentumConservationDuringCircularisation",            po::value<bool>(&angularMomentumConservationDuringCircularisation)->default_value(angularMomentumConservationDuringCircularisation)->implicit_value(true),  ("Conserve angular momentum when binary is circularised when entering a Mass Transfer episode (default = " + std::string(angularMomentumConservationDuringCircularisation ? "TRUE" : "FALSE") + ")").c_str())
 			// AVG - 17/03/2020 - Serena will uncomment when tested.
             // ("BeBinaries",                                                  po::value<bool>(&beBinaries)->default_value(beBinaries)->implicit_value(true),                                                                              ("Enable Be Binaries study (default = " + std::string(beBinaries ? "TRUE" : "FALSE") + ")").c_str())
@@ -626,7 +626,6 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("evolve-pulsars",                                              po::value<bool>(&evolvePulsars)->default_value(evolvePulsars)->implicit_value(true),                                                                        ("Evolve pulsars (default = " + std::string(evolvePulsars ? "TRUE" : "FALSE") + ")").c_str())
 			("evolve-unbound-systems",                                      po::value<bool>(&evolveUnboundSystems)->default_value(evolveUnboundSystems)->implicit_value(true),                                                          ("Continue evolving stars even if the binary is disrupted (default = " + std::string(evolveUnboundSystems ? "TRUE" : "FALSE") + ")").c_str())
 
-            ("forceCaseBBBCStabilityFlag",                                  po::value<bool>(&forceCaseBBBCStabilityFlag)->default_value(forceCaseBBBCStabilityFlag)->implicit_value(true),                                              ("Force case BB/BC mass transfer to be only stable or unstable (default = " + std::string(forceCaseBBBCStabilityFlag ? "TRUE" : "FALSE") + ")").c_str())
 			("lambda-calculation-every-timeStep",                           po::value<bool>(&lambdaCalculationEveryTimeStep)->default_value(lambdaCalculationEveryTimeStep)->implicit_value(true),                                      ("Calculate all values of lambda at each timestep (default = " + std::string(lambdaCalculationEveryTimeStep ? "TRUE" : "FALSE") + ")").c_str())
    		   	("massTransfer",                                                po::value<bool>(&useMassTransfer)->default_value(useMassTransfer)->implicit_value(true),                                                                    ("Enable mass transfer (default = " + std::string(useMassTransfer ? "TRUE" : "FALSE") + ")").c_str())
 		    ("pair-instability-supernovae",                                 po::value<bool>(&usePairInstabilitySupernovae)->default_value(usePairInstabilitySupernovae)->implicit_value(true),                                          ("Enable pair instability supernovae (PISN) (default = " + std::string(usePairInstabilitySupernovae ? "TRUE" : "FALSE") + ")").c_str())
@@ -779,6 +778,8 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		  	("black-hole-kicks",                                            po::value<string>(&blackHoleKicksString)->default_value(blackHoleKicksString),                                                                              ("Black hole kicks relative to NS kicks (options: FULL, REDUCED, ZERO, FALLBACK), default = " + blackHoleKicksString + ")").c_str())
 
+            ("case-bb-stability-prescription",             po::value<string>(&caseBBStabilityPrescriptionString)->default_value(caseBBStabilityPrescriptionString),                    ("Case BB/BC mass transfer stability prescription (options: ALWAYS_STABLE, ALWAYS_STABLE_ONTO_NSBH, TREAT_AS_OTHER_MT, ALWAYS_UNSTABLE), default = " + caseBBStabilityPrescriptionString + ")").c_str())
+        
 		  	("chemically-homogeneous-evolution",                            po::value<string>(&cheString)->default_value(cheString),                                                                                                    ("Chemically Homogeneous Evolution (options: NONE, OPTIMISTIC, PESSIMISTIC), default = " + cheString + ")").c_str())
 
 			("common-envelope-lambda-prescription",                         po::value<string>(&commonEnvelopeLambdaPrescriptionString)->default_value(commonEnvelopeLambdaPrescriptionString),                                          ("CE lambda prescription (options: LAMBDA_FIXED, LAMBDA_LOVERIDGE, LAMBDA_NANJING, LAMBDA_KRUCKOW, LAMBDA_DEWI), default = " + commonEnvelopeLambdaPrescriptionString + ")").c_str())
@@ -884,6 +885,12 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 COMPLAIN_IF(!found, "Unknown Black Hole Kicks Option");
             }
 
+            if (!vm["case-bb-stability-prescription"].defaulted()) {                                                                    //case BB/BC mass transfer stability prescription
+                std::tie(found, caseBBStabilityPrescription) = utils::GetMapKey(caseBBStabilityPrescriptionString, CASE_BB_STABILITY_PRESCRIPTION_LABEL, caseBBStabilityPrescription);
+                COMPLAIN_IF(!found, "Unknown Case BB/BC Mass Transfer Stability Prescription");
+            }
+
+            
             if (!vm["chemically-homogeneous-evolution"].defaulted()) {                                                                  // Chemically Homogeneous Evolution
                 std::tie(found, cheOption) = utils::GetMapKey(cheString, CHE_OPTION_LABEL, cheOption);
                 COMPLAIN_IF(!found, "Unknown Chemically Homogeneous Evolution Option");
