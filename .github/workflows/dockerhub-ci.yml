@@ -15,7 +15,7 @@ jobs:
       
       - name: Get release version
         run: |
-          export COMPAS_VERSION=$(sed -n '/const std::string VERSION_STRING/,/^$/p' ./src/constants.h | sed 's/.*"\(.*\)"[^"]*$/\1/')
+          export COMPAS_VERSION=$(sed -n '/const std::string VERSION_STRING/,/^$/p' ./src/changelog.h | sed 's/.*"\(.*\)"[^"]*$/\1/')
           echo "::set-env name=COMPAS_VERSION::$COMPAS_VERSION"
         
       - name: Print version
