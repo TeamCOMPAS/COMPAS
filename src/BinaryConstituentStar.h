@@ -68,8 +68,8 @@ public:
         m_MassTransferDiff                           = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_MassLossDiff                               = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-        m_PreSNeOrbitalEnergy                        = DEFAULT_INITIAL_DOUBLE_VALUE;
-        m_PostSNeOrbitalEnergy                       = DEFAULT_INITIAL_DOUBLE_VALUE;
+        m_OrbitalEnergyPreSN                        = DEFAULT_INITIAL_DOUBLE_VALUE;
+        m_OrbitalEnergyPostSN                       = DEFAULT_INITIAL_DOUBLE_VALUE;
 
         m_FirstMassTransferEpisode                   = false;
         m_MassTransferCaseInitial                    = MT_CASE::NONE;
@@ -101,8 +101,8 @@ public:
         m_MassTransferDiff         = p_Star.m_MassTransferDiff;
         m_MassLossDiff             = p_Star.m_MassLossDiff;
 
-        m_PreSNeOrbitalEnergy      = p_Star.m_PreSNeOrbitalEnergy;
-        m_PostSNeOrbitalEnergy     = p_Star.m_PostSNeOrbitalEnergy;
+        m_OrbitalEnergyPreSN      = p_Star.m_OrbitalEnergyPreSN;
+        m_OrbitalEnergyPostSN     = p_Star.m_OrbitalEnergyPostSN;
 
         m_FirstMassTransferEpisode = p_Star.m_FirstMassTransferEpisode;
         m_MassTransferCaseInitial  = p_Star.m_MassTransferCaseInitial;
@@ -134,8 +134,8 @@ public:
             m_MassTransferDiff         = p_Star.m_MassTransferDiff;
             m_MassLossDiff             = p_Star.m_MassLossDiff;
 
-            m_PreSNeOrbitalEnergy      = p_Star.m_PreSNeOrbitalEnergy;
-            m_PostSNeOrbitalEnergy     = p_Star.m_PostSNeOrbitalEnergy;
+            m_OrbitalEnergyPreSN      = p_Star.m_OrbitalEnergyPreSN;
+            m_OrbitalEnergyPostSN     = p_Star.m_OrbitalEnergyPostSN;
 
             m_FirstMassTransferEpisode = p_Star.m_FirstMassTransferEpisode;
             m_MassTransferCaseInitial  = p_Star.m_MassTransferCaseInitial;
@@ -193,8 +193,8 @@ public:
     MT_CASE         MassTransferCaseInitial() const                                     { return m_MassTransferCaseInitial; }
     double          MassTransferDiff() const                                            { return m_MassTransferDiff; }
     double          OmegaTidesIndividualDiff() const                                    { return m_OmegaTidesIndividualDiff; }
-    double          PostSNeOrbitalEnergy() const                                        { return m_PostSNeOrbitalEnergy; };
-    double          PreSNeOrbitalEnergy() const                                         { return m_PreSNeOrbitalEnergy; };
+    double          OrbitalEnergyPostSN() const                                        { return m_OrbitalEnergyPostSN; };
+    double          OrbitalEnergyPreSN() const                                         { return m_OrbitalEnergyPreSN; };
     bool            RLOFPostCEE() const                                                 { return m_RLOFDetails.RLOFPostCEE; }
     double          RocheLobeRadius() const                                             { return m_RocheLobeRadius; }
     double          RocheLobeTracker() const                                            { return m_RocheLobeTracker; }
@@ -206,8 +206,8 @@ public:
     void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  JR: todo:  sanity check?
     void            SetMassTransferDiff(const double p_MassTransferDiff)                { m_MassTransferDiff = p_MassTransferDiff; }                // JR: todo: better way?  JR: todo:  sanity check?
 
-    void            SetPostSNeOrbitalEnergy(const double p_PostSNeOrbitalEnergy)        { m_PostSNeOrbitalEnergy = p_PostSNeOrbitalEnergy; };
-    void            SetPreSNeOrbitalEnergy(const double p_PreSNeOrbitalEnergy)          { m_PreSNeOrbitalEnergy = p_PreSNeOrbitalEnergy; };
+    void            SetOrbitalEnergyPostSN(const double p_OrbitalEnergyPostSN)        { m_OrbitalEnergyPostSN = p_OrbitalEnergyPostSN; };
+    void            SetOrbitalEnergyPreSN(const double p_OrbitalEnergyPreSN)          { m_OrbitalEnergyPreSN = p_OrbitalEnergyPreSN; };
 
 
     // member functions - alphabetically
@@ -258,8 +258,8 @@ private:
 
     double                  m_OmegaTidesIndividualDiff;
 
-    double                  m_PostSNeOrbitalEnergy;
-    double                  m_PreSNeOrbitalEnergy;
+    double                  m_OrbitalEnergyPostSN;
+    double                  m_OrbitalEnergyPreSN;
 
 	StellarRLOFDetailsT     m_RLOFDetails;
 
