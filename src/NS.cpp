@@ -375,13 +375,13 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const double p_
     constexpr double MU_0_3_C_3    = 3.0 * MU_0 * C * C * C;
     constexpr double unitsMoI      = G_TO_KG * CM_TO_M * CM_TO_M;
 
-    double mass                 = m_Mass * MSOL;
+    double mass                 = m_Mass * MSOL_TO_KG;
     double radius               = m_Radius * RSOL;
     double initialMagField      = m_PulsarDetails.magneticField;
     double magFieldLowerLimit   = pow(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA;                                       
     double momentOfInertia      = m_MomentOfInertia * unitsMoI;
     double tau                  = OPTIONS->PulsarMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR;                                 
-    double kappa                = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL;                                                          
+    double kappa                = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_KG;                                                          
 
     if ((!ExperiencedRecycledNS() && !p_CommonEnvelope) || (!ExperiencedRecycledNS() && utils::Compare(p_MassGainPerTimeStep, 0.0) == 0 )) {
 

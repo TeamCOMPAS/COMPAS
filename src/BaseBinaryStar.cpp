@@ -1367,7 +1367,7 @@ void BaseBinaryStar::ResolveCoalescence() {
     m_SemiMajorAxisAtDCOFormation = m_SemiMajorAxisPrime;
     m_EccentricityAtDCOFormation  = m_Eccentricity;
 
-    double tC           = CalculateTimeToCoalescence(m_SemiMajorAxisPrime * AU, m_Eccentricity, m_Star1->Mass() * MSOL, m_Star2->Mass() * MSOL);
+    double tC           = CalculateTimeToCoalescence(m_SemiMajorAxisPrime * AU, m_Eccentricity, m_Star1->Mass() * MSOL_TO_KG, m_Star2->Mass() * MSOL_TO_KG);
     m_TimeToCoalescence = (tC / SECONDS_IN_YEAR) * YEAR_TO_MYR;                                                                                 // coalescence time in Myrs
 
     if (utils::Compare(tC, HUBBLE_TIME) < 0) {                                                                                                  // shorter than HubbleTime (will need to worry about time delays eventually and time when born)
@@ -1615,7 +1615,7 @@ bool BaseBinaryStar::ResolveSupernova() {
     // Since this equation contains 'G', all other quantities must be in SI to get answer in ms^-1
 
 	vK                       *= KM;                                                                                                 // convert vK to m s^-1.  Would be nice to draw this in nicer units to avoid this secion
-	m_VRel                    = sqrt(G * (totalMass * MSOL) * ((2.0 / (m_Radius * AU)) - (1.0 / (m_SemiMajorAxisPrime * AU))));     // orbital velocity
+	m_VRel                    = sqrt(G * (totalMass * MSOL_TO_KG) * ((2.0 / (m_Radius * AU)) - (1.0 / (m_SemiMajorAxisPrime * AU))));     // orbital velocity
 	m_uK                      = OPTIONS->UseFixedUK() ? OPTIONS->FixedUK() : vK / m_VRel;                                           // fix uK to user-defined value if required, otherwise calculate it.  uK is dimensionless
 	m_OrbitalVelocityPreSN    = m_VRel;                                                                                             // since the kick velocity always occurs in equations as vk/vrel, we need to know vrel
 

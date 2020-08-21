@@ -543,34 +543,42 @@ constexpr double DEFAULT_INITIAL_BOOLEAN_VALUE          = false;                
 
 // conversion constants
 
+// mass
 constexpr double G_TO_KG                                = 1.0E-3;                                                   // convert grams to kg
+constexpr double MSOL_TO_G                              = 1.988E33;                                                 // convert Solar Mass to grams
+constexpr double MSOL_TO_KG                             = 1.988E30;                                                 // convert Solar Mass to kg
+constexpr double KG_TO_MSOL                             = 1.0 / MSOL_TO_KG;                                         // convert Solar Mass to kg
 
+// length
 constexpr double KM_TO_CM 					            = 1.0E5;									                // convert km to cm
+constexpr double KM_TO_M                                = 1000 ;                                                    // convert km to m
 constexpr double CM_TO_M                                = 1.0E-2;                                                   // convert cm to m
-constexpr double KM_TO_M                                = 1000 ;                                                    //convert km to m
-
-constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
-constexpr double GAUSS_TO_TESLA                         = 1.0E-4;                                                   // convert Gauss to Tesla
-
-constexpr double JOULES_TO_ERG                          = 1.0E7;                                                    // convert Joules to Erg
-
-constexpr double SECONDS_IN_YEAR                        = 31556926.0;                                               // number of second in 1 year
-constexpr double SECONDS_IN_DAY                         = SECONDS_IN_YEAR * 4.0 / 1461.0;                           // number of second in 1 day
-constexpr double SECONDS_IN_MS                          = 1.0E-3;                                                   // number of second in 1 millisecond
-constexpr double SECONDS_IN_MYR                         = 31556926.0 * 1.0E6;                                       // number of second in 1 Myr
-
-constexpr double MYR_TO_YEAR                            = 1.0E6;                                                    // convert Myr to year
-constexpr double YEAR_TO_MYR                            = 1.0E-6;                                                   // convert year to Myr
 
 constexpr double RSOL_TO_KM                             = 6.957E5;                                                  // convert Solar Radius (RSOL) to km
 constexpr double RSOL_TO_CM                             = 6.957E10;                                                 // convert Solar Radius (RSOL) to cm
 constexpr double RSOL_TO_AU                             = 0.00465047;                                               // convert Solar Radius (RSOL) to AU
-constexpr double KM_TO_RSOL					            = 1.0 / RSOL_TO_KM;						                    // convert km to Solar Radius (RSOL)
-
-constexpr double MSOL_TO_G                              = 1.988E33;                                                 // convert Solar Mass to grams
 
 constexpr double AU_TO_CM                               = 14959787070000.0;                                         // convert Astronomical Units (AU) to cm
 constexpr double AU_TO_RSOL				                = 1.0 / RSOL_TO_AU;                                         // convert Astronomical Units AU to Solar Radius RSOL
+constexpr double AU_TO_KM                               = AU_TO_CM / 1.0E5;                                         // convert Astronomical Units AU to km
+
+constexpr double KM_TO_RSOL					            = 1.0 / RSOL_TO_KM;						                    // convert km to Solar Radius (RSOL)
+constexpr double KM_TO_AU                               = 1.0 / AU_TO_KM;                                           // convert km to Astronomical Units AU
+
+// time
+constexpr double SECONDS_IN_YEAR                        = 31556926.0;                                               // number of second in 1 year
+constexpr double SECONDS_IN_DAY                         = SECONDS_IN_YEAR * 4.0 / 1461.0;                           // number of second in 1 day
+constexpr double SECONDS_IN_MS                          = 1.0E-3;                                                   // number of second in 1 millisecond
+constexpr double SECONDS_IN_MYR                         = 31556926.0 * 1.0E6;                                       // number of second in 1 Myr
+constexpr double MYR_TO_YEAR                            = 1.0E6;                                                    // convert Myr to year
+constexpr double YEAR_TO_MYR                            = 1.0E-6;                                                   // convert year to Myr
+
+// energy
+constexpr double JOULES_TO_ERG                          = 1.0E7;                                                    // convert Joules to Erg
+
+// B field
+constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
+constexpr double GAUSS_TO_TESLA                         = 1.0E-4;                                                   // convert Gauss to Tesla
 
 
 // constants
@@ -589,7 +597,6 @@ constexpr double G                                      = 6.67E-11;             
 constexpr double G_CGS                                  = 6.6743E-8;                                                // Gravitational constant in cm^3 g^-1 s^-2
 constexpr double G1                                     = 4.0 * M_PI * M_PI;                                        // Gravitational constant in AU^3 Msol^-1 yr^-2
 
-constexpr double MSOL                                   = 1.988E30;                                                 // Solar Mass (in kg)
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
 constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
