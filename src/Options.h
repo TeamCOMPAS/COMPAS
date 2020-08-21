@@ -15,6 +15,7 @@
 #include "typedefs.h"
 #include "utils.h"
 #include "Rand.h"
+#include "changelog.h"
 
 using std::string;
 using std::vector;

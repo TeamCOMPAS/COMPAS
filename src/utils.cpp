@@ -5,6 +5,7 @@
 #include <cstring>
 #include "utils.h"
 #include "Rand.h"
+#include "changelog.h"
 
 
 /*
@@ -428,7 +429,7 @@ namespace utils {
      */
     double ConvertPeriodInDaysToSemiMajorAxisInAU(const double p_Mass1, const double p_Mass2, const double p_Period) {
 
-        double a_cubed_SI_top    = G * ((p_Mass1 * MSOL) + (p_Mass2 * MSOL)) * p_Period * p_Period * SECONDS_IN_DAY * SECONDS_IN_DAY;
+        double a_cubed_SI_top    = G * ((p_Mass1 * MSOL_TO_KG) + (p_Mass2 * MSOL_TO_KG)) * p_Period * p_Period * SECONDS_IN_DAY * SECONDS_IN_DAY;
         double a_cubed_SI_bottom = 4.0 * M_PI * M_PI;
         double a_cubed_SI        = a_cubed_SI_top / a_cubed_SI_bottom;
         double a_SI              = pow(a_cubed_SI, 1.0 / 3.0);
