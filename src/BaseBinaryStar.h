@@ -498,10 +498,10 @@ private:
                                      const double p_Star2Mass,
                                      const double p_Star1Radius,
                                      const double p_Star2Radius,
-                                     const double p_Star1OrbitalFrequency,
-                                     const double p_Star2OrbitalFrequency,
-                                     const double p_Star1GyrationRadius,
-                                     const double p_Star2GyrationRadius);
+                                     const double p_Star1_OrbitalFrequency,
+                                     const double p_Star2_OrbitalFrequency,
+                                     const double p_Star1_GyrationRadius,
+                                     const double p_Star2_GyrationRadius);
 
     double  CalculateAngularMomentum()                                      { return CalculateAngularMomentum(m_SemiMajorAxisPrime, m_EccentricityPrime, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
 
