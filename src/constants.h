@@ -10,381 +10,6 @@
 #include <boost/variant.hpp>
 
 
-// JR: todo: this could do with some more tidying up and documentation
-
-// 02.00.00      JR - Sep 17, 2019 - Initial commit of new version
-// 02.00.01      JR - Sep 20, 2019 - Fix compiler warnings. Powwow fixes
-// 02.00.02      JR - Sep 21, 2019 - Make code clang-compliant
-// 02.00.03      IM - Sep 23, 2019 - Added fstream include
-// 02.01.00      JR - Oct 01, 2019 - Support for Chemically Homogeneous Evolution
-// 02.02.00      JR - Oct 01, 2019 - Support for Grids - both SSE and BSE
-// 02.02.01      JR - Oct 01, 2019 - Changed BaseBinaryStar code to assume tidal locking only if CHE is enabled
-// 02.02.02      JR - Oct 07, 2019 - Defect repairs:
-//                                       SSE iteration (increment index - Grids worked, range of values wasn't incrementing)
-//                                       Errors service (FIRST_IN_FUNCTION errors sometimes printed every time)
-//                                       Added code for both SSE and BSE so that specified metallicities be clamped to [0.0, 1.0].  What are reasonable limits?
-//                                   Errors service performance enhancement (clean deleted stellar objects from catalog)
-//                                   Changed way binary constituent stars masses equilibrated (they now retain their ZAMS mass, but (initial) mass and mass0 changes)
-//                                   Add initial stellar type variable - and to some record definitions
-//                                   Added change history and version number to constants.h
-// 02.02.03      JR - Oct 09, 2019 - Defect repairs:
-//                                       Initialised all BaseStar.m_Supernova elements (some had not been initialised)
-//                                       Fixed regression in BaseStar.cpp (INITIAL_STELLAR_TYPE & INITIAL_STELLAR_TYPE_NAME in StellarPropertyValue())
-//                                   Added max iteration check to Newton-Raphson method in SolveKeplersEquation (see constant MAX_KEPLER_ITERATIONS)
-// 02.02.04      JR - Oct 09, 2019 - Defect repairs:
-//                                       SN kick direction calculation corrected
-//                                       Boolean value output corrected
-//                                       Typos fixed
-// 02.02.05      JR - Oct 10, 2019 - Defect repairs:
-//                                       Determination of Chemically Homogeneous star fixed (threshold calculation)
-//                                       Removed checks for RLOF to/from CH stars
-//                                       Typos fixed
-// 02.02.06      JR - Oct 11, 2019 - Renamed class "CHE" - now class "CH"
-//                                   Updated CHE documentation
-//                                   Added m_MassesEquilibrated variable to BaseBinaryStar
-// 02.02.07      JR - Oct 20, 2019 - Defect repairs:
-//                                       CEE printing systems post-stripping - github issue - reworked CE details/pre/post CE - partial fix (BindingEnergy remaining)
-//                                       Added RANDOM_SEED to Options::OptionValue() (omitted erroneously)
-//                                   Added m_SecondaryTooSmallForDCO variable to BaseBinaryStar - and to some record definitions
-//                                   Added m_StellarMergerAtBirth variable to BaseBinaryStar - and to some record definitions
-//                                   Added allow-rlof-at-birth program option
-//                                       If CHE enabled, or allow-rlof-at-birth option is true, binaries that have one or both stars
-//                                       in RLOF at birth will have masses equilibrated, radii recalculated, orbit circularised, and
-//                                       semi-major axis recalculated, while conserving angular momentum - then allowed to evolve
-//                                   Added allow-touching-at-birth program option
-//                                       Binaries that have stars touching at birth (check is done after any equilibration and
-//                                       recalculation of radius and separation is done) are allowed to evolve.  Evolve() function
-//                                       immediately checks for merger at birth, flags status as such and stops evolution.
-//                                   Documentation updated (see updated doc for detailed explanation of new program options)
-// 02.03.00      JR - Oct 25, 2019 - Defect repairs:
-//                                       removed extraneous delimiter at end of log file records
-//                                   Added '--version' option
-//                                   Changed minor version number - should have been done at last release - we'll grant the '--version' option minor release status...
-// 02.03.01      JR - Nov 04, 2019 - Defect repair:
-//                                       removed erroneous initialisation of m_CEDetails.alpha from BaseBinaryStar::SetRemainingCommonValues()
-//                                       (CE Alpha was alwas being initialised to 0.0 regardless of program options)
-// 02.03.02      JR - Nov 25, 2019 - Defect repairs:
-//                                       added check for active log file before closing in Log::Stop()
-//                                       added CH stars to MAIN_SEQUENCE and ALL_MAIN_SEQUENCE initializer_lists defined in constants.h
-//                                       moved InitialiseMassTransfer() outside 'if' - now called even if not using mass transfer - sets some flags we might need
-//                                       added code to recalculate rlof if CH stars are equilibrated in BaseBinaryStar constructor
-//                                   Enhancements:
-//                                       moved KROUPA constants from AIS class to constants.h
-//                                       moved CalculateCDFKroupa() function from AIS class to BaseBinaryStar class
-//                                       added m_CHE variable to BaseStar class - also selectable for printing
-//                                       added explicit check to ResolveCommonEnvelope() to merge binary if the donor is a main sequence star
-//                                   Chemically Homogeneous Evolution changes:
-//                                       added check to CheckMassTransfer() in BaseBinaryStar.cpp to merge if CH+CH and touching - avoid CEE
-//                                       added code to InitialiseMassTransfer() in BaseBinaryStar.cpp to equilibrate and possibly merge if both CH stars in RLOF
-// (Unchanged)   IM - Nov 29, 2019 - Defect repairs:
-//                                       changed Disbound -> Unbounded in header strings in constants.h
-//                                       left one line in default/example grid file (Grid.txt)
-//                                       fix default PPISN mass limit in python submit: 65 Msol -> 60 Msol
-// 02.03.03      JR - Dec 04, 2019 - Defect repairs:
-//                                       added code to UpdateAttributesAndAgeOneTimestep() in Star.cpp to recalculate stellar attributes after switching to new stellar type
-//                                       (addresses discontinuous transitions e.g. CH -> HeMS)
-//                                       changed IsPulsationalPairInstabilitySN() in GiantBranch.cpp to call IsPairInstabilitySN() instead of set MASSLESS_REMNANT if remnant mass <= 0.0
-//                                       changed CalculateSNKickVelocity() in BaseStar.cpp to set m_SupernovaDetails.kickVelocity correctly after adjusting for fallback
-// 02.03.04      FSB - Dec 04, 2019 - Defect repairs:
-//                                       fixed bug in Fryer+2012 CalculateGravitationalRemnantMassadded() function to compare baryon mass of star remnant with
-//										                   baryon mass of MaximumNeutronStarMass instead of just MaximumNeutronStarMass. 
-//                                       added m_BaryonicMassOfMaximumNeutronStarMass to BaseStar.h and BaseStar.cpp
-// 02.03.05      JR - Dec 05, 2019 - Defect repairs:
-//                                       fixed EvolveSingleStars() in main.cpp to print correct initial mass
-//                                       fixed TPAGB::CalculateCOCoreMassAtPhaseEnd() - added conditional
-// 02.04.00      JR - Dec 18, 2019 - New functionality:
-//                                       added columns to BSE grid functionality: Kick_Velocity_1(&2), Kick_Theta_1(&2), Kick_Phi_1(&2), Kick_Mean_Anomaly_1(&2).  Updated documentation.
-//                                   Changed functionality:
-//                                       removed compiler version checks from Makefile - they seemed to only work for native Ubuntu and were more of a nuisance than anything...  (old version exists as Makefile-checks)
-//                                   Defect repairs:
-//                                       added recalculation of gbParams Mx & Lx in HeHG calculateGbParams()
-//                                       created HeHG::CalculateGBParams_Static() and GiantBranch::CalculateGBParams_Static(), called from EAGB::ResolveEnvelopeLoss() to facilitate calculation of attributes for new stellar type before actually switching.  Needed to rewrite some other functions as static.  Note: this needs to be revisited and a more elegant solution implemented.
-//                                       added CalculateRadiusAndStellarTypeOnPhase() for HeHG and HeGBstars, and changed call to calculateRadiusOnPhase() to CalculateRadiusAndStellarTypeOnPhase() in BaseStar::EvolveOnPhase().  This allows for HeHG and HeGB stars to change stellar type based on radius (previously missed).
-//                                       set M = McBAGB for EAGB & TPAGB only (was being set for all types >= TPAGB)
-//                                       added extra print detailed in BaseBinaryStar:Evolve() - sometimes missing a switch type in detailed output if only 1 timestep
-//                                       swapped heading strings for ANY_STAR_PROPERTY::IS_ECSN and ANY_STAR_PROPERTY::IS_USSN (now correct)
-//                                       removed condition in BaseBinaryStar::EvaluateSupernovae().  ResolveSupernova() is now called for all stellar types (not sure what I was thinking orginally. I'm sure I had a good reason - or maybe I was just tired...)
-//                                       changed name of GiantBranch::CalculateProtoCoreMass() to GiantBranch::CalculateProtoCoreMassDelayed() and changed calls to the function
-//                                       swapped order of calculations of ePrime (CalculateOrbitalEccentricityPostSupernova()) and m_SemiMajorAxisPrime (CalculateSemiMajorAxisPostSupernova()) in BaseBinaryStar::ResolveSupernova().  Improper order was causing wrong value of m_SeminMajorAxisPrime to be used in calculation of ePrime
-//                                       set m_Disbound = true appropriately in BaseBinaryStar::Evolve() (note: m_Disbound will change name to m_Unbound soon...)
-//                                       changed return value of CHeB::DetermineEnvelopeType() to CONVECTIVE.  Left CHeB DetermineEnvelopeTypeHurley2002() as RADIATIVE (used in BinaryConstituentStar::CalculateSynchronisationTimescale())
-//                                       changed BINARY_PROPERTY::ORBITAL_VELOCITY to BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_2ND_SUPERNOVA in BSE_SUPERNOVAE_REC (6th value printed)
-//                                       added p_Erase parameter to Log::CloseStandardFile(); changed Log::CloseAllStandardFiles() to call Log::CloseStandardFile() with p_Erase=false and erase entire map after all files closed (prevent coredump when closing all files)
-//                                       added ResolveSupernova() to ONeWD.h - ONeWD stars were previously not checking for SN
-//                                       fixed BaseBinaryStar::InitialiseMassTransfer() - star1 was being updated instead of star2 for CH + CH stars when CHE enabled
-// 02.04.01      JR - Dec 23, 2019 - Defect repairs:
-//                                       Removed SN_EVENT::SN - all occurences of SN_EVENT::SN replaced by SN_EVENT::CCSN.
-//                                           The current SN event ("Is"), and past SN event ("Experienced") are now bit maps (implemented as Enum Classes).  Each can have any of the values: CCSN, ECSN, PISN, PPSIN, USSN, RUNAWAY, RECYCLED_NS, and RLOF_ONTO_NS.  See definition of SN_EVENT Enum Class in constants.h for implementation and explanation.  
-//                                       Updated variables selectable for printing:
-//                                           Added ANY_STAR_PROPERTY::SN_TYPE (STAR_PROPERTY, SUPERNOVA_PROPERTY, COMPANION_PROPERTY (should always be SN_EVENT::NONE for companion star))
-//                                           Added ANY_STAR_PROPERTY::EXPERIENCED_SN_TYPE (STAR_PROPERTY, SUPERNOVA_PROPERTY, COMPANION_PROPERTY)
-//                                           All of ANY_STAR_PROPERTY::{CCSN, ECSN, PISN, PPISN, USSN} now selectable
-//                                           Removed ANY_STAR_PROPERTY::SN - no longer selectable for printing (replaced by CCSN)
-//                                           Updated documentation
-//                                       Changed default record specifications for logfiles BSE_DOUBLE_COMPACT_OBJECTS_REC and BSE_SUPERNOVAE_REC
-//                                           Removed the individual SN_EVENT columns for both "Is" and "Experienced" conditions (e.g. CCSN, ECSN etc)
-//                                           "Is*" and "Experienced*" columns replaced with SN_TYPE & Experienced_SN_TYPE columns that record the SN event type (e.g. CCSN, ECSN, PPSN, PPSIN, USSN).  
-//                                           RUNAWAY, RECYCLED_NS, and RLOF_ONTO_NS are still reported in separate, individual columns.
-//                                       Added workaround for non-existent CHeB blue loop.  See description in CHeB::CalculateTimescales()
-//                                       Removed binary star "survived" flag - it is always the NOT of the "unbound" flag
-//                                       Changed initialisation function for HeGB stars (HeGB::Initialise() in HeGB.h) to NOT recalculate m_Age if evolving from HeHG -> HeGB 
-//                                       Removed initialisation of m_Age (to 0.0) from COWD::Initialise() in COWD.h
-//                                   Changed behaviour:  
-//                                       Changed binary star "disbound" flag to "unbound" flag.  Changed all occurences of "disbound" to "unbound".  Changed "unbound" header flag to "Unbound"
-// 02.04.02      JR - Jan 06, 2020 - Defect repairs:
-//                                       Added IsPISN() & IsPPISN() to IsSNEvent()
-//                                       Fixed check for SN event at top of BaseBinaryStar::ResolveSupenova()
-//                                       Changed BaseBinaryStar::EvaluateSupernovae() to more closely match legacy code behaviour (see notes in function description):
-//                                          Added p_Calculate2ndSN parameter to determine if 2nd supernova needs to be resolved
-//                                          Clear star2 current SN event if necessary
-//                                          Check m_SemiMajorAxisPrime value prior to SN events (viz. new aPrime variable)
-//                                       Fixed timestep initialisation in BaseStar::CalculateConvergedTimestepZetaNuclear()  (was negative)
-//                                       Fixed m_Age calculation in FGB::ResolveEnvelopeLoss()
-//                                       Added CalculateInitialSupernovaMass() to NS.h - was setting M = 5.0 for >= ONeWD, should be ONeWD only (introduced in fix in v04.02.00)
-//                                       Changed NS functions to return Radius in Rsol instead of km:
-//                                          Added function NS:CalculateRadiusOnPhaseInKM_Static() (returns radius in km)
-//                                          Changed NS:CalculateRadiusOnPhase_Static() to return Rsol
-//                                          Added CalculateRadiusOnPhase() for NS (ns.h) - returns Rsol 
-//                                   Changed behaviour:  
-//                                       Print detailed output record whenever stellartype changes (after star 2 if both change)
-// (Unchanged)   LK - Jan 10, 2020 - Defect repairs:
-//                                       Added missing includes to Star.cpp, utils.h and utils.cpp (required for some compiler versions)
-// 02.05.00      JR - Jan 23, 2020 - New functionality:
-//                                       Grid files:
-//                                          Added kick velocity magnitude random number to BSE grid file - see docs re Grids
-//                                          Added range check for Kick_Mean_Anomaly_1 and Kick_Mean_Anomaly_2 ([0.0, 2pi)) in BSE grid file
-//                                          Cleaned up SSE & BSE grid file code
-//                                       Added m_LBVphaseFlag variable to BaseStar class; also added ANY_STAR_PROPERTY::LBV_PHASE_FLAG print variable.
-//                                   Deleted functionality:  
-//                                       Removed IndividualSystem option and related options - this can now be achieved via a grid file
-//                                          Update pythonSubmitDefault.py to remove individual system related parameters
-//                                   Changed behaviour:
-//                                       Removed check for Options->Quiet() around simulation ended and cpu/wall time displays at end of EvolveSingleStars() and EvolveBinaryStars() in main.cpp
-//                                   Defect repairs:
-//                                       Removed erroneous check for CH stars in BaseBinaryStar::EvaluateBinary()
-//                                       Fix for issue #46 (lower the minimum value of McSN in star.cpp from Mch to 1.38)
-//                                          Changed 'MCH' to 'MECS' in 
-//                                             BaseStar::CalculateMaximumCoreMassSN()
-//                                             GiantBranch::CalculateCoreMassAtSupernova_Static
-// 02.05.01      FSB - Jan 27, 2020 -Enhancement:
-//                                       Cleaned up default printed headers and parameters constants.h:
-//                                           - removed double parameters that were printed in multiple output files 
-//                                           - changed some of the header names to more clear / consistent names
-//                                           - added some comments in the default printing below for headers that we might want to remove in the near future
-// 02.05.02      JR - Feb 21, 2020 - Defect repairs:
-//                                       - fixed issue #31: zRocheLobe function does not use angular momentum loss
-//                                       - fixed default logfile path (defaulted to '/' instead of './')
-//                                       - changed default CE_ZETA_PRESCRIPTION to SOBERMAN (was STARTRACK which is no longer supported)
-// 02.05.03      JR - Feb 21, 2020 - Defect repairs:
-//                                       - removed extraneous debug print statement from Log.cpp
-// 02.05.04      JR - Feb 23, 2020 - Defect repairs:
-//                                       - fixed regression introduced in v02.05.00 that incread DNS rate ten-fold
-//                                           - changed parameter from m_SupernovaDetails.initialKickParameters.velocityRandom to m_SupernovaDetails.kickVelocityRandom in call to DrawSNKickVelocity() in BaseStar::CalculateSNKickVelocity()
-//                                       - reinstated STAR_1_PROPERTY::STELLAR_TYPE and STAR_2_PROPERTY::STELLAR_TYPE in BSE_SYSTEM_PARAMETERS_REC
-// 02.05.05      JR - Feb 27, 2020 - Defect repair:
-//                                       - fixed age resetting to 0.0 for MS_GT_07 stars after CH star spins down and switches to MS_GT_07
-//                                           - ensure m_Age = 0.0 in constructor for BaseStar
-//                                           - remove m_Age = 0.0 from Initialise() in MS_gt.07.h 
-// 02.05.06      JR - Mar 02, 2020 - Defect repair:
-//                                       - fixed m_MassesEquilibrated and associated functions - was erroneously typed as DOUBLE - now BOOL
-//                                   Added/changed functionality:
-//                                       - added m_MassesEquilibratedAtBirth variable to class BaseBinaryStar and associated property BINARY_PROPERTY::MASSES_EQUILIBRATED_AT_BIRTH
-//                                       - tidied up pythonSubmitDefault.py a little:
-//                                             - set grid_filename = None (was '' which worked, but None is correct)
-//                                             - set logfile_definitions = None (was '' which worked, but None is correct)
-//                                             - added logfile names - set to None (COMPAS commandline arguments already exist for these - introduced in v02.00.00)
-// 02.05.07      JR - Mar 08, 2020 - Defect repair:
-//                                       - fixed circularisation equation in BaseBinaryStar::InitialiseMassTransfer() - now takes new mass values into account
-// 02.06.00      JR - Mar 10, 2020 - Changed functionality:
-//                                       - removed RLOF printing code & associated pythonSubmitDefault.py options
-// 02.06.01      JR - Mar 11, 2020 - Defect repair:
-//                                       - removed extraneous debug print statement from Log.cpp (was previously removed in v02.05.03 but we backed-out the change...)
-// 02.06.02      JR - Mar 15, 2020 - Defect repairs:
-//                                       - removed commented RLOF printing lines in constant.h (somehow that was lost in some out of sync git merges...)
-//                                       - removed commented options no longer used from Options.h and Options.cpp
-//                                       - fixed units headers in constants.h - there are now no blank units headers, so SPACE delimited files now parse ok (multiple spaces should be treated as a single space)
-//                                       - changed file extention for TAB delimited files to 'tsv'
-//                                       - removed "useImportanceSampling" option - not used in code
-//                                       - fixed typo in zeta-calculation-every-timestep option in Options.cpp
-//                                       - removed redundant OPTIONS->MassTransferCriticalMassRatioHeliumGiant() from qcritflag if statement in BaseBinaryStar::CalculateMassTransfer()
-//                                       - fixed OPTIONS->FixedMetallicity() - always returned true, now returns actual value
-//                                       - fixed OPTIONS->OutputPathString() - was always returning raw option instead of fully qualified path
-//                                       - changed the following in BaseBinaryStar::SetRemainingCommonValues() - erroneously not ported from legacy code:
-//                                           (a) m_JLoss = OPTIONS->MassTransferJloss();
-//                                           (b) m_FractionAccreted = OPTIONS->MassTransferFractionAccreted();
-//                                           (both were being set to default value of 0.0)
-//                                       - added OPTIONS->ZetaAdiabaticArbitrary() - option existed, but Options code had no function to retrieve value
-//                                       - added OPTIONS->MassTransferFractionAccreted() to options - erroneously not ported from legacy code
-//                                   Changed functionality:
-//                                       - all options now have default values, and those values will be displayed in the help text (rather than string constants which may be incorrect)
-//                                       - boolean options can now be provided with an argument (e.g. --massTransfer false)
-//                                       - added ProgramOptionDetails() to Options.cpp and OPTIONS->OptionsDetails() in preparation for change in output functionality
-// 02.07.00      JR - Mar 16, 2020 - New/changed functionality:
-//                                       - COMPAS Logfiles are created in a (newly created) directory - this way they are all kept together
-//                                       - new command line option 'output-container' implemented (also in pythonSubmitDefault.py) - this option allows the user to specify the name of the log files container directory (default is 'COMPAS_Output')
-//                                       - if detailed log files are created they will be created in a directory named 'Detailed_Output' within the container directory
-//                                       - a run details file named 'Run_details' is created in the container directory.  The file records the run details:
-//                                             - COMPAS version
-//                                             - date & time of run
-//                                             - timing details (wall time, CPU seconds)
-//                                             - the command line options and parameters used:
-//                                                   - the value of options and an indication of whether the option was supplied by the user or the default value was used
-//                                                   - other parameters - calculated/determined - are recorded
-//                                   Defect repair:
-//                                       - changed "--outut" option name to "--outpuPath" in stringCommands in pythonSubmitDefault.py
-// 02.08.00		  AVG - Mar 17, 2020 - Changed functionality:
-//										                   - removed post-newtonian spin evolution	code & associated pythonSubmitDefault.py options
-//										                   - removed only_double_compact_objects code & associated pythonSubmitDefault.py options
-//										                   - removed tides code & associated pythonSubmitDefault.py options
-//										                   - removed deprecated options from pythonSubmitDefault.py options
-//										                   - renamed options: mass transfer, iterations -> timestep-iterations
-//										                   - commented AIS Options until fully implemented
-// 02.08.01      JR - Mar 18, 2020 - Defect repairs:
-//                                      - restored initialisation of AIS options in Options.cpp (AIS now defaults off instead of on)
-//                                      - fixed retrieval of values for:
-//                                            - ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_BOTTOM, 
-//                                            - ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_MIDDLE, and 
-//                                            - ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_TOP 
-//                                         in BaseStar::StellarPropertyValue().  Were all previously retrieving same value as ANY_STAR_PROPERTY::LAMBDA_KRUCKOW
-//                                      - fixed some comments in BAseBinaryStar.cpp (lines 2222 and 2468, "de Mink" -> "HURLEY")
-//                                      - fixed description (in comments) of BinaryConstituentStar::SetPostCEEValues() (erroneously had "pre" instead of "post" - in comments only, not code)
-//                                      - fixed description of BaseStar::DrawKickDirection()
-// 02.08.02      JR - Mar 27, 2020 - Defect repairs:
-//                                      - fixed issue #158 RocheLobe_1<CE == RocheLobe_2<CE always
-//                                      - fixed issue #160 Circularisation timescale incorrectly calculated
-//                                      - fixed issue #161 Splashscreen printed twice - now only prints once
-//                                      - fixed issue #162 OPTIONS->UseFixedUK() always returns FALSE.  Now returns TRUE if user supplies a fixed kick velocity via --fix-dimensionless-kick-velocity command line option
-// 02.08.03      JR - Mar 28, 2020 - Defect repairs:
-//                                      - fixed typo in BaseBinaryStar::ResolveCommonEnvelopeEvent() when calculating circularisation timescale in the case where star2 is the donor: star1Copy was errorneously used instead of star2Copy; changed to star2Copy
-//                                      - changed circularisation timescale of binary to be minimum of constituent stars circularisation timescales, clamped to (0.0, infinity)
-// 02.09.00      JR - Mar 30, 2020 - Minor enhancements:
-//                                      - tightened the conditions under which we allow over-contact binaries - enabling CHE is no longer a sufficient condition after this change: the allow-rlof-at-birth option must also be specified (ussue #164)
-//                                      - added printing of number of stars (for SSE) or binaries (for BSE) created to both stdout and Run_Details (issue #165)
-//                                      - enhanced grid processing code in main.cpp to better handle TAB characters
-// 02.09.01      JR - Mar 30, 2020 - Defect repair:
-//                                      - OPTIONS->UseFixedUK() returns TRUE when user supplies -ve value via --fix-dimensionless-kick-velocity.  Now return TRUE iff the user supplies a value >=0 via --fix-dimensionless-kick-velocity
-// 02.09.02      DC - Mar 30, 2020 - Defect repairs:
-//                                      - Pulsar code fixed by correcting unit of NS radius in NS.cpp (added KM_TO_M constant in constants.h as a part of this),
-//                                      correcting initialisation of pulsar birth parameters from GiantBranch.cpp to NS.cpp, adding an extra condition for isolated evolution when the companion loses mass but the NS does not accrete 
-//                                      - option MACLEOD was printing wrongly as MACLEOD+2014 for user options, hence corrected it to MACLEOD in Options.cpp
-// 02.09.03      JR - Apr 01, 2020 - Defect repairs:
-//                                      - reinstated assignment of "prev" values in BaseBinaryStar::EvaluateBinary() (where call to ResolveTides() was removed).  Fixes low DNS count introduced in v02.08.00 caused by removal of ResolveTides() function (and call)
-//                                      - commented option --logfile-BSE-be-binaries to match Be-Binary options commented by AVG in v02.08.00
-// 02.09.04      JR - Apr 03, 2020 - Defect repair:
-//                                      - removed IsUSSN() from IsSNEvent() definition in BinaryConstituentStar.cpp (USSN flag indicates just US, not USSN. Needs to be tidied-up properly)
-// 02.09.05	     IM - Apr 03, 2020 - Defect repair:
-//			                            - fixed timescale calculation issue for newly created HeHG stars (from stripped EAGB stars); fixes drop in CO core mass
-// 02.09.06      JR - Apr 07, 2020 - Defect repair:
-//                                      - corrected calculation in return statement for Rand::Random(const double p_Lower, const double p_Upper) (issue #201)
-//                                      - corrected calculation in return statement for Rand::RandomInt(const double p_Lower, const double p_Upper) (issue #201)
-// 02.09.07      SS - Apr 07, 2020 - Change eccentricity, semi major axis and orbital velocity pre-2nd supernove to just pre-supernova everywhere in the code
-// 02.09.08      SS - Apr 07, 2020 - Update zetaMainSequence=2.0 and zetaHertzsprungGap=6.5 in Options::SetToFiducialValues
-// 02.09.09      JR - Apr 11, 2020 - Defect repair:
-//                                      - restored property names in COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL in constants.h (issue #218) (was causing logfile definitions files to be parsed incorrectly)
-// 02.09.10	     IM - Apr 12, 2020 - Minor enhancement: added Mueller & Mandel 2020 remnant mass and kick prescription, MULLERMANDEL
-//				                     Defect repair: corrected spelling of output help string for MULLER2016 and MULLER2016MAXWELLIAN
-// 02.10.01	     IM - Apr 14, 2020 - Minor enhancement: 
-//					                            - moved code so that SSE will also sample SN kicks, following same code branch as BSE 
-// 02.10.02      SS - Apr 16, 2020 - Bug Fix for issue #105 ; core and envelope masses for HeHG and TPAGB stars
-// 02.10.03      JR - Apr 17, 2020 - Defect repair:
-//                                      - added LBV and WR winds to SSE (issue #223)
-// 02.10.04	     IM - Apr 25, 2020 - Minor enhancement: moved Mueller & Mandel prescription constants to constants.h, other cleaning of this option
-// 02.10.05      JR - Apr 26, 2020 - Enhancements:
-//                                      - Issue #239 - added actual random seed to Run_Details
-//                                      - Issue #246 - changed Options.cpp to ignore --single-star-mass-max if --single-star-mass-steps = 1.  Already does in main.cpp.
-// 02.10.06      JR - Apr 26, 2020 - Defect repair:
-//                                      - Issue #233 - corrected cicularisation formalae used in both BaseBinartStar constructors
-// 02.11.00      JR - Apr 27, 2020 - Enhancement:
-//                                      - Issue #238 - add supernova kick functionality to SSE grid file (+ updated docs)
-//                                   Defect repairs:
-//                                      - fixed typo in Options.h: changed '#include "rand.h" to '#include "Rand.h"
-//                                      - fixed printing of actual random seed in Run_Details file (moved to Log.cpp from Options.cpp: initial random seed is set after options are set)
-// 02.11.01	     IM - May 20, 2020 - Defect repair: 
-//                                      - changed max NS mass for MULLERMANDEL prescription to a self-consistent value
-// 02.11.02      IM - Jun 15, 2020 - Defect repair:
-//                                      - added constants CBUR1 and CBUR2 to avoid hardcoded limits for He core masses leading to partially degenerate CO cores
-// 02.11.03     RTW - Jun 20, 2020 - Enhancement:
-//                                      - Issue #264 - fixed mass transfer printing bug 
-// 02.11.04      JR - Jun 25, 2020 - Defect repairs:
-//                                      - Issue #260 - Corrected recalculation of ZAMS values after eqilibration and cicularisation at birth when using grid files
-//                                      - Issue #266 - Corrected calculation in BaseBinaryStar::SampleInitialMassDistribution() for KROUPA IMF distribution
-//                                      - Issue #275 - Previous stellar type not set when stellar type is switched mid-timestep - now fixed
-// 02.11.05      IM - Jun 26, 2020 - Defect repair:
-//					                            - Issue #280 - Stars undergoing RLOF at ZAMS after masses are equalised were removed from run even if AllowRLOFatZAMS set
-// 02.12.00      IM - Jun 29, 2020 - Defect repair:
-//                                      - Issue 277 - move UpdateAttributesAndAgeOneTimestepPreamble() to after ResolveSupernova() to avoid inconsistency
-// 02.12.01      IM - Jul 18, 2020 - Enhancement:
-//                                      - Starting to clean up mass transfer functionality
-// 02.12.02      IM - Jul 23, 2020 - Enhancement:
-//                                      - Change to thermal timescale MT for both donor and accretor to determine MT stability
-// 02.12.03      IM - Jul 23, 2020 - Enhancement:
-//                                      - Introduced a new ENVELOPE_STATE_PRESCRIPTION to deal with different prescriptions for convective vs. radiative envelopes (no actual behaviour changes yet for ENVELOPE_STATE_PRESCRIPTION::LEGACY);
-//                                      - Removed unused COMMON_ENVELOPE_PRESCRIPTION
-// 02.12.04      IM - Jul 24, 2020 - Enhancement:
-//                                      - Changed temperatures to be written in Kelvin (see issue #278)
-// 02.12.05      IM - Jul 25, 2020 - Enhancement:
-//                                      - Added definition of FIXED_TEMPERATURE prescription to DetermineEnvelopeType()
-//                                      - Removed unnecessary (and inaccurate) numerical zeta Roche lobe calculation
-// 02.12.06      IM - Jul 26, 2020 - Enhancement:
-//                                      - Extended use of zetaRadiativeEnvelopeGiant (formerley zetaHertzsprungGap) for all radiative envelope giant-like stars
-// 02.12.07      IM - Jul 26, 2020 - Defect repair:
-//                                      - Issue 295: do not engage in mass transfer if the binary is unbound
-// 02.12.08   	AVG - Jul 26, 2020 - Defect repair:
-//                                      - Issue #269: legacy bug in eccentric RLOF leading to a CEE
-// 02.12.09      IM - Jul 30, 2020 - Enhancement:
-//                                      - Cleaning of BaseBinaryStar::CalculateMassTransferOrbit(); dispensed with mass-transfer-prescription option
-// 02.13.00      IM - Aug 2, 2020  - Enhancements and defect repairs:
-//                                      - Simplified timescale calculations in BaseBinaryStar
-//                                      - Replaced Fast Phase Case A MT and regular RLOF MT from non-envelope stars with a single function based on a root solver rather than random guesses (significantly improves accuracy)
-//                                      - Removed all references to fast phase case A MT
-//                                      - Corrected failure to update stars in InitialiseMassTransfer if orbit circularised on mass transfer
-//                                      - Corrected incorrect timestep calculation for HeHG stars
-// 02.13.01     AVG - Aug 6, 2020  - Defect repair:
-//										- Issue #267: Use radius of the star instead of Roche-lobe radius throughout ResolveCommonEnvelopeEvent()
-// 02.13.02      IM - Aug 8, 2020  - Enhancements and defect repairs:
-//                                      - Simplified random draw from Maxwellian distribution to use gsl libraries
-//                                      - Fixed mass transfer with fixed accretion rate
-//                                      - Cleaned up code and removed unused code
-//                                      - Updated documentation
-// 02.13.03       IM - Aug 9, 2020  - Enhancements and defect repairs:
-//                                      - Use total core mass rather than He core mass in calls to CalculateZAdiabtic (see Issue #300)
-//                                      - Set He core mass to equal the CO core mass when the He shell is stripped (see issue #277)
-//                                      - Ultra-stripped SNe are set at core collapse (do not confusingly refer to stripped stars as previously, see issue #189)
-// 02.13.04       IM - Aug 14, 2020 - Enhancements and defect repairs:
-//                                      - Catch exception in boost root finder for mass transfer (resolve issue #317)
-//                                      - Update core masses during Initialisation of HG and HeHG stars to be consistent with Hurley models
-//                                      - Avoid division by zero in mass transfer rates of WDs
-//                                      - Remove POSTITNOTE remnant mass prescription
-// 02.13.05       IM - Aug 16, 2020 - Enhancements and defect repairs:
-//                                      - General code cleaning
-//                                      - Removed some redundant variables (e.g., m_EnvMass, which can be computed from m_Mass and m_CoreMass)
-//                                      - Removed calculations of ZetaThermal and ZetaNuclear (these were previously incorrect because they relied on the evolution of a stellar copy which reverted to BaseStar and therefore didn't have the correct behaviour)
-//                                      - Fixed CalculateZadiabatic to use ZetaAdiabaticArbitrary rather than ZetaThermalArbitrary; removed the latter
-//                                      - Capped He core mass gain during shell H burning for CHeB and TPAGB stars, whose on-phase evolution now ends promptly when this limit is reached; this change also resolves issue #315 (higher mass SN remnants than total stellar mass)
-// 02.13.06     AVG - Aug 20, 2020  - Defect repair:
-//										- Issue #229: Corrected fitting parameters in Muller 16 SN kick function
-// 02.13.07      IM - Aug 20, 2020  - Enhancements:
-//                                      - ONeWDs can now undergo ECSN if their mass rises above MECS=1.38 solar masses (previously, they could only undergo CCSN on rising above 1.38 solar masses).  ONeWD::CalculateInitialSupernovaMass now returns MCBUR1 rather than 5.0 to ensure this happens
-//                                      - BaseStar::CalculateMaximumCoreMassSN() has been removed — it’s superfluous since  GiantBranch::CalculateCoreMassAtSupernova_Static does the same thing
-//                                      - Some misleading comments in TPAGB dealing with SNe have been clarified
-//                                      - Option to set MCBUR1 [minimum core mass at base of the AGB to avoid fully degenerate CO core formation] to a value different from the Hurley default of 1.6 solar masses added, Issue #65 resolved
-//                                      - Removed unused Options::SetToFiducialValues()
-//                                      - Documentation updated
-// 02.13.08       JR - Aug 20, 2020 - Code cleanup:
-//                                      - moved BaseStar::SolveKeplersEquation() to utils
-//                                      - changed call to (now) utils::SolveKeplersEquation() in BaseStar::CalculateSNAnomalies() to accept tuple with error and show error/warning as necessary
-//                                      - removed call to std::cerr from utils::SolveQuadratic() - now returns error if equation has no real roots
-//                                      - changed call to utils::SolveQuadratic() in GiantBranch::CalculateGravitationalRemnantMass() to accept tuple with error and show warning as necessary
-//                                      - changed RadiusEqualsRocheLobeFunctor() in BinaryBaseStar.h to not use the SHOW_WARN macro (can't uset ObjectId() function inside a templated function - no object)
-//                                      - changed COMMANDLINE_STATUS to PROGRAM_STATUS (better description)
-//                                      - moved ERROR:NONE to top of enum in constants.h (so ERROR = 0 = NONE - makes more sense...)
-//                                      - added new program option '--enable-warnings' to enable warning messages (via SHOW_WARN macros).  Default is false.  SHOW_WARN macros were previously #undefined
-
-
-const std::string VERSION_STRING = "02.13.08";
-
-
-
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
 
 typedef std::vector<double>                                             DBL_VECTOR;
@@ -543,34 +168,42 @@ constexpr double DEFAULT_INITIAL_BOOLEAN_VALUE          = false;                
 
 // conversion constants
 
+// mass
 constexpr double G_TO_KG                                = 1.0E-3;                                                   // convert grams to kg
+constexpr double MSOL_TO_G                              = 1.988E33;                                                 // convert Solar Mass to grams
+constexpr double MSOL_TO_KG                             = 1.988E30;                                                 // convert Solar Mass to kg
+constexpr double KG_TO_MSOL                             = 1.0 / MSOL_TO_KG;                                         // convert Solar Mass to kg
 
+// length
 constexpr double KM_TO_CM 					            = 1.0E5;									                // convert km to cm
+constexpr double KM_TO_M                                = 1000 ;                                                    // convert km to m
 constexpr double CM_TO_M                                = 1.0E-2;                                                   // convert cm to m
-constexpr double KM_TO_M                                = 1000 ;                                                    //convert km to m
-
-constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
-constexpr double GAUSS_TO_TESLA                         = 1.0E-4;                                                   // convert Gauss to Tesla
-
-constexpr double JOULES_TO_ERG                          = 1.0E7;                                                    // convert Joules to Erg
-
-constexpr double SECONDS_IN_YEAR                        = 31556926.0;                                               // number of second in 1 year
-constexpr double SECONDS_IN_DAY                         = SECONDS_IN_YEAR * 4.0 / 1461.0;                           // number of second in 1 day
-constexpr double SECONDS_IN_MS                          = 1.0E-3;                                                   // number of second in 1 millisecond
-constexpr double SECONDS_IN_MYR                         = 31556926.0 * 1.0E6;                                       // number of second in 1 Myr
-
-constexpr double MYR_TO_YEAR                            = 1.0E6;                                                    // convert Myr to year
-constexpr double YEAR_TO_MYR                            = 1.0E-6;                                                   // convert year to Myr
 
 constexpr double RSOL_TO_KM                             = 6.957E5;                                                  // convert Solar Radius (RSOL) to km
 constexpr double RSOL_TO_CM                             = 6.957E10;                                                 // convert Solar Radius (RSOL) to cm
 constexpr double RSOL_TO_AU                             = 0.00465047;                                               // convert Solar Radius (RSOL) to AU
-constexpr double KM_TO_RSOL					            = 1.0 / RSOL_TO_KM;						                    // convert km to Solar Radius (RSOL)
-
-constexpr double MSOL_TO_G                              = 1.988E33;                                                 // convert Solar Mass to grams
 
 constexpr double AU_TO_CM                               = 14959787070000.0;                                         // convert Astronomical Units (AU) to cm
 constexpr double AU_TO_RSOL				                = 1.0 / RSOL_TO_AU;                                         // convert Astronomical Units AU to Solar Radius RSOL
+constexpr double AU_TO_KM                               = AU_TO_CM / 1.0E5;                                         // convert Astronomical Units AU to km
+
+constexpr double KM_TO_RSOL					            = 1.0 / RSOL_TO_KM;						                    // convert km to Solar Radius (RSOL)
+constexpr double KM_TO_AU                               = 1.0 / AU_TO_KM;                                           // convert km to Astronomical Units AU
+
+// time
+constexpr double SECONDS_IN_YEAR                        = 31556926.0;                                               // number of second in 1 year
+constexpr double SECONDS_IN_DAY                         = SECONDS_IN_YEAR * 4.0 / 1461.0;                           // number of second in 1 day
+constexpr double SECONDS_IN_MS                          = 1.0E-3;                                                   // number of second in 1 millisecond
+constexpr double SECONDS_IN_MYR                         = 31556926.0 * 1.0E6;                                       // number of second in 1 Myr
+constexpr double MYR_TO_YEAR                            = 1.0E6;                                                    // convert Myr to year
+constexpr double YEAR_TO_MYR                            = 1.0E-6;                                                   // convert year to Myr
+
+// energy
+constexpr double JOULES_TO_ERG                          = 1.0E7;                                                    // convert Joules to Erg
+
+// B field
+constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
+constexpr double GAUSS_TO_TESLA                         = 1.0E-4;                                                   // convert Gauss to Tesla
 
 
 // constants
@@ -589,7 +222,6 @@ constexpr double G                                      = 6.67E-11;             
 constexpr double G_CGS                                  = 6.6743E-8;                                                // Gravitational constant in cm^3 g^-1 s^-2
 constexpr double G1                                     = 4.0 * M_PI * M_PI;                                        // Gravitational constant in AU^3 Msol^-1 yr^-2
 
-constexpr double MSOL                                   = 1.988E30;                                                 // Solar Mass (in kg)
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
 constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
@@ -634,7 +266,7 @@ constexpr double MAXIMUM_MASS_LOSS_FRACTION             = 0.01;                 
 constexpr double MAXIMUM_RADIAL_CHANGE                  = 0.01;                                                     // Maximum allowable radial change - 1% (of radius) expressed as a fraction
 constexpr double MINIMUM_MASS_SECONDARY                 = 4.0;                                                      // Minimum mass of secondary to evolve
 
-constexpr double   MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP	 = 0.001;                                               // Maximal fraction of donor mass that can be transferred in one step of stable mass transfer
+constexpr double MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP	 = 0.001;                                               // Maximal fraction of donor mass that can be transferred in one step of stable mass transfer
 
 constexpr double LAMBDA_NANJING_ZLIMIT                  = 0.0105;                                                   // Metallicity cutoff for Nanjing lambda calculations
 
@@ -2024,7 +1656,7 @@ enum class BINARY_PROPERTY: int {
     MASS_TRANSFER_TRACKER_HISTORY,
     MERGES_IN_HUBBLE_TIME,
     OPTIMISTIC_COMMON_ENVELOPE,
-    ORBITAL_VELOCITY,
+    ORBITAL_ANGULAR_VELOCITY,
     ORBITAL_VELOCITY_PRE_SUPERNOVA,
     RADIUS_1_POST_COMMON_ENVELOPE,
     RADIUS_1_PRE_COMMON_ENVELOPE,
@@ -2099,7 +1731,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::ECCENTRICITY_AT_DCO_FORMATION,                      "ECCENTRICITY_AT_DCO_FORMATION" },
     { BINARY_PROPERTY::ECCENTRICITY_INITIAL,                               "ECCENTRICITY_INITIAL" },
     { BINARY_PROPERTY::ECCENTRICITY_POST_COMMON_ENVELOPE,                  "ECCENTRICITY_POST_COMMON_ENVELOPE" },
-    { BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,                     "ECCENTRICITY_PRE_SUPERNOVA" },
+    { BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,                         "ECCENTRICITY_PRE_SUPERNOVA" },
     { BINARY_PROPERTY::ECCENTRICITY_PRE_COMMON_ENVELOPE,                   "ECCENTRICITY_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::ECCENTRICITY_PRIME,                                 "ECCENTRICITY_PRIME" },
     { BINARY_PROPERTY::ERROR,                                              "ERROR" },
@@ -2119,8 +1751,8 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,                      "MASS_TRANSFER_TRACKER_HISTORY" },
     { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                              "MERGES_IN_HUBBLE_TIME" },
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                         "OPTIMISTIC_COMMON_ENVELOPE" },
-    { BINARY_PROPERTY::ORBITAL_VELOCITY,                                   "ORBITAL_VELOCITY" },
-    { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                 "ORBITAL_VELOCITY_PRE_SUPERNOVA" },
+    { BINARY_PROPERTY::ORBITAL_ANGULAR_VELOCITY,                           "ORBITAL_ANGULAR_VELOCITY" },
+    { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                     "ORBITAL_VELOCITY_PRE_SUPERNOVA" },
     { BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,                      "RADIUS_1_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::RADIUS_1_PRE_COMMON_ENVELOPE,                       "RADIUS_1_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE,                      "RADIUS_2_POST_COMMON_ENVELOPE" },
@@ -2138,8 +1770,8 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION,                   "SEMI_MAJOR_AXIS_AT_DCO_FORMATION" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,                            "SEMI_MAJOR_AXIS_INITIAL" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,               "SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE" },
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                  "SEMI_MAJOR_AXIS_PRE_SUPERNOVA" },
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,             "SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL" },
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                      "SEMI_MAJOR_AXIS_PRE_SUPERNOVA" },
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,                 "SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                "SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME,                              "SEMI_MAJOR_AXIS_PRIME" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL,                         "SEMI_MAJOR_AXIS_PRIME_RSOL" },
@@ -2334,9 +1966,9 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::MEAN_ANOMALY,                                      { TYPENAME::DOUBLE,         "SN_Kick_Mean_Anomaly", "-",                14, 6 }},
     { ANY_STAR_PROPERTY::SUPERNOVA_PHI,                                     { TYPENAME::DOUBLE,         "SN_Kick_Phi",          "-",                14, 6 }},
     { ANY_STAR_PROPERTY::SUPERNOVA_THETA,                                   { TYPENAME::DOUBLE,         "SN_Kick_Theta",        "-",                14, 6 }},
-    { ANY_STAR_PROPERTY::TEMPERATURE,                                       { TYPENAME::DOUBLE,         "Teff",                 "K",             14, 6 }},
-    { ANY_STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE,                  { TYPENAME::DOUBLE,         "Teff>CE",              "K",             14, 6 }},
-    { ANY_STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Teff<CE",              "K",             14, 6 }},
+    { ANY_STAR_PROPERTY::TEMPERATURE,                                       { TYPENAME::DOUBLE,         "Teff",                 "K",                14, 6 }},
+    { ANY_STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE,                  { TYPENAME::DOUBLE,         "Teff>CE",              "K",                14, 6 }},
+    { ANY_STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Teff<CE",              "K",                14, 6 }},
     { ANY_STAR_PROPERTY::THERMAL_TIMESCALE,                                 { TYPENAME::DOUBLE,         "Tau_Thermal",          "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::THERMAL_TIMESCALE_POST_COMMON_ENVELOPE,            { TYPENAME::DOUBLE,         "Tau_Thermal>CE",       "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::THERMAL_TIMESCALE_PRE_COMMON_ENVELOPE,             { TYPENAME::DOUBLE,         "Tau_Thermal<CE",       "Myr",              16, 8 }},
@@ -2357,7 +1989,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_LUMINOSITY,              { TYPENAME::DOUBLE,         "Companion_Lum",        "Lsol",             14, 6 }},
     { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_MASS,                    { TYPENAME::DOUBLE,         "Companion_Mass",       "Msol",             14, 6 }},
     { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_RADIUS,                  { TYPENAME::DOUBLE,         "Companion_Radius",     "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_TEFF,                    { TYPENAME::DOUBLE,         "Companion_Teff",       "K",             14, 6 }},
+    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_TEFF,                    { TYPENAME::DOUBLE,         "Companion_Teff",       "K",                14, 6 }},
     { BINARY_PROPERTY::BE_BINARY_CURRENT_DT,                                { TYPENAME::DOUBLE,         "dT",                   "Myr",              16, 8 }},
     { BINARY_PROPERTY::BE_BINARY_CURRENT_ECCENTRICITY,                      { TYPENAME::DOUBLE,         "Eccentricity",         "-",                14, 6 }},
     { BINARY_PROPERTY::BE_BINARY_CURRENT_ID,                                { TYPENAME::OBJECT_ID,      "ID",                   "-",                12, 1 }},
@@ -2377,7 +2009,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::ECCENTRICITY_AT_DCO_FORMATION,                       { TYPENAME::DOUBLE,         "Eccentricity@DCO",     "-",                14, 6 }},
     { BINARY_PROPERTY::ECCENTRICITY_INITIAL,                                { TYPENAME::DOUBLE,         "Eccentricity@ZAMS",    "-",                14, 6 }},
     { BINARY_PROPERTY::ECCENTRICITY_POST_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Eccentricity>CE",      "-",                14, 6 }},
-    { BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,                      { TYPENAME::DOUBLE,         "Eccentricity<SN",   "-",                14, 6 }},
+    { BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,                          { TYPENAME::DOUBLE,         "Eccentricity<SN",      "-",                14, 6 }},
     { BINARY_PROPERTY::ECCENTRICITY_PRE_COMMON_ENVELOPE,                    { TYPENAME::DOUBLE,         "Eccentricity<CE",      "-",                14, 6 }},
     { BINARY_PROPERTY::ECCENTRICITY_PRIME,                                  { TYPENAME::DOUBLE,         "Eccentricity",         "-",                14, 6 }},
     { BINARY_PROPERTY::ERROR,                                               { TYPENAME::ERROR,          "Error",                "-",                 4, 1 }},
@@ -2397,7 +2029,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,                       { TYPENAME::MT_TRACKING,    "MT_History",           "-",                 4, 1 }},
     { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                               { TYPENAME::BOOL,           "Merges_Hubble_Time",   "State",             0, 0 }},
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                          { TYPENAME::BOOL,           "Optimistic_CE",        "State",             0, 0 }},
-    { BINARY_PROPERTY::ORBITAL_VELOCITY,                                    { TYPENAME::DOUBLE,         "Orbital_Velocity",     "kms^-1",           14, 6 }},
+    { BINARY_PROPERTY::ORBITAL_ANGULAR_VELOCITY,                            { TYPENAME::DOUBLE,         "Orbital_Angular_Velocity", "kms^-1",       14, 6 }},
     { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                  	{ TYPENAME::DOUBLE,         "Orb_Velocity<SN",   	"kms^-1",           14, 6 }},
     { BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,         "Radius_1>CE",          "Rsol",             14, 6 }},
     { BINARY_PROPERTY::RADIUS_1_PRE_COMMON_ENVELOPE,                        { TYPENAME::DOUBLE,         "Radius_1<CE",          "Rsol",             14, 6 }},
@@ -2441,8 +2073,8 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM_PRIME,                        { TYPENAME::DOUBLE,         "Ang_Momentum_Total",   "Msol*AU^2*yr^-1",  14, 6 }},
     { BINARY_PROPERTY::TOTAL_ENERGY_PRIME,                                  { TYPENAME::DOUBLE,         "Energy_Total",         "Msol*AU^2*yr^-2",  14, 6 }},
     { BINARY_PROPERTY::WOLF_RAYET_FACTOR,                                   { TYPENAME::DOUBLE,         "WR_Multiplier",        "-",                14, 6 }},
-    { BINARY_PROPERTY::ZETA_LOBE,                                           { TYPENAME::DOUBLE,         "Zeta_Lobe",   "-",                14, 6 }},
-    { BINARY_PROPERTY::ZETA_STAR,                                           { TYPENAME::DOUBLE,         "Zeta_Star",    "-",                14, 6 }}
+    { BINARY_PROPERTY::ZETA_LOBE,                                           { TYPENAME::DOUBLE,         "Zeta_Lobe",            "-",                14, 6 }},
+    { BINARY_PROPERTY::ZETA_STAR,                                           { TYPENAME::DOUBLE,         "Zeta_Star",            "-",                14, 6 }}
 };
 
 // enum class PROGRAM_OPTION_DETAIL
@@ -2488,7 +2120,6 @@ const ANY_PROPERTY_VECTOR SSE_PARAMETERS_REC = {
 // Default record definition for the Binary System Parameters logfile
 //
 const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
-    BINARY_PROPERTY::ID,
     BINARY_PROPERTY::RANDOM_SEED,
     STAR_1_PROPERTY::MZAMS,
     STAR_2_PROPERTY::MZAMS,
@@ -2513,7 +2144,6 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
     BINARY_PROPERTY::COMMON_ENVELOPE_ALPHA,
     STAR_1_PROPERTY::METALLICITY,
     STAR_2_PROPERTY::METALLICITY,
-    // BINARY_PROPERTY::SECONDARY_TOO_SMALL_FOR_DCO,
     BINARY_PROPERTY::UNBOUND,
     BINARY_PROPERTY::STELLAR_MERGER,
     BINARY_PROPERTY::STELLAR_MERGER_AT_BIRTH,
@@ -2530,22 +2160,20 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
 // Default record definition for the Binary Double Compact Objects logfile
 //
 const ANY_PROPERTY_VECTOR BSE_DOUBLE_COMPACT_OBJECTS_REC = {
-    BINARY_PROPERTY::ID,
     BINARY_PROPERTY::RANDOM_SEED,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION, 
     BINARY_PROPERTY::ECCENTRICITY_AT_DCO_FORMATION,
     STAR_1_PROPERTY::MASS,
     STAR_1_PROPERTY::STELLAR_TYPE,
-    STAR_2_PROPERTY::MASS, // floor: remove (its in SN) ?
+    STAR_2_PROPERTY::MASS, 
     STAR_2_PROPERTY::STELLAR_TYPE,
     BINARY_PROPERTY::TIME_TO_COALESCENCE,
     BINARY_PROPERTY::TIME,
-    // BINARY_PROPERTY::RLOF_SECONDARY_POST_COMMON_ENVELOPE,
-    STAR_1_PROPERTY::MASS_TRANSFER_CASE_INITIAL, // floor: remove (its in RLOF) ?
-    STAR_2_PROPERTY::MASS_TRANSFER_CASE_INITIAL, // floor: remove (its in RLOF) ?
+    STAR_1_PROPERTY::MASS_TRANSFER_CASE_INITIAL, 
+    STAR_2_PROPERTY::MASS_TRANSFER_CASE_INITIAL, 
     BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME, 
-    STAR_1_PROPERTY::RECYCLED_NEUTRON_STAR,  // floor: remove (its in RLOF) ?
-    STAR_2_PROPERTY::RECYCLED_NEUTRON_STAR,  // floor: remove (its in RLOF) ?
+    STAR_1_PROPERTY::RECYCLED_NEUTRON_STAR,  
+    STAR_2_PROPERTY::RECYCLED_NEUTRON_STAR,  
 };
 
 
@@ -2573,7 +2201,6 @@ const ANY_PROPERTY_VECTOR BSE_BE_BINARIES_REC = {
 // Default record definition for the Binary Detailed Output logfile
 //
 const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
-    BINARY_PROPERTY::ID,
     BINARY_PROPERTY::RANDOM_SEED,
     BINARY_PROPERTY::DT,
     BINARY_PROPERTY::TIME,
@@ -2664,9 +2291,7 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
 // Default record definition for the Binary Pulsar Evolution logfile
 //
 const ANY_PROPERTY_VECTOR BSE_PULSAR_EVOLUTION_REC = {
-    BINARY_PROPERTY::ID,
     BINARY_PROPERTY::RANDOM_SEED,
-    // BINARY_PROPERTY::UNBOUND,
     STAR_1_PROPERTY::MASS,
     STAR_2_PROPERTY::MASS,
     STAR_1_PROPERTY::STELLAR_TYPE,
@@ -2689,18 +2314,16 @@ const ANY_PROPERTY_VECTOR BSE_PULSAR_EVOLUTION_REC = {
 // Default record definition for the Binary Supernovae logfile
 //
 const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
-    BINARY_PROPERTY::ID,
     BINARY_PROPERTY::RANDOM_SEED,
     SUPERNOVA_PROPERTY::DRAWN_KICK_VELOCITY,
     SUPERNOVA_PROPERTY::KICK_VELOCITY,
     SUPERNOVA_PROPERTY::FALLBACK_FRACTION,
     BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,
-    BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY, // remove?  (its in systemParameters)
-    SUPERNOVA_PROPERTY::TRUE_ANOMALY,				// remove?  (its in systemParameters)
-    SUPERNOVA_PROPERTY::SUPERNOVA_THETA, // remove?  (its in systemParameters)
-    SUPERNOVA_PROPERTY::SUPERNOVA_PHI, // remove?  (its in systemParameters)
+    BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY, 
+    SUPERNOVA_PROPERTY::TRUE_ANOMALY,				
+    SUPERNOVA_PROPERTY::SUPERNOVA_THETA,
+    SUPERNOVA_PROPERTY::SUPERNOVA_PHI,
     SUPERNOVA_PROPERTY::SN_TYPE,
-    // SUPERNOVA_PROPERTY::EXPERIENCED_SN_TYPE,
     BINARY_PROPERTY::UNBOUND,
     SUPERNOVA_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,
     COMPANION_PROPERTY::MASS,
@@ -2713,13 +2336,12 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     COMPANION_PROPERTY::STELLAR_TYPE_PREV,
     SUPERNOVA_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
     SUPERNOVA_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
-    // BINARY_PROPERTY::STABLE_RLOF_POST_COMMON_ENVELOPE, 
-    // SUPERNOVA_PROPERTY::RLOF_ONTO_NS, // (does not work currently?)
+
     BINARY_PROPERTY::TIME,
-    BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,  // floor: we want a Eccentricity<SN and Eccentricity>SN; how to do this?
-	BINARY_PROPERTY::ECCENTRICITY,
+    BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,  
+    BINARY_PROPERTY::ECCENTRICITY,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,
-	BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL,
+    BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL,
     BINARY_PROPERTY::SYSTEMIC_VELOCITY,
     SUPERNOVA_PROPERTY::HYDROGEN_RICH,
     SUPERNOVA_PROPERTY::HYDROGEN_POOR,
@@ -2732,7 +2354,6 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
 // Default record definition for the Binary Common Envelopes logfile
 //
 const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
-    BINARY_PROPERTY::ID,
     BINARY_PROPERTY::RANDOM_SEED,
     BINARY_PROPERTY::TIME,
     STAR_1_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,

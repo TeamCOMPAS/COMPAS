@@ -1,4 +1,5 @@
 #include "Options.h"
+#include "changelog.h"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;

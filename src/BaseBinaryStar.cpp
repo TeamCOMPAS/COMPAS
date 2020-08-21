@@ -8,7 +8,7 @@
  *
  * Parameter p_Id is optional, and is only included so that comparison tests can
  * be run against the legacy Compas code.  If a fixed random seed is being used
- * (program option) the legacy code effectivley adds the loop index of the binary
+ * (program option) the legacy code effectively adds the loop index of the binary
  * (from COMPASBinary() in main.cpp) to the user-specified fixed random seed so
  * that each binary has a repeatable random seed.
  *
@@ -267,18 +267,18 @@ void BaseBinaryStar::SetRemainingCommonValues() {
     m_EccentricityAtDCOFormation  = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 
-    m_OrbitalVelocity             = sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); // rads/year
+    m_OrbitalAngularVelocity      = sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); // rads/year
+    m_OrbitalAngularVelocityPrime = m_OrbitalAngularVelocity;
+    m_OrbitalAngularVelocityPrev  = m_OrbitalAngularVelocity;
 
-    m_OrbitalVelocityPrime        = m_OrbitalVelocity;
-    m_OrbitalVelocityPrev         = m_OrbitalVelocity;
     m_OrbitalVelocityPreSN        = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 
     // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
     if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) {
 
-        m_Star1->SetOmega(m_OrbitalVelocity);
-        m_Star2->SetOmega(m_OrbitalVelocity);
+        m_Star1->SetOmega(m_OrbitalAngularVelocity);
+        m_Star2->SetOmega(m_OrbitalAngularVelocity);
 
         // check for CHE
         //
@@ -291,7 +291,7 @@ void BaseBinaryStar::SetRemainingCommonValues() {
         // newly-assigned rotational frequencies
 
         // star 1
-        if (utils::Compare(m_OrbitalVelocity, m_Star1->OmegaCHE()) >= 0) {                                                                              // star 1 CH?
+        if (utils::Compare(m_OrbitalAngularVelocity, m_Star1->OmegaCHE()) >= 0) {                                                                              // star 1 CH?
             if (m_Star1->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star1->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not alread Chemically Homogeneous
         }
         else if (m_Star1->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
@@ -302,7 +302,7 @@ void BaseBinaryStar::SetRemainingCommonValues() {
         }
 
         // star 2
-        if (utils::Compare(m_OrbitalVelocity, m_Star2->OmegaCHE()) >= 0) {                                                                              // star 2 CH?
+        if (utils::Compare(m_OrbitalAngularVelocity, m_Star2->OmegaCHE()) >= 0) {                                                                              // star 2 CH?
             if (m_Star2->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star2->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not alread Chemically Homogeneous
         }
         else if (m_Star2->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
@@ -323,7 +323,7 @@ void BaseBinaryStar::SetRemainingCommonValues() {
                                                                         m_Star2->RZAMS(),
                                                                         m_Star1->Omega(),
                                                                         m_Star2->Omega(),
-                                                                        m_OrbitalVelocityPrime,
+                                                                        m_OrbitalAngularVelocityPrime,
                                                                         gyrationRadius1,
                                                                         gyrationRadius2);
 
@@ -345,11 +345,11 @@ void BaseBinaryStar::SetRemainingCommonValues() {
 	m_TotalMassPrev						         = m_TotalMassPrime;
 	m_ReducedMassPrime					         = (m_Star1->Mass() * m_Star2->Mass()) / m_TotalMassPrime;
 	m_ReducedMassPrev					         = m_ReducedMassPrime;
-	m_TotalOrbitalEnergyPrime 			         = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
-	m_TotalOrbitalEnergyPrev 			         = m_TotalOrbitalEnergyPrime;
+	m_OrbitalEnergyPrime 			         = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
+	m_OrbitalEnergyPrev 			         = m_OrbitalEnergyPrime;
 
-	m_TotalOrbitalAngularMomentumPrime 	         = CalculateOrbitalAngularMomentum(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
-	m_TotalOrbitalAngularMomentumPrev 	         = m_TotalOrbitalAngularMomentumPrime;
+	m_OrbitalAngularMomentumPrime 	         = CalculateOrbitalAngularMomentum(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
+	m_OrbitalAngularMomentumPrev 	         = m_OrbitalAngularMomentumPrime;
 
     m_Time                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_Dt                                         = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -524,7 +524,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_LUMINOSITY:               value = BeBinaryDetails().currentProps->companionLuminosity;                break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_MASS:                     value = BeBinaryDetails().currentProps->companionMass;                      break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_RADIUS:                   value = BeBinaryDetails().currentProps->companionRadius;                    break;
-        case BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_TEFF:                     value = BeBinaryDetails().currentProps->companionTeff * TSOL;                      break;
+        case BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_TEFF:                     value = BeBinaryDetails().currentProps->companionTeff * TSOL;               break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_DT:                                 value = BeBinaryDetails().currentProps->dt;                                 break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_ECCENTRICITY:                       value = BeBinaryDetails().currentProps->eccentricity;                       break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_ID:                                 value = BeBinaryDetails().currentProps->id;                                 break;
@@ -537,14 +537,14 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE:                        value = CEAtLeastOnce();                                                    break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT:                          value = CommonEnvelopeEventCount();                                         break;
         case BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY:                          value = UK();                                                               break;
-        case BINARY_PROPERTY::UNBOUND:                                              value = Unbound();                                                         break;
+        case BINARY_PROPERTY::UNBOUND:                                              value = Unbound();                                                          break;
         case BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE:                          value = DoubleCoreCE();                                                     break;
         case BINARY_PROPERTY::DT:                                                   value = Dt();                                                               break;
         case BINARY_PROPERTY::ECCENTRICITY:                                         value = Eccentricity();                                                     break;
         case BINARY_PROPERTY::ECCENTRICITY_AT_DCO_FORMATION:                        value = EccentricityAtDCOFormation();                                       break;
         case BINARY_PROPERTY::ECCENTRICITY_INITIAL:                                 value = EccentricityInitial();                                              break;
         case BINARY_PROPERTY::ECCENTRICITY_POST_COMMON_ENVELOPE:                    value = EccentricityPostCEE();                                              break;
-        case BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA:                       value = EccentricityPreSN();                                                break;
+        case BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA:                           value = EccentricityPreSN();                                                break;
         case BINARY_PROPERTY::ECCENTRICITY_PRE_COMMON_ENVELOPE:                     value = EccentricityPreCEE();                                               break;
         case BINARY_PROPERTY::ECCENTRICITY_PRIME:                                   value = EccentricityPrime();                                                break;
         case BINARY_PROPERTY::ERROR:                                                value = Error();                                                            break;
@@ -564,8 +564,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY:                        value = MassTransferTrackerHistory();                                       break;
         case BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME:                                value = MergesInHubbleTime();                                               break;
         case BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE:                           value = OptimisticCommonEnvelope();                                         break;
-        case BINARY_PROPERTY::ORBITAL_VELOCITY:                                     value = OrbitalVelocity();                                                  break;
-        case BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA:                   value = OrbitalVelocityPreSN();                                             break;
+        case BINARY_PROPERTY::ORBITAL_ANGULAR_VELOCITY:                             value = OrbitalAngularVelocity();                                           break;
+        case BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA:                       value = OrbitalVelocityPreSN();                                             break;
         case BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE:                        value = Radius1PostCEE();                                                   break;
         case BINARY_PROPERTY::RADIUS_1_PRE_COMMON_ENVELOPE:                         value = Radius1PreCEE();                                                    break;
         case BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE:                        value = Radius2PostCEE();                                                   break;
@@ -583,8 +583,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION:                     value = SemiMajorAxisAtDCOFormation();                                      break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL:                              value = SemiMajorAxisInitial();                                             break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE:                 value = SemiMajorAxisPostCEE();                                             break;
-        case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA:                    value = SemiMajorAxisPreSN();                                               break;
-        case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL:               value = SemiMajorAxisPreSN() * AU_TO_RSOL;                                  break;
+        case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA:                        value = SemiMajorAxisPreSN();                                               break;
+        case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL:                   value = SemiMajorAxisPreSN() * AU_TO_RSOL;                                  break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE:                  value = SemiMajorAxisPreCEE();                                              break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME:                                value = SemiMajorAxisPrime();                                               break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL:                           value = SemiMajorAxisPrime() * AU_TO_RSOL;                                  break;
@@ -1367,7 +1367,7 @@ void BaseBinaryStar::ResolveCoalescence() {
     m_SemiMajorAxisAtDCOFormation = m_SemiMajorAxisPrime;
     m_EccentricityAtDCOFormation  = m_Eccentricity;
 
-    double tC           = CalculateTimeToCoalescence(m_SemiMajorAxisPrime * AU, m_Eccentricity, m_Star1->Mass() * MSOL, m_Star2->Mass() * MSOL);
+    double tC           = CalculateTimeToCoalescence(m_SemiMajorAxisPrime * AU, m_Eccentricity, m_Star1->Mass() * MSOL_TO_KG, m_Star2->Mass() * MSOL_TO_KG);
     m_TimeToCoalescence = (tC / SECONDS_IN_YEAR) * YEAR_TO_MYR;                                                                                 // coalescence time in Myrs
 
     if (utils::Compare(tC, HUBBLE_TIME) < 0) {                                                                                                  // shorter than HubbleTime (will need to worry about time delays eventually and time when born)
@@ -1615,7 +1615,7 @@ bool BaseBinaryStar::ResolveSupernova() {
     // Since this equation contains 'G', all other quantities must be in SI to get answer in ms^-1
 
 	vK                       *= KM;                                                                                                 // convert vK to m s^-1.  Would be nice to draw this in nicer units to avoid this secion
-	m_VRel                    = sqrt(G * (totalMass * MSOL) * ((2.0 / (m_Radius * AU)) - (1.0 / (m_SemiMajorAxisPrime * AU))));     // orbital velocity
+	m_VRel                    = sqrt(G * (totalMass * MSOL_TO_KG) * ((2.0 / (m_Radius * AU)) - (1.0 / (m_SemiMajorAxisPrime * AU))));     // orbital velocity
 	m_uK                      = OPTIONS->UseFixedUK() ? OPTIONS->FixedUK() : vK / m_VRel;                                           // fix uK to user-defined value if required, otherwise calculate it.  uK is dimensionless
 	m_OrbitalVelocityPreSN    = m_VRel;                                                                                             // since the kick velocity always occurs in equations as vk/vrel, we need to know vrel
 
@@ -1623,12 +1623,12 @@ bool BaseBinaryStar::ResolveSupernova() {
 	//                       SHOULD BE BACK TO NICE UNITS NOW                        //
 	///////////////////////////////////////////////////////////////////////////////////
 
-    m_Supernova->SetPreSNeOrbitalEnergy(CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxisPrime));                      // pre-SN orbital energy - should be -ve by construction
+    m_Supernova->SetOrbitalEnergyPreSN(CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxisPrime));                      // pre-SN orbital energy - should be -ve by construction
 
 	// seemed to be getting into this loop occasionally with E > 0 but E ~ 0 (1e-37 for example) -- what's going on?
     // JR: todo: remove this if we're not seeing the problem...
     // don't use utils::Compare() here - let's see if this turns up as a problem
-    DBG_ID_IF(m_Supernova->PreSNeOrbitalEnergy() > 0.0, "orbitalEnergy > 0! totalMass = " << totalMass << ", reducedMass = " << reducedMass << ", m_SemiMajorAxisPrime = " << m_SemiMajorAxisPrime);
+    DBG_ID_IF(m_Supernova->OrbitalEnergyPreSN() > 0.0, "orbitalEnergy > 0! totalMass = " << totalMass << ", reducedMass = " << reducedMass << ", m_SemiMajorAxisPrime = " << m_SemiMajorAxisPrime);
 
 	// calculate post-SN orbital properties
 
@@ -1639,8 +1639,8 @@ bool BaseBinaryStar::ResolveSupernova() {
     double ePrime           = CalculateOrbitalEccentricityPostSupernova(m_uK, totalMass, totalMassPrime, m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
     m_SemiMajorAxisPrime    = CalculateSemiMajorAxisPostSupernova(m_uK, totalMass, totalMassPrime, m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
 
-    m_Supernova->SetPostSNeOrbitalEnergy(CalculateOrbitalEnergy(reducedMassPrime, totalMassPrime, m_SemiMajorAxisPrime));           // post-SN orbital energy, check if still bound
-    double epsilon     = -m_Supernova->PostSNeOrbitalEnergy() / m_Supernova->PreSNeOrbitalEnergy();                                 // dimensionless post-SN orbital energy
+    m_Supernova->SetOrbitalEnergyPostSN(CalculateOrbitalEnergy(reducedMassPrime, totalMassPrime, m_SemiMajorAxisPrime));           // post-SN orbital energy, check if still bound
+    double epsilon     = -m_Supernova->OrbitalEnergyPostSN() / m_Supernova->OrbitalEnergyPreSN();                                 // dimensionless post-SN orbital energy
 
     m_CosIPrime        = 0.0;
     m_IPrime           = 0.0;
@@ -1674,7 +1674,7 @@ bool BaseBinaryStar::ResolveSupernova() {
     m_MC                = m_Companion->MassPrev();                                                                                  // companion star pre-SN mass
     m_MCPrime           = m_Companion->Mass();                                                                                      // companion star post-SN mass
 
-    m_EPrime            = m_Supernova->PostSNeOrbitalEnergy();
+    m_EPrime            = m_Supernova->OrbitalEnergyPostSN();
 
     m_Eccentricity      = ePrime;
     m_EccentricityPrime = ePrime;
@@ -1852,11 +1852,11 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     m_CEDetails.doubleCoreCE = utils::Compare(k1, 0.0) > 0 && utils::Compare(k2, 0.0) > 0 && utils::Compare(k3, 0.0) > 0 && utils::Compare(k4, 0.0) > 0;
 
     double omegafinal      = sqrt((m_Mass1Final + m_Mass2Final) * G1 / (aFinal * aFinal * aFinal));                     // orbital velocity after CEE   SIMON: Should be a function for this equation     JR: todo: is it used elsewhere?
-    m_OrbitalVelocityPrime = omegafinal;
+    m_OrbitalAngularVelocityPrime = omegafinal;
 
     // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
-    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star1->SetOmega(m_OrbitalVelocityPrime);
-    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star2->SetOmega(m_OrbitalVelocityPrime);
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star1->SetOmega(m_OrbitalAngularVelocityPrime);
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star2->SetOmega(m_OrbitalAngularVelocityPrime);
 
 	double rRLdfin1        = aFinal * CalculateRocheLobeRadius_Static(m_Mass1Final, m_Mass2Final);                             // Roche-lobe radius in AU after CEE, seen by star1
 	double rRLdfin2        = aFinal * CalculateRocheLobeRadius_Static(m_Mass2Final, m_Mass1Final);                             // Roche-lobe radius in AU after CEE, seen by star2
@@ -2064,7 +2064,7 @@ double BaseBinaryStar::CalculateZRocheLobe(const double p_jLoss) {
 void BaseBinaryStar::CalculateWindsMassLoss() {
 
     m_aMassLossDiff = 0.0;                                                                                                      // initially - no change to orbit (semi-major axis) due to winds mass loss
-    m_OmegaMassLossDiff = 0.0;                                                                                                  // initially - no change to orbital speed due to winds mass loss
+    m_OmegaMassLossDiff = 0.0;                                                                                                  // initially - no change to orbital angular speed due to winds mass loss
 
     if (OPTIONS->UseMassTransfer() && m_MassTransfer) {                                                                         // used for halting winds when in mass transfer (first approach).
             m_Star1->SetMassLossDiff(0.0);                                                                                      // JR: todo: find a better way?
@@ -2082,7 +2082,7 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
             m_Star2->SetMassLossDiff(mWinds2 - m_Star2->Mass());                                                                // JR: todo: find a better way?
 
             m_aMassLossDiff     = aWinds - m_SemiMajorAxisPrev;                                                                 // change to orbit (semi-major axis) due to winds mass loss
-            m_OmegaMassLossDiff = sqrt(G1 * (mWinds1 + mWinds2) / (aWinds * aWinds * aWinds)) - m_OrbitalVelocityPrev;          // change to orbital speed due to winds mass loss
+            m_OmegaMassLossDiff = sqrt(G1 * (mWinds1 + mWinds2) / (aWinds * aWinds * aWinds)) - m_OrbitalAngularVelocityPrev;   // change to orbital angular speed due to winds mass loss
         }
     }
 }
@@ -2119,8 +2119,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
     double aInitial = m_SemiMajorAxisPrime;                                                                                                                 // semi-major axis in default units, AU, current timestep
     double aFinal;                                                                                                                                          // semi-major axis in default units, AU, after next timestep
-    double wInitial = m_OrbitalVelocityPrime;                                                                                                               // initial orbital speed of the system in yr-1 units, current timestep
-    double wFinal;                                                                                                                                          // initial orbital speed of the system in yr-1 units, after next timestep
+    double wInitial = m_OrbitalAngularVelocityPrime;                                                                                                        // initial orbital angular speed of the system in yr-1 units, current timestep
+    double wFinal;                                                                                                                                          // initial orbital angular speed of the system in yr-1 units, after next timestep
     double jLoss    = m_JLoss;                            		                                                                                            // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
 	bool   isCEE    = false;									                                                                                            // is there a CEE in this MT episode?
 
@@ -2281,7 +2281,7 @@ void BaseBinaryStar::InitialiseMassTransfer() {
                                         ? (1.0 - (m_Eccentricity * m_Eccentricity))                                             // yes - conserve angular momentum
                                         : (1.0 - m_Eccentricity);                                                               // no - angular momentum not conserved
 
-			    m_Eccentricity        = 0.0;			                                                                        // ALEJANDRO - 22/11/2016 - Think shouldn't use m_Eccentricity but m_EccentrictyPrime. Right now setting both. Check later.     JR: todo: check this
+			    m_Eccentricity        = 0.0;			                                                                        // ALEJANDRO - 22/11/2016 - Think shouldn't use m_Eccentricity but m_EccentricityPrime. Right now setting both. Check later.     JR: todo: check this
 			    m_EccentricityPrime   = 0.0;                                                                                    // JR: todo: check comment above
 
                 m_Star1->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxisPrime, m_Eccentricity);                          // re-initialise mass transfer for star1
@@ -2291,9 +2291,9 @@ void BaseBinaryStar::InitialiseMassTransfer() {
 			    // Previous values have to be the ones for periastron as later orbit is modified according to previous values.
 			    // If you don't do this, you end up modifying pre-MT pre-circularisation orbit
 			    // JR: todo: check that this is proper functionality, or just a kludge - if kludge, resolve it
-			    m_SemiMajorAxisPrev   = m_SemiMajorAxisPrime;
-			    m_EccentricityPrev    = m_EccentricityPrime;
-			    m_OrbitalVelocityPrev = m_OrbitalVelocityPrime;
+			    m_SemiMajorAxisPrev          = m_SemiMajorAxisPrime;
+			    m_EccentricityPrev           = m_EccentricityPrime;
+			    m_OrbitalAngularVelocityPrev = m_OrbitalAngularVelocityPrime;
 		    }
         }
     }
@@ -2353,7 +2353,7 @@ void BaseBinaryStar::CheckMassTransfer(const double p_Dt) {
  *                             const double p_Star2Radius,
  *                             const double p_Star1_OrbitalFrequency,
  *                             const double p_Star1_OrbitalFrequency,
- *                             const double p_OrbitalVelocity,
+ *                             const double p_OrbitalAngularVelocity,
  *                             const double p_Star1_GyrationRadius,
  *                             const double p_Star2_GyrationRadius)
  *
@@ -2364,7 +2364,7 @@ void BaseBinaryStar::CheckMassTransfer(const double p_Dt) {
  * @param   [IN]    p_Star2Radius               Radius of the secondary
  * @param   [IN]    p_Star1_OrbitalFrequency    Orbital frequency of the primary
  * @param   [IN]    p_Star1_OrbitalFrequency    Orbital frequency of the secondary
- * @param   [IN]    p_OrbitalVelocity           Orbital velocity of the binary
+ * @param   [IN]    p_OrbitalAngularVelocity    Orbital angular velocity of the binary
  * @param   [IN]    p_Star1_GyrationRadius      Gyration radius of the primary
  * @param   [IN]    p_Star2_GyrationRadius      Gyration radius of the secondary
  * @return                                      Total energy of the binary
@@ -2376,7 +2376,7 @@ double BaseBinaryStar::CalculateTotalEnergy(const double p_SemiMajorAxis,
                                             const double p_Star2Radius,
                                             const double p_Star1_OrbitalFrequency,
                                             const double p_Star2_OrbitalFrequency,
-                                            const double p_OrbitalVelocity,
+                                            const double p_OrbitalAngularVelocity,
                                             const double p_Star1_GyrationRadius,
                                             const double p_Star2_GyrationRadius) {
 	double m1  = p_Star1Mass;
@@ -2388,7 +2388,7 @@ double BaseBinaryStar::CalculateTotalEnergy(const double p_SemiMajorAxis,
 	double w1  = p_Star1_OrbitalFrequency;
 	double w2  = p_Star2_OrbitalFrequency;
 
-	double w   = p_OrbitalVelocity;
+	double w   = p_OrbitalAngularVelocity;
 
 	double ks1 = p_Star1_GyrationRadius;
 	double ks2 = p_Star2_GyrationRadius;
@@ -2482,13 +2482,13 @@ void BaseBinaryStar::CalculateEnergyAndAngularMomentum() {
     // ALEJANDRO - 16/11/2016 - calculate orbital energy and angular momentum
     m_TotalMassPrev                    = m_TotalMassPrime;
     m_ReducedMassPrev                  = m_ReducedMassPrime;
-    m_TotalOrbitalEnergyPrev           = m_TotalOrbitalEnergyPrime;
-    m_TotalOrbitalAngularMomentumPrev  = m_TotalOrbitalAngularMomentumPrime;
+    m_OrbitalEnergyPrev           = m_OrbitalEnergyPrime;
+    m_OrbitalAngularMomentumPrev  = m_OrbitalAngularMomentumPrime;
 
     m_TotalMassPrime                   = m_Star1->Mass() + m_Star2->Mass();
     m_ReducedMassPrime                 = (m_Star1->Mass() * m_Star2->Mass()) / m_TotalMassPrime;
-    m_TotalOrbitalEnergyPrime          = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
-    m_TotalOrbitalAngularMomentumPrime = CalculateOrbitalAngularMomentum(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
+    m_OrbitalEnergyPrime          = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
+    m_OrbitalAngularMomentumPrime = CalculateOrbitalAngularMomentum(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxisPrime);
 
     // ALEJANDRO - 16/11/2016 - calculate energy and angular momentum using regular conservation of energy, specially useful for checking tides and rotational effects
     m_TotalEnergyPrime                 = CalculateTotalEnergyPrime();
@@ -2530,12 +2530,12 @@ void BaseBinaryStar::ResolveMassChanges() {
     }
 
     // update binary
-    m_OrbitalVelocityPrime = m_OrbitalVelocityPrev + m_OmegaMassLossDiff + m_OmegaMassTransferDiff;     // should here be a diff quantity because of MB?    JR: todo: ?
-    m_SemiMajorAxisPrime   = m_SemiMajorAxisPrev + m_aMassLossDiff + m_aMassTransferDiff;
+    m_OrbitalAngularVelocityPrime = m_OrbitalAngularVelocityPrev + m_OmegaMassLossDiff + m_OmegaMassTransferDiff;     // should here be a diff quantity because of MB?    JR: todo: ?
+    m_SemiMajorAxisPrime = m_SemiMajorAxisPrev + m_aMassLossDiff + m_aMassTransferDiff;
 
     // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
-    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star1->SetOmega(m_OrbitalVelocityPrime);
-    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star2->SetOmega(m_OrbitalVelocityPrime);
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star1->SetOmega(m_OrbitalAngularVelocityPrime);
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE) m_Star2->SetOmega(m_OrbitalAngularVelocityPrime);
 
     CalculateEnergyAndAngularMomentum();                                                                // perform energy and angular momentum calculations
 }
@@ -2624,9 +2624,9 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
     EvaluateSupernovae(false);                                                                                          // evaluate supernovae (both stars)
 
     // assign new values to "previous" values, for following timestep
-    m_EccentricityPrev	  = m_EccentricityPrime;
-    m_SemiMajorAxisPrev   = m_SemiMajorAxisPrime;
-    m_OrbitalVelocityPrev = m_OrbitalVelocityPrime;    
+    m_EccentricityPrev	         = m_EccentricityPrime;
+    m_SemiMajorAxisPrev          = m_SemiMajorAxisPrime;
+    m_OrbitalAngularVelocityPrev = m_OrbitalAngularVelocityPrime;    
 
     CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
 
@@ -2728,8 +2728,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             else if (HasStarsTouching()) {                                                                                                  // binary components touching? (should usually be avoided as MT or CE should happen prior to this)
                 evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                         // yes - stop evolution
             }
-            else if ((IsUnbound() && !OPTIONS->EvolveUnboundSystems()) ||                                                                   // binary is unbound and we don't want unbound systems?
-                    (!IsGravitationallyBound() && !OPTIONS->EvolveUnboundSystems())) {                                                      // binary is not gravitationally bound and we don't want unbound systems?
+            else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                     // binary is unbound and we don't want unbound systems?
                 m_Unbound       = true;                                                                                                     // yes - set the unbound flag (should already be set)
                 evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                                // stop evolution
             }
