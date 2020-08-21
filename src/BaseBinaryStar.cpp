@@ -1623,12 +1623,12 @@ bool BaseBinaryStar::ResolveSupernova() {
 	//                       SHOULD BE BACK TO NICE UNITS NOW                        //
 	///////////////////////////////////////////////////////////////////////////////////
 
-    m_Supernova->SetPreSNeOrbitalEnergy(CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxisPrime));                      // pre-SN orbital energy - should be -ve by construction
+    m_Supernova->SetOrbitalEnergyPreSN(CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxisPrime));                      // pre-SN orbital energy - should be -ve by construction
 
 	// seemed to be getting into this loop occasionally with E > 0 but E ~ 0 (1e-37 for example) -- what's going on?
     // JR: todo: remove this if we're not seeing the problem...
     // don't use utils::Compare() here - let's see if this turns up as a problem
-    DBG_ID_IF(m_Supernova->PreSNeOrbitalEnergy() > 0.0, "orbitalEnergy > 0! totalMass = " << totalMass << ", reducedMass = " << reducedMass << ", m_SemiMajorAxisPrime = " << m_SemiMajorAxisPrime);
+    DBG_ID_IF(m_Supernova->OrbitalEnergyPreSN() > 0.0, "orbitalEnergy > 0! totalMass = " << totalMass << ", reducedMass = " << reducedMass << ", m_SemiMajorAxisPrime = " << m_SemiMajorAxisPrime);
 
 	// calculate post-SN orbital properties
 
@@ -1639,8 +1639,8 @@ bool BaseBinaryStar::ResolveSupernova() {
     double ePrime           = CalculateOrbitalEccentricityPostSupernova(m_uK, totalMass, totalMassPrime, m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
     m_SemiMajorAxisPrime    = CalculateSemiMajorAxisPostSupernova(m_uK, totalMass, totalMassPrime, m_Supernova->SN_Theta(), m_Supernova->SN_Phi());
 
-    m_Supernova->SetPostSNeOrbitalEnergy(CalculateOrbitalEnergy(reducedMassPrime, totalMassPrime, m_SemiMajorAxisPrime));           // post-SN orbital energy, check if still bound
-    double epsilon     = -m_Supernova->PostSNeOrbitalEnergy() / m_Supernova->PreSNeOrbitalEnergy();                                 // dimensionless post-SN orbital energy
+    m_Supernova->SetOrbitalEnergyPostSN(CalculateOrbitalEnergy(reducedMassPrime, totalMassPrime, m_SemiMajorAxisPrime));           // post-SN orbital energy, check if still bound
+    double epsilon     = -m_Supernova->OrbitalEnergyPostSN() / m_Supernova->OrbitalEnergyPreSN();                                 // dimensionless post-SN orbital energy
 
     m_CosIPrime        = 0.0;
     m_IPrime           = 0.0;
@@ -1674,7 +1674,7 @@ bool BaseBinaryStar::ResolveSupernova() {
     m_MC                = m_Companion->MassPrev();                                                                                  // companion star pre-SN mass
     m_MCPrime           = m_Companion->Mass();                                                                                      // companion star post-SN mass
 
-    m_EPrime            = m_Supernova->PostSNeOrbitalEnergy();
+    m_EPrime            = m_Supernova->OrbitalEnergyPostSN();
 
     m_Eccentricity      = ePrime;
     m_EccentricityPrime = ePrime;
@@ -2728,7 +2728,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             else if (HasStarsTouching()) {                                                                                                  // binary components touching? (should usually be avoided as MT or CE should happen prior to this)
                 evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                         // yes - stop evolution
             }
-            else if ((IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                    // binary is unbound and we don't want unbound systems?
+            else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                     // binary is unbound and we don't want unbound systems?
                 m_Unbound       = true;                                                                                                     // yes - set the unbound flag (should already be set)
                 evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                                // stop evolution
             }
