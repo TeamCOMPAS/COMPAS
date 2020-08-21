@@ -123,10 +123,11 @@ public:
         m_MSN                              = p_Star.m_MSN;
         m_MSNPrime                         = p_Star.m_MSNPrime;
 
-        m_OrbitalVelocity                  = p_Star.m_OrbitalVelocity;
+        m_OrbitalAngularVelocity           = p_Star.m_OrbitalAngularVelocity;
+        m_OrbitalAngularVelocityPrev       = p_Star.m_OrbitalAngularVelocityPrev;
+        m_OrbitalAngularVelocityPrime      = p_Star.m_OrbitalAngularVelocityPrime;
+
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
-        m_OrbitalVelocityPrev              = p_Star.m_OrbitalVelocityPrev;
-        m_OrbitalVelocityPrime             = p_Star.m_OrbitalVelocityPrime;
 
         m_PrintExtraDetailedOutput         = p_Star.m_PrintExtraDetailedOutput;
         m_Radius                           = p_Star.m_Radius;
@@ -253,7 +254,6 @@ public:
     bool                IsBeBinary() const                          { return HasOneOf({STELLAR_TYPE::NEUTRON_STAR}) && HasOneOf({STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07}); }
     bool                IsBHandBH() const                           { return HasTwoOf({STELLAR_TYPE::BLACK_HOLE}); }
     bool                IsDCO() const                               { return HasTwoOf({STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE}); }
-    bool                IsGravitationallyBound() const              { return (utils::Compare(-(m_TotalOrbitalEnergyPrime / m_TotalOrbitalEnergyPrev), 0.0) <= 0.0); }                 // epsilon = -EPrime / E;
     bool                IsNSandBH() const                           { return HasOneOf({STELLAR_TYPE::NEUTRON_STAR}) && HasOneOf({STELLAR_TYPE::BLACK_HOLE}); }
     bool                IsNSandNS() const                           { return HasTwoOf({STELLAR_TYPE::NEUTRON_STAR}); }
     bool                IsUnbound() const                           { return (utils::Compare(m_SemiMajorAxisPrime, 0.0) <= 0 || (utils::Compare(m_Eccentricity, 1.0) > 0)); }         // semi major axis <= 0.0 means unbound, presumably by SN)
@@ -272,7 +272,7 @@ public:
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
     bool                MergesInHubbleTime() const                  { return m_MergesInHubbleTime; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
-    double              OrbitalVelocity() const                     { return m_OrbitalVelocity; }
+    double              OrbitalAngularVelocity() const              { return m_OrbitalAngularVelocity; }
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
     double              Periastron() const                          { return m_SemiMajorAxis*(1.0-m_Eccentricity); }    
     double              PeriastronPrime() const                     { return m_SemiMajorAxisPrime*(1.0-m_EccentricityPrime); }
@@ -414,10 +414,11 @@ private:
     double              m_MSN;
     double              m_MSNPrime;
 
-    double              m_OrbitalVelocity;
+    double              m_OrbitalAngularVelocity;
+    double              m_OrbitalAngularVelocityPrev;
+    double              m_OrbitalAngularVelocityPrime;
+
     double              m_OrbitalVelocityPreSN;
-    double              m_OrbitalVelocityPrev;
-    double              m_OrbitalVelocityPrime;
 
     bool                m_PrintExtraDetailedOutput;                                         // Flag to ensure that detailed output only gets printed once per timestep
 
@@ -573,20 +574,20 @@ private:
                                  const double p_Star2Radius,
                                  const double p_Star1_OrbitalFrequency,
                                  const double p_Star2_OrbitalFrequency,
-                                 const double p_OrbitalVelocity,
+                                 const double p_OrbitalAngularVelocity,
                                  const double p_Star1GyrationRadius,
                                  const double p_Star2GyrationRadius);
 
-    double  CalculateTotalEnergy()                                          { return CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_OrbitalVelocity, m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
+    double  CalculateTotalEnergy()                                          { return CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_OrbitalAngularVelocity, m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
 
     double  CalculateTotalEnergy(const double p_SemiMajorAxis,
                                  const double p_Star1_OrbitalFrequency,
                                  const double p_Star2_OrbitalFrequency,
-                                 const double p_OrbitalVelocity,
+                                 const double p_OrbitalAngularVelocity,
                                  const double p_Star1_GyrationRadius,
-                                 const double p_Star2_GyrationRadius)       { return CalculateTotalEnergy(p_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), p_Star1_OrbitalFrequency, p_Star2_OrbitalFrequency, p_OrbitalVelocity, p_Star1_GyrationRadius, p_Star2_GyrationRadius); }
+                                 const double p_Star2_GyrationRadius)       { return CalculateTotalEnergy(p_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), p_Star1_OrbitalFrequency, p_Star2_OrbitalFrequency, p_OrbitalAngularVelocity, p_Star1_GyrationRadius, p_Star2_GyrationRadius); }
 
-    double  CalculateTotalEnergyPrime()                                     { return CalculateTotalEnergy(m_SemiMajorAxisPrime, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_OrbitalVelocityPrime, m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
+    double  CalculateTotalEnergyPrime()                                     { return CalculateTotalEnergy(m_SemiMajorAxisPrime, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_OrbitalAngularVelocityPrime, m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
 
     void    EvaluateBinary(const double p_Dt);
     void    EvaluateBinaryPreamble();

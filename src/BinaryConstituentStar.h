@@ -216,7 +216,7 @@ public:
 
     void            CalculateCommonEnvelopeValues();
 
-    void            CalculateOmegaTidesIndividualDiff(const double p_OrbitalVelocity)   { m_OmegaTidesIndividualDiff = p_OrbitalVelocity - OmegaPrev(); }
+    void            CalculateOmegaTidesIndividualDiff(const double p_OrbitalAngularVelocity)   { m_OmegaTidesIndividualDiff = p_OrbitalAngularVelocity - OmegaPrev(); }
 
     double          CalculateCircularisationTimescale(const double p_SemiMajorAxis);
 
