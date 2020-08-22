@@ -176,7 +176,7 @@ constexpr double KG_TO_MSOL                             = 1.0 / MSOL_TO_KG;     
 
 // length
 constexpr double KM_TO_CM 					            = 1.0E5;									                // convert km to cm
-constexpr double KM_TO_M                                = 1000.0 ;                                                    // convert km to m
+constexpr double KM_TO_M                                = 1000.0 ;                                                  // convert km to m
 constexpr double CM_TO_M                                = 1.0E-2;                                                   // convert cm to m
 
 constexpr double RSOL_TO_KM                             = 6.957E5;                                                  // convert Solar Radius (RSOL) to km

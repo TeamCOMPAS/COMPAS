@@ -1369,6 +1369,11 @@ void BaseBinaryStar::ResolveCoalescence() {
 
     double tC           = CalculateTimeToCoalescence(m_SemiMajorAxisPrime * AU, m_EccentricityPrime, m_Star1->Mass() * MSOL_TO_KG, m_Star2->Mass() * MSOL_TO_KG);
     m_TimeToCoalescence = (tC / SECONDS_IN_YEAR) * YEAR_TO_MYR;                                                                                 // coalescence time in Myrs
+    
+    // RTW test
+    std::cout << "tCoal = " << m_TimeToCoalescence << std::endl;
+    std::cout << "e  = " << m_Eccentricity << std::endl;
+    std::cout << "e' = " << m_EccentricityPrime << std::endl;
 
     if (utils::Compare(tC, HUBBLE_TIME) < 0) {                                                                                                  // shorter than HubbleTime (will need to worry about time delays eventually and time when born)
         m_Merged = true;                                                                                                                        // merged in hubble time

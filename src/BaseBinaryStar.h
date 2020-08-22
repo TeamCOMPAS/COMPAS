@@ -454,9 +454,9 @@ private:
 	double              m_OrbitalEnergyPrev;
 	double              m_OrbitalEnergyPrime;
 
-    double               m_uK;
+    double              m_uK;
 
-    double               m_WolfRayetFactor;
+    double              m_WolfRayetFactor;
 
     double              m_ZetaLobe;
     double              m_ZetaStar;
