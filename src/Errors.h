@@ -13,6 +13,7 @@
 
 #include "Log.h"
 #include "ErrorsMacros.h"
+#include "Options.h"
 
 class Log;
 

@@ -58,25 +58,27 @@ namespace utils {
     }
 
 
-    double                      intPow(const double p_Base, const int p_Exponent);
+    double                              intPow(const double p_Base, const int p_Exponent);
 
-    double                      InverseSampleFromPowerLaw(const double p_Power, const double p_Xmax, const double p_Xmin);
-    double                      InverseSampleFromTabulatedCDF(const double p_Y, const std::map<double, double> p_Table);
+    double                              InverseSampleFromPowerLaw(const double p_Power, const double p_Xmax, const double p_Xmin);
+    double                              InverseSampleFromTabulatedCDF(const double p_Y, const std::map<double, double> p_Table);
 
-    bool                        IsOneOf(const STELLAR_TYPE p_StellarType, const STELLAR_TYPE_LIST p_List);
+    bool                                IsOneOf(const STELLAR_TYPE p_StellarType, const STELLAR_TYPE_LIST p_List);
 
-    std::string                 PadLeadingZeros(const std::string p_Str, const std::size_t p_MaxLength);
+    std::string                         PadLeadingZeros(const std::string p_Str, const std::size_t p_MaxLength);
 
-    std::string                 ToLower(std::string p_Str);
-    std::string                 ToUpper(std::string p_Str);
+    std::string                         ToLower(std::string p_Str);
+    std::string                         ToUpper(std::string p_Str);
 
-    const std::string           vFormat(const char* const p_zcFormat, ...);
+    const std::string                   vFormat(const char* const p_zcFormat, ...);
 
-    double                      SampleFromTabulatedCDF(const double p_X, const std::map<double, double> pTable);
+    double                              SampleFromTabulatedCDF(const double p_X, const std::map<double, double> pTable);
 
-    double                      SolveQuadratic(const double p_A, const double p_B, double p_C);
+    std::tuple<ERROR, double, double>   SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity);
 
-    std::string                 SplashScreen(const bool p_Print = true);
+    std::tuple<ERROR, double>           SolveQuadratic(const double p_A, const double p_B, double p_C);
+
+    std::string                         SplashScreen(const bool p_Print = true);
 
     /*
      * Generic function to find an element in a vector

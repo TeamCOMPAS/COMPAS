@@ -160,12 +160,11 @@ public:
         m_TotalEnergy                      = p_Star.m_TotalEnergy;
         m_TotalEnergyPrime                 = p_Star.m_TotalEnergyPrime;
 
-        // RTW
-        m_TotalOrbitalAngularMomentumPrev  = p_Star.m_TotalOrbitalAngularMomentumPrev;
-        m_TotalOrbitalAngularMomentumPrime = p_Star.m_TotalOrbitalAngularMomentumPrime;
+        m_OrbitalAngularMomentumPrev  = p_Star.m_OrbitalAngularMomentumPrev;
+        m_OrbitalAngularMomentumPrime = p_Star.m_OrbitalAngularMomentumPrime;
 
-        m_TotalOrbitalEnergyPrev           = p_Star.m_TotalOrbitalEnergyPrev;
-        m_TotalOrbitalEnergyPrime          = p_Star.m_TotalOrbitalEnergyPrime;
+        m_OrbitalEnergyPrev           = p_Star.m_OrbitalEnergyPrev;
+        m_OrbitalEnergyPrime          = p_Star.m_OrbitalEnergyPrime;
 
         m_uK                               = p_Star.m_uK;
 
@@ -449,11 +448,11 @@ private:
     double               m_TotalEnergy;
     double               m_TotalEnergyPrime;
 
-    double               m_TotalOrbitalAngularMomentumPrev;
-    double               m_TotalOrbitalAngularMomentumPrime;
+	double              m_OrbitalAngularMomentumPrev;
+	double              m_OrbitalAngularMomentumPrime;
 
-    double               m_TotalOrbitalEnergyPrev;
-    double               m_TotalOrbitalEnergyPrime;
+	double              m_OrbitalEnergyPrev;
+	double              m_OrbitalEnergyPrime;
 
     double               m_uK;
 
@@ -491,10 +490,10 @@ private:
                                      const double p_Star2Mass,
                                      const double p_Star1Radius,
                                      const double p_Star2Radius,
-                                     const double p_Star1OrbitalFrequency,
-                                     const double p_Star2OrbitalFrequency,
-                                     const double p_Star1GyrationRadius,
-                                     const double p_Star2GyrationRadius);
+                                     const double p_Star1_OrbitalFrequency,
+                                     const double p_Star2_OrbitalFrequency,
+                                     const double p_Star1_GyrationRadius,
+                                     const double p_Star2_GyrationRadius);
 
     double  CalculateAngularMomentum()                                      { return CalculateAngularMomentum(m_SemiMajorAxisPrime, m_EccentricityPrime, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
 
@@ -528,7 +527,7 @@ private:
                                             const double p_SemiMajorAxis)   { return p_Mu * sqrt(G1 * p_Mass * p_SemiMajorAxis); }
 
     double  CalculateOrbitalEnergy(const double p_Mu,
-                               const double p_Mass,
+                                   const double p_Mass,
                                    const double p_SemiMajorAxis)            { return -(G1 * p_Mu * p_Mass) / (2.0 * p_SemiMajorAxis); }
 
     double  CalculateAdaptiveRocheLobeOverFlow(const double p_JLoss);
@@ -614,16 +613,17 @@ private:
     template <class T>
     struct RadiusEqualsRocheLobeFunctor
     {
-        RadiusEqualsRocheLobeFunctor(BaseBinaryStar * p_Binary, BinaryConstituentStar * p_Donor, BinaryConstituentStar * p_Accretor)
+        RadiusEqualsRocheLobeFunctor(BaseBinaryStar * p_Binary, BinaryConstituentStar * p_Donor, BinaryConstituentStar * p_Accretor, ERROR * p_Error)
         {
             m_Binary=p_Binary;
             m_Donor=p_Donor;
             m_Accretor=p_Accretor;
+            m_Error = p_Error;
         }
         T operator()(double const& dM)
         {
             if(dM >= m_Donor->Mass()){                    // Can't remove more than the donor's mass
-                SHOW_WARN(ERROR::TOO_MANY_RLOF_ITERATIONS);
+                *m_Error = ERROR::TOO_MANY_RLOF_ITERATIONS;
                 return m_Donor->Radius();
             }
             double donorMass=m_Donor->Mass();
@@ -648,6 +648,7 @@ private:
         BaseBinaryStar * m_Binary;
         BinaryConstituentStar * m_Donor;
         BinaryConstituentStar * m_Accretor;
+        ERROR * m_Error;
     };
     
   
@@ -673,7 +674,9 @@ private:
         
         std::pair<double, double> root;
         try {
-            root = bracket_and_solve_root(RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor), guess, factor, is_rising, tol, it);
+            ERROR error = ERROR::NONE;
+            root = bracket_and_solve_root(RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor, &error), guess, factor, is_rising, tol, it);
+            if (error != ERROR::NONE) SHOW_WARN(error);
         }
         catch(exception& e) {
             SHOW_ERROR(ERROR::TOO_MANY_RLOF_ITERATIONS, e.what());  //Catch generic boost root finding error
