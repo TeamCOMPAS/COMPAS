@@ -1367,7 +1367,7 @@ void BaseBinaryStar::ResolveCoalescence() {
     m_SemiMajorAxisAtDCOFormation = m_SemiMajorAxisPrime;
     m_EccentricityAtDCOFormation  = m_EccentricityPrime;
 
-    double tC           = CalculateTimeToCoalescence(m_SemiMajorAxisPrime * AU, m_EccentricityPrime, m_Star1->Mass() * MSOL, m_Star2->Mass() * MSOL);
+    double tC           = CalculateTimeToCoalescence(m_SemiMajorAxisPrime * AU, m_EccentricityPrime, m_Star1->Mass() * MSOL_TO_KG, m_Star2->Mass() * MSOL_TO_KG);
     m_TimeToCoalescence = (tC / SECONDS_IN_YEAR) * YEAR_TO_MYR;                                                                                 // coalescence time in Myrs
 
     if (utils::Compare(tC, HUBBLE_TIME) < 0) {                                                                                                  // shorter than HubbleTime (will need to worry about time delays eventually and time when born)
@@ -1562,6 +1562,8 @@ bool BaseBinaryStar::ResolveSupernova() {
 
         Vector3d Vcm_ = (-m2*dm1/(mb*mb_) + m1*dm2/(mb*mb_)) *V 
                                                  + (m1_/mb_) *dV1 
+                                                 + (m2_/mb_) *dV2;       // km/s       - PostSN center of mass velocity vector
+
         Vector3d V_ = V + (dV1 - dV2);                                   // km/s       - PostSN relative velocity vector
         double   v_ = V_.mag;                                            // km/s       - PostSN relative velocity 
 
