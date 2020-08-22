@@ -1365,16 +1365,11 @@ void BaseBinaryStar::ResolveCoalescence() {
 
     // define DCO formation to be now
     m_SemiMajorAxisAtDCOFormation = m_SemiMajorAxisPrime;
-    m_EccentricityAtDCOFormation  = m_EccentricityPrime;
+    m_EccentricityAtDCOFormation  = m_Eccentricity;
 
-    double tC           = CalculateTimeToCoalescence(m_SemiMajorAxisPrime * AU, m_EccentricityPrime, m_Star1->Mass() * MSOL_TO_KG, m_Star2->Mass() * MSOL_TO_KG);
+    double tC           = CalculateTimeToCoalescence(m_SemiMajorAxisPrime * AU, m_Eccentricity, m_Star1->Mass() * MSOL_TO_KG, m_Star2->Mass() * MSOL_TO_KG);
     m_TimeToCoalescence = (tC / SECONDS_IN_YEAR) * YEAR_TO_MYR;                                                                                 // coalescence time in Myrs
     
-    // RTW test
-    std::cout << "tCoal = " << m_TimeToCoalescence << std::endl;
-    std::cout << "e  = " << m_Eccentricity << std::endl;
-    std::cout << "e' = " << m_EccentricityPrime << std::endl;
-
     if (utils::Compare(tC, HUBBLE_TIME) < 0) {                                                                                                  // shorter than HubbleTime (will need to worry about time delays eventually and time when born)
         m_Merged = true;                                                                                                                        // merged in hubble time
         m_MergesInHubbleTime = true;                                                                                                            // why do we have 2 flags that do the same thing?       JR: todo: ...why?
@@ -1707,6 +1702,7 @@ bool BaseBinaryStar::ResolveSupernova() {
 
     // Set Prime values
     m_EccentricityPrime = m_EccentricityPostSN;
+    m_Eccentricity = m_EccentricityPostSN;
     m_SemiMajorAxisPrime = m_SemiMajorAxisPostSN;
 
     double totalMassPrime = m_Supernova->MassPrev() + m_Companion->MassPrev();                                            // Total Mass preSN
