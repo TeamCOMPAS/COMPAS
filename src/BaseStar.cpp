@@ -997,7 +997,7 @@ double BaseStar::CalculatePerturbationR(const double p_Mu, const double p_Mass, 
  * Kruckow et al. 2016 (arXiv:1610.04417), fig 1
  *
  * Spectrum fit to the region bounded by the upper and lower limits as shown in Kruckow+ 2016.
- * Made by Alejandro Vigna-Gomez
+ * Fit as presented in Vigna-Gomez et al. 2018 (arXiv:1805.07974)
  *
  *
  * double CalculateLambdaKruckow(const double p_Radius, const double p_Alpha)
@@ -1373,25 +1373,6 @@ double BaseStar::CalculateRadiusAtZAMS(const double p_MZAMS) {
  */
 double BaseStar::CalculateMaximumCoreMass(const double p_Mass) {
     return min(((1.45 * p_Mass) - 0.31), p_Mass);
-}
-
-
-/*
- * Calculate the core mass at which the AGB phase is terminated in a SN/loss of envelope
- *
- * Hurley et al. 2000, eq 75
- *
- *
- * double Star::CalculateMaximumCoreMassSN()
- *
- * @return                                      Maximum core mass before supernova (McSN)
- */
-double BaseStar::CalculateMaximumCoreMassSN() {
-#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]        // for convenience and readability - undefined at end of function
-
-    return max(MECS, (0.773 * gbParams(McBAGB)) - 0.35);        // Mch constant in constants.h
-
-#undef gbParams
 }
 
 
@@ -2468,14 +2449,9 @@ double BaseStar::DrawKickVelocityBrayEldridge(const double p_EjectaMass,
 
 
 /*
- * Draw kick velocity per Muller et al. 2016
+ * Draw kick velocity per Muller et al. 2016 as presented in eq. B5 of Vigna-Gomez et al. 2018 (arXiv:1805.07974)
  *
- * For BH assume complete fallback so no ejecta hence no rocket effect
- * If BH doesnt assumes complete fallback, e.g. neutrino mass loss, a Blauuw Kick should be calculated
- *
- * ALEJANDRO - 17/03/2017 - It seems from Bernhard's notes he gives us V_kick = V_kick_3D.
- * Checking with some of the highest kicks he gives, we get V_kick>1000 km s^-1
- *
+ * BHs do not get natal kicks
  *
  * double DrawRemnantKickMuller(const double p_COCoreMass)
  *
@@ -2485,19 +2461,19 @@ double BaseStar::DrawKickVelocityBrayEldridge(const double p_EjectaMass,
 double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
 
     double	remnantKick = 0.0;	                // units km/s
-	double	lowerRegimeKick = 70.0;		        // Bernhard proposes to use 10 km s^-1 to replicate ECSN. He quotes Bray & Eldridge 2016 on this.
+	double	lowerRegimeKick = 35.0;		        // Following Vigna-Gomez et al. 2018 using 35 km/s as the peak of a low-kick Maxwellian (e.g. USSN, ECSN)
 
-	     if (utils::Compare(p_COCoreMass, 1.44) <  0) remnantKick = 0.0;
-	else if (utils::Compare(p_COCoreMass, 1.49) <  0) remnantKick = lowerRegimeKick + (2000.0 * (p_COCoreMass - 1.372));
-    else if (utils::Compare(p_COCoreMass, 1.65) <  0) remnantKick = 180.0 + (1300.0 * (p_COCoreMass - 1.49));
-	else if (utils::Compare(p_COCoreMass, 2.4 ) <  0) remnantKick = 250.0 + (350.0  * (p_COCoreMass - 1.65));
-    else if (utils::Compare(p_COCoreMass, 3.2 ) <  0) remnantKick = 400.0 + (1100.0 * (p_COCoreMass - 2.4));
-    else if (utils::Compare(p_COCoreMass, 3.6 ) <  0) remnantKick = 160.0 + (240.0  * (p_COCoreMass - 3.2));
-    else if (utils::Compare(p_COCoreMass, 4.05) <  0) remnantKick = 0.0;
-    else if (utils::Compare(p_COCoreMass, 4.6 ) <  0) remnantKick = 700.0 + (100.0  * (p_COCoreMass - 4.05));
-    else if (utils::Compare(p_COCoreMass, 5.7 ) <  0) remnantKick = 0.0;
-    else if (utils::Compare(p_COCoreMass, 6.0 ) <  0) remnantKick = 550.0 - (600.0  * (p_COCoreMass - 5.7));
-    else if (utils::Compare(p_COCoreMass, 6.0 ) >= 0) remnantKick = 0.0;
+	     if (utils::Compare(p_COCoreMass, 1.372) <  0) remnantKick = 0.0;
+	else if (utils::Compare(p_COCoreMass, 1.49 ) <  0) remnantKick = lowerRegimeKick + (1000.0 * (p_COCoreMass - 1.372));
+    else if (utils::Compare(p_COCoreMass, 1.65 ) <  0) remnantKick = 90.0 + (650.0 * (p_COCoreMass - 1.49));
+	else if (utils::Compare(p_COCoreMass, 2.4  ) <  0) remnantKick = 100.0 + (175.0  * (p_COCoreMass - 1.65));
+    else if (utils::Compare(p_COCoreMass, 3.2  ) <  0) remnantKick = 200.0 + (550.0 * (p_COCoreMass - 2.4));
+    else if (utils::Compare(p_COCoreMass, 3.6  ) <  0) remnantKick = 80.0 + (120.0  * (p_COCoreMass - 3.2));
+    else if (utils::Compare(p_COCoreMass, 4.05 ) <  0) remnantKick = 0.0;                                                // Going to be a Black Hole
+    else if (utils::Compare(p_COCoreMass, 4.6  ) <  0) remnantKick = 350.0 + (50.0  * (p_COCoreMass - 4.05));
+    else if (utils::Compare(p_COCoreMass, 5.7  ) <  0) remnantKick = 0.0;                                                // Going to be a Black Hole
+    else if (utils::Compare(p_COCoreMass, 6.0  ) <  0) remnantKick = 275.0 - (300.0  * (p_COCoreMass - 5.7));
+    else if (utils::Compare(p_COCoreMass, 6.0  ) >= 0) remnantKick = 0.0;                                                // Going to be a Black Hole
 
     return remnantKick;
 }
@@ -2782,48 +2758,6 @@ DBL_DBL BaseStar::DrawKickDirection() {
 
 
 /*
- * Solve Kepler's Equation using root finding techniques. Here we use Newton-Raphson.
- *
- * For a definition of all the anomalies see here:
- *
- *    https://en.wikipedia.org/wiki/Mean_anomaly
- *    https://en.wikipedia.org/wiki/True_anomaly
- *    https://en.wikipedia.org/wiki/Eccentric_anomaly
- *
- *
- * DBL_DBL SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity)
- *
- * @param   [IN]    p_MeanAnomaly               The mean anomaly
- * @param   [IN]    p_Eccentricity              Eccentricity of the binary
- * @return                                      Tuple containing the eccentric anomaly and the true anomaly
- */
-DBL_DBL BaseStar::SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity) {
-
-    double e = p_Eccentricity;
-    double M = p_MeanAnomaly;
-    double E = p_MeanAnomaly;                                                                                                       // inital guess at E is M - correct for e = 0
-
-    double kepler = E - (e * sin(E)) - M;                                                                                           // let f(E) = 0.  Equation (92) in my "A simple toy model" document
-
-    int iteration = 0;
-    while (std::abs(kepler) >= NEWTON_RAPHSON_EPSILON && iteration++ < MAX_KEPLER_ITERATIONS) {                                     // repeat the approximation until E is within the specified error of the true value, or max iterations exceeded
-        double keplerPrime = 1.0 - (e * cos(E));                                                                                    // derivative of f(E), f'(E).  Equation (94) in my "A simple toy model" document
-        E = E - kepler / keplerPrime;
-        kepler = E - (e * sin(E)) - M;                                                                                              // let f(E) = 0.  Equation (92) in my "A simple toy model" document
-    }
-
-    if (iteration >= MAX_KEPLER_ITERATIONS) SHOW_ERROR(ERROR::NO_CONVERGENCE, "Solving Kepler's equation");                         // show error
-
-    double nu = 2.0 * atan((sqrt((1.0 + e) / (1.0 - e))) * tan(0.5*E));                                                             // convert eccentric anomaly into true anomaly.  Equation (96) in my "A simple toy model" document
-
-         if (utils::Compare(E, M_PI) >= 0 && utils::Compare(E, _2_PI) <= 0) nu += _2_PI;                                            // add 2PI if necessary
-    else if (utils::Compare(E, 0.0)  <  0 || utils::Compare(E, _2_PI) >  0) SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Eccentric anomaly");   // out of bounds - show warning
-
-    return std::make_tuple(E, nu);
-}
-
-
-/*
  * Calculate eccentric anomaly and true anomaly - uses kepler's equation
  *
  * Modifies class member variables m_SupernovaDetails.eccentricAnomaly and m_SupernovaDetails.trueAnomaly
@@ -2834,7 +2768,15 @@ DBL_DBL BaseStar::SolveKeplersEquation(const double p_MeanAnomaly, const double 
  * @param   [IN]    p_Eccentricity              Eccentricity of the binary
  */
 void BaseStar::CalculateSNAnomalies(const double p_Eccentricity) {
-    std::tie(m_SupernovaDetails.eccentricAnomaly, m_SupernovaDetails.trueAnomaly) = SolveKeplersEquation(m_SupernovaDetails.meanAnomaly, p_Eccentricity);
+
+    ERROR  error = ERROR::NONE;
+
+    std::tie(error, m_SupernovaDetails.eccentricAnomaly, m_SupernovaDetails.trueAnomaly) = utils::SolveKeplersEquation(m_SupernovaDetails.meanAnomaly, p_Eccentricity);
+
+         if (error == ERROR::NO_CONVERGENCE) { SHOW_ERROR(error, "Solving Kepler's equation"); }        // show error
+    else if (error == ERROR::OUT_OF_BOUNDS ) { SHOW_WARN(error, "Eccentric anomaly"); }                 // eccentric anomaly out of bounds - show warning
+
+    return;
 }
 
 

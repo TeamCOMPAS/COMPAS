@@ -440,7 +440,6 @@ protected:
     virtual double          CalculateMassTransferRejuvenationFactor();
 
             double          CalculateMaximumCoreMass(double p_Mass);
-            double          CalculateMaximumCoreMassSN();
 
             double          CalculateNuclearTimescale()                                                         { return CalculateNuclearTimescale_Static(m_Mass, m_Luminosity); }         // Use class member variables
     static  double          CalculateNuclearTimescale_Static(const double p_Mass, const double p_Luminosity);
@@ -570,8 +569,6 @@ protected:
             bool            ShouldBeMasslessRemnant()                                                           { return (m_Mass <= 0.0); }
     virtual bool            ShouldEvolveOnPhase()                                                               { return true; }
     virtual bool            ShouldSkipPhase()                                                                   { return false; }                                                               // Default is false
-
-            DBL_DBL         SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity);
 
             void            UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMass, const double p_DeltaMass0, const double p_DeltaTime);
 
