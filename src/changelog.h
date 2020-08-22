@@ -375,16 +375,20 @@
 //                                      - moved ERROR:NONE to top of enum in constants.h (so ERROR = 0 = NONE - makes more sense...)
 //                                      - added new program option '--enable-warnings' to enable warning messages (via SHOW_WARN macros).  Default is false.  SHOW_WARN macros were previously #undefined
 // 02.13.09     RTW - Aug 21, 2020  - Code cleanup:
-// 									 - Created changelog.txt and moved content over from constants.h
-// 									 - Changed OrbitalVelocity to OrbitalAngularVelocity where that parameter was misnamed
-// 									 - Changed Pre/PostSNeOrbitalVelocity to OrbitalVelocityPre/PostSN for consistency
-// 									 - Added and updated physical conversion constants for clarity (e.g MSOL to MSOL_TO_KG)
-// 									 - Removed ID from output files, it is confusing and superceeded by SEED
-// 									 - Removed 'Total' from TotalOrbital(Energy/AngularMomentum) 
-// 									 - Typos
+// 									    - Created changelog.txt and moved content over from constants.h
+// 									    - Changed OrbitalVelocity to OrbitalAngularVelocity where that parameter was misnamed
+// 									    - Changed Pre/PostSNeOrbitalVelocity to OrbitalVelocityPre/PostSN for consistency
+// 									    - Added and updated physical conversion constants for clarity (e.g MSOL to MSOL_TO_KG)
+// 									    - Removed ID from output files, it is confusing and superceeded by SEED
+// 									    - Removed 'Total' from TotalOrbital(Energy/AngularMomentum)
+// 									    - Typos
 // 02.13.10     IM - Aug 21, 2020   - Enhancement:
-//                                  - Added caseBBStabilityPrescription in lieu of forceCaseBBBCStabilityFlag and alwaysStableCaseBBBCFlag to give more options for case BB/BC MT stability (issue #32)
+//                                      - Added caseBBStabilityPrescription in lieu of forceCaseBBBCStabilityFlag and alwaysStableCaseBBBCFlag to give more options for case BB/BC MT stability (issue #32)
+// 02.13.11     IM - Aug 22, 2020   - Enhancement:
+//                                      - Removed several stored options (e.g., m_OrbitalAngularVelocity, m_RocheLobeTracker, etc.) to recompute them on an as-needed basis
+//                                      - Removed some inf values in detailed outputs
+//                                      - Slight speed-ups where feasible
 
-const std::string VERSION_STRING = "02.13.10";
+const std::string VERSION_STRING = "02.13.11";
 
 # endif // __changelog_h__
