@@ -66,8 +66,6 @@ class pythonProgramOptions:
     mass_transfer = True
     detailed_output = False                             # WARNING: this creates a data heavy file
     evolve_unbound_systems = False
-    lambda_calculation_every_timestep = False
-    zeta_calculation_every_timestep = False
     quiet = False
 
     metallicity = 0.0142                                # Solar metallicity Asplund+2010
@@ -221,8 +219,6 @@ class pythonProgramOptions:
             self.detailed_output,
             self.evolve_unbound_systems,
             self.populationPrinting,
-            self.lambda_calculation_every_timestep,
-            self.zeta_calculation_every_timestep,
             self.circularise_binary_during_mass_transfer,
             self.angular_momentum_conservation_during_circularisation,
             self.pair_instability_supernovae,
@@ -247,8 +243,6 @@ class pythonProgramOptions:
             '--detailedOutput',
             '--evolve-unbound-systems',
             '--populationDataPrinting',
-            '--lambda-calculation-every-timeStep',
-            '--zeta-Calculation-Every-Time-Step',
             '--circulariseBinaryDuringMassTransfer',
             '--angularMomentumConservationDuringCircularisation',
             '--pair-instability-supernovae',

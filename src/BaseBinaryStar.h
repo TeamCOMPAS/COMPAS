@@ -100,11 +100,9 @@ public:
         m_MassEnv2                         = p_Star.m_MassEnv2;
 
         m_aMassLossDiff                    = p_Star.m_aMassLossDiff;
-        m_OmegaMassLossDiff                = p_Star.m_OmegaMassLossDiff;
 
         m_MassTransfer                     = p_Star.m_MassTransfer;
         m_aMassTransferDiff                = p_Star.m_aMassTransferDiff;
-        m_OmegaMassTransferDiff            = p_Star.m_OmegaMassTransferDiff;
 
         m_MassTransferTrackerHistory       = p_Star.m_MassTransferTrackerHistory;
 
@@ -122,10 +120,6 @@ public:
 
         m_MSN                              = p_Star.m_MSN;
         m_MSNPrime                         = p_Star.m_MSNPrime;
-
-        m_OrbitalAngularVelocity           = p_Star.m_OrbitalAngularVelocity;
-        m_OrbitalAngularVelocityPrev       = p_Star.m_OrbitalAngularVelocityPrev;
-        m_OrbitalAngularVelocityPrime      = p_Star.m_OrbitalAngularVelocityPrime;
 
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
 
@@ -272,12 +266,12 @@ public:
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
     bool                MergesInHubbleTime() const                  { return m_MergesInHubbleTime; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
-    double              OrbitalAngularVelocity() const              { return m_OrbitalAngularVelocity; }
+    double              OrbitalAngularVelocity() const              { return sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
     double              Periastron() const                          { return m_SemiMajorAxis*(1.0-m_Eccentricity); }    
     double              PeriastronPrime() const                     { return m_SemiMajorAxisPrime*(1.0-m_EccentricityPrime); }
-    double              PeriastronRsol() const                      { return m_SemiMajorAxis*(1.0-m_Eccentricity)*AU_TO_RSOL; }    
-    double              PeriastronPrimeRsol() const                 { return m_SemiMajorAxisPrime*(1.0-m_EccentricityPrime)*AU_TO_RSOL; }    
+    double              PeriastronRsol() const                      { return Periastron()*AU_TO_RSOL; }
+    double              PeriastronPrimeRsol() const                 { return PeriastronPrime()*AU_TO_RSOL; }
 	double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
 	double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
 	double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }
@@ -289,10 +283,10 @@ public:
     double              RocheLobe1to2PreCEE() const                 { return m_CEDetails.preCEE.rocheLobe1to2; }
     double              RocheLobe2to1PostCEE() const                { return m_CEDetails.postCEE.rocheLobe2to1; }
     double              RocheLobe2to1PreCEE() const                 { return m_CEDetails.preCEE.rocheLobe2to1; }
-    double              RocheLobeRadius1() const                    { return m_Star1->RocheLobeRadius(); }
-    double              RocheLobeRadius2() const                    { return m_Star2->RocheLobeRadius(); }
-    double              RocheLobeTracker1() const                   { return m_Star1->RocheLobeTracker(); }
-    double              RocheLobeTracker2() const                   { return m_Star2->RocheLobeTracker(); }
+    double              RocheLobeRadius1() const                    { return CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass()); }
+    double              RocheLobeRadius2() const                    { return CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass()); }
+    double              RocheLobeTracker1() const                   { return m_Star1->RocheLobeTracker(m_SemiMajorAxis, m_Eccentricity); }
+    double              RocheLobeTracker2() const                   { return m_Star2->RocheLobeTracker(m_SemiMajorAxis, m_Eccentricity); }
     bool                SecondaryTooSmallForDCO() const             { return m_SecondaryTooSmallForDCO; }
     double              SemiMajorAxisAtDCOFormation() const         { return m_SemiMajorAxisAtDCOFormation; }
     double              SemiMajorAxisInitial() const                { return m_SemiMajorAxisInitial; }
@@ -391,11 +385,9 @@ private:
     double              m_MassEnv2;                                                         // Star2 envelope mass in Msol
 
     double              m_aMassLossDiff;
-    double              m_OmegaMassLossDiff;
 
     bool                m_MassTransfer;
     double              m_aMassTransferDiff;
-    double              m_OmegaMassTransferDiff;
 
     MT_TRACKING         m_MassTransferTrackerHistory;
 
@@ -413,10 +405,6 @@ private:
 
     double              m_MSN;
     double              m_MSNPrime;
-
-    double              m_OrbitalAngularVelocity;
-    double              m_OrbitalAngularVelocityPrev;
-    double              m_OrbitalAngularVelocityPrime;
 
     double              m_OrbitalVelocityPreSN;
 
@@ -498,8 +486,8 @@ private:
                                      const double p_Star2Mass,
                                      const double p_Star1Radius,
                                      const double p_Star2Radius,
-                                     const double p_Star1_OrbitalFrequency,
-                                     const double p_Star2_OrbitalFrequency,
+                                     const double p_Star1_SpinAngularVelocity,
+                                     const double p_Star2_SpinAngularVelocity,
                                      const double p_Star1_GyrationRadius,
                                      const double p_Star2_GyrationRadius);
 
@@ -507,10 +495,10 @@ private:
 
     double  CalculateAngularMomentum(const double p_SemiMajorAxis,
                                      const double p_Eccentricity,
-                                     const double p_Star1_OrbitalFrequency,
-                                     const double p_Star2_OrbitalFrequency,
+                                     const double p_Star1_SpinAngularVelocity,
+                                     const double p_Star2_SpinAngularVelocity,
                                      const double p_Star1_GyrationRadius,
-                                     const double p_Star2_GyrationRadius)   { return CalculateAngularMomentum(p_SemiMajorAxis, p_Eccentricity, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), p_Star1_OrbitalFrequency, p_Star2_OrbitalFrequency, p_Star1_GyrationRadius, p_Star2_GyrationRadius); }
+                                     const double p_Star2_GyrationRadius)   { return CalculateAngularMomentum(p_SemiMajorAxis, p_Eccentricity, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), p_Star1_SpinAngularVelocity, p_Star2_SpinAngularVelocity, p_Star1_GyrationRadius, p_Star2_GyrationRadius); }
 
     double  CalculateAngularMomentumPrev()                                  { return CalculateAngularMomentum(m_SemiMajorAxisPrev, m_EccentricityPrev, m_Star1->MassPrev(), m_Star2->MassPrev(), m_Star1->RadiusPrev(), m_Star2->RadiusPrev(), m_Star1->OmegaPrev(), m_Star2->OmegaPrev(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
 
@@ -564,7 +552,7 @@ private:
 
     double  CalculateTimeToCoalescence(double a0, double e0, double m1, double m2);
 
-    // CalculateTotalEnergy - the actual function takes 10 parameters because of the various calling permutations
+    // CalculateTotalEnergy - the actual function takes 9 parameters because of the various calling permutations
     //                      - various signatures are defined here - they just assemble the parameters as required
     //                        and call the actual function
     double  CalculateTotalEnergy(const double p_SemiMajorAxis,
@@ -572,22 +560,20 @@ private:
                                  const double p_Star2Mass,
                                  const double p_Star1Radius,
                                  const double p_Star2Radius,
-                                 const double p_Star1_OrbitalFrequency,
-                                 const double p_Star2_OrbitalFrequency,
-                                 const double p_OrbitalAngularVelocity,
+                                 const double p_Star1_SpinAngularVelocity,
+                                 const double p_Star2_SpinAngularVelocity,
                                  const double p_Star1GyrationRadius,
                                  const double p_Star2GyrationRadius);
 
-    double  CalculateTotalEnergy()                                          { return CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_OrbitalAngularVelocity, m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
+    double  CalculateTotalEnergy()                                          { return CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
 
     double  CalculateTotalEnergy(const double p_SemiMajorAxis,
-                                 const double p_Star1_OrbitalFrequency,
-                                 const double p_Star2_OrbitalFrequency,
-                                 const double p_OrbitalAngularVelocity,
+                                 const double p_Star1_SpinAngularVelocity,
+                                 const double p_Star2_SpinAngularVelocity,
                                  const double p_Star1_GyrationRadius,
-                                 const double p_Star2_GyrationRadius)       { return CalculateTotalEnergy(p_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), p_Star1_OrbitalFrequency, p_Star2_OrbitalFrequency, p_OrbitalAngularVelocity, p_Star1_GyrationRadius, p_Star2_GyrationRadius); }
+                                 const double p_Star2_GyrationRadius)       { return CalculateTotalEnergy(p_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), p_Star1_SpinAngularVelocity, p_Star2_SpinAngularVelocity, p_Star1_GyrationRadius, p_Star2_GyrationRadius); }
 
-    double  CalculateTotalEnergyPrime()                                     { return CalculateTotalEnergy(m_SemiMajorAxisPrime, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_OrbitalAngularVelocityPrime, m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
+    double  CalculateTotalEnergyPrime()                                     { return CalculateTotalEnergy(m_SemiMajorAxisPrime, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
 
     void    EvaluateBinary(const double p_Dt);
     void    EvaluateBinaryPreamble();

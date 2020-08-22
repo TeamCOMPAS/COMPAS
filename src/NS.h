@@ -55,7 +55,9 @@ protected:
         CalculateAndSetPulsarParameters();
     }
 
-
+    double m_MomentOfInertia;                                                   // in CGS g cm^2
+    double m_AngularMomentum;                                                   // Current angular momentum in (Msol AU^2 yr-1)
+    
     // member functions - alphabetically
             void            CalculateAndSetPulsarParameters();
 

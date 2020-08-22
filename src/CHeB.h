@@ -68,7 +68,7 @@ protected:
 
     double          CalculateHeCoreMassAtPhaseEnd()                              { return m_CoreMass; }
 
-    double          CalculateGyrationRadius()                                    { return 0.21; }                                                               // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
+    double          CalculateGyrationRadius() const                              { return 0.21; }                                                               // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 
     double          CalculateLambdaDewi();
     double          CalculateLambdaNanjing();

@@ -62,7 +62,7 @@ protected:
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
             void            CalculateGBParams()                                                              { CalculateGBParams(m_Mass0, m_GBParams); }                            // Use class member variables
 
-            double          CalculateGyrationRadius()                                                        { return 0.21; }                                                       // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
+            double          CalculateGyrationRadius() const                                                        { return 0.21; }                                                       // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 
             double          CalculateHeCoreMassAtPhaseEnd()                                                  { return CalculateHeCoreMassOnPhase(); }                               // Same as on phase
             double          CalculateHeCoreMassOnPhase()                                                     { return m_Mass; }                                               // NO-OP
