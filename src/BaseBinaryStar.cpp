@@ -2095,9 +2095,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     double jLoss    = m_JLoss;                            		                                                                                            // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
 	bool   isCEE    = false;									                                                                                            // is there a CEE in this MT episode?
 
-    m_Donor->CalculateZetas();                                                                                                                              // calculate Zetas for donor
-    m_Accretor->CalculateZetas();                                                                                                                           // calculate Zetas for accretor
-
 	// Check for stability
 	bool qCritFlag = OPTIONS->MassTransferCriticalMassRatioMSLowMass()   || OPTIONS->MassTransferCriticalMassRatioMSHighMass()  ||
 	                 OPTIONS->MassTransferCriticalMassRatioHG()          || OPTIONS->MassTransferCriticalMassRatioGiant()       ||
@@ -2503,30 +2500,11 @@ void BaseBinaryStar::ResolveMassChanges() {
  *
  * Calculates:
  *
- *    Lambdas (if necessary)
- *    Zetas (if necessary)
  *    Total angular momentum (previous) - m_TotalAngularMomentumPrev
  *
  * void EvaluateBinaryPreamble()
  */
 void BaseBinaryStar::EvaluateBinaryPreamble() {
-	// ALEJANDRO - 14/11/2016 - After some profiling done by Jim,
-	// seems like calculate the Loveridge lambda at each timestep takes a lot of time.
-	// Therefore, I moved it to this function and only calculated it if explicitely indicated.
-	//
-	// JR: I did some work on calculating Loveridge lambda - it will be less computationally
-	// expensive, but still better to do it fewer times if possible
-
-	if (OPTIONS->LambdaCalculationEveryTimeStep()) {
-        m_Star1->CalculateLambdas();
-        m_Star2->CalculateLambdas();
-    }
-
-	if (OPTIONS->ZetaCalculationEveryTimeStep()) {                      // ALEJANDRO - 16/10/2017 - Calculate zetas if specified        JR: todo: check - also called elsewhere
-        m_Star1->CalculateZetas();
-        m_Star2->CalculateZetas();
-    }
-
     m_TotalAngularMomentumPrev = CalculateAngularMomentumPrev();        // squirrel away previous value for total angular momentum
 }
 
@@ -2534,7 +2512,7 @@ void BaseBinaryStar::EvaluateBinaryPreamble() {
 /*
  * Evaluate the binary system
  *
- *    - caclulate any mass transfer
+ *    - calculate any mass transfer
  *    - calculate mass loss due to wonds
  *    - resolve any Common Envelope Event
  *    - resolve any Supernova Event

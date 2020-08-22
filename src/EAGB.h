@@ -50,7 +50,7 @@ protected:
     double          CalculateCoreMassAtPhaseEnd()                                               { return m_GBParams[static_cast<int>(GBP::McDU)]; }                 // Mc(EAGB) = McDU at phase end (Hurley et al. 2000, section 5.4)
     double          CalculateCoreMassOnPhase()                                                  { return m_GBParams[static_cast<int>(GBP::McBAGB)]; }               // Mc(EAGB) = McHe(EAGB) = McBAGB on phase (Hurley et al. 2000, section 5.4)
 
-    double          CalculateGyrationRadius()                                                   { return 0.1; }                                                     // Hurley et al., 2000, after eq 109 for giants. Single number approximation.   JR: todo: should this be in constants.h?
+    double          CalculateGyrationRadius() const                                                   { return 0.1; }                                                     // Hurley et al., 2000, after eq 109 for giants. Single number approximation.   JR: todo: should this be in constants.h?
 
     double          CalculateHeCoreMassAtPhaseEnd()                                             { return CalculateHeCoreMassOnPhase(); }                            // Same as on phase
     double          CalculateHeCoreMassOnPhase()                                                { return m_HeCoreMass; }                                            // NO-OP

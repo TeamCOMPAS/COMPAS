@@ -150,7 +150,6 @@ public:
     double                                      KickVelocityDistributionSigmaForECSN() const                            { return kickVelocityDistributionSigmaForECSN; }
     double                                      KickVelocityDistributionSigmaForUSSN() const                            { return kickVelocityDistributionSigmaForUSSN; }
 
-    bool                                        LambdaCalculationEveryTimeStep() const                                  { return lambdaCalculationEveryTimeStep; }
 
     vector<string>                              LogClasses() const                                                      { return logClasses; }
     string                                      LogfileBSEBeBinaries() const                                            { return logfileBSEBeBinaries; }
@@ -296,7 +295,6 @@ public:
     bool                                        UsePulsationalPairInstability() const                                   { return usePulsationalPairInstability; }
 
     double                                      WolfRayetFactor() const                                                 { return wolfRayetFactor; }
-    bool                                        ZetaCalculationEveryTimeStep() const                                    { return zetaCalculationEveryTimeStep; }
     double                                      ZetaRadiativeEnvelopeGiant() const                                      { return zetaRadiativeEnvelopeGiant; }
     double                                      ZetaMainSequence() const                                                { return zetaMainSequence; }
     double                                      ZetaAdiabaticArbitrary() const                                          { return zetaAdiabaticArbitrary; }
@@ -317,9 +315,6 @@ private:
     bool                                        enableWarnings;                                                 // flag used to determine if warnings (via SHOW_WARN macros) should be displayed
     
     bool                                        singleStar;                                                     // Whether to evolve a single star or a binary
-
-	bool                                        lambdaCalculationEveryTimeStep;							        // Flag indicates if lambda is calculated at each timestep or no
-	bool                                        zetaCalculationEveryTimeStep;
 
 	bool                                        beBinaries;													    // Flag if we want to print BeBinaries (main.cpp)
     bool                                        evolvePulsars;                                                  // Whether to evolve pulsars or not

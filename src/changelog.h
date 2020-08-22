@@ -388,6 +388,11 @@
 //                                      - Removed several stored options (e.g., m_OrbitalAngularVelocity, m_RocheLobeTracker, etc.) to recompute them on an as-needed basis
 //                                      - Removed some inf values in detailed outputs
 //                                      - Slight speed-ups where feasible
+//                                      - Shift various calculations to only be performed when needed, at printing, and give consistent values there (e.g., OmegaBreak, which was never updated previously)
+//                                      - Remove a number of internal variables
+//                                      - Declare functions constant where feasible
+//                                      - Remove options to calculate Zetas and Lambdas at every timestep; variables that only appear in detailed outputs should not be computed at every timestep in a standard run
+//                                      - Update documentation
 
 const std::string VERSION_STRING = "02.13.11";
 

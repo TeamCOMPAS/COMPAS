@@ -60,7 +60,7 @@ protected:
             double          CalculateCoreMassAtPhaseEnd()                                        { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
             double          CalculateCoreMassOnPhase()                                           { return m_COCoreMass; }                                                // Mc(HeMS) = McCOMass
 
-            double          CalculateGyrationRadius()                                            { return 0.1; }                                                         // JR: todo: Nobody seems sure about this...
+            double          CalculateGyrationRadius() const                                           { return 0.1; }                                                         // JR: todo: Nobody seems sure about this...
 
             double          CalculateHeCoreMassOnPhase()                                        { return m_Mass; }                                                     // McHe(HeMS) = Mass
             double          CalculateHeCoreMassAtPhaseEnd()                                      { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
@@ -103,8 +103,8 @@ protected:
             double          CalculateThermalTimescale(const double p_Mass,
                                                       const double p_Radius,
                                                       const double p_Luminosity,
-                                                      const double p_EnvMass = 1.0)              { return MainSequence::CalculateThermalTimescale(p_Mass, p_Radius, p_Luminosity); }
-            double          CalculateThermalTimescale()                                          { return CalculateThermalTimescale(m_Mass, m_Radius, m_Luminosity); }  // Use class member variables
+                                                      const double p_EnvMass = 1.0) const             { return MainSequence::CalculateThermalTimescale(p_Mass, p_Radius, p_Luminosity); }
+            double          CalculateThermalTimescale() const                                         { return CalculateThermalTimescale(m_Mass, m_Radius, m_Luminosity); }  // Use class member variables
 
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
             void            CalculateTimescales()                                                { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables

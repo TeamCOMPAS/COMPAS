@@ -175,15 +175,15 @@ double BinaryConstituentStar::CalculateMassAccretedForNS(const double p_Companio
 void BinaryConstituentStar::SetPreCEEValues() {
 
     m_CEDetails.preCEE.bindingEnergy            = m_CEDetails.bindingEnergy;
-    m_CEDetails.preCEE.dynamicalTimescale       = DynamicalTimescale();
+    m_CEDetails.preCEE.dynamicalTimescale       = CalculateDynamicalTimescale();
     m_CEDetails.preCEE.luminosity               = Luminosity();
     m_CEDetails.preCEE.mass                     = Mass();
-    m_CEDetails.preCEE.nuclearTimescale         = NuclearTimescale();
-    m_CEDetails.preCEE.radialExpansionTimescale = RadialExpansionTimescale();
+    m_CEDetails.preCEE.nuclearTimescale         = CalculateNuclearTimescale();
+    m_CEDetails.preCEE.radialExpansionTimescale = CalculateRadialExpansionTimescale();
     m_CEDetails.preCEE.radius                   = Radius();
     m_CEDetails.preCEE.stellarType              = StellarType();
     m_CEDetails.preCEE.temperature              = Temperature();
-    m_CEDetails.preCEE.thermalTimescale         = ThermalTimescale();
+    m_CEDetails.preCEE.thermalTimescale         = CalculateThermalTimescale();
 }
 
 
@@ -209,15 +209,15 @@ void BinaryConstituentStar::SetPreCEEValues() {
 void BinaryConstituentStar::SetPostCEEValues() {
 
     m_CEDetails.postCEE.bindingEnergy            = m_CEDetails.bindingEnergy;
-    m_CEDetails.postCEE.dynamicalTimescale       = DynamicalTimescale();
+    m_CEDetails.postCEE.dynamicalTimescale       = CalculateDynamicalTimescale();
     m_CEDetails.postCEE.luminosity               = Luminosity();
     m_CEDetails.postCEE.mass                     = Mass();
-    m_CEDetails.postCEE.nuclearTimescale         = NuclearTimescale();
-    m_CEDetails.postCEE.radialExpansionTimescale = RadialExpansionTimescale();
+    m_CEDetails.postCEE.nuclearTimescale         = CalculateNuclearTimescale();
+    m_CEDetails.postCEE.radialExpansionTimescale = CalculateRadialExpansionTimescale();
     m_CEDetails.postCEE.radius                   = Radius();
     m_CEDetails.postCEE.stellarType              = StellarType();
     m_CEDetails.postCEE.temperature              = Temperature();
-    m_CEDetails.postCEE.thermalTimescale         = ThermalTimescale();
+    m_CEDetails.postCEE.thermalTimescale         = CalculateThermalTimescale();
 }
 
 
