@@ -106,12 +106,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Alpha3                                   = CalculateAlpha3();
     m_Alpha4                                   = CalculateAlpha4();
 
-    // timescales
-    m_DynamicalTimescale                       = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_ThermalTimescale                         = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_NuclearTimescale                         = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_RadialExpansionTimescale                 = DEFAULT_INITIAL_DOUBLE_VALUE;
-
     // initialise remaining member variables
 
     // Zero age main sequence parameters
@@ -145,9 +139,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Mdot                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_Omega                                    = m_OmegaZAMS;
-    m_OmegaBreak                               = CalculateOmegaBreak();
-    m_AngularMomentum                          = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_MomentOfInertia                          = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_MinimumLuminosityOnPhase                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_LBVphaseFlag                             = false;
@@ -170,13 +161,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 	m_Lambdas.loveridgeWinds                   = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_Lambdas.nanjing                          = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    // Zetas
-    m_Zetas.hurley                             = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Zetas.hurleyHe                           = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Zetas.nuclear                            = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Zetas.soberman                           = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Zetas.sobermanHe                         = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Zetas.thermal                            = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // Binding energies
     m_BindingEnergies.fixed                    = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -312,7 +296,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION:              value = SN_CoreMassAtCOFormation();                             break;
             case ANY_STAR_PROPERTY::DRAWN_KICK_VELOCITY:                                value = SN_DrawnKickVelocity();                                 break;
             case ANY_STAR_PROPERTY::DT:                                                 value = Dt();                                                   break;
-            case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE:                                value = DynamicalTimescale();                                   break;
+            case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE:                                value = CalculateDynamicalTimescale();                          break;
             case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
             case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass()-CoreMass();                                             break;
             case ANY_STAR_PROPERTY::ERROR:                                              value = Error();                                                break;
@@ -353,7 +337,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::MEAN_ANOMALY:                                       value = SN_MeanAnomaly();                                       break;
             case ANY_STAR_PROPERTY::METALLICITY:                                        value = Metallicity();                                          break;
             case ANY_STAR_PROPERTY::MZAMS:                                              value = MZAMS();                                                break;
-            case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE:                                  value = NuclearTimescale();                                     break;
+            case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE:                                  value = CalculateNuclearTimescale();                            break;
             case ANY_STAR_PROPERTY::OMEGA:                                              value = Omega();                                                break;
             case ANY_STAR_PROPERTY::OMEGA_BREAK:                                        value = OmegaBreak();                                           break;
             case ANY_STAR_PROPERTY::OMEGA_ZAMS:                                         value = OmegaZAMS();                                            break;
@@ -361,7 +345,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE:                              value = Pulsar_SpinDownRate();                                  break;
             case ANY_STAR_PROPERTY::PULSAR_SPIN_FREQUENCY:                              value = Pulsar_SpinFrequency();                                 break;
             case ANY_STAR_PROPERTY::PULSAR_SPIN_PERIOD:                                 value = Pulsar_SpinPeriod();                                    break;
-            case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE:                         value = RadialExpansionTimescale();                             break;
+            case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE:                         value = CalculateRadialExpansionTimescale();                    break;
             case ANY_STAR_PROPERTY::RADIUS:                                             value = Radius();                                               break;
             case ANY_STAR_PROPERTY::RANDOM_SEED:                                        value = RandomSeed();                                           break;
             case ANY_STAR_PROPERTY::RECYCLED_NEUTRON_STAR:                              value = ExperiencedRecycledNS();                                break;
@@ -377,15 +361,14 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::SUPERNOVA_PHI:                                      value = SN_Phi();                                               break;
             case ANY_STAR_PROPERTY::SUPERNOVA_THETA:                                    value = SN_Theta();                                             break;
             case ANY_STAR_PROPERTY::TEMPERATURE:                                        value = Temperature()*TSOL;                                     break;
-            case ANY_STAR_PROPERTY::THERMAL_TIMESCALE:                                  value = ThermalTimescale();                                     break;
+            case ANY_STAR_PROPERTY::THERMAL_TIMESCALE:                                  value = CalculateThermalTimescale();                            break;
             case ANY_STAR_PROPERTY::TIME:                                               value = Time();                                                 break;
-            case ANY_STAR_PROPERTY::TIMESCALE_MS:                                       value = Timescale(TIMESCALE::tMS);                              break;
             case ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION:             value = SN_TotalMassAtCOFormation();                            break;
             case ANY_STAR_PROPERTY::TRUE_ANOMALY:                                       value = SN_TrueAnomaly();                                       break;
-            case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = Zeta_Hurley();                                          break;
-            case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = Zeta_HurleyHe();                                        break;
-            case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = Zeta_Soberman();                                        break;
-            case ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE:                                   value = Zeta_SobermanHe();                                      break;
+            case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = CalculateZadiabaticHurley2002(m_CoreMass);              break;
+            case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = CalculateZadiabaticHurley2002(m_HeCoreMass);            break;
+            case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = CalculateZadiabaticSPH(m_CoreMass);                     break;
+            case ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE:                                   value = CalculateZadiabaticSPH(m_HeCoreMass);                   break;
         default:                                                                                                        // unknown property
             ok    = false;                                                                                              // that's not ok...
             value = "UNKNOWN";                                                                                          // default value
@@ -1095,9 +1078,9 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) {
  * @param   [IN]    p_IsMassLoss                Boolean indicating whether mass-loss correction should be applied
  * @return                                      Common envelope lambda parameter
  */
-double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss) {   // JR: todo: p_IsMassLoss is ignored - do we need it?  I've set the default to false
+double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss) {
 
-    double bindingEnergy = pow(10.0, CalculateLogBindingEnergyLoveridge(false));
+    double bindingEnergy = pow(10.0, CalculateLogBindingEnergyLoveridge(p_IsMassLoss));
     return bindingEnergy > 0.0 ? (G_CGS * m_Mass * MSOL_TO_G * p_EnvMass * MSOL_TO_G) / (m_Radius * RSOL_TO_AU * AU_TO_CM * bindingEnergy) : pow(10.0, -20);   // JR: todo: fix this
 }
 
@@ -1113,14 +1096,14 @@ double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass,
  * Calculate the Adiabatic Exponent per Hurley et al. 2002
  *
  *
- * double CalculateZadiabaticHurley2002(const double p_CoreMass)
+ * double CalculateZadiabaticHurley2002(const double p_CoreMass) const
  *
  * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
  * @return                                      Adiabatic exponent
  */
-double BaseStar::CalculateZadiabaticHurley2002(const double p_CoreMass) {
-    //if(utils::Compare(p_CoreMass, m_Mass)>=0)
-    //    return 0;                                       // If the object is all core, the calculation is meaningless
+double BaseStar::CalculateZadiabaticHurley2002(const double p_CoreMass) const{
+    if(utils::Compare(p_CoreMass, m_Mass)>=0)
+        return 0;                                       // If the object is all core, the calculation is meaningless
     double m = p_CoreMass / m_Mass;
     double x = -0.3;                                    // Depends on composition, should use x from Hurley et al 2000
     return -x + (2.0 * m * m * m * m * m);
@@ -1131,14 +1114,14 @@ double BaseStar::CalculateZadiabaticHurley2002(const double p_CoreMass) {
  * Calculate the Adiabatic Exponent per Soberman, Phinney, vdHeuvel 1997
  *
  *
- * double CalculateZadiabaticSPH(const double p_CoreMass)
+ * double CalculateZadiabaticSPH(const double p_CoreMass) const
  *
  * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
  * @return                                      Adiabatic exponent
  */
-double BaseStar::CalculateZadiabaticSPH(const double p_CoreMass) {
-    //if(utils::Compare(p_CoreMass, m_Mass)>=0)
-    //    return 0;                                       // If the object is all core, the calculation is meaningless (and would result in division by zero)
+double BaseStar::CalculateZadiabaticSPH(const double p_CoreMass) const {
+    if(utils::Compare(p_CoreMass, m_Mass)>=0)
+        return 0;                                       // If the object is all core, the calculation is meaningless (and would result in division by zero)
     double m           = p_CoreMass / m_Mass;                                                                                                       // eq (57) Soberman, Phinney, vdHeuvel (1997)
     double oneMinusM   = 1.0 - m;
     double oneMinusM_6 = oneMinusM * oneMinusM * oneMinusM * oneMinusM * oneMinusM * oneMinusM;
@@ -1150,7 +1133,7 @@ double BaseStar::CalculateZadiabaticSPH(const double p_CoreMass) {
  * Calculate the Adiabatic Exponent (for convective-envelope giant-like stars)
  *
  *
- * double CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription)
+ * double CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) const
  *
  * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
  * @return                                      Adiabatic exponent
@@ -1184,10 +1167,8 @@ double BaseStar::CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) {
 /*
  * Calculate all Lambdas
  *
- * ALEJANDRO - 04/11/2016 - Lambda calculations as tracker for binding energy;
+ * Lambda calculations as tracker for binding energy;
  *
- * lambda is recalculated in the CommonEnvelopeEvent function.                                          // JR: todo: different envelope mass in CEE function?  Esp. for loveridge?
- * Maybe we can give it as an argument later, as it is already being calculated here.                   // JR: todo: different envelope mass in CEE function?  Esp. for loveridge?
  *
  *
  * void CalculateLambdas(const double p_EnvMass)
@@ -1198,8 +1179,8 @@ void BaseStar::CalculateLambdas(const double p_EnvMass) {
 
     m_Lambdas.fixed          = OPTIONS->CommonEnvelopeLambda();
 	m_Lambdas.nanjing        = CalculateLambdaNanjing();
-	m_Lambdas.loveridge      = CalculateLambdaLoveridgeEnergyFormalism(p_EnvMass, false);     // JR: todo: (1) arg 2 (ismassloss) is ignored
-	m_Lambdas.loveridgeWinds = CalculateLambdaLoveridgeEnergyFormalism(p_EnvMass, true);      // JR: todo: (1) arg 2 (ismassloss) is ignored
+	m_Lambdas.loveridge      = CalculateLambdaLoveridgeEnergyFormalism(p_EnvMass, false);
+	m_Lambdas.loveridgeWinds = CalculateLambdaLoveridgeEnergyFormalism(p_EnvMass, true);      
 	m_Lambdas.kruckow        = CalculateLambdaKruckow(m_Radius, OPTIONS->CommonEnvelopeSlopeKruckow());
 	m_Lambdas.kruckowTop     = CalculateLambdaKruckow(m_Radius, -2.0 / 3.0);
 	m_Lambdas.kruckowMiddle  = CalculateLambdaKruckow(m_Radius, -4.0 / 5.0);
@@ -1208,20 +1189,6 @@ void BaseStar::CalculateLambdas(const double p_EnvMass) {
 }
 
 
-/*
- * Calculate all Zetas
- *
- * ALEJANDRO - 16/10/2017 - Zeta calculations as a mass transfer tracker.
- *
- *
- * void CalculateZetas()
- */
-void BaseStar::CalculateZetas() {
-	m_Zetas.soberman   = CalculateZadiabaticSPH(m_CoreMass);
-	m_Zetas.sobermanHe = CalculateZadiabaticSPH(m_HeCoreMass);
-	m_Zetas.hurley     = CalculateZadiabaticHurley2002(m_CoreMass);
-	m_Zetas.hurleyHe   = CalculateZadiabaticHurley2002(m_HeCoreMass);
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -2125,18 +2092,17 @@ double BaseStar::CalculateZAMSAngularFrequency(const double p_MZAMS, const doubl
 
 
 /*
- * Calculate the break up frequency of star in yr^-1 units, where [G] = 4*pi^2 AU^3 yr^-2 Msol^-1
+ * Calculate the break up angular velocity of a star in rad/yr units, where [G] = 4*pi^2 AU^3 yr^-2 Msol^-1
  *
  *
- * double CalculateOmegaBreak()
+ * double CalculateOmegaBreak() const
  *
- * @return                                      Break up frequency (yr^-1)
+ * @return                                      Break up angular velocity (rad yr^-1)
  */
-double BaseStar::CalculateOmegaBreak() {
-    constexpr double _2_PI_2      = _2_PI * _2_PI;
+double BaseStar::CalculateOmegaBreak() const {
     constexpr double RSOL_TO_AU_3 = RSOL_TO_AU * RSOL_TO_AU * RSOL_TO_AU;
 
-	return sqrt(_2_PI_2 * m_Mass / (RSOL_TO_AU_3 * m_Radius * m_Radius * m_Radius));
+	return _2_PI * sqrt(m_Mass / (RSOL_TO_AU_3 * m_Radius * m_Radius * m_Radius));
 }
 
 
@@ -2291,28 +2257,6 @@ double BaseStar::CalculateRadialExpansionTimescale_Static(const STELLAR_TYPE p_S
             : -1.0;
 }
 
-
-/*
- * Calculate all timescales
- *
- * Calculates:
- *     - dynamical timescale
- *     - thermal timescale
- *     - nuclear timesclae
- *     - radial expansion timescale
- *
- * and sets class member variables appropriately
- *
- *
- * void CalculateAllTimescales()
- */
-void BaseStar::CalculateAllTimescales() {
-
-    m_DynamicalTimescale	   = CalculateDynamicalTimescale();
-    m_ThermalTimescale 		   = CalculateThermalTimescale();
-    m_NuclearTimescale 		   = CalculateNuclearTimescale();
-    m_RadialExpansionTimescale = CalculateRadialExpansionTimescale();
-}
 
 
 /*
