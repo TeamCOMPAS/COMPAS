@@ -86,12 +86,13 @@ public:
     bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return allowMainSequenceStarToSurviveCommonEnvelope; }
     bool                                        AllowRLOFAtBirth() const                                                { return allowRLOFAtBirth; }
     bool                                        AllowTouchingAtBirth() const                                            { return allowTouchingAtBirth; }
-    bool                                        AlwaysStableCaseBBBCFlag() const                                        { return alwaysStableCaseBBBCFlag; }
     bool                                        AngularMomentumConservationDuringCircularisation() const                { return angularMomentumConservationDuringCircularisation; }
 
     bool                                        BeBinaries() const                                                      { return beBinaries; }
 
     BLACK_HOLE_KICK_OPTION                      BlackHoleKicksOption() const                                            { return blackHoleKicksOption; }
+    
+    CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return caseBBStabilityPrescription; }
     
     CHE_OPTION                                  CHE_Option() const                                                      { return cheOption; }
 
@@ -128,7 +129,6 @@ public:
     bool                                        FixedMetallicity() const                                                { return fixedMetallicity; }
     bool                                        FixedRandomSeed() const                                                 { return fixedRandomSeed; }
     double                                      FixedUK() const                                                         { return fixedUK; }                 // JR: todo: this isn't consistent naming see fixedMetallicity, fixedRandomSeed)
-    bool                                        ForceCaseBBBCStabilityFlag() const                                      { return forceCaseBBBCStabilityFlag; }
     SN_ENGINE                                   FryerSupernovaEngine() const                                            { return fryerSupernovaEngine; }
 
     string                                      GridFilename() const                                                    { return gridFilename; }
@@ -443,12 +443,14 @@ private:
     // Mass transfer options
     bool                                        useMassTransfer;                                                // Whether to use mass transfer (default = false)
 	bool                                        circulariseBinaryDuringMassTransfer;						    // Whether to circularise binary when it starts (default = false)
-	bool                                        forceCaseBBBCStabilityFlag;									    // Whether if all case BB/BC systems are forced to be stable or unstable (default = true)
-	bool                                        alwaysStableCaseBBBCFlag;									    // Whether if case BB/BC is always stable (default = true)
+	
+    CASE_BB_STABILITY_PRESCRIPTION              caseBBStabilityPrescription;									// Which prescription to use for the stability of case BB/BC mass transfer (default=ALWAYS_STABLE_ONTO_NSBH)
+    string                                      caseBBStabilityPrescriptionString;                              // String containing which case BB/BC mass transfer stability prescription to use (default = "None")
+    
 	bool                                        angularMomentumConservationDuringCircularisation;			    // Whether to conserve angular momentum while circularising or circularise to periastron (default = false)
 
     MT_ACCRETION_EFFICIENCY_PRESCRIPTION        massTransferAccretionEfficiencyPrescription;                    // Which accretion efficiency prescription will be used by the code (default = THERMALLY_LIMITED)
-    string                                      massTransferAccretionEfficiencyPrescriptionString;              // String containing which accretion efficiency prescription to use (defaul = "None")
+    string                                      massTransferAccretionEfficiencyPrescriptionString;              // String containing which accretion efficiency prescription to use (default = "None")
 
     double                                      massTransferFractionAccreted;                                   // In mass transfer, ammount of mass transferred that is accreted. 1 for conservative, 0 for fully-non conservative.
     double                                      massTransferCParameter;                                         // Detailed model parameter used in mass transfer
