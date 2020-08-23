@@ -398,8 +398,10 @@
 //                                      - More cleaning, removed some of the unnecessary prime quantities like m_SemiMajorAxisPrime, m_EccentricityPrime, etc.
 //                                      - Thermal timescales are now correctly computed after the CE phase
 //                                      - Detailed output passes a set of self-consistency checks (issue #288)
+// 02.13.13     JR - Aug 23, 2020   - Defect repairs:
+//                                      - Fixed debugging and logging macros in LogMacros.h
 
 
-const std::string VERSION_STRING = "02.13.12";
+const std::string VERSION_STRING = "02.13.13";
 
 # endif // __changelog_h__
