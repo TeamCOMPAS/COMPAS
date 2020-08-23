@@ -103,8 +103,8 @@ protected:
 
             double          CalculateThermalMassLossRate()                                          { return (m_Mass - m_CoreMass) / CalculateThermalTimescale(); }     // Use class member variables
 
-            double          CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass = 1.0);
-            double          CalculateThermalTimescale()                                             { return CalculateThermalTimescale(m_Mass, m_Radius, m_Luminosity, m_Mass - m_CoreMass); }
+            double          CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass = 1.0) const;
+            double          CalculateThermalTimescale() const                                             { return CalculateThermalTimescale(m_Mass, m_Radius, m_Luminosity, m_Mass - m_CoreMass); }
 
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
             void            CalculateTimescales()                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                     // Use class member variables
