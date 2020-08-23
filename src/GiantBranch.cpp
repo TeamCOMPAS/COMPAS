@@ -987,7 +987,7 @@ double GiantBranch::CalculateLifetimeToHeIgnition(const double p_Mass, const dou
  * Kalogera & Webbink 1996, eq 2
  *
  *
- * double CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass)
+ * double CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) const
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @param   [IN]    p_Radius                    Radius in Rsol
@@ -995,7 +995,7 @@ double GiantBranch::CalculateLifetimeToHeIgnition(const double p_Mass, const dou
  * @param   [IN]    p_EnvMass                   Envelope mass in Msol
  * @return                                      Thermal timescale in Myr
 */
-double GiantBranch::CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) {
+double GiantBranch::CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) const {
     return 30.0 * p_Mass * p_EnvMass / (p_Radius * p_Luminosity);       // G*Msol^2/(Lsol*Rsol) ~ 30
 }
 

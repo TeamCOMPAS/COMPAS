@@ -275,7 +275,6 @@ STELLAR_TYPE Star::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
     if (p_Switch && (stellarType != m_Star->StellarType())) {                               // switch to new stellar type if necessary?
         STELLAR_TYPE stellarTypePrev = SwitchTo(stellarType);                               // yes - switch
         m_Star->SetStellarTypePrev(stellarTypePrev);                                        // record previous stellar type
-        m_Star->CalculateAllTimescales();                                                   // calculate dynamical, thermal, nuclear and radial expansion timescales
         
         // recalculate stellar attributes after switching if necessary - transition may not be continuous (e.g. CH -> HeMS)
         // (this could get recursive, but shouldn't...)
@@ -439,8 +438,6 @@ double Star::EvolveOneTimestep(const double p_Dt) {
     (void)SwitchTo(stellarType);                                                                                // switch phase if required  JR: whether this goes before or after the log record is a little problematic, but in the end probably doesn't matter too much
 
     (void)m_Star->ResolveMassLoss();                                                                            // apply wind mass loss if required     JR: should this really be before the call to SwitchTo()?  It isn't in the original code
-
-     m_Star->CalculateAllTimescales();                                                                          // calculate dynamical, thermal, nuclear and radial expansion timescales
 
     return dt;                                                                                                  // return the timestep actually taken
 }

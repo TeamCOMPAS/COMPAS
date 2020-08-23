@@ -52,7 +52,6 @@ public:
         m_CEDetails.preCEE.nuclearTimescale          = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.preCEE.radialExpansionTimescale  = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-        m_CEDetails.postCEE.bindingEnergy            = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.postCEE.luminosity               = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.postCEE.temperature              = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.postCEE.dynamicalTimescale       = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -63,20 +62,16 @@ public:
 
         m_IsPrimary                                  = false;
 
-        m_RocheLobeRadius                            = DEFAULT_INITIAL_DOUBLE_VALUE;
-
         m_MassTransferDiff                           = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_MassLossDiff                               = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-        m_OrbitalEnergyPreSN                        = DEFAULT_INITIAL_DOUBLE_VALUE;
-        m_OrbitalEnergyPostSN                       = DEFAULT_INITIAL_DOUBLE_VALUE;
+        m_OrbitalEnergyPreSN                         = DEFAULT_INITIAL_DOUBLE_VALUE;
+        m_OrbitalEnergyPostSN                        = DEFAULT_INITIAL_DOUBLE_VALUE;
 
         m_FirstMassTransferEpisode                   = false;
         m_MassTransferCaseInitial                    = MT_CASE::NONE;
 
         m_OmegaTidesIndividualDiff                   = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-        m_RocheLobeTracker                           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
         m_RLOFDetails.isRLOF                         = false;
         m_RLOFDetails.experiencedRLOF                = false;
@@ -96,20 +91,16 @@ public:
 
         m_IsPrimary                = p_Star.m_IsPrimary;
 
-        m_RocheLobeRadius          = p_Star.m_RocheLobeRadius;
-
         m_MassTransferDiff         = p_Star.m_MassTransferDiff;
         m_MassLossDiff             = p_Star.m_MassLossDiff;
 
-        m_OrbitalEnergyPreSN      = p_Star.m_OrbitalEnergyPreSN;
-        m_OrbitalEnergyPostSN     = p_Star.m_OrbitalEnergyPostSN;
+        m_OrbitalEnergyPreSN       = p_Star.m_OrbitalEnergyPreSN;
+        m_OrbitalEnergyPostSN      = p_Star.m_OrbitalEnergyPostSN;
 
         m_FirstMassTransferEpisode = p_Star.m_FirstMassTransferEpisode;
         m_MassTransferCaseInitial  = p_Star.m_MassTransferCaseInitial;
 
         m_OmegaTidesIndividualDiff = p_Star.m_OmegaTidesIndividualDiff;
-
-        m_RocheLobeTracker         = p_Star.m_RocheLobeTracker;
 
         m_RLOFDetails              = p_Star.m_RLOFDetails;
     }
@@ -129,20 +120,16 @@ public:
 
             m_IsPrimary                = p_Star.m_IsPrimary;
 
-            m_RocheLobeRadius          = p_Star.m_RocheLobeRadius;
-
             m_MassTransferDiff         = p_Star.m_MassTransferDiff;
             m_MassLossDiff             = p_Star.m_MassLossDiff;
 
-            m_OrbitalEnergyPreSN      = p_Star.m_OrbitalEnergyPreSN;
-            m_OrbitalEnergyPostSN     = p_Star.m_OrbitalEnergyPostSN;
+            m_OrbitalEnergyPreSN       = p_Star.m_OrbitalEnergyPreSN;
+            m_OrbitalEnergyPostSN      = p_Star.m_OrbitalEnergyPostSN;
 
             m_FirstMassTransferEpisode = p_Star.m_FirstMassTransferEpisode;
             m_MassTransferCaseInitial  = p_Star.m_MassTransferCaseInitial;
 
             m_OmegaTidesIndividualDiff = p_Star.m_OmegaTidesIndividualDiff;
-
-            m_RocheLobeTracker         = p_Star.m_RocheLobeTracker;
 
             m_RLOFDetails              = p_Star.m_RLOFDetails;
         }
@@ -164,7 +151,6 @@ public:
     double          HeCoreMassAtCEE() const                                             { return m_CEDetails.HeCoreMass; }
     double          LambdaAtCEE() const                                                 { return m_CEDetails.lambda; }
 
-    double          BindingEnergyPostCEE() const                                        { return m_CEDetails.postCEE.bindingEnergy; }
     double          BindingEnergyPreCEE() const                                         { return m_CEDetails.preCEE.bindingEnergy; }
     double          DynamicalTimescalePostCEE() const                                   { return m_CEDetails.postCEE.dynamicalTimescale; }
     double          DynamicalTimescalePreCEE() const                                    { return m_CEDetails.preCEE.dynamicalTimescale; }
@@ -193,11 +179,10 @@ public:
     MT_CASE         MassTransferCaseInitial() const                                     { return m_MassTransferCaseInitial; }
     double          MassTransferDiff() const                                            { return m_MassTransferDiff; }
     double          OmegaTidesIndividualDiff() const                                    { return m_OmegaTidesIndividualDiff; }
-    double          OrbitalEnergyPostSN() const                                        { return m_OrbitalEnergyPostSN; };
-    double          OrbitalEnergyPreSN() const                                         { return m_OrbitalEnergyPreSN; };
+    double          OrbitalEnergyPostSN() const                                         { return m_OrbitalEnergyPostSN; };
+    double          OrbitalEnergyPreSN() const                                          { return m_OrbitalEnergyPreSN; };
     bool            RLOFPostCEE() const                                                 { return m_RLOFDetails.RLOFPostCEE; }
-    double          RocheLobeRadius() const                                             { return m_RocheLobeRadius; }
-    double          RocheLobeTracker() const                                            { return m_RocheLobeTracker; }
+    double          RocheLobeTracker(const double p_SemiMajorAxis, const double p_Eccentricity);
 
 
     // setters
@@ -262,10 +247,6 @@ private:
     double                  m_OrbitalEnergyPreSN;
 
 	StellarRLOFDetailsT     m_RLOFDetails;
-
-    double                  m_RocheLobeRadius;
-
-    double                  m_RocheLobeTracker;
 
 
     // the companion - set by calling SetCompanion()

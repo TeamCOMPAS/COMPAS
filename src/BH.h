@@ -48,7 +48,7 @@ protected:
 
             double          CalculateEddingtonCriticalRate()                                { return 1.5E-8 * (m_Radius * RSOL_TO_KM / 10.0) * MYR_TO_YEAR; }       // Sluys 2013 ("Binary Evolution in a Nutshell"), eq 70
 
-            double          CalculateGyrationRadius()                                       { return 0.4; }                                                         // AVG: Not sure about what to do with the gyration radius of a BH. It is point particle but you can define it as a solid sphere (k=2/5) with a R=R_{Schwarzschild}
+            double          CalculateGyrationRadius() const                                 { return 0.0; }                                                         // No tidal coupling to a BH
 
             double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0)    { return (2.0 / 5.0) * m_Mass * m_Radius * m_Radius; }
             double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)  { return CalculateMomentOfInertia(p_RemnantRadius * RSOL_TO_AU) * RSOL_TO_AU * RSOL_TO_AU; }

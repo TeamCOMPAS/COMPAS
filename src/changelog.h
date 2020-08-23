@@ -305,7 +305,7 @@
 //                                      - Issue #266 - Corrected calculation in BaseBinaryStar::SampleInitialMassDistribution() for KROUPA IMF distribution
 //                                      - Issue #275 - Previous stellar type not set when stellar type is switched mid-timestep - now fixed
 // 02.11.05      IM - Jun 26, 2020 - Defect repair:
-//  				                            - Issue #280 - Stars undergoing RLOF at ZAMS after masses are equalised were removed from run even if AllowRLOFatZAMS set
+//  				                    - Issue #280 - Stars undergoing RLOF at ZAMS after masses are equalised were removed from run even if AllowRLOFatZAMS set
 // 02.12.00      IM - Jun 29, 2020 - Defect repair:
 //                                      - Issue 277 - move UpdateAttributesAndAgeOneTimestepPreamble() to after ResolveSupernova() to avoid inconsistency
 // 02.12.01      IM - Jul 18, 2020 - Enhancement:
@@ -375,16 +375,33 @@
 //                                      - moved ERROR:NONE to top of enum in constants.h (so ERROR = 0 = NONE - makes more sense...)
 //                                      - added new program option '--enable-warnings' to enable warning messages (via SHOW_WARN macros).  Default is false.  SHOW_WARN macros were previously #undefined
 // 02.13.09     RTW - Aug 21, 2020  - Code cleanup:
-// 									 - Created changelog.txt and moved content over from constants.h
-// 									 - Changed OrbitalVelocity to OrbitalAngularVelocity where that parameter was misnamed
-// 									 - Changed Pre/PostSNeOrbitalVelocity to OrbitalVelocityPre/PostSN for consistency
-// 									 - Added and updated physical conversion constants for clarity (e.g MSOL to MSOL_TO_KG)
-// 									 - Removed ID from output files - not required unless debugging
-// 									 - Removed 'Total' from TotalOrbital(Energy/AngularMomentum) 
-// 									 - Typos
+// 									    - Created changelog.txt and moved content over from constants.h
+// 									    - Changed OrbitalVelocity to OrbitalAngularVelocity where that parameter was misnamed
+// 									    - Changed Pre/PostSNeOrbitalVelocity to OrbitalVelocityPre/PostSN for consistency
+// 									    - Added and updated physical conversion constants for clarity (e.g MSOL to MSOL_TO_KG)
+// 									    - Removed ID from output files, it is confusing and superceeded by SEED
+// 									    - Removed 'Total' from TotalOrbital(Energy/AngularMomentum)
+// 									    - Typos
 // 02.13.10     IM - Aug 21, 2020   - Enhancement:
-//                                  - Added caseBBStabilityPrescription in lieu of forceCaseBBBCStabilityFlag and alwaysStableCaseBBBCFlag to give more options for case BB/BC MT stability (issue #32)
+//                                      - Added caseBBStabilityPrescription in lieu of forceCaseBBBCStabilityFlag and alwaysStableCaseBBBCFlag to give more options for case BB/BC MT stability (issue #32)
+// 02.13.11     IM - Aug 22, 2020   - Enhancement:
+//                                      - Removed several stored options (e.g., m_OrbitalAngularVelocity, m_RocheLobeTracker, etc.) to recompute them on an as-needed basis
+//                                      - Removed some inf values in detailed outputs
+//                                      - Slight speed-ups where feasible
+//                                      - Shift various calculations to only be performed when needed, at printing, and give consistent values there (e.g., OmegaBreak, which was never updated previously)
+//                                      - Remove a number of internal variables
+//                                      - Declare functions constant where feasible
+//                                      - Remove options to calculate Zetas and Lambdas at every timestep; variables that only appear in detailed outputs should not be computed at every timestep in a standard run
+//                                      - Update documentation
+//                                      - Remove postCEE binding energy (meaningless and wasn't re-computed, anyway)
+// 02.13.12     IM - Aug 23, 2020   - Enhancement:
+//                                      - More cleaning, removed some of the unnecessary prime quantities like m_SemiMajorAxisPrime, m_EccentricityPrime, etc.
+//                                      - Thermal timescales are now correctly computed after the CE phase
+//                                      - Detailed output passes a set of self-consistency checks (issue #288)
+// 02.13.13     JR - Aug 23, 2020   - Defect repairs:
+//                                      - Fixed debugging and logging macros in LogMacros.h
 
-const std::string VERSION_STRING = "02.13.10";
+
+const std::string VERSION_STRING = "02.13.13";
 
 # endif // __changelog_h__
