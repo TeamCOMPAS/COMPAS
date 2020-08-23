@@ -395,10 +395,10 @@
 //                                      - Update documentation
 //                                      - Remove postCEE binding energy (meaningless and wasn't re-computed, anyway)
 // 02.13.12     IM - Aug 23, 2020   - Enhancement:
-//                                      - More cleaning, removed some of the unnnecessary prime quantities like m_SemiMajorAxisPrime, m_EccentricityPrime, etc.
+//                                      - More cleaning, removed some of the unnecessary prime quantities like m_SemiMajorAxisPrime, m_EccentricityPrime, etc.
 //                                      - Thermal timescales are now correctly computed after the CE phase
 //                                      - Detailed output passes a set of self-consistency checks (issue #288)
-//                                      -
+
 
 const std::string VERSION_STRING = "02.13.12";
 
