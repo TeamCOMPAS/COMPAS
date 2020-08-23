@@ -181,9 +181,6 @@ void Options::InitialiseMemberVariables(void) {
 
     singleStar                                                      = false;                                                                            // Flag to evolve a single star
 
-	lambdaCalculationEveryTimeStep                                  = false;
-	zetaCalculationEveryTimeStep                                    = false;
-
 	beBinaries                                                      = false;
     evolvePulsars                                                   = false;                                                                            // Whether to evolve pulsars
 	evolveUnboundSystems                                            = false;                                                                            // Allow unbound syetms to evolve
@@ -626,7 +623,6 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("evolve-pulsars",                                              po::value<bool>(&evolvePulsars)->default_value(evolvePulsars)->implicit_value(true),                                                                        ("Evolve pulsars (default = " + std::string(evolvePulsars ? "TRUE" : "FALSE") + ")").c_str())
 			("evolve-unbound-systems",                                      po::value<bool>(&evolveUnboundSystems)->default_value(evolveUnboundSystems)->implicit_value(true),                                                          ("Continue evolving stars even if the binary is disrupted (default = " + std::string(evolveUnboundSystems ? "TRUE" : "FALSE") + ")").c_str())
 
-			("lambda-calculation-every-timeStep",                           po::value<bool>(&lambdaCalculationEveryTimeStep)->default_value(lambdaCalculationEveryTimeStep)->implicit_value(true),                                      ("Calculate all values of lambda at each timestep (default = " + std::string(lambdaCalculationEveryTimeStep ? "TRUE" : "FALSE") + ")").c_str())
    		   	("massTransfer",                                                po::value<bool>(&useMassTransfer)->default_value(useMassTransfer)->implicit_value(true),                                                                    ("Enable mass transfer (default = " + std::string(useMassTransfer ? "TRUE" : "FALSE") + ")").c_str())
 		    ("pair-instability-supernovae",                                 po::value<bool>(&usePairInstabilitySupernovae)->default_value(usePairInstabilitySupernovae)->implicit_value(true),                                          ("Enable pair instability supernovae (PISN) (default = " + std::string(usePairInstabilitySupernovae ? "TRUE" : "FALSE") + ")").c_str())
             ("populationDataPrinting",                                      po::value<bool>(&populationDataPrinting)->default_value(populationDataPrinting)->implicit_value(true),                                                      ("Print details of population (default = " + std::string(populationDataPrinting ? "TRUE" : "FALSE") + ")").c_str())
@@ -647,9 +643,6 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             ("single-star",                                                 po::value<bool>(&singleStar)->default_value(singleStar)->implicit_value(true),                                                                              ("Evolve single star(s) (default = " + std::string(singleStar ? "TRUE" : "FALSE") + ")").c_str())
 
 		    ("use-mass-loss",                                               po::value<bool>(&useMassLoss)->default_value(useMassLoss)->implicit_value(true),                                                                            ("Enable mass loss (default = " + std::string(useMassLoss ? "TRUE" : "FALSE") + ")").c_str())
-
-			("zeta-calculation-every-timestep",                             po::value<bool>(&zetaCalculationEveryTimeStep)->default_value(zetaCalculationEveryTimeStep)->implicit_value(true),                                          ("Calculate all values of MT zetas at each timestep (default = " + std::string(zetaCalculationEveryTimeStep ? "TRUE" : "FALSE") + ")").c_str())
-
 
 			// numerical options - alphabetically grouped by type
 
