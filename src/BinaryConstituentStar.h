@@ -52,7 +52,6 @@ public:
         m_CEDetails.preCEE.nuclearTimescale          = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.preCEE.radialExpansionTimescale  = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-        m_CEDetails.postCEE.bindingEnergy            = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.postCEE.luminosity               = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.postCEE.temperature              = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.postCEE.dynamicalTimescale       = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -66,8 +65,8 @@ public:
         m_MassTransferDiff                           = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_MassLossDiff                               = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-        m_OrbitalEnergyPreSN                        = DEFAULT_INITIAL_DOUBLE_VALUE;
-        m_OrbitalEnergyPostSN                       = DEFAULT_INITIAL_DOUBLE_VALUE;
+        m_OrbitalEnergyPreSN                         = DEFAULT_INITIAL_DOUBLE_VALUE;
+        m_OrbitalEnergyPostSN                        = DEFAULT_INITIAL_DOUBLE_VALUE;
 
         m_FirstMassTransferEpisode                   = false;
         m_MassTransferCaseInitial                    = MT_CASE::NONE;
@@ -124,8 +123,8 @@ public:
             m_MassTransferDiff         = p_Star.m_MassTransferDiff;
             m_MassLossDiff             = p_Star.m_MassLossDiff;
 
-            m_OrbitalEnergyPreSN      = p_Star.m_OrbitalEnergyPreSN;
-            m_OrbitalEnergyPostSN     = p_Star.m_OrbitalEnergyPostSN;
+            m_OrbitalEnergyPreSN       = p_Star.m_OrbitalEnergyPreSN;
+            m_OrbitalEnergyPostSN      = p_Star.m_OrbitalEnergyPostSN;
 
             m_FirstMassTransferEpisode = p_Star.m_FirstMassTransferEpisode;
             m_MassTransferCaseInitial  = p_Star.m_MassTransferCaseInitial;
@@ -152,7 +151,6 @@ public:
     double          HeCoreMassAtCEE() const                                             { return m_CEDetails.HeCoreMass; }
     double          LambdaAtCEE() const                                                 { return m_CEDetails.lambda; }
 
-    double          BindingEnergyPostCEE() const                                        { return m_CEDetails.postCEE.bindingEnergy; }
     double          BindingEnergyPreCEE() const                                         { return m_CEDetails.preCEE.bindingEnergy; }
     double          DynamicalTimescalePostCEE() const                                   { return m_CEDetails.postCEE.dynamicalTimescale; }
     double          DynamicalTimescalePreCEE() const                                    { return m_CEDetails.preCEE.dynamicalTimescale; }

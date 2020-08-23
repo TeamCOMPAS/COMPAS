@@ -66,7 +66,6 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
 
         switch (property) {
             case ANY_STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE:                  value = BindingEnergyAtCEE();                           break;
-            case ANY_STAR_PROPERTY::BINDING_ENERGY_POST_COMMON_ENVELOPE:                value = BindingEnergyPostCEE();                         break;
             case ANY_STAR_PROPERTY::BINDING_ENERGY_PRE_COMMON_ENVELOPE:                 value = BindingEnergyPreCEE();                          break;
             case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMMON_ENVELOPE:                    value = COCoreMassAtCEE();                              break;
             case ANY_STAR_PROPERTY::CORE_MASS_AT_COMMON_ENVELOPE:                       value = CoreMassAtCEE();                                break;
@@ -190,7 +189,6 @@ void BinaryConstituentStar::SetPreCEEValues() {
 /*
  * Calculate (or set) post common envelope values:
  *
- *    m_CEDetails.postCEE.bindingEnergy
  *    m_CEDetails.postCEE.dynamicalTimescale
  *    m_CEDetails.postCEE.eccentricity
  *    m_CEDetails.postCEE.luminosity
@@ -208,7 +206,6 @@ void BinaryConstituentStar::SetPreCEEValues() {
  */
 void BinaryConstituentStar::SetPostCEEValues() {
 
-    m_CEDetails.postCEE.bindingEnergy            = m_CEDetails.bindingEnergy;
     m_CEDetails.postCEE.dynamicalTimescale       = CalculateDynamicalTimescale();
     m_CEDetails.postCEE.luminosity               = Luminosity();
     m_CEDetails.postCEE.mass                     = Mass();
