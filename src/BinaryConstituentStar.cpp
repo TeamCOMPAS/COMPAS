@@ -189,7 +189,6 @@ void BinaryConstituentStar::SetPreCEEValues() {
 /*
  * Calculate (or set) post common envelope values:
  *
- *    m_CEDetails.postCEE.bindingEnergy
  *    m_CEDetails.postCEE.dynamicalTimescale
  *    m_CEDetails.postCEE.eccentricity
  *    m_CEDetails.postCEE.luminosity
@@ -207,7 +206,6 @@ void BinaryConstituentStar::SetPreCEEValues() {
  */
 void BinaryConstituentStar::SetPostCEEValues() {
 
-    m_CEDetails.postCEE.bindingEnergy            = m_CEDetails.bindingEnergy;
     m_CEDetails.postCEE.dynamicalTimescale       = CalculateDynamicalTimescale();
     m_CEDetails.postCEE.luminosity               = Luminosity();
     m_CEDetails.postCEE.mass                     = Mass();

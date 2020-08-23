@@ -305,7 +305,7 @@
 //                                      - Issue #266 - Corrected calculation in BaseBinaryStar::SampleInitialMassDistribution() for KROUPA IMF distribution
 //                                      - Issue #275 - Previous stellar type not set when stellar type is switched mid-timestep - now fixed
 // 02.11.05      IM - Jun 26, 2020 - Defect repair:
-//  				                            - Issue #280 - Stars undergoing RLOF at ZAMS after masses are equalised were removed from run even if AllowRLOFatZAMS set
+//  				                    - Issue #280 - Stars undergoing RLOF at ZAMS after masses are equalised were removed from run even if AllowRLOFatZAMS set
 // 02.12.00      IM - Jun 29, 2020 - Defect repair:
 //                                      - Issue 277 - move UpdateAttributesAndAgeOneTimestepPreamble() to after ResolveSupernova() to avoid inconsistency
 // 02.12.01      IM - Jul 18, 2020 - Enhancement:
@@ -393,7 +393,13 @@
 //                                      - Declare functions constant where feasible
 //                                      - Remove options to calculate Zetas and Lambdas at every timestep; variables that only appear in detailed outputs should not be computed at every timestep in a standard run
 //                                      - Update documentation
+//                                      - Remove postCEE binding energy (meaningless and wasn't re-computed, anyway)
+// 02.13.12     IM - Aug 23, 2020   - Enhancement:
+//                                      - More cleaning, removed some of the unnnecessary prime quantities like m_SemiMajorAxisPrime, m_EccentricityPrime, etc.
+//                                      - Thermal timescales are now correctly computed after the CE phase
+//                                      - Detailed output passes a set of self-consistency checks (issue #288)
+//                                      -
 
-const std::string VERSION_STRING = "02.13.11";
+const std::string VERSION_STRING = "02.13.12";
 
 # endif // __changelog_h__
