@@ -379,10 +379,12 @@
 // 									 - Changed OrbitalVelocity to OrbitalAngularVelocity where that parameter was misnamed
 // 									 - Changed Pre/PostSNeOrbitalVelocity to OrbitalVelocityPre/PostSN for consistency
 // 									 - Added and updated physical conversion constants for clarity (e.g MSOL to MSOL_TO_KG)
-// 									 - Removed ID from output files, it is confusing and superceeded by SEED
+// 									 - Removed ID from output files - not required unless debugging
 // 									 - Removed 'Total' from TotalOrbital(Energy/AngularMomentum) 
 // 									 - Typos
+// 02.13.10     IM - Aug 21, 2020   - Enhancement:
+//                                  - Added caseBBStabilityPrescription in lieu of forceCaseBBBCStabilityFlag and alwaysStableCaseBBBCFlag to give more options for case BB/BC MT stability (issue #32)
 
-const std::string VERSION_STRING = "02.13.09";
+const std::string VERSION_STRING = "02.13.10";
 
 # endif // __changelog_h__

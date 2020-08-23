@@ -1516,7 +1516,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *
  * <props_list> ::= <prop_spec> [ <prop_delim> <props_list> ]
  *
- * <prop_spec>  ::= <prop_type> "::" <prop_name> <delim>
+ * <prop_spec>  ::= <prop_type> "::" <prop_name> <prop_delim>
  *
  * <spec_delim> ::= " " | EOL
  *

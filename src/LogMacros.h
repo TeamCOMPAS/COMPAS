@@ -29,7 +29,7 @@
     #define DBG(...)                                                GET_MACRO(_0, ##__VA_ARGS__, DBG_5, DBG_4, DBG_3, DBG_2, DBG_1, DBG_0) (__VA_ARGS__)
 
     #define DBG_ID_0()                                              { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Debug("", 0, _ss.str()); }
-    #define DBG_ID_1(dbgLevel)                                      { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Debug("", dbgLevel, _ss.str()); }
+    #define DBG_ID_1(dbgStr)                                        { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << dbgStr; Log::Instance()->Debug("", 0, _ss.str()); }
     #define DBG_ID_2(dbgLevel, dbgStr)                              { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << dbgStr; Log::Instance()->Debug("", dbgLevel, _ss.str()); }
     #define DBG_ID_3(dbgClass, dbgLevel, dbgStr)                    { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << dbgStr; Log::Instance()->Debug(dbgClass, dbgLevel, _ss.str()); }
     #define DBG_ID_4()
@@ -46,7 +46,7 @@
 
     #define DBG_ID_IF_0()
     #define DBG_ID_IF_1(cond)                                       { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Debug("", 0, _ss.str()); }}
-    #define DBG_ID_IF_2(cond, dbgLevel)                             { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Debug("", dbgLevel, _ss.str()); }}
+    #define DBG_ID_IF_2(cond, dbgStr)                               { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << dbgStr; Log::Instance()->Debug("", 0, _ss.str()); }}
     #define DBG_ID_IF_3(cond, dbgLevel, dbgStr)                     { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << dbgStr; Log::Instance()->Debug("", dbgLevel, _ss.str()); }}
     #define DBG_ID_IF_4(cond, dbgClass, dbgLevel, dbgStr)           { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << dbgStr; Log::Instance()->Debug(dbgClass, dbgLevel, _ss.str()); }}
     #define DBG_ID_IF_5()
@@ -91,7 +91,7 @@
     #define DBG_WARN(...)                                           GET_MACRO(_0, ##__VA_ARGS__, DBG_WARN_5, DBG_WARN_4, DBG_WARN_3, DBG_WARN_2, DBG_WARN_1, DBG_WARN_0)(__VA_ARGS__)
 
     #define DBG_WARN_ID_0()                                         { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";              Log::Instance()->Say("", 0, _ss.str()); }
-    #define DBG_WARN_ID_1(warnLevel)                                { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";              Log::Instance()->Say("", warnLevel, _ss.str()); }
+    #define DBG_WARN_ID_1(warnStr)                                  { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << warnStr; Log::Instance()->Say("", 0, _ss.str()); }
     #define DBG_WARN_ID_2(warnLevel, warnStr)                       { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << warnStr; Log::Instance()->Say("", warnLevel, _ss.str()); }
     #define DBG_WARN_ID_3(warnClass, warnLevel, warnStr)            { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << warnStr; Log::Instance()->Say(warnClass, warnLevel, _ss.str()); }
     #define DBG_WARN_ID_4()
@@ -108,7 +108,7 @@
 
     #define DBG_WARN_ID_IF_0()
     #define DBG_WARN_ID_IF_1(cond)                                  { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";              Log::Instance()->Say("", 0, _ss.str()); }}
-    #define DBG_WARN_ID_IF_2(cond, warnLevel)                       { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";              Log::Instance()->Say("", warnLevel, _ss.str()); }}
+    #define DBG_WARN_ID_IF_2(cond, warnStr)                         { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << warnStr; Log::Instance()->Say("", 0, _ss.str()); }}
     #define DBG_WARN_ID_IF_3(cond, warnLevel, warnStr)              { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << warnStr; Log::Instance()->Say("", warnLevel, _ss.str()); }}
     #define DBG_WARN_ID_IF_4(cond, warnClass, warnLevel, warnStr)   { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << warnStr; Log::Instance()->Say(warnClass, warnLevel, _ss.str()); }}
     #define DBG_WARN_ID_IF_5()
@@ -150,7 +150,7 @@
 
 #define SAY_ID_IF_0()
 #define SAY_ID_IF_1(cond)                                           { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Say("", 0, _ss.str()); }}
-#define SAY_ID_IF_2(cond, sayLevel)                                 { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Say("", sayLevel, _ss.str()); }}
+#define SAY_ID_IF_2(cond, sayStr)                                   { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << sayStr; Log::Instance()->Say("", 0, _ss.str()); }}
 #define SAY_ID_IF_3(cond, sayLevel, sayStr)                         { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << sayStr; Log::Instance()->Say("", sayLevel, _ss.str()); }}
 #define SAY_ID_IF_4(cond, sayClass, sayLevel, sayStr)               { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << sayStr; Log::Instance()->Say(sayClass, sayLevel, _ss.str()); }}
 #define SAY_ID_IF_5()
@@ -164,11 +164,13 @@
 #define LOG_2(logfileId, logStr)                                    { std::stringstream _ss; _ss << logStr; Log::Instance()->Put(logfileId, "", 0, _ss.str()); }
 #define LOG_3(logfileId, logLevel, logStr)                          { std::stringstream _ss; _ss << logStr; Log::Instance()->Put(logfileId, "", logLevel, _ss.str()); }
 #define LOG_4(logfileId, logClass, logLevel, logStr)                { std::stringstream _ss; _ss << logStr; Log::Instance()->Put(logfileId, logClass, logLevel, _ss.str()); }
+#define LOG_5()
 #define LOG(...)                                                    GET_MACRO(_0, ##__VA_ARGS__, LOG_5, LOG_4, LOG_3, LOG_2, LOG_1, LOG_0)(__VA_ARGS__)
 
+#define LOG_ID_0()
 #define LOG_ID_1(logfileId)                                         { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Put(logfileId, "", 0, _ss.str()); }
-#define LOG_ID_2(logfileId, logLevel)                               { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Put(logfileId, "", logLevel, _ss.str()); }
-#define LOG_ID_3(logfileId, logClass, logLevel)                     { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Put(logfileId, logClass, logLevel, _ss.str()); }
+#define LOG_ID_2(logfileId, logStr)                                 { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << logStr; Log::Instance()->Put(logfileId, "", 0, _ss.str()); }
+#define LOG_ID_3(logfileId, logLevel, logStr)                       { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << logStr; Log::Instance()->Put(logfileId, "", logLevel, _ss.str()); }
 #define LOG_ID_4(logfileId, logClass, logLevel, logStr)             { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << logStr; Log::Instance()->Put(logfileId, logClass, logLevel, _ss.str()); }
 #define LOG_ID_5()
 #define LOG_ID(...)                                                 GET_MACRO(_0, ##__VA_ARGS__, LOG_ID_5, LOG_ID_4, LOG_ID_3, LOG_ID_2, LOG_ID_1, LOG_ID_0)(__VA_ARGS__)
@@ -184,8 +186,8 @@
 #define LOG_ID_IF_0()
 #define LOG_ID_IF_1()
 #define LOG_ID_IF_2(logfileId, cond)                                { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Put(logfileId, "", 0, _ss.str()); }}
-#define LOG_ID_IF_3(logfileId, cond, logLevel)                      { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Put(logfileId, "", logLevel, _ss.str()); }}
-#define LOG_ID_IF_4(logfileId, cond, logClass, logLevel)            { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Put(logfileId, logClass, logLevel, _ss.str()); }}
+#define LOG_ID_IF_3(logfileId, cond, logStr)                        { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << logStr; Log::Instance()->Put(logfileId, "", 0, _ss.str()); }}
+#define LOG_ID_IF_4(logfileId, cond, logLevel, logStr)              { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << logStr; Log::Instance()->Put(logfileId, "", logLevel, _ss.str()); }}
 #define LOG_ID_IF_5(logfileId, cond, logClass, logLevel, logStr)    { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << logStr; Log::Instance()->Put(logfileId, logClass, logLevel, _ss.str()); }}
 #define LOG_ID_IF(...)                                              GET_MACRO(_0, ##__VA_ARGS__, LOG_ID_IF_5, LOG_ID_IF_4, LOG_ID_IF_3, LOG_ID_IF_2, LOG_ID_IF_1, LOG_ID_IF_0)(__VA_ARGS__)
 
@@ -199,8 +201,8 @@
 
 #define LOGV_ID_0()
 #define LOGV_ID_1(logfileId)                                        { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Put(logfileId, "", 0, _ss.str());              Log::Instance()->Say("", 0, _ss.str()); }
-#define LOGV_ID_2(logfileId, logLevel)                              { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Put(logfileId, "", logLevel, _ss.str());       Log::Instance()->Say("", logLevel, _ss.str()); }
-#define LOGV_ID_3(logfileId, logClass, logLevel)                    { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Put(logfileId, logClass, logLevel, _ss.str()); Log::Instance()->Say(logClass, logLevel, _ss.str()); }
+#define LOGV_ID_2(logfileId, logStr)                                { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << logStr; Log::Instance()->Put(logfileId, "", 0, _ss.str());              Log::Instance()->Say("", 0, _ss.str()); }
+#define LOGV_ID_3(logfileId, logLevel, logStr)                      { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << logStr; Log::Instance()->Put(logfileId, "", logLevel, _ss.str());       Log::Instance()->Say("", logLevel, _ss.str()); }
 #define LOGV_ID_4(logfileId, logClass, logLevel, logStr)            { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << logStr; Log::Instance()->Put(logfileId, logClass, logLevel, _ss.str()); Log::Instance()->Say(logClass, logLevel, _ss.str()); }
 #define LOGV_ID_5()
 #define LOGV_ID(...)                                                GET_MACRO(_0, ##__VA_ARGS__, LOGV_ID_5, LOGV_ID_4, LOGV_ID_3, LOGV_ID_2, LOGV_ID_1, LOGV_ID_0)(__VA_ARGS__)
@@ -216,8 +218,8 @@
 #define LOGV_ID_IF_0()
 #define LOGV_ID_IF_1()
 #define LOGV_ID_IF_2(logfileId, cond)                               { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Put(logfileId, "", 0, _ss.str());              Log::Instance()->Say("", 0, _ss.str()); }}
-#define LOGV_ID_IF_3(logfileId, cond, logLevel)                     { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Put(logfileId, "", logLevel, _ss.str());       Log::Instance()->Say("", logLevel, _ss.str()); }}
-#define LOGV_ID_IF_4(logfileId, cond, logClass, logLevel)           { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'";             Log::Instance()->Put(logfileId, logClass, logLevel, _ss.str()); Log::Instance()->Say(logClass, logLevel, _ss.str()); }}
+#define LOGV_ID_IF_3(logfileId, cond, logStr)                       { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << logStr; Log::Instance()->Put(logfileId, "", 0, _ss.str());              Log::Instance()->Say("", 0, _ss.str()); }}
+#define LOGV_ID_IF_4(logfileId, cond, logLevel, logStr)             { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << logStr; Log::Instance()->Put(logfileId, "", logLevel, _ss.str());       Log::Instance()->Say("", logLevel, _ss.str()); }}
 #define LOGV_ID_IF_5(logfileId, cond, logClass, logLevel, logStr)   { if (cond) { std::stringstream _ss; _ss << "IN FUNCTION " << "'" << __PRETTY_FUNCTION__ << "'\n" << logStr; Log::Instance()->Put(logfileId, logClass, logLevel, _ss.str()); Log::Instance()->Say(logClass, logLevel, _ss.str()); }}
 #define LOGV_ID_IF(...)                                             GET_MACRO(_0, ##__VA_ARGS__, LOGV_ID_IF_5, LOGV_ID_IF_4, LOGV_ID_IF_3, LOGV_ID_IF_2, LOGV_ID_IF_1, LOGV_ID_IF_0)(__VA_ARGS__)
 
