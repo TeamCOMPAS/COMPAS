@@ -170,9 +170,9 @@ constexpr double DEFAULT_INITIAL_BOOLEAN_VALUE          = false;                
 
 // mass
 constexpr double G_TO_KG                                = 1.0E-3;                                                   // convert grams to kg
-constexpr double MSOL_TO_G                              = 1.98892E33;                                               // convert Solar Masses to grams
-constexpr double MSOL_TO_KG                             = MSOL_TO_G * G_TO_KG;                                      // convert Solar Masses to kg 
-constexpr double KG_TO_MSOL                             = 1.0 / MSOL_TO_KG;                                         // convert kg to Solar Masses
+constexpr double MSOL_TO_G                              = 1.98892E33;                                               // convert Solar Mass to g
+constexpr double MSOL_TO_KG                             = MSOL_TO_G * G_TO_KG;                                      // convert Solar Mass to kg 
+constexpr double KG_TO_MSOL                             = 1.0 / MSOL_TO_KG;                                         // convert kg to Solar Mass
 
 // length
 constexpr double KM_TO_CM 					            = 1.0E5;									                // convert km to cm
@@ -201,7 +201,7 @@ constexpr double YEAR_TO_MYR                            = 1.0E-6;               
 // energy
 constexpr double JOULES_TO_ERG                          = 1.0E7;                                                    // convert Joules to Erg
 
-// B-field
+// B field
 constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
 constexpr double GAUSS_TO_TESLA                         = 1.0 / TESLA_TO_GAUSS;                                     // convert Gauss to Tesla
 
@@ -1345,7 +1345,6 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     BINDING_ENERGY_AT_COMMON_ENVELOPE,               \
     BINDING_ENERGY_FIXED,                            \
     BINDING_ENERGY_NANJING,                          \
-    BINDING_ENERGY_POST_COMMON_ENVELOPE,             \
     BINDING_ENERGY_PRE_COMMON_ENVELOPE,              \
     BINDING_ENERGY_LOVERIDGE,                        \
     BINDING_ENERGY_LOVERIDGE_WINDS,                  \
@@ -1487,7 +1486,6 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE,               "BINDING_ENERGY_AT_COMMON_ENVELOPE" },
     { STAR_PROPERTY::BINDING_ENERGY_FIXED,                            "BINDING_ENERGY_FIXED" },
     { STAR_PROPERTY::BINDING_ENERGY_NANJING,                          "BINDING_ENERGY_NANJING" },
-    { STAR_PROPERTY::BINDING_ENERGY_POST_COMMON_ENVELOPE,             "BINDING_ENERGY_POST_COMMON_ENVELOPE" },
     { STAR_PROPERTY::BINDING_ENERGY_PRE_COMMON_ENVELOPE,              "BINDING_ENERGY_PRE_COMMON_ENVELOPE" },
     { STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE,                        "BINDING_ENERGY_LOVERIDGE" },
     { STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS,                  "BINDING_ENERGY_LOVERIDGE_WINDS" },
@@ -1583,7 +1581,6 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::SUPERNOVA_KICK_VELOCITY_MAGNITUDE_RANDOM_NUMBER, "SUPERNOVA_KICK_VELOCITY_MAGNITUDE_RANDOM_NUMBER" },
     { STAR_PROPERTY::SUPERNOVA_PHI,                                   "SUPERNOVA_PHI" },
     { STAR_PROPERTY::SUPERNOVA_THETA,                                 "SUPERNOVA_THETA" },
-    { STAR_PROPERTY::SPEED,                                           "SPEED" },
     { STAR_PROPERTY::TEMPERATURE,                                     "TEMPERATURE" },
     { STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE,                "TEMPERATURE_POST_COMMON_ENVELOPE" },
     { STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE,                 "TEMPERATURE_PRE_COMMON_ENVELOPE" },
@@ -1659,9 +1656,7 @@ enum class BINARY_PROPERTY: int {
     ECCENTRICITY_INITIAL,
     ECCENTRICITY_POST_COMMON_ENVELOPE,
     ECCENTRICITY_PRE_SUPERNOVA,
-    ECCENTRICITY_POST_SUPERNOVA,
     ECCENTRICITY_PRE_COMMON_ENVELOPE,
-    ECCENTRICITY_PRIME,
     ERROR,
     ID,
     IMMEDIATE_RLOF_POST_COMMON_ENVELOPE,
@@ -1681,7 +1676,6 @@ enum class BINARY_PROPERTY: int {
     OPTIMISTIC_COMMON_ENVELOPE,
     ORBITAL_ANGULAR_VELOCITY,
     ORBITAL_VELOCITY_PRE_SUPERNOVA,
-    ORBITAL_VELOCITY_POST_SUPERNOVA,
     RADIUS_1_POST_COMMON_ENVELOPE,
     RADIUS_1_PRE_COMMON_ENVELOPE,
     RADIUS_2_POST_COMMON_ENVELOPE,
@@ -1700,12 +1694,10 @@ enum class BINARY_PROPERTY: int {
     SEMI_MAJOR_AXIS_INITIAL,
     SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,
     SEMI_MAJOR_AXIS_PRE_SUPERNOVA,
-    SEMI_MAJOR_AXIS_POST_SUPERNOVA,
     SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,
-    SEMI_MAJOR_AXIS_POST_SUPERNOVA_RSOL,
     SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,
-    SEMI_MAJOR_AXIS_PRIME,
-    SEMI_MAJOR_AXIS_PRIME_RSOL,
+    SEMI_MAJOR_AXIS,
+    SEMI_MAJOR_AXIS_RSOL,
     SIMULTANEOUS_RLOF,
     STABLE_RLOF_POST_COMMON_ENVELOPE,
     STELLAR_MERGER,
@@ -1723,8 +1715,8 @@ enum class BINARY_PROPERTY: int {
     SYSTEMIC_SPEED,
     TIME,
     TIME_TO_COALESCENCE,
-    TOTAL_ANGULAR_MOMENTUM_PRIME,
-    TOTAL_ENERGY_PRIME,
+    TOTAL_ANGULAR_MOMENTUM,
+    TOTAL_ENERGY,
     WOLF_RAYET_FACTOR,
     ZETA_LOBE,
     ZETA_STAR
@@ -1758,9 +1750,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::ECCENTRICITY_INITIAL,                               "ECCENTRICITY_INITIAL" },
     { BINARY_PROPERTY::ECCENTRICITY_POST_COMMON_ENVELOPE,                  "ECCENTRICITY_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,                         "ECCENTRICITY_PRE_SUPERNOVA" },
-    { BINARY_PROPERTY::ECCENTRICITY_POST_SUPERNOVA,                        "ECCENTRICITY_POST_SUPERNOVA" },
     { BINARY_PROPERTY::ECCENTRICITY_PRE_COMMON_ENVELOPE,                   "ECCENTRICITY_PRE_COMMON_ENVELOPE" },
-    { BINARY_PROPERTY::ECCENTRICITY_PRIME,                                 "ECCENTRICITY_PRIME" },
     { BINARY_PROPERTY::ERROR,                                              "ERROR" },
     { BINARY_PROPERTY::ID,                                                 "ID" },
     { BINARY_PROPERTY::IMMEDIATE_RLOF_POST_COMMON_ENVELOPE,                "IMMEDIATE_RLOF_POST_COMMON_ENVELOPE" },
@@ -1780,7 +1770,6 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                         "OPTIMISTIC_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::ORBITAL_ANGULAR_VELOCITY,                           "ORBITAL_ANGULAR_VELOCITY" },
     { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                     "ORBITAL_VELOCITY_PRE_SUPERNOVA" },
-    { BINARY_PROPERTY::ORBITAL_VELOCITY_POST_SUPERNOVA,                    "ORBITAL_VELOCITY_POST_SUPERNOVA" },
     { BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,                      "RADIUS_1_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::RADIUS_1_PRE_COMMON_ENVELOPE,                       "RADIUS_1_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE,                      "RADIUS_2_POST_COMMON_ENVELOPE" },
@@ -1799,12 +1788,10 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,                            "SEMI_MAJOR_AXIS_INITIAL" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,               "SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                      "SEMI_MAJOR_AXIS_PRE_SUPERNOVA" },
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_SUPERNOVA,                     "SEMI_MAJOR_AXIS_POST_SUPERNOVA" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,                 "SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL" },
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_SUPERNOVA_RSOL,                "SEMI_MAJOR_AXIS_POST_SUPERNOVA_RSOL" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                "SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE" },
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME,                              "SEMI_MAJOR_AXIS_PRIME" },
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL,                         "SEMI_MAJOR_AXIS_PRIME_RSOL" },
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS,                                    "SEMI_MAJOR_AXIS" },
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_RSOL,                               "SEMI_MAJOR_AXIS_RSOL" },
     { BINARY_PROPERTY::SIMULTANEOUS_RLOF,                                  "SIMULTANEOUS_RLOF" },
     { BINARY_PROPERTY::STABLE_RLOF_POST_COMMON_ENVELOPE,                   "STABLE_RLOF_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::STELLAR_MERGER,                                     "STELLAR_MERGER" },
@@ -1822,8 +1809,8 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::SYSTEMIC_SPEED,                                     "SYSTEMIC_SPEED" },
     { BINARY_PROPERTY::TIME,                                               "TIME" },
     { BINARY_PROPERTY::TIME_TO_COALESCENCE,                                "TIME_TO_COALESCENCE" },
-    { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM_PRIME,                       "TOTAL_ANGULAR_MOMENTUM_PRIME" },
-    { BINARY_PROPERTY::TOTAL_ENERGY_PRIME,                                 "TOTAL_ENERGY_PRIME" },
+    { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM,                             "TOTAL_ANGULAR_MOMENTUM" },
+    { BINARY_PROPERTY::TOTAL_ENERGY,                                       "TOTAL_ENERGY" },
     { BINARY_PROPERTY::WOLF_RAYET_FACTOR,                                  "WOLF_RAYET_FACTOR" },
     { BINARY_PROPERTY::ZETA_LOBE,                                          "ZETA_LOBE" },
     { BINARY_PROPERTY::ZETA_STAR,                                          "ZETA_STAR" }
@@ -1901,7 +1888,6 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,         "Binding_Energy@CE",    "erg",              14, 6 }},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_FIXED,                              { TYPENAME::DOUBLE,         "BE_Fixed",             "erg",              14, 6 }},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_NANJING,                            { TYPENAME::DOUBLE,         "BE_Nanjing",           "erg",              14, 6 }},
-    { ANY_STAR_PROPERTY::BINDING_ENERGY_POST_COMMON_ENVELOPE,               { TYPENAME::DOUBLE,         "Binding_Energy>CE",    "erg",              14, 6 }},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_PRE_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,         "Binding_Energy<CE",    "erg",              14, 6 }},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE,                          { TYPENAME::DOUBLE,         "BE_Loveridge",         "erg",              14, 6 }},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS,                    { TYPENAME::DOUBLE,         "BE_Loveridge_Winds",   "erg",              14, 6 }},
@@ -2041,9 +2027,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::ECCENTRICITY_INITIAL,                                { TYPENAME::DOUBLE,         "Eccentricity@ZAMS",    "-",                14, 6 }},
     { BINARY_PROPERTY::ECCENTRICITY_POST_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Eccentricity>CE",      "-",                14, 6 }},
     { BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,                          { TYPENAME::DOUBLE,         "Eccentricity<SN",      "-",                14, 6 }},
-    { BINARY_PROPERTY::ECCENTRICITY_POST_SUPERNOVA,                         { TYPENAME::DOUBLE,         "Eccentricity>SN",      "-",                14, 6 }},
     { BINARY_PROPERTY::ECCENTRICITY_PRE_COMMON_ENVELOPE,                    { TYPENAME::DOUBLE,         "Eccentricity<CE",      "-",                14, 6 }},
-    { BINARY_PROPERTY::ECCENTRICITY_PRIME,                                  { TYPENAME::DOUBLE,         "EccentricityPrime",    "-",                14, 6 }},
     { BINARY_PROPERTY::ERROR,                                               { TYPENAME::ERROR,          "Error",                "-",                 4, 1 }},
     { BINARY_PROPERTY::ID,                                                  { TYPENAME::OBJECT_ID,      "ID",                   "-",                12, 1 }},
     { BINARY_PROPERTY::IMMEDIATE_RLOF_POST_COMMON_ENVELOPE,                 { TYPENAME::BOOL,           "Immediate_RLOF>CE",    "Event",             0, 0 }},
@@ -2063,7 +2047,6 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                          { TYPENAME::BOOL,           "Optimistic_CE",        "State",             0, 0 }},
     { BINARY_PROPERTY::ORBITAL_ANGULAR_VELOCITY,                            { TYPENAME::DOUBLE,         "Orbital_Angular_Velocity", "kms^-1",       14, 6 }},
     { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                      { TYPENAME::DOUBLE,         "Orb_Velocity<SN",      "kms^-1",           14, 6 }},
-    { BINARY_PROPERTY::ORBITAL_VELOCITY_POST_SUPERNOVA,                     { TYPENAME::DOUBLE,         "Orb_Velocity>SN",      "kms^-1",           14, 6 }},
     { BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,         "Radius_1>CE",          "Rsol",             14, 6 }},
     { BINARY_PROPERTY::RADIUS_1_PRE_COMMON_ENVELOPE,                        { TYPENAME::DOUBLE,         "Radius_1<CE",          "Rsol",             14, 6 }},
     { BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,         "Radius_2>CE",          "Rsol",             14, 6 }},
@@ -2081,13 +2064,11 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION,                    { TYPENAME::DOUBLE,         "Separation@DCO",       "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,                             { TYPENAME::DOUBLE,         "Separation@ZAMS",      "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,         "Separation>CE",        "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_SUPERNOVA,                      { TYPENAME::DOUBLE,         "Separation>SN",        "AU",               14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_SUPERNOVA_RSOL,                 { TYPENAME::DOUBLE,         "Separation>SN",        "Rsol",             14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,         "Separation<CE",        "Rsol",             14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                       { TYPENAME::DOUBLE,         "Separation<SN",        "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,                  { TYPENAME::DOUBLE,         "Separation<SN",        "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME,                               { TYPENAME::DOUBLE,         "Separation",           "AU",               14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL,                          { TYPENAME::DOUBLE,         "Separation",           "Rsol",             14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS,                                     { TYPENAME::DOUBLE,         "Separation",           "AU",               14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_RSOL,                                { TYPENAME::DOUBLE,         "Separation",           "Rsol",             14, 6 }},
     { BINARY_PROPERTY::SIMULTANEOUS_RLOF,                                   { TYPENAME::BOOL,           "Simultaneous_RLOF",    "Event",             0, 0 }},
     { BINARY_PROPERTY::STABLE_RLOF_POST_COMMON_ENVELOPE,                    { TYPENAME::BOOL,           "Stable_RLOF>CE",       "State",             0, 0 }},
     { BINARY_PROPERTY::STELLAR_MERGER,                                      { TYPENAME::BOOL,           "Merger",               "Event",             0, 0 }},
@@ -2105,8 +2086,8 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::SYSTEMIC_SPEED,                                      { TYPENAME::DOUBLE,         "SystemicSpeed",        "kms^-1",           14, 6 }},
     { BINARY_PROPERTY::TIME,                                                { TYPENAME::DOUBLE,         "Time",                 "Myr",              16, 8 }},
     { BINARY_PROPERTY::TIME_TO_COALESCENCE,                                 { TYPENAME::DOUBLE,         "Coalescence_Time",     "Myr",              16, 8 }},
-    { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM_PRIME,                        { TYPENAME::DOUBLE,         "Ang_Momentum_Total",   "Msol*AU^2*yr^-1",  14, 6 }},
-    { BINARY_PROPERTY::TOTAL_ENERGY_PRIME,                                  { TYPENAME::DOUBLE,         "Energy_Total",         "Msol*AU^2*yr^-2",  14, 6 }},
+    { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM,                              { TYPENAME::DOUBLE,         "Ang_Momentum_Total",   "Msol*AU^2*yr^-1",  14, 6 }},
+    { BINARY_PROPERTY::TOTAL_ENERGY,                                        { TYPENAME::DOUBLE,         "Energy_Total",         "Msol*AU^2*yr^-2",  14, 6 }},
     { BINARY_PROPERTY::WOLF_RAYET_FACTOR,                                   { TYPENAME::DOUBLE,         "WR_Multiplier",        "-",                14, 6 }},
     { BINARY_PROPERTY::ZETA_LOBE,                                           { TYPENAME::DOUBLE,         "Zeta_Lobe",            "-",                14, 6 }},
     { BINARY_PROPERTY::ZETA_STAR,                                           { TYPENAME::DOUBLE,         "Zeta_Star",            "-",                14, 6 }}
@@ -2239,7 +2220,7 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
     BINARY_PROPERTY::DT,
     BINARY_PROPERTY::TIME,
-    BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL,
+    BINARY_PROPERTY::SEMI_MAJOR_AXIS_RSOL,
     BINARY_PROPERTY::ECCENTRICITY,
     STAR_1_PROPERTY::MZAMS,
     STAR_2_PROPERTY::MZAMS,
@@ -2295,18 +2276,8 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     STAR_2_PROPERTY::MASS_LOSS_DIFF,
     STAR_1_PROPERTY::MASS_TRANSFER_DIFF,
     STAR_2_PROPERTY::MASS_TRANSFER_DIFF,
-    BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM_PRIME,
-    BINARY_PROPERTY::TOTAL_ENERGY_PRIME,
-    STAR_1_PROPERTY::LAMBDA_NANJING,
-    STAR_2_PROPERTY::LAMBDA_NANJING,
-    STAR_1_PROPERTY::LAMBDA_LOVERIDGE,
-    STAR_2_PROPERTY::LAMBDA_LOVERIDGE,
-    STAR_1_PROPERTY::LAMBDA_KRUCKOW_TOP,
-    STAR_2_PROPERTY::LAMBDA_KRUCKOW_TOP,
-    STAR_1_PROPERTY::LAMBDA_KRUCKOW_MIDDLE,
-    STAR_2_PROPERTY::LAMBDA_KRUCKOW_MIDDLE,
-    STAR_1_PROPERTY::LAMBDA_KRUCKOW_BOTTOM,
-    STAR_2_PROPERTY::LAMBDA_KRUCKOW_BOTTOM,
+    BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM,
+    BINARY_PROPERTY::TOTAL_ENERGY,
     STAR_1_PROPERTY::METALLICITY,
     STAR_2_PROPERTY::METALLICITY,
     BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,
@@ -2331,7 +2302,7 @@ const ANY_PROPERTY_VECTOR BSE_PULSAR_EVOLUTION_REC = {
     STAR_2_PROPERTY::MASS,
     STAR_1_PROPERTY::STELLAR_TYPE,
     STAR_2_PROPERTY::STELLAR_TYPE,
-    BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRIME_RSOL,
+    BINARY_PROPERTY::SEMI_MAJOR_AXIS_RSOL,
     BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,
     STAR_1_PROPERTY::PULSAR_MAGNETIC_FIELD,
     STAR_2_PROPERTY::PULSAR_MAGNETIC_FIELD,
@@ -2354,27 +2325,27 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     SUPERNOVA_PROPERTY::KICK_VELOCITY,
     SUPERNOVA_PROPERTY::FALLBACK_FRACTION,
     BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,
-    BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY,     // remove?  (its in systemParameters)		
-    SUPERNOVA_PROPERTY::TRUE_ANOMALY,				  // remove?  (its in systemParameters)
-    SUPERNOVA_PROPERTY::SUPERNOVA_THETA,              // remove?  (its in systemParameters)
-    SUPERNOVA_PROPERTY::SUPERNOVA_PHI,                // remove?  (its in systemParameters)
+    BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY, 
+    SUPERNOVA_PROPERTY::TRUE_ANOMALY,
+    SUPERNOVA_PROPERTY::SUPERNOVA_THETA,
+    SUPERNOVA_PROPERTY::SUPERNOVA_PHI,
     SUPERNOVA_PROPERTY::SN_TYPE,
     BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,  
-	BINARY_PROPERTY::ECCENTRICITY_POST_SUPERNOVA,
+	BINARY_PROPERTY::ECCENTRICITY,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,
-	BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_SUPERNOVA_RSOL,
+	BINARY_PROPERTY::SEMI_MAJOR_AXIS_RSOL,
     BINARY_PROPERTY::TIME,
     BINARY_PROPERTY::SUPERNOVA_STATE,
     BINARY_PROPERTY::UNBOUND,
     COMPANION_PROPERTY::RUNAWAY,
+    COMPANION_PROPERTY::STELLAR_TYPE,
     SUPERNOVA_PROPERTY::STELLAR_TYPE,
     SUPERNOVA_PROPERTY::STELLAR_TYPE_PREV,
-    COMPANION_PROPERTY::STELLAR_TYPE,
+    COMPANION_PROPERTY::MASS,
     SUPERNOVA_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,
     SUPERNOVA_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
     SUPERNOVA_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
     SUPERNOVA_PROPERTY::MASS,
-    COMPANION_PROPERTY::MASS,
     SUPERNOVA_PROPERTY::EXPERIENCED_RLOF,
     SUPERNOVA_PROPERTY::SPEED,
     COMPANION_PROPERTY::SPEED,

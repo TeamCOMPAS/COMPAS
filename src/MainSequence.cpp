@@ -552,7 +552,7 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
  * Kalogera & Webbink 1996, eq 2
  *
  *
- * double CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity)
+ * double CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity) const
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @param   [IN]    p_Radius                    Radius in Rsol
@@ -560,7 +560,7 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
  * @param   [IN]    p_EnvMass                   Envelope mass in Msol (ignored here)
  * @return                                      Thermal timescale in Myr
  */
-double MainSequence::CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) {
+double MainSequence::CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) const {
     return 30.0 * p_Mass * p_Mass / (p_Radius * p_Luminosity);      // G*Msol^2/(Lsol*Rsol) ~ 30
 }
 
@@ -603,12 +603,12 @@ void MainSequence::UpdateAgeAfterMassLoss() {
  * Uses class member variables instaed of passing in parameters
  *
  *
- * double CalculateGyrationRadius()
+ * double CalculateGyrationRadius() const
  *
  * @return                                      Gyration radius in Rsol
  *
  */
-double MainSequence::CalculateGyrationRadius() {
+double MainSequence::CalculateGyrationRadius() const {
 
     double log10M = log10(m_Mass);
 

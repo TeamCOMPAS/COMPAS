@@ -76,9 +76,12 @@ public:
     double                      BindingEnergy_Loveridge() const                                                             { return m_Star->BindingEnergy_Loveridge(); }
     double                      BindingEnergy_Nanjing() const                                                               { return m_Star->BindingEnergy_Nanjing(); }
     double                      BindingEnergy_Kruckow() const                                                               { return m_Star->BindingEnergy_Kruckow(); }
+    double                      CalculateDynamicalTimescale() const                                                         { return m_Star->CalculateDynamicalTimescale(); }
+    double                      CalculateNuclearTimescale() const                                                           { return m_Star->CalculateNuclearTimescale(); }
+    double                      CalculateRadialExpansionTimescale() const                                                   { return m_Star->CalculateRadialExpansionTimescale(); }
+    double          CalculateThermalTimescale() const                                                                       { return m_Star->CalculateThermalTimescale(); }
     double                      COCoreMass() const                                                                          { return m_Star->COCoreMass(); }
     double                      CoreMass() const                                                                            { return m_Star->CoreMass(); }
-    double                      DynamicalTimescale() const                                                                  { return m_Star->DynamicalTimescale(); }
     bool                        ExperiencedCCSN() const                                                                     { return m_Star->ExperiencedCCSN(); }
     bool                        ExperiencedECSN() const                                                                     { return m_Star->ExperiencedECSN(); }
     bool                        ExperiencedPISN() const                                                                     { return m_Star->ExperiencedPISN() ; }
@@ -104,11 +107,9 @@ public:
     double                      MassPrev() const                                                                            { return m_Star->MassPrev(); }
     double                      Metallicity() const                                                                         { return m_Star->Metallicity(); }
     double                      MZAMS() const                                                                               { return m_Star->MZAMS(); }
-    double                      NuclearTimescale() const                                                                    { return m_Star->NuclearTimescale(); }
     double                      Omega() const                                                                               { return m_Star->Omega(); }
     double                      OmegaCHE() const                                                                            { return m_Star->OmegaCHE(); }
     double                      OmegaPrev() const                                                                           { return m_Star->OmegaPrev(); }
-    double                      RadialExpansionTimescale() const                                                            { return m_Star->RadialExpansionTimescale(); }
     double                      Radius() const                                                                              { return m_Star->Radius(); }
     double                      RadiusPrev() const                                                                          { return m_Star->RadiusPrev(); }
     double                      RZAMS() const                                                                               { return m_Star->RZAMS(); }
@@ -122,7 +123,6 @@ public:
     COMPAS_VARIABLE             StellarPropertyValue(const T_ANY_PROPERTY p_Property) const                                 { return m_Star->StellarPropertyValue(p_Property); }
     STELLAR_TYPE                StellarTypePrev() const                                                                     { return m_Star->StellarTypePrev(); }
     double                      Temperature() const                                                                         { return m_Star->Temperature(); }
-    double                      ThermalTimescale() const                                                                    { return m_Star->ThermalTimescale(); }
     double                      Timescale(TIMESCALE p_Timescale) const                                                      { return m_Star->Timescale(p_Timescale); }
     double                      XExponent() const                                                                           { return m_Star->XExponent(); }
 
@@ -136,19 +136,13 @@ public:
 
     void            ApplyMassTransferRejuvenationFactor()                                                       { m_Star->ApplyMassTransferRejuvenationFactor(); }
 
-    void            CalculateAngularMomentum()                                                                  { m_Star->CalculateAngularMomentum(); }
-
     void            CalculateBindingEnergies(const double p_CoreMass,
                                              const double p_EnvMass,
                                              const double p_Radius)                                             { m_Star->CalculateBindingEnergies(p_CoreMass, p_EnvMass, p_Radius); }
-    
-    double          CalculateDynamicalMassLossRate()                                                            { return m_Star->CalculateDynamicalMassLossRate(); }
-
-    double          CalculateDynamicalTimescale() const                                                         { return m_Star->CalculateDynamicalTimescale(); }
 
     double          CalculateEddyTurnoverTimescale()                                                            { return m_Star->CalculateEddyTurnoverTimescale(); }
 
-    double          CalculateGyrationRadius()                                                                   { return m_Star->CalculateGyrationRadius(); }
+    double          CalculateGyrationRadius() const                                                             { return m_Star->CalculateGyrationRadius(); }
 
     void            CalculateLambdas()                                                                          { m_Star->CalculateLambdas(); }
     void            CalculateLambdas(const double p_EnvMass)                                                    { m_Star->CalculateLambdas(p_EnvMass); }
@@ -167,7 +161,6 @@ public:
 
     double          CalculateThermalMassLossRate()                                                              { return m_Star->CalculateThermalMassLossRate(); }
 
-    double          CalculateThermalTimescale() const                                                           { return m_Star->CalculateThermalTimescale(); }
     double          CalculateThermalTimescale(const double p_Mass,
                                               const double p_Radius,
                                               const double p_Luminosity,
@@ -176,8 +169,6 @@ public:
     double          CalculateTimestep()                                                                         { return m_Star->CalculateTimestep(); }
 
     double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                                         { return m_Star->CalculateZeta(p_ZetaPrescription); }
-
-    void            CalculateZetas()                                                                            { m_Star->CalculateZetas(); }
 
     void            CheckRunaway(const bool p_Unbound)                                                          { m_Star->CheckRunaway(p_Unbound); }
 
