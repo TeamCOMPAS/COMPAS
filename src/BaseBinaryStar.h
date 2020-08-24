@@ -103,10 +103,10 @@ public:
         m_MassTransferTrackerHistory       = p_Star.m_MassTransferTrackerHistory;
 
         m_ReducedMassPrev                  = p_Star.m_ReducedMassPrev;
-        m_ReducedMassPrime                 = p_Star.m_ReducedMassPrime;
+        m_ReducedMass                      = p_Star.m_ReducedMass;
 
         m_TotalMassPrev                    = p_Star.m_TotalMassPrev;
-        m_TotalMassPrime                   = p_Star.m_TotalMassPrime;
+        m_TotalMass                        = p_Star.m_TotalMass;
 
         m_Merged                           = p_Star.m_Merged;
         m_MergesInHubbleTime               = p_Star.m_MergesInHubbleTime;
@@ -374,10 +374,10 @@ private:
     MT_TRACKING         m_MassTransferTrackerHistory;
 
     double              m_ReducedMassPrev;
-    double              m_ReducedMassPrime;
+    double              m_ReducedMass;
 
     double              m_TotalMassPrev;
-    double              m_TotalMassPrime;
+    double              m_TotalMass;
 
     bool                m_Merged;                                                           // Indicates if the stars merged
     bool                m_MergesInHubbleTime;                                               // Indicates if the stars merge in Hubble Time
