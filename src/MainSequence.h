@@ -40,7 +40,7 @@ protected:
     double          CalculateCoreMassAtPhaseEnd()                                   { return CalculateCoreMassOnPhase(); }                                          // Same as on phase
     double          CalculateCoreMassOnPhase()                                      { return 0.0; }                                                                 // Mc(MS) = 0.0 (Hurley et al. 2000, just before eq 28)
 
-    double          CalculateGyrationRadius();
+    double          CalculateGyrationRadius() const;
 
     double          CalculateHeCoreMassAtPhaseEnd()                                 { return CalculateHeCoreMassOnPhase(); }                                        // Same as on phase
     double          CalculateHeCoreMassOnPhase()                                    { return 0.0; }                                                                 // McHe(MS) = 0.0
@@ -67,8 +67,8 @@ protected:
     double          CalculateTauAtPhaseEnd()                                        { return 1.0; }                                                                 // tau = 1.0 at end of MS
     double          CalculateTauOnPhase();
 
-    double          CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass = 1.0);
-    double          CalculateThermalTimescale()                                     { return CalculateThermalTimescale(m_Mass, m_Radius, m_Luminosity); }           // Use class member variables
+    double          CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass = 1.0) const;
+    double          CalculateThermalTimescale() const                               { return CalculateThermalTimescale(m_Mass, m_Radius, m_Luminosity); }           // Use class member variables
 
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
     void            CalculateTimescales()                                           { CalculateTimescales(m_Mass0, m_Timescales); }                                 // Use class member variables
