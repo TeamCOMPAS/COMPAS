@@ -245,9 +245,7 @@ void BaseBinaryStar::SetInitialCommonValues(const AIS &p_AIS, const long int p_I
 void BaseBinaryStar::SetRemainingCommonValues() {
 
     // Initialise other parameters
-
     m_SemiMajorAxisPrev           = m_SemiMajorAxis;
-
     m_EccentricityPrev            = m_Eccentricity;
 
     // initial binary parameters - kept constant as a record of the initial parameters of the binary
@@ -257,13 +255,11 @@ void BaseBinaryStar::SetRemainingCommonValues() {
     // initialise variables to hold parameters prior to supernova explosion
     m_SemiMajorAxisPreSN          = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_EccentricityPreSN           = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_OrbitalVelocityPreSN        = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // initialise variables to hold parameters at DCO formation
     m_SemiMajorAxisAtDCOFormation = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_EccentricityAtDCOFormation  = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-
-    m_OrbitalVelocityPreSN        = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 
     // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
@@ -330,14 +326,14 @@ void BaseBinaryStar::SetRemainingCommonValues() {
                                                                             gyrationRadius2);
 
     m_TotalAngularMomentumPrev                   = m_TotalAngularMomentum;
-	m_TotalMassPrime 					         = m_Star1->Mass() + m_Star2->Mass();
-	m_TotalMassPrev						         = m_TotalMassPrime;
-	m_ReducedMassPrime					         = (m_Star1->Mass() * m_Star2->Mass()) / m_TotalMassPrime;
+	m_TotalMass 					         = m_Star1->Mass() + m_Star2->Mass();
+	m_TotalMassPrev						         = m_TotalMass;
+	m_ReducedMassPrime					         = (m_Star1->Mass() * m_Star2->Mass()) / m_TotalMass;
 	m_ReducedMassPrev					         = m_ReducedMassPrime;
-	m_OrbitalEnergy 			                 = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxis);
+	m_OrbitalEnergy 			                 = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMass, m_SemiMajorAxis);
 	m_OrbitalEnergyPrev 			             = m_OrbitalEnergy;
 
-	m_OrbitalAngularMomentum 	                 = CalculateOrbitalAngularMomentum(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxis);
+	m_OrbitalAngularMomentum 	                 = CalculateOrbitalAngularMomentum(m_ReducedMassPrime, m_TotalMass, m_SemiMajorAxis);
 	m_OrbitalAngularMomentumPrev 	             = m_OrbitalAngularMomentum;
 
     m_Time                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -2436,15 +2432,15 @@ void BaseBinaryStar::CalculateEnergyAndAngularMomentum() {
     if (m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) return;
 
     // Calculate orbital energy and angular momentum
-    m_TotalMassPrev                    = m_TotalMassPrime;
+    m_TotalMassPrev                    = m_TotalMass;
     m_ReducedMassPrev                  = m_ReducedMassPrime;
     m_OrbitalEnergyPrev                = m_OrbitalEnergy;
     m_OrbitalAngularMomentumPrev       = m_OrbitalAngularMomentum;
 
-    m_TotalMassPrime                   = m_Star1->Mass() + m_Star2->Mass();
-    m_ReducedMassPrime                 = (m_Star1->Mass() * m_Star2->Mass()) / m_TotalMassPrime;
-    m_OrbitalEnergy                    = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxis);
-    m_OrbitalAngularMomentum           = CalculateOrbitalAngularMomentum(m_ReducedMassPrime, m_TotalMassPrime, m_SemiMajorAxis);
+    m_TotalMass                   = m_Star1->Mass() + m_Star2->Mass();
+    m_ReducedMassPrime                 = (m_Star1->Mass() * m_Star2->Mass()) / m_TotalMass;
+    m_OrbitalEnergy                    = CalculateOrbitalEnergy(m_ReducedMassPrime, m_TotalMass, m_SemiMajorAxis);
+    m_OrbitalAngularMomentum           = CalculateOrbitalAngularMomentum(m_ReducedMassPrime, m_TotalMass, m_SemiMajorAxis);
 
     // Calculate total energy and angular momentum using regular conservation of energy, especially useful for checking tides and rotational effects
     m_TotalEnergy                 = CalculateTotalEnergy();
