@@ -400,8 +400,13 @@
 //                                      - Detailed output passes a set of self-consistency checks (issue #288)
 // 02.13.13     JR - Aug 23, 2020   - Defect repairs:
 //                                      - Fixed debugging and logging macros in LogMacros.h
+// 02.13.14     RTW - Aug 25, 2020  - Code cleanup:
+//                                      - Rewrote ResolveSupernova to match Pfahl, Rappaport, Podsiadlowski 2002, and to allow for vector addition of system and component velocities
+//                                      - Changed meaning of Supernova_State (see Docs)
+//                                      - PostSN parameters have been removed
+//                                      - SN phi has been redefined
 
 
-const std::string VERSION_STRING = "02.13.13";
+const std::string VERSION_STRING = "02.13.14";
 
 # endif // __changelog_h__
