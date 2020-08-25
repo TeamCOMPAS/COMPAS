@@ -1439,9 +1439,9 @@ bool BaseBinaryStar::ResolveSupernova() {
 
         m_Supernova->UpdateComponentVelocity( natalKickVector.RotateVector(m_ThetaE, m_PhiE, m_PsiE));    // yes - only need to update the velocity of the star undergoing SN
 
-        // The quantities below are mostly meaningless 
+        // The quantities below are meaningless in this context, so they are set to nan to avoid misuse
         m_OrbitalVelocityPreSN = -nan("");
-        m_uK = m_Supernova->SN_KickVelocity() / m_OrbitalVelocityPreSN; // -- - Dimensionless kick velocity
+        m_uK = nan("");                      // -- - Dimensionless kick velocity
 
     }
     else {                                                                                                // no - evaluate orbital changes and calculate velocities
@@ -1479,13 +1479,13 @@ bool BaseBinaryStar::ResolveSupernova() {
 
         Vector3d R = Vector3d( a*(cosEA-e),            
                                a*sqrt(1-e*e)*(sinEA),        
-                               0.0                    );                 // km        - Relative position vector
+                               0.0                    );                 // km        - Relative position vector, from m1 to m2
         double   r = R.mag;                                              // km        - Separation
 
         Vector3d V = Vector3d( (-omega*a*a/r)*sinEA,   
                                (omega*a*a/r)*sqrt(1-e*e)*cosEA,  
-                                0.0                            );        // km/s      - Relative velocity vector
-        double   v = V.mag;                                              // km/s      - Relative orbital velocity
+                                0.0                            );        // km/s      - Relative velocity vector, in the m1 rest frame
+        double   v = V.mag;                                              // km/s      - Relative orbital velocity, in the m1 rest frame
 
         Vector3d H = cross(R, V);                                        // km^2 s^-1 - Specific orbital angular momentum vector 
         double   h = H.mag;                                              // km^2 s^-1 - Specific orbital angular momentum 

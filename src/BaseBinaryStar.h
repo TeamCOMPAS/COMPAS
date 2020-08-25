@@ -345,7 +345,7 @@ private:
     double              m_Eccentricity;                                                     // Initial eccentricity
     double              m_EccentricityAtDCOFormation;                                       // Eccentricity at DCO formation
     double              m_EccentricityInitial;                                              // Record initial eccentricity              JR: todo: check necessary
-    double              m_EccentricityPreSN;                                                // Eccentricity prior to 2nd supernova
+    double              m_EccentricityPreSN;                                                // Eccentricity prior to supernova
     double              m_EccentricityPrev;                                                 // Eccentricity at previous timestep
 
     double	            m_FractionAccreted;	                                                // Fraction of mass accreted from the donor during mass transfer
@@ -392,7 +392,7 @@ private:
     double              m_SemiMajorAxis;                                                    // Semi-major axis
     double              m_SemiMajorAxisAtDCOFormation;                                      // Semi-major axis at DCO formation
     double              m_SemiMajorAxisInitial;                                             // Record initial semi-major axis              JR: todo: check necessary
-    double              m_SemiMajorAxisPreSN;                                               // Semi-major axis prior to 2nd supernova
+    double              m_SemiMajorAxisPreSN;                                               // Semi-major axis prior to supernova
     double              m_SemiMajorAxisPrev;                                                // Semi-major axis at previous timestep double              m_SemiMajorAxisPrime;                                               // Semi-major axis 
 
     bool                m_StellarMerger;                                                    // Indicates that the constituent stars merged
