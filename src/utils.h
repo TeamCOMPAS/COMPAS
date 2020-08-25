@@ -80,7 +80,6 @@ namespace utils {
 
     std::string                         SplashScreen(const bool p_Print = true);
 
-
     /*
      * Generic function to find an element in a vector
      *
