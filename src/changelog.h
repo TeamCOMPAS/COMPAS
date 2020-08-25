@@ -79,7 +79,7 @@
 //                                       added code to UpdateAttributesAndAgeOneTimestep() in Star.cpp to recalculate stellar attributes after switching to new stellar type
 //                                       (addresses discontinuous transitions e.g. CH -> HeMS)
 //                                       changed IsPulsationalPairInstabilitySN() in GiantBranch.cpp to call IsPairInstabilitySN() instead of set MASSLESS_REMNANT if remnant mass <= 0.0
-//                                       changed CalculateSNKickVelocity() in BaseStar.cpp to set m_SupernovaDetails.kickVelocity correctly after adjusting for fallback
+//                                       changed CalculateSNKickMagnitude() in BaseStar.cpp to set m_SupernovaDetails.kickMagnitude correctly after adjusting for fallback
 // 02.03.04      FSB - Dec 04, 2019 - Defect repairs:
 //                                       fixed bug in Fryer+2012 CalculateGravitationalRemnantMassadded() function to compare baryon mass of star remnant with
 //  									                   baryon mass of MaximumNeutronStarMass instead of just MaximumNeutronStarMass. 
@@ -88,7 +88,7 @@
 //                                       fixed EvolveSingleStars() in main.cpp to print correct initial mass
 //                                       fixed TPAGB::CalculateCOCoreMassAtPhaseEnd() - added conditional
 // 02.04.00      JR - Dec 18, 2019 - New functionality:
-//                                       added columns to BSE grid functionality: Kick_Velocity_1(&2), Kick_Theta_1(&2), Kick_Phi_1(&2), Kick_Mean_Anomaly_1(&2).  Updated documentation.
+//                                       added columns to BSE grid functionality: Kick_Magnitude_1(&2), Kick_Theta_1(&2), Kick_Phi_1(&2), Kick_Mean_Anomaly_1(&2).  Updated documentation.
 //                                   Changed functionality:
 //                                       removed compiler version checks from Makefile - they seemed to only work for native Ubuntu and were more of a nuisance than anything...  (old version exists as Makefile-checks)
 //                                   Defect repairs:
@@ -146,7 +146,7 @@
 //                                       Added missing includes to Star.cpp, utils.h and utils.cpp (required for some compiler versions)
 // 02.05.00      JR - Jan 23, 2020 - New functionality:
 //                                       Grid files:
-//                                          Added kick velocity magnitude random number to BSE grid file - see docs re Grids
+//                                          Added kick magnitude magnitude random number to BSE grid file - see docs re Grids
 //                                          Added range check for Kick_Mean_Anomaly_1 and Kick_Mean_Anomaly_2 ([0.0, 2pi)) in BSE grid file
 //                                          Cleaned up SSE & BSE grid file code
 //                                       Added m_LBVphaseFlag variable to BaseStar class; also added ANY_STAR_PROPERTY::LBV_PHASE_FLAG print variable.
@@ -174,7 +174,7 @@
 //                                       - removed extraneous debug print statement from Log.cpp
 // 02.05.04      JR - Feb 23, 2020 - Defect repairs:
 //                                       - fixed regression introduced in v02.05.00 that incread DNS rate ten-fold
-//                                           - changed parameter from m_SupernovaDetails.initialKickParameters.velocityRandom to m_SupernovaDetails.kickVelocityRandom in call to DrawSNKickVelocity() in BaseStar::CalculateSNKickVelocity()
+//                                           - changed parameter from m_SupernovaDetails.initialKickParameters.velocityRandom to m_SupernovaDetails.kickMagnitudeRandom in call to DrawSNKickMagnitude() in BaseStar::CalculateSNKickMagnitude()
 //                                       - reinstated STAR_1_PROPERTY::STELLAR_TYPE and STAR_2_PROPERTY::STELLAR_TYPE in BSE_SYSTEM_PARAMETERS_REC
 // 02.05.05      JR - Feb 27, 2020 - Defect repair:
 //                                       - fixed age resetting to 0.0 for MS_GT_07 stars after CH star spins down and switches to MS_GT_07
@@ -248,7 +248,7 @@
 //                                      - fixed issue #158 RocheLobe_1<CE == RocheLobe_2<CE always
 //                                      - fixed issue #160 Circularisation timescale incorrectly calculated
 //                                      - fixed issue #161 Splashscreen printed twice - now only prints once
-//                                      - fixed issue #162 OPTIONS->UseFixedUK() always returns FALSE.  Now returns TRUE if user supplies a fixed kick velocity via --fix-dimensionless-kick-velocity command line option
+//                                      - fixed issue #162 OPTIONS->UseFixedUK() always returns FALSE.  Now returns TRUE if user supplies a fixed kick magnitude via --fix-dimensionless-kick-magnitude command line option
 // 02.08.03      JR - Mar 28, 2020 - Defect repairs:
 //                                      - fixed typo in BaseBinaryStar::ResolveCommonEnvelopeEvent() when calculating circularisation timescale in the case where star2 is the donor: star1Copy was errorneously used instead of star2Copy; changed to star2Copy
 //                                      - changed circularisation timescale of binary to be minimum of constituent stars circularisation timescales, clamped to (0.0, infinity)
@@ -257,7 +257,7 @@
 //                                      - added printing of number of stars (for SSE) or binaries (for BSE) created to both stdout and Run_Details (issue #165)
 //                                      - enhanced grid processing code in main.cpp to better handle TAB characters
 // 02.09.01      JR - Mar 30, 2020 - Defect repair:
-//                                      - OPTIONS->UseFixedUK() returns TRUE when user supplies -ve value via --fix-dimensionless-kick-velocity.  Now return TRUE iff the user supplies a value >=0 via --fix-dimensionless-kick-velocity
+//                                      - OPTIONS->UseFixedUK() returns TRUE when user supplies -ve value via --fix-dimensionless-kick-magnitude.  Now return TRUE iff the user supplies a value >=0 via --fix-dimensionless-kick-magnitude
 // 02.09.02      DC - Mar 30, 2020 - Defect repairs:
 //                                      - Pulsar code fixed by correcting unit of NS radius in NS.cpp (added KM_TO_M constant in constants.h as a part of this),
 //                                      correcting initialisation of pulsar birth parameters from GiantBranch.cpp to NS.cpp, adding an extra condition for isolated evolution when the companion loses mass but the NS does not accrete 

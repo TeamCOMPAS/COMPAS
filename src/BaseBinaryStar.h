@@ -499,7 +499,7 @@ private:
 
     double  CalculateZRocheLobe(const double p_jLoss);
 
-    double  CalculateSemiMajorAxisPostSupernova(const double p_KickVelocity,
+    double  CalculateSemiMajorAxisPostSupernova(const double p_KickMagnitude,
                                                 const double p_TotalMassPreSN,
                                                 const double p_TotalMassPostSN,
                                                 const double p_KickTheta,

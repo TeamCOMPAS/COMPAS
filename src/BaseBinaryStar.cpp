@@ -514,7 +514,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::COMMON_ENVELOPE_ALPHA:                                value = CEAlpha();                                                          break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE:                        value = CEAtLeastOnce();                                                    break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT:                          value = CommonEnvelopeEventCount();                                         break;
-        case BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY:                          value = UK();                                                               break;
+        case BINARY_PROPERTY::DIMENSIONLESS_KICK_MAGNITUDE:                          value = UK();                                                               break;
         case BINARY_PROPERTY::UNBOUND:                                              value = Unbound();                                                          break;
         case BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE:                          value = DoubleCoreCE();                                                     break;
         case BINARY_PROPERTY::DT:                                                   value = Dt();                                                               break;
@@ -1431,7 +1431,7 @@ bool BaseBinaryStar::ResolveSupernova() {
     // Define the natal kick vector (see above for precise definitions of the angles)
     double theta = m_Supernova->SN_Theta();         // Angle out of the binary plane
     double phi   = m_Supernova->SN_Phi();           // Angle in the binary plane
-    Vector3d natalKickVector = m_Supernova->SN_KickVelocity() * Vector3d(cos(theta)*cos(phi), 
+    Vector3d natalKickVector = m_Supernova->SN_KickMagnitude() * Vector3d(cos(theta)*cos(phi), 
                                                                          cos(theta)*sin(phi),
                                                                          sin(theta));
     // Check if the system is already unbound
@@ -1441,7 +1441,7 @@ bool BaseBinaryStar::ResolveSupernova() {
 
         // The quantities below are meaningless in this context, so they are set to nan to avoid misuse
         m_OrbitalVelocityPreSN = -nan("");
-        m_uK = nan("");                      // -- - Dimensionless kick velocity
+        m_uK = nan("");                      // -- - Dimensionless kick magnitude
 
     }
     else {                                                                                                // no - evaluate orbital changes and calculate velocities
@@ -1493,7 +1493,7 @@ bool BaseBinaryStar::ResolveSupernova() {
         Vector3d E = cross(V, H)/(G*mb) - R/r;                           // --        - Laplace-Runge-Lenz vector (magnitude = eccentricity)
 
         m_OrbitalVelocityPreSN = v;                                      // km/s      - Set the Pre-SN orbital velocity and 
-        m_uK = m_Supernova->SN_KickVelocity() / m_OrbitalVelocityPreSN;  // --        - Dimensionless kick magnitude
+        m_uK = m_Supernova->SN_KickMagnitude() / m_OrbitalVelocityPreSN;  // --        - Dimensionless kick magnitude
 
         ////////////////////////////////
         // Note: In the following,
