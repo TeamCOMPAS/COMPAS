@@ -1,15 +1,30 @@
 #!/usr/bin/env python
 
-import os
+import os, sys
 import pandas as pd
 import shutil
 import time
 import numpy as np
-import sys
-#sys.path.append('../') #Only required in the test directory for testing purposes
 from stroopwafel import sw, classes, prior, sampler, distributions, constants, utils
 import argparse
 
+########################################################
+### 
+###         USER GUIDE:
+###
+### To see all command line options, run 
+###    python sw_interface.py --help
+###
+### Set them 'on the fly' on the command line, or change
+### the defaults below for more permanent changes.
+###
+###
+###
+###
+###
+
+
+# Optional user-supplied arguments
 parser=argparse.ArgumentParser()
 parser.add_argument('--num_systems', help = 'Total number of systems', type = int, default = 1000)
 parser.add_argument('--num_cores', help = 'Number of cores to run in parallel', type = int, default = 2)
@@ -18,9 +33,14 @@ parser.add_argument('--debug', help = 'If debug of COMPAS is to be printed', typ
 parser.add_argument('--mc_only', help = 'If run in MC simulation mode only', type = bool, default = False)
 parser.add_argument('--run_on_helios', help = 'If we are running on helios (or other slurm) nodes', type = bool, default = False)
 parser.add_argument('--output_filename', help = 'Output filename', default = 'samples.csv')
+parser.add_argument('--pythonSubmit', help = 'Path to pythonSubmit.py file, otherwise use default COMPAS', default = None)
 namespace, extra_params = parser.parse_known_args()
 
-# STEP 2 : Define the functions
+
+
+
+### STROOPWAFEL SAMPLING FUNCTIONS
+# STEP 1 : Define the functions
 def create_dimensions():
     """
     This Function that will create all the dimensions for stroopwafel, a dimension is basically one of the variables you want to sample
@@ -75,7 +95,10 @@ def configure_code_run(batch):
     batch_num = batch['number']
     grid_filename = output_folder + '/grid_' + str(batch_num) + '.csv'
     output_container = 'batch_' + str(batch_num)
-    compas_args = [compas_executable, "--grid", grid_filename, '--outputPath', output_folder, '--logfile-delimiter', 'COMMA', '--output-container', output_container, '--random-seed', np.random.randint(2, 2**63 - 1)]
+    if pySub is None:
+        compas_args = [compas_executable, "--grid", grid_filename, '--outputPath', output_folder, '--logfile-delimiter', 'COMMA', '--output-container', output_container, '--random-seed', np.random.randint(2, 2**63 - 1)]
+    else:
+        compas_args = ...
     for params in extra_params:
         compas_args.extend(params.split("="))
     batch['grid_filename'] = grid_filename
@@ -180,6 +203,10 @@ if __name__ == '__main__':
     compas_executable = os.path.join(os.environ.get('COMPAS_ROOT_DIR'), 'src/COMPAS') # Location of the executable
     output_folder =  os.path.join(os.getcwd(), 'output') # Folder you want to receieve outputs, here the current working directory, but you can specify anywhere
 
+
+
+parser.add_argument('--pythonSubmit', help = 'Path to pythonSubmit.py file, otherwise use default COMPAS', default = None)
+
     if os.path.exists(output_folder):
         command = input ("The output folder already exists. If you continue, I will remove all its content. Press (Y/N)\n")
         if (command == 'Y'):
@@ -188,7 +215,7 @@ if __name__ == '__main__':
             exit()
     os.makedirs(output_folder)
 
-    # STEP 1 : Create an instance of the Stroopwafel class
+    # STEP 2 : Create an instance of the Stroopwafel class
     sw_object = sw.Stroopwafel(TOTAL_NUM_SYSTEMS, NUM_CPU_CORES, NUM_SYSTEMS_PER_RUN, output_folder, output_filename, debug = debug, run_on_helios = run_on_helios, mc_only = mc_only)
 
 
