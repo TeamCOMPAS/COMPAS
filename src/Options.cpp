@@ -242,13 +242,13 @@ void Options::InitialiseMemberVariables(void) {
     eccentricityDistributionMax                                     = 1.0;                                                                              // Default maximum
 
     // Kick options
-    kickMagnitudeDistribution                                        = KICK_MAGNITUDE_DISTRIBUTION::MAXWELLIAN;		                                    // Which kick magnitude distribution to use
-    kickMagnitudeDistributionString                                  = KICK_MAGNITUDE_DISTRIBUTION_LABEL.at(kickMagnitudeDistribution);		            // Which kick magnitude distribution to use
-    kickMagnitudeDistributionSigmaCCSN_NS                            = 250;                                                                              // Kick magnitude sigma in km s^-1 for neutron stars
-    kickMagnitudeDistributionSigmaCCSN_BH                            = 250;                                                                              // Kick magnitude sigma in km s^-1 for black holes
-    kickMagnitudeDistributionMaximum                                 = -1.0;                                                                             // Maximum kick magnitude to draw in km s^-1. Ignored if < 0
-    kickMagnitudeDistributionSigmaForECSN                            = 30.0;                                                                             // Characteristic kick magnitude for an ECSN in km s^-1
-    kickMagnitudeDistributionSigmaForUSSN   	                        = 30.0;                                                                             // Characteristic kick magnitude for an USSN in km s^-1
+    kickVelocityDistribution                                        = KICK_VELOCITY_DISTRIBUTION::MAXWELLIAN;		                                    // Which kick velocity distribution to use
+    kickVelocityDistributionString                                  = KICK_VELOCITY_DISTRIBUTION_LABEL.at(kickVelocityDistribution);		            // Which kick velocity distribution to use
+    kickVelocityDistributionSigmaCCSN_NS                            = 250;                                                                              // Kick velocity sigma in km s^-1 for neutron stars
+    kickVelocityDistributionSigmaCCSN_BH                            = 250;                                                                              // Kick velocity sigma in km s^-1 for black holes
+    kickVelocityDistributionMaximum                                 = -1.0;                                                                             // Maximum kick velocity to draw in km s^-1. Ignored if < 0
+    kickVelocityDistributionSigmaForECSN                            = 30.0;                                                                             // Characteristic kick velocity for an ECSN in km s^-1
+    kickVelocityDistributionSigmaForUSSN   	                        = 30.0;                                                                             // Characteristic kick velocity for an USSN in km s^-1
 	kickScalingFactor						                        = 1.0;				                                                                // Arbitrary factor for scaling kicks
 
 
@@ -478,9 +478,9 @@ void Options::InitialiseMemberVariables(void) {
 
 
 	//JIM BARRETT -- 06/07/2016 -- adding options to sample over some hyperparameters
-	sampleKickMagnitudeSigma                                         = false;
-	sampleKickMagnitudeSigmaMin                                      = 0.0;
-	sampleKickMagnitudeSigmaMax                                      = 400.0;
+	sampleKickVelocitySigma                                         = false;
+	sampleKickVelocitySigmaMin                                      = 0.0;
+	sampleKickVelocitySigmaMax                                      = 400.0;
 
 	sampleKickDirectionPower                                        = false;
 	sampleKickDirectionPowerMin                                     = -10.0;
@@ -635,7 +635,7 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             /*
 			("sample-common-envelope-alpha",                                po::value<bool>(&sampleCommonEnvelopeAlpha)->default_value(sampleCommonEnvelopeAlpha)->implicit_value(true),                                                ("Sample over common envelope alpha (default = " + std::string(sampleCommonEnvelopeAlpha ? "TRUE" : "FALSE") + ")").c_str())
 			("sample-kick-direction-power",                                 po::value<bool>(&sampleKickDirectionPower)->default_value(sampleKickDirectionPower)->implicit_value(true),                                                  ("Sample over kick direction powerlaw exponent (default = " + std::string(sampleKickDirectionPower ? "TRUE" : "FALSE") + ")").c_str())
-			("sample-kick-magnitude-sigma",                                  po::value<bool>(&sampleKickMagnitudeSigma)->default_value(sampleKickMagnitudeSigma)->implicit_value(true),                                                    ("Sample over Kick Magnitude Sigma (default = " + std::string(sampleKickMagnitudeSigma ? "TRUE" : "FALSE") + ")").c_str())
+			("sample-kick-velocity-sigma",                                  po::value<bool>(&sampleKickVelocitySigma)->default_value(sampleKickVelocitySigma)->implicit_value(true),                                                    ("Sample over Kick Velocity Sigma (default = " + std::string(sampleKickVelocitySigma ? "TRUE" : "FALSE") + ")").c_str())
 			("sample-luminous-blue-variable-multiplier",                    po::value<bool>(&sampleLuminousBlueVariableMultiplier)->default_value(sampleLuminousBlueVariableMultiplier)->implicit_value(true),                          ("Sample over multiplicative constant from LBV mass loss (default = " + std::string(sampleLuminousBlueVariableMultiplier ? "TRUE" : "FALSE") + ")").c_str())
 			("sample-wolf-rayet-multiplier",                                po::value<bool>(&sampleWolfRayetMultiplier)->default_value(sampleWolfRayetMultiplier)->implicit_value(true),                                                ("Sample over WR winds multiplicative constant (default = " + std::string(sampleWolfRayetMultiplier ? "TRUE" : "FALSE") + ")").c_str())
             */
@@ -693,7 +693,7 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("eccentricity-min",                                            po::value<double>(&eccentricityDistributionMin)->default_value(eccentricityDistributionMin),                                                                ("Minimum eccentricity to generate (default = " + std::to_string(eccentricityDistributionMin) + ")").c_str())
 			("eddington-accretion-factor",                                  po::value<double>(&eddingtonAccretionFactor)->default_value(eddingtonAccretionFactor),                                                                      ("Multiplication factor for eddington accretion for NS & BH, i.e. >1 is super-eddington and 0. is no accretion (default = " + std::to_string(eddingtonAccretionFactor) + ")").c_str())
 
-   		    ("fix-dimensionless-kick-magnitude",                             po::value<double>(&fixedUK)->default_value(fixedUK),                                                                                                        ("Fix dimensionless kick magnitude uk to this value (default = " + std::to_string(fixedUK) + ", -ve values false, +ve values true)").c_str())
+   		    ("fix-dimensionless-kick-velocity",                             po::value<double>(&fixedUK)->default_value(fixedUK),                                                                                                        ("Fix dimensionless kick velocity uk to this value (default = " + std::to_string(fixedUK) + ", -ve values false, +ve values true)").c_str())
 
 		    ("initial-mass-max",                                            po::value<double>(&initialMassFunctionMax)->default_value(initialMassFunctionMax),                                                                          ("Maximum mass (in Msol) to generate using given IMF (default = " + std::to_string(initialMassFunctionMax) + ")").c_str())
 		    ("initial-mass-min",                                            po::value<double>(&initialMassFunctionMin)->default_value(initialMassFunctionMin),                                                                          ("Minimum mass (in Msol) to generate using given IMF (default = " + std::to_string(initialMassFunctionMin) + ")").c_str())
@@ -703,11 +703,11 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    // ("kappa-gaussians",                                             po::value<double>(&kappaGaussians)->default_value(kappaGaussians),                                                                                          ("Scaling factor for the width of the Gaussian distributions in STROOPWAFEL main sampling phase (default = " + std::to_string(kappaGaussians) + ")").c_str())
 		    ("kick-direction-power",                                        po::value<double>(&kickDirectionPower)->default_value(kickDirectionPower),                                                                                  ("Power for power law kick direction distribution (default = " + std::to_string(kickDirectionPower) + " = isotropic, +ve = polar, -ve = in plane)").c_str())
 			("kick-scaling-factor",                                         po::value<double>(&kickScalingFactor)->default_value(kickScalingFactor),                                                                                    ("Arbitrary factor used to scale kicks (default = " + std::to_string(kickScalingFactor) + ")").c_str())
-		    ("kick-magnitude-max",                                           po::value<double>(&kickMagnitudeDistributionMaximum)->default_value(kickMagnitudeDistributionMaximum),                                                        ("Maximum drawn kick magnitude in km s^-1. Ignored if < 0. Must be > 0 if using kick-magnitude-distribution=FLAT (default = " + std::to_string(kickMagnitudeDistributionMaximum) + ")").c_str())
-		    ("kick-magnitude-sigma-CCSN-BH",                                 po::value<double>(&kickMagnitudeDistributionSigmaCCSN_BH)->default_value(kickMagnitudeDistributionSigmaCCSN_BH),                                              ("Sigma for chosen kick magnitude distribution for black holes (default = " + std::to_string(kickMagnitudeDistributionSigmaCCSN_BH) + " km s^-1 )").c_str())
-		    ("kick-magnitude-sigma-CCSN-NS",                                 po::value<double>(&kickMagnitudeDistributionSigmaCCSN_NS)->default_value(kickMagnitudeDistributionSigmaCCSN_NS),                                              ("Sigma for chosen kick magnitude distribution for neutron stars (default = " + std::to_string(kickMagnitudeDistributionSigmaCCSN_NS) + " km s^-1 )").c_str())
-			("kick-magnitude-sigma-ECSN",                                    po::value<double>(&kickMagnitudeDistributionSigmaForECSN)->default_value(kickMagnitudeDistributionSigmaForECSN),                                              ("Sigma for chosen kick magnitude distribution for ECSN (default = " + std::to_string(kickMagnitudeDistributionSigmaForECSN) + " km s^-1 )").c_str())
-			("kick-magnitude-sigma-USSN",                                    po::value<double>(&kickMagnitudeDistributionSigmaForUSSN)->default_value(kickMagnitudeDistributionSigmaForUSSN),                                              ("Sigma for chosen kick magnitude distribution for USSN (default = " + std::to_string(kickMagnitudeDistributionSigmaForUSSN) + " km s^-1 )").c_str())
+		    ("kick-velocity-max",                                           po::value<double>(&kickVelocityDistributionMaximum)->default_value(kickVelocityDistributionMaximum),                                                        ("Maximum drawn kick velocity in km s^-1. Ignored if < 0. Must be > 0 if using kick-velocity-distribution=FLAT (default = " + std::to_string(kickVelocityDistributionMaximum) + ")").c_str())
+		    ("kick-velocity-sigma-CCSN-BH",                                 po::value<double>(&kickVelocityDistributionSigmaCCSN_BH)->default_value(kickVelocityDistributionSigmaCCSN_BH),                                              ("Sigma for chosen kick velocity distribution for black holes (default = " + std::to_string(kickVelocityDistributionSigmaCCSN_BH) + " km s^-1 )").c_str())
+		    ("kick-velocity-sigma-CCSN-NS",                                 po::value<double>(&kickVelocityDistributionSigmaCCSN_NS)->default_value(kickVelocityDistributionSigmaCCSN_NS),                                              ("Sigma for chosen kick velocity distribution for neutron stars (default = " + std::to_string(kickVelocityDistributionSigmaCCSN_NS) + " km s^-1 )").c_str())
+			("kick-velocity-sigma-ECSN",                                    po::value<double>(&kickVelocityDistributionSigmaForECSN)->default_value(kickVelocityDistributionSigmaForECSN),                                              ("Sigma for chosen kick velocity distribution for ECSN (default = " + std::to_string(kickVelocityDistributionSigmaForECSN) + " km s^-1 )").c_str())
+			("kick-velocity-sigma-USSN",                                    po::value<double>(&kickVelocityDistributionSigmaForUSSN)->default_value(kickVelocityDistributionSigmaForUSSN),                                              ("Sigma for chosen kick velocity distribution for USSN (default = " + std::to_string(kickVelocityDistributionSigmaForUSSN) + " km s^-1 )").c_str())
 
 		    ("luminous-blue-variable-multiplier",                           po::value<double>(&luminousBlueVariableFactor)->default_value(luminousBlueVariableFactor),                                                                  ("Multiplicitive constant for LBV mass loss (default = " + std::to_string(luminousBlueVariableFactor) + ", use 10 for Mennekens & Vanbeveren 2014)").c_str())
 
@@ -746,8 +746,8 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 			("sample-common-envelope-alpha-min",                            po::value<double>(&sampleCommonEnvelopeAlphaMin)->default_value(sampleCommonEnvelopeAlphaMin),                                                              ("Minimum for Uniform sampling over common envelope alpha (default = " + std::to_string(sampleCommonEnvelopeAlphaMin) + ")").c_str())
 			("sample-kick-direction-power-max",                             po::value<double>(&sampleKickDirectionPowerMax)->default_value(sampleKickDirectionPowerMax),                                                                ("Maximum for Uniform sampling over kick direction powerlaw exponent (default = " + std::to_string(sampleKickDirectionPowerMax) + ")").c_str())
 			("sample-kick-direction-power-min",                             po::value<double>(&sampleKickDirectionPowerMin)->default_value(sampleKickDirectionPowerMin),                                                                ("Minimum for Uniform sampling over kick direction powerlaw exponent (default = " + std::to_string(sampleKickDirectionPowerMin) + ")").c_str())
-			("sample-kick-magnitude-sigma-max",                              po::value<double>(&sampleKickMagnitudeSigmaMax)->default_value(sampleKickMagnitudeSigmaMax),                                                                  ("Maximum for Uniform sampling over kick magnitude sigma (default = " + std::to_string(sampleKickMagnitudeSigmaMax) + ")").c_str())
-			("sample-kick-magnitude-sigma-min",                              po::value<double>(&sampleKickMagnitudeSigmaMin)->default_value(sampleKickMagnitudeSigmaMin),                                                                  ("Minimum for Uniform sampling over kick magnitude sigma (default = " + std::to_string(sampleKickMagnitudeSigmaMin) + ")").c_str())
+			("sample-kick-velocity-sigma-max",                              po::value<double>(&sampleKickVelocitySigmaMax)->default_value(sampleKickVelocitySigmaMax),                                                                  ("Maximum for Uniform sampling over kick velocity sigma (default = " + std::to_string(sampleKickVelocitySigmaMax) + ")").c_str())
+			("sample-kick-velocity-sigma-min",                              po::value<double>(&sampleKickVelocitySigmaMin)->default_value(sampleKickVelocitySigmaMin),                                                                  ("Minimum for Uniform sampling over kick velocity sigma (default = " + std::to_string(sampleKickVelocitySigmaMin) + ")").c_str())
 			("sample-luminous-blue-variable-multiplier-max",                po::value<double>(&sampleLuminousBlueVariableMultiplierMax)->default_value(sampleLuminousBlueVariableMultiplierMax),                                        ("Maximum for Uniform sampling over multiplicative constant for LBV mass loss (default = " + std::to_string(sampleLuminousBlueVariableMultiplierMax) + ")").c_str())
 			("sample-luminous-blue-variable-multiplier-min",                po::value<double>(&sampleLuminousBlueVariableMultiplierMin)->default_value(sampleLuminousBlueVariableMultiplierMin),                                        ("Minimum for Uniform sampling over multiplicative constant for LBV mass loss (default = " + std::to_string(sampleLuminousBlueVariableMultiplierMin) + ")").c_str())
 			("sample-wolf-rayet-multiplier-max",                            po::value<double>(&sampleWolfRayetMultiplierMax)->default_value(sampleWolfRayetMultiplierMax),                                                              ("Maximum for Uniform sampling over multiplicative constant for WR winds (default = " + std::to_string(sampleWolfRayetMultiplierMax) + ")").c_str())
@@ -791,7 +791,7 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("initial-mass-function,i",                                     po::value<string>(&initialMassFunctionString)->default_value(initialMassFunctionString),                                                                    ("Initial mass function (options: SALPETER, POWERLAW, UNIFORM, KROUPA), default = " + initialMassFunctionString + ")").c_str())
 
 		    ("kick-direction",                                              po::value<string>(&kickDirectionDistributionString)->default_value(kickDirectionDistributionString),                                                        ("Natal kick direction distribution (options: ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW, WEDGE, POLES), default = " + kickDirectionDistributionString + ")").c_str())
-		    ("kick-magnitude-distribution",                                  po::value<string>(&kickMagnitudeDistributionString)->default_value(kickMagnitudeDistributionString),                                                          ("Natal kick magnitude distribution (options: ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL), default = " + kickMagnitudeDistributionString + ")").c_str())
+		    ("kick-velocity-distribution",                                  po::value<string>(&kickVelocityDistributionString)->default_value(kickVelocityDistributionString),                                                          ("Natal kick velocity distribution (options: ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL), default = " + kickVelocityDistributionString + ")").c_str())
 
             // JR - 01/04/2020 - Serena will uncomment when tested.
             // ("logfile-BSE-be-binaries",                                     po::value<string>(&logfileBSEBeBinaries)->default_value(logfileBSEBeBinaries),                                                                              ("Filename for BSE Be Binaries logfile (default = " + logfileBSEBeBinaries + ")").c_str())
@@ -858,7 +858,7 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
             fixedRandomSeed  = !vm["random-seed"].defaulted();                                                                          // use random seed if it is provided by the user
             fixedMetallicity = !vm["metallicity"].defaulted();                                                                          // determine if user supplied a metallicity value
-            useFixedUK       = !vm["fix-dimensionless-kick-magnitude"].defaulted() && (fixedUK >= 0.0);                                  // determine if user supplied a valid kick magnitude
+            useFixedUK       = !vm["fix-dimensionless-kick-velocity"].defaulted() && (fixedUK >= 0.0);                                  // determine if user supplied a valid kick velocity
 
 
             // check & set prescriptions, distributions, assumptions etc. options - alphabetically
@@ -929,9 +929,9 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 COMPLAIN_IF(!found, "Unknown Kick Direction Distribution");
             }
 
-            if (!vm["kick-magnitude-distribution"].defaulted()) {                                                                        // kick magnitude
-                std::tie(found, kickMagnitudeDistribution) = utils::GetMapKey(kickMagnitudeDistributionString, KICK_MAGNITUDE_DISTRIBUTION_LABEL, kickMagnitudeDistribution);
-                COMPLAIN_IF(!found, "Unknown Kick Magnitude Distribution");
+            if (!vm["kick-velocity-distribution"].defaulted()) {                                                                        // kick velocity
+                std::tie(found, kickVelocityDistribution) = utils::GetMapKey(kickVelocityDistributionString, KICK_VELOCITY_DISTRIBUTION_LABEL, kickVelocityDistribution);
+                COMPLAIN_IF(!found, "Unknown Kick Velocity Distribution");
             }
 
 			if (!vm["logfile-delimiter"].defaulted()) {                                                                                 // logfile field delimiter
@@ -1039,8 +1039,8 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             COMPLAIN_IF(initialMassFunctionMax < 0.0, "Maximum initial mass (--initial-mass-max) < 0");
             COMPLAIN_IF(initialMassFunctionMax <= initialMassFunctionMin, "Maximum initial mass (--initial-mass-max) must be > Minimum initial mass (--initial-mass-min)");
 
-            if (kickMagnitudeDistribution == KICK_MAGNITUDE_DISTRIBUTION::FLAT) {
-                COMPLAIN_IF(kickMagnitudeDistributionMaximum <= 0.0, "User specified --kick-magnitude-distribution = FLAT with Maximum kick magnitude (--kick-magnitude-max) <= 0.0");
+            if (kickVelocityDistribution == KICK_VELOCITY_DISTRIBUTION::FLAT) {
+                COMPLAIN_IF(kickVelocityDistributionMaximum <= 0.0, "User specified --kick-velocity-distribution = FLAT with Maximum kick velocity (--kick-velocity-max) <= 0.0");
             }
 
             COMPLAIN_IF(logLevel < 0, "Logging level (--log-level) < 0");
@@ -1158,10 +1158,10 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
                                                                                                                         // get property value
     switch (property) {
 
-        case PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_BH:  value = KickMagnitudeDistributionSigmaCCSN_BH(); break;
-        case PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_NS:  value = KickMagnitudeDistributionSigmaCCSN_NS(); break;
-        case PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_ECSN: value = KickMagnitudeDistributionSigmaForECSN(); break;
-        case PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_USSN: value = KickMagnitudeDistributionSigmaForUSSN(); break;
+        case PROGRAM_OPTION::KICK_VELOCITY_DISTRIBUTION_SIGMA_CCSN_BH:  value = KickVelocityDistributionSigmaCCSN_BH(); break;
+        case PROGRAM_OPTION::KICK_VELOCITY_DISTRIBUTION_SIGMA_CCSN_NS:  value = KickVelocityDistributionSigmaCCSN_NS(); break;
+        case PROGRAM_OPTION::KICK_VELOCITY_DISTRIBUTION_SIGMA_FOR_ECSN: value = KickVelocityDistributionSigmaForECSN(); break;
+        case PROGRAM_OPTION::KICK_VELOCITY_DISTRIBUTION_SIGMA_FOR_USSN: value = KickVelocityDistributionSigmaForUSSN(); break;
         case PROGRAM_OPTION::RANDOM_SEED:                               value = RandomSeed();                           break;
 
         default:                                                                                                        // unknown property

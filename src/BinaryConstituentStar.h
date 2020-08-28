@@ -179,7 +179,6 @@ public:
     MT_CASE         MassTransferCaseInitial() const                                     { return m_MassTransferCaseInitial; }
     double          MassTransferDiff() const                                            { return m_MassTransferDiff; }
     double          OmegaTidesIndividualDiff() const                                    { return m_OmegaTidesIndividualDiff; }
-
     double          OrbitalEnergyPostSN() const                                         { return m_OrbitalEnergyPostSN; };
     double          OrbitalEnergyPreSN() const                                          { return m_OrbitalEnergyPreSN; };
     bool            RLOFPostCEE() const                                                 { return m_RLOFDetails.RLOFPostCEE; }
@@ -192,8 +191,8 @@ public:
     void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  JR: todo:  sanity check?
     void            SetMassTransferDiff(const double p_MassTransferDiff)                { m_MassTransferDiff = p_MassTransferDiff; }                // JR: todo: better way?  JR: todo:  sanity check?
 
-    void            SetOrbitalEnergyPostSN(const double p_OrbitalEnergyPostSN)          { m_OrbitalEnergyPostSN = p_OrbitalEnergyPostSN; };
-    void            SetOrbitalEnergyPreSN(const double p_OrbitalEnergyPreSN)            { m_OrbitalEnergyPreSN = p_OrbitalEnergyPreSN; };
+    void            SetOrbitalEnergyPostSN(const double p_OrbitalEnergyPostSN)        { m_OrbitalEnergyPostSN = p_OrbitalEnergyPostSN; };
+    void            SetOrbitalEnergyPreSN(const double p_OrbitalEnergyPreSN)          { m_OrbitalEnergyPreSN = p_OrbitalEnergyPreSN; };
 
 
     // member functions - alphabetically
