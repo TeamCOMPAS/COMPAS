@@ -38,7 +38,6 @@ LFLAGS :=  -L$(BOOST)/lib -lgsl -lgslcblas -lstdc++ -lm -lz -ldl -lboost_filesys
 
 SOURCES :=								\
 			utils.cpp					\
-			vector3d.cpp				\
 										\
 			Rand.cpp					\
 			Options.cpp					\
