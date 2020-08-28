@@ -1415,7 +1415,7 @@ double GiantBranch::CalculateRemnantMassByBelczynski2002(const double p_Mass, co
  * This function determines which prescription is used for the core collapse SN (via program options)
  *
  * The function calls prescription functions that update the following parameters:
- *      Mass, stellarType, drawnKickMagnitude, kickMagnitude
+ *      Mass, stellarType, drawnKickVelocity, kickVelocity
  *
  * At the end of this function we set the following parameters which are (so far) independent of the
  * ccSN prescriptions (but do depend on the parameters above):
@@ -1550,8 +1550,8 @@ STELLAR_TYPE GiantBranch::ResolveTypeIIaSN() {
     m_Luminosity        = 0.0;
     m_Temperature       = 0.0;
 
-    m_SupernovaDetails.drawnKickMagnitude = 0.0;
-    m_SupernovaDetails.kickMagnitude      = 0.0;
+    m_SupernovaDetails.drawnKickVelocity = 0.0;
+    m_SupernovaDetails.kickVelocity      = 0.0;
 
     return STELLAR_TYPE::MASSLESS_REMNANT;
 }
@@ -1582,8 +1582,8 @@ STELLAR_TYPE GiantBranch::ResolvePairInstabilitySN() {
     m_Radius      = 0.0;
     m_Temperature = 0.0;
 
-    m_SupernovaDetails.drawnKickMagnitude = 0.0;
-    m_SupernovaDetails.kickMagnitude      = 0.0;
+    m_SupernovaDetails.drawnKickVelocity = 0.0;
+    m_SupernovaDetails.kickVelocity      = 0.0;
     m_SupernovaDetails.fallbackFraction  = 0.0;
 
     SetSNCurrentEvent(SN_EVENT::PISN);                                                                  // pair instability SN happening now
@@ -1688,7 +1688,6 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
     STELLAR_TYPE stellarType = m_StellarType;
 
     if (IsSupernova()) {                                                                            // has gone supernova
-
         // squirrel away some attributes before they get changed...
         m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;
         m_SupernovaDetails.HeCoreMassAtCOFormation = m_HeCoreMass;
@@ -1721,7 +1720,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
             stellarType = ResolveCoreCollapseSN(OPTIONS->FryerSupernovaEngine());
         }
             
-    	CalculateSNKickMagnitude(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
+    	CalculateSNKickVelocity(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
     }
 
     return stellarType;
