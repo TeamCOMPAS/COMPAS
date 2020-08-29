@@ -2968,8 +2968,8 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
     STELLAR_TYPE stellarType = m_StellarType;                                               // default is no change
 
 
-    if (ShouldBeMasslessRemnant()) {                                                        // ALEJANDRO - 02/12/2016 - Attempt to fix updating the star if it lost all of its mass
-        stellarType = STELLAR_TYPE::MASSLESS_REMNANT;                                       // JR: should also pick up already massless remnant
+    if (ShouldBeMasslessRemnant()) {                                                        // Do not update the star if it lost all of its mass
+        stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
     }
     else {
         stellarType = ResolveSupernova();                                                   // handle supernova     JR: moved this to start of timestep

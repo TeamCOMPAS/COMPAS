@@ -503,7 +503,6 @@ private:
     void    CalculateMassTransfer(const double p_Dt);
     double CalculateMassTransferOrbit(const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor);
     void    CalculateWindsMassLoss();
-    void    CheckMassTransfer(const double p_Dt);
     void    InitialiseMassTransfer();
 
     double  CalculateOrbitalAngularMomentum(const double p_Mu,
