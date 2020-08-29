@@ -530,7 +530,7 @@ protected:
 
     virtual void            SetSNHydrogenContent()                                                              { m_SupernovaDetails.hydrogenContent = HYDROGEN_CONTENT::RICH; }                // Default is RICH
 
-            bool            ShouldBeMasslessRemnant()                                                           { return (m_Mass <= 0.0); }
+    bool            ShouldBeMasslessRemnant()                                                           { return (m_Mass <= 0.0 || m_StellarType==STELLAR_TYPE::MASSLESS_REMNANT); }
     virtual bool            ShouldEvolveOnPhase()                                                               { return true; }
     virtual bool            ShouldSkipPhase()                                                                   { return false; }                                                               // Default is false
 
