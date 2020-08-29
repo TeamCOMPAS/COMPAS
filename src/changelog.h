@@ -400,8 +400,13 @@
 //                                      - Detailed output passes a set of self-consistency checks (issue #288)
 // 02.13.13     JR - Aug 23, 2020   - Defect repairs:
 //                                      - Fixed debugging and logging macros in LogMacros.h
+// 02.13.14     IM - Aug 29, 2020   - Defect repairs:
+//                                      - Address issue #306 by removing detailed printing of merged binaries
+//                                      - Address issue #70 by stopping evolution if the binary is touching
+//                                      - Check for merged binaries rather than just touching binaries in Evaluate
+//                                      - Minor cleaning (e.g., removed unnecessary CheckMassTransfer, which just repeated the work of CalculateMassTransfer but with a confusing name)
 
 
-const std::string VERSION_STRING = "02.13.13";
+const std::string VERSION_STRING = "02.13.14";
 
 # endif // __changelog_h__
