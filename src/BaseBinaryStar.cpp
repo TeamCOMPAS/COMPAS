@@ -2025,6 +2025,8 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         if (m_CEDetails.doubleCoreCE)
             m_MassTransferTrackerHistory = MT_TRACKING::CE_DOUBLE_CORE;                                                 // record history - double CEE
 
+        m_Star1->UpdateAttributes(0.0, 0.0, true);
+        m_Star2->UpdateAttributes(0.0, 0.0, true);
 
         if (m_Star1->StellarType() != stellarType1 || m_Star2->StellarType() != stellarType2) {                         // stellar type change?
             m_PrintExtraDetailedOutput = true;                                                                          // yes - print detailed output record
@@ -2108,16 +2110,17 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
  * Pols et al. notes; Belczynski et al. 2008, eq 32, 33
  *
  *
- * double CalculateMassTransferOrbit (const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor)
+ * double CalculateMassTransferOrbit (const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor, const double p_FractionAccreted)
  *
  * @param   [IN]    p_DonorMass                 Donor mass
  * @param   [IN]    p_AccretorMass              Accretor mass
  * @param   [IN]    p_DeltaMassDonor            Change in donor mass
  * @param   [IN]    p_ThermalRateDonor          Donor thermal mass loss rate
  * @param   [IN]    p_Accretor                  Pointer to accretor
+ * @param   [IN]    p_FractionAccreted      Mass fraction lost from donor accreted by accretor
  * @return                                      Semi-major axis
  */
-double BaseBinaryStar::CalculateMassTransferOrbit(const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor) {
+double BaseBinaryStar::CalculateMassTransferOrbit(const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor, const double p_FractionAccreted) {
 
     double semiMajorAxis   = m_SemiMajorAxis;                                                                   // new semi-major axis value - default is no change
     double massA           = p_Accretor.Mass();                                                                 // accretor mass
@@ -2129,22 +2132,17 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double p_DonorMass, cons
     
     int numberIterations   = fmax( floor (fabs(p_DeltaMassDonor/(MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP*massD))), 1);   // number of iterations
 
-    double fractionAccreted;
-    std::tie(std::ignore, fractionAccreted) = p_Accretor.CalculateMassAcceptanceRate(p_ThermalRateDonor, p_Accretor.CalculateThermalMassLossRate());
-
     double dM                  = p_DeltaMassDonor / numberIterations;                                           // mass change per time step
 
     for(int i = 0; i < numberIterations ; i++) {
         
         jLoss = CalculateGammaAngularMomentumLoss(massD, massA);
-        jOrb = jOrb + ((jLoss * jOrb * (1.0 - fractionAccreted) / massAplusMassD) * dM);
-        semiMajorAxis = semiMajorAxis + (((-2.0 * dM / massD) * (1.0 - (fractionAccreted * (massD / massA)) - ((1.0 - fractionAccreted) * (jLoss + 0.5) * (massD / massAplusMassD)))) * semiMajorAxis);
+        jOrb = jOrb + ((jLoss * jOrb * (1.0 - p_FractionAccreted) / massAplusMassD) * dM);
+        semiMajorAxis = semiMajorAxis + (((-2.0 * dM / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / massAplusMassD)))) * semiMajorAxis);
 
         massD          = massD + dM;
-        massA          = massA - (dM * fractionAccreted);
+        massA          = massA - (dM * p_FractionAccreted);
         massAplusMassD = massA + massD;
-                
-        std::tie(std::ignore, fractionAccreted) = p_Accretor.CalculateMassAcceptanceRate(p_ThermalRateDonor, p_Accretor.CalculateThermalMassLossRate());
     }
 
     return semiMajorAxis;
@@ -2218,9 +2216,8 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
 
 
 /*
- * Calculate mass transfer and update individual stars accordingly
- *
- * JR: todo: flesh-out this documentation
+ *  Check if mass transfer should happen (either star, but not both, overflowing Roche Lobe)
+ *  Perform mass transfer if required and update individual stars accordingly
  *
  *
  * void CalculateMassTransfer(const double p_Dt)
@@ -2229,9 +2226,19 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
  */
 void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     
+    InitialiseMassTransfer();                                                                                                   // initialise - even if not using mass transfer (sets some flags we might need)
+    
+    if(Unbound())
+        return;                                                                                                                 // do nothing for unbound binaries
+    
     if (!OPTIONS->UseMassTransfer()) return;                                                                                                                // mass transfer not enabled - nothing to do
-
+    
     if (!m_Star1->IsRLOF() && !m_Star2->IsRLOF()) return;                                                                                                   // neither star is overflowing its Roche Lobe - no mass transfer - nothing to do
+    
+    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}) && HasStarsTouching()) {  // CHE enabled and both stars CH?
+        m_StellarMerger = true;                                                                                                 // just merge
+        return;
+    }
 
     if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                                                                                                           // both stars overflowing their Roche Lobe?
         m_CEDetails.CEEnow = true;                                                                                                                          // yes - common envelope event - no mass transfer
@@ -2267,7 +2274,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 		// Begin Mass Transfer
         double thermalRateDonor    = m_Donor->CalculateThermalMassLossRate();
         double thermalRateAccretor = OPTIONS->MassTransferThermallyLimitedVariation() == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE
-                    ? m_Accretor->Mass() / m_Accretor->CalculateThermalTimescale(m_Accretor->Mass(), CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL, m_Accretor->Luminosity(), m_Accretor->Mass() - m_Accretor->CoreMass())                                                  // assume accretor radius = accretor Roche Lobe radius
+                    ? (m_Accretor->Mass() - m_Accretor->CoreMass()) / m_Accretor->CalculateThermalTimescale(m_Accretor->Mass(), CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL, m_Accretor->Luminosity(), m_Accretor->Mass() - m_Accretor->CoreMass())                                                  // assume accretor radius = accretor Roche Lobe radius
                     : m_Accretor->CalculateThermalMassLossRate();
                 
         std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(thermalRateDonor, thermalRateAccretor);
@@ -2296,7 +2303,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
                     STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                                         // donor stellar type before resolving envelope loss
                     
-                    aFinal                  = CalculateMassTransferOrbit(m_Donor->Mass(), -envMassDonor, m_Donor->CalculateThermalMassLossRate(), *m_Accretor);
+                    aFinal                  = CalculateMassTransferOrbit(m_Donor->Mass(), -envMassDonor, m_Donor->CalculateThermalMassLossRate(), *m_Accretor, m_FractionAccreted);
                     
                     m_Donor->ResolveEnvelopeLossAndSwitch();                                                                                        // only other interaction that adds/removes mass is winds, so it is safe to update star here
                     
@@ -2305,11 +2312,11 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                     }
                 }
                 else{                                                                                                                               // donor has no envelope
-                    double dM = - MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor);                                                          // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
+                    double dM = - MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                                                          // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
                     m_Donor->SetMassTransferDiff(dM);                                                                                                // mass transferred by donor
                     m_Accretor->SetMassTransferDiff(-dM * m_FractionAccreted);                                                                       // mass accreted by accretor
                       
-                    aFinal                  = CalculateMassTransferOrbit(m_Donor->Mass(), dM, m_Donor->CalculateThermalMassLossRate(), *m_Accretor);
+                    aFinal                  = CalculateMassTransferOrbit(m_Donor->Mass(), dM, m_Donor->CalculateThermalMassLossRate(), *m_Accretor, m_FractionAccreted);
                 }
                        
 
@@ -2402,7 +2409,7 @@ void BaseBinaryStar::InitialiseMassTransfer() {
 		    if (OPTIONS->CirculariseBinaryDuringMassTransfer()) {                                                               // circularise binary to the periapsis separation?
                 m_SemiMajorAxis *= OPTIONS->AngularMomentumConservationDuringCircularisation()                                  // yes - conserve angular momentum?
                                         ? (1.0 - (m_Eccentricity * m_Eccentricity))                                             // yes - conserve angular momentum
-                                        : (1.0 - m_Eccentricity);                                                               // no - angular momentum not conserved
+                                        : (1.0 - m_Eccentricity);                                                               // no - angular momentum not conserved, circularise at periapsis
 
 			    m_Eccentricity        = 0.0;
 
@@ -2427,37 +2434,6 @@ void BaseBinaryStar::InitialiseMassTransfer() {
 }
 
 
-/*
- * Check if mass transfer should happen (either star, but not both, overflowing Roche Lobe)
- * Perform mass transfer if required
- *
- *
- * void CheckMassTransfer(const double p_Dt)
- *
- * @param   [IN]    p_Dt                        timestep in Myr
- */
-void BaseBinaryStar::CheckMassTransfer(const double p_Dt) {
-
-    InitialiseMassTransfer();                                                                                                   // initialise - even if not using mass transfer (sets some flags we might need)
-
-    if(Unbound())
-        return;                                                                                                                 // do nothing for unbound binaries
-    
-    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}) && HasStarsTouching()) {  // CHE enabled and both stars CH?
-        m_StellarMerger = true;                                                                                                 // just merge
-    }
-    else {                                                                                                                      // not both CH
-        if (OPTIONS->UseMassTransfer()) {                                                                                       // only if using mass transfer (program option)
-
-            if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                                                                       // both stars overflowing their Roche Lobe?
-			    m_CEDetails.CEEnow = true;                                                                                      // yes - common envelope event - no mass transfer
-            }
-            else if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {                                                                  // either star overflowing its Roche Lobe?
-                CalculateMassTransfer(p_Dt);                                                                                    // yes - mass transfer
-            }
-        }
-    }
-}
 
 
 /*
@@ -2628,13 +2604,15 @@ void BaseBinaryStar::ResolveMassChanges() {
     m_Star1->UpdateInitialMass();                                                                       // update initial mass of star1 (MS, HG & HeMS)  JR: todo: fix this kludge one day - mass0 is overloaded, and isn't always "initial mass"
     m_Star1->UpdateAgeAfterMassLoss();                                                                  // update age of star1
     m_Star1->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star1
+    m_Star1->UpdateAttributes(0.0, 0.0, true);
 
     // rinse and repeat for star2
     (void)m_Star2->UpdateAttributes(m_Star2->MassPrev() - m_Star2->Mass() + m_Star2->MassLossDiff() + m_Star2->MassTransferDiff(), 0.0);    // update mass for star2
     m_Star2->UpdateInitialMass();                                                                       // update initial mass of star 2 (MS, HG & HeMS)  JR: todo: fix this kludge one day - mass0 is overloaded, and isn't always "initial mass"
     m_Star2->UpdateAgeAfterMassLoss();                                                                  // update age of star2
     m_Star2->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star2
-   
+    m_Star2->UpdateAttributes(0.0, 0.0, true);
+    
     if ((m_Star1->StellarType() != stellarType1) || (m_Star2->StellarType() != stellarType2)) {         // stellar type change?
         m_PrintExtraDetailedOutput = true;                                                              // yes - print detailed output record
     }
@@ -2682,15 +2660,15 @@ void BaseBinaryStar::EvaluateBinaryPreamble() {
  * @param   [in]        p_Dt                    Timestep (in Myr)
  */
 void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
-
+    
     EvaluateBinaryPreamble();                                                                                           // get things ready - do some house-keeping
 
-    CheckMassTransfer(p_Dt);                                                                                            // calculate mass transfer if necessary
-
+    CalculateMassTransfer(p_Dt);                                                                                        // calculate mass transfer if necessary
+    
     CalculateWindsMassLoss();                                                                                           // calculate mass loss dues to winds
 
-    if ((m_CEDetails.CEEnow || m_StellarMerger) &&                                                                      // CEE or merger?
-       !(OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {              // yes - avoid CEE if CH+CH
+    if ((m_CEDetails.CEEnow || StellarMerger()) &&                                                                      // CEE or merger?
+        !(OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {             // yes - avoid CEE if CH+CH
         ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
     }
     else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) {
@@ -2698,20 +2676,15 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
     }
     else {
         ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
+        if(HasStarsTouching())                                                                                         // if stars emerged from mass transfer as touching, it's a merger
+            m_StellarMerger = true;
     }
 
-    STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                                 // star 1 stellar type before updating attributes
-    STELLAR_TYPE stellarType2 = m_Star2->StellarType();                                                                 // star 2 stellar type before updating attributes
-
-    if ((m_Star1->UpdateAttributes(0.0, 0.0, true) != stellarType1) ||                                                  // recalculate stellar attributes for star 1
-        (m_Star2->UpdateAttributes(0.0, 0.0, true) != stellarType2)) {                                                  // recalculate stellar attributes for star 2
-        m_PrintExtraDetailedOutput = true;                                                                              // print detailed output record if stellar type changed
-    }
-
-    if (m_PrintExtraDetailedOutput == true) { PrintDetailedOutput(m_Id); }                                              // print detailed output record if stellar type changed
+    if (m_PrintExtraDetailedOutput == true && !StellarMerger()) { PrintDetailedOutput(m_Id); }                                              // print detailed output record if stellar type changed (except on merger, when detailed output is meaningless)
     m_PrintExtraDetailedOutput = false;                                                                                 // reset detailed output printing flag for the next timestep
 
-    EvaluateSupernovae(false);                                                                                          // evaluate supernovae (both stars)
+    if ((m_Star1->IsSNevent() || m_Star2->IsSNevent()))
+        EvaluateSupernovae(false);                                                                                      // evaluate supernovae (both stars) if mass changes are responsible for a supernova
 
     // assign new values to "previous" values, for following timestep
     m_EccentricityPrev	         = m_Eccentricity;
@@ -2790,7 +2763,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
     PrintDetailedOutput(m_Id);                                                                                                              // print (log) detailed output for binary
 
-    if (OPTIONS->PopulationDataPrinting()) {                                                                                                // JR: todo: what is the aim of PopulationDataPrinting?
+    if (OPTIONS->PopulationDataPrinting()) {
         SAY("\nGenerating a new binary - " << m_Id);
         SAY("Binary has masses " << m_Star1->Mass() << " & " << m_Star2->Mass());
         SAY("Binary has initial separation " << m_SemiMajorAxis);
@@ -2814,7 +2787,10 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             else if (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                                                        // at least one massless remnant?
                 evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;                                                                       // yes - stop evolution
             }
-            else if (HasStarsTouching()) {                                                                                                  // binary components touching? (should usually be avoided as MT or CE should happen prior to this)
+            else if (StellarMerger() ) {                                // Have stars merged?
+                evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;     // For now, stop evolution
+            }
+            else if (HasStarsTouching()) {                                                                                                  // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
                 evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                         // yes - stop evolution
             }
             else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                     // binary is unbound and we don't want unbound systems?
@@ -2834,7 +2810,10 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 PrintRLOFParameters();                                                                                                      // print (log) RLOF parameters
 
                 // check for problems
-                if (HasStarsTouching()) {                                                                                                   // binary components touching? (should usually be avoided as MT or CE should happen prior to this)
+                if (StellarMerger() ) {                                     // Have stars merged?
+                    evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;     // For now, stop evolution
+                }
+                else if (HasStarsTouching()) {                                                                                                   // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
                     evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                     // yes - stop evolution
                 }
                 else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                 // binary is unbound and we don't want unbound systems?
@@ -2846,7 +2825,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                     // check for problems
                          if (m_Error != ERROR::NONE) evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR;                                      // error in binary evolution
-                    else if (m_StellarMerger)        evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                    // constituent stars have merged
+                    else if (StellarMerger())        evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                    // constituent stars have merged
 
                     if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
 
@@ -2881,7 +2860,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 stepNum++;                                                                                                                  // increment stepNum
             }
         }
-        PrintDetailedOutput(m_Id);                                                                                                          // print (log) detailed output for binary
+        if(!StellarMerger())
+            PrintDetailedOutput(m_Id);                                                                                                          // print (log) detailed output for binary
 
         if (evolutionStatus == EVOLUTION_STATUS::STEPS_UP) {                                                                                // stopped because max timesteps reached?
             SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED);                                                                                    // show error

@@ -459,8 +459,8 @@ double  BinaryConstituentStar::RocheLobeTracker(const double p_SemiMajorAxis, co
  * void DetermineInitialMassTransferCase()
  */
 void BinaryConstituentStar::DetermineInitialMassTransferCase() {
-    if (!m_FirstMassTransferEpisode) m_MassTransferCaseInitial = DetermineMassTransferCase();       // JR: todo: are these actually used anywhere?  Only for printing perhaps...
-    m_FirstMassTransferEpisode = true;                                                              // JR: todo: are these actually used anywhere?  Only for printing perhaps...
+    if (!m_FirstMassTransferEpisode) m_MassTransferCaseInitial = DetermineMassTransferCase();
+    m_FirstMassTransferEpisode = true;                                                              
 }
 
 
