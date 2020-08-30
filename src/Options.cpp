@@ -1,4 +1,5 @@
 #include "Options.h"
+#include "changelog.h"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -156,7 +157,7 @@ string Options::ProgramOptionDetails(const boost::program_options::variables_map
 }
 
 
-COMMANDLINE_STATUS Options::Initialise(int argc, char *argv[]) {
+PROGRAM_STATUS Options::Initialise(int argc, char *argv[]) {
 
     InitialiseMemberVariables();
 
@@ -176,10 +177,9 @@ void Options::InitialiseMemberVariables(void) {
     debugToFile                                                     = false;                                                                            // default is do not log debug statements to a log file
     errorsToFile                                                    = false;                                                                            // default is do not log error messages to a log file
 
-    singleStar                                                      = false;                                                                            // Flag to evolve a single star
+    enableWarnings                                                  = false;                                                                            // default is to not display warnings (via SHOW_WARN macros)
 
-	lambdaCalculationEveryTimeStep                                  = false;
-	zetaCalculationEveryTimeStep                                    = false;
+    singleStar                                                      = false;                                                                            // Flag to evolve a single star
 
 	beBinaries                                                      = false;
     evolvePulsars                                                   = false;                                                                            // Whether to evolve pulsars
@@ -189,6 +189,7 @@ void Options::InitialiseMemberVariables(void) {
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
     printBoolAsString                                               = false;                                                                            // default is do not print bool as string
     quiet                                                           = false;                                                                            // Suppress some of the printing
+    rlofPrinting                                                    = false;
 
     // AVG - 17/03/2020 - Floor will uncomment when tested.
     //    nBatchesUsed                                                    = -1;                                                                               // Number of batches used, for STROOPWAFEL (AIS)
@@ -292,6 +293,8 @@ void Options::InitialiseMemberVariables(void) {
     pulsationalPairInstabilityPrescriptionString                    = PPI_PRESCRIPTION_LABEL.at(pulsationalPairInstabilityPrescription);                // String for which PPI prescription to use
 
 	maximumNeutronStarMass                                          = 3.0;									                                            // Maximum mass of a neutron star allowed, value in StarTrack is 3.0
+    
+    mCBUR1                                                          = MCBUR1HURLEY;                                                                     // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation (Hurley value, Fryer+ and Belczynski+ use 1.83)
 
 
     // Kick direction option
@@ -320,10 +323,11 @@ void Options::InitialiseMemberVariables(void) {
     // Mass transfer options
     useMassTransfer                                                 = true;                                                                             // Whether to use mass transfer
 	circulariseBinaryDuringMassTransfer         	                = false;						                                                    // Whether to circularise binary when it starts
-	forceCaseBBBCStabilityFlag                                      = false;									                                        // Whether if all case BB/BC systems are forced to be stable or unstable
-	alwaysStableCaseBBBCFlag                                        = false;									                                        // Whether if case BB/BC is always stable
 	angularMomentumConservationDuringCircularisation                = false;		                                                                    // Whether to conserve angular momentum while circularising or circularise to periastron
 
+    // Case BB/BC mass transfer stability prescription
+    caseBBStabilityPrescription                                     = CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE;                                                  // Which prescription to use for case BB/BC mass transfer stability
+    caseBBStabilityPrescriptionString                               = CASE_BB_STABILITY_PRESCRIPTION_LABEL.at(caseBBStabilityPrescription);                // String containing which prescription to use for case BB/BC mass transfer stability
 
     // Options adaptive Roche Lobe Overflow prescription
     massTransferAdaptiveAlphaParameter                              = 0.5;
@@ -530,405 +534,27 @@ void Options::InitialiseMemberVariables(void) {
     logfileBSEDoubleCompactObjects                                  = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS));               // get default filename from constants.h
     logfileBSESupernovae                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));                           // get default filename from constants.h
     logfileBSECommonEnvelopes                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));                     // get default filename from constants.h
+    logfileBSERLOFParameters                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS));                      // get default filename from constants.h
     logfileBSEBeBinaries                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));                          // get default filename from constants.h
     logfileBSEPulsarEvolution                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION));                     // get default filename from constants.h
 }
 
 
-void Options::SetToFiducialValues(void) {
-
-    // flags
-
-    allowRLOFAtBirth                                                = false;                                                                            // default is to not allow binaries that have one or both stars in RLOF  at birth to evolve
-    allowTouchingAtBirth                                            = false;                                                                            // default is to not allow binaries that are touching at birth to evolve
-
-    debugToFile                                                     = false;                                                                            // default is do not log debug statements to a log file
-    errorsToFile                                                    = false;                                                                            // default is do not log error messages to a log file
-
-    singleStar                                                      = false;                                                                            // Flag to evolve a single star
-
-	lambdaCalculationEveryTimeStep                                  = false;
-	zetaCalculationEveryTimeStep                                    = false;
-
-	beBinaries                                                      = false;
-    evolvePulsars                                                   = false;                                                                            // Whether to evolve pulsars
-	evolveUnboundSystems                                            = false;                                                                            // Allow unbound syetms to evolve
-
-    detailedOutput                                                  = false;                                                                            // Detailed output
-    populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
-    printBoolAsString                                               = false;                                                                            // default is do not print bool as string
-    quiet                                                           = false;                                                                            // Suppress some of the printing
-
-    // AVG - 17/03/2020 - Floor will uncomment when tested.
-    //    nBatchesUsed                                                    = -1;                                                                               // Number of batches used, for STROOPWAFEL (AIS)
-
-
-    // Public population synthesis variables
-    nBinaries                                                       = 10;
-
-    fixedRandomSeed                                                 = false;                                                                            // Whether to use a fixed random seed given by options.randomSeed (set to true if --random-seed is passed on command line)
-    randomSeed                                                      = 0;                                                                                // Random seed to use
-
-
-    // Specify how long to evolve binaries for
-    maxEvolutionTime                                                = 15000.0;                                                                          // Maximum evolution time in Myrs
-    maxNumberOfTimestepIterations                                   = 99999;                                                                            // Maximum number of timesteps to evolve binary for before giving up
-
-
-    // Initial mass options
-    initialMassFunction                                             = INITIAL_MASS_FUNCTION::KROUPA;
-    initialMassFunctionString                                       = INITIAL_MASS_FUNCTION_LABEL.at(initialMassFunction);
-    initialMassFunctionMin                                          = 8.;
-    initialMassFunctionMax                                          = 100.;
-    initialMassFunctionPower                                        = 0.;
-
-
-    // Initial mass ratios
-    massRatioDistribution                                           = MASS_RATIO_DISTRIBUTION::FLAT;                                                    // Most likely want Flat or SANA2012
-    massRatioDistributionString                                     = MASS_RATIO_DISTRIBUTION_LABEL.at(massRatioDistribution);                          // Most likely want Flat or SANA2012
-    massRatioDistributionMin                                        = 0.0;
-    massRatioDistributionMax                                        = 1.0;
-
-    minimumMassSecondary                                            = 0.1;                                                                              // Minimum mass of secondary to draw (in Msol) (brown dwarf limit = 0.1)
-
-
-    // Initial orbit options
-    semiMajorAxisDistribution                                       = SEMI_MAJOR_AXIS_DISTRIBUTION::FLATINLOG;
-    semiMajorAxisDistributionString                                 = SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL.at(SEMI_MAJOR_AXIS_DISTRIBUTION::FLATINLOG);   // Most likely want FlatInLog or SANA2012
-    semiMajorAxisDistributionMin                                    = 0.1;
-    semiMajorAxisDistributionMax                                    = 1000.0;
-    semiMajorAxisDistributionPower                                  = -1.0;
-
-
-    // Initial orbital period
-    periodDistributionMin                                           = 1.1;                                                                              // Minimum initial period in days
-    periodDistributionMax                                           = 1000.0;                                                                           // Maximum initial period in days
-
-
-    // Eccentricity
-    eccentricityDistribution                                        = ECCENTRICITY_DISTRIBUTION::ZERO;                                                  // Which eccentricity distribution to use
-    eccentricityDistributionString                                  = ECCENTRICITY_DISTRIBUTION_LABEL.at(eccentricityDistribution);                     // Which eccentricity distribution to use
-    eccentricityDistributionMin                                     = 0.0;                                                                              // Minimum initial eccentricity to sample
-    eccentricityDistributionMax                                     = 1.0;                                                                              // Maximum initial eccentricity to sample
-
-
-    // Kick options
-    kickVelocityDistribution                                        = KICK_VELOCITY_DISTRIBUTION::MAXWELLIAN;		                                    // Which kick velocity distribution to use
-    kickVelocityDistributionString                                  = KICK_VELOCITY_DISTRIBUTION_LABEL.at(kickVelocityDistribution);		            // Which kick velocity distribution to use
-
-
-    // Kick velocity options
-    kickVelocityDistributionSigmaCCSN_NS                            = 250;                                                                              // Kick velocity sigma in km s^-1 for neutron stars
-    kickVelocityDistributionSigmaCCSN_BH                            = 250;                                                                              // Kick velocity sigma in km s^-1 for black holes
-    kickVelocityDistributionMaximum                                 = -1.0;                                                                             // Maximum kick velocity to draw in km s^-1. Ignored if < 0
-    kickVelocityDistributionSigmaForECSN   	                        = 30.0;                                                                             // Characteristic kick velocity for an ECSN in km s^-1
-    kickVelocityDistributionSigmaForUSSN   	                        = 30.0;                                                                             // Characteristic kick velocity for an USSN in km s^-1
-	kickScalingFactor						                        = 1.0;				                                                                // Arbitrary factor for scaling kicks
-
-
-    // Black hole kicks
-    blackHoleKicksOption                                            = BLACK_HOLE_KICK_OPTION::FALLBACK;
-    blackHoleKicksString                                            = BLACK_HOLE_KICK_OPTION_LABEL.at(blackHoleKicksOption);
-
-
-    // Supernova remnant mass prescription options
-    remnantMassPrescription                                         = REMNANT_MASS_PRESCRIPTION::FRYER2012;
-    remnantMassPrescriptionString                                   = REMNANT_MASS_PRESCRIPTION_LABEL.at(remnantMassPrescription);
-
-
-    fryerSupernovaEngine                                            = SN_ENGINE::DELAYED;
-    fryerSupernovaEngineString                                      = SN_ENGINE_LABEL.at(fryerSupernovaEngine);
-
-
-    neutrinoMassLossAssumptionBH                                    = NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_FRACTION;                                  // Assumption to make about neutrino mass loss for BH formation
-    neutrinoMassLossAssumptionBHString                              = NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL.at(neutrinoMassLossAssumptionBH);
-    neutrinoMassLossValueBH                                         = 0.1;                                                                              // Value (corresponding to assumption) for neutrino mass loss for BH formation
-
-
-    // Fixed uk options
-    useFixedUK                                                      = false;
-    fixedUK                                                         = -1.0;
-
-
-    // Chemically Homogeneous Evolution
-    cheOption                                                       = CHE_OPTION::NONE;                                                                 // whether and how to apply Chemically Homogeneous Evolution
-    cheString                                                       = CHE_OPTION_LABEL.at(cheOption);
-
-
-    // Pair instability and pulsational pair instability mass loss
-    usePairInstabilitySupernovae                                    = false;                                                                            // Whether to use pair instability supernovae (PISN)
-    pairInstabilityUpperLimit                                       = 135.0;                                                                            // Maximum core mass leading to PISN (Value in Belczynski+ 2016 is 135 Msol)
-    pairInstabilityLowerLimit                                       = 60.0;                                                                             // Minimum core mass leading to PISN (Value in Belczynski+ 2016 is 65 Msol)
-
-    usePulsationalPairInstability                                   = false;                                                                            // Whether to use pulsational pair instability (PPI)
-    pulsationalPairInstabilityLowerLimit                            = 35.0;                                                                             // Minimum core mass leading to PPI (Value in Belczynski+ 2016 is 45 Msol)
-    pulsationalPairInstabilityUpperLimit                            = 60.0;                                                                             // Maximum core mass leading to PPI (Value in Belczynski+ 2016 is 65 Msol)
-
-    pulsationalPairInstabilityPrescription                          = PPI_PRESCRIPTION::COMPAS;                                                         // Prescription for PPI to use
-    pulsationalPairInstabilityPrescriptionString                    = PPI_PRESCRIPTION_LABEL.at(pulsationalPairInstabilityPrescription);                // String for which PPI prescription to use
-
-	maximumNeutronStarMass                                          = 3.0;								                                                // Maximum mass of a neutron star allowed, valuse in StarTrack = 3.0
-
-
-    // Kick direction option
-    kickDirectionDistribution                                       = KICK_DIRECTION_DISTRIBUTION::ISOTROPIC;                                           // Which assumption for SN kicks: Possibilities: isotropic, inplane, perpendicular, powerlaw, wedge, poles
-    kickDirectionDistributionString                                 = KICK_DIRECTION_DISTRIBUTION_LABEL.at(kickDirectionDistribution);		            // Which assumption for SN kicks: Possibilities: isotropic, inplane, perpendicular, powerlaw, wedge, poles
-    kickDirectionPower                                              = 0.0;                                                                              // Power law power for the "power" SN kick direction choice
-
-    // Output path
-    outputPathString                                                = ".";                                                                              // String to hold the output directory
-    defaultOutputPath                                               = boost::filesystem::current_path();                                                // Default output location
-    outputPath                                                      = defaultOutputPath;                                                                // Desired output location
-    outputContainerName                                             = DEFAULT_OUTPUT_CONTAINER_NAME;                                                    // Output container - this is a container (directory) created at outputPath to hold all output files
-
-    // Mass loss options
-    useMassLoss                                                     = false;                                                                            // Whether to use mass loss
-
-    massLossPrescription                                            = MASS_LOSS_PRESCRIPTION::VINK;
-    massLossPrescriptionString                                      = MASS_LOSS_PRESCRIPTION_LABEL.at(massLossPrescription);
-
-
-    // Wind mass loss multiplicitive constants
-    luminousBlueVariableFactor                                      = 1.5;                                                                              // Luminous blue variable mass loss enhancement factor
-    wolfRayetFactor                                                 = 1.0;                                                                              // WR winds factor
-
-
-    // Mass transfer options
-    useMassTransfer                                                 = true;											                                    // Whether to use mass transfer
-	circulariseBinaryDuringMassTransfer	                            = false;						                                                    // Whether to circularise binary when it starts
-	forceCaseBBBCStabilityFlag                                      = false;									                                        // Whether if all case BB/BC systems are forced to be stable or unstable
-	alwaysStableCaseBBBCFlag                                        = false;							                                                // Whether if case BB/BC is always stable
-	angularMomentumConservationDuringCircularisation                = false;		                                                                    // Whether to conserve angular momentum while circularising or circularise to periastron
-
-
-    // Options adaptive Roche Lobe Overflow prescription
-    massTransferAdaptiveAlphaParameter                              = 0.5;
-    maxPercentageAdaptiveMassTransfer                               = 0.01;
-
-
-    // Options for mass transfer accretion efficiency
-    massTransferFractionAccreted                                    = 1.0;
-    massTransferCParameter                                          = 10.0;
-
-    massTransferAccretionEfficiencyPrescription                     = MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED;
-    massTransferAccretionEfficiencyPrescriptionString               = MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL.at(massTransferAccretionEfficiencyPrescription);
-
-
-    // Mass transfer thermally limited options
-	massTransferThermallyLimitedVariation                           = MT_THERMALLY_LIMITED_VARIATION::C_FACTOR;
-	massTransferThermallyLimitedVariationString                     = MT_THERMALLY_LIMITED_VARIATION_LABEL.at(massTransferThermallyLimitedVariation);
-
-
-    eddingtonAccretionFactor                                        = 1;                                                                                // Multiplication factor for eddington accretion for NS & BH
-                                                                                                                                                        // (>1 is super-eddington, 0. is no accretion)
-
-    massTransferJloss                                               = 1.0;
-
-    // Mass transfer angular momentum loss prescription options
-    massTransferAngularMomentumLossPrescription                     = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION;
-    massTransferAngularMomentumLossPrescriptionString               = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL.at(massTransferAngularMomentumLossPrescription);
-
-
-    // Mass transfer rejuvenation prescriptions
-    massTransferRejuvenationPrescription                            = MT_REJUVENATION_PRESCRIPTION::STARTRACK;
-    massTransferRejuvenationPrescriptionString                      = MT_REJUVENATION_PRESCRIPTION_LABEL.at(massTransferRejuvenationPrescription);
-
-
-    // Mass transfer critical mass ratios
-    massTransferCriticalMassRatioMSLowMass                          = false;                    			                                            // Whether to use critical mass ratios
-    massTransferCriticalMassRatioMSLowMassNonDegenerateAccretor     = 1.44;                    			                                                // Critical mass ratio for MT from a MS low mass star (Claeys+ 2014 = 1.44)
-    massTransferCriticalMassRatioMSLowMassDegenerateAccretor        = 1.0;                    			                                                // Critical mass ratio for MT from a MS low mass star on to a degenerate accretor (Claeys+ 2014 = 1.0)
-
-    massTransferCriticalMassRatioMSHighMass                         = false;	           			                                                    // Whether to use critical mass ratios
-    massTransferCriticalMassRatioMSHighMassNonDegenerateAccretor    = 0.625;                 			                                                // Critical mass ratio for MT from a MS high mass star (Claeys+ 2014 = 0.625)
-    massTransferCriticalMassRatioMSHighMassDegenerateAccretor       = 0.0;                      			                                            // Critical mass ratio for MT from a MS high mass star on to a degenerate accretor
-
-    massTransferCriticalMassRatioHG                                 = false;                 			                                                // Whether to use critical mass ratios
-    massTransferCriticalMassRatioHGNonDegenerateAccretor            = 0.40;                  			                                                // Critical mass ratio for MT from a HG star (Claeys+ 2014 = 0.25)
-    massTransferCriticalMassRatioHGDegenerateAccretor               = 0.21;                  			                                                // Critical mass ratio for MT from a HG star on to a degenerate accretor (Claeys+ 2014 = 0.21)
-
-    massTransferCriticalMassRatioGiant                              = false;                  			                                                // Whether to use critical mass ratios
-    massTransferCriticalMassRatioGiantNonDegenerateAccretor         = 0.0;                   			                                                // Critical mass ratio for MT from a giant
-    massTransferCriticalMassRatioGiantDegenerateAccretor            = 0.87;                  			                                                // Critical mass ratio for MT from a giant on to a degenerate accretor (Claeys+ 2014 = 0.81)
-
-    massTransferCriticalMassRatioHeliumMS                           = false;	           			                                                    // Whether to use critical mass ratios
-    massTransferCriticalMassRatioHeliumMSNonDegenerateAccretor      = 0.625;                			                                                // Critical mass ratio for MT from a Helium MS star
-    massTransferCriticalMassRatioHeliumMSDegenerateAccretor         = 0.0;                  			                                                // Critical mass ratio for MT from a Helium MS star on to a degenerate accretor
-
-    massTransferCriticalMassRatioHeliumHG                           = false;                  			                                                // Whether to use critical mass ratios
-    massTransferCriticalMassRatioHeliumHGNonDegenerateAccretor      = 0.25;		           			                                                    // Critical mass ratio for MT from a Helium HG star (Claeys+ 2014 = 0.25)
-    massTransferCriticalMassRatioHeliumHGDegenerateAccretor         = 0.21;			           			                                                // Critical mass ratio for MT from a Helium HG star on to a degenerate accretor (Claeys+ 2014 = 0.21)
-
-    massTransferCriticalMassRatioHeliumGiant                        = false;                 			                                                // Whether to use critical mass ratios
-    massTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor   = 1.28;                 			                                                // Critical mass ratio for MT from a Helium giant (Claeys+ 2014 = 0.25)
-    massTransferCriticalMassRatioHeliumGiantDegenerateAccretor      = 0.87;                 			                                                // Critical mass ratio for MT from a Helium giant on to a degenerate accretor
-
-    massTransferCriticalMassRatioWhiteDwarf                         = false;                			                                                // Whether to use critical mass ratios
-	massTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor    = 0.0;                  			                                                // Critical mass ratio for MT from a White Dwarf
-    massTransferCriticalMassRatioWhiteDwarfDegenerateAccretor       = 1.6;                     			                                                // Critical mass ratio for MT from a White Dwarf on to a degenerate accretor (Claeys+ 2014 = 1.6)
-
-
-    // Common Envelope parameters
-    commonEnvelopeAlpha                                             = 1.0;                                                                              // Common envelope efficiency alpha parameter
-    commonEnvelopeLambda                                            = 0.1;                                                                              // Common envelope Lambda parameter
-    commonEnvelopeAlphaThermal                                      = 1.0;                                                                              // lambda = (alpha_th * lambda_b) + (1-alpha_th) * lambda_g
-    commonEnvelopeLambdaMultiplier                                  = 1.0;                                                                              // Multiply common envelope lambda by some constant
-    allowMainSequenceStarToSurviveCommonEnvelope                    = false;                                                                            // Whether or not to allow a main sequence star to survive a common envelope event
-
-
-    // Accretion during common envelope
-    commonEnvelopeMassAccretionPrescription                         = CE_ACCRETION_PRESCRIPTION::ZERO;
-    commonEnvelopeMassAccretionPrescriptionString                   = CE_ACCRETION_PRESCRIPTION_LABEL.at(commonEnvelopeMassAccretionPrescription);
-
-    commonEnvelopeMassAccretionMin                                  = 0.04;                                                                             // Minimum amount of mass accreted during CE in solar masses
-    commonEnvelopeMassAccretionMax                                  = 0.1;                                                                              // Maximum amount of mass accreted during CE in solar masses
-    commonEnvelopeMassAccretionConstant                             = 0.0;                                                                              // Constant value
-
-    // Prescription for envelope state (radiative or convective)
-    envelopeStatePrescription                                       = ENVELOPE_STATE_PRESCRIPTION::LEGACY;
-    envelopeStatePrescriptionString                                 = ENVELOPE_STATE_PRESCRIPTION_LABEL.at(envelopeStatePrescription);
-
-	// Common envelope lambda prescription
-	commonEnvelopeLambdaPrescription                                = CE_LAMBDA_PRESCRIPTION::NANJING;                                                  // Which prescription to use for CE lambda
-	commonEnvelopeLambdaPrescriptionString                          = CE_LAMBDA_PRESCRIPTION_LABEL.at(commonEnvelopeLambdaPrescription);                // String containing which prescription to use for CE lambda
-
-
-	// Common envelope Nandez and Ivanova energy formalism
-	revisedEnergyFormalismNandezIvanova	                            = false;						                                                    // Use the revised energy formalism from Nandez & Ivanova 2016
-	maximumMassDonorNandezIvanova                                   = 2.0;								                                                // Maximum mass allowed to use the revised energy formalism in Msol
-	commonEnvelopeRecombinationEnergyDensity                        = 1.5E13;					                                                        // Factor using to calculate the bin
-
-
-	// Common envelope power factor for Kruckow fit
-	commonEnvelopeSlopeKruckow                                      = -2.0/3.0;								                                            // Common envelope power factor for Kruckow fit normalized according to Kruckow+2016, Fig. 1
-
-
-	// Which prescription to use for calculating zetas
-	stellarZetaPrescription                                  = ZETA_PRESCRIPTION::SOBERMAN;					                        // Prescription to use for calculating stellar zeta
-	stellarZetaPrescriptionString                            = ZETA_PRESCRIPTION_LABEL.at(stellarZetaPrescription);					// String containing prescription to use for calculating stellar zeta
-
-
-	zetaAdiabaticArbitrary                                          = 10000.0;                                                                          // large value, which will favour stable MT
-    zetaMainSequence 	                                            = 2.0;
-	zetaRadiativeEnvelopeGiant	                                    = 6.5;
-    
-    // Adaptive Importance Sampling Exploratory phase
-    AISexploratoryPhase                                             = false;                                                                            // Flag for whether to run the AIS exploratory phase
-    AISDCOtype                                                      = AIS_DCO::ALL;                                                                     // Which prescription to use for DCO type
-    AISDCOtypeString                                                = AIS_DCO_LABEL.at(AIS_DCO::ALL);                                                   // String containing which type of DCOs to focus on
-    AIShubble                                                       = false;                                                                            // Flag for excluding DCOs that do not merge in Hubble
-    AISpessimistic                                                  = false;                                                                            // Flag for excluding DCOs that are Optmistic
-    AISrefinementPhase                                              = false;                                                                            // Flag for whether to run the AIS refinement phase (step 2)
-    AISrlof                                                         = false;                                                                            // Flag for excluding DCOs that RLOFSecondaryZAMS
-    kappaGaussians                                                  = 2;                                                                                // scaling factor for the width of the Gaussian distributions in AIS main sampling phase
-
-    // Metallicity options
-    metallicity                                                     = ZSOL;
-    fixedMetallicity                                                = true;
-
-
-    // Neutron star equation of state
-    neutronStarEquationOfState                                      = NS_EOS::SSE;
-    neutronStarEquationOfStateString                                = NS_EOSLabel.at(neutronStarEquationOfState);
-
-
-    // Pulsar birth magnetic field distribution
-    pulsarBirthMagneticFieldDistribution                            = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO;
-    pulsarBirthMagneticFieldDistributionString                      = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL.at(pulsarBirthMagneticFieldDistribution);  // Which birth magnetic field distribution to use for pulsars
-    pulsarBirthMagneticFieldDistributionMin                         = 11.0;                                                                             // Minimum pulsar birth magnetic field distribution
-    pulsarBirthMagneticFieldDistributionMax                         = 13.0;                                                                             // Maximum pulsar birth magnetic field distribution
-
-
-    // Pulsar birth spin period distribution string
-    pulsarBirthSpinPeriodDistribution                               = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::ZERO;
-    pulsarBirthSpinPeriodDistributionString                         = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL.at(pulsarBirthSpinPeriodDistribution);// Which birth spin period distribution to use for pulsars
-    pulsarBirthSpinPeriodDistributionMin                            = 0.0;                                                                              // Minimum birth spin period (ms)
-    pulsarBirthSpinPeriodDistributionMax                            = 100.0;                                                                            // Maximum birth spin period (ms)
-
-    pulsarMagneticFieldDecayTimescale                               = 1000.0;                                                                           // Timescale on which magnetic field decays (Myrs)
-    pulsarMagneticFieldDecayMassscale                               = 0.025;                                                                            // Mass scale on which magnetic field decays during accretion (solar masses)
-    pulsarLog10MinimumMagneticField                                 = 8.0;                                                                              // log10 of the minimum pulsar magnetic field in Gauss
-
-
-    // Rotational velocity distribution options
-    rotationalVelocityDistribution                                  = ROTATIONAL_VELOCITY_DISTRIBUTION::ZERO;
-    rotationalVelocityDistributionString                            = ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL.at(rotationalVelocityDistribution);
-
-
-	//JIM BARRETT -- 06/07/2016 -- adding options to sample over some hyperparameters
-	sampleKickVelocitySigma                                         = false;
-	sampleKickVelocitySigmaMin                                      = 0.0;
-	sampleKickVelocitySigmaMax                                      = 400.0;
-
-	sampleKickDirectionPower                                        = false;
-	sampleKickDirectionPowerMin                                     = -10.0;
-	sampleKickDirectionPowerMax                                     = 10.0;
-
-	sampleCommonEnvelopeAlpha                                       = false;
-	sampleCommonEnvelopeAlphaMin                                    = 0.0;
-	sampleCommonEnvelopeAlphaMax                                    = 5.0;
-
-	sampleWolfRayetMultiplier                                       = false;
-	sampleWolfRayetMultiplierMin                                    = 0.0;
-	sampleWolfRayetMultiplierMax                                    = 5.0;
-
-	sampleLuminousBlueVariableMultiplier                            = false;
-	sampleLuminousBlueVariableMultiplierMin                         = 1.0;
-	sampleLuminousBlueVariableMultiplierMax                         = 12.0;
-
-
-	// grids
-
-	gridFilename                                                    = "";                                                                               // default is no grid file
-
-
-    // debug and logging options
-
-    debugLevel                                                      = 0;                                                                                // default debug level
-    debugClasses.clear();                                                                                                                               // default debug classes
-
-    logLevel                                                        = 0;                                                                                // default log level
-    logClasses.clear();                                                                                                                                 // default debug classes
-
-    logfileNamePrefix                                               = "";                                                                               // default prefix for all log files
-    logfileDelimiter                                                = DELIMITER::TAB;                                                                   // default field delimiter for all log files
-    logfileDelimiterString                                          = DELIMITERLabel.at(logfileDelimiter);                                              // delimiter name - for options
-
-    logfileDefinitionsFilename                                      = "";                                                                               // default is no log file definitions file
-
-
-    // SSE options
-    logfileSSEParameters                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PARAMETERS));                           // get filename from constants.h
-
-    singleStarMassSteps                                             = 100;
-    singleStarMassMin                                               = 5.0;
-    singleStarMassMax                                               = 100.0;
-
-
-    // BSE options
-    logfileBSESystemParameters                                      = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));                    // get default filename from constants.h
-    logfileBSEDetailedOutput                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT));                      // get default filename from constants.h
-    logfileBSEDoubleCompactObjects                                  = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS));               // get default filename from constants.h
-    logfileBSESupernovae                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));                           // get default filename from constants.h
-    logfileBSECommonEnvelopes                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));                     // get default filename from constants.h
-    logfileBSEBeBinaries                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));                          // get default filename from constants.h
-    logfileBSEPulsarEvolution                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION));                     // get default filename from constants.h
-}
 
 
 /*
  * Read and process command line arguments using BOOST
  *
  *
- * COMMANDLINE_STATUS CommandLineSorter(int argc, char* argv[])
+ * PROGRAM_STATUS CommandLineSorter(int argc, char* argv[])
  *
  * @param   [IN]    argc                        Argument count - number of strings pointed to by parameter argv
  * @param   [IN]    argv                        Array of strings (char* actually) - fisrt string is program name
  * @return                                      Status
  */
-COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
+PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
-    COMMANDLINE_STATUS programStatus = COMMANDLINE_STATUS::CONTINUE;
+    PROGRAM_STATUS programStatus = PROGRAM_STATUS::CONTINUE;
 
     
     // create default strings for vector<string> types (too hard to do inline)
@@ -984,7 +610,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("allow-rlof-at-birth",                                         po::value<bool>(&allowRLOFAtBirth)->default_value(allowRLOFAtBirth)->implicit_value(true),                                                                  ("Allow binaries that have one or both stars in RLOF at birth to evolve (default = " + std::string(allowRLOFAtBirth ? "TRUE" : "FALSE") + ")").c_str())
 		    ("allow-touching-at-birth",                                     po::value<bool>(&allowTouchingAtBirth)->default_value(allowTouchingAtBirth)->implicit_value(true),                                                          ("Allow binaries that are touching at birth to evolve (default = " + std::string(allowTouchingAtBirth ? "TRUE" : "FALSE") + ")").c_str())
 
-			("alwaysStableCaseBBBCFlag",                                    po::value<bool>(&alwaysStableCaseBBBCFlag)->default_value(alwaysStableCaseBBBCFlag)->implicit_value(true),                                                  ("Choose case BB/BC mass transfer to be always stable (default = " + std::string(alwaysStableCaseBBBCFlag ? "TRUE" : "FALSE") + ")").c_str())
 			("angularMomentumConservationDuringCircularisation",            po::value<bool>(&angularMomentumConservationDuringCircularisation)->default_value(angularMomentumConservationDuringCircularisation)->implicit_value(true),  ("Conserve angular momentum when binary is circularised when entering a Mass Transfer episode (default = " + std::string(angularMomentumConservationDuringCircularisation ? "TRUE" : "FALSE") + ")").c_str())
 			// AVG - 17/03/2020 - Serena will uncomment when tested.
             // ("BeBinaries",                                                  po::value<bool>(&beBinaries)->default_value(beBinaries)->implicit_value(true),                                                                              ("Enable Be Binaries study (default = " + std::string(beBinaries ? "TRUE" : "FALSE") + ")").c_str())
@@ -995,11 +620,11 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("detailedOutput",                                              po::value<bool>(&detailedOutput)->default_value(detailedOutput)->implicit_value(true),                                                                      ("Print detailed output to file (default = " + std::string(detailedOutput ? "TRUE" : "FALSE") + ")").c_str())
 			("errors-to-file",                                              po::value<bool>(&errorsToFile)->default_value(errorsToFile)->implicit_value(true),                                                                          ("Write error messages to file (default = " + std::string(errorsToFile ? "TRUE" : "FALSE") + ")").c_str())
 
+			("enable-warnings",                                             po::value<bool>(&enableWarnings)->default_value(enableWarnings)->implicit_value(true),                                                                          ("Display warning messages to stdout (default = " + std::string(enableWarnings ? "TRUE" : "FALSE") + ")").c_str())
+
 		    ("evolve-pulsars",                                              po::value<bool>(&evolvePulsars)->default_value(evolvePulsars)->implicit_value(true),                                                                        ("Evolve pulsars (default = " + std::string(evolvePulsars ? "TRUE" : "FALSE") + ")").c_str())
 			("evolve-unbound-systems",                                      po::value<bool>(&evolveUnboundSystems)->default_value(evolveUnboundSystems)->implicit_value(true),                                                          ("Continue evolving stars even if the binary is disrupted (default = " + std::string(evolveUnboundSystems ? "TRUE" : "FALSE") + ")").c_str())
 
-            ("forceCaseBBBCStabilityFlag",                                  po::value<bool>(&forceCaseBBBCStabilityFlag)->default_value(forceCaseBBBCStabilityFlag)->implicit_value(true),                                              ("Force case BB/BC mass transfer to be only stable or unstable (default = " + std::string(forceCaseBBBCStabilityFlag ? "TRUE" : "FALSE") + ")").c_str())
-			("lambda-calculation-every-timeStep",                           po::value<bool>(&lambdaCalculationEveryTimeStep)->default_value(lambdaCalculationEveryTimeStep)->implicit_value(true),                                      ("Calculate all values of lambda at each timestep (default = " + std::string(lambdaCalculationEveryTimeStep ? "TRUE" : "FALSE") + ")").c_str())
    		   	("massTransfer",                                                po::value<bool>(&useMassTransfer)->default_value(useMassTransfer)->implicit_value(true),                                                                    ("Enable mass transfer (default = " + std::string(useMassTransfer ? "TRUE" : "FALSE") + ")").c_str())
 		    ("pair-instability-supernovae",                                 po::value<bool>(&usePairInstabilitySupernovae)->default_value(usePairInstabilitySupernovae)->implicit_value(true),                                          ("Enable pair instability supernovae (PISN) (default = " + std::string(usePairInstabilitySupernovae ? "TRUE" : "FALSE") + ")").c_str())
             ("populationDataPrinting",                                      po::value<bool>(&populationDataPrinting)->default_value(populationDataPrinting)->implicit_value(true),                                                      ("Print details of population (default = " + std::string(populationDataPrinting ? "TRUE" : "FALSE") + ")").c_str())
@@ -1007,6 +632,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("pulsational-pair-instability",                                po::value<bool>(&usePulsationalPairInstability)->default_value(usePulsationalPairInstability)->implicit_value(true),                                        ("Enable mass loss due to pulsational-pair-instability (PPI) (default = " + std::string(usePulsationalPairInstability ? "TRUE" : "FALSE") + ")").c_str())
 		    ("quiet",                                                       po::value<bool>(&quiet)->default_value(quiet)->implicit_value(true),                                                                                        ("Suppress printing (default = " + std::string(quiet ? "TRUE" : "FALSE") + ")").c_str())
 			("revised-energy-formalism-Nandez-Ivanova",                     po::value<bool>(&revisedEnergyFormalismNandezIvanova)->default_value(revisedEnergyFormalismNandezIvanova)->implicit_value(true),                            ("Enable revised energy formalism (default = " + std::string(revisedEnergyFormalismNandezIvanova ? "TRUE" : "FALSE") + ")").c_str())
+			("RLOFPrinting",                                                po::value<bool>(&rlofPrinting)->default_value(rlofPrinting)->implicit_value(true),                                                                          ("Enable output parameters before/after RLOF (default = " + std::string(rlofPrinting ? "TRUE" : "FALSE") + ")").c_str())
 
             // AVG
             /*
@@ -1020,9 +646,6 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             ("single-star",                                                 po::value<bool>(&singleStar)->default_value(singleStar)->implicit_value(true),                                                                              ("Evolve single star(s) (default = " + std::string(singleStar ? "TRUE" : "FALSE") + ")").c_str())
 
 		    ("use-mass-loss",                                               po::value<bool>(&useMassLoss)->default_value(useMassLoss)->implicit_value(true),                                                                            ("Enable mass loss (default = " + std::string(useMassLoss ? "TRUE" : "FALSE") + ")").c_str())
-
-			("zeta-calculation-every-timestep",                             po::value<bool>(&zetaCalculationEveryTimeStep)->default_value(zetaCalculationEveryTimeStep)->implicit_value(true),                                          ("Calculate all values of MT zetas at each timestep (default = " + std::string(zetaCalculationEveryTimeStep ? "TRUE" : "FALSE") + ")").c_str())
-
 
 			// numerical options - alphabetically grouped by type
 
@@ -1099,6 +722,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("maximum-evolution-time",                                      po::value<double>(&maxEvolutionTime)->default_value(maxEvolutionTime),                                                                                      ("Maximum time to evolve binaries in Myrs (default = " + std::to_string(maxEvolutionTime) + ")").c_str())
 		    ("maximum-mass-donor-Nandez-Ivanova",                           po::value<double>(&maximumMassDonorNandezIvanova)->default_value(maximumMassDonorNandezIvanova),                                                            ("Maximum donor mass allowed for the revised common envelope formalism in Msol (default = " + std::to_string(maximumMassDonorNandezIvanova) + ")").c_str())
 			("maximum-neutron-star-mass",                                   po::value<double>(&maximumNeutronStarMass)->default_value(maximumNeutronStarMass),                                                                          ("Maximum mass of a neutron star (default = " + std::to_string(maximumNeutronStarMass) + ")").c_str())
+            ("MCBUR1",                                                      po::value<double>(&mCBUR1)->default_value(mCBUR1),                                                                          ("MCBUR1: Min core mass at BAGB to avoid fully degenerate CO core  (default = " + std::to_string(mCBUR1) + ")").c_str())
             ("metallicity,z",                                               po::value<double>(&metallicity)->default_value(metallicity),                                                                                                ("Metallicity to use (default " + std::to_string(metallicity) + " Zsol)").c_str())
 		    ("minimum-secondary-mass",                                      po::value<double>(&minimumMassSecondary)->default_value(minimumMassSecondary),                                                                              ("Minimum mass of secondary to generate in Msol (default = " + std::to_string(minimumMassSecondary) + ")").c_str())
 
@@ -1150,6 +774,8 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		  	("black-hole-kicks",                                            po::value<string>(&blackHoleKicksString)->default_value(blackHoleKicksString),                                                                              ("Black hole kicks relative to NS kicks (options: FULL, REDUCED, ZERO, FALLBACK), default = " + blackHoleKicksString + ")").c_str())
 
+            ("case-bb-stability-prescription",             po::value<string>(&caseBBStabilityPrescriptionString)->default_value(caseBBStabilityPrescriptionString),                    ("Case BB/BC mass transfer stability prescription (options: ALWAYS_STABLE, ALWAYS_STABLE_ONTO_NSBH, TREAT_AS_OTHER_MT, ALWAYS_UNSTABLE), default = " + caseBBStabilityPrescriptionString + ")").c_str())
+        
 		  	("chemically-homogeneous-evolution",                            po::value<string>(&cheString)->default_value(cheString),                                                                                                    ("Chemically Homogeneous Evolution (options: NONE, OPTIMISTIC, PESSIMISTIC), default = " + cheString + ")").c_str())
 
 			("common-envelope-lambda-prescription",                         po::value<string>(&commonEnvelopeLambdaPrescriptionString)->default_value(commonEnvelopeLambdaPrescriptionString),                                          ("CE lambda prescription (options: LAMBDA_FIXED, LAMBDA_LOVERIDGE, LAMBDA_NANJING, LAMBDA_KRUCKOW, LAMBDA_DEWI), default = " + commonEnvelopeLambdaPrescriptionString + ")").c_str())
@@ -1172,6 +798,7 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
             // JR - 01/04/2020 - Serena will uncomment when tested.
             // ("logfile-BSE-be-binaries",                                     po::value<string>(&logfileBSEBeBinaries)->default_value(logfileBSEBeBinaries),                                                                              ("Filename for BSE Be Binaries logfile (default = " + logfileBSEBeBinaries + ")").c_str())
+            ("logfile-BSE-rlof-parameters",                                 po::value<string>(&logfileBSERLOFParameters)->default_value(logfileBSERLOFParameters),                                                                      ("Filename for BSE RLOF Parameters logfile ( default = " + logfileBSERLOFParameters + ")").c_str())
             ("logfile-BSE-common-envelopes",                                po::value<string>(&logfileBSECommonEnvelopes)->default_value(logfileBSECommonEnvelopes),                                                                    ("Filename for BSE Common Envelopes logfile (default = " + logfileBSECommonEnvelopes + ")").c_str())
             ("logfile-BSE-detailed-output",                                 po::value<string>(&logfileBSEDetailedOutput)->default_value(logfileBSEDetailedOutput),                                                                      ("Filename for BSE Detailed Output logfile (default = " + logfileBSEDetailedOutput + ")").c_str())
             ("logfile-BSE-double-compact-objects",                          po::value<string>(&logfileBSEDoubleCompactObjects)->default_value(logfileBSEDoubleCompactObjects),                                                          ("Filename for BSE Double Compact Objects logfile (default = " + logfileBSEDoubleCompactObjects + ")").c_str())
@@ -1221,13 +848,13 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             if (vm["help"].as<bool>()) {                                                                                                // user requested help?
                 utils::SplashScreen();                                                                                                  // yes - show splash screen
                 ANNOUNCE(desc);                                                                                                         // and help
-                programStatus = COMMANDLINE_STATUS::SUCCESS;                                                                            // ok
+                programStatus = PROGRAM_STATUS::SUCCESS;                                                                                // ok
             }
 
             // --version option
             if (vm["version"].as<bool>()) {                                                                                             // user requested version?
                 ANNOUNCE("COMPAS v" << VERSION_STRING);                                                                                 // yes, show version string
-                programStatus = COMMANDLINE_STATUS::SUCCESS;                                                                            // ok
+                programStatus = PROGRAM_STATUS::SUCCESS;                                                                                // ok
             }
 
 
@@ -1255,6 +882,12 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
                 COMPLAIN_IF(!found, "Unknown Black Hole Kicks Option");
             }
 
+            if (!vm["case-bb-stability-prescription"].defaulted()) {                                                                    //case BB/BC mass transfer stability prescription
+                std::tie(found, caseBBStabilityPrescription) = utils::GetMapKey(caseBBStabilityPrescriptionString, CASE_BB_STABILITY_PRESCRIPTION_LABEL, caseBBStabilityPrescription);
+                COMPLAIN_IF(!found, "Unknown Case BB/BC Mass Transfer Stability Prescription");
+            }
+
+            
             if (!vm["chemically-homogeneous-evolution"].defaulted()) {                                                                  // Chemically Homogeneous Evolution
                 std::tie(found, cheOption) = utils::GetMapKey(cheString, CHE_OPTION_LABEL, cheOption);
                 COMPLAIN_IF(!found, "Unknown Chemically Homogeneous Evolution Option");
@@ -1469,17 +1102,17 @@ COMMANDLINE_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
         catch (po::error& e) {                                                                                                          // program options exception
             std::cerr << "Program Options error: " << e.what() << std::endl;
             std::cerr << desc << std::endl;
-            programStatus = COMMANDLINE_STATUS::ERROR_IN_COMMAND_LINE;                                                                  // set status
+            programStatus = PROGRAM_STATUS::ERROR_IN_COMMAND_LINE;                                                                      // set status
         }
 
         catch (...) {                                                                                                                   // unhandled problem - command line error
             std::cerr << "Error in CommandLine: unknown or invalid option" << std::endl;                                                // announce error
-            programStatus = COMMANDLINE_STATUS::ERROR_IN_COMMAND_LINE;                                                                  // set status
+            programStatus = PROGRAM_STATUS::ERROR_IN_COMMAND_LINE;                                                                      // set status
         }
 
     } catch (std::exception& e) {                                                                                                       // unhandled exception - command line error
         std::cerr << "Unhandled exception: " << e.what() << std::endl;                                                                  // announce error
-        programStatus = COMMANDLINE_STATUS::ERROR_UNHANDLED_EXCEPTION;                                                                  // set status
+        programStatus = PROGRAM_STATUS::ERROR_UNHANDLED_EXCEPTION;                                                                      // set status
     }
 
     return programStatus;
