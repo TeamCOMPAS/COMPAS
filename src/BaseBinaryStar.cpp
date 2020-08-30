@@ -416,6 +416,58 @@ void BaseBinaryStar::SetRemainingCommonValues() {
     m_RLOFDetails.simultaneousRLOF               = false;
     m_RLOFDetails.stableRLOFPostCEE              = false;
 
+
+	// RLOF details - properties 1
+    m_RLOFDetails.props1.id                = -1l;
+    m_RLOFDetails.props1.randomSeed        = DEFAULT_INITIAL_ULONGINT_VALUE;
+
+    m_RLOFDetails.props1.stellarType1      = STELLAR_TYPE::NONE;
+    m_RLOFDetails.props1.stellarType2      = STELLAR_TYPE::NONE;
+
+    m_RLOFDetails.props1.mass1             = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.mass2             = DEFAULT_INITIAL_DOUBLE_VALUE;
+
+    m_RLOFDetails.props1.radius1           = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.radius2           = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.separation        = DEFAULT_INITIAL_DOUBLE_VALUE;
+
+    m_RLOFDetails.props1.eventCounter      = DEFAULT_INITIAL_ULONGINT_VALUE;
+
+    m_RLOFDetails.props1.time              = DEFAULT_INITIAL_DOUBLE_VALUE;
+
+    m_RLOFDetails.props1.isRLOF1           = false;
+    m_RLOFDetails.props1.isRLOF2           = false;
+
+    m_RLOFDetails.props1.isCE              = false;
+
+	// RLOF details - properties 2
+    m_RLOFDetails.props2.id = -1l;
+    m_RLOFDetails.props2.randomSeed       = DEFAULT_INITIAL_ULONGINT_VALUE;
+
+    m_RLOFDetails.props2.stellarType1     = STELLAR_TYPE::NONE;
+    m_RLOFDetails.props2.stellarType2     = STELLAR_TYPE::NONE;
+
+    m_RLOFDetails.props2.mass1            = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.mass2            = DEFAULT_INITIAL_DOUBLE_VALUE;
+
+    m_RLOFDetails.props2.radius1          = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.radius2          = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.separation       = DEFAULT_INITIAL_DOUBLE_VALUE;
+
+    m_RLOFDetails.props2.eventCounter     = DEFAULT_INITIAL_ULONGINT_VALUE;
+
+    m_RLOFDetails.props2.time             = DEFAULT_INITIAL_DOUBLE_VALUE;
+
+    m_RLOFDetails.props2.isRLOF1          = false;
+    m_RLOFDetails.props2.isRLOF2          = false;
+
+    m_RLOFDetails.props2.isCE             = false;
+
+    // RLOF details - current/prev props pointers
+    m_RLOFDetails.currentProps               = &m_RLOFDetails.props1;
+    m_RLOFDetails.previousProps              = &m_RLOFDetails.props2;
+
+
     // BeBinary details - properties 1
     m_BeBinaryDetails.props1.id                  = -1l;
     m_BeBinaryDetails.props1.randomSeed          = DEFAULT_INITIAL_ULONGINT_VALUE;
@@ -556,6 +608,36 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE:                        value = Radius2PostCEE();                                                   break;
         case BINARY_PROPERTY::RADIUS_2_PRE_COMMON_ENVELOPE:                         value = Radius2PreCEE();                                                    break;
         case BINARY_PROPERTY::RANDOM_SEED:                                          value = RandomSeed();                                                       break;
+        case BINARY_PROPERTY::RLOF_CURRENT_COMMON_ENVELOPE:                         value = RLOFDetails().currentProps->isCE;                                   break;
+        case BINARY_PROPERTY::RLOF_CURRENT_EVENT_COUNTER:                           value = RLOFDetails().currentProps->eventCounter;                           break;
+        case BINARY_PROPERTY::RLOF_CURRENT_ID:                                      value = RLOFDetails().currentProps->id;                                     break;
+        case BINARY_PROPERTY::RLOF_CURRENT_RANDOM_SEED:                             value = RLOFDetails().currentProps->randomSeed;                             break;
+        case BINARY_PROPERTY::RLOF_CURRENT_SEPARATION:                              value = RLOFDetails().currentProps->separation;                             break;
+        case BINARY_PROPERTY::RLOF_CURRENT_STAR1_MASS:                              value = RLOFDetails().currentProps->mass1;                                  break;
+        case BINARY_PROPERTY::RLOF_CURRENT_STAR2_MASS:                              value = RLOFDetails().currentProps->mass2;                                  break;
+        case BINARY_PROPERTY::RLOF_CURRENT_STAR1_RADIUS:                            value = RLOFDetails().currentProps->radius1;                                break;
+        case BINARY_PROPERTY::RLOF_CURRENT_STAR2_RADIUS:                            value = RLOFDetails().currentProps->radius2;                                break;
+        case BINARY_PROPERTY::RLOF_CURRENT_STAR1_RLOF:                              value = RLOFDetails().currentProps->isRLOF1;                                break;
+        case BINARY_PROPERTY::RLOF_CURRENT_STAR2_RLOF:                              value = RLOFDetails().currentProps->isRLOF2;                                break;
+        case BINARY_PROPERTY::RLOF_CURRENT_STAR1_STELLAR_TYPE:                      value = RLOFDetails().currentProps->stellarType1;                           break;
+        case BINARY_PROPERTY::RLOF_CURRENT_STAR1_STELLAR_TYPE_NAME:                 value = STELLAR_TYPE_LABEL.at(RLOFDetails().currentProps->stellarType1);    break;
+        case BINARY_PROPERTY::RLOF_CURRENT_STAR2_STELLAR_TYPE:                      value = RLOFDetails().currentProps->stellarType2;                           break;
+        case BINARY_PROPERTY::RLOF_CURRENT_STAR2_STELLAR_TYPE_NAME:                 value = STELLAR_TYPE_LABEL.at(RLOFDetails().currentProps->stellarType2);    break;
+        case BINARY_PROPERTY::RLOF_CURRENT_TIME:                                    value = RLOFDetails().currentProps->time;                                   break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_EVENT_COUNTER:                          value = RLOFDetails().previousProps->eventCounter;                          break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_SEPARATION:                             value = RLOFDetails().previousProps->separation;                            break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_STAR1_MASS:                             value = RLOFDetails().previousProps->mass1;                                 break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_STAR2_MASS:                             value = RLOFDetails().previousProps->mass2;                                 break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_STAR1_RADIUS:                           value = RLOFDetails().previousProps->radius1;                               break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_STAR2_RADIUS:                           value = RLOFDetails().previousProps->radius2;                               break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_STAR1_RLOF:                             value = RLOFDetails().previousProps->isRLOF1;                               break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_STAR2_RLOF:                             value = RLOFDetails().previousProps->isRLOF2;                               break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_STAR1_STELLAR_TYPE:                     value = RLOFDetails().previousProps->stellarType1;                          break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_STAR1_STELLAR_TYPE_NAME:                value = STELLAR_TYPE_LABEL.at(RLOFDetails().previousProps->stellarType1);   break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_STAR2_STELLAR_TYPE:                     value = RLOFDetails().previousProps->stellarType2;                          break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_STAR2_STELLAR_TYPE_NAME:                value = STELLAR_TYPE_LABEL.at(RLOFDetails().previousProps->stellarType2);   break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_TIME:                                   value = RLOFDetails().previousProps->time;                                  break;
+        case BINARY_PROPERTY::RLOF_SECONDARY_POST_COMMON_ENVELOPE:                  value = RLOFSecondaryPostCEE();                                             break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1:                                  value = RocheLobeRadius1();                                                 break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE:             value = RocheLobe1to2PostCEE();                                             break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_PRE_COMMON_ENVELOPE:              value = RocheLobe1to2PreCEE();                                              break;
@@ -1159,6 +1241,91 @@ double BaseBinaryStar::SampleEccentricityDistribution() {
  */
 double BaseBinaryStar::SampleMetallicityDistribution() {
     return OPTIONS->FixedMetallicity() ? OPTIONS->Metallicity() : ZSOL;         // user specified value if provided, else solar metallicity by defaulte
+}
+
+/*
+ * Determine whether RLOF parameters should be written to RLOF logfile
+ *
+ * Determinant is whether RLOF is occurring and the star undergoing RLOF is not a Main Sequence star (including HeMS)
+ *
+ *
+ * bool ShouldPrintRLOFParameters()
+ *
+ * @return                                      Boolean indicating if RLOF parameters should be written to logfile (true = yes, false = no)
+ */
+bool BaseBinaryStar::ShouldPrintRLOFParameters() {
+
+    bool print = false;                                                                                     // default is don't print
+
+    if (!OPTIONS->RLOFPrinting()) return print;                                                             // nothing to do
+
+    // print if not MS (including HeMS) mass transfer
+    if (m_Star1->IsRLOF() && !utils::IsOneOf(m_RLOFDetails.previousProps->stellarType1, ALL_MAIN_SEQUENCE)) {
+        print = true;                                                                                       // print
+    }
+
+    // rinse and repeat for star 2
+    if (m_Star2->IsRLOF() && !utils::IsOneOf(m_RLOFDetails.previousProps->stellarType2, ALL_MAIN_SEQUENCE)) {
+        print = true;                                                                                       // print
+    }
+
+    return print;
+}
+
+/*
+ * Write RLOF parameters to RLOF logfile if necessary
+ *
+ * If RLOF printing is enabled, check if the parameters should be written (via ShouldPrintRLOFParameters())
+ * and write the parameters to the file if necessary
+ *
+ *
+ * void PrintRLOFParameters()
+ */
+void BaseBinaryStar::PrintRLOFParameters() {
+
+    if (!OPTIONS->RLOFPrinting()) return;                       // nothing to do
+
+    if (ShouldPrintRLOFParameters()) {                          // need to print?
+        LOGGING->LogRLOFParameters(this);                       // yes - write to log file
+        m_RLOFDetails.currentProps->eventCounter += 1;          // every time we print a MT event happened
+    }
+}
+
+
+/*
+ * Squirrel RLOF properties away
+ *
+ * Various binary property values are stashed into the m_BeBinaryDetails.currentProps struct for use/printing later
+ * The existing m_BeBinaryDetails.currentProps struct is copied to the m_BeBinaryDetails.previousProps struct first
+ * (actually there is no copying - just switch pointers...)
+ *
+ *
+ * void StashRLOFProperties()
+ */
+void BaseBinaryStar::StashRLOFProperties() {
+
+    if (!OPTIONS->RLOFPrinting()) return;                                                                           // nothing to do
+
+    // switch previous<->current (preserves existing current as (new) previous)
+    RLOFPropertiesT* tmp;
+    tmp                             = m_RLOFDetails.previousProps;                                              // save pointer to existing previous props
+    m_RLOFDetails.previousProps     = m_RLOFDetails.currentProps;                                               // existing current props become new previous props (values will be preserved)
+    m_RLOFDetails.currentProps      = tmp;                                                                          // new current props points at existing prevous (values will be replaced)
+
+    // now save (new) current
+    m_RLOFDetails.currentProps->id              = m_ObjectId;
+    m_RLOFDetails.currentProps->randomSeed      = m_RandomSeed;
+    m_RLOFDetails.currentProps->mass1           = m_Star1->Mass();
+    m_RLOFDetails.currentProps->mass2           = m_Star2->Mass();
+    m_RLOFDetails.currentProps->radius1         = m_Star1->Radius();
+    m_RLOFDetails.currentProps->radius2         = m_Star2->Radius();
+    m_RLOFDetails.currentProps->stellarType1    = m_Star1->StellarType();
+    m_RLOFDetails.currentProps->stellarType2    = m_Star2->StellarType();
+    m_RLOFDetails.currentProps->separation      = m_SemiMajorAxis * AU_TO_RSOL;                                    // semi-major axis - change units to Rsol
+    m_RLOFDetails.currentProps->time            = m_Time;
+    m_RLOFDetails.currentProps->isRLOF1         = m_Star1->IsRLOF();
+    m_RLOFDetails.currentProps->isRLOF2         = m_Star2->IsRLOF();
+    m_RLOFDetails.currentProps->isCE            = m_CEDetails.CEEnow;
 }
 
 
@@ -2662,6 +2829,9 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 StashBeBinaryProperties();                                                                                                  // stash BeBinary properties
                 PrintBeBinary();                                                                                                            // print (log) BeBinary properties
+
+                StashRLOFProperties();                                                                                                      // stash RLOF properties
+                PrintRLOFParameters();                                                                                                      // print (log) RLOF parameters
 
                 // check for problems
                 if (HasStarsTouching()) {                                                                                                   // binary components touching? (should usually be avoided as MT or CE should happen prior to this)

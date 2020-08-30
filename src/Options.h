@@ -156,6 +156,7 @@ public:
     string                                      LogfileBSECommonEnvelopes() const                                       { return logfileBSECommonEnvelopes; }
     string                                      LogfileBSEDetailedOutput() const                                        { return logfileBSEDetailedOutput; }
     string                                      LogfileBSEDoubleCompactObjects() const                                  { return logfileBSEDoubleCompactObjects; }
+    string                                      LogfileBSERLOFParameters() const                                        { return logfileBSERLOFParameters; }
     string                                      LogfileBSEPulsarEvolution() const                                       { return logfileBSEPulsarEvolution; }
     string                                      LogfileBSESupernovae() const                                            { return logfileBSESupernovae; }
     string                                      LogfileBSESystemParameters() const                                      { return logfileBSESystemParameters; }
@@ -262,7 +263,7 @@ public:
     unsigned long int                           RandomSeed() const                                                      { return randomSeed; }
 
     REMNANT_MASS_PRESCRIPTION                   RemnantMassPrescription() const                                         { return remnantMassPrescription; }
-
+    bool                                        RLOFPrinting() const                                                    { return rlofPrinting; }
 
     ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return rotationalVelocityDistribution; }
 
@@ -324,6 +325,7 @@ private:
     bool                                        populationDataPrinting;                                         // Print certain data for small populations, but not for larger one
     bool                                        printBoolAsString;                                              // flag used to indicate that boolean properties should be printed as "TRUE" or "FALSE" (default is 1 or 0)
     bool                                        quiet;                                                          // suppress some output
+    bool                                        rlofPrinting;
 
     int                                         nBatchesUsed;                                                   // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
 
@@ -637,6 +639,7 @@ private:
     string                                      logfileBSEDoubleCompactObjects;                                 // BSE output file name: double compact objects
     string                                      logfileBSESupernovae;                                           // BSE output file name: supernovae
     string                                      logfileBSECommonEnvelopes;                                      // BSE output file name: common envelopes
+    string                                      logfileBSERLOFParameters;                                       // BSE output file name: Roche Lobe overflow
     string                                      logfileBSEBeBinaries;                                           // BSE output file name: Be Binaries
     string                                      logfileBSEPulsarEvolution;                                      // BSE output file name: pulsar evolution
 
