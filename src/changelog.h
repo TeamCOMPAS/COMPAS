@@ -408,8 +408,9 @@
 // 02.13.15     IM - Aug 30, 2020   - Defect repairs:
 //                                      - Fixed issue #347: CalculateMassTransferOrbit was not correctly accounting for the MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE option
 //                                      - Assorted very minor cleaning, including comments
+// 02.14.00     IM - Aug 30, 2020   - Enhancement:
+//                                      - Recreate RLOF printing (resolve issue #212)
 
-
-const std::string VERSION_STRING = "02.13.15";
+const std::string VERSION_STRING = "02.14.00";
 
 # endif // __changelog_h__
