@@ -501,7 +501,7 @@ private:
 
 
     void    CalculateMassTransfer(const double p_Dt);
-    double CalculateMassTransferOrbit(const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor);
+    double CalculateMassTransferOrbit(const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor, const double p_FractionAccreted);
     void    CalculateWindsMassLoss();
     void    InitialiseMassTransfer();
 
@@ -605,12 +605,13 @@ private:
     template <class T>
     struct RadiusEqualsRocheLobeFunctor
     {
-        RadiusEqualsRocheLobeFunctor(BaseBinaryStar * p_Binary, BinaryConstituentStar * p_Donor, BinaryConstituentStar * p_Accretor, ERROR * p_Error)
+        RadiusEqualsRocheLobeFunctor(BaseBinaryStar * p_Binary, BinaryConstituentStar * p_Donor, BinaryConstituentStar * p_Accretor, ERROR * p_Error, double p_FractionAccreted)
         {
             m_Binary=p_Binary;
             m_Donor=p_Donor;
             m_Accretor=p_Accretor;
             m_Error = p_Error;
+            m_FractionAccreted = p_FractionAccreted;
         }
         T operator()(double const& dM)
         {
@@ -621,7 +622,7 @@ private:
             double donorMass=m_Donor->Mass();
             double accretorMass=m_Accretor->Mass();
             BinaryConstituentStar* donorCopy = new BinaryConstituentStar(*m_Donor);
-            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -dM , donorCopy->CalculateThermalMassLossRate(), *m_Accretor);
+            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -dM , donorCopy->CalculateThermalMassLossRate(), *m_Accretor, m_FractionAccreted);
             double RLRadius      = semiMajorAxis * (1-m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - dM, accretorMass + (m_Binary->FractionAccreted() * dM)) * AU_TO_RSOL;
             (void)donorCopy->UpdateAttributes(-dM, -dM*donorCopy->Mass0()/donorCopy->Mass());
             // Modify donor Mass0 and Age for MS (including HeMS) and HG stars
@@ -641,11 +642,12 @@ private:
         BinaryConstituentStar * m_Donor;
         BinaryConstituentStar * m_Accretor;
         ERROR * m_Error;
+        double m_FractionAccreted;
     };
     
   
     //Root solver to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
-    double MassLossToFitInsideRocheLobe(BaseBinaryStar * p_Binary, BinaryConstituentStar * p_Donor, BinaryConstituentStar * p_Accretor)
+    double MassLossToFitInsideRocheLobe(BaseBinaryStar * p_Binary, BinaryConstituentStar * p_Donor, BinaryConstituentStar * p_Accretor, double p_FractionAccreted)
     {
         using namespace std;                          // Help ADL of std functions.
         using namespace boost::math::tools;           // For bracket_and_solve_root.
@@ -667,7 +669,7 @@ private:
         std::pair<double, double> root;
         try {
             ERROR error = ERROR::NONE;
-            root = bracket_and_solve_root(RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor, &error), guess, factor, is_rising, tol, it);
+            root = bracket_and_solve_root(RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor, &error, p_FractionAccreted), guess, factor, is_rising, tol, it);
             if (error != ERROR::NONE) SHOW_WARN(error);
         }
         catch(exception& e) {
