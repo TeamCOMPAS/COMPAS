@@ -1324,7 +1324,7 @@ void BaseBinaryStar::StashRLOFProperties() {
     m_RLOFDetails.currentProps->stellarType1    = m_Star1->StellarType();
     m_RLOFDetails.currentProps->stellarType2    = m_Star2->StellarType();
     m_RLOFDetails.currentProps->separation      = m_SemiMajorAxis * AU_TO_RSOL;                                    // semi-major axis - change units to Rsol
-    m_RLOFDetails.currentProps->eventCounter    = m_RLOFDetails.previousProps->eventCounter
+    m_RLOFDetails.currentProps->eventCounter    = m_RLOFDetails.previousProps->eventCounter;
     m_RLOFDetails.currentProps->time            = m_Time;
     m_RLOFDetails.currentProps->isRLOF1         = m_Star1->IsRLOF();
     m_RLOFDetails.currentProps->isRLOF2         = m_Star2->IsRLOF();
