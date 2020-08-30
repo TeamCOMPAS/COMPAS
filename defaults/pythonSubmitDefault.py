@@ -158,18 +158,18 @@ class pythonProgramOptions:
     remnant_mass_prescription = 'FRYER2012'
     fryer_supernova_engine = 'DELAYED'
     black_hole_kicks = 'FALLBACK'
-    kick_velocity_distribution = 'MAXWELLIAN'
+    kick_magnitude_distribution = 'MAXWELLIAN'
 
-    kick_velocity_sigma_CCSN_NS = 265.0                 #  [km/s]
-    kick_velocity_sigma_CCSN_BH = 265.0                 #  [km/s]
-    kick_velocity_sigma_ECSN = 30.0                     #  [km/s]
-    kick_velocity_sigma_USSN = 30.0                     #  [km/s]
+    kick_magnitude_sigma_CCSN_NS = 265.0                 #  [km/s]
+    kick_magnitude_sigma_CCSN_BH = 265.0                 #  [km/s]
+    kick_magnitude_sigma_ECSN = 30.0                     #  [km/s]
+    kick_magnitude_sigma_USSN = 30.0                     #  [km/s]
 
-    fix_dimensionless_kick_velocity = -1
+    fix_dimensionless_kick_magnitude = -1
     kick_direction = 'ISOTROPIC'
     kick_direction_power = 0.0
     kick_scaling_factor = 1.0
-    kick_velocity_maximum = -1.0
+    kick_magnitude_maximum = -1.0
 
     pair_instability_supernovae = True
     PISN_lower_limit = 60.0                             # Minimum core mass for PISN [Msol]
@@ -292,9 +292,9 @@ class pythonProgramOptions:
             self.pulsar_minimum_magnetic_field,
             self.orbital_period_min,
             self.orbital_period_max,
-            self.kick_velocity_sigma_CCSN_NS,
-            self.kick_velocity_sigma_CCSN_BH,
-            self.fix_dimensionless_kick_velocity,
+            self.kick_magnitude_sigma_CCSN_NS,
+            self.kick_magnitude_sigma_CCSN_BH,
+            self.fix_dimensionless_kick_magnitude,
             self.kick_direction_power,
             self.random_seed,
             self.mass_transfer_thermal_limit_C,
@@ -304,8 +304,8 @@ class pythonProgramOptions:
             self.PPI_lower_limit,
             self.PPI_upper_limit,
             self.maximum_neutron_star_mass,
-            self.kick_velocity_sigma_ECSN,
-            self.kick_velocity_sigma_USSN,
+            self.kick_magnitude_sigma_ECSN,
+            self.kick_magnitude_sigma_USSN,
             self.kick_scaling_factor,
             self.common_envelope_maximum_donor_mass_revised_energy_formalism,
             self.common_envelope_recombination_energy_density,
@@ -313,7 +313,7 @@ class pythonProgramOptions:
             self.common_envelope_mass_accretion_min,
             self.zeta_Main_Sequence,
             self.zeta_Radiative_Envelope_Giant,
-            self.kick_velocity_maximum,
+            self.kick_magnitude_maximum,
             self.log_level,
             self.debug_level,
             self.single_star_mass_steps,
