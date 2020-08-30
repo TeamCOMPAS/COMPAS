@@ -1943,16 +1943,17 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
  * Pols et al. notes; Belczynski et al. 2008, eq 32, 33
  *
  *
- * double CalculateMassTransferOrbit (const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor)
+ * double CalculateMassTransferOrbit (const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor, const double p_FractionAccreted)
  *
  * @param   [IN]    p_DonorMass                 Donor mass
  * @param   [IN]    p_AccretorMass              Accretor mass
  * @param   [IN]    p_DeltaMassDonor            Change in donor mass
  * @param   [IN]    p_ThermalRateDonor          Donor thermal mass loss rate
  * @param   [IN]    p_Accretor                  Pointer to accretor
+ * @param   [IN]    p_FractionAccreted      Mass fraction lost from donor accreted by accretor
  * @return                                      Semi-major axis
  */
-double BaseBinaryStar::CalculateMassTransferOrbit(const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor) {
+double BaseBinaryStar::CalculateMassTransferOrbit(const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor, const double p_FractionAccreted) {
 
     double semiMajorAxis   = m_SemiMajorAxis;                                                                   // new semi-major axis value - default is no change
     double massA           = p_Accretor.Mass();                                                                 // accretor mass
@@ -1964,22 +1965,17 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double p_DonorMass, cons
     
     int numberIterations   = fmax( floor (fabs(p_DeltaMassDonor/(MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP*massD))), 1);   // number of iterations
 
-    double fractionAccreted;
-    std::tie(std::ignore, fractionAccreted) = p_Accretor.CalculateMassAcceptanceRate(p_ThermalRateDonor, p_Accretor.CalculateThermalMassLossRate());
-
     double dM                  = p_DeltaMassDonor / numberIterations;                                           // mass change per time step
 
     for(int i = 0; i < numberIterations ; i++) {
         
         jLoss = CalculateGammaAngularMomentumLoss(massD, massA);
-        jOrb = jOrb + ((jLoss * jOrb * (1.0 - fractionAccreted) / massAplusMassD) * dM);
-        semiMajorAxis = semiMajorAxis + (((-2.0 * dM / massD) * (1.0 - (fractionAccreted * (massD / massA)) - ((1.0 - fractionAccreted) * (jLoss + 0.5) * (massD / massAplusMassD)))) * semiMajorAxis);
+        jOrb = jOrb + ((jLoss * jOrb * (1.0 - p_FractionAccreted) / massAplusMassD) * dM);
+        semiMajorAxis = semiMajorAxis + (((-2.0 * dM / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / massAplusMassD)))) * semiMajorAxis);
 
         massD          = massD + dM;
-        massA          = massA - (dM * fractionAccreted);
+        massA          = massA - (dM * p_FractionAccreted);
         massAplusMassD = massA + massD;
-                
-        std::tie(std::ignore, fractionAccreted) = p_Accretor.CalculateMassAcceptanceRate(p_ThermalRateDonor, p_Accretor.CalculateThermalMassLossRate());
     }
 
     return semiMajorAxis;
@@ -2111,7 +2107,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 		// Begin Mass Transfer
         double thermalRateDonor    = m_Donor->CalculateThermalMassLossRate();
         double thermalRateAccretor = OPTIONS->MassTransferThermallyLimitedVariation() == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE
-                    ? m_Accretor->Mass() / m_Accretor->CalculateThermalTimescale(m_Accretor->Mass(), CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL, m_Accretor->Luminosity(), m_Accretor->Mass() - m_Accretor->CoreMass())                                                  // assume accretor radius = accretor Roche Lobe radius
+                    ? (m_Accretor->Mass() - m_Accretor->CoreMass()) / m_Accretor->CalculateThermalTimescale(m_Accretor->Mass(), CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL, m_Accretor->Luminosity(), m_Accretor->Mass() - m_Accretor->CoreMass())                                                  // assume accretor radius = accretor Roche Lobe radius
                     : m_Accretor->CalculateThermalMassLossRate();
                 
         std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(thermalRateDonor, thermalRateAccretor);
@@ -2140,7 +2136,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
                     STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                                         // donor stellar type before resolving envelope loss
                     
-                    aFinal                  = CalculateMassTransferOrbit(m_Donor->Mass(), -envMassDonor, m_Donor->CalculateThermalMassLossRate(), *m_Accretor);
+                    aFinal                  = CalculateMassTransferOrbit(m_Donor->Mass(), -envMassDonor, m_Donor->CalculateThermalMassLossRate(), *m_Accretor, m_FractionAccreted);
                     
                     m_Donor->ResolveEnvelopeLossAndSwitch();                                                                                        // only other interaction that adds/removes mass is winds, so it is safe to update star here
                     
@@ -2149,11 +2145,11 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                     }
                 }
                 else{                                                                                                                               // donor has no envelope
-                    double dM = - MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor);                                                          // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
+                    double dM = - MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                                                          // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
                     m_Donor->SetMassTransferDiff(dM);                                                                                                // mass transferred by donor
                     m_Accretor->SetMassTransferDiff(-dM * m_FractionAccreted);                                                                       // mass accreted by accretor
                       
-                    aFinal                  = CalculateMassTransferOrbit(m_Donor->Mass(), dM, m_Donor->CalculateThermalMassLossRate(), *m_Accretor);
+                    aFinal                  = CalculateMassTransferOrbit(m_Donor->Mass(), dM, m_Donor->CalculateThermalMassLossRate(), *m_Accretor, m_FractionAccreted);
                 }
                        
 
@@ -2246,7 +2242,7 @@ void BaseBinaryStar::InitialiseMassTransfer() {
 		    if (OPTIONS->CirculariseBinaryDuringMassTransfer()) {                                                               // circularise binary to the periapsis separation?
                 m_SemiMajorAxis *= OPTIONS->AngularMomentumConservationDuringCircularisation()                                  // yes - conserve angular momentum?
                                         ? (1.0 - (m_Eccentricity * m_Eccentricity))                                             // yes - conserve angular momentum
-                                        : (1.0 - m_Eccentricity);                                                               // no - angular momentum not conserved
+                                        : (1.0 - m_Eccentricity);                                                               // no - angular momentum not conserved, circularise at periapsis
 
 			    m_Eccentricity        = 0.0;
 
