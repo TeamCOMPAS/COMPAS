@@ -89,8 +89,8 @@ protected:
                                                   const double p_EnvMass = 1.0) const
         { return CalculateDynamicalTimescale(); }                                                                 
 
-    double          CalculateThermalMassLossRate()                                                      { return m_Mass / CalculateThermalTimescale(); }
-        //Set thermal mass gain rate to be effectively infinite (in practice, will be Eddington limited), avoid division by zero
+    double          CalculateThermalMassLossRate()                                                      { return BaseStar::CalculateThermalMassLossRate(); }
+        //Set thermal mass gain rate to be effectively infinite, using dynamical timescale (in practice, will be Eddington limited), avoid division by zero
     
     double          CalculateThermalTimescale() const                                                       { return CalculateDynamicalTimescale(); }
         //Use dynamical timescale for mass transfer purposes

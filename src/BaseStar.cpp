@@ -1830,7 +1830,7 @@ double BaseStar::CalculateCoreMassGivenLuminosity_Static(const double p_Luminosi
 DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
 
     double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
-    double fractionAccreted = 0.0;                                           // accretion fraction - default  = 0.0
+    double fractionAccreted = 0.0;                                                          // accretion fraction - default  = 0.0
 
     switch (OPTIONS->MassTransferAccretionEfficiencyPrescription()) {
 

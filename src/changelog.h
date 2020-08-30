@@ -405,8 +405,11 @@
 //                                      - Address issue #70 by stopping evolution if the binary is touching
 //                                      - Check for merged binaries rather than just touching binaries in Evaluate
 //                                      - Minor cleaning (e.g., removed unnecessary CheckMassTransfer, which just repeated the work of CalculateMassTransfer but with a confusing name)
+// 02.13.15     IM - Aug 30, 2020   - Defect repairs:
+//                                      - Fixed issue #347: CalculateMassTransferOrbit was not correctly accounting for the MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE option
+//                                      - Assorted very minor cleaning, including comments
 
 
-const std::string VERSION_STRING = "02.13.14";
+const std::string VERSION_STRING = "02.13.15";
 
 # endif // __changelog_h__
