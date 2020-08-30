@@ -1257,7 +1257,8 @@ bool BaseBinaryStar::ShouldPrintRLOFParameters() {
 
     bool print = false;                                                                                     // default is don't print
 
-    if (!OPTIONS->RLOFPrinting()) return print;                                                             // nothing to do
+    if (!OPTIONS->RLOFPrinting())
+        return print;                                                             // nothing to do
 
     // print if not MS (including HeMS) mass transfer
     if (m_Star1->IsRLOF() && !utils::IsOneOf(m_RLOFDetails.previousProps->stellarType1, ALL_MAIN_SEQUENCE)) {
@@ -1286,8 +1287,9 @@ void BaseBinaryStar::PrintRLOFParameters() {
     if (!OPTIONS->RLOFPrinting()) return;                       // nothing to do
 
     if (ShouldPrintRLOFParameters()) {                          // need to print?
-        LOGGING->LogRLOFParameters(this);                       // yes - write to log file
+        StashRLOFProperties();                                  // save RLOF properties for printing (most of these are not needed...)
         m_RLOFDetails.currentProps->eventCounter += 1;          // every time we print a MT event happened
+        LOGGING->LogRLOFParameters(this);                       // yes - write to log file
     }
 }
 
@@ -1322,6 +1324,7 @@ void BaseBinaryStar::StashRLOFProperties() {
     m_RLOFDetails.currentProps->stellarType1    = m_Star1->StellarType();
     m_RLOFDetails.currentProps->stellarType2    = m_Star2->StellarType();
     m_RLOFDetails.currentProps->separation      = m_SemiMajorAxis * AU_TO_RSOL;                                    // semi-major axis - change units to Rsol
+    m_RLOFDetails.currentProps->eventCounter    = m_RLOFDetails.previousProps->eventCounter
     m_RLOFDetails.currentProps->time            = m_Time;
     m_RLOFDetails.currentProps->isRLOF1         = m_Star1->IsRLOF();
     m_RLOFDetails.currentProps->isRLOF2         = m_Star2->IsRLOF();
@@ -2806,7 +2809,6 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 StashBeBinaryProperties();                                                                                                  // stash BeBinary properties
                 PrintBeBinary();                                                                                                            // print (log) BeBinary properties
 
-                StashRLOFProperties();                                                                                                      // stash RLOF properties
                 PrintRLOFParameters();                                                                                                      // print (log) RLOF parameters
 
                 // check for problems
