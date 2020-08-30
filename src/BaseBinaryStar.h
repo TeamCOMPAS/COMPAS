@@ -600,7 +600,7 @@ private:
     void PrintDetailedOutput(const int p_Id)    { if (OPTIONS->DetailedOutput())    LOGGING->LogDetailedOutput(this, p_Id); }
     void PrintDoubleCompactObjects()            {                                   LOGGING->LogDoubleCompactObject(this); }
     void PrintCommonEnvelope()                  {                                   LOGGING->LogCommonEnvelope(this); }
-    void PrintBeBinary()                        { if (OPTIONS->BeBinaries())        LOGGING->LogBeBinary(this); }
+    void PrintBeBinary();
     void PrintPulsarEvolutionParameters()       { if (OPTIONS->EvolvePulsars())     LOGGING->LogPulsarEvolutionParameters(this); }
     void PrintSupernovaDetails()                {                                   LOGGING->LogSupernovaDetails(this); }
 

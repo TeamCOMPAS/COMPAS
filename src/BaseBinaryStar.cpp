@@ -1240,66 +1240,51 @@ double BaseBinaryStar::SampleEccentricityDistribution() {
  * @return                                      Metallicity
  */
 double BaseBinaryStar::SampleMetallicityDistribution() {
-    return OPTIONS->FixedMetallicity() ? OPTIONS->Metallicity() : ZSOL;         // user specified value if provided, else solar metallicity by defaulte
+    return OPTIONS->FixedMetallicity() ? OPTIONS->Metallicity() : ZSOL;         // user specified value if provided, else solar metallicity by default
 }
 
-/*
- * Determine whether RLOF parameters should be written to RLOF logfile
- *
- * Determinant is whether RLOF is occurring and the star undergoing RLOF is not a Main Sequence star (including HeMS)
- *
- *
- * bool ShouldPrintRLOFParameters()
- *
- * @return                                      Boolean indicating if RLOF parameters should be written to logfile (true = yes, false = no)
- */
-bool BaseBinaryStar::ShouldPrintRLOFParameters() {
-
-    bool print = false;                                                                                     // default is don't print
-
-    if (!OPTIONS->RLOFPrinting())
-        return print;                                                             // nothing to do
-
-    // print if not MS (including HeMS) mass transfer
-    if (m_Star1->IsRLOF() && !utils::IsOneOf(m_RLOFDetails.previousProps->stellarType1, ALL_MAIN_SEQUENCE)) {
-        print = true;                                                                                       // print
-    }
-
-    // rinse and repeat for star 2
-    if (m_Star2->IsRLOF() && !utils::IsOneOf(m_RLOFDetails.previousProps->stellarType2, ALL_MAIN_SEQUENCE)) {
-        print = true;                                                                                       // print
-    }
-
-    return print;
-}
 
 /*
- * Write RLOF parameters to RLOF logfile if necessary
- *
- * If RLOF printing is enabled, check if the parameters should be written (via ShouldPrintRLOFParameters())
- * and write the parameters to the file if necessary
+ * Write RLOF parameters to RLOF logfile if RLOF printing is enabled and at least one of the stars is in RLOF
  *
  *
  * void PrintRLOFParameters()
  */
 void BaseBinaryStar::PrintRLOFParameters() {
 
-    if (!OPTIONS->RLOFPrinting()) return;                       // nothing to do
+    if (!OPTIONS->RLOFPrinting()) return;                       // do not print if printing option off
 
-    if (ShouldPrintRLOFParameters()) {                          // need to print?
-        StashRLOFProperties();                                  // save RLOF properties for printing (most of these are not needed...)
-        m_RLOFDetails.currentProps->eventCounter += 1;          // every time we print a MT event happened
+    StashRLOFProperties();                                      // stash properties so that previous step is available for next printing
+
+    if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {               // print if either star is in RLOF
+        m_RLOFDetails.currentProps->eventCounter += 1;          // every time we print a MT event happened, increment counter
         LOGGING->LogRLOFParameters(this);                       // yes - write to log file
     }
 }
+
+/*
+ * Write Be binary parameters to logfile if required
+ *
+ *
+ * void PrintBeBinary()
+ */
+void BaseBinaryStar::PrintBeBinary() {
+    
+    if (!OPTIONS->BeBinaries()) return;                         // do not print if printing option off
+    
+    StashBeBinaryProperties();                                  // stash Be binary properties
+    
+    LOGGING->LogBeBinary(this);
+}
+
 
 
 /*
  * Squirrel RLOF properties away
  *
- * Various binary property values are stashed into the m_BeBinaryDetails.currentProps struct for use/printing later
- * The existing m_BeBinaryDetails.currentProps struct is copied to the m_BeBinaryDetails.previousProps struct first
- * (actually there is no copying - just switch pointers...)
+ * Various binary property values are stashed into the m_RLOFDetails.currentProps struct for use/printing later
+ * The existing m_RLOFDetails.currentProps struct is copied to the m_RLOFDetails.previousProps struct first
+ * (by switching pointers)
  *
  *
  * void StashRLOFProperties()
@@ -2806,11 +2791,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 EvaluateBinary(dt);                                                                                                         // evaluate the binary at this timestep
 
-                StashBeBinaryProperties();                                                                                                  // stash BeBinary properties
-                PrintBeBinary();                                                                                                            // print (log) BeBinary properties
-
                 PrintRLOFParameters();                                                                                                      // print (log) RLOF parameters
-
+                
                 // check for problems
                 if (StellarMerger() ) {                                     // Have stars merged?
                     evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;     // For now, stop evolution
@@ -2830,9 +2812,11 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                     else if (StellarMerger())        evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                    // constituent stars have merged
 
                     if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
-
+                        
                         if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) PrintPulsarEvolutionParameters();                                     // print (log) pulsar evolution parameters    JR: todo: WD?
 
+                        PrintBeBinary();                                                                                                            // print (log) BeBinary properties
+                        
                         if (IsDCO()) {                                                                                                      // double compact object?
                             ResolveCoalescence();                                                                                           // yes - resolve coalescence
 
