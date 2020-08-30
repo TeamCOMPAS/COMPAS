@@ -15,6 +15,7 @@
 #include "typedefs.h"
 #include "utils.h"
 #include "Rand.h"
+#include "changelog.h"
 
 using std::string;
 using std::vector;
@@ -64,7 +65,7 @@ private:
     string m_OptionsDetails;
 
     void InitialiseMemberVariables(void);
-    COMMANDLINE_STATUS CommandLineSorter(int argc, char * argv[]);
+    PROGRAM_STATUS CommandLineSorter(int argc, char * argv[]);
 
     string ProgramOptionDetails(const boost::program_options::variables_map p_VM);
 
@@ -72,8 +73,7 @@ public:
 
     static Options* Instance();
 
-    COMMANDLINE_STATUS Initialise(int argc, char *argv[]);
-    void SetToFiducialValues(void);
+    PROGRAM_STATUS Initialise(int argc, char *argv[]);
 
     AIS_DCO                                     AIS_DCOType() const                                                     { return AISDCOtype; }
     string                                      AIS_DCOTypeString() const                                               { return AISDCOtypeString; }
@@ -86,13 +86,14 @@ public:
     bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return allowMainSequenceStarToSurviveCommonEnvelope; }
     bool                                        AllowRLOFAtBirth() const                                                { return allowRLOFAtBirth; }
     bool                                        AllowTouchingAtBirth() const                                            { return allowTouchingAtBirth; }
-    bool                                        AlwaysStableCaseBBBCFlag() const                                        { return alwaysStableCaseBBBCFlag; }
     bool                                        AngularMomentumConservationDuringCircularisation() const                { return angularMomentumConservationDuringCircularisation; }
 
     bool                                        BeBinaries() const                                                      { return beBinaries; }
 
     BLACK_HOLE_KICK_OPTION                      BlackHoleKicksOption() const                                            { return blackHoleKicksOption; }
-
+    
+    CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return caseBBStabilityPrescription; }
+    
     CHE_OPTION                                  CHE_Option() const                                                      { return cheOption; }
 
     bool                                        CirculariseBinaryDuringMassTransfer() const                             { return circulariseBinaryDuringMassTransfer; }
@@ -106,7 +107,6 @@ public:
     double                                      CommonEnvelopeMassAccretionMax() const                                  { return commonEnvelopeMassAccretionMax; }
     double                                      CommonEnvelopeMassAccretionMin() const                                  { return commonEnvelopeMassAccretionMin; }
     CE_ACCRETION_PRESCRIPTION                   CommonEnvelopeMassAccretionPrescription() const                         { return commonEnvelopeMassAccretionPrescription; }
-    ENVELOPE_STATE_PRESCRIPTION                 EnvelopeStatePrescription() const                                       { return envelopeStatePrescription; }
     double                                      CommonEnvelopeRecombinationEnergyDensity() const                        { return commonEnvelopeRecombinationEnergyDensity; }
     double                                      CommonEnvelopeSlopeKruckow() const                                      { return commonEnvelopeSlopeKruckow; }
 
@@ -116,18 +116,19 @@ public:
     int                                         DebugLevel() const                                                      { return debugLevel; }
     bool                                        DebugToFile() const                                                     { return debugToFile; }
     bool                                        DetailedOutput() const                                                  { return detailedOutput; }
+    bool                                        EnableWarnings() const                                                  { return enableWarnings; }
     bool                                        ErrorsToFile() const                                                    { return errorsToFile; }
     ECCENTRICITY_DISTRIBUTION                   EccentricityDistribution() const                                        { return eccentricityDistribution; }
     double                                      EccentricityDistributionMax() const                                     { return eccentricityDistributionMax; }
     double                                      EccentricityDistributionMin() const                                     { return eccentricityDistributionMin; }
     double                                      EddingtonAccretionFactor() const                                        { return eddingtonAccretionFactor; }
+    ENVELOPE_STATE_PRESCRIPTION                 EnvelopeStatePrescription() const                                       { return envelopeStatePrescription; }
     bool                                        EvolvePulsars() const                                                   { return evolvePulsars; }
     bool                                        EvolveUnboundSystems() const                                            { return evolveUnboundSystems; }
 
     bool                                        FixedMetallicity() const                                                { return fixedMetallicity; }
     bool                                        FixedRandomSeed() const                                                 { return fixedRandomSeed; }
     double                                      FixedUK() const                                                         { return fixedUK; }                 // JR: todo: this isn't consistent naming see fixedMetallicity, fixedRandomSeed)
-    bool                                        ForceCaseBBBCStabilityFlag() const                                      { return forceCaseBBBCStabilityFlag; }
     SN_ENGINE                                   FryerSupernovaEngine() const                                            { return fryerSupernovaEngine; }
 
     string                                      GridFilename() const                                                    { return gridFilename; }
@@ -149,13 +150,13 @@ public:
     double                                      KickVelocityDistributionSigmaForECSN() const                            { return kickVelocityDistributionSigmaForECSN; }
     double                                      KickVelocityDistributionSigmaForUSSN() const                            { return kickVelocityDistributionSigmaForUSSN; }
 
-    bool                                        LambdaCalculationEveryTimeStep() const                                  { return lambdaCalculationEveryTimeStep; }
 
     vector<string>                              LogClasses() const                                                      { return logClasses; }
     string                                      LogfileBSEBeBinaries() const                                            { return logfileBSEBeBinaries; }
     string                                      LogfileBSECommonEnvelopes() const                                       { return logfileBSECommonEnvelopes; }
     string                                      LogfileBSEDetailedOutput() const                                        { return logfileBSEDetailedOutput; }
     string                                      LogfileBSEDoubleCompactObjects() const                                  { return logfileBSEDoubleCompactObjects; }
+    string                                      LogfileBSERLOFParameters() const                                        { return logfileBSERLOFParameters; }
     string                                      LogfileBSEPulsarEvolution() const                                       { return logfileBSEPulsarEvolution; }
     string                                      LogfileBSESupernovae() const                                            { return logfileBSESupernovae; }
     string                                      LogfileBSESystemParameters() const                                      { return logfileBSESystemParameters; }
@@ -209,6 +210,8 @@ public:
     int                                         MaxNumberOfTimestepIterations() const                                   { return maxNumberOfTimestepIterations; }
     double                                      MaxPercentageAdaptiveMassTransfer() const                               { return maxPercentageAdaptiveMassTransfer; }
 
+    double                                      MCBUR1() const                                                          { return mCBUR1; }
+
     double                                      Metallicity() const                                                     { return metallicity; }
 
     double                                      MinimumMassSecondary() const                                            { return minimumMassSecondary; }
@@ -260,7 +263,7 @@ public:
     unsigned long int                           RandomSeed() const                                                      { return randomSeed; }
 
     REMNANT_MASS_PRESCRIPTION                   RemnantMassPrescription() const                                         { return remnantMassPrescription; }
-
+    bool                                        RLOFPrinting() const                                                    { return rlofPrinting; }
 
     ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return rotationalVelocityDistribution; }
 
@@ -293,7 +296,6 @@ public:
     bool                                        UsePulsationalPairInstability() const                                   { return usePulsationalPairInstability; }
 
     double                                      WolfRayetFactor() const                                                 { return wolfRayetFactor; }
-    bool                                        ZetaCalculationEveryTimeStep() const                                    { return zetaCalculationEveryTimeStep; }
     double                                      ZetaRadiativeEnvelopeGiant() const                                      { return zetaRadiativeEnvelopeGiant; }
     double                                      ZetaMainSequence() const                                                { return zetaMainSequence; }
     double                                      ZetaAdiabaticArbitrary() const                                          { return zetaAdiabaticArbitrary; }
@@ -311,10 +313,9 @@ private:
     bool                                        debugToFile;                                                    // flag used to determine whether debug statements should also be written to a log file
     bool                                        errorsToFile;                                                   // flag used to determine whether error statements should also be written to a log file
 
+    bool                                        enableWarnings;                                                 // flag used to determine if warnings (via SHOW_WARN macros) should be displayed
+    
     bool                                        singleStar;                                                     // Whether to evolve a single star or a binary
-
-	bool                                        lambdaCalculationEveryTimeStep;							        // Flag indicates if lambda is calculated at each timestep or no
-	bool                                        zetaCalculationEveryTimeStep;
 
 	bool                                        beBinaries;													    // Flag if we want to print BeBinaries (main.cpp)
     bool                                        evolvePulsars;                                                  // Whether to evolve pulsars or not
@@ -324,6 +325,7 @@ private:
     bool                                        populationDataPrinting;                                         // Print certain data for small populations, but not for larger one
     bool                                        printBoolAsString;                                              // flag used to indicate that boolean properties should be printed as "TRUE" or "FALSE" (default is 1 or 0)
     bool                                        quiet;                                                          // suppress some output
+    bool                                        rlofPrinting;
 
     int                                         nBatchesUsed;                                                   // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
 
@@ -438,12 +440,14 @@ private:
     // Mass transfer options
     bool                                        useMassTransfer;                                                // Whether to use mass transfer (default = false)
 	bool                                        circulariseBinaryDuringMassTransfer;						    // Whether to circularise binary when it starts (default = false)
-	bool                                        forceCaseBBBCStabilityFlag;									    // Whether if all case BB/BC systems are forced to be stable or unstable (default = true)
-	bool                                        alwaysStableCaseBBBCFlag;									    // Whether if case BB/BC is always stable (default = true)
+	
+    CASE_BB_STABILITY_PRESCRIPTION              caseBBStabilityPrescription;									// Which prescription to use for the stability of case BB/BC mass transfer (default=ALWAYS_STABLE_ONTO_NSBH)
+    string                                      caseBBStabilityPrescriptionString;                              // String containing which case BB/BC mass transfer stability prescription to use (default = "None")
+    
 	bool                                        angularMomentumConservationDuringCircularisation;			    // Whether to conserve angular momentum while circularising or circularise to periastron (default = false)
 
     MT_ACCRETION_EFFICIENCY_PRESCRIPTION        massTransferAccretionEfficiencyPrescription;                    // Which accretion efficiency prescription will be used by the code (default = THERMALLY_LIMITED)
-    string                                      massTransferAccretionEfficiencyPrescriptionString;              // String containing which accretion efficiency prescription to use (defaul = "None")
+    string                                      massTransferAccretionEfficiencyPrescriptionString;              // String containing which accretion efficiency prescription to use (default = "None")
 
     double                                      massTransferFractionAccreted;                                   // In mass transfer, ammount of mass transferred that is accreted. 1 for conservative, 0 for fully-non conservative.
     double                                      massTransferCParameter;                                         // Detailed model parameter used in mass transfer
@@ -552,6 +556,7 @@ private:
     bool                                        fixedMetallicity;                                               // Whether user has specified a metallicity to use
     double                                      metallicity;                                                    // Metallicity default = solar
 
+    double                                      mCBUR1;                                                         // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation
 
     // Neutron star equation of state
     NS_EOS                                      neutronStarEquationOfState;                                     // which NS EOS to use
@@ -634,6 +639,7 @@ private:
     string                                      logfileBSEDoubleCompactObjects;                                 // BSE output file name: double compact objects
     string                                      logfileBSESupernovae;                                           // BSE output file name: supernovae
     string                                      logfileBSECommonEnvelopes;                                      // BSE output file name: common envelopes
+    string                                      logfileBSERLOFParameters;                                       // BSE output file name: Roche Lobe overflow
     string                                      logfileBSEBeBinaries;                                           // BSE output file name: Be Binaries
     string                                      logfileBSEPulsarEvolution;                                      // BSE output file name: pulsar evolution
 

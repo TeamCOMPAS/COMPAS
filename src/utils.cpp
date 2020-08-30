@@ -5,6 +5,7 @@
 #include <cstring>
 #include "utils.h"
 #include "Rand.h"
+#include "changelog.h"
 
 
 /*
@@ -240,22 +241,29 @@ namespace utils {
      *    max(root1, root2) if 2 roots
      *
      *
-     * double SolveQuadratic(const double p_A, const double p_B, double p_C)
+     * std::tuple<ERROR, double> SolveQuadratic(const double p_A, const double p_B, double p_C)
      *
      * @param   [IN]    p_A                       Coefficient of x^2
      * @param   [IN]    p_B                       Coefficient of x^1
      * @param   [IN]    p_C                       Coefficient of x^0 (Constant)
-     * @return                                    String padded with leading "0"s - will be unchanged from input string if length alread >= required length
+     * @return                                    Root found (see above)
+     * @return                                    Tuple containing (in order): error value, root found (see above)
+     *                                            The error value returned will be:
+     *                                                ERROR::NONE if no error occurred
+     *                                                ERROR::NO_REAL_ROOTS if the equation has no real roots
+     *                                              If the error returned is not ERROR:NONE, use root returned at your own risk
      */
-    double SolveQuadratic(const double p_A, const double p_B, double p_C) {
+    std::tuple<ERROR, double> SolveQuadratic(const double p_A, const double p_B, double p_C) {
+
+        ERROR error = ERROR::NONE;                                  // error
 
         double discriminant = (p_B * p_B) - (4.0 * p_A * p_C);      // d = B^2 - 4AC
 
-        double root = 0.0;
+        double root = 0.0;                                          // root found
 
         // JR: check < 0 first so don't have to check = 0.0 (will almost never happen after calculation - need epsilon)
-        if (discriminant < 0.0) {                                   // no real roots (leave this as an absolute compare)
-            std::cerr << "Error. No real roots" << std::endl;       // JR: todo: put proper warning in here
+        if (discriminant < 0.0) {                                   // no real roots? (leave this as an absolute compare)
+            error = ERROR::NO_REAL_ROOTS;                           // no real roots - set error
         }
         else if (discriminant > 0.0) {                              // 2 real roots (leae this as an absolute compare)
             double sqrtD = sqrt(discriminant);
@@ -270,7 +278,7 @@ namespace utils {
             root = -p_B / (p_A + p_A);                              // -B / 2A,discriminant = 0.0
         }
 
-        return root;
+        return std::make_tuple(error, root);
     }
 
 
@@ -421,7 +429,7 @@ namespace utils {
      */
     double ConvertPeriodInDaysToSemiMajorAxisInAU(const double p_Mass1, const double p_Mass2, const double p_Period) {
 
-        double a_cubed_SI_top    = G * ((p_Mass1 * MSOL) + (p_Mass2 * MSOL)) * p_Period * p_Period * SECONDS_IN_DAY * SECONDS_IN_DAY;
+        double a_cubed_SI_top    = G * ((p_Mass1 * MSOL_TO_KG) + (p_Mass2 * MSOL_TO_KG)) * p_Period * p_Period * SECONDS_IN_DAY * SECONDS_IN_DAY;
         double a_cubed_SI_bottom = 4.0 * M_PI * M_PI;
         double a_cubed_SI        = a_cubed_SI_top / a_cubed_SI_bottom;
         double a_SI              = pow(a_cubed_SI, 1.0 / 3.0);
@@ -498,4 +506,55 @@ namespace utils {
         
         return SN_EVENT::NONE;
     }
+
+
+    /*
+     * Solve Kepler's Equation using root finding techniques. Here we use Newton-Raphson.
+     *
+     * For a definition of all the anomalies see here:
+     *
+     *    https://en.wikipedia.org/wiki/Mean_anomaly
+     *    https://en.wikipedia.org/wiki/True_anomaly
+     *    https://en.wikipedia.org/wiki/Eccentric_anomaly
+     *
+     *
+     * std::tuple<ERROR, double, double> SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity)
+     *
+     * @param   [IN]    p_MeanAnomaly               The mean anomaly
+     * @param   [IN]    p_Eccentricity              Eccentricity of the binary
+     * @return                                      Tuple containing (in order): error value, eccentric anomaly, true anomaly
+     *                                              The error value returned will be:
+     *                                                  ERROR::NONE if no error occurred
+     *                                                  ERROR::NO_CONVERGENCE if the Newton-Raphson iteration did not converge
+     *                                                  ERROR::OUT_OF_BOUNDS if the eccentric anomaly returned is < 0 or > 2pi
+     *                                              If the error returned is not ERROR:NONE, use the eccentric anomaly and 
+     *                                              true anomaly returned at your own risk
+     */
+    std::tuple<ERROR, double, double> SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity) {
+
+        ERROR  error = ERROR::NONE;                                                                                                     // error
+
+        double e = p_Eccentricity;
+        double M = p_MeanAnomaly;
+        double E = p_MeanAnomaly;                                                                                                       // initial guess at E is M - correct for e = 0
+
+        double kepler = E - (e * sin(E)) - M;                                                                                           // let f(E) = 0.  Equation (92) in my "A simple toy model" document
+
+        int iteration = 0;
+        while (std::abs(kepler) >= NEWTON_RAPHSON_EPSILON && iteration++ < MAX_KEPLER_ITERATIONS) {                                     // repeat the approximation until E is within the specified error of the true value, or max iterations exceeded
+            double keplerPrime = 1.0 - (e * cos(E));                                                                                    // derivative of f(E), f'(E).  Equation (94) in my "A simple toy model" document
+            E = E - kepler / keplerPrime;
+            kepler = E - (e * sin(E)) - M;                                                                                              // let f(E) = 0.  Equation (92) in my "A simple toy model" document
+        }
+
+        if (iteration >= MAX_KEPLER_ITERATIONS) error = ERROR::NO_CONVERGENCE;                                                          // no convergence - set error
+
+        double nu = 2.0 * atan((sqrt((1.0 + e) / (1.0 - e))) * tan(0.5*E));                                                             // convert eccentric anomaly into true anomaly.  Equation (96) in my "A simple toy model" document
+
+             if (utils::Compare(E, M_PI) >= 0 && utils::Compare(E, _2_PI) <= 0) nu += _2_PI;                                            // add 2PI if necessary
+        else if (utils::Compare(E, 0.0)  <  0 || utils::Compare(E, _2_PI) >  0) error = ERROR::OUT_OF_BOUNDS;                           // out of bounds - set error
+
+        return std::make_tuple(error, E, nu);
+    }
+
 }

@@ -549,10 +549,10 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
 /*
  * Calculate thermal timescale
  *
- * Kalogera & Webbink 1996, eq 2
+ * Kalogera & Webbink 1996, eq 2 [note that (61) of BSE proposes a value a factor of 10/3 greater]
  *
  *
- * double CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity)
+ * double CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity) const
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @param   [IN]    p_Radius                    Radius in Rsol
@@ -560,8 +560,8 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
  * @param   [IN]    p_EnvMass                   Envelope mass in Msol (ignored here)
  * @return                                      Thermal timescale in Myr
  */
-double MainSequence::CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) {
-    return 30.0 * p_Mass * p_Mass / (p_Radius * p_Luminosity);      // G*Msol^2/(Lsol*Rsol) ~ 30
+double MainSequence::CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) const {
+    return 30.0 * p_Mass * p_Mass / (p_Radius * p_Luminosity);      // G*Msol^2/(Lsol*Rsol) ~ 30 Myr
 }
 
 
@@ -603,12 +603,12 @@ void MainSequence::UpdateAgeAfterMassLoss() {
  * Uses class member variables instaed of passing in parameters
  *
  *
- * double CalculateGyrationRadius()
+ * double CalculateGyrationRadius() const
  *
  * @return                                      Gyration radius in Rsol
  *
  */
-double MainSequence::CalculateGyrationRadius() {
+double MainSequence::CalculateGyrationRadius() const {
 
     double log10M = log10(m_Mass);
 
@@ -699,7 +699,7 @@ double MainSequence::ChooseTimestep(const double p_Time) {
  * JR: todo: why is this different from ResolveEnvelopeLoss()?
  * JR: todo: original code: Star::radiusRemnantStarAfterLosingEnvelope() vs Star::modifyStarAfterLosingEnvelope(int stellarType, double mass)
  * JR: todo: why is stellar type changed for some types, but not others?  CheB and EAGB stars have stellar type changed, but no other types do...
- * JR: todo: probably not a huge issue - only called in TIDES() and ResolveRemnantAfterEnvelopeLoss(), and with a copy of the star - probably ok there that attributes are changed (except maybe TIDES()????) <<<<<<<<<<
+ * JR: todo: probably not a huge issue - only called in TIDES() and ResolveRemnantAfterEnvelopeLoss(), and with a copy of the star - probably ok there that attributes are changed (except maybe TIDES()?)
  *
  *
  * STELLAR_TYPE ResolveRemnantAfterEnvelopeLoss()

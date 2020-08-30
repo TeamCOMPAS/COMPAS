@@ -984,10 +984,10 @@ double GiantBranch::CalculateLifetimeToHeIgnition(const double p_Mass, const dou
 /*
  * Calculate thermal timescale
  *
- * Kalogera & Webbink 1996, eq 2
+ * Kalogera & Webbink 1996, eq 2 [note that (61) of BSE proposes a value a factor of 10/3 greater]
  *
  *
- * double CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass)
+ * double CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) const
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @param   [IN]    p_Radius                    Radius in Rsol
@@ -995,8 +995,8 @@ double GiantBranch::CalculateLifetimeToHeIgnition(const double p_Mass, const dou
  * @param   [IN]    p_EnvMass                   Envelope mass in Msol
  * @return                                      Thermal timescale in Myr
 */
-double GiantBranch::CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) {
-    return 30.0 * p_Mass * p_EnvMass / (p_Radius * p_Luminosity);       // G*Msol^2/(Lsol*Rsol) ~ 30
+double GiantBranch::CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) const {
+    return 30.0 * p_Mass * p_EnvMass / (p_Radius * p_Luminosity);       // G*Msol^2/(Lsol*Rsol) ~ 30 Myr
 }
 
 
@@ -1010,7 +1010,7 @@ double GiantBranch::CalculateThermalTimescale(const double p_Mass, const double 
 /*
  * Calculate remnant type given COCoreMass
  *
- * Muller et al. 2016
+ * Muller et al. 2016 as presented in appendix B of Vigna-Gomez et al. 2018 (arXiv:1805.07974)
  *
  *
  * STELLAR_TYPE CalculateRemnantTypeByMuller2016(const double p_COCoreMass)
@@ -1021,10 +1021,6 @@ double GiantBranch::CalculateThermalTimescale(const double p_Mass, const double 
 STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCoreMass) {
 
     STELLAR_TYPE stellarType;
-
-    if (utils::Compare(p_COCoreMass, MCH) < 0) {
-        stellarType = STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
-    }
 
          if (utils::Compare(p_COCoreMass, 3.6 ) < 0) { stellarType = STELLAR_TYPE::NEUTRON_STAR; }
     else if (utils::Compare(p_COCoreMass, 4.05) < 0) { stellarType = STELLAR_TYPE::BLACK_HOLE; }
@@ -1105,10 +1101,7 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
 
 
 /*
- * Calculate remnant mass given Mass and COCoreMass
- *
- * Muller et al. 2016
- *
+ * Calculate remnant mass given Mass and COCoreMass per Muller et al. 2016 as presented in eq. B4 of Vigna-Gomez et al. 2018 (arXiv:1805.07974)
  *
  * double CalculateRemnantMassByMuller2016(const double p_Mass, const double p_COCoreMass)
  *
@@ -1117,14 +1110,12 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
  * @return                                      Remnant mass in Msol
  */
 double GiantBranch::CalculateRemnantMassByMuller2016(const double p_Mass, const double p_COCoreMass) {
-	// ALEJANDRO - 14/03/2017 - Updated prescription of Bernhard Muller's models, incorporating lower metallicity models for core masses 1.372 <= m_{C/O} < 1.65
-	// Where m_{C/O} = M_{C/O}/M_{\odot}
-	// First approach is to model the lower limit using Chnadrasekhar mass, m_{C/O} > Mch = 1.44
-
     double	remnantMass; 					                                                                        // Limit mass for a White Dwarf units Msun.
 
-    if (utils::Compare(p_COCoreMass, 1.44) < 0) {
-        remnantMass = 1.4;
+    if (utils::Compare(p_COCoreMass, 1.372) < 0) {
+        // Not explicitly pointed out in Appendix B of Vigna-Gomez+2018 but assumed for continuity and simplicity
+        // Muller+2016 didn't go as low as this in CO Core mass (see Figure A1 in that paper)
+        remnantMass = 1.21;                         
     }
 	else if (utils::Compare(p_COCoreMass, 1.49) < 0) { remnantMass = 1.21 - (0.4  * (p_COCoreMass - 1.372)); }
 	else if (utils::Compare(p_COCoreMass, 1.65) < 0) { remnantMass = 1.16;                                   }
@@ -1170,11 +1161,26 @@ double GiantBranch::CalculateBaryonicRemnantMass(const double p_ProtoMass, doubl
  * @return                                      Gravitational mass of the remnant in Msol
  */
 double GiantBranch::CalculateGravitationalRemnantMass(const double p_BaryonicRemnantMass) {
+
+    ERROR  error = ERROR::NONE;
+
+    double root;
+
     // decide whether to calculate GravitationalRemnantMass from Fryer+2012, Eq.13 for Neutron Star or Black Hole 
     // then calculate GravitationalRemnantMass 
-    return (utils::Compare(p_BaryonicRemnantMass, m_BaryonicMassOfMaximumNeutronStarMass) < 0) 
-            ? utils::SolveQuadratic(0.075, 1.0, -p_BaryonicRemnantMass)                 // Neutron Star
-            : 0.9 * p_BaryonicRemnantMass;                                              // Black Hole
+    
+    if (utils::Compare(p_BaryonicRemnantMass, m_BaryonicMassOfMaximumNeutronStarMass) < 0) {
+        std::tie(error, root) = utils::SolveQuadratic(0.075, 1.0, -p_BaryonicRemnantMass);                      // Neutron Star
+        if (error == ERROR::NO_REAL_ROOTS) { 
+            SHOW_WARN(error, "No real roots for quadratic: using 0.0");                                         // show warning
+            root = 0.0;                                                                                         // should be returned as 0.0, but set it anyway
+        }
+    } 
+    else {
+        root = 0.9 * p_BaryonicRemnantMass;                                                                     // Black Hole
+    }
+
+    return root;
 }
 
 
@@ -1704,10 +1710,10 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
 
             stellarType = ResolvePairInstabilitySN();
         }
-        else if (utils::Compare(snMass, MCBUR1) < 0) {                                                 // Type IIa SuperNova
+        else if (utils::Compare(snMass, OPTIONS->MCBUR1()) < 0) {                                   // Type IIa SuperNova
             stellarType = ResolveTypeIIaSN();
         }
-        else if (utils::Compare(snMass, MCBUR2) < 0) {                                                // Electron Capture SuperNova
+        else if (utils::Compare(snMass, MCBUR2) < 0) {                                              // Electron Capture SuperNova
             stellarType = ResolveElectronCaptureSN();
         }
         else {                                                                                      // Core Collapse SuperNova

@@ -43,7 +43,7 @@ protected:
             double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Time);
             double          CalculateCoreMassOnPhase()                                                       { return CalculateCoreMassOnPhase(m_Mass0, m_Age); }                                            // Use class member variables
 
-            double          CalculateGyrationRadius()                                                        { return 0.1; }                                                                                 // Hurley et al., 2000, after eq 109 for giants. Single number approximation.
+            double          CalculateGyrationRadius() const                                                       { return 0.1; }                                                                                 // Hurley et al., 2000, after eq 109 for giants. Single number approximation.
 
             double          CalculateHeCoreMassAtPhaseEnd()                                                  { return m_HeCoreMass; }                                                                        // NO-OP
             double          CalculateHeCoreMassOnPhase()                                                     { return m_CoreMass; }                                                                        // NO-OP
@@ -84,7 +84,7 @@ protected:
             STELLAR_TYPE    EvolveToNextPhase() { return m_StellarType; }                                                                                                                                    // NO-OP
 
             bool            IsEndOfPhase()                                                                   { return !ShouldEvolveOnPhase(); }                                                              // Phase ends when envelope loss or going supernova
-            bool            IsSupernova()                                                                    { return (utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0); }    // Going supernova if envelope lost and core mass large enough
+            bool            IsSupernova()                                                                    { return (utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0); }    // Going supernova if still has envelope and core mass large enough
 
             STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
             void            ResolveHeliumFlash() { }                                                                                                                                                         // NO-OP

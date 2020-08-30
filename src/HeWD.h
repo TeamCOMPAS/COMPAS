@@ -53,7 +53,7 @@ protected:
 
     void            CalculateGBParams()                                                                 { GiantBranch::CalculateGBParams(); }                                           // Default to GiantBranch
 
-    double          CalculateGyrationRadius()                                                           { return 0.21; }                                                                // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
+    double          CalculateGyrationRadius() const                                                          { return 0.21; }                                                                // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 
 
     double          CalculateHeCoreMassOnPhase()                                                        { return m_HeCoreMass; }                                                        // NO-OP
@@ -86,15 +86,13 @@ protected:
     double          CalculateThermalTimescale(const double p_Mass,
                                                   const double p_Radius,
                                                   const double p_Luminosity,
-                                                  const double p_EnvMass = 1.0)
-        { m_Error = ERROR::INVALID_TYPE_MT_THERMAL_TIMESCALE;                           // Set error value
-            SHOW_WARN(m_Error);                                                           // Warn that an error occurred
-            return CalculateDynamicalTimescale(); }                                                                 // Should never be called...
+                                                  const double p_EnvMass = 1.0) const
+        { return CalculateDynamicalTimescale(); }                                                                 
 
-    double          CalculateThermalMassLossRate()                                                      { return m_Mass / CalculateThermalTimescale(); }
-        //Set thermal mass gain rate to be effectively infinite (in practice, will be Eddington limited), avoid division by zero
+    double          CalculateThermalMassLossRate()                                                      { return BaseStar::CalculateThermalMassLossRate(); }
+        //Set thermal mass gain rate to be effectively infinite, using dynamical timescale (in practice, will be Eddington limited), avoid division by zero
     
-    double          CalculateThermalTimescale()                                                         { return CalculateDynamicalTimescale(); }
+    double          CalculateThermalTimescale() const                                                       { return CalculateDynamicalTimescale(); }
         //Use dynamical timescale for mass transfer purposes
 
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
