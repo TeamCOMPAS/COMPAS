@@ -549,7 +549,7 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
 /*
  * Calculate thermal timescale
  *
- * Kalogera & Webbink 1996, eq 2
+ * Kalogera & Webbink 1996, eq 2 [note that (61) of BSE proposes a value a factor of 10/3 greater]
  *
  *
  * double CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity) const
@@ -561,7 +561,7 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
  * @return                                      Thermal timescale in Myr
  */
 double MainSequence::CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) const {
-    return 30.0 * p_Mass * p_Mass / (p_Radius * p_Luminosity);      // G*Msol^2/(Lsol*Rsol) ~ 30
+    return 30.0 * p_Mass * p_Mass / (p_Radius * p_Luminosity);      // G*Msol^2/(Lsol*Rsol) ~ 30 Myr
 }
 
 

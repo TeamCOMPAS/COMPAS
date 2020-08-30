@@ -1830,7 +1830,7 @@ double BaseStar::CalculateCoreMassGivenLuminosity_Static(const double p_Luminosi
 DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
 
     double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
-    double fractionAccreted = 0.0;                                           // accretion fraction - default  = 0.0
+    double fractionAccreted = 0.0;                                                          // accretion fraction - default  = 0.0
 
     switch (OPTIONS->MassTransferAccretionEfficiencyPrescription()) {
 
@@ -2968,8 +2968,8 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
     STELLAR_TYPE stellarType = m_StellarType;                                               // default is no change
 
 
-    if (ShouldBeMasslessRemnant()) {                                                        // ALEJANDRO - 02/12/2016 - Attempt to fix updating the star if it lost all of its mass
-        stellarType = STELLAR_TYPE::MASSLESS_REMNANT;                                       // JR: should also pick up already massless remnant
+    if (ShouldBeMasslessRemnant()) {                                                        // Do not update the star if it lost all of its mass
+        stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
     }
     else {
         stellarType = ResolveSupernova();                                                   // handle supernova     JR: moved this to start of timestep
