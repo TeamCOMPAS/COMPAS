@@ -116,6 +116,8 @@ public:
         m_PrintExtraDetailedOutput         = p_Star.m_PrintExtraDetailedOutput;
 
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
+        m_RLOFDetails.currentProps         = p_Star.m_RLOFDetails.currentProps  == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
+        m_RLOFDetails.previousProps        = p_Star.m_RLOFDetails.previousProps == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
 
         m_SecondaryTooSmallForDCO          = p_Star.m_SecondaryTooSmallForDCO;
 
@@ -345,7 +347,7 @@ private:
     double              m_Eccentricity;                                                     // Initial eccentricity
     double              m_EccentricityAtDCOFormation;                                       // Eccentricity at DCO formation
     double              m_EccentricityInitial;                                              // Record initial eccentricity              JR: todo: check necessary
-    double              m_EccentricityPreSN;                                             // Eccentricity prior to 2nd supernova
+    double              m_EccentricityPreSN;                                                // Eccentricity prior to supernova
     double              m_EccentricityPrev;                                                 // Eccentricity at previous timestep
 
     double	            m_FractionAccreted;	                                                // Fraction of mass accreted from the donor during mass transfer
@@ -558,15 +560,19 @@ private:
                             const double p_RocheLobe1to2,
                             const double p_RocheLobe2to1);
 
+    bool    ShouldPrintRLOFParameters();
     void    StashBeBinaryProperties();
+    void    StashRLOFProperties();
 
+    void    UpdateSystemicVelocity(Vector3d p_newVelocity);
 
     // printing functions
+    void PrintRLOFParameters();
     void PrintBinarySystemParameters()          {                                   LOGGING->LogBinarySystemParameters(this); }
     void PrintDetailedOutput(const int p_Id)    { if (OPTIONS->DetailedOutput())    LOGGING->LogDetailedOutput(this, p_Id); }
     void PrintDoubleCompactObjects()            {                                   LOGGING->LogDoubleCompactObject(this); }
     void PrintCommonEnvelope()                  {                                   LOGGING->LogCommonEnvelope(this); }
-    void PrintBeBinary()                        { if (OPTIONS->BeBinaries())        LOGGING->LogBeBinary(this); }
+    void PrintBeBinary();
     void PrintPulsarEvolutionParameters()       { if (OPTIONS->EvolvePulsars())     LOGGING->LogPulsarEvolutionParameters(this); }
     void PrintSupernovaDetails()                {                                   LOGGING->LogSupernovaDetails(this); }
 

@@ -65,6 +65,7 @@ class pythonProgramOptions:
     use_mass_loss = True
     mass_transfer = True
     detailed_output = False                             # WARNING: this creates a data heavy file
+    RLOFPrinting = True
     evolve_unbound_systems = False
     quiet = False
 
@@ -203,6 +204,7 @@ class pythonProgramOptions:
     logfile_BSE_common_envelopes = None
     logfile_BSE_detailed_output = None
     logfile_BSE_double_compact_objects = None
+    logfile_BSE_rlof_parameters = None
     logfile_BSE_pulsar_evolution = None
     logfile_BSE_supernovae = None
     logfile_BSE_system_parameters = None
@@ -219,6 +221,7 @@ class pythonProgramOptions:
             self.detailed_output,
             self.evolve_unbound_systems,
             self.populationPrinting,
+            self.RLOFPrinting,
             self.circularise_binary_during_mass_transfer,
             self.angular_momentum_conservation_during_circularisation,
             self.pair_instability_supernovae,
@@ -243,6 +246,7 @@ class pythonProgramOptions:
             '--detailedOutput',
             '--evolve-unbound-systems',
             '--populationDataPrinting',
+            '--RLOFPrinting',
             '--circulariseBinaryDuringMassTransfer',
             '--angularMomentumConservationDuringCircularisation',
             '--pair-instability-supernovae',
@@ -425,6 +429,7 @@ class pythonProgramOptions:
             self.logfile_BSE_detailed_output,
             self.logfile_BSE_double_compact_objects,
             self.logfile_BSE_pulsar_evolution,
+            self.logfile_BSE_rlof_parameters,
             self.logfile_BSE_supernovae,
             self.logfile_BSE_system_parameters
         ]
@@ -469,6 +474,7 @@ class pythonProgramOptions:
             '--logfile-BSE-detailed-output',
             '--logfile-BSE-double-compact-objects',
             '--logfile-BSE-pulsar-evolution',
+            '--logfile-BSE-rlof-parameters',
             '--logfile-BSE-supernovae',
             '--logfile-BSE-system-parameters'
         ]
