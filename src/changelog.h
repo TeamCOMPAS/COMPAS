@@ -408,13 +408,14 @@
 // 02.13.15     IM - Aug 30, 2020   - Defect repairs:
 //                                      - Fixed issue #347: CalculateMassTransferOrbit was not correctly accounting for the MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE option
 //                                      - Assorted very minor cleaning, including comments
-// 02.13.16     RTW - Aug 25, 2020  - Code cleanup:
+// 02.14.00     IM - Aug 30, 2020   - Enhancement:
+//                                      - Recreate RLOF printing (resolve issue #212)
+// 02.14.01     RTW - Sep 2, 2020   - Code cleanup:
 //                                      - Rewrote ResolveSupernova to match Pfahl, Rappaport, Podsiadlowski 2002, and to allow for vector addition of system and component velocities
 //                                      - Changed meaning of Supernova_State (see Docs)
 //                                      - PostSN parameters have been removed
 //                                      - SN phi has been redefined
 
-
-const std::string VERSION_STRING = "02.13.15";
+const std::string VERSION_STRING = "02.14.01";
 
 # endif // __changelog_h__

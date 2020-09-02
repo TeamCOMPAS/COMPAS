@@ -189,6 +189,7 @@ void Options::InitialiseMemberVariables(void) {
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
     printBoolAsString                                               = false;                                                                            // default is do not print bool as string
     quiet                                                           = false;                                                                            // Suppress some of the printing
+    rlofPrinting                                                    = false;
 
     // AVG - 17/03/2020 - Floor will uncomment when tested.
     //    nBatchesUsed                                                    = -1;                                                                               // Number of batches used, for STROOPWAFEL (AIS)
@@ -533,6 +534,7 @@ void Options::InitialiseMemberVariables(void) {
     logfileBSEDoubleCompactObjects                                  = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS));               // get default filename from constants.h
     logfileBSESupernovae                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));                           // get default filename from constants.h
     logfileBSECommonEnvelopes                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));                     // get default filename from constants.h
+    logfileBSERLOFParameters                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS));                      // get default filename from constants.h
     logfileBSEBeBinaries                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));                          // get default filename from constants.h
     logfileBSEPulsarEvolution                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION));                     // get default filename from constants.h
 }
@@ -630,6 +632,7 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("pulsational-pair-instability",                                po::value<bool>(&usePulsationalPairInstability)->default_value(usePulsationalPairInstability)->implicit_value(true),                                        ("Enable mass loss due to pulsational-pair-instability (PPI) (default = " + std::string(usePulsationalPairInstability ? "TRUE" : "FALSE") + ")").c_str())
 		    ("quiet",                                                       po::value<bool>(&quiet)->default_value(quiet)->implicit_value(true),                                                                                        ("Suppress printing (default = " + std::string(quiet ? "TRUE" : "FALSE") + ")").c_str())
 			("revised-energy-formalism-Nandez-Ivanova",                     po::value<bool>(&revisedEnergyFormalismNandezIvanova)->default_value(revisedEnergyFormalismNandezIvanova)->implicit_value(true),                            ("Enable revised energy formalism (default = " + std::string(revisedEnergyFormalismNandezIvanova ? "TRUE" : "FALSE") + ")").c_str())
+			("RLOFPrinting",                                                po::value<bool>(&rlofPrinting)->default_value(rlofPrinting)->implicit_value(true),                                                                          ("Enable output parameters before/after RLOF (default = " + std::string(rlofPrinting ? "TRUE" : "FALSE") + ")").c_str())
 
             // AVG
             /*
@@ -795,6 +798,7 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
             // JR - 01/04/2020 - Serena will uncomment when tested.
             // ("logfile-BSE-be-binaries",                                     po::value<string>(&logfileBSEBeBinaries)->default_value(logfileBSEBeBinaries),                                                                              ("Filename for BSE Be Binaries logfile (default = " + logfileBSEBeBinaries + ")").c_str())
+            ("logfile-BSE-rlof-parameters",                                 po::value<string>(&logfileBSERLOFParameters)->default_value(logfileBSERLOFParameters),                                                                      ("Filename for BSE RLOF Parameters logfile ( default = " + logfileBSERLOFParameters + ")").c_str())
             ("logfile-BSE-common-envelopes",                                po::value<string>(&logfileBSECommonEnvelopes)->default_value(logfileBSECommonEnvelopes),                                                                    ("Filename for BSE Common Envelopes logfile (default = " + logfileBSECommonEnvelopes + ")").c_str())
             ("logfile-BSE-detailed-output",                                 po::value<string>(&logfileBSEDetailedOutput)->default_value(logfileBSEDetailedOutput),                                                                      ("Filename for BSE Detailed Output logfile (default = " + logfileBSEDetailedOutput + ")").c_str())
             ("logfile-BSE-double-compact-objects",                          po::value<string>(&logfileBSEDoubleCompactObjects)->default_value(logfileBSEDoubleCompactObjects),                                                          ("Filename for BSE Double Compact Objects logfile (default = " + logfileBSEDoubleCompactObjects + ")").c_str())
