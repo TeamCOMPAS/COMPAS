@@ -1876,6 +1876,14 @@ void BaseBinaryStar::UpdateSystemicVelocity(Vector3d p_newVelocity) {
  */
 void BaseBinaryStar::EvaluateSupernovae(const bool p_Resolve2ndSN) { 
 
+    std::cout << "\nNew call to EvaluateSupernova in NSK" << std::endl;
+    if (m_Star1->IsSNevent()) std::cout << "SN1 event" << std::endl;
+    if (m_Star2->IsSNevent()) std::cout << "SN2 event" << std::endl;
+    std::cout << "Resolve2ndSN? " << p_Resolve2ndSN << std::endl;
+    std::cout << "Unbound? " << m_Unbound << std::endl;
+    std::cout << "a = " << m_SemiMajorAxis << std::endl;
+    std::cout << "e = " << m_Eccentricity << std::endl;
+
     // RTW hack - the p_Resolve2ndSN parameter is nonsensical and should be removed
     // but that has been shown to cause deeper issues (in particular, with final steps of MT executing or not)
     // so this hack is added, temporarily, to try to replicate the current code. Physics changes should be addressed later.
