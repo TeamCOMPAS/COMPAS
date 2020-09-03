@@ -13,6 +13,7 @@ remnants.  It has been used for inference from observations of gravitational-wav
 [Getting started](./docs/getting_started.md)  
 [Specifications](./docs/COMPAS_Doc.pdf)  
 [Post-processing](./postProcessing/README.txt)  
+[Running COMPAS inside a Docker container](./docs/docker.md)  
 
 ## Contact
 Please email your queries to compas-user@googlegroups.com. You are also welcome to join the [COMPAS User Google Group](https://groups.google.com/forum/#!members/compas-user) to engage in discussions with COMPAS users and developers.
