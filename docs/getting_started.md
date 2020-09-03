@@ -149,7 +149,7 @@ To print the time evolution of binary properties, we need to turn on detailed ou
 
 Now let's run COMPAS!
 
-    $ python pythonSubmit.py
+    $ python3 pythonSubmit.py
     ...
     COMPAS v02.08.01
 
@@ -184,7 +184,7 @@ The COMPAS run just now produces a new directory `COMPAS_Output`, inside which y
 
 We examine `BSE_Detailed_Output_0.csv` to look at the evolution of the two stars. A default python plotting script has been included to visualise the data. Let's run the script:
 
-    python $COMPAS_ROOT_DIR/docs/demo/demo_singlesys_plotter.py
+    python3 $COMPAS_ROOT_DIR/docs/demo/demo_singlesys_plotter.py
 
 This should produce the following plot:  
 ![demo_plot](demo/demo_plot.png)
