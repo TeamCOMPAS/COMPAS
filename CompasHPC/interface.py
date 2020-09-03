@@ -1,17 +1,27 @@
 #!/usr/bin/env python
 
-import os
+import os, sys
 import pandas as pd
 import shutil
 import time
 import numpy as np
-import sys
-sys.path.append('../') #Only required in the test directory for testing purposes
+#sys.path.append('../') #Only required in the test directory for testing purposes
 from stroopwafel import sw, classes, prior, sampler, distributions, constants, utils
 import argparse
 
+# Include options from local pythonSubmit file      #TODO add in functionality for alternative pythonSubmit names and locations
+usePythonSubmit = True #If false, use stroopwafel defaults
+if usePythonSubmit:
+    try:
+        from pythonSubmit import pythonProgramOptions
+        programOptions = pythonProgramOptions()
+        commandOptions = programOptions.generateCommandLineOptionsDict()
+    except:
+        print("Invalid pythonSubmit file, using default stroopwafel options")
+        usePythonSubmit = False
+
 parser=argparse.ArgumentParser()
-parser.add_argument('--num_systems', help = 'Total number of systems', type = int, default = 1000)
+parser.add_argument('--num_systems', help = 'Total number of systems', type = int, default = 1000 if not usePythonSubmit else commandOptions['--number-of-binaries'])
 parser.add_argument('--num_cores', help = 'Number of cores to run in parallel', type = int, default = 2)
 parser.add_argument('--num_per_core', help = 'Number of systems to generate in one core', type = int, default = 10)
 parser.add_argument('--debug', help = 'If debug of COMPAS is to be printed', type = bool, default = False)
