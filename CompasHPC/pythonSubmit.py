@@ -492,234 +492,156 @@ class pythonProgramOptions:
         return listCommands
 
 
-def specifyCommandLineOptions(programOptions):
-    """
-    This function generates a string or strings for the terminal command to run COMPAS.
-    This function is intended to be modified by the user, so that they may swap out constant values for functions etc.
-    Options not to be included in the command line should be set to pythons None (except booleans, which should be set to False)
-
-    Parameters
-    -----------
-    programOptions : pythonProgramOptions
-        Contains program options
-
-    Returns
-    --------
-    commands : str or list of strs
-    """
-    booleanChoices = programOptions.booleanChoices()
-    booleanCommands = programOptions.booleanCommands()
-
-    numericalChoices = programOptions.numericalChoices()
-    numericalCommands = programOptions.numericalCommands()
-
-    stringChoices = programOptions.stringChoices()
-    stringCommands = programOptions.stringCommands()
-
-    listChoices = programOptions.listChoices()
-    listCommands = programOptions.listCommands()
-
-    if programOptions.hyperparameterGrid == True:
-        command = hyperparameterGridCommand(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,programOptions.shareSeeds)
-    elif programOptions.hyperparameterList == True:
-        if programOptions.hyperparameterGrid == True:
-            raise ValueError("You can't have both a list and a grid!")
-        command = hyperparameterListCommand(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,programOptions.shareSeeds)
-    else:
-        command = [generateCommandLineOptions(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
-
-    #command = [generateCommandLineOptions(programOptions.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
-
-    return command
-
-def generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands):
-
-    nBoolean = len(booleanChoices)
-    assert len(booleanCommands) == nBoolean
-
-    nNumerical = len(numericalChoices)
-    assert len(numericalCommands) == nNumerical
-
-    nString = len(stringChoices)
-    assert len(stringCommands) == nString
-
-    nList = len(listChoices)
-    assert len(listCommands) == nList
-
-    command = compas_executable + ' '
-
-    for i in range(nBoolean):
-
-        if booleanChoices[i] == True:
-
-            command += booleanCommands[i] + ' '
-
-    for i in range(nNumerical):
-
-        if not numericalChoices[i] == None:
-
-            command += numericalCommands[i] + ' ' + str(numericalChoices[i]) + ' '
-
-    for i in range(nString):
-
-        if not stringChoices[i] == None:
-
-            command += stringCommands[i] + ' ' + stringChoices[i] + ' '
-
-    for i in range(nList):
-
-        if listChoices[i]:
-
-            command += listCommands[i] + ' ' + ' '.join(map(str, listChoices[i]))
-
-    return command
-
-def hyperparameterGridCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,shareSeeds):
-    """This function allows for a range of hyperparameter values to be specified in a single run, if the hyperparameterGrid boolean is set to True in the
-    specifyCommandLineOptions() function.
-    This works by constructing nested output directories in the current working directory, and running a population at each combination of parameter values.
-    nBinaries from specifyCommandLineOptions() is divided equally amoungst these.
-    The user should follow the pattern in adding items to the commandsAndValues dictionary, the code will then handle production of
-    the output folders and return a command line command to run all of the populations back to back
-    """
+    def generateCommandLineOptionsDict(self):
+        """
+        This function generates a string or strings for the terminal command to run COMPAS.
+        This function is intended to be modified by the user, so that they may swap out constant values for functions etc.
+        Options not to be included in the command line should be set to pythons None (except booleans, which should be set to False)
     
-    # Load up the dictionary from gridRun.py
-    with open('pickledGrid.pkl', 'rb') as pg:
-        commandsAndValues = pickle.load(pg)
+        Parameters
+        -----------
+        self : pythonProgramOptions
+            Contains program options
     
-    # set up lists for recursion
-    if python_version >= 3:
-        keys = list(commandsAndValues.keys())
-    else:
-        keys = commandsAndValues.keys()
-    valuesLists = []
-    nSimulations = 1
-    for key in keys:
-        nSimulations *= len(commandsAndValues[key])
-        valuesLists.append(commandsAndValues[key])
-    # Make folders for the messy outputs
-    outPaths = []
-    for i in range(nSimulations):
-        path = 'gridOutputs/output-'+str(i)
-        outPaths.append(path)
-    #edit number of binaries per population
-    for index,command in enumerate(numericalCommands):
-        if command == '--number-of-binaries':
-            break
-    nBinariesPerSimulation = numericalChoices[index]/nSimulations
-
-    numericalChoices[index] = int(nBinariesPerSimulation)
-    print("index, nBinariesPerSimulation")
-    print(index, nBinariesPerSimulation)
-
-    bashCommands = []
-    # itertools.product recurses through all combinations of the lists in valuesLists
-    for en,combination in enumerate(itertools.product(*valuesLists)):
-        bashCommand = ''
-        pathName = outPaths[en]
-        for i, val in enumerate(combination):
-            for index,command in enumerate(numericalCommands):
-                if command == keys[i]:
-                    break
-            numericalChoices[index] = val
-        #change the random seed if need be
-        if not shareSeeds:
-            for index,command in enumerate(numericalCommands):
-                if command == '--random-seed':
-                    break
-            numericalChoices[index] += int(nBinariesPerSimulation)
-        #setup output arguments
-        for index,command in enumerate(stringCommands):
-            if command == '--outputPath':
-                break
-        stringChoices[index] = pathName + '/.'
-        bashCommand += generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)
-        bashCommand += '; '
-        bashCommands.append(bashCommand)
-    return bashCommands
+        Returns
+        --------
+        commands : str or list of strs
+        """
+        booleanChoices = self.booleanChoices()
+        booleanCommands = self.booleanCommands()
+        nBoolean = len(booleanChoices)
+        assert len(booleanCommands) == nBoolean
     
+        numericalChoices = self.numericalChoices()
+        numericalCommands = self.numericalCommands()
+        nNumerical = len(numericalChoices)
+        assert len(numericalCommands) == nNumerical
+    
+        stringChoices = self.stringChoices()
+        stringCommands = self.stringCommands()
+        nString = len(stringChoices)
+        assert len(stringCommands) == nString
+    
+        listChoices = self.listChoices()
+        listCommands = self.listCommands()
+        nList = len(listChoices)
+        assert len(listCommands) == nList
+
+
+        ### Collect all options into a dictionary mapping option name to option value
+
+        command = {'compas_executable' : self.compas_executable}
+    
+        for i in range(nBoolean):
+            if booleanChoices[i] == True:
+                command.update({booleanCommands[i] : ''})
+    
+        for i in range(nNumerical):
+            if not numericalChoices[i] == None:
+                command.update({numericalCommands[i] : str(numericalChoices[i])})
+    
+        for i in range(nString):
+            if not stringChoices[i] == None:
+                command.update({stringCommands[i] : stringChoices[i]})
+    
+        for i in range(nList):
+            if listChoices[i]:
+                command.update({listCommands[i] : ' '.join(map(str,listChoices[i]))})
+    
+        return command
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     
-def hyperparameterListCommand(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,shareSeeds):
-    """
-    """
-    # Load up the dictionary from gridRun.py
-    with open('pickledList.pkl', 'rb') as pl:
-        commandsAndValues = pickle.load(pl)
+        #command = self.generateCommandLineOptions(self.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)
     
-    # set up lists for recursion
-    if python_version >= 3:
-        keys = list(commandsAndValues.keys())
-    else:
-        keys = commandsAndValues.keys()
-
-    #work how many things there are in the list
-    nSimulations = len(commandsAndValues[keys[0]])
-    print("nSimulations = ", nSimulations)
-    #make the directories
-    outPaths = []
-    for i in range(nSimulations):
-        path = 'listOutputs/output-'+str(i)
-        outPaths.append(path)
-    #grab all the values out of the dictionary for syntactic ease later
-    valuesLists = []
-    for key in keys:
-        valuesLists.append(commandsAndValues[key])
-    valuesLists =np.array(valuesLists).T
-    #edit number of binaries per population
-    for index,command in enumerate(numericalCommands):
-        if command == '--number-of-binaries':
-            break
-    nBinariesPerSimulation = numericalChoices[index]/nSimulations
-    numericalChoices[index] = int(nBinariesPerSimulation)
-    print("index, nBinariesPerSimulation")
-    print(index, nBinariesPerSimulation)
-    bashCommands = []
-    for en in range(nSimulations):
-        bashCommand = ''
-        combination = valuesLists[en]
-        pathName = outPaths[en]
-        for i, val in enumerate(combination):
-            for index,command in enumerate(numericalCommands):
-                if command == keys[i]:
-                    break
-            numericalChoices[index] = val
-        #change the random seed if need be
-        if not shareSeeds:
-            for index,command in enumerate(numericalCommands):
-                if command == '--random-seed':
-                    break
-            numericalChoices[index] += int(nBinariesPerSimulation)
-        #setup output arguments
-        for index,command in enumerate(stringCommands):
-            if command == '--outputPath':
-                break
-        stringChoices[index] = pathName + '/.'
-        bashCommand += generateCommandLineOptions(compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)
-        bashCommand += '; '
-        bashCommands.append(bashCommand)
-    return bashCommands
+        ##if self.hyperparameterGrid == True:
+        ##    command = hyperparameterGridCommand(self.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,self.shareSeeds)
+        ##elif self.hyperparameterList == True:
+        ##    if self.hyperparameterGrid == True:
+        ##        raise ValueError("You can't have both a list and a grid!")
+        ##    command = hyperparameterListCommand(self.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,self.shareSeeds)
+        ##else:
+        ##    command = [generateCommandLineOptions(self.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
     
+        ##command = [generateCommandLineOptions(self.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
+    
+        #return command
+    
+    #def generateCommandLineOptions(self, compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands):
+    #
+    #    nBoolean = len(booleanChoices)
+    #    assert len(booleanCommands) == nBoolean
+    #
+    #    nNumerical = len(numericalChoices)
+    #    assert len(numericalCommands) == nNumerical
+    #
+    #    nString = len(stringChoices)
+    #    assert len(stringCommands) == nString
+    #
+    #    nList = len(listChoices)
+    #    assert len(listCommands) == nList
+    #
+    #    command = {'compas_executable' : compas_executable}
+    #
+    #    for i in range(nBoolean):
+    #        if booleanChoices[i] == True:
+    #            command.update({booleanCommands[i] : ''})
+    #
+    #    for i in range(nNumerical):
+    #        if not numericalChoices[i] == None:
+    #            command.update({numericalCommands[i] : str(numericalChoices[i])})
+    #
+    #    for i in range(nString):
+    #        if not stringChoices[i] == None:
+    #            command.update({stringCommands[i] : stringChoices[i]})
+    #
+    #    for i in range(nList):
+    #        if listChoices[i]:
+    #            command.update({listCommands[i] : ' '.join(map(str,listChoices[i]))})
+    #
+    #    return command
 
-def runCompas(programOptions):
+
+
+def combineCommandLineOptionsDictIntoShellCommand(commandOptions):
     """
+    Write out the compas input parameters into a shell string.
+    Ensure the Compas executable is first, and not repeated.
+    Options are non-ordered.
     """
 
-    commands = specifyCommandLineOptions(programOptions)
+    shellCommand = commandOptions['compas_executable']
+    del commandOptions['compas_executable'] 
+    for key, val in commandOptions.items():
+        shellCommand += ' ' + key + ' ' + val
 
-    for command in commands:
-
-        print(command)
-
-        call(command,shell=True)
-
-    return 0
+    return shellCommand
 
 
 if __name__ == "__main__":
 
     #-- Get the program options
     programOptions = pythonProgramOptions()
+    commandOptions = programOptions.generateCommandLineOptionsDict()
 
-    runCompas(programOptions)
+    #-- Convert options into a shell string
+    shellCommand = combineCommandLineOptionsDictIntoShellCommand(commandOptions)
+
+    #-- Run exectute COMPAS shell string
+    print(shellCommand)
+    call(shellCommand,shell=True)
 
