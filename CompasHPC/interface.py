@@ -9,7 +9,11 @@ import numpy as np
 from stroopwafel import sw, classes, prior, sampler, distributions, constants, utils
 import argparse
 
-# Include options from local pythonSubmit file      #TODO add in functionality for alternative pythonSubmit names and locations
+# TODO fix issues with adaptive sampling
+# TODO set interesting systems default to all systems 
+# TODO add in functionality for alternative pythonSubmit names and locations
+
+# Include options from local pythonSubmit file      
 usePythonSubmit = True #If false, use stroopwafel defaults
 if usePythonSubmit:
     try:
@@ -20,12 +24,14 @@ if usePythonSubmit:
         print("Invalid pythonSubmit file, using default stroopwafel options")
         usePythonSubmit = False
 
+print(commandOptions.keys())
+
 parser=argparse.ArgumentParser()
 # Fix this later TODO
 #parser.add_argument('--num_systems', help = 'Total number of systems', type = int, default = 1000 if not usePythonSubmit else commandOptions['--number-of-binaries'])
 parser.add_argument('--num_systems', help = 'Total number of systems', type = int, default = 100 if not usePythonSubmit else commandOptions['--number-of-binaries'])
-parser.add_argument('--num_cores', help = 'Number of cores to run in parallel', type = int, default = 2)
-parser.add_argument('--num_per_core', help = 'Number of systems to generate in one core', type = int, default = 10)
+parser.add_argument('--num_cores', help = 'Number of cores to run in parallel', type = int, default = 4)
+parser.add_argument('--num_per_core', help = 'Number of systems to generate in one core', type = int, default = 25)
 parser.add_argument('--debug', help = 'If debug of COMPAS is to be printed', type = bool, default = False)
 parser.add_argument('--mc_only', help = 'If run in MC simulation mode only', type = bool, default = False)
 parser.add_argument('--run_on_helios', help = 'If we are running on helios (or other slurm) nodes', type = bool, default = False)
@@ -198,16 +204,18 @@ if __name__ == '__main__':
     if usePythonSubmit:
         compas_executable = commandOptions['compas_executable']
         if commandOptions['--outputPath'] == os.getcwd():
-            output_folder =  os.path.join(os.getcwd(), 'output') 
+            output_folder =  os.path.join(os.getcwd(), 'output/') 
             commandOptions.update({'--outputPath' : output_folder})
         else:
             output_folder = commandOptions['--outputPath'] 
 
-        del commandOptions['compas_executable']
-        del commandOptions['--number-of-binaries']
+        commandOptions.pop('compas_executable', None)
+        commandOptions.pop('--number-of-binaries', None)
+        commandOptions.pop('--grid', None)
+        commandOptions.pop('--output-container', None)
     else:
         compas_executable = os.path.join(os.environ.get('COMPAS_ROOT_DIR'), 'src/COMPAS') # Location of the executable
-        output_folder =  os.path.join(os.getcwd(), 'output') # Folder you want to receieve outputs, here the current working directory, but you can specify anywhere
+        output_folder =  os.path.join(os.getcwd(), 'output1/') # Folder you want to receieve outputs, here the current working directory, but you can specify anywhere
 
         commandOptions = {}
         commandOptions.update({'--outputPath' : output_folder}) 
@@ -215,8 +223,8 @@ if __name__ == '__main__':
         commandOptions.update({'--random-seed' : np.random.randint(2, 2**63 - 1)})
 
     #testing
-    print("output folder is: ", output_folder)
-
+    print("Output folder is: ", output_folder)
+    print(commandOptions['--outputPath'])
     if os.path.exists(output_folder):
         command = input ("The output folder already exists. If you continue, I will remove all its content. Press (Y/N)\n")
         if (command == 'Y'):
@@ -236,11 +244,11 @@ if __name__ == '__main__':
     intial_pdf = distributions.InitialDistribution(dimensions)
     #STEP 4: Run the 4 phases of stroopwafel
     sw_object.explore(intial_pdf) #Pass in the initial distribution for exploration phase
-    sw_object.adapt(n_dimensional_distribution_type = distributions.Gaussian) #Adaptaion phase, tell stroopwafel what kind of distribution you would like to create instrumental distributions
+    #sw_object.adapt(n_dimensional_distribution_type = distributions.Gaussian) #Adaptaion phase, tell stroopwafel what kind of distribution you would like to create instrumental distributions
     ## Do selection effects
     #selection_effects(sw)
-    sw_object.refine() #Stroopwafel will draw samples from the adapted distributions
-    sw_object.postprocess(distributions.Gaussian, only_hits = False) #Run it to create weights, if you want only hits in the output, then make only_hits = True
+    #sw_object.refine() #Stroopwafel will draw samples from the adapted distributions
+    #sw_object.postprocess(distributions.Gaussian, only_hits = False) #Run it to create weights, if you want only hits in the output, then make only_hits = True
 
     end_time = time.time()
     print ("Total running time = %d seconds" %(end_time - start_time))

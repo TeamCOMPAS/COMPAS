@@ -494,9 +494,11 @@ class pythonProgramOptions:
 
     def generateCommandLineOptionsDict(self):
         """
-        This function generates a string or strings for the terminal command to run COMPAS.
-        This function is intended to be modified by the user, so that they may swap out constant values for functions etc.
-        Options not to be included in the command line should be set to pythons None (except booleans, which should be set to False)
+        This function generates a dictionary mapping COMPAS options to their specified 
+        values (or empty strings for boolean options). These can be combined into a string
+        and run directly as a terminal command, or passed to the stroopwafel interface
+        where some of them may be overwritten. Options not to be included in the command 
+        line should be set to pythons None (except booleans, which should be set to False)
     
         Parameters
         -----------
@@ -549,72 +551,6 @@ class pythonProgramOptions:
                 command.update({listCommands[i] : ' '.join(map(str,listChoices[i]))})
     
         return command
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-        #command = self.generateCommandLineOptions(self.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)
-    
-        ##if self.hyperparameterGrid == True:
-        ##    command = hyperparameterGridCommand(self.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,self.shareSeeds)
-        ##elif self.hyperparameterList == True:
-        ##    if self.hyperparameterGrid == True:
-        ##        raise ValueError("You can't have both a list and a grid!")
-        ##    command = hyperparameterListCommand(self.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands,self.shareSeeds)
-        ##else:
-        ##    command = [generateCommandLineOptions(self.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
-    
-        ##command = [generateCommandLineOptions(self.compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands)]
-    
-        #return command
-    
-    #def generateCommandLineOptions(self, compas_executable,booleanChoices,booleanCommands,numericalChoices,numericalCommands,stringChoices,stringCommands,listChoices,listCommands):
-    #
-    #    nBoolean = len(booleanChoices)
-    #    assert len(booleanCommands) == nBoolean
-    #
-    #    nNumerical = len(numericalChoices)
-    #    assert len(numericalCommands) == nNumerical
-    #
-    #    nString = len(stringChoices)
-    #    assert len(stringCommands) == nString
-    #
-    #    nList = len(listChoices)
-    #    assert len(listCommands) == nList
-    #
-    #    command = {'compas_executable' : compas_executable}
-    #
-    #    for i in range(nBoolean):
-    #        if booleanChoices[i] == True:
-    #            command.update({booleanCommands[i] : ''})
-    #
-    #    for i in range(nNumerical):
-    #        if not numericalChoices[i] == None:
-    #            command.update({numericalCommands[i] : str(numericalChoices[i])})
-    #
-    #    for i in range(nString):
-    #        if not stringChoices[i] == None:
-    #            command.update({stringCommands[i] : stringChoices[i]})
-    #
-    #    for i in range(nList):
-    #        if listChoices[i]:
-    #            command.update({listCommands[i] : ' '.join(map(str,listChoices[i]))})
-    #
-    #    return command
-
 
 
 def combineCommandLineOptionsDictIntoShellCommand(commandOptions):
