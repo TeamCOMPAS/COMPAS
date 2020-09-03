@@ -81,7 +81,7 @@ where `~/codes` should be replaced with the path to the directory where you clon
 
     source ~/.bashrc
 
-If your shell is zsh (which is the default of macOS 10.15), set the environment variable in `~/.zshrc` instead of `~/.bashrc`. If your shell is csh, set the environment variable in `~/.cshrc` using
+If your shell is zsh (which is the default of macOS 10.15), set the environment variable as above in `~/.zshrc` instead of `~/.bashrc`. If your shell is csh, set the environment variable in `~/.cshrc` using
 
     setenv COMPAS_ROOT_DIR ~/codes/COMPAS
     
