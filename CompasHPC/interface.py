@@ -21,7 +21,9 @@ if usePythonSubmit:
         usePythonSubmit = False
 
 parser=argparse.ArgumentParser()
-parser.add_argument('--num_systems', help = 'Total number of systems', type = int, default = 1000 if not usePythonSubmit else commandOptions['--number-of-binaries'])
+# Fix this later TODO
+#parser.add_argument('--num_systems', help = 'Total number of systems', type = int, default = 1000 if not usePythonSubmit else commandOptions['--number-of-binaries'])
+parser.add_argument('--num_systems', help = 'Total number of systems', type = int, default = 100 if not usePythonSubmit else commandOptions['--number-of-binaries'])
 parser.add_argument('--num_cores', help = 'Number of cores to run in parallel', type = int, default = 2)
 parser.add_argument('--num_per_core', help = 'Number of systems to generate in one core', type = int, default = 10)
 parser.add_argument('--debug', help = 'If debug of COMPAS is to be printed', type = bool, default = False)
@@ -85,7 +87,8 @@ def configure_code_run(batch):
     batch_num = batch['number']
     grid_filename = output_folder + '/grid_' + str(batch_num) + '.csv'
     output_container = 'batch_' + str(batch_num)
-    compas_args = [compas_executable, "--grid", grid_filename, '--outputPath', output_folder, '--logfile-delimiter', 'COMMA', '--output-container', output_container, '--random-seed', np.random.randint(2, 2**63 - 1)]
+    compas_args = [compas_executable, '--grid', grid_filename, '--output-container', output_container]
+    [compas_args.extend([key, val] for key, val in commandOptions.items())]
     for params in extra_params:
         compas_args.extend(params.split("="))
     batch['grid_filename'] = grid_filename
@@ -187,8 +190,32 @@ if __name__ == '__main__':
     run_on_helios = namespace.run_on_helios #If True, it will run on a clustered system helios, rather than your pc
     mc_only = namespace.mc_only # If you dont want to do the refinement phase and just do random mc exploration
     output_filename = namespace.output_filename #The name of the output file
-    compas_executable = os.path.join(os.environ.get('COMPAS_ROOT_DIR'), 'src/COMPAS') # Location of the executable
-    output_folder =  os.path.join(os.getcwd(), 'output') # Folder you want to receieve outputs, here the current working directory, but you can specify anywhere
+
+    # original argument, don't delete
+    # compas_args = [compas_executable, "--grid", grid_filename, '--output-container', output_container, 
+    #'--outputPath', output_folder, '--logfile-delimiter', 'COMMA', '--random-seed', np.random.randint(2, 2**63 - 1)]
+
+    if usePythonSubmit:
+        compas_executable = commandOptions['compas_executable']
+        if commandOptions['--outputPath'] == os.getcwd():
+            output_folder =  os.path.join(os.getcwd(), 'output') 
+            commandOptions.update({'--outputPath' : output_folder})
+        else:
+            output_folder = commandOptions['--outputPath'] 
+
+        del commandOptions['compas_executable']
+        del commandOptions['--number-of-binaries']
+    else:
+        compas_executable = os.path.join(os.environ.get('COMPAS_ROOT_DIR'), 'src/COMPAS') # Location of the executable
+        output_folder =  os.path.join(os.getcwd(), 'output') # Folder you want to receieve outputs, here the current working directory, but you can specify anywhere
+
+        commandOptions = {}
+        commandOptions.update({'--outputPath' : output_folder}) 
+        commandOptions.update({'--logfile-delimiter' : 'COMMA'}) 
+        commandOptions.update({'--random-seed' : np.random.randint(2, 2**63 - 1)})
+
+    #testing
+    print("output folder is: ", output_folder)
 
     if os.path.exists(output_folder):
         command = input ("The output folder already exists. If you continue, I will remove all its content. Press (Y/N)\n")
