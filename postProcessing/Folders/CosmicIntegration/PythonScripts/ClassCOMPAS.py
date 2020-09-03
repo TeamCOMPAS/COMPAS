@@ -34,6 +34,7 @@ class COMPASData(object):
         self.mass1 = None  # Msun
         self.mass2 = None  # Msun
         self.DCOmask = None
+        self.allTypesMask = None
         self.BBHmask = None
         self.DNSmask = None
         self.BHNSmask = None
@@ -71,6 +72,7 @@ class COMPASData(object):
         maskDNS = (fDCO["Stellar_Type_1"][()] == 13) & (fDCO["Stellar_Type_2"][()] == 13)
         maskBHNS = ((fDCO["Stellar_Type_1"][()] == 14) & (fDCO["Stellar_Type_2"][()] == 13)) \
                     |((fDCO["Stellar_Type_1"][()] == 13) & (fDCO["Stellar_Type_2"][()] == 14))
+        maskAllTypes = maskBBH | maskDNS | maskBHNS
 
         if types == "BBH":
             maskTypes = maskBBH
@@ -78,6 +80,8 @@ class COMPASData(object):
             maskTypes = maskDNS
         elif types == "BHNS":
             maskTypes = maskBHNS
+        elif types == "all":
+            maskTypes = maskAllTypes
         else:
             raise ValueError("types=%s not in BBH, BNS, BHNS" % (types))
 
@@ -120,6 +124,7 @@ class COMPASData(object):
         self.BBHmask = maskBBH & maskHubble & maskPessimistic & maskNoRLOFafterCEE
         self.DNSmask = maskDNS & maskHubble & maskPessimistic & maskNoRLOFafterCEE
         self.BHNSmask = maskBHNS & maskHubble & maskPessimistic & maskNoRLOFafterCEE
+        self.allTypesMask = maskAllTypes & maskHubble & maskPessimistic & maskNoRLOFafterCEE
         self.optimisticmask = maskPessimistic
         Data.close()
 
