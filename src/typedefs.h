@@ -88,7 +88,7 @@ typedef struct SupernovaDetails {                           // Holds attributes,
     SNEventsT        events;                                // Record of supernova events undergone by the star
     double           fallbackFraction;                      // Fallback fraction during a supernova event
     double           HeCoreMassAtCOFormation;               // Helium core mass of the star when it goes supernova and forms a compact objec
-    HYDROGEN_CONTENT hydrogenContent;                       // Hydrogen content of the exploding star. We consider an H-rich star all SN progenitors that have an H envelope, otherwise H-poor
+    bool             isHydrogenPoor;                        // Flag to indicate if exploding star is hydrogen-poor. We consider an H-rich star all SN progenitors that have an H envelope, otherwise H-poor
     double           kickVelocity;                          // Kick velocity the system received during the supernova (km s^-1)
     double           kickVelocityRandom;                    // Random number U(0,1) for choosing the supernova kick velocity magnitude - drawn once at star creation
     double           meanAnomaly;                           // Mean anomaly at instantaneous time of the SN - uniform in [0, 2pi]
