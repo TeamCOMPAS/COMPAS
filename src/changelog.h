@@ -410,7 +410,9 @@
 //                                      - Assorted very minor cleaning, including comments
 // 02.14.00     IM - Aug 30, 2020   - Enhancement:
 //                                      - Recreate RLOF printing (resolve issue #212)
+// 02.14.01     ML - Sep 05, 2020   - Code cleanup:
+//                                      - Issue #354 - Combine HYDROGEN_RICH and HYDROGEN_POOR supernova output variables into a single boolean variable IS_HYDROGEN_POOR 
 
-const std::string VERSION_STRING = "02.14.00";
+const std::string VERSION_STRING = "02.14.01";
 
 # endif // __changelog_h__
