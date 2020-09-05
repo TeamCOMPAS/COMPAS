@@ -83,7 +83,7 @@ class COMPASData(object):
         elif types == "all":
             maskTypes = maskAllTypes
         else:
-            raise ValueError("types=%s not in BBH, BNS, BHNS" % (types))
+            raise ValueError("type=%s not one of 'BBH', 'BNS', 'BHNS', 'all'" % (types))
 
         # Mask DCOs merging within Hubble time
         if withinHubbleTime:
