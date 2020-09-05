@@ -106,7 +106,7 @@ public:
             double              SN_EccentricAnomaly() const                                     { return m_SupernovaDetails.eccentricAnomaly; }
             double              SN_FallbackFraction() const                                     { return m_SupernovaDetails.fallbackFraction; }
             double              SN_HeCoreMassAtCOFormation() const                              { return m_SupernovaDetails.HeCoreMassAtCOFormation; }
-            HYDROGEN_CONTENT    SN_HydrogenContent() const                                      { return m_SupernovaDetails.hydrogenContent; }
+            bool                SN_IsHydrogenPoor() const                                       { return m_SupernovaDetails.isHydrogenPoor; }
             double              SN_KickVelocity() const                                         { return m_SupernovaDetails.kickVelocity; }
             double              SN_MeanAnomaly() const                                          { return m_SupernovaDetails.meanAnomaly; }
             double              SN_Phi() const                                                  { return m_SupernovaDetails.phi; }
@@ -528,9 +528,9 @@ protected:
     virtual STELLAR_TYPE    ResolveSkippedPhase()                                                               { return EvolveToNextPhase(); }                                                 // Default is evolve to next phase
     virtual STELLAR_TYPE    ResolveSupernova()                                                                  { return m_StellarType; }                                                       // Default is NO-OP
 
-    virtual void            SetSNHydrogenContent()                                                              { m_SupernovaDetails.hydrogenContent = HYDROGEN_CONTENT::RICH; }                // Default is RICH
+    virtual void            SetSNHydrogenContent()                                                              { m_SupernovaDetails.isHydrogenPoor = false; }                                  // Default is false
 
-    bool            ShouldBeMasslessRemnant()                                                           { return (m_Mass <= 0.0 || m_StellarType==STELLAR_TYPE::MASSLESS_REMNANT); }
+    bool                    ShouldBeMasslessRemnant()                                                           { return (m_Mass <= 0.0 || m_StellarType==STELLAR_TYPE::MASSLESS_REMNANT); }
     virtual bool            ShouldEvolveOnPhase()                                                               { return true; }
     virtual bool            ShouldSkipPhase()                                                                   { return false; }                                                               // Default is false
 
