@@ -7,7 +7,6 @@
 #include "constants.h"
 #include "typedefs.h"
 #include "utils.h"
-#include "vector3d.h"
 
 #include "Options.h"
 #include "Log.h"
@@ -103,20 +102,19 @@ public:
             double              SN_CoreMassAtCOFormation() const                                { return m_SupernovaDetails.coreMassAtCOFormation; }
             double              SN_COCoreMassAtCOFormation() const                              { return m_SupernovaDetails.COCoreMassAtCOFormation; }
             SupernovaDetailsT   SN_Details() const                                              { return m_SupernovaDetails; }
-            double              SN_DrawnKickMagnitude() const                                    { return m_SupernovaDetails.drawnKickMagnitude; }
+            double              SN_DrawnKickVelocity() const                                    { return m_SupernovaDetails.drawnKickVelocity; }
             double              SN_EccentricAnomaly() const                                     { return m_SupernovaDetails.eccentricAnomaly; }
             double              SN_FallbackFraction() const                                     { return m_SupernovaDetails.fallbackFraction; }
             double              SN_HeCoreMassAtCOFormation() const                              { return m_SupernovaDetails.HeCoreMassAtCOFormation; }
-            HYDROGEN_CONTENT    SN_HydrogenContent() const                                      { return m_SupernovaDetails.hydrogenContent; }
-            double              SN_KickMagnitude() const                                         { return m_SupernovaDetails.kickMagnitude; }
+            bool                SN_IsHydrogenPoor() const                                       { return m_SupernovaDetails.isHydrogenPoor; }
+            double              SN_KickVelocity() const                                         { return m_SupernovaDetails.kickVelocity; }
             double              SN_MeanAnomaly() const                                          { return m_SupernovaDetails.meanAnomaly; }
             double              SN_Phi() const                                                  { return m_SupernovaDetails.phi; }
             double              SN_TotalMassAtCOFormation() const                               { return m_SupernovaDetails.totalMassAtCOFormation; }
             double              SN_TrueAnomaly() const                                          { return m_SupernovaDetails.trueAnomaly; }
             double              SN_Theta() const                                                { return m_SupernovaDetails.theta; }
             SN_EVENT            SN_Type() const                                                 { return utils::SNEventType(m_SupernovaDetails.events.current); }
-            double              SN_KickMagnitudeRandom() const                                   { return m_SupernovaDetails.kickMagnitudeRandom; }
-            double              Speed() const                                                   { return m_ComponentSpeed; }
+            double              SN_KickVelocityRandom() const                                   { return m_SupernovaDetails.kickVelocityRandom; }
             COMPAS_VARIABLE     StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
             double              Tau() const                                                     { return m_Tau; }
             double              Temperature() const                                             { return m_Temperature; }
@@ -131,9 +129,6 @@ public:
 
             void                SetSNCurrentEvent(SN_EVENT p_SNEvent)                           { m_SupernovaDetails.events.current |= p_SNEvent; }                                 // Set supernova primary event/state for current timestep
             void                SetSNPastEvent(const SN_EVENT p_SNEvent)                        { m_SupernovaDetails.events.past |= p_SNEvent; }                                    // Set supernova primary event/state for any past timestep
-            
-            void                UpdateComponentVelocity(const Vector3d p_newVelocity);	
-
 
 
     // member functions - alphabetically
@@ -171,7 +166,7 @@ public:
     
             void            CalculateSNAnomalies(const double p_Eccentricity);
 
-            double          CalculateSNKickMagnitude(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType);
+            double          CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType);
 
     virtual double          CalculateThermalMassLossRate()                                                      { return m_Mass / CalculateThermalTimescale(); }                    // Use class member variables - and inheritance hierarchy
 
@@ -332,10 +327,6 @@ protected:
     SupernovaDetailsT       m_SupernovaDetails;                         // Supernova attributes
     PulsarDetailsT          m_PulsarDetails;                            // Pulsar attributes
 
-    // Star speed and velocity, and related Euler angles 
-	// between pre- and post-SN orbital planes, for velocity addition
-	Vector3d                m_ComponentVelocity; 	                    // Isolated star velocity vector
-    double                  m_ComponentSpeed;                           // Magnitude of velocity vector
 
     // member functions - alphabetically
             void            AgeOneTimestepPreamble(const double p_DeltaTime);
@@ -478,21 +469,21 @@ protected:
 
             DBL_DBL         DrawKickDirection();
 
-            double          DrawKickMagnitudeBrayEldridge(const double p_EjectaMass,
+            double          DrawKickVelocityBrayEldridge(const double p_EjectaMass,
                                                          const double p_RemnantMass,
                                                          const double p_Alpha,
                                                          const double p_Beta);
 
-            double          DrawKickMagnitudeDistributionFlat(const double p_MaxVK, const double p_Rand);
-            double          DrawKickMagnitudeDistributionMaxwell(const double p_Sigma, const double p_Rand);
+            double          DrawKickVelocityDistributionFlat(const double p_MaxVK, const double p_Rand);
+            double          DrawKickVelocityDistributionMaxwell(const double p_Sigma, const double p_Rand);
 
             double          DrawRemnantKickMuller(const double p_COCoreMass);
 
-            double          DrawRemnantKickMullerMandel(const double p_COCoreMass,
-                                                        const double p_Rand,
-                                                        const double p_RemnantMass);
+	    double          DrawRemnantKickMullerMandel(const double p_COCoreMass,
+                                    			const double p_Rand,
+                                    			const double p_RemnantMass);
 
-            double          DrawSNKickMagnitude(const double p_Sigma,
+            double          DrawSNKickVelocity(const double p_Sigma,
                                                const double p_COCoreMass,
                                                const double p_Rand,
                                                const double p_EjectaMass,
@@ -509,7 +500,6 @@ protected:
     virtual bool            IsSupernova()                                                                       { return false; }
 
             double          LimitTimestep(const double p_Dt);
-
 
     /*
      * Perturb Luminosity and Radius
@@ -538,14 +528,13 @@ protected:
     virtual STELLAR_TYPE    ResolveSkippedPhase()                                                               { return EvolveToNextPhase(); }                                                 // Default is evolve to next phase
     virtual STELLAR_TYPE    ResolveSupernova()                                                                  { return m_StellarType; }                                                       // Default is NO-OP
 
-    virtual void            SetSNHydrogenContent()                                                              { m_SupernovaDetails.hydrogenContent = HYDROGEN_CONTENT::RICH; }                // Default is RICH
+    virtual void            SetSNHydrogenContent()                                                              { m_SupernovaDetails.isHydrogenPoor = false; }                                  // Default is false
 
-            bool            ShouldBeMasslessRemnant()                                                           { return (m_Mass <= 0.0); }
+    bool                    ShouldBeMasslessRemnant()                                                           { return (m_Mass <= 0.0 || m_StellarType==STELLAR_TYPE::MASSLESS_REMNANT); }
     virtual bool            ShouldEvolveOnPhase()                                                               { return true; }
     virtual bool            ShouldSkipPhase()                                                                   { return false; }                                                               // Default is false
 
             void            UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMass, const double p_DeltaMass0, const double p_DeltaTime);
-
 
 };
 

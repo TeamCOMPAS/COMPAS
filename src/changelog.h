@@ -400,13 +400,19 @@
 //                                      - Detailed output passes a set of self-consistency checks (issue #288)
 // 02.13.13     JR - Aug 23, 2020   - Defect repairs:
 //                                      - Fixed debugging and logging macros in LogMacros.h
-// 02.13.14     RTW - Aug 25, 2020  - Code cleanup:
-//                                      - Rewrote ResolveSupernova to match Pfahl, Rappaport, Podsiadlowski 2002, and to allow for vector addition of system and component velocities
-//                                      - Changed meaning of Supernova_State (see Docs)
-//                                      - PostSN parameters have been removed
-//                                      - SN phi has been redefined
+// 02.13.14     IM - Aug 29, 2020   - Defect repairs:
+//                                      - Address issue #306 by removing detailed printing of merged binaries
+//                                      - Address issue #70 by stopping evolution if the binary is touching
+//                                      - Check for merged binaries rather than just touching binaries in Evaluate
+//                                      - Minor cleaning (e.g., removed unnecessary CheckMassTransfer, which just repeated the work of CalculateMassTransfer but with a confusing name)
+// 02.13.15     IM - Aug 30, 2020   - Defect repairs:
+//                                      - Fixed issue #347: CalculateMassTransferOrbit was not correctly accounting for the MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE option
+//                                      - Assorted very minor cleaning, including comments
+// 02.14.00     IM - Aug 30, 2020   - Enhancement:
+//                                      - Recreate RLOF printing (resolve issue #212)
+// 02.14.01     ML - Sep 05, 2020   - Code cleanup:
+//                                      - Issue #354 - Combine HYDROGEN_RICH and HYDROGEN_POOR supernova output variables into a single boolean variable IS_HYDROGEN_POOR 
 
-
-const std::string VERSION_STRING = "02.13.14";
+const std::string VERSION_STRING = "02.14.01";
 
 # endif // __changelog_h__

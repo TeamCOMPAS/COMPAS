@@ -141,14 +141,14 @@ public:
     KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return kickDirectionDistribution; }
     double                                      KickDirectionPower() const                                              { return kickDirectionPower; }
     double                                      KickScalingFactor() const                                               { return kickScalingFactor; }
-    KICK_MAGNITUDE_DISTRIBUTION                  KickMagnitudeDistribution() const                                        { return kickMagnitudeDistribution; }
+    KICK_VELOCITY_DISTRIBUTION                  KickVelocityDistribution() const                                        { return kickVelocityDistribution; }
 
-    double                                      KickMagnitudeDistributionMaximum() const                                 { return kickMagnitudeDistributionMaximum; }
+    double                                      KickVelocityDistributionMaximum() const                                 { return kickVelocityDistributionMaximum; }
 
-    double                                      KickMagnitudeDistributionSigmaCCSN_BH() const                            { return kickMagnitudeDistributionSigmaCCSN_BH; }
-    double                                      KickMagnitudeDistributionSigmaCCSN_NS() const                            { return kickMagnitudeDistributionSigmaCCSN_NS; }
-    double                                      KickMagnitudeDistributionSigmaForECSN() const                            { return kickMagnitudeDistributionSigmaForECSN; }
-    double                                      KickMagnitudeDistributionSigmaForUSSN() const                            { return kickMagnitudeDistributionSigmaForUSSN; }
+    double                                      KickVelocityDistributionSigmaCCSN_BH() const                            { return kickVelocityDistributionSigmaCCSN_BH; }
+    double                                      KickVelocityDistributionSigmaCCSN_NS() const                            { return kickVelocityDistributionSigmaCCSN_NS; }
+    double                                      KickVelocityDistributionSigmaForECSN() const                            { return kickVelocityDistributionSigmaForECSN; }
+    double                                      KickVelocityDistributionSigmaForUSSN() const                            { return kickVelocityDistributionSigmaForUSSN; }
 
 
     vector<string>                              LogClasses() const                                                      { return logClasses; }
@@ -156,6 +156,7 @@ public:
     string                                      LogfileBSECommonEnvelopes() const                                       { return logfileBSECommonEnvelopes; }
     string                                      LogfileBSEDetailedOutput() const                                        { return logfileBSEDetailedOutput; }
     string                                      LogfileBSEDoubleCompactObjects() const                                  { return logfileBSEDoubleCompactObjects; }
+    string                                      LogfileBSERLOFParameters() const                                        { return logfileBSERLOFParameters; }
     string                                      LogfileBSEPulsarEvolution() const                                       { return logfileBSEPulsarEvolution; }
     string                                      LogfileBSESupernovae() const                                            { return logfileBSESupernovae; }
     string                                      LogfileBSESystemParameters() const                                      { return logfileBSESystemParameters; }
@@ -262,7 +263,7 @@ public:
     unsigned long int                           RandomSeed() const                                                      { return randomSeed; }
 
     REMNANT_MASS_PRESCRIPTION                   RemnantMassPrescription() const                                         { return remnantMassPrescription; }
-
+    bool                                        RLOFPrinting() const                                                    { return rlofPrinting; }
 
     ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return rotationalVelocityDistribution; }
 
@@ -324,6 +325,7 @@ private:
     bool                                        populationDataPrinting;                                         // Print certain data for small populations, but not for larger one
     bool                                        printBoolAsString;                                              // flag used to indicate that boolean properties should be printed as "TRUE" or "FALSE" (default is 1 or 0)
     bool                                        quiet;                                                          // suppress some output
+    bool                                        rlofPrinting;
 
     int                                         nBatchesUsed;                                                   // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
 
@@ -369,13 +371,13 @@ private:
     double                                      eccentricityDistributionMax;                                    // Maximum initial eccentricity when using a distribution
 
     // Supernova variables
-    KICK_MAGNITUDE_DISTRIBUTION                  kickMagnitudeDistribution;                                       // Which kick magnitude distribution to use (default = "Maxwellian". Can also choose "flat")
-    string                                      kickMagnitudeDistributionString;                                 // Which kick magnitude distribution to use (default = "Maxwellian". Can also choose "flat")
-    double                                      kickMagnitudeDistributionSigmaCCSN_NS;                           // Kick magnitude sigma in km s^-1 for neutron stars (default = "250" )
-    double                                      kickMagnitudeDistributionSigmaCCSN_BH;                           // Kick magnitude sigma in km s^-1 for black holes (default = "250" )
-    double                                      kickMagnitudeDistributionMaximum;                                // Maximum kick magnitude to draw. If negative, no maximum
-	double                                      kickMagnitudeDistributionSigmaForECSN;			                // Kick magnitude sigma for ECSN in km s^-1 (default = "0" )
-	double                                      kickMagnitudeDistributionSigmaForUSSN;			                // Kick magnitude sigma for USSN in km s^-1 (default = "20" )
+    KICK_VELOCITY_DISTRIBUTION                  kickVelocityDistribution;                                       // Which kick velocity distribution to use (default = "Maxwellian". Can also choose "flat")
+    string                                      kickVelocityDistributionString;                                 // Which kick velocity distribution to use (default = "Maxwellian". Can also choose "flat")
+    double                                      kickVelocityDistributionSigmaCCSN_NS;                           // Kick velocity sigma in km s^-1 for neutron stars (default = "250" )
+    double                                      kickVelocityDistributionSigmaCCSN_BH;                           // Kick velocity sigma in km s^-1 for black holes (default = "250" )
+    double                                      kickVelocityDistributionMaximum;                                // Maximum kick velocity to draw. If negative, no maximum
+	double                                      kickVelocityDistributionSigmaForECSN;			                // Kick velocity sigma for ECSN in km s^-1 (default = "0" )
+	double                                      kickVelocityDistributionSigmaForUSSN;			                // Kick velocity sigma for USSN in km s^-1 (default = "20" )
 	double                                      kickScalingFactor;								                // Arbitrary factor for scaling kicks
 
     // Black hole kicks
@@ -398,11 +400,11 @@ private:
 
     // Fixed uk options
     bool                                        useFixedUK;                                                     // Whether to fix uk to a certain value (default is to NOT fix uk)
-    double                                      fixedUK;                                                        // Dimensionless value to fix the kick magnitude to
+    double                                      fixedUK;                                                        // Dimensionless value to fix the kick velocity to
 
     // Kick direction options
     KICK_DIRECTION_DISTRIBUTION                 kickDirectionDistribution;                                      // Which distribution to use for the kick directions
-    string                                      kickDirectionDistributionString;                                // Which kick magnitude distribution to use (default = "Maxwellian". Can also choose "flat")
+    string                                      kickDirectionDistributionString;                                // Which kick velocity distribution to use (default = "Maxwellian". Can also choose "flat")
     double                                      kickDirectionPower;
 
     // Pair instability and pulsational pair instability mass loss
@@ -590,9 +592,9 @@ private:
 	double                                      sampleKickDirectionPowerMax;
 	double                                      sampleKickDirectionPowerMin;
 
-	bool                                        sampleKickMagnitudeSigma;
-	double                                      sampleKickMagnitudeSigmaMax;
-	double                                      sampleKickMagnitudeSigmaMin;
+	bool                                        sampleKickVelocitySigma;
+	double                                      sampleKickVelocitySigmaMax;
+	double                                      sampleKickVelocitySigmaMin;
 
 	bool                                        sampleLuminousBlueVariableMultiplier;
 	double                                      sampleLuminousBlueVariableMultiplierMax;
@@ -637,6 +639,7 @@ private:
     string                                      logfileBSEDoubleCompactObjects;                                 // BSE output file name: double compact objects
     string                                      logfileBSESupernovae;                                           // BSE output file name: supernovae
     string                                      logfileBSECommonEnvelopes;                                      // BSE output file name: common envelopes
+    string                                      logfileBSERLOFParameters;                                       // BSE output file name: Roche Lobe overflow
     string                                      logfileBSEBeBinaries;                                           // BSE output file name: Be Binaries
     string                                      logfileBSEPulsarEvolution;                                      // BSE output file name: pulsar evolution
 

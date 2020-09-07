@@ -984,7 +984,7 @@ double GiantBranch::CalculateLifetimeToHeIgnition(const double p_Mass, const dou
 /*
  * Calculate thermal timescale
  *
- * Kalogera & Webbink 1996, eq 2
+ * Kalogera & Webbink 1996, eq 2 [note that (61) of BSE proposes a value a factor of 10/3 greater]
  *
  *
  * double CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) const
@@ -996,7 +996,7 @@ double GiantBranch::CalculateLifetimeToHeIgnition(const double p_Mass, const dou
  * @return                                      Thermal timescale in Myr
 */
 double GiantBranch::CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) const {
-    return 30.0 * p_Mass * p_EnvMass / (p_Radius * p_Luminosity);       // G*Msol^2/(Lsol*Rsol) ~ 30
+    return 30.0 * p_Mass * p_EnvMass / (p_Radius * p_Luminosity);       // G*Msol^2/(Lsol*Rsol) ~ 30 Myr
 }
 
 
@@ -1415,7 +1415,7 @@ double GiantBranch::CalculateRemnantMassByBelczynski2002(const double p_Mass, co
  * This function determines which prescription is used for the core collapse SN (via program options)
  *
  * The function calls prescription functions that update the following parameters:
- *      Mass, stellarType, drawnKickMagnitude, kickMagnitude
+ *      Mass, stellarType, drawnKickVelocity, kickVelocity
  *
  * At the end of this function we set the following parameters which are (so far) independent of the
  * ccSN prescriptions (but do depend on the parameters above):
@@ -1550,8 +1550,8 @@ STELLAR_TYPE GiantBranch::ResolveTypeIIaSN() {
     m_Luminosity        = 0.0;
     m_Temperature       = 0.0;
 
-    m_SupernovaDetails.drawnKickMagnitude = 0.0;
-    m_SupernovaDetails.kickMagnitude      = 0.0;
+    m_SupernovaDetails.drawnKickVelocity = 0.0;
+    m_SupernovaDetails.kickVelocity      = 0.0;
 
     return STELLAR_TYPE::MASSLESS_REMNANT;
 }
@@ -1582,8 +1582,8 @@ STELLAR_TYPE GiantBranch::ResolvePairInstabilitySN() {
     m_Radius      = 0.0;
     m_Temperature = 0.0;
 
-    m_SupernovaDetails.drawnKickMagnitude = 0.0;
-    m_SupernovaDetails.kickMagnitude      = 0.0;
+    m_SupernovaDetails.drawnKickVelocity = 0.0;
+    m_SupernovaDetails.kickVelocity      = 0.0;
     m_SupernovaDetails.fallbackFraction  = 0.0;
 
     SetSNCurrentEvent(SN_EVENT::PISN);                                                                  // pair instability SN happening now
@@ -1688,7 +1688,6 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
     STELLAR_TYPE stellarType = m_StellarType;
 
     if (IsSupernova()) {                                                                            // has gone supernova
-
         // squirrel away some attributes before they get changed...
         m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;
         m_SupernovaDetails.HeCoreMassAtCOFormation = m_HeCoreMass;
@@ -1721,7 +1720,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
             stellarType = ResolveCoreCollapseSN(OPTIONS->FryerSupernovaEngine());
         }
             
-    	CalculateSNKickMagnitude(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
+    	CalculateSNKickVelocity(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
     }
 
     return stellarType;
