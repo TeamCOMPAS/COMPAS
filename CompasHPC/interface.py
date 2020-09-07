@@ -45,6 +45,7 @@ num_cores = 4
 num_per_core = 25
 mc_only = True
 run_on_helios = False
+output_folder_name = 'output/'
 output_filename = 'samples.csv'
 debug = False
 
@@ -212,12 +213,6 @@ def rejected_systems(locations, dimensions):
     return num_rejected
 
 
-
-
-
-
-
-
 if __name__ == '__main__':
 
     # Import pythonSubmit parameters, if desired
@@ -239,6 +234,7 @@ if __name__ == '__main__':
     parser.add_argument('--mc_only', help = 'If run in MC simulation mode only', type = bool, default = mc_only)
     parser.add_argument('--run_on_helios', help = 'If we are running on helios (or other slurm) nodes', type = bool, default = run_on_helios)
     parser.add_argument('--output_filename', help = 'Output filename', default = output_filename)
+    parser.add_argument('--output_folder_name', help = 'Output folder name', default = output_folder_name)
     namespace, extra_params = parser.parse_known_args()
 
 
@@ -256,7 +252,7 @@ if __name__ == '__main__':
     if usePythonSubmit:
         compas_executable = commandOptions['compas_executable']
         if commandOptions['--outputPath'] == os.getcwd():
-            output_folder =  os.path.join(os.getcwd(), 'output/') 
+            output_folder =  os.path.join(os.getcwd(), output_folder_name)
             commandOptions.update({'--outputPath' : output_folder})
         else:
             output_folder = commandOptions['--outputPath'] 
@@ -267,7 +263,7 @@ if __name__ == '__main__':
         commandOptions.pop('--output-container', None)
     else:
         compas_executable = os.path.join(os.environ.get('COMPAS_ROOT_DIR'), 'src/COMPAS') # Location of the executable
-        output_folder =  os.path.join(os.getcwd(), 'output/') # Folder you want to receieve outputs, here the current working directory, but you can specify anywhere
+        output_folder =  os.path.join(os.getcwd(), output_folder_name)
 
         commandOptions = {}
         commandOptions.update({'--outputPath' : output_folder}) 
