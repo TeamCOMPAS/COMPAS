@@ -5,41 +5,49 @@ import pandas as pd
 import shutil
 import time
 import numpy as np
-#sys.path.append('../') #Only required in the test directory for testing purposes
 from stroopwafel import sw, classes, prior, sampler, distributions, constants, utils
 import argparse
 
 # TODO fix issues with adaptive sampling
-# TODO set interesting systems default to all systems 
 # TODO add in functionality for alternative pythonSubmit names and locations
-# TODO uncomment adaptive lines again
 
-# Include options from local pythonSubmit file      
-usePythonSubmit = True #If false, use stroopwafel defaults
-#usePythonSubmit = False #If false, use stroopwafel defaults
-if usePythonSubmit:
-    try:
-        from pythonSubmit import pythonProgramOptions
-        programOptions = pythonProgramOptions()
-        commandOptions = programOptions.generateCommandLineOptionsDict()
-    except:
-        print("Invalid pythonSubmit file, using default stroopwafel options")
-        usePythonSubmit = False
+#################################################################################
+#################################################################################
+###                                                                           ###
+###                         USER GUIDE                                        ###
+###                                                                           ###
+#################################################################################
+#################################################################################
+
+#################################################################################
+###
+### User should first decide whether to include an external pythonSubmit.py.
+### If so, it must be named exactly pythonSubmit.py and be found in this same 
+### directory. Then check that usePythonSubmit below is True.
+###
+### User should then set the default values to use for stroopwafel inputs 
+### (e.g nCores and mc_only). These can also be set at the command line 
+### (see `python stroopwafel.py --help`).
+###
+### Lastly, user should choose what parameters to sample over, and from which 
+### distributions. See stroopwafel documentation for details.
+###
+#################################################################################
 
 
-parser=argparse.ArgumentParser()
-# Fix this later TODO
-#parser.add_argument('--num_systems', help = 'Total number of systems', type = int, default = 1000 if not usePythonSubmit else commandOptions['--number-of-binaries'])
-parser.add_argument('--num_systems', help = 'Total number of systems', type = int, default = 100 if not usePythonSubmit else commandOptions['--number-of-binaries'])
-parser.add_argument('--num_cores', help = 'Number of cores to run in parallel', type = int, default = 4)
-parser.add_argument('--num_per_core', help = 'Number of systems to generate in one core', type = int, default = 25)
-parser.add_argument('--debug', help = 'If debug of COMPAS is to be printed', type = bool, default = False)
-parser.add_argument('--mc_only', help = 'If run in MC simulation mode only', type = bool, default = True)
-parser.add_argument('--run_on_helios', help = 'If we are running on helios (or other slurm) nodes', type = bool, default = False)
-parser.add_argument('--output_filename', help = 'Output filename', default = 'samples.csv')
-namespace, extra_params = parser.parse_known_args()
+### Include options from local pythonSubmit file      
+usePythonSubmit = False #If false, use stroopwafel defaults
 
-# STEP 2 : Define the functions
+
+### Set default stroopwafel inputs - these are overwritten by command-line arguments
+num_systems = 100 # Note: overriden by pythonSubmit, if applicable
+num_cores = 4
+num_per_core = 25
+mc_only = True
+run_on_helios = False
+output_filename = 'samples.csv'
+debug = False
+
 def create_dimensions():
     """
     This Function that will create all the dimensions for stroopwafel, a dimension is basically one of the variables you want to sample
@@ -79,6 +87,22 @@ def update_properties(locations, dimensions):
         location.properties['Eccentricity'] = 0
         #location.properties['Kick_Mean_Anomaly_1'] = np.random.uniform(0, 2 * np.pi, 1)[0]
         #location.properties['Kick_Mean_Anomaly_2'] = np.random.uniform(0, 2 * np.pi, 1)[0]
+
+
+
+
+
+#################################################################################
+#################################################################################
+###                                                                           ###
+###         USER SHOULD NOT SET ANYTHING BELOW THIS LINE                      ###
+###                                                                           ###
+#################################################################################
+#################################################################################
+
+
+
+
 
 def configure_code_run(batch):
     """
@@ -187,7 +211,38 @@ def rejected_systems(locations, dimensions):
             num_rejected += 1
     return num_rejected
 
+
+
+
+
+
+
+
 if __name__ == '__main__':
+
+    # Import pythonSubmit parameters, if desired
+    if usePythonSubmit:
+        try:
+            from pythonSubmit import pythonProgramOptions
+            programOptions = pythonProgramOptions()
+            commandOptions = programOptions.generateCommandLineOptionsDict()
+        except:
+            print("Invalid pythonSubmit file, using default stroopwafel options")
+            usePythonSubmit = False
+    
+    # Import command-line arguments 
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--num_systems', help = 'Total number of systems', type = int, default = num_systems if not usePythonSubmit else commandOptions['--number-of-binaries'])
+    parser.add_argument('--num_cores', help = 'Number of cores to run in parallel', type = int, default = num_cores)
+    parser.add_argument('--num_per_core', help = 'Number of systems to generate in one core', type = int, default = num_per_core)
+    parser.add_argument('--debug', help = 'If debug of COMPAS is to be printed', type = bool, default = debug)
+    parser.add_argument('--mc_only', help = 'If run in MC simulation mode only', type = bool, default = mc_only)
+    parser.add_argument('--run_on_helios', help = 'If we are running on helios (or other slurm) nodes', type = bool, default = run_on_helios)
+    parser.add_argument('--output_filename', help = 'Output filename', default = output_filename)
+    namespace, extra_params = parser.parse_known_args()
+
+
+    # STEP 1 : Set relevant input parameters for stroopwafel 
     start_time = time.time()
     #Define the parameters to the constructor of stroopwafel
     TOTAL_NUM_SYSTEMS = namespace.num_systems #total number of systems you want in the end
@@ -197,10 +252,6 @@ if __name__ == '__main__':
     run_on_helios = namespace.run_on_helios #If True, it will run on a clustered system helios, rather than your pc
     mc_only = namespace.mc_only # If you dont want to do the refinement phase and just do random mc exploration
     output_filename = namespace.output_filename #The name of the output file
-
-    # original argument, don't delete
-    # compas_args = [compas_executable, "--grid", grid_filename, '--output-container', output_container, 
-    #'--outputPath', output_folder, '--logfile-delimiter', 'COMMA', '--random-seed', np.random.randint(2, 2**63 - 1)]
 
     if usePythonSubmit:
         compas_executable = commandOptions['compas_executable']
@@ -223,9 +274,7 @@ if __name__ == '__main__':
         commandOptions.update({'--logfile-delimiter' : 'COMMA'}) 
         commandOptions.update({'--random-seed' : np.random.randint(2, 2**63 - 1)})
 
-    #testing
     print("Output folder is: ", output_folder)
-    print(commandOptions['--outputPath'])
     if os.path.exists(output_folder):
         command = input ("The output folder already exists. If you continue, I will remove all its content. Press (Y/N)\n")
         if (command == 'Y'):
@@ -234,23 +283,25 @@ if __name__ == '__main__':
             exit()
     os.makedirs(output_folder)
 
-    # STEP 1 : Create an instance of the Stroopwafel class
+
+    # STEP 2 : Create an instance of the Stroopwafel class
     sw_object = sw.Stroopwafel(TOTAL_NUM_SYSTEMS, NUM_CPU_CORES, NUM_SYSTEMS_PER_RUN, output_folder, output_filename, debug = debug, run_on_helios = run_on_helios, mc_only = mc_only)
 
 
-    #STEP 3: Initialize the stroopwafel object with the user defined functions and create dimensions and initial distribution
+    # STEP 3: Initialize the stroopwafel object with the user defined functions and create dimensions and initial distribution
     dimensions = create_dimensions()
     #sw_object.initialize(dimensions, interesting_systems, configure_code_run, rejected_systems, update_properties_method = update_properties)
     sw_object.initialize(dimensions, None, configure_code_run, None, update_properties_method = update_properties)
 
+
     intial_pdf = distributions.InitialDistribution(dimensions)
-    #STEP 4: Run the 4 phases of stroopwafel
+    # STEP 4: Run the 4 phases of stroopwafel
     sw_object.explore(intial_pdf) #Pass in the initial distribution for exploration phase
     sw_object.adapt(n_dimensional_distribution_type = distributions.Gaussian) #Adaptaion phase, tell stroopwafel what kind of distribution you would like to create instrumental distributions
     ## Do selection effects
     #selection_effects(sw)
-    sw_object.refine() #Stroopwafel will draw samples from the adapted distributions
-    sw_object.postprocess(distributions.Gaussian, only_hits = False) #Run it to create weights, if you want only hits in the output, then make only_hits = True
+    #sw_object.refine() #Stroopwafel will draw samples from the adapted distributions
+    #sw_object.postprocess(distributions.Gaussian, only_hits = False) #Run it to create weights, if you want only hits in the output, then make only_hits = True
 
     end_time = time.time()
     print ("Total running time = %d seconds" %(end_time - start_time))
