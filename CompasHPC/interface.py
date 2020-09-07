@@ -39,13 +39,14 @@ import argparse
 usePythonSubmit = False #If false, use stroopwafel defaults
 
 
-### Set default stroopwafel inputs - these are overwritten by command-line arguments
+### Set default stroopwafel inputs - these are overwritten by any command-line arguments
 num_systems = 100 # Note: overriden by pythonSubmit, if applicable
 num_cores = 4
 num_per_core = 25
 mc_only = True
 run_on_helios = False
 output_folder_name = 'output/'
+
 output_filename = 'samples.csv'
 debug = False
 
