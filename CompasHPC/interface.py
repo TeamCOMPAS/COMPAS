@@ -10,6 +10,7 @@ import argparse
 
 # TODO fix issues with adaptive sampling
 # TODO add in functionality for alternative pythonSubmit names and locations
+# TODO fix random number caller
 
 #################################################################################
 #################################################################################
@@ -36,16 +37,16 @@ import argparse
 
 
 ### Include options from local pythonSubmit file      
-usePythonSubmit = False #If false, use stroopwafel defaults
+usePythonSubmit = True #If false, use stroopwafel defaults
 
 
 ### Set default stroopwafel inputs - these are overwritten by any command-line arguments
-num_systems = 100 # Note: overriden by pythonSubmit, if applicable
+num_systems = 1000 # Note: overrides pythonSubmit
 num_cores = 4
 num_per_core = 25
 mc_only = True
 run_on_helios = False
-output_folder_name = 'output/'
+output_folder_name = 'output3/'
 
 output_filename = 'samples.csv'
 debug = False
@@ -120,10 +121,11 @@ def configure_code_run(batch):
     batch_num = batch['number']
     grid_filename = os.path.join(output_folder, 'grid_' + str(batch_num) + '.csv')
     output_container = 'batch_' + str(batch_num)
-    compas_args = [compas_executable, '--grid', grid_filename, '--output-container', output_container]
+    compas_args = [compas_executable, '--grid', grid_filename, '--output-container', output_container, '--random-seed' , np.random.randint(2, 2**63 - 1)]
     [compas_args.extend([key, val]) for key, val in commandOptions.items()]
     for params in extra_params:
         compas_args.extend(params.split("="))
+    print(compas_args)
     batch['grid_filename'] = grid_filename
     batch['output_container'] = output_container
     return compas_args
@@ -216,19 +218,9 @@ def rejected_systems(locations, dimensions):
 
 if __name__ == '__main__':
 
-    # Import pythonSubmit parameters, if desired
-    if usePythonSubmit:
-        try:
-            from pythonSubmit import pythonProgramOptions
-            programOptions = pythonProgramOptions()
-            commandOptions = programOptions.generateCommandLineOptionsDict()
-        except:
-            print("Invalid pythonSubmit file, using default stroopwafel options")
-            usePythonSubmit = False
-    
-    # Import command-line arguments 
+    # STEP 1 : Import and assign input parameters for stroopwafel 
     parser=argparse.ArgumentParser()
-    parser.add_argument('--num_systems', help = 'Total number of systems', type = int, default = num_systems if not usePythonSubmit else commandOptions['--number-of-binaries'])
+    parser.add_argument('--num_systems', help = 'Total number of systems', type = int, default = num_systems)  
     parser.add_argument('--num_cores', help = 'Number of cores to run in parallel', type = int, default = num_cores)
     parser.add_argument('--num_per_core', help = 'Number of systems to generate in one core', type = int, default = num_per_core)
     parser.add_argument('--debug', help = 'If debug of COMPAS is to be printed', type = bool, default = debug)
@@ -238,8 +230,6 @@ if __name__ == '__main__':
     parser.add_argument('--output_folder_name', help = 'Output folder name', default = output_folder_name)
     namespace, extra_params = parser.parse_known_args()
 
-
-    # STEP 1 : Set relevant input parameters for stroopwafel 
     start_time = time.time()
     #Define the parameters to the constructor of stroopwafel
     TOTAL_NUM_SYSTEMS = namespace.num_systems #total number of systems you want in the end
@@ -249,29 +239,44 @@ if __name__ == '__main__':
     run_on_helios = namespace.run_on_helios #If True, it will run on a clustered system helios, rather than your pc
     mc_only = namespace.mc_only # If you dont want to do the refinement phase and just do random mc exploration
     output_filename = namespace.output_filename #The name of the output file
+    output_folder = os.path.join(os.getcwd(), namespace.output_folder_name)
 
+    # Set commandOptions defaults - these are Compas option arguments
+    commandOptions = dict()
+    commandOptions.update({'--outputPath' : output_folder}) 
+    commandOptions.update({'--logfile-delimiter' : 'COMMA'}) 
+    compas_executable = os.path.join(os.environ.get('COMPAS_ROOT_DIR'), 'src/COMPAS') # Location of the executable
+
+    # Over-ride with pythonSubmit parameters, if desired
     if usePythonSubmit:
-        compas_executable = commandOptions['compas_executable']
-        if commandOptions['--outputPath'] == os.getcwd():
-            output_folder =  os.path.join(os.getcwd(), output_folder_name)
-            commandOptions.update({'--outputPath' : output_folder})
-        else:
-            output_folder = commandOptions['--outputPath'] 
+        try:
+            from pythonSubmit import pythonProgramOptions
+            programOptions = pythonProgramOptions()
+            pySubOptions = programOptions.generateCommandLineOptionsDict()
 
-        commandOptions.pop('compas_executable', None)
-        commandOptions.pop('--number-of-binaries', None)
-        commandOptions.pop('--grid', None)
-        commandOptions.pop('--output-container', None)
-    else:
-        compas_executable = os.path.join(os.environ.get('COMPAS_ROOT_DIR'), 'src/COMPAS') # Location of the executable
-        output_folder =  os.path.join(os.getcwd(), output_folder_name)
+            compas_executable = pySubOptions['compas_executable']
 
-        commandOptions = {}
-        commandOptions.update({'--outputPath' : output_folder}) 
-        commandOptions.update({'--logfile-delimiter' : 'COMMA'}) 
-        commandOptions.update({'--random-seed' : np.random.randint(2, 2**63 - 1)})
+            # Remove extraneous options
+            pySubOptions.pop('compas_executable', None)
+            pySubOptions.pop('--grid', None)
+            pySubOptions.pop('--output-container', None)
+            pySubOptions.pop('--number-of-binaries', None)
+            pySubOptions.pop('--outputPath', None)
+            pySubOptions.pop('--random-seed', None)
+
+            print(pySubOptions)
+ 
+            #testing
+            commandOptions.update(pySubOptions)
+
+        except:
+            print("Invalid pythonSubmit file, using default stroopwafel options")
+            usePythonSubmit = False
+    
 
     print("Output folder is: ", output_folder)
+    print("Output folder is: ", commandOptions['--outputPath'])
+    print(commandOptions)
     if os.path.exists(output_folder):
         command = input ("The output folder already exists. If you continue, I will remove all its content. Press (Y/N)\n")
         if (command == 'Y'):
