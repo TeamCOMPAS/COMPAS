@@ -125,7 +125,6 @@ def configure_code_run(batch):
     [compas_args.extend([key, val]) for key, val in commandOptions.items()]
     for params in extra_params:
         compas_args.extend(params.split("="))
-    print(compas_args)
     batch['grid_filename'] = grid_filename
     batch['output_container'] = output_container
     return compas_args
@@ -264,9 +263,6 @@ if __name__ == '__main__':
             pySubOptions.pop('--outputPath', None)
             pySubOptions.pop('--random-seed', None)
 
-            print(pySubOptions)
- 
-            #testing
             commandOptions.update(pySubOptions)
 
         except:
@@ -275,8 +271,6 @@ if __name__ == '__main__':
     
 
     print("Output folder is: ", output_folder)
-    print("Output folder is: ", commandOptions['--outputPath'])
-    print(commandOptions)
     if os.path.exists(output_folder):
         command = input ("The output folder already exists. If you continue, I will remove all its content. Press (Y/N)\n")
         if (command == 'Y'):
