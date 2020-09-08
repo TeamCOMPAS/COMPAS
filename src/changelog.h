@@ -412,7 +412,14 @@
 //                                      - Recreate RLOF printing (resolve issue #212)
 // 02.14.01     ML - Sep 05, 2020   - Code cleanup:
 //                                      - Issue #354 - Combine HYDROGEN_RICH and HYDROGEN_POOR supernova output variables into a single boolean variable IS_HYDROGEN_POOR 
+// 02.14.02     RW - Sep 08, 2020   - Enhancement:
+//                                      - Issue #12 - Move enhancement STROOPWAFEL from Legacy COMPAS to new COMPAS
+//                                      - Issue #18 - double check STROOPWAFEL works in newCOMPAS
+//                                      - Issue #154 - Test compatibility of CompasHPC and BSE_Grid.txt
+//                                      - Added in combined functionaltiy of Stroopwafel and pythonSubmit, with support for HPC runs
+//
+//
 
-const std::string VERSION_STRING = "02.14.01";
+const std::string VERSION_STRING = "02.14.02";
 
 # endif // __changelog_h__
