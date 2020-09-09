@@ -118,7 +118,7 @@ typedef struct Lambdas {
 	double kruckowMiddle;                                   // Ccalculated using m_Radius and -4/5
 	double kruckowTop;                                      // Calculated using m_Radius and -2/3
 	double loveridge;                                       // No mass loss
-	double loveridgeWinds;                                  // Mass loss    JR: todo: or would be if the parameter wasn't ignored...
+	double loveridgeWinds;                                  // Mass loss
 	double nanjing;                                         // JR: todo: description?
 } LambdasT;
 

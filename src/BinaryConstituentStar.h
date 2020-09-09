@@ -140,8 +140,8 @@ public:
 
 
     // object identifiers - all classes have these
-    OBJECT_ID           ObjectId() const                                                { return m_ObjectId; }
-    OBJECT_TYPE         ObjectType() const                                              { return m_ObjectType; }
+    OBJECT_ID       ObjectId() const                                                    { return m_ObjectId; }
+    OBJECT_TYPE     ObjectType() const                                                  { return m_ObjectType; }
 
 
     // getters - alphabetically
@@ -191,8 +191,8 @@ public:
     void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  JR: todo:  sanity check?
     void            SetMassTransferDiff(const double p_MassTransferDiff)                { m_MassTransferDiff = p_MassTransferDiff; }                // JR: todo: better way?  JR: todo:  sanity check?
 
-    void            SetOrbitalEnergyPostSN(const double p_OrbitalEnergyPostSN)        { m_OrbitalEnergyPostSN = p_OrbitalEnergyPostSN; };
-    void            SetOrbitalEnergyPreSN(const double p_OrbitalEnergyPreSN)          { m_OrbitalEnergyPreSN = p_OrbitalEnergyPreSN; };
+    void            SetOrbitalEnergyPostSN(const double p_OrbitalEnergyPostSN)          { m_OrbitalEnergyPostSN = p_OrbitalEnergyPostSN; };
+    void            SetOrbitalEnergyPreSN(const double p_OrbitalEnergyPreSN)            { m_OrbitalEnergyPreSN = p_OrbitalEnergyPreSN; };
 
 
     // member functions - alphabetically
@@ -210,7 +210,6 @@ public:
     void            DetermineInitialMassTransferCase();
 
     void            InitialiseMassTransfer(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity);
-
 
     void            ResolveCommonEnvelopeAccretion(const double p_FinalMass);
 

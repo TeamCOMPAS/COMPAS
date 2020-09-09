@@ -91,6 +91,8 @@ public:
     bool                                        BeBinaries() const                                                      { return beBinaries; }
 
     BLACK_HOLE_KICK_OPTION                      BlackHoleKicksOption() const                                            { return blackHoleKicksOption; }
+
+    bool                                        BSESwitchLog() const                                                    { return BSEswitchLog; }
     
     CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return caseBBStabilityPrescription; }
     
@@ -159,12 +161,15 @@ public:
     string                                      LogfileBSERLOFParameters() const                                        { return logfileBSERLOFParameters; }
     string                                      LogfileBSEPulsarEvolution() const                                       { return logfileBSEPulsarEvolution; }
     string                                      LogfileBSESupernovae() const                                            { return logfileBSESupernovae; }
+    string                                      LogfileBSESwitchLog() const                                             { return logfileBSESwitchLog; }
     string                                      LogfileBSESystemParameters() const                                      { return logfileBSESystemParameters; }
     string                                      LogfileDefinitionsFilename() const                                      { return logfileDefinitionsFilename; }
     DELIMITER                                   LogfileDelimiter() const                                                { return logfileDelimiter; }
     string                                      LogfileDelimiterString() const                                          { return logfileDelimiterString; }
     string                                      LogfileNamePrefix() const                                               { return logfileNamePrefix; }
     string                                      LogfileSSEParameters() const                                            { return logfileSSEParameters; }
+    string                                      LogfileSSESupernova() const                                             { return logfileSSESupernova; }
+    string                                      LogfileSSESwitchLog() const                                             { return logfileSSESwitchLog; }
     int                                         LogLevel() const                                                        { return logLevel; }
 
     double                                      LuminousBlueVariableFactor() const                                      { return luminousBlueVariableFactor; }
@@ -289,6 +294,8 @@ public:
     double                                      SingleStarMassMin() const                                               { return singleStarMassMin; }
     double                                      SingleStarMassMax() const                                               { return singleStarMassMax; }
 
+    bool                                        SSESwitchLog() const                                                    { return SSEswitchLog; }
+
     bool                                        UseFixedUK() const                                                      { return useFixedUK; }
     bool                                        UseMassLoss() const                                                     { return useMassLoss; }
     bool                                        UseMassTransfer() const                                                 { return useMassTransfer; }
@@ -325,7 +332,9 @@ private:
     bool                                        populationDataPrinting;                                         // Print certain data for small populations, but not for larger one
     bool                                        printBoolAsString;                                              // flag used to indicate that boolean properties should be printed as "TRUE" or "FALSE" (default is 1 or 0)
     bool                                        quiet;                                                          // suppress some output
-    bool                                        rlofPrinting;
+    bool                                        rlofPrinting;                                                   // RLOF printing
+    bool                                        BSEswitchLog;                                                   // Print BSE switch log details to file (default = false)
+    bool                                        SSEswitchLog;                                                   // Print SSE switch log details to file (default = false)
 
     int                                         nBatchesUsed;                                                   // nr of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
 
@@ -626,7 +635,9 @@ private:
     DELIMITER                                   logfileDelimiter;                                               // field delimiter for log file records
 
     // SSE options
-    string                                      logfileSSEParameters;                                           // SSE output file name
+    string                                      logfileSSEParameters;                                           // SSE output file name: parameters
+    string                                      logfileSSESupernova;                                            // SSE output file name: supernova
+    string                                      logfileSSESwitchLog;                                            // SSE output file name: switch log
 
     int                                         singleStarMassSteps;                                            // Number of stars of different masses to evolve
     double                                      singleStarMassMin;                                              // The minimum mass to use for SSE (i.e. the mass of the first star to be evolved)
@@ -642,6 +653,7 @@ private:
     string                                      logfileBSERLOFParameters;                                       // BSE output file name: Roche Lobe overflow
     string                                      logfileBSEBeBinaries;                                           // BSE output file name: Be Binaries
     string                                      logfileBSEPulsarEvolution;                                      // BSE output file name: pulsar evolution
+    string                                      logfileBSESwitchLog;                                            // BSE output file name: switch log
 
 };
 
