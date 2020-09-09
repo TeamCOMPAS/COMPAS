@@ -1004,7 +1004,7 @@ std::tuple<bool, LOGFILE> Log::GetStandardLogfileKey(const int p_FileId) {
  * write, we might have a file created that may never have data records written to it (we
  * could specifically check for that and delete the file, but that's a little inelegant -
  * better to not create the file in the first place).  So, this function will enable me to 
- * format a SSE Supernova record at the righ time, but delay writing it to after we decide 
+ * format a SSE Supernova record at the right time, but delay writing it to after we decide 
  * that we'll accept the current state and not revert.
  * 
  * With hindsight, Log::StandardLogFileDetails() should probably have been written with this
