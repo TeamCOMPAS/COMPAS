@@ -214,6 +214,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_PulsarDetails.spinPeriod                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.spinFrequency              = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.spinDownRate               = DEFAULT_INITIAL_DOUBLE_VALUE;
+
 }
 
 
@@ -298,7 +299,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::DT:                                                 value = Dt();                                                   break;
             case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE:                                value = CalculateDynamicalTimescale();                          break;
             case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
-            case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass()-CoreMass();                                             break;
+            case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass()-CoreMass();                                      break;
             case ANY_STAR_PROPERTY::ERROR:                                              value = Error();                                                break;
             case ANY_STAR_PROPERTY::EXPERIENCED_CCSN:                                   value = ExperiencedCCSN();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_ECSN:                                   value = ExperiencedECSN();                                      break;
@@ -362,6 +363,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::TEMPERATURE:                                        value = Temperature()*TSOL;                                     break;
             case ANY_STAR_PROPERTY::THERMAL_TIMESCALE:                                  value = CalculateThermalTimescale();                            break;
             case ANY_STAR_PROPERTY::TIME:                                               value = Time();                                                 break;
+            case ANY_STAR_PROPERTY::TIMESCALE_MS:                                       value = Timescale(TIMESCALE::tMS);                              break;
             case ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION:             value = SN_TotalMassAtCOFormation();                            break;
             case ANY_STAR_PROPERTY::TRUE_ANOMALY:                                       value = SN_TrueAnomaly();                                       break;
             case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = CalculateZadiabaticHurley2002(m_CoreMass);              break;
@@ -1080,7 +1082,7 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) {
 double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss) {
 
     double bindingEnergy = pow(10.0, CalculateLogBindingEnergyLoveridge(p_IsMassLoss));
-    return bindingEnergy > 0.0 ? (G_CGS * m_Mass * MSOL_TO_G * p_EnvMass * MSOL_TO_G) / (m_Radius * RSOL_TO_AU * AU_TO_CM * bindingEnergy) : pow(10.0, -20);   // JR: todo: fix this
+    return bindingEnergy > 0.0 ? (G_CGS * m_Mass * MSOL_TO_G * p_EnvMass * MSOL_TO_G) / (m_Radius * RSOL_TO_AU * AU_TO_CM * bindingEnergy) : 1E-20;
 }
 
 
@@ -2966,13 +2968,11 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
                                                          const bool   p_ForceRecalculate) {
     STELLAR_TYPE stellarType = m_StellarType;                                               // default is no change
 
-
     if (ShouldBeMasslessRemnant()) {                                                        // Do not update the star if it lost all of its mass
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
     }
     else {
-        stellarType = ResolveSupernova();                                                   // handle supernova     JR: moved this to start of timestep
-        
+        stellarType = ResolveSupernova();                                                   // handle supernova     JR: moved this to start of timestep        
         
         if (stellarType == m_StellarType) {                                                 // still on phase?
             

@@ -1248,9 +1248,12 @@ double BaseBinaryStar::SampleMetallicityDistribution() {
  * Write RLOF parameters to RLOF logfile if RLOF printing is enabled and at least one of the stars is in RLOF
  *
  *
- * void PrintRLOFParameters()
+ * void PrintRLOFParameters(const string p_Rec)
+ * 
+ * @param   [IN]    p_Rec                       pre-formatted record to be written to file (default is empty string)
+ * 
  */
-void BaseBinaryStar::PrintRLOFParameters() {
+void BaseBinaryStar::PrintRLOFParameters(const string p_Rec) {
 
     if (!OPTIONS->RLOFPrinting()) return;                       // do not print if printing option off
 
@@ -1258,7 +1261,7 @@ void BaseBinaryStar::PrintRLOFParameters() {
 
     if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {               // print if either star is in RLOF
         m_RLOFDetails.currentProps->eventCounter += 1;          // every time we print a MT event happened, increment counter
-        LOGGING->LogRLOFParameters(this);                       // yes - write to log file
+        LOGGING->LogBSERLOFParameters(this, p_Rec);             // yes - write to log file
     }
 }
 
@@ -1266,15 +1269,18 @@ void BaseBinaryStar::PrintRLOFParameters() {
  * Write Be binary parameters to logfile if required
  *
  *
- * void PrintBeBinary()
+ * void PrintBeBinary(const string p_Rec)
+ * 
+ * @param   [IN]    p_Rec                       pre-formatted record to be written to file (default is empty string)
+ * 
  */
-void BaseBinaryStar::PrintBeBinary() {
+void BaseBinaryStar::PrintBeBinary(const string p_Rec) {
     
     if (!OPTIONS->BeBinaries()) return;                         // do not print if printing option off
     
     StashBeBinaryProperties();                                  // stash Be binary properties
     
-    LOGGING->LogBeBinary(this);
+    LOGGING->LogBSEBeBinary(this, p_Rec);
 }
 
 
@@ -2775,8 +2781,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             else if (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                                                        // at least one massless remnant?
                 evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;                                                                       // yes - stop evolution
             }
-            else if (StellarMerger() ) {                                // Have stars merged?
-                evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;     // For now, stop evolution
+            else if (StellarMerger() ) {                                                                                                    // have stars merged?
+                evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                         // for now, stop evolution
             }
             else if (HasStarsTouching()) {                                                                                                  // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
                 evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                         // yes - stop evolution
@@ -2794,10 +2800,10 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 PrintRLOFParameters();                                                                                                      // print (log) RLOF parameters
                 
                 // check for problems
-                if (StellarMerger() ) {                                     // Have stars merged?
-                    evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;     // For now, stop evolution
+                if (StellarMerger() ) {                                                                                                     // have stars merged?
+                    evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                     // for now, stop evolution
                 }
-                else if (HasStarsTouching()) {                                                                                                   // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
+                else if (HasStarsTouching()) {                                                                                              // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
                     evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                     // yes - stop evolution
                 }
                 else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                 // binary is unbound and we don't want unbound systems?
@@ -2813,9 +2819,9 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                     if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
                         
-                        if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) PrintPulsarEvolutionParameters();                                     // print (log) pulsar evolution parameters    JR: todo: WD?
+                        if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) PrintPulsarEvolutionParameters();                                     // print (log) pulsar evolution parameters 
 
-                        PrintBeBinary();                                                                                                            // print (log) BeBinary properties
+                        PrintBeBinary();                                                                                                    // print (log) BeBinary properties
                         
                         if (IsDCO()) {                                                                                                      // double compact object?
                             ResolveCoalescence();                                                                                           // yes - resolve coalescence

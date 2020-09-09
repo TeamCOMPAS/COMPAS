@@ -319,8 +319,12 @@ public:
 
             EVOLUTION_STATUS    Evolve();
 
+            void                PrintSwitchLog(const long int p_Id, const bool p_PrimarySwitching) { if (OPTIONS->BSESwitchLog()) LOGGING->LogBSESwitchLog(this, p_Id, p_PrimarySwitching); }
+
             COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
 
+            BinaryConstituentStar* Star1() { return m_Star1; }                              // Returns a pointer to the primary - here mainly to support the BSE Switch Log. Be careful!
+            BinaryConstituentStar* Star2() { return m_Star2; }                              // Returns a pointer to the secondary - here mainly to support the BSE Switch Log. Be careful!
 
 private:
 
@@ -329,7 +333,7 @@ private:
     OBJECT_ID    m_ObjectId;                                                                // Instantiated object's unique object id
     OBJECT_TYPE  m_ObjectType;                                                              // Instantiated object's object type
     STELLAR_TYPE m_StellarType;                                                             // Stellar type defined in Hurley et al. 2000
-    long int     m_Id;                                                                      // Id used to name detailed output file - uses p_Id as passed (usually the index number of multiple binaries are being produced)
+    long int     m_Id;                                                                      // Id used to name detailed output file - uses p_Id as passed (usually the index number of multiple binaries being produced)
 
     ERROR m_Error;                                                                          // Records most recent error encountered for this binary
 
@@ -595,14 +599,14 @@ private:
     void    StashRLOFProperties();
 
     // printing functions
-    void PrintRLOFParameters();
-    void PrintBinarySystemParameters()          {                                   LOGGING->LogBinarySystemParameters(this); }
-    void PrintDetailedOutput(const int p_Id)    { if (OPTIONS->DetailedOutput())    LOGGING->LogDetailedOutput(this, p_Id); }
-    void PrintDoubleCompactObjects()            {                                   LOGGING->LogDoubleCompactObject(this); }
-    void PrintCommonEnvelope()                  {                                   LOGGING->LogCommonEnvelope(this); }
-    void PrintBeBinary();
-    void PrintPulsarEvolutionParameters()       { if (OPTIONS->EvolvePulsars())     LOGGING->LogPulsarEvolutionParameters(this); }
-    void PrintSupernovaDetails()                {                                   LOGGING->LogSupernovaDetails(this); }
+    void PrintRLOFParameters(const string p_Rec = "");
+    void PrintBinarySystemParameters(const string p_Rec = "")               {                                   LOGGING->LogBSEParameters(this, p_Rec); }
+    void PrintDetailedOutput(const long int p_Id, const string p_Rec = "")  { if (OPTIONS->DetailedOutput())    LOGGING->LogBSEDetailedOutput(this, p_Id, p_Rec); }
+    void PrintDoubleCompactObjects(const string p_Rec = "")                 {                                   LOGGING->LogBSEDoubleCompactObject(this, p_Rec); }
+    void PrintCommonEnvelope(const string p_Rec = "")                       {                                   LOGGING->LogBSECommonEnvelope(this, p_Rec); }
+    void PrintBeBinary(const string p_Rec = "");
+    void PrintPulsarEvolutionParameters(const string p_Rec = "")            { if (OPTIONS->EvolvePulsars())     LOGGING->LogBSEPulsarEvolutionParameters(this, p_Rec); }
+    void PrintSupernovaDetails(const string p_Rec = "")                     {                                   LOGGING->LogBSESupernovaDetails(this, p_Rec); }
 
     
     //Functor for the boost root finder to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe

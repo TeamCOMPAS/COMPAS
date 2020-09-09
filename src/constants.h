@@ -1075,9 +1075,9 @@ enum class STELLAR_TYPE: int {                      // Hurley
     BLACK_HOLE,                                     //  14
     MASSLESS_REMNANT,                               //  15
     CHEMICALLY_HOMOGENEOUS,                         //  16  JR: this is here to preserve the Hurley type numbers, but note that Hurley type number progression doesn't necessarily indicate class inheritance
-    STAR,                                           //      JR: added this - star is created this way, then switches as required (down here so stellar types consistent with Hurley et al. 2000)
-    BINARY_STAR,                                    //      JR: added this - mainly for diagnostics
-    NONE                                            //      JR: added this - mainly for diagnostics
+    STAR,                                           //  17  JR: added this - star is created this way, then switches as required (down here so stellar types consistent with Hurley et al. 2000)
+    BINARY_STAR,                                    //  18  JR: added this - mainly for diagnostics
+    NONE                                            //  19  JR: added this - mainly for diagnostics
 };
 
 
@@ -1106,6 +1106,27 @@ const COMPASUnorderedMap<STELLAR_TYPE, std::string> STELLAR_TYPE_LABEL = {
     { STELLAR_TYPE::NONE,                                      "Not_a_Star!" }
 };
 
+// (convenience) initializer list for "evolvable" stellar types
+// i.e. not STAR, BINARY_STAR, or NONE
+const std::initializer_list<STELLAR_TYPE> EVOLVABLE_TYPES = {
+    STELLAR_TYPE::MS_LTE_07,
+    STELLAR_TYPE::MS_GT_07,
+    STELLAR_TYPE::HERTZSPRUNG_GAP,
+    STELLAR_TYPE::FIRST_GIANT_BRANCH,
+    STELLAR_TYPE::CORE_HELIUM_BURNING,
+    STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,
+    STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,
+    STELLAR_TYPE::NAKED_HELIUM_STAR_MS,
+    STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP,
+    STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH,
+    STELLAR_TYPE::HELIUM_WHITE_DWARF,
+    STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF,
+    STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF,
+    STELLAR_TYPE::NEUTRON_STAR,
+    STELLAR_TYPE::BLACK_HOLE,
+    STELLAR_TYPE::MASSLESS_REMNANT,
+    STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS
+};
 
 // (convenience) initializer list for MAIN SEQUENCE stars (does not include NAKED_HELIUM_STAR_MS)
 const std::initializer_list<STELLAR_TYPE> MAIN_SEQUENCE = {
@@ -2196,6 +2217,41 @@ const ANY_PROPERTY_VECTOR SSE_PARAMETERS_REC = {
 };
 
 
+// SSE_SWITCH_LOG
+//
+// Default record definition for the SSE Switch Log logfile
+//
+const ANY_PROPERTY_VECTOR SSE_SWITCH_LOG_REC = {
+    STAR_PROPERTY::RANDOM_SEED,
+    STAR_PROPERTY::TIME
+};
+
+
+// SSE_SUPERNOVA_REC
+//
+// Default record definition for the SSE Supernova logfile
+//
+const ANY_PROPERTY_VECTOR SSE_SUPERNOVA_REC = {
+    STAR_PROPERTY::RANDOM_SEED,
+    STAR_PROPERTY::DRAWN_KICK_VELOCITY,
+    STAR_PROPERTY::KICK_VELOCITY,
+    STAR_PROPERTY::FALLBACK_FRACTION,
+    STAR_PROPERTY::TRUE_ANOMALY,				
+    STAR_PROPERTY::SUPERNOVA_THETA,
+    STAR_PROPERTY::SUPERNOVA_PHI,
+    STAR_PROPERTY::SN_TYPE,
+    STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,
+    STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
+    STAR_PROPERTY::MASS,
+    STAR_PROPERTY::STELLAR_TYPE,
+    STAR_PROPERTY::STELLAR_TYPE_PREV,
+    STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
+    STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
+    STAR_PROPERTY::TIME,
+    STAR_PROPERTY::IS_HYDROGEN_POOR
+};
+
+
 // BSE_SYSTEM_PARAMETERS_REC
 //
 // Default record definition for the Binary System Parameters logfile
@@ -2272,7 +2328,7 @@ const ANY_PROPERTY_VECTOR BSE_RLOF_PARAMETERS_REC = {
     STAR_2_PROPERTY::ZETA_SOBERMAN,
     STAR_2_PROPERTY::ZETA_SOBERMAN_HE,
     STAR_2_PROPERTY::ZETA_HURLEY,
-    STAR_2_PROPERTY::ZETA_HURLEY_HE,
+    STAR_2_PROPERTY::ZETA_HURLEY_HE
 };
 
 
@@ -2294,7 +2350,7 @@ const ANY_PROPERTY_VECTOR BSE_DOUBLE_COMPACT_OBJECTS_REC = {
     STAR_2_PROPERTY::MASS_TRANSFER_CASE_INITIAL, 
     BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME, 
     STAR_1_PROPERTY::RECYCLED_NEUTRON_STAR,  
-    STAR_2_PROPERTY::RECYCLED_NEUTRON_STAR,  
+    STAR_2_PROPERTY::RECYCLED_NEUTRON_STAR  
 };
 
 
@@ -2447,7 +2503,6 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     COMPANION_PROPERTY::STELLAR_TYPE_PREV,
     SUPERNOVA_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
     SUPERNOVA_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
-
     BINARY_PROPERTY::TIME,
     BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,  
     BINARY_PROPERTY::ECCENTRICITY,
@@ -2540,6 +2595,16 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
 };
 
 
+// BSE_SWITCH_LOG
+//
+// Default record definition for the BSE Switch Log logfile
+//
+const ANY_PROPERTY_VECTOR BSE_SWITCH_LOG_REC = {
+    BINARY_PROPERTY::RANDOM_SEED,
+    BINARY_PROPERTY::TIME
+};
+
+
 // enum class LOGFILE
 // Symbolic names for logfiles
 enum class LOGFILE: int {
@@ -2547,6 +2612,8 @@ enum class LOGFILE: int {
     DEBUG_LOG,
     ERROR_LOG,
     SSE_PARAMETERS,
+    SSE_SWITCH_LOG,
+    SSE_SUPERNOVA,
     BSE_SYSTEM_PARAMETERS,
     BSE_DOUBLE_COMPACT_OBJECTS,
     BSE_SUPERNOVAE,
@@ -2554,7 +2621,8 @@ enum class LOGFILE: int {
     BSE_RLOF_PARAMETERS,
     BSE_BE_BINARIES,
     BSE_PULSAR_EVOLUTION,
-    BSE_DETAILED_OUTPUT
+    BSE_DETAILED_OUTPUT,
+    BSE_SWITCH_LOG
 };
 
 
@@ -2572,6 +2640,8 @@ const std::map<LOGFILE, LOGFILE_DESCRIPTOR_T> LOGFILE_DESCRIPTOR = {
     { LOGFILE::DEBUG_LOG,                  { "Debug_Log",                  {},                             "",                "",                    LOGFILE_TYPE::NONE }},
     { LOGFILE::ERROR_LOG,                  { "Error_Log",                  {},                             "",                "",                    LOGFILE_TYPE::NONE }},
     { LOGFILE::SSE_PARAMETERS,             { "SSE_Parameters",             SSE_PARAMETERS_REC,             "SSE_PARMS",       "SSE_PARMS_REC",       LOGFILE_TYPE::STELLAR }},
+    { LOGFILE::SSE_SWITCH_LOG,             { "SSE_Switch_Log",             SSE_SWITCH_LOG_REC,             "SSE_SWITCH_LOG",  "SSE_SWITCH_REC",      LOGFILE_TYPE::STELLAR }},
+    { LOGFILE::SSE_SUPERNOVA,              { "SSE_Supernova",              SSE_SUPERNOVA_REC,              "SSE_SN",          "SSE_SN_REC",          LOGFILE_TYPE::STELLAR }},
     { LOGFILE::BSE_SYSTEM_PARAMETERS,      { "BSE_System_Parameters",      BSE_SYSTEM_PARAMETERS_REC,      "BSE_SYSPARMS",    "BSE_SYSPARMS_REC",    LOGFILE_TYPE::BINARY }},
     { LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, { "BSE_Double_Compact_Objects", BSE_DOUBLE_COMPACT_OBJECTS_REC, "BSE_DCO",         "BSE_DCO_REC",         LOGFILE_TYPE::BINARY }},
     { LOGFILE::BSE_SUPERNOVAE,             { "BSE_Supernovae",             BSE_SUPERNOVAE_REC,             "BSE_SNE",         "BSE_SNE_REC",         LOGFILE_TYPE::BINARY }},
@@ -2579,7 +2649,8 @@ const std::map<LOGFILE, LOGFILE_DESCRIPTOR_T> LOGFILE_DESCRIPTOR = {
     { LOGFILE::BSE_RLOF_PARAMETERS,        { "BSE_RLOF",                   BSE_RLOF_PARAMETERS_REC,        "BSE_RLOF",        "BSE_RLOF_REC",        LOGFILE_TYPE::BINARY }},
     { LOGFILE::BSE_BE_BINARIES,            { "BSE_BE_Binaries",            BSE_BE_BINARIES_REC,            "BSE_BE_BINARIES", "BSE_BE_BINARIES_REC", LOGFILE_TYPE::BINARY }},
     { LOGFILE::BSE_PULSAR_EVOLUTION,       { "BSE_Pulsar_Evolution",       BSE_PULSAR_EVOLUTION_REC,       "BSE_PULSARS",     "BSE_PULSARS_REC",     LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_DETAILED_OUTPUT,        { "BSE_Detailed_Output",        BSE_DETAILED_OUTPUT_REC,        "BSE_DETAILED",    "BSE_DETAILED_REC",    LOGFILE_TYPE::BINARY }}
+    { LOGFILE::BSE_DETAILED_OUTPUT,        { "BSE_Detailed_Output",        BSE_DETAILED_OUTPUT_REC,        "BSE_DETAILED",    "BSE_DETAILED_REC",    LOGFILE_TYPE::BINARY }},
+    { LOGFILE::BSE_SWITCH_LOG,             { "BSE_Switch_Log",             BSE_SWITCH_LOG_REC,             "BSE_SWITCH_LOG",  "BSE_SWITCH_REC",      LOGFILE_TYPE::BINARY }}
 };
 
 
