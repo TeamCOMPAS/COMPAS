@@ -881,7 +881,7 @@ PROPERTY_DETAILS Log::ProgramOptionDetails(PROGRAM_OPTION p_Property) {
 /*
  * Format field header strings (header, units, type, format)
  *
- * This function takes the propert details, and a suffix string and assembles strings to be printed
+ * This function takes the property details, and a suffix string and assembles strings to be printed
  * as the headers for the property described by the property details.
  *
  * The content of the header strings is a combination of the property details and the suffix string supplied.
@@ -897,14 +897,14 @@ PROPERTY_DETAILS Log::ProgramOptionDetails(PROGRAM_OPTION p_Property) {
  *             could be "_1" or "_2" to indicate the primary and secondary stars, or "_SN" oe "CN" to
  *             indicated the supernova or companion stars in a supernova event.
  *
- *   Units   - the units string indicates the units of the property.  This string is taken directly from
+ *    Units  - the units string indicates the units of the property.  This string is taken directly from
  *             the property details passed as a parameter.
  *
- *   Type    - the type string indicates the data type of the property.  This will be the "short name" of
+ *    Type   - the type string indicates the data type of the property.  This will be the "short name" of
  *             the property data type, retrieved from the TYPENAME_LABEL enum defined in constants.h for the
  *             property.
  *
- *   Format  - the format string is used by logging code to format the property value.  The format string is
+ *    Format - the format string is used by logging code to format the property value.  The format string is
  *             constructed he because the final field width is determined here.
  *
  *
@@ -987,6 +987,181 @@ std::tuple<bool, LOGFILE> Log::GetStandardLogfileKey(const int p_FileId) {
 
 
 /*
+ * Get standard log file record properties and format vector from the logfile record specifier
+ *
+ * This function is a very reduced version of Log::StandardLogFileDetails(), and exists mainly
+ * to support writing to the (new) SSE Supernova logfile (it was written specifically for that
+ * purpose, but was left general enough to retrieve the properties and format vector for any
+ * of the logfiles).
+ * 
+ * The reason this function is needed is that because we (currently) save the state of a
+ * single star in SSE and revert to the previous state if we find we've evolved too far and
+ * possibly missed something interesting, we can't write a record to the SSE supernova file
+ * at the time it occurs because if we revert to the previous state after writing the record
+ * we can't (easily) unwind the write - and the logging code is written to only create a log
+ * file on the first write to the file (so that we don't have files created that have no
+ * records other than the header if we never write to them), so even if we could unwind the
+ * write, we might have a file created that may never have data records written to it (we
+ * could specifically check for that and delete the file, but that's a little inelegant -
+ * better to not create the file in the first place).  So, this function will enable me to 
+ * format a SSE Supernova record at the righ time, but delay writing it to after we decide 
+ * that we'll accept the current state and not revert.
+ * 
+ * With hindsight, Log::StandardLogFileDetails() should probably have been written with this
+ * part separated out.  Ideally Log::StandardLogFileDetails() would call this function to get
+ * these details - that way if we ever need to change how this is done we don't need to change
+ * it in two places.  But Log::StandardLogFileDetails() is, the way it was initially written,
+ * a bit too complex (this whole flexible printing code is a complex beast - unfortunately it 
+ * has to be to get it to work) and this code is a bit too intertwined to easily and quickly
+ * disentangle it from Log::StandardLogFileDetails() - that's probably a good code cleanup to 
+ * do some time in the future, but for now this will have to suffice.
+ *
+ *
+ * std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> StandardLogFileRecordDetails(const LOGFILE p_Logfile)
+ *
+ */
+std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> Log::GetStandardLogFileRecordDetails(const LOGFILE p_Logfile) {
+
+    ANY_PROPERTY_VECTOR  recordProperties = {};                                                                                     // default is empty
+    std::vector<string>  fmtVector = {};                                                                                            // default is empty
+
+    try {
+        // get record properties for this file
+
+        switch (p_Logfile) {                                                                                                        // which logfile?
+
+            case LOGFILE::SSE_PARAMETERS:                                                                                           // SSE_PARAMETERS
+                recordProperties = m_SSE_Parms_Rec;                                                                                 // record properties
+                break;
+
+            case LOGFILE::SSE_SWITCH_LOG:                                                                                           // SSE_SWITCH_LOG
+                recordProperties = m_SSE_Switch_Rec;                                                                                // record properties
+                break;
+
+            case LOGFILE::SSE_SUPERNOVA:                                                                                            // SSE_SUPERNOVA
+                recordProperties = m_SSE_SN_Rec;                                                                                    // record properties
+                break;
+
+            case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                    // BSE_SYSTEM_PARAMETERS
+                recordProperties = m_BSE_SysParms_Rec;                                                                              // record properties
+                break;
+
+            case LOGFILE::BSE_SWITCH_LOG:                                                                                           // BSE_SWITCH_LOG
+                recordProperties = m_BSE_Switch_Rec;                                                                                // record properties
+                break;
+
+            case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS:                                                                               // BSE_DOUBLE_COMPACT_OBJECTS
+                recordProperties = m_BSE_DCO_Rec;                                                                                   // record properties
+                break;
+
+            case LOGFILE::BSE_SUPERNOVAE:                                                                                           // BSE_SUPERNOVAE
+                recordProperties = m_BSE_SNE_Rec;                                                                                   // record properties
+                break;
+
+            case LOGFILE::BSE_COMMON_ENVELOPES:                                                                                     // BSE_COMMON_ENVELOPES
+                recordProperties = m_BSE_CEE_Rec;                                                                                   // record properties
+                break;
+
+            case LOGFILE::BSE_RLOF_PARAMETERS:                                                                                      // BSE_RLOF_PARAMETERS
+                recordProperties = m_BSE_RLOF_Rec;                                                                                  // record properties
+                break;
+
+            case LOGFILE::BSE_BE_BINARIES:                                                                                          // BSE_BE_BINARIES
+                recordProperties = m_BSE_BE_Binaries_Rec;                                                                           // record properties
+                break;
+
+            case LOGFILE::BSE_PULSAR_EVOLUTION:                                                                                     // BSE_PULSAR_EVOLUTION
+                recordProperties = m_BSE_Pulsars_Rec;                                                                               // record properties
+                break;
+
+            case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                      // BSE_DETAILED_OUTPUT
+                recordProperties = m_BSE_Detailed_Rec;                                                                              // record properties
+                break;
+
+            default:                                                                                                                // unknown logfile
+                recordProperties = {};                                                                                              // no record properties
+        }
+
+        if (!recordProperties.empty()) {                                                                                            // have properties?
+
+            // get field format strings
+
+            bool ok = true;                                                                                                         // ok so far...
+
+            for (auto &property : recordProperties) {                                                                               // for each property to be included in the log record
+
+                ANY_PROPERTY_TYPE propertyType = boost::apply_visitor(VariantPropertyType(), property);                             // property type
+                            
+                string fmtStr = "";
+
+                switch (propertyType) {                                                                                             // which property type?
+
+                    case ANY_PROPERTY_TYPE::T_STAR_PROPERTY: {                                                                      // single star
+                        ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<STAR_PROPERTY>(property));        // property
+                        PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
+                        std::tie(std::ignore, std::ignore, std::ignore, fmtStr) = FormatFieldHeaders(details);                      // get format string
+                        } break;
+
+                    case ANY_PROPERTY_TYPE::T_STAR_1_PROPERTY: {                                                                    // star 1 of binary
+                        ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<STAR_1_PROPERTY>(property));      // property
+                        PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
+                        std::tie(std::ignore, std::ignore, std::ignore, fmtStr) = FormatFieldHeaders(details, "_1");                // get format string
+                        } break;
+
+                    case ANY_PROPERTY_TYPE::T_STAR_2_PROPERTY: {                                                                    // star 2 of binary
+                        ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<STAR_2_PROPERTY>(property));      // property
+                        PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
+                        std::tie(std::ignore, std::ignore, std::ignore, fmtStr) = FormatFieldHeaders(details, "_2");                // get format string
+                        } break;
+
+                    case ANY_PROPERTY_TYPE::T_SUPERNOVA_PROPERTY: {                                                                 // supernova star of binary that contains a supernova
+                        ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<SUPERNOVA_PROPERTY>(property));   // property
+                        PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
+                        std::tie(std::ignore, std::ignore, std::ignore, fmtStr) = FormatFieldHeaders(details, "_SN");               // get format string
+                        } break;
+
+                    case ANY_PROPERTY_TYPE::T_COMPANION_PROPERTY: {                                                                 // companion star of binary that contains a supernova
+                        ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<COMPANION_PROPERTY>(property));   // property
+                        PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
+                        std::tie(std::ignore, std::ignore, std::ignore, fmtStr) = FormatFieldHeaders(details, "_CP");               // get format string
+                        } break;
+
+                    case ANY_PROPERTY_TYPE::T_BINARY_PROPERTY: {                                                                    // binary
+                        BINARY_PROPERTY binaryProp = boost::get<BINARY_PROPERTY>(property);                                         // property
+                        PROPERTY_DETAILS details = BinaryPropertyDetails(binaryProp);                                               // property details
+                        std::tie(std::ignore, std::ignore, std::ignore, fmtStr) = FormatFieldHeaders(details);                      // get format string
+                        } break;
+
+                    case ANY_PROPERTY_TYPE::T_PROGRAM_OPTION: {                                                                     // program option
+                        PROGRAM_OPTION programOption = boost::get<PROGRAM_OPTION>(property);                                        // property
+                        PROPERTY_DETAILS details = ProgramOptionDetails(programOption);                                             // property details
+                        std::tie(std::ignore, std::ignore, std::ignore, fmtStr) = FormatFieldHeaders(details);                      // get format string
+                        } break;
+
+                    default:                                                                                                        // unknown property type
+                        ok = false;                                                                                                 // that's not ok...
+                }
+
+                if (ok) {
+                    fmtVector.push_back(fmtStr);                                                                                    // record format string for field
+                }
+            }
+
+            if (!ok) {                                                                                                              // have format vectr ok?
+                fmtVector = {};                                                                                                     // no format vector
+            }
+        }
+    }
+    catch (const std::exception& e) {                                                                                               // oops...
+        recordProperties = {};                                                                                                      // no record properties
+        fmtVector = {};                                                                                                             // no format vector
+    }
+
+    return std::make_tuple(recordProperties, fmtVector);
+}
+
+
+/*
  * Get standard log file details and open file if necessary
  *
  * This function will retrieve the details for the logfile specified, and open the file if it
@@ -1031,9 +1206,9 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
             switch (p_Logfile) {                                                                                                                // which logfile?
 
-                case LOGFILE::SSE_PARAMETERS:                                                                                                   // SSE_PARAMETERS
-                    filename         = OPTIONS->LogfileSSEParameters();
-                    recordProperties = m_SSE_Parms_Rec;
+                case LOGFILE::SSE_SUPERNOVA:                                                                                                    // SSE_SUPERNOVA
+                    filename         = OPTIONS->LogfileSSESupernova();
+                    recordProperties = m_SSE_SN_Rec;
                     break;
 
                 case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                            // BSE_SYSTEM_PARAMETERS
@@ -1046,7 +1221,7 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     recordProperties = m_BSE_DCO_Rec;
                     break;
 
-                case LOGFILE::BSE_SUPERNOVAE:                                                                                                   // BSE_SUPERNOVA
+                case LOGFILE::BSE_SUPERNOVAE:                                                                                                   // BSE_SUPERNOVAE
                     filename         = OPTIONS->LogfileBSESupernovae();
                     recordProperties = m_BSE_SNE_Rec;
                     break;
@@ -1071,9 +1246,12 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     recordProperties = m_BSE_Pulsars_Rec;
                     break;
 
-                case LOGFILE::BSE_DETAILED_OUTPUT: {                                                                                            // BSE_DETAILED_OUTPUT
+                case LOGFILE::SSE_PARAMETERS:                                                                                                   // SSE_PARAMETERS
+                case LOGFILE::SSE_SWITCH_LOG:                                                                                                   // SSE_SWITCH_LOG
+                case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                              // BSE_DETAILED_OUTPUT
+                case LOGFILE::BSE_SWITCH_LOG: {                                                                                                 // BSE_SWITCH_LOG
 
-                    // first check if create the detailed output directory exists - if not, create it
+                    // first check if the detailed output directory exists - if not, create it
                     // use boost filesystem here - easier...
 
                     bool detailedOutputDirectoryExists = false;                                                                                 // detailed output directory exists?  Start with no
@@ -1103,9 +1281,31 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     }
 
                     if (detailedOutputDirectoryExists) {                                                                                        // detailed output directory exists?
-                                                                                                                                                // yes
-                        filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileBSEDetailedOutput();                          // logfile filename wuth directory
-                        recordProperties = m_BSE_Detailed_Rec;                                                                                  // record properties
+                                                                                                                                                // yes - add path to filename
+                        switch (p_Logfile) {                                                                                                    // which logfile?
+
+                            case LOGFILE::SSE_PARAMETERS:                                                                                       // SSE_PARAMETERS
+                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileSSEParameters();                      // logfile filename with directory
+                                recordProperties = m_SSE_Parms_Rec;                                                                             // record properties
+                                break;
+
+                            case LOGFILE::SSE_SWITCH_LOG:                                                                                       // SSE_SWITCH_LOG
+                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileSSESwitchLog();                       // logfile filename with directory
+                                recordProperties = m_SSE_Switch_Rec;                                                                            // record properties
+                                break;
+
+                            case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                  // BSE_DETAILED_OUTPUT
+                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileBSEDetailedOutput();                  // logfile filename with directory
+                                recordProperties = m_BSE_Detailed_Rec;                                                                          // record properties
+                                break;
+
+                            case LOGFILE::BSE_SWITCH_LOG:                                                                                       // BSE_SWITCH_LOG
+                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileBSESwitchLog();                       // logfile filename with directory
+                                recordProperties = m_BSE_Switch_Rec;                                                                            // record properties
+                                break;
+
+                            default: break;
+                       }
                     }
                     } break;
 
@@ -1197,6 +1397,44 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                                 fullUnitsStr  += unitsStr + m_Logfiles[id].delimiter;                                                           // append field units string to full units string
                                 fullTypeStr   += typeStr + m_Logfiles[id].delimiter;                                                            // append field type string to full type string
                             }
+                        }
+
+                        // if we are writing to the SSE Switch file we add two pre-defined columns
+                        // to the end of the log record.  These are:
+                        //
+                        // ( i) the steller type from which the star is switching
+                        // (ii) the stellar type to which the star is switching
+
+                        if (p_Logfile == LOGFILE::SSE_SWITCH_LOG) {                                                                             // SSE Switch Log
+                            fullHeaderStr += "SWITCHING_FROM" + m_Logfiles[id].delimiter;                                                       // append field header string to full header string
+                            fullHeaderStr += "SWITCHING_TO" + m_Logfiles[id].delimiter;                                                         // append field header string to full header string
+
+                            fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
+                            fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
+
+                            fullTypeStr   += "STELLAR_TYPE" + m_Logfiles[id].delimiter;                                                         // append field type string to full type string                            
+                            fullTypeStr   += "STELLAR_TYPE" + m_Logfiles[id].delimiter;                                                         // append field type string to full type string                            
+                        }
+
+                        // if we are writing to the BSE Switch file we add three pre-defined columns
+                        // to the end of the log record.  These are:
+                        //
+                        // (  i) the star switching - 1 = primary, 2 = secondary
+                        // ( ii) the steller type from which the star is switching
+                        // (iii) the stellar type to which the star is switching
+
+                        if (p_Logfile == LOGFILE::BSE_SWITCH_LOG) {                                                                             // BSE Switch Log
+                            fullHeaderStr += "STAR_SWITCHING" + m_Logfiles[id].delimiter;                                                       // append field header string to full header string
+                            fullHeaderStr += "SWITCHING_FROM" + m_Logfiles[id].delimiter;                                                       // append field header string to full header string
+                            fullHeaderStr += "SWITCHING_TO" + m_Logfiles[id].delimiter;                                                         // append field header string to full header string
+
+                            fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
+                            fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
+                            fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
+
+                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
+                            fullTypeStr   += "STELLAR_TYPE" + m_Logfiles[id].delimiter;                                                         // append field type string to full type string                            
+                            fullTypeStr   += "STELLAR_TYPE" + m_Logfiles[id].delimiter;                                                         // append field type string to full type string                            
                         }
 
                         if (!fullHeaderStr.empty()) fullHeaderStr.pop_back();                                                                   // remove the trailing delimiter from the header string
@@ -1398,7 +1636,10 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
                                                                                                                         // yes - get existing props for given logfile
         switch (p_Logfile) {
             case LOGFILE::SSE_PARAMETERS            : baseProps = m_SSE_Parms_Rec;       break;
+            case LOGFILE::SSE_SWITCH_LOG            : baseProps = m_SSE_Switch_Rec;      break;
+            case LOGFILE::SSE_SUPERNOVA             : baseProps = m_SSE_SN_Rec;          break;
             case LOGFILE::BSE_SYSTEM_PARAMETERS     : baseProps = m_BSE_SysParms_Rec;    break;
+            case LOGFILE::BSE_SWITCH_LOG            : baseProps = m_BSE_Switch_Rec;      break;
             case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: baseProps = m_BSE_DCO_Rec;         break;
             case LOGFILE::BSE_SUPERNOVAE            : baseProps = m_BSE_SNE_Rec;         break;
             case LOGFILE::BSE_COMMON_ENVELOPES      : baseProps = m_BSE_CEE_Rec;         break;
@@ -1467,7 +1708,10 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
     // replace  existing props for given logfile
     switch (p_Logfile) {
         case LOGFILE::SSE_PARAMETERS            : m_SSE_Parms_Rec       = newProps; break;
+        case LOGFILE::SSE_SWITCH_LOG            : m_SSE_Switch_Rec      = newProps; break;
+        case LOGFILE::SSE_SUPERNOVA             : m_SSE_SN_Rec          = newProps; break;
         case LOGFILE::BSE_SYSTEM_PARAMETERS     : m_BSE_SysParms_Rec    = newProps; break;
+        case LOGFILE::BSE_SWITCH_LOG            : m_BSE_Switch_Rec      = newProps; break;
         case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: m_BSE_DCO_Rec         = newProps; break;
         case LOGFILE::BSE_SUPERNOVAE            : m_BSE_SNE_Rec         = newProps; break;
         case LOGFILE::BSE_COMMON_ENVELOPES      : m_BSE_CEE_Rec         = newProps; break;
@@ -1511,6 +1755,8 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  * <rec_spec>   ::= <rec_name> <op> "{" { [ <props_list> ] } "}" <spec_delim>
  *
  * <rec_name>   ::= "SSE_PARMS_REC"       |				# SSE only
+ *                  "SSE_SWITCH_REC"      |				# SSE only
+ *                  "SSE_SN_REC"          |				# SSE only
  *                  "BSE_SYSPARMS_REC"    |				# BSE only
  *                  "BSE_DCO_REC"         |				# BSE only
  *                  "BSE_SNE_REC"         |				# BSE only
@@ -1518,7 +1764,8 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *                  "BSE_RLOF_REC"        |				# BSE only
  *                  "BSE_BE_BINARIES_REC" |				# BSE only
  *                  "BSE_PULSARS_REC"     |				# BSE only
- *                  "BSE_DETAILED_REC"					# BSE only
+ *                  "BSE_DETAILED_REC"	  |				# BSE only
+ *                  "BSE_SWITCH_REC"					# BSE only
  *
  * <op>         ::= "=" | "+=" | "-="
  *

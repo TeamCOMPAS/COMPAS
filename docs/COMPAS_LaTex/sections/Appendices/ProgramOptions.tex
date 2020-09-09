@@ -1,0 +1,268 @@
+\section{Program Options}\label{sec:ProgramOptions}
+
+Following is the list of program options that can be specified at the command line when running COMPAS.
+
+\bigskip
+\programOption{help}{h}{Prints COMPAS help.}{}
+
+\programOption{version}{v}{Prints COMPAS version string.}{}
+
+\programOption{allow-rlof-at-birth}{}{Allow binaries that have one or both stars in RLOF at birth to evolve as over-contact systems.}{FALSE}
+
+\programOption{allow-touching-at-birth}{}{Allow binaries that are touching at birth to be included in the sampling.}{FALSE}
+
+\programOption{angularMomentumConservationDuringCircularisation}{}{Conserve angular momentum when binary is circularised when entering a Mass Transfer episode.}{FALSE}
+
+\programOption{black-hole-kicks}{}{Black hole kicks relative to NS kicks. \\ Options: \lcb\ FULL, REDUCED, ZERO, FALLBACK\ \rcb}{FALLBACK}
+
+\programOption{BSEswitchLog}{}{Enables printing of the BSE Switch Log logfile}{FALSE}
+
+\programOption{case-bb-stability-prescription}{}{Prescription for the stability of case BB/BC mass transfer. \\ Options: \lcb\ ALWAYS\_STABLE, ALWAYS\_STABLE\_ONTO\_NSBH, TREAT\_AS\_OTHER\_MT, NEVER\_STABLE\ \rcb}{ALWAYS\_STABLE}
+
+\programOption{chemically-homogeneous-evolution}{}{Chemically Homogeneous Evolution mode. \\ Options: \lcb\ NONE, OPTIMISTIC, PESSIMISTIC\ \rcb}{NONE}
+
+\programOption{circulariseBinaryDuringMassTransfer}{}{Circularise binary when it enters a Mass Transfer episode.}{FALSE}
+
+\programOption{common-envelope-allow-main-sequence-survive}{}{Allow main sequence donors to survive common envelope evolution.}{FALSE}
+
+\programOption{common-envelope-alpha}{}{Common Envelope efficiency alpha.}{1.0}
+
+\programOption{common-envelope-alpha-thermal}{}{Thermal energy contribution to the total envelope binding energy. \\ Defined such that~$\lambda=\alpha_{th}\times\lambda_b{+}(1.0\minus\alpha_{th})\times\lambda_g$.}{1.0}
+
+\programOption{common-envelope-lambda}{}{Common Envelope lambda.}{0.1}
+
+\programOption{common-envelope-lambda-multiplier}{}{Multiplication constant to be applied to the common envelope lambda parameter.}{1.0}
+
+\programOption{common-envelope-lambda-prescription}{}{CE lambda prescription. \\ Options: \lcb\ LAMBDA\_FIXED, LAMBDA\_LOVERIDGE, LAMBDA\_NANJING, LAMBDA\_KRUCKOW, LAMBDA\_DEWI\ \rcb}{LAMBDA\_NANJING}
+
+\programOption{common-envelope-mass-accretion-constant}{}{Value of mass accreted by NS/BH during common envelope evolution if assuming all NS/BH accrete same amount of mass. \\ Used when \textit{\texttt{-{}-}common-envelope-mass-accretion-prescription = CONSTANT}, ignored otherwise.}{0.0}
+
+\programOption{common-envelope-mass-accretion-max}{}{Maximum amount of mass accreted by NS/BHs during common envelope evolution~(\Msun).}{0.1}
+
+\programOption{common-envelope-mass-accretion-min}{}{Minimum amount of mass accreted by NS/BHs during common envelope evolution~(\Msun).}{0.04}
+
+\programOption{common-envelope-mass-accretion-prescription}{}{Assumption about whether NS/BHs can accrete mass during common envelope evolution. \\ Options: \lcb\ ZERO, CONSTANT, UNIFORM, MACLEOD\ \rcb}{ZERO}
+
+\programOption{common-envelope-recombination-energy-density}{}{Recombination energy density (erg\ g$^{\minus{1}}$).}{1.5$\tenpow{13}$}
+
+\programOption{common-envelope-slope-Kruckow}{}{Common Envelope slope for Kruckow lambda.}{\minus{0.8}}
+
+\programOption{debug-classes}{}{Debug classes enabled.}{'{}'~(None)}
+
+\programOption{debug-level}{}{Determines which print statements are displayed for debugging.}{0}
+
+\programOption{debug-to-file}{}{Write debug statements to file.}{FALSE}
+
+\programOption{detailedOutput}{}{Print BSE detailed information to file.}{FALSE}
+
+\programOption{eccentricity-distribution}{e}{Initial eccentricity distribution, e. \\ Options: \lcb\ ZERO, FIXED, FLAT, THERMALISED, GELLER+2013, THERMAL, \nobreak{DUQUENNOYMAYOR1991}, SANA2012, IMPORTANCE\ \rcb}{ZERO}
+
+\programOption{eccentricity-max}{}{Maximum eccentricity to generate.}{1.0}
+
+\programOption{eccentricity-min}{}{Minimum eccentricity to generate.}{0.0}
+
+\programOption{eddington-accretion-factor}{}{Multiplication factor for Eddington accretion for NS \& BH (i.e.~$>$1 is super-eddington and 0 is no accretion).}{1.0}
+
+\programOption{envelope-state-prescription}{}{Prescription for determining whether the envelope of the star is convective or radiative. \\ Options: \lcb\ LEGACY, HURLEY, FIXED\_TEMPERATURE\ \rcb}{LEGACY}
+
+\programOption{errors-to-file}{}{Write error messages to file.}{FALSE}
+
+\programOption{evolve-pulsars}{}{Evolve pulsar properties of Neutron Stars.}{FALSE}
+
+\programOption{evolve-unbound-systems}{}{Continue evolving stars even if the binary is disrupted.}{FALSE}
+
+\programOption{fix-dimensionless-kick-velocity}{}{Fix dimensionless kick velocity to this value.}{n/a (not used if option not present)}
+
+\programOption{fryer-supernova-engine}{}{Supernova engine type if using the fallback prescription from \citet{Fryer_2012}. \\ Options: \lcb\ DELAYED, RAPID\ \rcb}{DELAYED}
+
+\programOption{grid}{}{Grid filename.}{'{}'~(None)}
+
+\programOption{initial-mass-function}{i}{Initial mass function. \\ Options: \lcb\ SALPETER, POWERLAW, UNIFORM, KROUPA\ \rcb}{KROUPA}
+
+\programOption{initial-mass-max}{}{Maximum mass to generate using given IMF~(\Msun).}{100.0}
+
+\programOption{initial-mass-min}{}{Minimum mass to generate using given IMF~(\Msun).}{8.0}
+
+\programOption{initial-mass-power}{}{Single power law power to generate primary mass using given IMF.}{\minus{2.3}}
+
+\programOption{kick-direction}{}{Natal kick direction distribution. \\ Options: \lcb\ ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW, WEDGE, POLES\ \rcb}{ISOTROPIC}
+
+\programOption{kick-direction-power}{}{Power for power law kick direction distribution, where 0.0 = isotropic, +ve = polar, -ve = in plane.}{0.0 (isotropic)}
+
+\programOption{kick-scaling-factor}{}{Arbitrary factor used to scale kicks.}{1.0}
+
+\programOption{kick-velocity-distribution}{}{Natal kick velocity distribution. \\ Options: \lcb\ ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL\ \rcb}{MAXWELLIAN}
+
+\programOption{kick-velocity-max}{}{Maximum drawn kick velocity~(km~s$^{-1}$). \\ Must be $>$ 0 if using \textit{\texttt{-{}-}kick-velocity-distribution~=~FLAT}.}{\minus(1.0)}
+
+\programOption{kick-velocity-sigma-CCSN-BH}{}{Sigma for chosen kick velocity distribution for black holes~(km~s$^{\minus{1}}$).}{250.0}
+
+\programOption{kick-velocity-sigma-CCSN-NS}{}{Sigma for chosen kick velocity distribution for neutron stars~(km~s$^{\minus{1}}$).}{250.0}
+
+\programOption{kick-velocity-sigma-ECSN}{}{Sigma for chosen kick velocity distribution for ECSN~(km~s$^{\minus{1}}$).}{30.0}
+
+\programOption{kick-velocity-sigma-USSN}{}{Sigma for chosen kick velocity distribution for USSN~(km~s$^{\minus{1}}$).}{30.0}
+
+\programOption{log-classes}{}{Logging classes enabled.}{'{}'~(None)}
+
+\programOption{logfile-BSE-common-envelopes}{}{Filename for BSE Common Envelopes logfile.}{'BSE\_Common\_Envelopes'}
+
+\programOption{logfile-BSE-detailed-output}{}{Filename for BSE Detailed Output logfile.}{'BSE\_Detailed\_Output'}
+
+\programOption{logfile-BSE-double-compact-objects}{}{Filename for BSE Double Compact Objects logfile.}{'BSE\_Double\_Compact\_Objects'}
+
+\programOption{logfile-BSE-pulsar-evolution}{}{Filename for BSE Pulsar Evolution logfile.}{'BSE\_Pulsar\_Evolution'}
+
+\programOption{logfile-BSE-rlof-parameters}{}{Filename for BSE RLOF Printing logfile.}{'BSE\_RLOF'}
+
+\programOption{logfile-BSE-supernovae}{}{Filename for BSE Supernovae logfile.}{'BSE\_Supernovae'}
+
+\programOption{logfile-BSE-switch-log}{}{Filename for BSE SWitch Log logfile.}{'BSE\_Switch\_Log'}
+
+\programOption{logfile-BSE-system-parameters}{}{Filename for BSE System Parameters logfile.}{'BSE\_System\_Parameters'}
+
+\programOption{logfile-definitions}{}{Filename for logfile record definitions file.}{'{}'~(None)}
+
+\programOption{logfile-delimiter}{}{Field delimiter for logfile records.}{TAB}
+
+\programOption{logfile-name-prefix}{}{Prefix for logfile names.}{'{}'~(None)}
+
+\programOption{logfile-SSE-parameters}{}{Filename for SSE Parameters logfile.}{'SSE\_Parameters'}
+
+\programOption{logfile-SSE-supernova}{}{Filename for SSE Supernova logfile.}{'SSE\_Supernova'}
+
+\programOption{logfile-SSE-switch-log}{}{Filename for SSE SWitch Log logfile.}{'SSE\_Switch\_Log'}
+
+\programOption{log-level}{}{Determines which print statements are included in the logfile.}{0}
+
+\programOption{luminous-blue-variable-multiplier}{}{Multiplicative constant for LBV mass loss. (Use 10 for \citet{Mennekens_2014})}{1.5}
+
+\programOption{mass-loss-prescription}{}{Mass loss prescription. \\ Options: \lcb\ NONE, HURLEY, VINK\ \rcb}{VINK}
+
+\programOption{mass-ratio-distribution}{q}{Initial mass ratio distribution for q$=\frac{m2}{m1}$. \\ Options: \lcb\ FLAT, DUQUENNOYMAYOR1991, SANA2012\ \rcb}{FLAT}
+
+\programOption{mass-ratio-max}{}{Maximum mass ratio $\frac{m2}{m1}$ to generate.}{1.0}
+
+\programOption{mass-ratio-min}{}{Minimum mass ratio $\frac{m2}{m1}$ to generate.}{0.0}
+
+\programOption{massTransfer}{}{Enable mass transfer.}{TRUE}
+
+\programOption{mass-transfer-accretion-efficiency-prescription}{}{Mass transfer accretion efficiency prescription. \\ Options: \lcb\ THERMAL, FIXED, CENTRIFUGAL\ \rcb}{ISOTROPIC}
+
+\programOption{mass-transfer-angular-momentum-loss-prescription}{}{Mass Transfer Angular Momentum Loss prescription. \\ Options: \lcb\ JEANS, ISOTROPIC, CIRCUMBINARY, ARBITRARY\ \rcb}{ISOTROPIC}
+
+\programOption{mass-transfer-fa}{}{Mass Transfer fraction accreted. \\ Used when \newline\mbox{\textit{\texttt{-{}-}mass-transfer-accretion-efficiency-prescription~=~FIXED\_FRACTION}}.}{1.0 (fully conservative)}
+
+\programOption{mass-transfer-jloss}{}{Specific angular momentum with which the non-accreted system leaves the system. \\ Used when \textit{\texttt{-{}-}mass-transfer-angular-momentum-loss-prescription~=~ARBITRARY}, ignored otherwise.}{1.0}
+
+\programOption{mass-transfer-thermal-limit-accretor}{}{Mass Transfer Thermal Accretion limit multiplier. \\ Options: \lcb\ CFACTOR, ROCHELOBE\ \rcb}{}
+
+\programOption{mass-transfer-thermal-limit-C}{}{Mass Transfer Thermal rate factor for the accretor.}{10.0}
+
+\programOption{mass-transfer-rejuvenation-prescription}{}{Mass Transfer Rejuvenation prescription. \\ Options: \lcb\ NONE, STARTRACK\ \rcb}{NONE}
+
+\programOption{maximum-evolution-time}{}{Maximum time to evolve binaries~(Myr). Evolution of the binary will stop if this number is reached.}{13700.0}
+
+\programOption{maximum-mass-donor-Nandez-Ivanova}{}{Maximum donor mass allowed for the revised common envelope formalism of Nandez \& Ivanova~(\Msun).}{2.0}
+
+\programOption{maximum-neutron-star-mass}{}{Maximum mass of a neutron star~(\Msun).}{3.0}
+
+\programOption{maximum-number-timestep-iterations}{}{Maximum number of timesteps to evolve binary. Evolution of the binary will stop if this number is reached.}{99999}
+
+\programOption{MCBUR1}{}{Minimum core mass at base of AGB to avoid fully degnerate CO core formation~(\Msun). \\ e.g. 1.6 in \citet{Hurley_2000} presciption; 1.83 in \citet{Fryer_2012} and \citet{Belczynski_2008} models.}{1.6)}
+
+\programOption{metallicity}{z}{Metallicity.}{0.01~(\Zsun)}
+
+\programOption{minimum-secondary-mass}{}{Minimum mass of secondary to generate(\Msun).}{0.0}
+
+\programOption{neutrino-mass-loss-bh-formation}{}{Assumption about neutrino mass loss during BH formation. \\ Options: \lcb\ FIXED\_FRACTION, FIXED\_MASS\ \rcb}{FIXED\_FRACTION}
+
+\programOption{neutrino-mass-loss-bh-formation-value}{}{Amount of mass lost in neutrinos during BH formation (either as fraction or in solar masses, depending on the value of \textit{\texttt{-{}-}neutrino-mass-loss-bh-formation}).}{0.1}
+
+\programOption{neutron-star-equation-of-state}{}{Neutron star equation of state. \\ Options: \lcb\ SSE, ARP3\ \rcb}{SSE}
+
+\programOption{number-of-binaries}{n}{The number of binaries to simulate.}{10}
+
+\programOption{orbital-period-max}{}{Maximum period to generate (days).}{1000.0}
+
+\programOption{orbital-period-min}{}{Minimum period to generate (days).}{1.1}
+
+\programOption{output-container}{c}{Container (directory) name for output files.}{'COMPAS\_Output'}
+
+\programOption{outputPath}{o}{Path to which output is saved (i.e. directory in which the output container is created).}{Current working directory~(CWD)}
+
+\programOption{pair-instability-supernovae}{}{Enable pair instability supernovae (PISN).}{FALSE}
+
+\programOption{PISN-lower-limit}{}{Minimum core mass for PISN~(\Msun).}{60.0}
+
+\programOption{PISN-upper-limit}{}{Maximum core mass for PISN~(\Msun).}{135.0}
+
+\programOption{populationDataPrinting}{}{Print details of population.}{FALSE}
+
+\programOption{PPI-lower-limit}{}{Minimum core mass for PPI~(\Msun).}{35.0}
+
+\programOption{PPI-upper-limit}{}{Maximum core mass for PPI~(\Msun).}{60.0}
+
+\programOption{print-bool-as-string}{}{Print boolean properties as 'TRUE' or 'FALSE'.}{FALSE}
+
+\programOption{pulsar-birth-magnetic-field-distribution}{}{Pulsar birth magnetic field distribution. \\ Options: \lcb\ ZERO, FIXED, FLATINLOG, UNIFORM, LOGNORMAL\ \rcb}{ZERO}
+
+\programOption{pulsar-birth-magnetic-field-distribution-max}{}{Maximum (log$_{10}$) pulsar birth magnetic field.}{13.0}
+
+\programOption{pulsar-birth-magnetic-field-distribution-min}{}{Minimum (log$_{10}$) pulsar birth magnetic field.}{11.0}
+
+\programOption{pulsar-birth-spin-period-distribution}{}{Pulsar birth spin period distribution. \\ Options: \lcb\ ZERO, FIXED, UNIFORM, NORMAL\ \rcb}{ZERO}
+
+\programOption{pulsar-birth-spin-period-distribution-max}{}{Maximum pulsar birth spin period~(ms).}{100.0}
+
+\programOption{pulsar-birth-spin-period-distribution-min}{}{Minimum pulsar birth spin period~(ms).}{0.0}
+
+\programOption{pulsar-magnetic-field-decay-massscale}{}{Mass scale on which magnetic field decays during accretion~(\Msun).}{0.025}
+
+\programOption{pulsar-magnetic-field-decay-timescale}{}{Timescale on which magnetic field decays~(Myr).}{1000.0}
+
+\programOption{pulsar-minimum-magnetic-field}{}{log$_{10}$ of the minimum pulsar magnetic field~(Gauss).}{8.0}
+
+\programOption{pulsational-pair-instability}{}{Enable mass loss due to pulsational-pair-instability (PPI).}{FALSE}
+
+\programOption{pulsational-pair-instability-prescription}{}{Pulsational pair instability prescription. \\ Options: \lcb\ COMPAS, STARTRACK, MARCHANT\ \rcb}{COMPAS}
+
+\programOption{quiet}{}{Suppress printing to stdout.}{FALSE}
+
+\programOption{random-seed}{}{Value to use as the seed for the random number generator.}{0}
+
+\programOption{remnant-mass-prescription}{}{Remnant mass prescription. \\ Options: \lcb\ HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL\ \rcb}{FRYER2012}
+
+\programOption{revised-energy-formalism-Nandez-Ivanova}{}{Enable revised energy formalism of Nandez \& Ivanova.}{FALSE}
+
+\programOption{RLOFprinting}{}{Print RLOF events to logfile.}{FALSE}
+
+\programOption{rotational-velocity-distribution}{}{Initial rotational velocity distribution. \\ Options: \lcb\ ZERO, HURLEY, VLTFLAMES\ \rcb}{ZERO}
+
+\programOption{semi-major-axis-distribution}{a}{Initial semi-major axis distribution. \\ Options: \lcb\ FLATINLOG, CUSTOM, DUQUENNOYMAYOR1991, SANA2012\ \rcb}{FLATINLOG}
+
+\programOption{semi-major-axis-max}{}{Maximum semi-major axis to generate~(AU).}{1000.0}
+
+\programOption{semi-major-axis-min}{}{Minimum semi-major axis to generate~(AU).}{0.1}
+
+\programOption{single-star}{}{Evolve single star(s).}{FALSE}
+
+\programOption{single-star-mass-max}{}{Maximum mass for single star evolution~(\Msun).}{100.0}
+
+\programOption{single-star-mass-min}{}{Minimum mass for single star evolution~(\Msun).}{5.0}
+
+\programOption{single-star-mass-steps}{}{Specify the number of mass steps for single star evolution.}{100}
+
+\programOption{SSEswitchLog}{}{Enables printing of the SSE Switch Log logfile}{FALSE}
+
+\programOption{stellar-zeta-prescription}{}{Prescription for stellar zeta. \\ Options: \lcb\ STARTRACK, SOBERMAN, HURLEY, ARBITRARY \rcb}{SOBERMAN}
+
+\programOption{use-mass-loss}{}{Enable mass loss.}{FALSE}
+
+\programOption{wolf-rayet-multiplier}{}{Multiplicative constant for Wolf Rayet winds.}{1.0}
+
+\programOption{zeta-adiabatic-arbitrary}{}{Value of logarithmic derivative of radius with respect to mass, $\zeta$~adiabatic.}{1.0\tenpow{4}}
+
+\programOption{zeta-main-sequence}{}{Value of logarithmic derivative of radius with respect to mass, $\zeta$~on the main sequence.}{2.0}
+
+\programOption{zeta-radiative-giant-star}{}{Value of logarithmic derivative of radius with respect to mass, $\zeta$~for radiative-envelope giant-like stars (including Hertzsprung Gap (HG) stars).}{6.5}
