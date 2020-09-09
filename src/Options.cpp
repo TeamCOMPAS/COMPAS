@@ -189,7 +189,9 @@ void Options::InitialiseMemberVariables(void) {
     populationDataPrinting                                          = false;                                                                            // Print certain data for small populations, but not for larger one
     printBoolAsString                                               = false;                                                                            // default is do not print bool as string
     quiet                                                           = false;                                                                            // Suppress some of the printing
-    rlofPrinting                                                    = false;
+    rlofPrinting                                                    = false;                                                                            // RLOF printing
+    SSEswitchLog                                                    = false;                                                                            // SSE switch log
+    BSEswitchLog                                                    = false;                                                                            // BSE switch log
 
     // AVG - 17/03/2020 - Floor will uncomment when tested.
     //    nBatchesUsed                                                    = -1;                                                                               // Number of batches used, for STROOPWAFEL (AIS)
@@ -521,7 +523,9 @@ void Options::InitialiseMemberVariables(void) {
 
 
     // SSE options
-    logfileSSEParameters                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PARAMETERS));                           // get filename from constants.h
+    logfileSSEParameters                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PARAMETERS));                           // get default filename from constants.h
+    logfileSSESupernova                                             = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVA));                            // get default filename from constants.h
+    logfileSSESwitchLog                                             = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG));                           // get default filename from constants.h
 
     singleStarMassSteps                                             = 100;
     singleStarMassMin                                               = 5.0;
@@ -537,6 +541,7 @@ void Options::InitialiseMemberVariables(void) {
     logfileBSERLOFParameters                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS));                      // get default filename from constants.h
     logfileBSEBeBinaries                                            = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));                          // get default filename from constants.h
     logfileBSEPulsarEvolution                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION));                     // get default filename from constants.h
+    logfileBSESwitchLog                                             = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));                           // get default filename from constants.h
 }
 
 
@@ -613,6 +618,9 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 			("angularMomentumConservationDuringCircularisation",            po::value<bool>(&angularMomentumConservationDuringCircularisation)->default_value(angularMomentumConservationDuringCircularisation)->implicit_value(true),  ("Conserve angular momentum when binary is circularised when entering a Mass Transfer episode (default = " + std::string(angularMomentumConservationDuringCircularisation ? "TRUE" : "FALSE") + ")").c_str())
 			// AVG - 17/03/2020 - Serena will uncomment when tested.
             // ("BeBinaries",                                                  po::value<bool>(&beBinaries)->default_value(beBinaries)->implicit_value(true),                                                                              ("Enable Be Binaries study (default = " + std::string(beBinaries ? "TRUE" : "FALSE") + ")").c_str())
+
+		    ("BSEswitchLog",                                                po::value<bool>(&BSEswitchLog)->default_value(BSEswitchLog)->implicit_value(true),                                                                          ("Print BSE switch log to file (default = " + std::string(BSEswitchLog ? "TRUE" : "FALSE") + ")").c_str())
+
 			("circulariseBinaryDuringMassTransfer",                         po::value<bool>(&circulariseBinaryDuringMassTransfer)->default_value(circulariseBinaryDuringMassTransfer)->implicit_value(true),                            ("Circularise binary when it enters a Mass Transfer episode (default = " + std::string(circulariseBinaryDuringMassTransfer ? "TRUE" : "FALSE") + ")").c_str())
 		    ("common-envelope-allow-main-sequence-survive",                 po::value<bool>(&allowMainSequenceStarToSurviveCommonEnvelope)->default_value(allowMainSequenceStarToSurviveCommonEnvelope)->implicit_value(true),          ("Allow main sequence stars to survive common envelope evolution (default = " + std::string(allowMainSequenceStarToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str())
 
@@ -620,7 +628,7 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("detailedOutput",                                              po::value<bool>(&detailedOutput)->default_value(detailedOutput)->implicit_value(true),                                                                      ("Print detailed output to file (default = " + std::string(detailedOutput ? "TRUE" : "FALSE") + ")").c_str())
 			("errors-to-file",                                              po::value<bool>(&errorsToFile)->default_value(errorsToFile)->implicit_value(true),                                                                          ("Write error messages to file (default = " + std::string(errorsToFile ? "TRUE" : "FALSE") + ")").c_str())
 
-			("enable-warnings",                                             po::value<bool>(&enableWarnings)->default_value(enableWarnings)->implicit_value(true),                                                                          ("Display warning messages to stdout (default = " + std::string(enableWarnings ? "TRUE" : "FALSE") + ")").c_str())
+			("enable-warnings",                                             po::value<bool>(&enableWarnings)->default_value(enableWarnings)->implicit_value(true),                                                                      ("Display warning messages to stdout (default = " + std::string(enableWarnings ? "TRUE" : "FALSE") + ")").c_str())
 
 		    ("evolve-pulsars",                                              po::value<bool>(&evolvePulsars)->default_value(evolvePulsars)->implicit_value(true),                                                                        ("Evolve pulsars (default = " + std::string(evolvePulsars ? "TRUE" : "FALSE") + ")").c_str())
 			("evolve-unbound-systems",                                      po::value<bool>(&evolveUnboundSystems)->default_value(evolveUnboundSystems)->implicit_value(true),                                                          ("Continue evolving stars even if the binary is disrupted (default = " + std::string(evolveUnboundSystems ? "TRUE" : "FALSE") + ")").c_str())
@@ -644,6 +652,8 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             */
 
             ("single-star",                                                 po::value<bool>(&singleStar)->default_value(singleStar)->implicit_value(true),                                                                              ("Evolve single star(s) (default = " + std::string(singleStar ? "TRUE" : "FALSE") + ")").c_str())
+
+		    ("SSEswitchLog",                                                po::value<bool>(&SSEswitchLog)->default_value(SSEswitchLog)->implicit_value(true),                                                                          ("Print SSE switch log to file (default = " + std::string(SSEswitchLog ? "TRUE" : "FALSE") + ")").c_str())
 
 		    ("use-mass-loss",                                               po::value<bool>(&useMassLoss)->default_value(useMassLoss)->implicit_value(true),                                                                            ("Enable mass loss (default = " + std::string(useMassLoss ? "TRUE" : "FALSE") + ")").c_str())
 
@@ -722,7 +732,7 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("maximum-evolution-time",                                      po::value<double>(&maxEvolutionTime)->default_value(maxEvolutionTime),                                                                                      ("Maximum time to evolve binaries in Myrs (default = " + std::to_string(maxEvolutionTime) + ")").c_str())
 		    ("maximum-mass-donor-Nandez-Ivanova",                           po::value<double>(&maximumMassDonorNandezIvanova)->default_value(maximumMassDonorNandezIvanova),                                                            ("Maximum donor mass allowed for the revised common envelope formalism in Msol (default = " + std::to_string(maximumMassDonorNandezIvanova) + ")").c_str())
 			("maximum-neutron-star-mass",                                   po::value<double>(&maximumNeutronStarMass)->default_value(maximumNeutronStarMass),                                                                          ("Maximum mass of a neutron star (default = " + std::to_string(maximumNeutronStarMass) + ")").c_str())
-            ("MCBUR1",                                                      po::value<double>(&mCBUR1)->default_value(mCBUR1),                                                                          ("MCBUR1: Min core mass at BAGB to avoid fully degenerate CO core  (default = " + std::to_string(mCBUR1) + ")").c_str())
+            ("MCBUR1",                                                      po::value<double>(&mCBUR1)->default_value(mCBUR1),                                                                                                          ("MCBUR1: Min core mass at BAGB to avoid fully degenerate CO core  (default = " + std::to_string(mCBUR1) + ")").c_str())
             ("metallicity,z",                                               po::value<double>(&metallicity)->default_value(metallicity),                                                                                                ("Metallicity to use (default " + std::to_string(metallicity) + " Zsol)").c_str())
 		    ("minimum-secondary-mass",                                      po::value<double>(&minimumMassSecondary)->default_value(minimumMassSecondary),                                                                              ("Minimum mass of secondary to generate in Msol (default = " + std::to_string(minimumMassSecondary) + ")").c_str())
 
@@ -774,16 +784,16 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 
 		  	("black-hole-kicks",                                            po::value<string>(&blackHoleKicksString)->default_value(blackHoleKicksString),                                                                              ("Black hole kicks relative to NS kicks (options: FULL, REDUCED, ZERO, FALLBACK), default = " + blackHoleKicksString + ")").c_str())
 
-            ("case-bb-stability-prescription",             po::value<string>(&caseBBStabilityPrescriptionString)->default_value(caseBBStabilityPrescriptionString),                    ("Case BB/BC mass transfer stability prescription (options: ALWAYS_STABLE, ALWAYS_STABLE_ONTO_NSBH, TREAT_AS_OTHER_MT, ALWAYS_UNSTABLE), default = " + caseBBStabilityPrescriptionString + ")").c_str())
+            ("case-bb-stability-prescription",                              po::value<string>(&caseBBStabilityPrescriptionString)->default_value(caseBBStabilityPrescriptionString),                                                    ("Case BB/BC mass transfer stability prescription (options: ALWAYS_STABLE, ALWAYS_STABLE_ONTO_NSBH, TREAT_AS_OTHER_MT, ALWAYS_UNSTABLE), default = " + caseBBStabilityPrescriptionString + ")").c_str())
         
 		  	("chemically-homogeneous-evolution",                            po::value<string>(&cheString)->default_value(cheString),                                                                                                    ("Chemically Homogeneous Evolution (options: NONE, OPTIMISTIC, PESSIMISTIC), default = " + cheString + ")").c_str())
 
 			("common-envelope-lambda-prescription",                         po::value<string>(&commonEnvelopeLambdaPrescriptionString)->default_value(commonEnvelopeLambdaPrescriptionString),                                          ("CE lambda prescription (options: LAMBDA_FIXED, LAMBDA_LOVERIDGE, LAMBDA_NANJING, LAMBDA_KRUCKOW, LAMBDA_DEWI), default = " + commonEnvelopeLambdaPrescriptionString + ")").c_str())
 		    ("common-envelope-mass-accretion-prescription",                 po::value<string>(&commonEnvelopeMassAccretionPrescriptionString)->default_value(commonEnvelopeMassAccretionPrescriptionString),                            ("Assumption about whether NS/BHs can accrete mass during common envelope evolution (options: ZERO, CONSTANT, UNIFORM, MACLEOD), default = " + commonEnvelopeMassAccretionPrescriptionString + ")").c_str())
         
-            ("envelope-state-prescription",                                 po::value<string>(&envelopeStatePrescriptionString)->default_value(envelopeStatePrescriptionString),                                   ("Prescription for whether the envelope is radiative or convective (options: LEGACY, HURLEY, FIXED_TEMPERATURE), default = " + envelopeStatePrescriptionString + ")").c_str())
+            ("envelope-state-prescription",                                 po::value<string>(&envelopeStatePrescriptionString)->default_value(envelopeStatePrescriptionString),                                                        ("Prescription for whether the envelope is radiative or convective (options: LEGACY, HURLEY, FIXED_TEMPERATURE), default = " + envelopeStatePrescriptionString + ")").c_str())
         
-			("stellar-zeta-prescription",                           po::value<string>(&stellarZetaPrescriptionString)->default_value(stellarZetaPrescriptionString),                                              ("Prescription for stellar zeta (default = " + stellarZetaPrescriptionString + ")").c_str())
+			("stellar-zeta-prescription",                                   po::value<string>(&stellarZetaPrescriptionString)->default_value(stellarZetaPrescriptionString),                                                            ("Prescription for stellar zeta (default = " + stellarZetaPrescriptionString + ")").c_str())
 
 		    ("eccentricity-distribution,e",                                 po::value<string>(&eccentricityDistributionString)->default_value(eccentricityDistributionString),                                                          ("Initial eccentricity distribution, e (options: ZERO, FIXED, FLAT, THERMALISED, GELLER+2013), default = " + eccentricityDistributionString + ")").c_str())
 
@@ -804,11 +814,14 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             ("logfile-BSE-double-compact-objects",                          po::value<string>(&logfileBSEDoubleCompactObjects)->default_value(logfileBSEDoubleCompactObjects),                                                          ("Filename for BSE Double Compact Objects logfile (default = " + logfileBSEDoubleCompactObjects + ")").c_str())
             ("logfile-BSE-pulsar-evolution",                                po::value<string>(&logfileBSEPulsarEvolution)->default_value(logfileBSEPulsarEvolution),                                                                    ("Filename for BSE Pulsar Evolution logfile (default = " + logfileBSEPulsarEvolution + ")").c_str())
             ("logfile-BSE-supernovae",                                      po::value<string>(&logfileBSESupernovae)->default_value(logfileBSESupernovae),                                                                              ("Filename for BSE Supernovae logfile (default = " + logfileBSESupernovae + ")").c_str())
+            ("logfile-BSE-switch-log",                                      po::value<string>(&logfileBSESwitchLog)->default_value(logfileBSESwitchLog),                                                                                ("Filename for BSE Switch Log logfile (default = " + logfileBSESwitchLog + ")").c_str())
             ("logfile-BSE-system-parameters",                               po::value<string>(&logfileBSESystemParameters)->default_value(logfileBSESystemParameters),                                                                  ("Filename for BSE System Parameters logfile (default = " + logfileBSESystemParameters + ")").c_str())
             ("logfile-definitions",                                         po::value<string>(&logfileDefinitionsFilename)->default_value(logfileDefinitionsFilename)->implicit_value(""),                                              ("Filename for logfile record definitions (default = " + logfileDefinitionsFilename + ")").c_str())
             ("logfile-delimiter",                                           po::value<string>(&logfileDelimiterString)->default_value(logfileDelimiterString),                                                                          ("Field delimiter for logfile records (default = " + logfileDelimiterString + ")").c_str())
             ("logfile-name-prefix",                                         po::value<string>(&logfileNamePrefix)->default_value(logfileNamePrefix)->implicit_value(""),                                                                ("Prefix for logfile names (default = " + logfileNamePrefix + ")").c_str())
             ("logfile-SSE-parameters",                                      po::value<string>(&logfileSSEParameters)->default_value(logfileSSEParameters),                                                                              ("Filename for SSE Parameters logfile (default = " + logfileSSEParameters + ")").c_str())
+            ("logfile-SSE-supernova",                                       po::value<string>(&logfileSSESupernova)->default_value(logfileSSESupernova),                                                                                ("Filename for SSE Supernova logfile (default = " + logfileSSESupernova + ")").c_str())
+            ("logfile-SSE-switch-log",                                      po::value<string>(&logfileSSESwitchLog)->default_value(logfileSSESwitchLog),                                                                                ("Filename for SSE Switch Log logfile (default = " + logfileSSESwitchLog + ")").c_str())
 
 		    ("mass-loss-prescription",                                      po::value<string>(&massLossPrescriptionString)->default_value(massLossPrescriptionString),                                                                  ("Mass loss prescription (options: NONE, HURLEY, VINK), default = " + massLossPrescriptionString + ")").c_str())
 		    ("mass-ratio-distribution,q",                                   po::value<string>(&massRatioDistributionString)->default_value(massRatioDistributionString),                                                                ("Initial mass ratio distribution for q=m2/m1 (options: FLAT, DuquennoyMayor1991, SANA2012), default = " + massRatioDistributionString + ")").c_str())
@@ -1091,10 +1104,16 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             COMPLAIN_IF(semiMajorAxisDistributionMin < 0.0, "Minimum semi-major Axis (--semi-major-axis-min) < 0");
             COMPLAIN_IF(semiMajorAxisDistributionMax < 0.0, "Maximum semi-major Axis (--semi-major-axis-max) < 0");
 
-            COMPLAIN_IF(singleStarMassMax   <= 0.0,               "Single star mass maximum (--single-star-mass-max) <= 0");
+            COMPLAIN_IF(singleStarMassMax   <= 0.0, "Single star mass maximum (--single-star-mass-max) <= 0");
             COMPLAIN_IF(singleStarMassSteps > 1 && (singleStarMassMax <= singleStarMassMin), "Single star mass maximum (--single-star-mass-max) <= minimum (--single-star-mass-min)");
-            COMPLAIN_IF(singleStarMassMin   <= 0.0,               "Single star mass minimum (--single-star-mass-min) <= 0");
-            COMPLAIN_IF(singleStarMassSteps <= 0,                 "Single star mass steps (--single-star-mass-steps) <= 0");
+            COMPLAIN_IF(singleStarMassMin   <= 0.0, "Single star mass minimum (--single-star-mass-min) <= 0");
+            COMPLAIN_IF(singleStarMassSteps <= 0, "Single star mass steps (--single-star-mass-steps) <= 0");
+
+            // check illegal combinations
+
+            COMPLAIN_IF(singleStar && BSEswitchLog, "--BSEswitchLog does not apply to Single Star evolution");
+            COMPLAIN_IF(!singleStar && SSEswitchLog, "--SSEswitchLog does not apply to Binary Star evolution");
+
 
             m_OptionsDetails = ProgramOptionDetails(vm);                                                                                  // construct options details string for output
 

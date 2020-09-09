@@ -1,0 +1,23 @@
+\section{Log File Record Specification: Program Options}\label{sec:LogFileRecord_Options}
+
+As described in Standard Log File Record Specifiers, when specifying known properties in a log file record specification record, the property name must be prefixed with the property type.
+
+Currently there is a single program option property type available for use: PROGRAM\_OPTION.
+
+For example, to specify the program option property RANDOM\_SEED, use:
+
+\tabto{3em}PROGRAM\_OPTION::RANDOM\_SEED
+
+Following is the list of program option properties available for inclusion in log file record specifiers.
+
+\subsection{Program Option Properties}\label{sec:ProgramOptionProperties}
+
+\optionProperty{KICK\_VELOCITY\_DISTRIBUTION\_SIGMA\_CCSN\_BH}{DOUBLE}{Options::kickVelocityDistributionSigmaCCSN\_BH}{Value of program option \textit{\texttt{-{}-}kick-velocity-sigma-CCSN-BH}}{Sigma\_Kick\_CCSN\_BH}{}
+
+\optionProperty{KICK\_VELOCITY\_DISTRIBUTION\_SIGMA\_CCSN\_NS}{DOUBLE}{Options::kickVelocityDistributionSigmaCCSN\_NS}{Value of program option \textit{\texttt{-{}-}kick-velocity-sigma-CCSN-NS}}{Sigma\_Kick\_CCSN\_NS}{}
+
+\optionProperty{KICK\_VELOCITY\_DISTRIBUTION\_SIGMA\_FOR\_ECSN}{DOUBLE}{Options::kickVelocityDistributionSigmaForECSN}{Value of program option \textit{\texttt{-{}-}kick-velocity-sigma-ECSN}}{Sigma\_Kick\_ECSN}{}
+
+\optionProperty{KICK\_VELOCITY\_DISTRIBUTION\_SIGMA\_FOR\_USSN}{DOUBLE}{Options::kickVelocityDistributionSigmaForUSSN}{Value of program option \textit{\texttt{-{}-}kick-velocity-sigma-USSN}}{Sigma\_Kick\_USSN}{}
+
+\optionProperty{RANDOM\_SEED}{UNSIGNED LONG INT}{Options::randomSeed}{Value of program option \textit{\texttt{-{}-}random-seed}}{SEED\_(ProgramOption)}{}
