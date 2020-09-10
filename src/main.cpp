@@ -1334,6 +1334,10 @@ int main(int argc, char * argv[]) {
 
     PROGRAM_STATUS programStatus = OPTIONS->Initialise(argc, argv);                     // Get the program options from the commandline
 
+    if (OPTIONS->Profiling()) {
+        utils::setProfiling(true);
+    }
+
     if (programStatus == PROGRAM_STATUS::CONTINUE) {
 
         // start the logging service
@@ -1371,6 +1375,10 @@ int main(int argc, char * argv[]) {
 
             programStatus = PROGRAM_STATUS::SUCCESS;                                    // set program status, and...
         }
+    }
+
+    if (OPTIONS->Profiling()) {
+        utils::finalisePOW();
     }
 
     return static_cast<int>(programStatus);                                             // we're done
