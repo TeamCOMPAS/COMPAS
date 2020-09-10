@@ -31,9 +31,9 @@ void HeHG::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
 
     double LTHe = HeMS::CalculateLuminosityAtPhaseEnd(p_Mass);
 
-    timescales(tinf1_HeGB) = timescales(tHeMS) + (1.0 / ((p1 * gbParams(AHe) * gbParams(D))) * pow((gbParams(D) / LTHe), p1_p));
-    timescales(tx_HeGB) = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * pow((LTHe / gbParams(Lx)), p1_p);
-    timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * pow((gbParams(B) / gbParams(Lx)), q1_q));
+    timescales(tinf1_HeGB) = timescales(tHeMS) + (1.0 / ((p1 * gbParams(AHe) * gbParams(D))) * utils::POW((gbParams(D) / LTHe), p1_p));
+    timescales(tx_HeGB) = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * utils::POW((LTHe / gbParams(Lx)), p1_p);
+    timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * utils::POW((gbParams(B) / gbParams(Lx)), q1_q));
 
 #undef gbParams
 #undef timescales
@@ -303,10 +303,10 @@ double HeHG::CalculateLambdaNanjing() {
     double rMin = 0.25;                              // minimum considered radius: Natasha       JR: todo: should this be in constants.h?
 	double rMax = 120.0;                             // maximum considered radius: Natasha       JR: todo: should this be in constants.h?
 
-	double rMinLambda = 0.3 * pow(rMin, -0.8);       // JR: todo: should this be in constants.h?
-	double rMaxLambda = 0.3 * pow(rMax, -0.8);       // JR: todo: should this be in constants.h?
+	double rMinLambda = 0.3 * utils::POW(rMin, -0.8);       // JR: todo: should this be in constants.h?
+	double rMaxLambda = 0.3 * utils::POW(rMax, -0.8);       // JR: todo: should this be in constants.h?
 
-	return m_Radius < rMin ? rMinLambda : (m_Radius > rMax ? rMaxLambda : 0.3 * pow(m_Radius, -0.8));
+	return m_Radius < rMin ? rMinLambda : (m_Radius > rMax ? rMaxLambda : 0.3 * utils::POW(m_Radius, -0.8));
 }
 
 

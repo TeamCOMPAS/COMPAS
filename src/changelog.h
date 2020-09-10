@@ -418,9 +418,11 @@
 //                                      - implemented SSE Switch Log and BSE Switch Log files (record written at the time of stellar type switch - see documentation)
 //                                      - implemented SSE Supernova log file - see documentation (issue #253)
 //                                      - added TIMESCALE_MS as a valid property in BaseStar::StellarPropertyValue().  The TIMESCALE_MS value in the SSE_Parameters file was being printed as "ERROR!" and nobody noticed :-)  It now prints correctly.
-// 02.15.01     RW - Sep 10, 2020   - Code cleanup:
+// 02.15.01     RS - Sep 10, 2020   - Enhancement
+//                                       - added profiling option to keep track of repeated pow() calls
+// 02.15.02     RW - Sep 10, 2020   - Code cleanup:
 //                                      - Set all references to kick "velocity" to magnitude. This is more correct, and will help distinguish from system and component vector velocities later
 
-const std::string VERSION_STRING = "02.15.01";
+const std::string VERSION_STRING = "02.15.02";
 
 # endif // __changelog_h__
