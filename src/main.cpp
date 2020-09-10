@@ -1332,10 +1332,10 @@ std::tuple<int, int> EvolveBinaryStars() {
  */
 int main(int argc, char * argv[]) {
 
-    PROGRAM_STATUS programStatus = OPTIONS->Initialise(argc, argv);                     // Get the program options from the commandline
+    PROGRAM_STATUS programStatus = OPTIONS->Initialise(argc, argv);                     // get the program options from the commandline
 
     if (OPTIONS->Profiling()) {
-        utils::setProfiling(true);
+        utils::setProfiling(true);                                                      // keep track of repeated calls to pow() functions, wrapped via utils::POW()
     }
 
     if (programStatus == PROGRAM_STATUS::CONTINUE) {
@@ -1378,7 +1378,7 @@ int main(int argc, char * argv[]) {
     }
 
     if (OPTIONS->Profiling()) {
-        utils::finalisePOW();
+        utils::finalisePOW();                                                           // clean up repeated calls to pow() functions
     }
 
     return static_cast<int>(programStatus);                                             // we're done
