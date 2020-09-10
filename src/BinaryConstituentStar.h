@@ -140,8 +140,8 @@ public:
 
 
     // object identifiers - all classes have these
-    OBJECT_ID           ObjectId() const                                                { return m_ObjectId; }
-    OBJECT_TYPE         ObjectType() const                                              { return m_ObjectType; }
+    OBJECT_ID       ObjectId() const                                                    { return m_ObjectId; }
+    OBJECT_TYPE     ObjectType() const                                                  { return m_ObjectType; }
 
 
     // getters - alphabetically
@@ -210,7 +210,6 @@ public:
     void            DetermineInitialMassTransferCase();
 
     void            InitialiseMassTransfer(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity);
-
 
     void            ResolveCommonEnvelopeAccretion(const double p_FinalMass);
 

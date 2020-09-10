@@ -127,7 +127,7 @@ protected:
             void            ResolveHeliumFlash() { }                                                                                                                     // NO-OP
             STELLAR_TYPE    ResolveSkippedPhase()                                                { return m_StellarType; }                                               // NO-OP
 
-            void            SetSNHydrogenContent()                                               { m_SupernovaDetails.hydrogenContent = HYDROGEN_CONTENT::POOR; }        // Always POOR
+            void            SetSNHydrogenContent()                                               { m_SupernovaDetails.isHydrogenPoor = true; }        // Always true
 
             bool            ShouldEvolveOnPhase()                                                { return (utils::Compare(m_Tau, 0.0) >= 0 && utils::Compare(m_Tau, 1.0) < 0); }       // Evolve on HeMS phase if 0 <= tau < 1.0
             bool            ShouldSkipPhase()                                                    { return false; }                                                       // Never skip HeMS phase

@@ -1,5 +1,6 @@
 #include "Star.h"
 #include <algorithm>
+#include <csignal>
 
 // Default constructor
 Star::Star() : m_Star(new BaseStar()) {
@@ -125,6 +126,9 @@ STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialT
 
     STELLAR_TYPE stellarTypePrev = m_Star->StellarType();
 
+    // don't switch if stellarTypePrev == p_StellarType
+    // (the call to SwitchTo() in Star::EvolveOneTimestep() doesn't check - it relies on the check here)
+
     if (p_StellarType != m_Star->StellarType()) {
         BaseStar *ptr = nullptr;
 
@@ -154,6 +158,21 @@ STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialT
             m_Star = ptr;
 
             if (p_SetInitialType) m_Star->SetInitialType(p_StellarType);
+        }
+
+        // write to switch log file if required
+
+        if (utils::IsOneOf(stellarTypePrev, EVOLVABLE_TYPES)) {                             // star should be evolving from one of the evolvable types (We don't want the initial switch from Star->MS.  Not necessary for BSE (handled differently), but no harm)
+        
+            if (!OPTIONS->SingleStar() && OPTIONS->BSESwitchLog()) {                        // BSE and BSE Switch Log enabled?
+                LOGGING->SetSwitchParameters(m_ObjectId, stellarTypePrev, p_StellarType);   // yes - store switch details to LOGGING service
+                raise(SIGUSR1);                                                             // signal to BSE that switch is occurring
+            }
+
+            if (OPTIONS->SingleStar() && OPTIONS->SSESwitchLog()) {                         // SSE and SSE Switch Log enabled?
+                LOGGING->SetSwitchParameters(m_ObjectId, stellarTypePrev, p_StellarType);   // yes - store switch details to LOGGING service
+                m_Star->PrintSwitchLog(m_Id);                                               // no need for the BSE signal shenaningans - just call the function
+            }
         }
     }
 
@@ -435,6 +454,8 @@ double Star::EvolveOneTimestep(const double p_Dt) {
 
     // take the timestep
 
+    m_Star->PrintStashedSupernovaDetails();                                                                     // print stashed SSE Supernova log record if necessary
+
     (void)SwitchTo(stellarType);                                                                                // switch phase if required  JR: whether this goes before or after the log record is a little problematic, but in the end probably doesn't matter too much
 
     (void)m_Star->ResolveMassLoss();                                                                            // apply wind mass loss if required     JR: should this really be before the call to SwitchTo()?  It isn't in the original code
@@ -447,15 +468,17 @@ double Star::EvolveOneTimestep(const double p_Dt) {
  * Evolve the star through its entire lifetime
  *
  *
- * void Evolve(const int p_StepNum)
+ * void Evolve(const long int p_Id)
  *
- * @param   [IN]    p_StepNum                   The mass step number for this star - can be used to name logfile for this star
+ * @param   [IN]    p_Id                        The mass id (e.g. step number) for this star - can be used to name logfiles for this star
  */
-void Star::Evolve(const int p_StepNum) {
+void Star::Evolve(const long int p_Id) {
+
+    m_Id = p_Id;                                    // store the id
 
     // evolve the star
 
-    m_Star->CalculateGBParams();                                                                        // calculate giant branch parameters - in case for some reason star is initially not MS
+    m_Star->CalculateGBParams();                    // calculate giant branch parameters - in case for some reason star is initially not MS
 
     double dt = 0.0;
 
@@ -467,11 +490,11 @@ void Star::Evolve(const int p_StepNum) {
                              STELLAR_TYPE::FIRST_GIANT_BRANCH, STELLAR_TYPE::CORE_HELIUM_BURNING, STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH, STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,
                              STELLAR_TYPE::NAKED_HELIUM_STAR_MS, STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH })) {
 
-        dt = m_Star->CalculateTimestep();                                                               // calculate new timestep
+        dt = m_Star->CalculateTimestep();           // calculate new timestep
 
-        dt = EvolveOneTimestep(dt);                                                                     // evolve for timestep
+        dt = EvolveOneTimestep(dt);                 // evolve for timestep
 
-        m_Star->PrintSingleStarParameters(p_StepNum);                                                   // log record  JR: this should probably be before the star switches type, but this way matches the original code
+        m_Star->PrintParameters(m_Id);              // log record  JR: this should probably be before the star switches type, but this way matches the original code
     }
 
 }

@@ -83,14 +83,14 @@ typedef struct SupernovaDetails {                           // Holds attributes,
     
     double           coreMassAtCOFormation;                 // Core mass of this star when it formed a compact object
     double           COCoreMassAtCOFormation;               // Carbon Oxygen core mass of the star when it goes supernova and forms a compact object
-    double           drawnKickMagnitude;                     // Kick magnitude the system received during the supernova (km s^-1)
+    double           drawnKickMagnitude;                    // Kick magnitude the system received during the supernova (km s^-1)
     double           eccentricAnomaly;                      // Eccentric anomaly at instataneous time of the SN
     SNEventsT        events;                                // Record of supernova events undergone by the star
     double           fallbackFraction;                      // Fallback fraction during a supernova event
     double           HeCoreMassAtCOFormation;               // Helium core mass of the star when it goes supernova and forms a compact objec
-    HYDROGEN_CONTENT hydrogenContent;                       // Hydrogen content of the exploding star. We consider an H-rich star all SN progenitors that have an H envelope, otherwise H-poor
-    double           kickMagnitude;                          // Kick magnitude the system received during the supernova (km s^-1)
-    double           kickMagnitudeRandom;                    // Random number U(0,1) for choosing the supernova kick magnitude magnitude - drawn once at star creation
+    double           kickMagnitude;                         // Kick magnitude the system received during the supernova (km s^-1)
+    double           kickMagnitudeRandom;                   // Random number U(0,1) for choosing the supernova kick magnitude magnitude - drawn once at star creation
+    bool             isHydrogenPoor;                        // Flag to indicate if exploding star is hydrogen-poor. We consider an H-rich star all SN progenitors that have an H envelope, otherwise H-poor
     double           meanAnomaly;                           // Mean anomaly at instantaneous time of the SN - uniform in [0, 2pi]
     double           phi;                                   // Kick angle in the orbital plane, defined CCW from the radial vector pointed away from the Companion (rad) [0, 2pi)
     SN_STATE         supernovaState;                        // Indicates which star (or stars) are undergoing / have undergone a supernova event
@@ -118,7 +118,7 @@ typedef struct Lambdas {
 	double kruckowMiddle;                                   // Ccalculated using m_Radius and -4/5
 	double kruckowTop;                                      // Calculated using m_Radius and -2/3
 	double loveridge;                                       // No mass loss
-	double loveridgeWinds;                                  // Mass loss    JR: todo: or would be if the parameter wasn't ignored...
+	double loveridgeWinds;                                  // Mass loss
 	double nanjing;                                         // JR: todo: description?
 } LambdasT;
 

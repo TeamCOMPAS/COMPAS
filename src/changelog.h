@@ -410,12 +410,20 @@
 //                                      - Assorted very minor cleaning, including comments
 // 02.14.00     IM - Aug 30, 2020   - Enhancement:
 //                                      - Recreate RLOF printing (resolve issue #212)
-// 02.14.01     RTW - Sep 2, 2020   - Code cleanup:
+// 02.14.01     ML - Sep 05, 2020   - Code cleanup:
+//                                      - Issue #354 - Combine HYDROGEN_RICH and HYDROGEN_POOR supernova output variables into a single boolean variable IS_HYDROGEN_POOR 
+// 02.15.00     JR - Sep 09, 2020   - Enhancements and related code cleanup:
+//                                      - implemented "DETAILED_OUTPUT" folder inside "COMPAS_Output" container for SSE output
+//                                      - SSE Parameters files moved to "DETAILED_OUTPUT" folder (they are analogous to BSE_Detailed_Output files)
+//                                      - implemented SSE Switch Log and BSE Switch Log files (record written at the time of stellar type switch - see documentation)
+//                                      - implemented SSE Supernova log file - see documentation (issue #253)
+//                                      - added TIMESCALE_MS as a valid property in BaseStar::StellarPropertyValue().  The TIMESCALE_MS value in the SSE_Parameters file was being printed as "ERROR!" and nobody noticed :-)  It now prints correctly.
+// 02.15.01     RTW - Sep 10, 2020  - Code cleanup:
 //                                      - Rewrote ResolveSupernova to match Pfahl, Rappaport, Podsiadlowski 2002, and to allow for vector addition of system and component velocities
 //                                      - Changed meaning of Supernova_State (see Docs)
 //                                      - PostSN parameters have been removed
 //                                      - SN phi has been redefined
 
-const std::string VERSION_STRING = "02.14.01";
+const std::string VERSION_STRING = "02.15.01";
 
 # endif // __changelog_h__
