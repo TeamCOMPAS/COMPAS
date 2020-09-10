@@ -65,6 +65,7 @@ public:
 
     // object identifiers - all classes have these
     OBJECT_ID                   ObjectId() const                                                                            { return m_ObjectId; }
+    OBJECT_ID                   StarObjectId() const                                                                        { return m_ObjectId; }
     OBJECT_TYPE                 ObjectType() const                                                                          { return m_ObjectType; }
     STELLAR_TYPE                InitialStellarType() const                                                                  { return m_Star->InitialStellarType(); }
     STELLAR_TYPE                StellarType() const                                                                         { return m_Star->StellarType(); }
@@ -79,7 +80,7 @@ public:
     double                      CalculateDynamicalTimescale() const                                                         { return m_Star->CalculateDynamicalTimescale(); }
     double                      CalculateNuclearTimescale() const                                                           { return m_Star->CalculateNuclearTimescale(); }
     double                      CalculateRadialExpansionTimescale() const                                                   { return m_Star->CalculateRadialExpansionTimescale(); }
-    double          CalculateThermalTimescale() const                                                                       { return m_Star->CalculateThermalTimescale(); }
+    double                      CalculateThermalTimescale() const                                                           { return m_Star->CalculateThermalTimescale(); }
     double                      COCoreMass() const                                                                          { return m_Star->COCoreMass(); }
     double                      CoreMass() const                                                                            { return m_Star->CoreMass(); }
     bool                        ExperiencedCCSN() const                                                                     { return m_Star->ExperiencedCCSN(); }
@@ -180,7 +181,7 @@ public:
 
     MT_CASE         DetermineMassTransferCase()                                                                 { return m_Star->DetermineMassTransferCase(); }
 
-    void            Evolve(const int p_StepNum);
+    void            Evolve(const long int p_Id);
 
     double          EvolveOneTimestep(const double p_Dt);
 
@@ -243,6 +244,7 @@ private:
 
     OBJECT_ID   m_ObjectId;                                                                                     // instantiated object's unique object id
     OBJECT_TYPE m_ObjectType;                                                                                   // instantiated object's object type
+    long int    m_Id;                                                                                           // Id used to name output files - uses p_Id as passed (usually the step number of multiple single stars being produced)
 
     BaseStar   *m_Star;                                                                                         // pointer to current star
     BaseStar   *m_SaveStar;                                                                                     // pointer to saved star

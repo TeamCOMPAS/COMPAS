@@ -81,3 +81,27 @@ bool BinaryStar::RevertState() {
 
     return result;
 }
+
+
+/*
+ * Print BSE Switch Log record
+ * 
+ * Called from main() when SIGUSR1 received - raised by Star::SwitchTo() to indicate a stellar type switch.
+ * Here we use the switch parameters stored in the LOGGING service singleton by Star:SwitchTo() to determine
+ * whether it is the primary or the secondary switching, then call BinaryStar::PrintSwitchLog() with the
+ * appropriate parameters to print the log file record.
+ * 
+ * BinaryStar::PrintSwitchLog()
+ */
+void BinaryStar::PrintSwitchLog() { 
+    
+    OBJECT_ID primaryObjectId   = m_BinaryStar->Star1()->StarObjectId();
+    OBJECT_ID secondaryObjectId = m_BinaryStar->Star2()->StarObjectId();
+    OBJECT_ID objectIdSwitching = LOGGING->ObjectIdSwitching();
+
+         if (objectIdSwitching == primaryObjectId  ) m_BinaryStar->PrintSwitchLog(m_BinaryStar->Id(), true);    // primary
+    else if (objectIdSwitching == secondaryObjectId) m_BinaryStar->PrintSwitchLog(m_BinaryStar->Id(), false);   // secondary
+    else {                                                                                                      // otherwise...
+        SHOW_ERROR(ERROR::OUT_OF_BOUNDS, "Expected primary or secondary for BSE Switch Log");                   // announce error
+    }
+}

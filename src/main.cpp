@@ -8,6 +8,7 @@
 #include <fstream>
 #include <tuple>
 #include <vector>
+#include <csignal>
 
 #include "constants.h"
 #include "typedefs.h"
@@ -33,6 +34,68 @@ class BinaryStar;
 OBJECT_ID    ObjectId()    { return m_ObjectId; }
 OBJECT_TYPE  ObjectType()  { return OBJECT_TYPE::MAIN; }
 STELLAR_TYPE StellarType() { return STELLAR_TYPE::NONE; }
+
+
+// The following global variables support the BSE Switch Log file
+// Ideally, rather than be declared as globals, they would be in maybe the 
+// LOGGING service singleton, but the Log class knows nothing about the 
+// BinaryStar class...
+// (maybe we could put them in the new CONSTANTS service singleton if we 
+// implement it)
+
+BinaryStar* evolvingBinaryStar      = NULL;             // pointer to the currently evolving Binary Star
+bool        evolvingBinaryStarValid = false;            // flag to indicate whether the evolvingBinaryStar pointer is valid
+
+/*
+ * Signal handler
+ * 
+ * Only handles SIGUSR1; all other signals are left to the system to handle.
+ * 
+ * SIGUSR1 is a user generated signal - the system should not generate this signal,
+ * though it is possible to send the signal to a process via the Un*x kill command,
+ * or some other user-developed program that sends signals.  This code does some 
+ * rudimentary sanity checks, but it is possible that sending a SIGUSR1 signal to a
+ * running COMPAS process via the Un*x kill command, or otherwise, might cause a 
+ * spurious entry in the BSE Switch Log file - c'est la vie.
+ * 
+ * We use SIGUSR1 in the Star class to signal when a Star object switches stellar 
+ * type. We use a signal because the Star class knows nothing about binary stars, 
+ * so can't call a binary star function to log binary star variables to the BSE 
+ * Switch Log file. By raising a signal in the Star class and catching it here we 
+ * can call the appropriate binary star class function to write the binary star 
+ * variables to the log file.
+ * 
+ * The signal is raised in the Star::SwitchTo() function if OPTIONS->BSESwitchLog() 
+ * is true, so the signal will be received here for every stellar type switch of 
+ * every star.
+ * 
+ * We only process the signal here if the global variable evolvingBinaryStarValid 
+ * is true. The global variable evolvingBinaryStarValid is only set true after a 
+ * binary star has been constructed and is ready to evolve - so if the signal is 
+ * raised, it will be ignored for SSE switches, and it will be ignored for switches 
+ * inside the constructor of the binary star (and so its constituent stars).
+ * 
+ * This signal handler is installed in EvolveBinaryStars(), so it is installed only
+ * if we're evolving binaries - signals will be ignored (by our code - the system
+ * will still receive and handle them) if we're evolving single stars.
+ *
+ * 
+ *   PUT THESE IN LOG - IF LOGGING NOT ENABLED WE WON'T BE USING THEM ANYWAY...
+ * 
+ * 
+ * 
+ * void sigusr1Handler(int p_Sig)
+ * 
+ * @param   [IN]        p_Sig                   The signal intercepted
+ * 
+ */
+void sigHandler(int p_Sig) {   
+    if (p_Sig == SIGUSR1) {                                         // SIGUSR1?  Just silently ignore anything else...
+        if (evolvingBinaryStarValid && OPTIONS->BSESwitchLog()) {   // yes - do we have a valid binary star, and are we logging BSE switches?
+            evolvingBinaryStar->PrintSwitchLog();                   // yes - assume SIGUSR1 is a binary constituent star switching...
+        }
+    }
+}
 
 
 /*
@@ -396,7 +459,7 @@ std::tuple<int, int> EvolveSingleStars() {
 
     evolutionStatus = EVOLUTION_STATUS::CONTINUE;
 
-    int index  = 0;
+    long int index  = 0;
     Star* star = nullptr;
     while (evolutionStatus == EVOLUTION_STATUS::CONTINUE && index < nStars) {
 
@@ -472,6 +535,11 @@ std::tuple<int, int> EvolveSingleStars() {
         }
 
         if (!LOGGING->CloseStandardFile(LOGFILE::SSE_PARAMETERS)) {                                                             // close single star output file
+            SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                                                  // close failed - show warning
+            evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                        // this will cause problems later - stop evolution
+        }
+
+        if (!LOGGING->CloseStandardFile(LOGFILE::SSE_SWITCH_LOG)) {                                                             // close SSE switch log file if necessary
             SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                                                  // close failed - show warning
             evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                        // this will cause problems later - stop evolution
         }
@@ -1083,6 +1151,8 @@ std::tuple<bool, int, BSEGridParameters> ReadBSEGridRecord(std::ifstream &p_Grid
  */
 std::tuple<int, int> EvolveBinaryStars() {
 
+    signal(SIGUSR1, sigHandler);                                                                                            // install signal handler
+
     EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
 
     int nBinariesCreated = 0;                                                                                               // number of binaries actually created
@@ -1115,6 +1185,9 @@ std::tuple<int, int> EvolveBinaryStars() {
 
     BinaryStar *binary = nullptr;
     while (evolutionStatus == EVOLUTION_STATUS::CONTINUE && index < nBinaries) {
+
+        evolvingBinaryStar      = NULL;                                                                                     // unset global pointer to evolving binary (for BSE Switch Log)
+        evolvingBinaryStarValid = false;                                                                                    // indicate that the global pointer is not (yet) valid (for BSE Switch log)
 
         if (!OPTIONS->GridFilename().empty()) {                                                                             // have grid filename?
             if (grid.is_open()) {                                                                                           // yes - grid file open?
@@ -1150,6 +1223,9 @@ std::tuple<int, int> EvolveBinaryStars() {
 
         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                // still good?
 
+            evolvingBinaryStar      = binary;                                                                               // set global pointer to evolving binary (for BSE Switch Log)
+            evolvingBinaryStarValid = true;                                                                                 // indicate that the global pointer is now valid (for BSE Switch Log)
+
             EVOLUTION_STATUS binaryStatus = binary->Evolve();                                                               // evolve the binary
 
             // announce result of evolving the binary
@@ -1178,7 +1254,12 @@ std::tuple<int, int> EvolveBinaryStars() {
                 evolutionStatus = EVOLUTION_STATUS::AIS_EXPLORATORY;                                                        // ... and stop
             }
 
-            if (!LOGGING->CloseStandardFile(LOGFILE::BSE_DETAILED_OUTPUT)) {                                                // close detailed output file
+            if (!LOGGING->CloseStandardFile(LOGFILE::BSE_DETAILED_OUTPUT)) {                                                // close detailed output file if necessary
+                SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                                          // close failed - show warning
+                evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                // this will cause problems later - stop evolution
+            }
+
+            if (!LOGGING->CloseStandardFile(LOGFILE::BSE_SWITCH_LOG)) {                                                     // close BSE switch log file if necessary
                 SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                                          // close failed - show warning
                 evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                // this will cause problems later - stop evolution
             }

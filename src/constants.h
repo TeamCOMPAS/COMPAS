@@ -752,14 +752,6 @@ const COMPASUnorderedMap<ENVELOPE, std::string> ENVELOPE_LABEL = {
 };
 
 
-// Supernova Hydrogen content constants
-enum class HYDROGEN_CONTENT: int { RICH, POOR };
-const COMPASUnorderedMap<HYDROGEN_CONTENT, std::string> HYDROGEN_CONTENT_LABEL = {
-    { HYDROGEN_CONTENT::RICH, "RICH" },
-    { HYDROGEN_CONTENT::POOR, "POOR" }
-};
-
-
 // Kick magnitude distribution
 enum class KICK_MAGNITUDE_DISTRIBUTION: int { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL };
 const COMPASUnorderedMap<KICK_MAGNITUDE_DISTRIBUTION, std::string> KICK_MAGNITUDE_DISTRIBUTION_LABEL = {
@@ -1094,9 +1086,9 @@ enum class STELLAR_TYPE: int {                      // Hurley
     BLACK_HOLE,                                     //  14
     MASSLESS_REMNANT,                               //  15
     CHEMICALLY_HOMOGENEOUS,                         //  16  JR: this is here to preserve the Hurley type numbers, but note that Hurley type number progression doesn't necessarily indicate class inheritance
-    STAR,                                           //      JR: added this - star is created this way, then switches as required (down here so stellar types consistent with Hurley et al. 2000)
-    BINARY_STAR,                                    //      JR: added this - mainly for diagnostics
-    NONE                                            //      JR: added this - mainly for diagnostics
+    STAR,                                           //  17  JR: added this - star is created this way, then switches as required (down here so stellar types consistent with Hurley et al. 2000)
+    BINARY_STAR,                                    //  18  JR: added this - mainly for diagnostics
+    NONE                                            //  19  JR: added this - mainly for diagnostics
 };
 
 
@@ -1125,6 +1117,27 @@ const COMPASUnorderedMap<STELLAR_TYPE, std::string> STELLAR_TYPE_LABEL = {
     { STELLAR_TYPE::NONE,                                      "Not_a_Star!" }
 };
 
+// (convenience) initializer list for "evolvable" stellar types
+// i.e. not STAR, BINARY_STAR, or NONE
+const std::initializer_list<STELLAR_TYPE> EVOLVABLE_TYPES = {
+    STELLAR_TYPE::MS_LTE_07,
+    STELLAR_TYPE::MS_GT_07,
+    STELLAR_TYPE::HERTZSPRUNG_GAP,
+    STELLAR_TYPE::FIRST_GIANT_BRANCH,
+    STELLAR_TYPE::CORE_HELIUM_BURNING,
+    STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,
+    STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,
+    STELLAR_TYPE::NAKED_HELIUM_STAR_MS,
+    STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP,
+    STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH,
+    STELLAR_TYPE::HELIUM_WHITE_DWARF,
+    STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF,
+    STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF,
+    STELLAR_TYPE::NEUTRON_STAR,
+    STELLAR_TYPE::BLACK_HOLE,
+    STELLAR_TYPE::MASSLESS_REMNANT,
+    STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS
+};
 
 // (convenience) initializer list for MAIN SEQUENCE stars (does not include NAKED_HELIUM_STAR_MS)
 const std::initializer_list<STELLAR_TYPE> MAIN_SEQUENCE = {
@@ -1375,13 +1388,12 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     HE_CORE_MASS,                                    \
     HE_CORE_MASS_AT_COMMON_ENVELOPE,                 \
     HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,        \
-    HYDROGEN_POOR,                                   \
-    HYDROGEN_RICH,                                   \
     ID,                                              \
     INITIAL_STELLAR_TYPE,                            \
     INITIAL_STELLAR_TYPE_NAME,                       \
     IS_CCSN,                                         \
     IS_ECSN,                                         \
+    IS_HYDROGEN_POOR,                                \
     IS_PISN,                                         \
     IS_PPISN,                                        \
     IS_RLOF,                                         \
@@ -1516,13 +1528,12 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::HE_CORE_MASS,                                    "HE_CORE_MASS" },
     { STAR_PROPERTY::HE_CORE_MASS_AT_COMMON_ENVELOPE,                 "HE_CORE_MASS_AT_COMMON_ENVELOPE" },
     { STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,        "HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION" },
-    { STAR_PROPERTY::HYDROGEN_POOR,                                   "HYDROGEN_POOR" },
-    { STAR_PROPERTY::HYDROGEN_RICH,                                   "HYDROGEN_RICH" },
     { STAR_PROPERTY::ID,                                              "ID" },
     { STAR_PROPERTY::INITIAL_STELLAR_TYPE,                            "STELLAR_TYPE" },
     { STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                       "STELLAR_TYPE_NAME" },
     { STAR_PROPERTY::IS_CCSN,                                         "IS_CCSN" },
     { STAR_PROPERTY::IS_ECSN,                                         "IS_ECSN" },
+    { STAR_PROPERTY::IS_HYDROGEN_POOR,                                "IS_HYDROGEN_POOR" },
     { STAR_PROPERTY::IS_PISN,                                         "IS_PISN" },
     { STAR_PROPERTY::IS_PPISN,                                        "IS_PPISN" },
     { STAR_PROPERTY::IS_RLOF,                                         "IS_RLOF" },
@@ -1578,7 +1589,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::STELLAR_TYPE_NAME,                               "STELLAR_TYPE_NAME" },
     { STAR_PROPERTY::STELLAR_TYPE_PREV,                               "STELLAR_TYPE_PREV" },
     { STAR_PROPERTY::STELLAR_TYPE_PREV_NAME,                          "STELLAR_TYPE_PREV_NAME" },
-    { STAR_PROPERTY::SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER, "SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER" },
+    { STAR_PROPERTY::SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER,          "SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER" },
     { STAR_PROPERTY::SUPERNOVA_PHI,                                   "SUPERNOVA_PHI" },
     { STAR_PROPERTY::SUPERNOVA_THETA,                                 "SUPERNOVA_THETA" },
     { STAR_PROPERTY::TEMPERATURE,                                     "TEMPERATURE" },
@@ -1771,7 +1782,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::COMMON_ENVELOPE_ALPHA,                              "COMMON_ENVELOPE_ALPHA" },
     { BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE,                      "COMMON_ENVELOPE_AT_LEAST_ONCE" },
     { BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT,                        "COMMON_ENVELOPE_EVENT_COUNT" },
-    { BINARY_PROPERTY::DIMENSIONLESS_KICK_MAGNITUDE,                        "DIMENSIONLESS_KICK_MAGNITUDE" },
+    { BINARY_PROPERTY::DIMENSIONLESS_KICK_MAGNITUDE,                       "DIMENSIONLESS_KICK_MAGNITUDE" },
     { BINARY_PROPERTY::UNBOUND,                                            "UNBOUND" },
     { BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE,                        "DOUBLE_CORE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::DT,                                                 "DT" },
@@ -1959,7 +1970,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::CORE_MASS,                                         { TYPENAME::DOUBLE,         "Mass_Core",            "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::CORE_MASS_AT_COMMON_ENVELOPE,                      { TYPENAME::DOUBLE,         "Mass_Core@CE",         "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,             { TYPENAME::DOUBLE,         "Mass_Core@CO",         "Msol",             14, 6 }},
-    { ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE,                               { TYPENAME::DOUBLE,         "Drawn_Kick_Magnitude",  "kms^-1",           14, 6 }},
+    { ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE,                              { TYPENAME::DOUBLE,         "Drawn_Kick_Magnitude", "kms^-1",           14, 6 }},
     { ANY_STAR_PROPERTY::DT,                                                { TYPENAME::DOUBLE,         "dT",                   "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE,                               { TYPENAME::DOUBLE,         "Tau_Dynamical",        "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE_POST_COMMON_ENVELOPE,          { TYPENAME::DOUBLE,         "Tau_Dynamical>CE",     "Myr",              16, 8 }},
@@ -1978,18 +1989,17 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::HE_CORE_MASS,                                      { TYPENAME::DOUBLE,         "Mass_He_Core",         "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Mass_He_Core@CE",      "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,          { TYPENAME::DOUBLE,         "Mass_He_Core@CO",      "Msol",             14, 6 }},
-    { ANY_STAR_PROPERTY::HYDROGEN_POOR,                                     { TYPENAME::BOOL,           "Hydrogen_Poor",        "State",             0, 0 }},   // JR: todo: have left these as HRICH and HPOOR for backward compatibility
-    { ANY_STAR_PROPERTY::HYDROGEN_RICH,                                     { TYPENAME::BOOL,           "Hydrogen_Rich",        "State",             0, 0 }},   // JR: todo: have left these as HRICH and HPOOR for backward compatibility
     { ANY_STAR_PROPERTY::ID,                                                { TYPENAME::OBJECT_ID,      "ID",                   "-",                12, 1 }},
     { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE,                              { TYPENAME::STELLAR_TYPE,   "Stellar_Type@ZAMS",    "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                         { TYPENAME::STRING,         "Stellar_Type@ZAMS",    "-",                42, 1 }},
     { ANY_STAR_PROPERTY::IS_CCSN,                                           { TYPENAME::BOOL,           "CCSN",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_ECSN,                                           { TYPENAME::BOOL,           "ECSN",                 "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::IS_HYDROGEN_POOR,                                  { TYPENAME::BOOL,           "Is_Hydrogen_Poor",     "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_PISN,                                           { TYPENAME::BOOL,           "PISN",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_PPISN,                                          { TYPENAME::BOOL,           "PPISN",                "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_RLOF,                                           { TYPENAME::BOOL,           "RLOF",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_USSN,                                           { TYPENAME::BOOL,           "USSN",                 "State",             0, 0 }},
-    { ANY_STAR_PROPERTY::KICK_MAGNITUDE,                                     { TYPENAME::DOUBLE,         "Applied_Kick_Magnitude","kms^-1",           14, 6 }},
+    { ANY_STAR_PROPERTY::KICK_MAGNITUDE,                                    { TYPENAME::DOUBLE,         "Applied_Kick_Magnitude","kms^-1",          14, 6 }},
     { ANY_STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,                         { TYPENAME::DOUBLE,         "Lambda@CE",            "-",                14, 6 }},
     { ANY_STAR_PROPERTY::LAMBDA_DEWI,                                       { TYPENAME::DOUBLE,         "Dewi",                 "-",                14, 6 }},
     { ANY_STAR_PROPERTY::LAMBDA_FIXED,                                      { TYPENAME::DOUBLE,         "Lambda_Fixed",         "-",                14, 6 }},
@@ -2039,7 +2049,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::STELLAR_TYPE_NAME,                                 { TYPENAME::STRING,         "Stellar_Type",         "-",                42, 1 }},
     { ANY_STAR_PROPERTY::STELLAR_TYPE_PREV,                                 { TYPENAME::STELLAR_TYPE,   "Stellar_Type_Prev",    "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::STELLAR_TYPE_PREV_NAME,                            { TYPENAME::STRING,         "Stellar_Type_Prev",    "-",                42, 1 }},
-    { ANY_STAR_PROPERTY::SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER,   { TYPENAME::DOUBLE,         "SN_Kick_Magnitude_Random_Number", "-",     14, 6 }},
+    { ANY_STAR_PROPERTY::SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER,            { TYPENAME::DOUBLE,         "SN_Kick_Magnitude_Random_Number", "-",     14, 6 }},
     { ANY_STAR_PROPERTY::MEAN_ANOMALY,                                      { TYPENAME::DOUBLE,         "SN_Kick_Mean_Anomaly", "-",                14, 6 }},
     { ANY_STAR_PROPERTY::SUPERNOVA_PHI,                                     { TYPENAME::DOUBLE,         "SN_Kick_Phi",          "-",                14, 6 }},
     { ANY_STAR_PROPERTY::SUPERNOVA_THETA,                                   { TYPENAME::DOUBLE,         "SN_Kick_Theta",        "-",                14, 6 }},
@@ -2078,7 +2088,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::COMMON_ENVELOPE_ALPHA,                               { TYPENAME::DOUBLE,         "CE_Alpha",             "-",                14, 6 }},
     { BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE,                       { TYPENAME::BOOL,           "CEE",                  "Event",             0, 0 }},
     { BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT,                         { TYPENAME::UINT,           "CE_Event_Count",       "Count",             6, 1 }},
-    { BINARY_PROPERTY::DIMENSIONLESS_KICK_MAGNITUDE,                         { TYPENAME::DOUBLE,         "Kick_Magnitude(uK)",    "-",                14, 6 }},
+    { BINARY_PROPERTY::DIMENSIONLESS_KICK_MAGNITUDE,                        { TYPENAME::DOUBLE,         "Kick_Magnitude(uK)",   "-",                14, 6 }},
     { BINARY_PROPERTY::UNBOUND,                                             { TYPENAME::BOOL,           "Unbound>SN",           "State",             0, 0 }},
     { BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE,                         { TYPENAME::BOOL,           "Double_Core_CE",       "Event",             0, 0 }},
     { BINARY_PROPERTY::DT,                                                  { TYPENAME::DOUBLE,         "dT",                   "Myr",              16, 8 }},
@@ -2193,7 +2203,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_NS,            { TYPENAME::DOUBLE,          "Sigma_Kick_CCSN_NS",   "kms^-1",           14, 6 }},
     { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_ECSN,           { TYPENAME::DOUBLE,          "Sigma_Kick_ECSN",      "kms^-1",           14, 6 }},
     { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_USSN,           { TYPENAME::DOUBLE,          "Sigma_Kick_USSN",      "kms^-1",           14, 6 }},
-    { PROGRAM_OPTION::RANDOM_SEED,                                         { TYPENAME::ULONGINT,        "SEED (ProgramOption)", "-",                12, 1 }}
+    { PROGRAM_OPTION::RANDOM_SEED,                                          { TYPENAME::ULONGINT,        "SEED (ProgramOption)", "-",                12, 1 }}
 };
 
 
@@ -2218,6 +2228,41 @@ const ANY_PROPERTY_VECTOR SSE_PARAMETERS_REC = {
     STAR_PROPERTY::HE_CORE_MASS,
     STAR_PROPERTY::MDOT,
     STAR_PROPERTY::TIMESCALE_MS
+};
+
+
+// SSE_SWITCH_LOG
+//
+// Default record definition for the SSE Switch Log logfile
+//
+const ANY_PROPERTY_VECTOR SSE_SWITCH_LOG_REC = {
+    STAR_PROPERTY::RANDOM_SEED,
+    STAR_PROPERTY::TIME
+};
+
+
+// SSE_SUPERNOVA_REC
+//
+// Default record definition for the SSE Supernova logfile
+//
+const ANY_PROPERTY_VECTOR SSE_SUPERNOVA_REC = {
+    STAR_PROPERTY::RANDOM_SEED,
+    STAR_PROPERTY::DRAWN_KICK_MAGNITUDE,
+    STAR_PROPERTY::KICK_MAGNITUDE,
+    STAR_PROPERTY::FALLBACK_FRACTION,
+    STAR_PROPERTY::TRUE_ANOMALY,				
+    STAR_PROPERTY::SUPERNOVA_THETA,
+    STAR_PROPERTY::SUPERNOVA_PHI,
+    STAR_PROPERTY::SN_TYPE,
+    STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,
+    STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
+    STAR_PROPERTY::MASS,
+    STAR_PROPERTY::STELLAR_TYPE,
+    STAR_PROPERTY::STELLAR_TYPE_PREV,
+    STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
+    STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
+    STAR_PROPERTY::TIME,
+    STAR_PROPERTY::IS_HYDROGEN_POOR
 };
 
 
@@ -2297,7 +2342,7 @@ const ANY_PROPERTY_VECTOR BSE_RLOF_PARAMETERS_REC = {
     STAR_2_PROPERTY::ZETA_SOBERMAN,
     STAR_2_PROPERTY::ZETA_SOBERMAN_HE,
     STAR_2_PROPERTY::ZETA_HURLEY,
-    STAR_2_PROPERTY::ZETA_HURLEY_HE,
+    STAR_2_PROPERTY::ZETA_HURLEY_HE
 };
 
 
@@ -2319,7 +2364,7 @@ const ANY_PROPERTY_VECTOR BSE_DOUBLE_COMPACT_OBJECTS_REC = {
     STAR_2_PROPERTY::MASS_TRANSFER_CASE_INITIAL, 
     BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME, 
     STAR_1_PROPERTY::RECYCLED_NEUTRON_STAR,  
-    STAR_2_PROPERTY::RECYCLED_NEUTRON_STAR,  
+    STAR_2_PROPERTY::RECYCLED_NEUTRON_STAR  
 };
 
 
@@ -2480,8 +2525,7 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     SUPERNOVA_PROPERTY::SPEED,
     COMPANION_PROPERTY::SPEED,
     BINARY_PROPERTY::SYSTEMIC_SPEED,
-    SUPERNOVA_PROPERTY::HYDROGEN_RICH,
-    SUPERNOVA_PROPERTY::HYDROGEN_POOR
+    SUPERNOVA_PROPERTY::IS_HYDROGEN_POOR,
 };
 
 
@@ -2566,6 +2610,16 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
 };
 
 
+// BSE_SWITCH_LOG
+//
+// Default record definition for the BSE Switch Log logfile
+//
+const ANY_PROPERTY_VECTOR BSE_SWITCH_LOG_REC = {
+    BINARY_PROPERTY::RANDOM_SEED,
+    BINARY_PROPERTY::TIME
+};
+
+
 // enum class LOGFILE
 // Symbolic names for logfiles
 enum class LOGFILE: int {
@@ -2573,6 +2627,8 @@ enum class LOGFILE: int {
     DEBUG_LOG,
     ERROR_LOG,
     SSE_PARAMETERS,
+    SSE_SWITCH_LOG,
+    SSE_SUPERNOVA,
     BSE_SYSTEM_PARAMETERS,
     BSE_DOUBLE_COMPACT_OBJECTS,
     BSE_SUPERNOVAE,
@@ -2580,7 +2636,8 @@ enum class LOGFILE: int {
     BSE_RLOF_PARAMETERS,
     BSE_BE_BINARIES,
     BSE_PULSAR_EVOLUTION,
-    BSE_DETAILED_OUTPUT
+    BSE_DETAILED_OUTPUT,
+    BSE_SWITCH_LOG
 };
 
 
@@ -2598,6 +2655,8 @@ const std::map<LOGFILE, LOGFILE_DESCRIPTOR_T> LOGFILE_DESCRIPTOR = {
     { LOGFILE::DEBUG_LOG,                  { "Debug_Log",                  {},                             "",                "",                    LOGFILE_TYPE::NONE }},
     { LOGFILE::ERROR_LOG,                  { "Error_Log",                  {},                             "",                "",                    LOGFILE_TYPE::NONE }},
     { LOGFILE::SSE_PARAMETERS,             { "SSE_Parameters",             SSE_PARAMETERS_REC,             "SSE_PARMS",       "SSE_PARMS_REC",       LOGFILE_TYPE::STELLAR }},
+    { LOGFILE::SSE_SWITCH_LOG,             { "SSE_Switch_Log",             SSE_SWITCH_LOG_REC,             "SSE_SWITCH_LOG",  "SSE_SWITCH_REC",      LOGFILE_TYPE::STELLAR }},
+    { LOGFILE::SSE_SUPERNOVA,              { "SSE_Supernova",              SSE_SUPERNOVA_REC,              "SSE_SN",          "SSE_SN_REC",          LOGFILE_TYPE::STELLAR }},
     { LOGFILE::BSE_SYSTEM_PARAMETERS,      { "BSE_System_Parameters",      BSE_SYSTEM_PARAMETERS_REC,      "BSE_SYSPARMS",    "BSE_SYSPARMS_REC",    LOGFILE_TYPE::BINARY }},
     { LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, { "BSE_Double_Compact_Objects", BSE_DOUBLE_COMPACT_OBJECTS_REC, "BSE_DCO",         "BSE_DCO_REC",         LOGFILE_TYPE::BINARY }},
     { LOGFILE::BSE_SUPERNOVAE,             { "BSE_Supernovae",             BSE_SUPERNOVAE_REC,             "BSE_SNE",         "BSE_SNE_REC",         LOGFILE_TYPE::BINARY }},
@@ -2605,7 +2664,8 @@ const std::map<LOGFILE, LOGFILE_DESCRIPTOR_T> LOGFILE_DESCRIPTOR = {
     { LOGFILE::BSE_RLOF_PARAMETERS,        { "BSE_RLOF",                   BSE_RLOF_PARAMETERS_REC,        "BSE_RLOF",        "BSE_RLOF_REC",        LOGFILE_TYPE::BINARY }},
     { LOGFILE::BSE_BE_BINARIES,            { "BSE_BE_Binaries",            BSE_BE_BINARIES_REC,            "BSE_BE_BINARIES", "BSE_BE_BINARIES_REC", LOGFILE_TYPE::BINARY }},
     { LOGFILE::BSE_PULSAR_EVOLUTION,       { "BSE_Pulsar_Evolution",       BSE_PULSAR_EVOLUTION_REC,       "BSE_PULSARS",     "BSE_PULSARS_REC",     LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_DETAILED_OUTPUT,        { "BSE_Detailed_Output",        BSE_DETAILED_OUTPUT_REC,        "BSE_DETAILED",    "BSE_DETAILED_REC",    LOGFILE_TYPE::BINARY }}
+    { LOGFILE::BSE_DETAILED_OUTPUT,        { "BSE_Detailed_Output",        BSE_DETAILED_OUTPUT_REC,        "BSE_DETAILED",    "BSE_DETAILED_REC",    LOGFILE_TYPE::BINARY }},
+    { LOGFILE::BSE_SWITCH_LOG,             { "BSE_Switch_Log",             BSE_SWITCH_LOG_REC,             "BSE_SWITCH_LOG",  "BSE_SWITCH_REC",      LOGFILE_TYPE::BINARY }}
 };
 
 
