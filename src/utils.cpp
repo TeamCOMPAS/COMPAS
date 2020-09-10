@@ -7,7 +7,6 @@
 #include "Rand.h"
 #include "changelog.h"
 
-
 /*
  * utility functions that don't belong in any class
  *
@@ -407,9 +406,9 @@ namespace utils {
         }
         else {
             double powerPlus1     = p_Power + 1.0;
-            double min_powerPlus1 = pow(p_Xmin, powerPlus1);
+            double min_powerPlus1 = utils::POW(p_Xmin, powerPlus1);
 
-            result = pow((rand * (pow(p_Xmax, powerPlus1) - min_powerPlus1) + min_powerPlus1), 1.0 / powerPlus1);
+            result = utils::POW((rand * (utils::POW(p_Xmax, powerPlus1) - min_powerPlus1) + min_powerPlus1), 1.0 / powerPlus1);
         }
 
         return result;
@@ -432,7 +431,7 @@ namespace utils {
         double a_cubed_SI_top    = G * ((p_Mass1 * MSOL_TO_KG) + (p_Mass2 * MSOL_TO_KG)) * p_Period * p_Period * SECONDS_IN_DAY * SECONDS_IN_DAY;
         double a_cubed_SI_bottom = 4.0 * M_PI * M_PI;
         double a_cubed_SI        = a_cubed_SI_top / a_cubed_SI_bottom;
-        double a_SI              = pow(a_cubed_SI, 1.0 / 3.0);
+        double a_SI              = utils::POW(a_cubed_SI, 1.0 / 3.0);
 
         return a_SI / AU;
     }
@@ -441,7 +440,7 @@ namespace utils {
     /*
      * Calculate x^y where x is double and y is an integer
      *
-     * faster than pow() for integer exponent
+     * faster than utils::POW() for integer exponent
      *
      *
      * double intPow(const double p_Base, const int p_Exponent)
@@ -557,4 +556,117 @@ namespace utils {
         return std::make_tuple(error, E, nu);
     }
 
+    /*
+     * Custom Caller/Callee reporting for repeated calls to "utils::POW(a,b)" with the same arguments
+     */
+    bool isprofiling=false;
+    double _uamin=__DBL_MAX__;
+    double _uamax=-__DBL_MAX__;
+    double _ubmin=__DBL_MAX__;
+    double _ubmax=-__DBL_MAX__;
+    int ucount=0;
+    std::unordered_map<std::string, int> umap;
+    void setProfiling(bool yesno) {
+        isprofiling = yesno;
+    }
+    bool checkDuplicatesLessThan10(std::string &thisone,int count) {
+	bool b=false;
+        if (count>=5) {
+            //std::cout << " More than 9"<<std::endl;
+            for (int i=0;i<count;i++) {
+                b = umap[thisone]==count;
+            }
+        }
+	return b;
+    }
+    bool checkDuplicates10_100(std::string &thisone,int count) {
+	bool b=false;
+        for (int i=0;i<10;i++) {
+            b = umap[thisone]==count;
+        }
+	return b;
+    }
+    bool checkDuplicates100_500(std::string &thisone,int count) {
+	bool b=false;
+        for (int i=0;i<20;i++) {
+            b = umap[thisone]==count;
+        }
+	return b;
+    }
+    bool checkDuplicates500_1000(std::string &thisone,int count) {
+	bool b=false;
+        for (int i=0;i<100;i++) {
+            b = umap[thisone]==count;
+        }
+	return b;
+    }
+    bool checkDuplicates1000_5000(std::string &thisone,int count) {
+	bool b=false;
+        for (int i=0;i<200;i++) {
+            b = umap[thisone]==count;
+        }
+	return b;
+    }
+    bool checkDuplicates5000_10000(std::string &thisone,int count) {
+	bool b=false;
+        for (int i=0;i<1000;i++) {
+            b = umap[thisone]==count;
+        }
+	return b;
+    }
+    bool checkDuplicatesMoreThan10000(std::string &thisone,int count) {
+	bool b=false;
+        for (int i=0;i<2000;i++) {
+            b = umap[thisone]==count;
+        }
+	return b;
+    }
+    bool checkDuplicateCount(std::string &thisone,int count) {        
+        if (count>1 && count<10) return checkDuplicatesLessThan10(thisone, count);
+        else if (count <100) return checkDuplicates10_100(thisone, count);
+        else if (count <500) return checkDuplicates100_500(thisone, count);
+        else if (count <1000) return checkDuplicates500_1000(thisone, count);
+        else if (count <5000) return checkDuplicates1000_5000(thisone, count);
+        else if (count <10000) return checkDuplicates5000_10000(thisone, count);
+        else return checkDuplicatesMoreThan10000(thisone, count);
+	return false;
+    }
+    double POW(double a, double b) {
+	    if (isprofiling) {
+            _uamin = std::min(a,_uamin);
+            _uamax = std::max(a,_uamax);
+            _ubmin = std::min(b,_ubmin);
+            _ubmax = std::max(b,_ubmax);
+            ucount++;
+        
+            std::string thisone= "POW"+std::to_string(a)+","+std::to_string(b);
+            auto index=umap.find(thisone);
+            if (index==umap.end()) {
+                umap[thisone] = 1;
+            } else {
+                int count = umap[thisone]++;
+                checkDuplicateCount(thisone, count);
+            }
+	    }
+        return pow(a,b);
+    }
+
+    void finalisePOW() {
+        std::cout << "===" <<ucount<<std::endl;
+        std::cout << "===amin " <<_uamin<<std::endl;
+        std::cout << "===amax " <<_uamax<<std::endl;
+        std::cout << "===bmin " <<_ubmin<<std::endl;
+        std::cout << "===bmax " <<_ubmax<<std::endl;
+        std::unordered_map<std::string, int>::iterator it = umap.begin();
+        while (it != umap.end())
+        {
+            // Accessing KEY from element pointed by it.
+            std::string word = it->first;
+            // Accessing VALUE from element pointed by it.
+            int count = it->second;
+            std::cout << word << "," << count << std::endl;
+            // Increment the Iterator to point to next entry
+            it++;
+        }
+    }
 }
