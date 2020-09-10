@@ -19,8 +19,8 @@ struct RotationalVelocityParams {                           // Structure contain
 };
 
 
-// KickVelocityParams struct for gsl root solver
-struct KickVelocityParams {
+// KickMagnitudeParams struct for gsl root solver
+struct KickMagnitudeParams {
     double y;       // Value of CDF, should be drawn as U(0,1)
     double sigma;   // sigma for kick distribution
 };
@@ -30,9 +30,9 @@ struct KickVelocityParams {
 
 typedef struct KickParameters {
     bool   supplied;
-    bool   useVelocityRandom;
-    double velocityRandom;
-    double velocity;
+    bool   useMagnitudeRandom;
+    double magnitudeRandom;
+    double magnitude;
     double theta;                   // only used for BSE
     double phi;                     // only used for BSE
     double meanAnomaly;             // only used for BSE
@@ -83,14 +83,14 @@ typedef struct SupernovaDetails {                           // Holds attributes,
     
     double           coreMassAtCOFormation;                 // Core mass of this star when it formed a compact object
     double           COCoreMassAtCOFormation;               // Carbon Oxygen core mass of the star when it goes supernova and forms a compact object
-    double           drawnKickVelocity;                     // Kick velocity the system received during the supernova (km s^-1)
+    double           drawnKickMagnitude;                     // Kick magnitude the system received during the supernova (km s^-1)
     double           eccentricAnomaly;                      // Eccentric anomaly at instataneous time of the SN
     SNEventsT        events;                                // Record of supernova events undergone by the star
     double           fallbackFraction;                      // Fallback fraction during a supernova event
     double           HeCoreMassAtCOFormation;               // Helium core mass of the star when it goes supernova and forms a compact objec
     bool             isHydrogenPoor;                        // Flag to indicate if exploding star is hydrogen-poor. We consider an H-rich star all SN progenitors that have an H envelope, otherwise H-poor
-    double           kickVelocity;                          // Kick velocity the system received during the supernova (km s^-1)
-    double           kickVelocityRandom;                    // Random number U(0,1) for choosing the supernova kick velocity magnitude - drawn once at star creation
+    double           kickMagnitude;                          // Kick magnitude the system received during the supernova (km s^-1)
+    double           kickMagnitudeRandom;                    // Random number U(0,1) for choosing the supernova kick magnitude magnitude - drawn once at star creation
     double           meanAnomaly;                           // Mean anomaly at instantaneous time of the SN - uniform in [0, 2pi]
     double           phi;                                   // Angle between 'x' and 'y', both in the orbital plane of supernovae vector (rad)
     SN_STATE         supernovaState;                        // indicates which star (or stars) are undergoing / hove undergone a supernova event

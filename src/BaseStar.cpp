@@ -181,8 +181,8 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_SupernovaDetails.HeCoreMassAtCOFormation = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_SupernovaDetails.totalMassAtCOFormation  = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_SupernovaDetails.drawnKickVelocity       = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_SupernovaDetails.kickVelocity            = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SupernovaDetails.drawnKickMagnitude       = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SupernovaDetails.kickMagnitude            = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_SupernovaDetails.isHydrogenPoor          = false;
     m_SupernovaDetails.fallbackFraction        = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -193,13 +193,13 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_SupernovaDetails.supernovaState          = SN_STATE::NONE;
 
     if (p_KickParameters.supplied) {
-        m_SupernovaDetails.kickVelocityRandom  = p_KickParameters.useVelocityRandom ? p_KickParameters.velocityRandom : DEFAULT_INITIAL_DOUBLE_VALUE;
+        m_SupernovaDetails.kickMagnitudeRandom  = p_KickParameters.useMagnitudeRandom ? p_KickParameters.magnitudeRandom : DEFAULT_INITIAL_DOUBLE_VALUE;
         m_SupernovaDetails.theta               = p_KickParameters.theta;
         m_SupernovaDetails.phi                 = p_KickParameters.phi;
         m_SupernovaDetails.meanAnomaly         = p_KickParameters.meanAnomaly;
     }
     else {
-        m_SupernovaDetails.kickVelocityRandom  = RAND->Random();
+        m_SupernovaDetails.kickMagnitudeRandom  = RAND->Random();
         std::tie(m_SupernovaDetails.theta, m_SupernovaDetails.phi) = DrawKickDirection();
         m_SupernovaDetails.meanAnomaly         = RAND->Random(0.0, _2_PI);
     }
@@ -295,7 +295,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_COCoreMassAtCOFormation();                           break;
             case ANY_STAR_PROPERTY::CORE_MASS:                                          value = CoreMass();                                             break;
             case ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION:              value = SN_CoreMassAtCOFormation();                             break;
-            case ANY_STAR_PROPERTY::DRAWN_KICK_VELOCITY:                                value = SN_DrawnKickVelocity();                                 break;
+            case ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE:                                value = SN_DrawnKickMagnitude();                                 break;
             case ANY_STAR_PROPERTY::DT:                                                 value = Dt();                                                   break;
             case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE:                                value = CalculateDynamicalTimescale();                          break;
             case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
@@ -319,7 +319,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::IS_PISN:                                            value = IsPISN();                                               break;
             case ANY_STAR_PROPERTY::IS_PPISN:                                           value = IsPPISN();                                              break;
             case ANY_STAR_PROPERTY::IS_USSN:                                            value = IsUSSN();                                               break;
-            case ANY_STAR_PROPERTY::KICK_VELOCITY:                                      value = SN_KickVelocity();                                      break;
+            case ANY_STAR_PROPERTY::KICK_MAGNITUDE:                                      value = SN_KickMagnitude();                                      break;
             case ANY_STAR_PROPERTY::LAMBDA_DEWI:                                        value = Lambda_Dewi();                                          break;
             case ANY_STAR_PROPERTY::LAMBDA_FIXED:                                       value = Lambda_Fixed();                                         break;
             case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW:                                     value = Lambda_Kruckow();                                       break;
@@ -357,7 +357,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::STELLAR_TYPE_NAME:                                  value = STELLAR_TYPE_LABEL.at(StellarType());                   break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE_PREV:                                  value = StellarTypePrev();                                      break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE_PREV_NAME:                             value = STELLAR_TYPE_LABEL.at(StellarTypePrev());               break;
-            case ANY_STAR_PROPERTY::SUPERNOVA_KICK_VELOCITY_MAGNITUDE_RANDOM_NUMBER:    value = SN_KickVelocityRandom();                                break;
+            case ANY_STAR_PROPERTY::SUPERNOVA_KICK_MAGNITUDE_MAGNITUDE_RANDOM_NUMBER:    value = SN_KickMagnitudeRandom();                                break;
             case ANY_STAR_PROPERTY::SUPERNOVA_PHI:                                      value = SN_Phi();                                               break;
             case ANY_STAR_PROPERTY::SUPERNOVA_THETA:                                    value = SN_Theta();                                             break;
             case ANY_STAR_PROPERTY::TEMPERATURE:                                        value = Temperature()*TSOL;                                     break;
@@ -2298,10 +2298,10 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
  *
  *  double ApplyBlackHoleKicks(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass)
  *
- * @param   [IN]    p_vK                        Kick velocity that would otherwise be applied to a neutron star
+ * @param   [IN]    p_vK                        Kick magnitude that would otherwise be applied to a neutron star
  * @param   [IN]    p_FallbackFraction          Fraction of mass that falls back onto the proto-compact object
  * @param   [IN]    p_BlackHoleMass             Mass of remnant (in Msol)
- * @return                                      Kick velocity
+ * @return                                      Kick magnitude
  */
  double BaseStar::ApplyBlackHoleKicks(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass) {
 
@@ -2318,7 +2318,7 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
             break;
 
         case BLACK_HOLE_KICK_OPTION::ZERO:
-            vK = 0.0;                                               // BH Kicks are set to zero regardless of BH mass or kick velocity drawn.
+            vK = 0.0;                                               // BH Kicks are set to zero regardless of BH mass or kick magnitude drawn.
             break;
 
         case BLACK_HOLE_KICK_OPTION::FALLBACK:                      // Using the so-called 'fallback' prescription for BH kicks
@@ -2336,44 +2336,44 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
 
 
 /*
- * Draw a kick velocity in km s^-1 from a Maxwellian distribution of the form:
+ * Draw a kick magnitude in km s^-1 from a Maxwellian distribution of the form:
  *
  *
- * double DrawKickVelocityDistributionMaxwell(const double p_Sigma, const double p_Rand)
+ * double DrawKickMagnitudeDistributionMaxwell(const double p_Sigma, const double p_Rand)
  *
  * @param   [IN]    p_Sigma                     Distribution scale parameter - affects the spread of the distribution
  * @param   [IN]    p_Rand                      Random number between 0 and 1 used for drawing from the inverse CDF of the Maxwellian
- * @return                                      Drawn kick velocity (km s^-1)
+ * @return                                      Drawn kick magnitude (km s^-1)
  */
-double BaseStar::DrawKickVelocityDistributionMaxwell(const double p_Sigma, const double p_Rand) {
+double BaseStar::DrawKickMagnitudeDistributionMaxwell(const double p_Sigma, const double p_Rand) {
     return p_Sigma*sqrt(gsl_cdf_chisq_Pinv(p_Rand, 3)); // a Maxwellian is a chi distribution with three degrees of freedom
 }
 
 
 /*
- * Draw a kick velocity in km s^-1 from a uniform distribution between 0 and parameter p_MaxVK
+ * Draw a kick magnitude in km s^-1 from a uniform distribution between 0 and parameter p_MaxVK
  *
  *
- * double DrawKickVelocityDistributionFlat(const double p_MaxVK, const double p_Rand)
+ * double DrawKickMagnitudeDistributionFlat(const double p_MaxVK, const double p_Rand)
  *
- * @param   [IN]    p_MaxVK                     Maximum kick velocity in km s^-1 to draw
+ * @param   [IN]    p_MaxVK                     Maximum kick magnitude in km s^-1 to draw
  * @param   [IN]    p_Rand                      Random number between 0 and 1 used for drawing from the distribution
- * @return                                      Drawn kick velocity (km s^-1)
+ * @return                                      Drawn kick magnitude (km s^-1)
  */
-double BaseStar::DrawKickVelocityDistributionFlat(const double p_MaxVK, const double p_Rand) {
+double BaseStar::DrawKickMagnitudeDistributionFlat(const double p_MaxVK, const double p_Rand) {
     return p_Rand * p_MaxVK;
 }
 
 
 /*
- * Draw a kick velocity in km s^-1 per Bray & Eldridge 2016, 2018
+ * Draw a kick magnitude in km s^-1 per Bray & Eldridge 2016, 2018
  *
  * See:
  *    https://arxiv.org/abs/1605.09529
  *    https://arxiv.org/abs/1804.04414
  *
  *
- * double DrawKickVelocityBrayEldridge(const double p_EjectaMass,
+ * double DrawKickMagnitudeBrayEldridge(const double p_EjectaMass,
  *                                     const double p_RemnantMass,
  *                                     const double p_Alpha,
  *                                     const double p_Beta)
@@ -2382,9 +2382,9 @@ double BaseStar::DrawKickVelocityDistributionFlat(const double p_MaxVK, const do
  * @param   [IN]    p_RemnantMass               Mass of the remnant (Msol)
  * @param   [IN]    p_Alpha                     Fitting coefficient (see Bray & Eldridge 2016, 2018)
  * @param   [IN]    p_Beta                      Fitting coefficient (see Bray & Eldridge 2016, 2018)
- * @return                                      Drawn kick velocity (km s^-1)
+ * @return                                      Drawn kick magnitude (km s^-1)
  */
-double BaseStar::DrawKickVelocityBrayEldridge(const double p_EjectaMass,
+double BaseStar::DrawKickMagnitudeBrayEldridge(const double p_EjectaMass,
                                               const double p_RemnantMass,
                                               const double p_Alpha,
                                               const double p_Beta) {
@@ -2394,14 +2394,14 @@ double BaseStar::DrawKickVelocityBrayEldridge(const double p_EjectaMass,
 
 
 /*
- * Draw kick velocity per Muller et al. 2016 as presented in eq. B5 of Vigna-Gomez et al. 2018 (arXiv:1805.07974)
+ * Draw kick magnitude per Muller et al. 2016 as presented in eq. B5 of Vigna-Gomez et al. 2018 (arXiv:1805.07974)
  *
  * BHs do not get natal kicks
  *
  * double DrawRemnantKickMuller(const double p_COCoreMass)
  *
  * @param   [IN]    p_COCoreMass                Carbon Oxygen core mass of exploding star (Msol)
- * @return                                      Drawn kick velocity (km s^-1)
+ * @return                                      Drawn kick magnitude (km s^-1)
  */
 double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
 
@@ -2424,14 +2424,14 @@ double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
 }
 
 /*
- * Draw kick velocity per Mandel and Mueller, 2020
+ * Draw kick magnitude per Mandel and Mueller, 2020
  *
  * double DrawRemnantKickMuller(const double p_COCoreMass)
  * 
  * @param   [IN]    p_COCoreMass                Carbon Oxygen core mass of exploding star (Msol)
  * @param   [IN]    p_Rand                      Random number between 0 and 1 used for drawing from the distribution
  * @param   [IN]    p_RemnantMass               Mass of the remnant (Msol)
- * @return                                      Drawn kick velocity (km s^-1)
+ * @return                                      Drawn kick magnitude (km s^-1)
  */
 double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass, 
                                     const double p_Rand,
@@ -2455,10 +2455,10 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
 
 
 /*
- * Draw a kick velocity from the user-specified distribution
+ * Draw a kick magnitude from the user-specified distribution
  *
  *
- * double DrawSNKickVelocity(const double p_Sigma,
+ * double DrawSNKickMagnitude(const double p_Sigma,
  *                           const double p_COCoreMass,
  *                           const double p_Rand,
  *                           const double p_EjectaMass,
@@ -2469,104 +2469,104 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
  * @param   [IN]    p_Rand                      Random number between 0 and 1 used for drawing from the distribution
  * @param   [IN]    p_EjectaMass                Change in mass of the exploding star (i.e. mass of the ejecta) (Msol)
  * @param   [IN]    p_RemnantMass               Mass of the remnant (Msol)
- * @return                                      Drawn kick velocity (km s^-1)
+ * @return                                      Drawn kick magnitude (km s^-1)
  */
-double BaseStar::DrawSNKickVelocity(const double p_Sigma,
+double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
                                     const double p_COCoreMass,
                                     const double p_Rand,
                                     const double p_EjectaMass,
                                     const double p_RemnantMass) {
-	double kickVelocity;
+	double kickMagnitude;
 
-    switch (OPTIONS->KickVelocityDistribution()) {                                              // which distribution
+    switch (OPTIONS->KickMagnitudeDistribution()) {                                              // which distribution
 
-        case KICK_VELOCITY_DISTRIBUTION::MAXWELLIAN:
-            kickVelocity = DrawKickVelocityDistributionMaxwell(p_Sigma, p_Rand);                // MAXWELLIAN, MAXWELL
+        case KICK_MAGNITUDE_DISTRIBUTION::MAXWELLIAN:
+            kickMagnitude = DrawKickMagnitudeDistributionMaxwell(p_Sigma, p_Rand);                // MAXWELLIAN, MAXWELL
             break;
 
-        case KICK_VELOCITY_DISTRIBUTION::FLAT:                                                  // FLAT
-            kickVelocity = DrawKickVelocityDistributionFlat(OPTIONS->KickVelocityDistributionMaximum(), p_Rand);
+        case KICK_MAGNITUDE_DISTRIBUTION::FLAT:                                                  // FLAT
+            kickMagnitude = DrawKickMagnitudeDistributionFlat(OPTIONS->KickMagnitudeDistributionMaximum(), p_Rand);
             break;
 
-        case KICK_VELOCITY_DISTRIBUTION::ZERO:                                                  // ZERO
-            kickVelocity = 0.0;
+        case KICK_MAGNITUDE_DISTRIBUTION::ZERO:                                                  // ZERO
+            kickMagnitude = 0.0;
             break;
 
-        case KICK_VELOCITY_DISTRIBUTION::FIXED:                                                 // FIXED
-            kickVelocity = p_Sigma;
+        case KICK_MAGNITUDE_DISTRIBUTION::FIXED:                                                 // FIXED
+            kickMagnitude = p_Sigma;
             break;
 
-        case KICK_VELOCITY_DISTRIBUTION::BRAYELDRIDGE:                                          // BRAY ELDRIDGE
-            kickVelocity = DrawKickVelocityBrayEldridge(p_EjectaMass, p_RemnantMass, BRAY_ELDRIDGE_CONSTANT_VALUES.at(BRAY_ELDRIDGE_CONSTANT::ALPHA), BRAY_ELDRIDGE_CONSTANT_VALUES.at(BRAY_ELDRIDGE_CONSTANT::BETA));
+        case KICK_MAGNITUDE_DISTRIBUTION::BRAYELDRIDGE:                                          // BRAY ELDRIDGE
+            kickMagnitude = DrawKickMagnitudeBrayEldridge(p_EjectaMass, p_RemnantMass, BRAY_ELDRIDGE_CONSTANT_VALUES.at(BRAY_ELDRIDGE_CONSTANT::ALPHA), BRAY_ELDRIDGE_CONSTANT_VALUES.at(BRAY_ELDRIDGE_CONSTANT::BETA));
             break;
 
-        case KICK_VELOCITY_DISTRIBUTION::MULLER2016:                                            // MULLER2016
-            kickVelocity = DrawRemnantKickMuller(p_COCoreMass);
+        case KICK_MAGNITUDE_DISTRIBUTION::MULLER2016:                                            // MULLER2016
+            kickMagnitude = DrawRemnantKickMuller(p_COCoreMass);
             break;
 
-        case KICK_VELOCITY_DISTRIBUTION::MULLER2016MAXWELLIAN: {                                // MULLER2016-MAXWELLIAN
+        case KICK_MAGNITUDE_DISTRIBUTION::MULLER2016MAXWELLIAN: {                                // MULLER2016-MAXWELLIAN
 
             double mullerSigma = DrawRemnantKickMuller(p_COCoreMass) / sqrt(3.0);
 
-            kickVelocity = DrawKickVelocityDistributionMaxwell(mullerSigma, p_Rand);
+            kickMagnitude = DrawKickMagnitudeDistributionMaxwell(mullerSigma, p_Rand);
             } break;
 
-        case  KICK_VELOCITY_DISTRIBUTION::MULLERMANDEL:                                          // MULLERMANDEL
-            kickVelocity = DrawRemnantKickMullerMandel(p_COCoreMass, p_Rand, p_RemnantMass);
+        case  KICK_MAGNITUDE_DISTRIBUTION::MULLERMANDEL:                                          // MULLERMANDEL
+            kickMagnitude = DrawRemnantKickMullerMandel(p_COCoreMass, p_Rand, p_RemnantMass);
             break;
 
         default:                                                                                // unknown distribution
-            SHOW_WARN(ERROR::UNKNOWN_KICK_VELOCITY_DISTRIBUTION, "Using default: MAXWELL");     // show warning
-            kickVelocity = DrawKickVelocityDistributionMaxwell(p_Sigma, p_Rand);
+            SHOW_WARN(ERROR::UNKNOWN_KICK_MAGNITUDE_DISTRIBUTION, "Using default: MAXWELL");     // show warning
+            kickMagnitude = DrawKickMagnitudeDistributionMaxwell(p_Sigma, p_Rand);
     }
 
-    return kickVelocity / OPTIONS->KickScalingFactor();
+    return kickMagnitude / OPTIONS->KickScalingFactor();
 
 }
 
 
 /*
- * Calculate supernova kick velocity
- * Based on the current supernova event type and user-specified kick velocity distributions
+ * Calculate supernova kick magnitude
+ * Based on the current supernova event type and user-specified kick magnitude distributions
  *
  *
- * double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType)
+ * double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType)
  *
  * @param   [IN]    p_RemnantMass               The mass of the remnant (Msol)
  * @param   [IN]    p_EjectaMass                Change in mass of the exploding star (i.e. mass of the ejecta) (Msol)
  * @param   [IN]    p_StellarType		Expected remnant type
- * @return                                      Kick velocity
+ * @return                                      Kick magnitude
  */
-double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType) {
+double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType) {
     ERROR error = ERROR::NONE;
 	double vK;
 
     if (!m_SupernovaDetails.initialKickParameters.supplied ||                                       // user did not supply kick parameters, or
         (m_SupernovaDetails.initialKickParameters.supplied &&                                       // user did supply kick parameters but ...
-         m_SupernovaDetails.initialKickParameters.useVelocityRandom)) {                             // ... wants to draw velocity using supplied random number
+         m_SupernovaDetails.initialKickParameters.useMagnitudeRandom)) {                             // ... wants to draw magnitude using supplied random number
 
 
         double sigma;
         switch (utils::SNEventType(m_SupernovaDetails.events.current)) {                            // what type of supernova event happening now?
 
 		    case SN_EVENT::ECSN:                                                                    //  ECSN may have a separate kick prescription
-			    sigma = OPTIONS->KickVelocityDistributionSigmaForECSN();
+			    sigma = OPTIONS->KickMagnitudeDistributionSigmaForECSN();
                 break;
 
 		    case SN_EVENT::USSN:                                                                    // USSN may have a separate kick prescription
-			    sigma = OPTIONS->KickVelocityDistributionSigmaForUSSN();
+			    sigma = OPTIONS->KickMagnitudeDistributionSigmaForUSSN();
                 break;
 
-		    case SN_EVENT::CCSN:                                                                    // draw a random kick velocity from the user selected distribution - sigma based on whether compact object is a NS or BH
+		    case SN_EVENT::CCSN:                                                                    // draw a random kick magnitude from the user selected distribution - sigma based on whether compact object is a NS or BH
 
                 switch (p_StellarType) {                                                            // which stellar type?
 
                     case STELLAR_TYPE::NEUTRON_STAR:
-                        sigma = OPTIONS->KickVelocityDistributionSigmaCCSN_NS();
+                        sigma = OPTIONS->KickMagnitudeDistributionSigmaCCSN_NS();
                         break;
 
                     case STELLAR_TYPE::BLACK_HOLE:
-                        sigma = OPTIONS->KickVelocityDistributionSigmaCCSN_BH();
+                        sigma = OPTIONS->KickMagnitudeDistributionSigmaCCSN_BH();
                         break;
 
                     default:                                                                        // unknown stellar type - shouldn't happen
@@ -2589,22 +2589,22 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
 	    }
     
 	    if (error == ERROR::NONE) {                                                                 // check for errors
-                                                                                                    // no errors - draw kick velocity
-            vK = DrawSNKickVelocity(sigma, 
+                                                                                                    // no errors - draw kick magnitude
+            vK = DrawSNKickMagnitude(sigma, 
                                     m_SupernovaDetails.COCoreMassAtCOFormation, 
-                                    m_SupernovaDetails.kickVelocityRandom,
+                                    m_SupernovaDetails.kickMagnitudeRandom,
                                     p_EjectaMass, 
                                     p_RemnantMass);
         }
     }
-    else {                                                                                          // user supplied kick parameters and wants to use supplied kick velocity, so ...
-        vK = m_SupernovaDetails.initialKickParameters.velocity;                                     // ... use it 
+    else {                                                                                          // user supplied kick parameters and wants to use supplied kick magnitude, so ...
+        vK = m_SupernovaDetails.initialKickParameters.magnitude;                                     // ... use it 
     }
 
 
 	if (error == ERROR::NONE) {                                                                     // check for errors
 
-        m_SupernovaDetails.drawnKickVelocity = vK;                                                  // drawn kick velocity
+        m_SupernovaDetails.drawnKickMagnitude = vK;                                                  // drawn kick magnitude
 
         if (utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::CCSN) {              // core-collapse supernova event this timestep?
             vK = ApplyBlackHoleKicks(vK, m_SupernovaDetails.fallbackFraction, m_Mass);              // re-weight kicks by mass of remnant according to user specified black hole kicks option
@@ -2612,10 +2612,10 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
         else {                                                                                      // otherwise
             m_SupernovaDetails.fallbackFraction = 0.0;                                              // set fallback fraction to zero
         }
-        m_SupernovaDetails.kickVelocity = vK;                                                       // updated kick velocity
+        m_SupernovaDetails.kickMagnitude = vK;                                                       // updated kick magnitude
     }
     else {                                                                                          // error occurred
-        vK = 0.0;                                                                                   // set kick velocity to zero
+        vK = 0.0;                                                                                   // set kick magnitude to zero
         m_Error = error;                                                                            // set error value
         SHOW_WARN(m_Error);                                                                         // warn that an error occurred
     }
