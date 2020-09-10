@@ -202,7 +202,7 @@ void Options::InitialiseMemberVariables(void) {
 
     fixedRandomSeed                                                 = false;                                                                            // Whether to use a fixed random seed given by options.randomSeed (set to true if --random-seed is passed on command line)
     randomSeed                                                      = 0;                                                                                // Random seed to use
-
+    profiling                                                       = false;                                                                            // Whether to perform custom performance profiling tasks
 
     // Specify how long to evolve binaries for
     maxEvolutionTime                                                = 13700.0;                                                                          // Maximum evolution time in Myrs
@@ -656,6 +656,7 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("SSEswitchLog",                                                po::value<bool>(&SSEswitchLog)->default_value(SSEswitchLog)->implicit_value(true),                                                                          ("Print SSE switch log to file (default = " + std::string(SSEswitchLog ? "TRUE" : "FALSE") + ")").c_str())
 
 		    ("use-mass-loss",                                               po::value<bool>(&useMassLoss)->default_value(useMassLoss)->implicit_value(true),                                                                            ("Enable mass loss (default = " + std::string(useMassLoss ? "TRUE" : "FALSE") + ")").c_str())
+            ("profiling",                                                   po::value<bool>(&profiling)->default_value(profiling)->implicit_value(true),                                                                                ("Enable custom caller/callee profiling (default = " + std::string(profiling ? "TRUE" : "FALSE") + ")").c_str())
 
 			// numerical options - alphabetically grouped by type
 
