@@ -566,61 +566,76 @@ namespace utils {
     double _ubmax=-__DBL_MAX__;
     int ucount=0;
     std::unordered_map<std::string, int> umap;
+    
     void setProfiling(bool yesno) {
         isprofiling = yesno;
     }
+    
     bool checkDuplicatesLessThan10(std::string &thisone,int count) {
-	bool b=false;
+        bool b=false;
         if (count>=5) {
-            //std::cout << " More than 9"<<std::endl;
             for (int i=0;i<count;i++) {
                 b = umap[thisone]==count;
             }
         }
-	return b;
+        return b;
     }
+    
+    
     bool checkDuplicates10_100(std::string &thisone,int count) {
-	bool b=false;
+        bool b=false;
         for (int i=0;i<10;i++) {
             b = umap[thisone]==count;
         }
-	return b;
+        return b;
     }
+    
+    
     bool checkDuplicates100_500(std::string &thisone,int count) {
-	bool b=false;
+        bool b=false;
         for (int i=0;i<20;i++) {
             b = umap[thisone]==count;
         }
-	return b;
+        return b;
     }
+    
+    
     bool checkDuplicates500_1000(std::string &thisone,int count) {
-	bool b=false;
+        bool b=false;
         for (int i=0;i<100;i++) {
             b = umap[thisone]==count;
         }
-	return b;
+        return b;
     }
+    
+    
     bool checkDuplicates1000_5000(std::string &thisone,int count) {
-	bool b=false;
+        bool b=false;
         for (int i=0;i<200;i++) {
             b = umap[thisone]==count;
         }
-	return b;
+        return b;
     }
+    
+    
     bool checkDuplicates5000_10000(std::string &thisone,int count) {
-	bool b=false;
+        bool b=false;
         for (int i=0;i<1000;i++) {
             b = umap[thisone]==count;
         }
-	return b;
+        return b;
     }
+    
+    
     bool checkDuplicatesMoreThan10000(std::string &thisone,int count) {
-	bool b=false;
+        bool b=false;
         for (int i=0;i<2000;i++) {
             b = umap[thisone]==count;
         }
-	return b;
+        return b;
     }
+    
+    
     bool checkDuplicateCount(std::string &thisone,int count) {        
         if (count>1 && count<10) return checkDuplicatesLessThan10(thisone, count);
         else if (count <100) return checkDuplicates10_100(thisone, count);
@@ -629,8 +644,10 @@ namespace utils {
         else if (count <5000) return checkDuplicates1000_5000(thisone, count);
         else if (count <10000) return checkDuplicates5000_10000(thisone, count);
         else return checkDuplicatesMoreThan10000(thisone, count);
-	return false;
+        return false;
     }
+    
+    
     double POW(double a, double b) {
 	    if (isprofiling) {
             _uamin = std::min(a,_uamin);
@@ -643,7 +660,8 @@ namespace utils {
             auto index=umap.find(thisone);
             if (index==umap.end()) {
                 umap[thisone] = 1;
-            } else {
+            }
+            else {
                 int count = umap[thisone]++;
                 checkDuplicateCount(thisone, count);
             }
@@ -651,6 +669,7 @@ namespace utils {
         return pow(a,b);
     }
 
+    
     void finalisePOW() {
         std::cout << "===" <<ucount<<std::endl;
         std::cout << "===amin " <<_uamin<<std::endl;
@@ -660,13 +679,10 @@ namespace utils {
         std::unordered_map<std::string, int>::iterator it = umap.begin();
         while (it != umap.end())
         {
-            // Accessing KEY from element pointed by it.
-            std::string word = it->first;
-            // Accessing VALUE from element pointed by it.
-            int count = it->second;
+            std::string word = it->first;                    // accessing KEY from element pointed by it.
+            int count = it->second;                          // accessing VALUE from element pointed by it.
             std::cout << word << "," << count << std::endl;
-            // Increment the Iterator to point to next entry
-            it++;
+            it++;                                            // increment the Iterator to point to next entry
         }
     }
 }
