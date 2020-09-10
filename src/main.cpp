@@ -245,7 +245,7 @@ std::tuple<int, std::vector<std::string>> OpenSSEGridFile(std::ifstream &p_Grid,
  * Plus boolean flags (see definition of KickParameters in typedefs.h):
  * 
  *     supplied{1,2}          - true if kick values were supplied in the grid file
- *     useMagnitudeRandom{1,2} - true if the user supplied the kick magnitude magnitude random number
+ *     useMagnitudeRandom{1,2} - true if the user supplied the kick magnitude random number
  * 
  * Missing values are treated as zero (0.0) - a warning will be issued, and reading of the Grid file continues
  * (A value is considered missing only if there is a header for the column, but no data value in the column)
@@ -371,7 +371,7 @@ std::tuple<bool, int, SSEGridParameters> ReadSSEGridRecord(std::ifstream &p_Grid
                             }
                             break;
 
-                        case _("KICK_MAGNITUDE"):                                                                        // Kick magnitude (magnitude only, so must be +ve - probably technically "speed" rather than "velocity")                        
+                        case _("KICK_MAGNITUDE"):                                                                        // Kick magnitude (must be +ve)
                             if (value < 0.0) {                                                                          // value < 0?
                                 error = true;                                                                           // yes - set error flag
                                 SAY(ERR_MSG(ERROR::GRID_FILE_NEGATIVE_DATA) << " at line " << lineNo << ": " << token); // show error
@@ -849,13 +849,13 @@ std::tuple<int, std::vector<std::string>> OpenBSEGridFile(std::ifstream &p_Grid,
  * Plus boolean flags (see definition of KickParameters in typedefs.h):
  * 
  *     supplied{1,2}          - true if kick values were supplied in the grid file
- *     useMagnitudeRandom{1,2} - true if the user supplied the kick magnitude magnitude random number
+ *     useMagnitudeRandom{1,2} - true if the user supplied the kick magnitude random number
  *
  * If the user specifies Period rather than Separation, the separation is calculated using the masses and the orbital period
  * If the user specifies both Separation and Period, Separation is used in preference to Period
  * 
- * If the user specifies the kick magnitude magnitude random number, the appropriate flag is set (per star)
- * If the use specifies both the kick magnitude magnitude random number and the kick magnitude, the random number will be used in preference to the supplied velocity
+ * If the user specifies the kick magnitude random number, the appropriate flag is set (per star)
+ * If the use specifies both the kick magnitude random number and the kick magnitude, the random number will be used in preference to the supplied velocity
  * 
  * Missing values are treated as zero (0.0) - a warning will be issued, and reading of the Grid file continues
  * (A value is considered missing only if there is a header for the column, but no data value in the column)
@@ -1036,7 +1036,7 @@ std::tuple<bool, int, BSEGridParameters> ReadBSEGridRecord(std::ifstream &p_Grid
                             }
                             break;
 
-                        case _("KICK_MAGNITUDE_1"):                                                                          // Star 1 Kick magnitude (magnitude only, so must be +ve - probably technically "speed" rather than "velocity")                        
+                        case _("KICK_MAGNITUDE_1"):                                                                          // Star 1 Kick magnitude (must be +ve) 
                             if (value < 0.0) {                                                                              // value < 0?
                                 error = true;                                                                               // yes - set error flag
                                 SAY(ERR_MSG(ERROR::GRID_FILE_NEGATIVE_DATA) << " at line " << lineNo << ": " << token);     // show error
@@ -1080,7 +1080,7 @@ std::tuple<bool, int, BSEGridParameters> ReadBSEGridRecord(std::ifstream &p_Grid
                             }
                             break;
 
-                        case _("KICK_MAGNITUDE_2"):                                                                          // Star 2 Kick magnitude (magnitude only, so must be +ve - probably technically "speed" rather than "velocity")                        
+                        case _("KICK_MAGNITUDE_2"):                                                                          // Star 2 Kick magnitude (must be +ve) 
                             if (value < 0.0) {                                                                              // value < 0?
                                 error = true;                                                                               // yes - set error flag
                                 SAY(ERR_MSG(ERROR::GRID_FILE_NEGATIVE_DATA) << " at line " << lineNo << ": " << token);     // show error
