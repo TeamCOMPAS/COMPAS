@@ -64,7 +64,7 @@ All other branches are either feature or hotfix branches, whose purpose is to ei
 
 Feature branches on the Main Repository (also called the Main Fork or simply Main) should be ready to be tested by others.
 The Main Fork is not a "sandbox" for new, experimental ideas.
-You should [create your own fork] off of the Main Repository if you want to have public-facing experimental work.
+You should [create your own fork](#fork-the-main-repo) off of the Main Repository if you want to have public-facing experimental work.
 
 This approach to the repository and workflow below are based on the [Feature Branch Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow) which is in common use in industry.
 
@@ -110,14 +110,14 @@ You can copy the repo address for ssh if you have it configured, otherwise click
 
 4. To confirm that it worked, run the following two commands:
 
-    ```
-    cd COMPAS
-    git branch
-    ```
+```
+cd COMPAS
+git branch
+```
 
 5. If the clone finished without error, you should see as output: 
 
-    `* production`
+`* production`
 
 At this point, if you do not plan to do any COMPAS development, you're all set.
 See [getting_started.md](getting_started.md) to see how to compile and run COMPAS.
@@ -140,7 +140,7 @@ Non-collaborators have read-only access to all of the branches.
 
 ---
 
-### Fork the main repo.
+### Fork the main repo
 
 As a COMPAS developer, you are highly encouraged to create your own personal github fork of the Main repo.
 This is a second, remote repository (distinct from your local repo), but is managed by your github account.
@@ -156,7 +156,7 @@ Note that for public repositories, your code will still be read-only for everyon
 
 ---
 
-### Clone from your remote fork to your local repo
+### Connect to your remote fork from your local repo
 
 Once your fork is created, you'll want to connect it to your local repository.
 In the terminal, navigate to your COMPAS git repo and type:
@@ -180,13 +180,13 @@ To view, switch, and create branches (akin to `ls`, `cd`, and `mkdir`), use:
 
 ```
 git branch
-git checkout <branchname>
-git checkout -b <newbranch>
+git checkout <branch-name>
+git checkout -b <new-branch>
 ```
 
 :arrow_right: *Note:* Many git commands require that you are on the correct branch before executing the command - using these 3 commands regularly before running more complicated commands will save you headaches down the road! 
 
-**Important:** A new branch is already created as a copy of the current branch, so you always need to double check that you're on the branch you want to copy (typically, `dev`)
+**Important:** A new branch is already created as a copy of current branch, so you always need to double check that you're on the branch you want to copy (typically, `dev`).
 
 ---
 
@@ -200,47 +200,72 @@ Commits, like branches, are incredibly versatile and powerful, but can be concep
 
 Committing is the process of adding a selection of changes to the history of your branch.
 It is effectively saving your work, and should be done often (every time any small fix has been made).
-To perform a commit, you first need to add the relevant files to your "index", then submit the commit with a commit message.
-The message should describe every change you made in some detail, so that in the event that we decide to undo (or "revert") a previous commit, we can identify exactly when the mistake occured.
+To perform a commit: 
 
-`git branch` (check that you're on the correct branch)
+1. Check that you're on the correct branch!
 
-`git add <file1> <file2> <...>` (whatever files you've just edited)
+`git branch` 
+
+2. Add the relevant files to your "index" (whatever files you've just edited)
+
+`git add <file1> <file2> <...>` 
+
+3. Then submit the commit with a commit message. The message should be clear and concise, to help identify exactly when certain changes were made and undo them if necessary.
 
 `git commit -m "really clear message indicating all the changes you made in this commit."`
 
 :arrow_right: *Note:* A single commit should capture an entire "fix" of one kind.
-If, for example, you want to add a function to a C file and it's header, and you also want to update the internal contents of a completely different function in the same C file, you should do 2 commits.
-First, make the edits to the first function and header, then `git add file.C file.h`, `git commit -m "created function myFunction to do someStuff and added it to the header file"`.
-Then make the second edits for the contents of the existing function, and run `git add file.C`, `git commit -m "updated internal contents of thisOtherFunction to allow for specificUseCase"`. 
+
+:heavy_exclamation_mark: *Example:* Say you want to add a function to a C file and its header, and you also want to update the internal contents of a completely different function in the same C file, you should do 2 commits.
+
+1. First, make the edits to the first function and header, then add and commit
+
+```
+git add file.C file.h
+git commit -m "created function myFunction to do someStuff and added it to the header file"
+```
+
+2. Then do the same for the second edits 
+
+```
+git add file.C
+git commit -m "updated internal contents of thisOtherFunction to allow for specificUseCase"
+```
 
 You can (and should) check the status of the current index regularly with:
 
 `git status`
 
-The printout is self explanatory and tells you which files have been added and files which have been changed and you might consider adding before committing.
+The printout is pretty self explanatory: it tells you which files have been added, and which have been changed that you might consider adding before committing.
 
-You can undo a `git add` before you have done a `git commit` with:
+If you accidentally staged a file to your index, you can undo a `git add` before you have done a `git commit` with:
 
 `git reset <file>` 
 
-You can also use `git commit --amend` to substitute the previous commit with a new one.
+You can also use `git commit --amend` to fix the most recent, erroneous commit.
 
 ```
-git commit -m "first commit"
-git add <fogotten_file_name>
+git commit -m "previous commit which had the wrong files staged"
+git add <fogotten-file>
+git reset <file-that-does-not-belong>
 git commit --amend
 ```
 
-will open an editor and make it possible to modify the commit message. 
+which will open an editor where you can modify the commit message. 
 
 The takeaway message is that branches are made up of many commits strung together, one after another, forming a history of minor edits to a given branch.
-You can even view the commit history of a branch with:
+You can view the commit history of a branch with any of:
 
-`git log`
+```
+git log
+git log --pretty=oneline
+git log --pretty=medium --graph
+git log --all --decorate --oneline --graph
+```
 
-Looking through your git log, you may begin to appreciate the value of clear, detailed commit messages.
-If you ever have to go back through a git log to find a commit where something went wrong, it is indescribably helpful to have descriptive messages.
+(If you have some spare time/ interest, there are actually quite a few elaborate git log setups online you can look at for inspiration).
+
+Looking through your git log, you may begin to appreciate the value of clear, concise, commit messages.
 
 ---
 
@@ -249,6 +274,7 @@ If you ever have to go back through a git log to find a commit where something w
 Creating a branch for every new idea is great, but at some point you'll have two somewhat-finalized, distinct features on different branches that you will want to combine into one.
 To do that, you need to merge the branches.
 Merging a separate branch onto your current branch adds a 'merge commit' to the tip of your current branch, and leaves the other branch as it was.
+The two original branches are called parent branches, and the result, appropriately, the child. 
 Typically, once you successfully merge, it is desirable to delete the separate branch to keep things tidy. 
 
 ```
@@ -258,9 +284,10 @@ git branch -d branch2
 ```
 
 Merging can be difficult at first because, unless you are very good at thinking ahead or very lucky, you probably have some overlap in the two branches that you were working on.
-If you try to merge two branches in which you edited the same line of the same file, you get, in git terminology, a merge conflict.
+Git has some pretty clever tools to figure out which changes to pull into the merge commit, but if it is ambiguous (e.g if you've edited the same part of a file in both parents), you will get a merge conflict. 
 You will have to manually edit the files to choose how to resolve the conflict.
-Git has several [ways to deal with merge conflicts,](https://www.atlassian.com/git/tutorials/using-branches/merge-conflicts) the best option for you may depend on the particular IDE you are using. 
+You are encouraged to make backup copies of both parent branches until you are more comfortable.
+Git has several [ways to deal with merge conflicts;](https://www.atlassian.com/git/tutorials/using-branches/merge-conflicts) the best option for you may depend on the particular IDE you are using. 
 
 ---
 
@@ -268,12 +295,18 @@ Git has several [ways to deal with merge conflicts,](https://www.atlassian.com/g
 
 You should become comfortable deleting branches, or else your repos might pile up with old branches that are no longer active.
 Branches are also very easy to manage in git (relative to other version control systems), so you should practice creating new branches, making quick edits, committing, and deleting again without worry.
-To delete a branch, first navigate to any other branch, then:
+To delete a branch,
+
+1. Navigate to any other branch
+
+`git checkout <unrelated-branch>`
+
+2. Try deleting the branch
 
 `git branch -d <branch-name>`
 
-- If that throws an error, likely there were some uncommited changes (work that would be completely lost if the branch gets deleted).
-Either commit the branch before deleting, or if you decided against all the changes, you can force the delete with:
+3. If that throws an error, likely there were some uncommited/unmerged changes (work that would be completely lost if the branch gets deleted).
+Either commit/merge the branch before deleting, or if you don't want to keep the changes, you can force the delete with:
 
 `git branch -D <branch-name>`
 
@@ -282,9 +315,11 @@ Either commit the branch before deleting, or if you decided against all the chan
 ### Fetch other branches from a remote
 
 If you followed the above workflow, you can verify that the COMPAS repo is a designated remote fork in your local repo, nicknamed `origin`.
-You can also see any other remote forks that you have linked from your local repo.
+You can also see any other remote forks that you have linked from your local repo:
 
-`git remote -v` should output something like:
+`git remote -v` 
+
+should output something like:
 
 ```
 origin	git@github.com:TeamCOMPAS/COMPAS.git (fetch)
@@ -297,23 +332,28 @@ another_fork 	git@github.com:another-user/COMPAS.git (push)
 
 To see all of the available branches across all your linked forks:
 
-`git branch -a` should output something similar to
+`git branch -a` 
+
+should output something similar to
 
 ```
 * production
-  remotes/another_fork/dev
-  remotes/another_fork/production
-  remotes/another_fork/pythonSubmit
-  remotes/origin/HEAD -> origin/production
-  remotes/origin/dev
-  remotes/origin/production
-  remotes/origin/release
-  remotes/reinhold_fork/dev
-  remotes/reinhold_fork/git_workflow
-  remotes/reinhold_fork/production
+local_feature_branch
+remotes/another_fork/dev
+remotes/another_fork/production
+remotes/another_fork/pythonSubmit
+remotes/origin/HEAD -> origin/production
+remotes/origin/dev
+remotes/origin/production
+remotes/origin/release
+remotes/reinhold_fork/dev
+remotes/reinhold_fork/git_workflow
+remotes/reinhold_fork/production
 ```
 
-:arrow_right: *Note:* The branch named `origin/HEAD` is a pointer to the `origin/production` branch.
+where anything not starting with "remotes/" is a local branch, and the * indicates your current branch.
+
+:arrow_right: *Note:* The remote branch named `origin/HEAD` is a pointer to the `origin/production` branch.
 HEAD, when used locally, is a pointer to the most recent commit, or "tip", of the current branch.
 [Read more.](https://stackoverflow.com/questions/2529971/what-is-the-head-in-git)
 
@@ -321,7 +361,9 @@ All of the remote branches are available to be copied locally with:
 
 `git checkout -b <new-local-branch-name> <remote-name>/<remote-branch-name>`
 
-e.g `git checkout -b myPySubmit another_fork/pythonSubmit`
+:heavy_exclamation_mark: *Example:*
+
+`git checkout -b myPySubmit another_fork/pythonSubmit`
 
 ---
 
@@ -332,16 +374,16 @@ I tried to make these explicit throughout, but as a result this section is a bit
 I highly recommend trying the commands yourself as you read through.
 
 It's often useful, though not required, to point local branches to a branch on a remote repo, from which it will inherit changes.
-For example, when changes occur on the `dev` branch of the Main repo, you want to pull them into your local `dev` to keep up to date. 
+For example, when changes occur on the `dev` branch of the Main repo, you will probably want to pull them into your local `dev` branch to keep up to date. 
 
-If changes occur on the remote, your local git repo will not automatically know about it (since git is not regularly sending out update requests like, e.g, some of the apps on your phone).
+If changes occur on the remote, your local git repo will not automatically know about it (git does not regularly ping the remote server with update requests like, e.g, most phone apps).
 You can check for remote changes on a fork with:
 
 `git fetch <remote-fork>`
 
-*Warning:* This is subtle, but `git fetch` only updates git's local knowledge of the remote branches, it does not affect your local branches.
+:warning: *Warning:* This is a bit subtle - `git fetch` only updates git's "local knowledge" of the remote branches, it does not affect your local branches.
 That makes it very "safe" - you can't overwrite any of your own work with `fetch`.
-This is not true of `git pull` (see below).
+This is not true of `git pull` [(see below).](#git-pull)
 
 To see which local branches are tracking remote branches, use:
 
@@ -351,16 +393,16 @@ which will have an output that looks similar to:
 
 ```
 * compas_hpc_updates eea656f [origin/compas_hpc_updates: behind 14] Removed references to dead files:
-  dev                a110d38 [origin/dev: ahead 2, behind 12] Remove unwanted demo files (#150)
-  production             d379be5 [origin/production] Jeff's defect repairs from previous commits that had to be readded (#82)
-  new_branch         b6aee96 generic branch to test git branch -vv, don't keep this
+dev                  a110d38 [origin/dev: ahead 2, behind 12] Remove unwanted demo files (#150)
+production           d379be5 [origin/production] Jeff's defect repairs from previous commits that had to be readded (#82)
+new_branch           b6aee96 generic branch to test git branch -vv, don't keep this
 ```
 
-The first column lists your local branches (the * indicates your current branch).
-The second column is the unique hash that identifies the commit of the tip of that branch (technically, it's only the beginning of the hash, but it suffices to identify the commit).
-If the local branch is tracking a remote branch, this will be specified in brackets in the third column as `[<remote_repo>/<remote_tracking_branch>]`.
-If there is a colon after the branch name with either "ahead N" or "behind M" (or both), this describes whether the tip of the local branch has additional commits that the remote does not, and vice versa.
-If there are no brackets, the branch is not tracking anything.
+1. The first column lists your local branches (the * indicates your current branch).
+2. The second column is the unique hash that identifies the commit of the tip of that branch (technically, it's only the beginning of the hash, but it suffices to identify the commit).
+3. If the local branch is tracking a remote branch, this will be specified in brackets in the third column as `[<remote_repo>/<remote_tracking_branch>]`.
+    - If there is a colon after the branch name with either "ahead N" or "behind M" (or both), this describes whether the tip of the local branch has additional commits that the remote does not, and vice versa.
+4. If there are no brackets, the branch is not tracking anything.
 
 ---
 
@@ -374,14 +416,15 @@ git pull
 ```
 
 The `git pull` command defaults to the remote tracking branch of the current branch (whatever was in the brackets above).
-If the current branch is not tracking anything, or if you want to pull from a different remote branch (e.g, if `origin/dev` was updated and you want your `<local-feature-branch>` to pull in those updates), you can set it explicitly:
+If the current branch is not tracking anything, or if you want to pull from a different remote branch 
+(e.g, if `origin/dev` was updated and you want your `<local-feature-branch>` to pull in those updates), you can set it explicitly:
 
 ```
 git checkout <local-feature-branch>
 git pull <remote-fork> <remote-branch>
 ```
 
-:arrow_right: *Note:* You should regularly check that your branches are updated, and pull if they are not, in order to avoid major conflicts later on. 
+:arrow_right: *Note:* You should regularly check that your branches are updated. If not, you should pull to avoid larger conflicts later on. 
 
 ---
 
@@ -397,11 +440,20 @@ git push <remote-fork> <remote-branch>
 ```
 
 Pushing to your personal remote repository is a way to save all of your commits (i.e the history of edits) somewhere off your local computer.
-This is good practice because it acts as a backup in the event something happens to your local machine, and it also allows other collaborators to see your work (without having to give them access to your personal device).
+This is good practice because it acts as a backup in the event something happens to your local machine, and it also allows other collaborators to see your work 
+(without having to explicitly send them your work all the time). 
 This should also be done often, but not necessarily for every commit.
 A good rule of thumb is to push any updated branches at the end of the day. 
 
-Clarification of the difference between push, pull, and pull requests can be found in the Terminology section below.
+---
+
+#### pull requests
+
+We will briefly introduce here the concept of pull requests. If working on a remote repo, especially a shared one, it is often desirable to block direct push access, as this could 
+potentially lead to bad code being introduced without proper vetting. The solution is pull requests: the user who wrote the new code will submit the changes as a pull request, 
+for another developer to review. If they pass inspection, the reviewer can then approve the pull request and merge the changes into the remote repo. 
+
+Clarification of the difference between push, pull, and pull requests can be found in the [Terminology](#terminology) section below.
 
 ---
 
@@ -471,20 +523,20 @@ Either of these is fine.
 
 1. If you are pushing from your local repo:
 
-	to an existing branch:
+to an existing branch:
 
-	```
-	git checkout <mature-branch>
-	git push origin <existing-branch>
-	```
+```
+git checkout <mature-branch>
+git push origin <existing-branch>
+```
 
-	to a new branch (with the same name):
+to a new branch (with the same name):
 
-	```
-	git checkout <mature-branch>
-	git push -u origin
-	```
-	
+```
+git checkout <mature-branch>
+git push -u origin
+```
+
 2. If you are pushing from your remote fork:
 
 	to an existing branch on `origin`, go to the `<mature-branch>` on github, click on Pull Request, and set the dropdowns to `TeamCOMPAS/COMPAS`, `<target-branch>`, `<Your-Repo>/COMPAS`, and `<mature-branch>`.
@@ -560,7 +612,7 @@ The imagery of the shared history of commits, followed by the split into two sep
 A branch will often represent a place to experiment with changes in a way that doesn't risk destroying the existing code.
 Major branches will add some new functionality or some new physical prescription, while sub-branches may pop-up to quickly test some variation to the new functionality.
 These sub-branches might be merged in to the major feature branch, destroyed, or possibly continue on their own to be expanded into a more major feature (and then merged in later on).
-Whether the branch is merged or scrapped, it should always [ultimately be deleted](https://rickandmorty.fandom.com/wiki/Mr._Meeseeks) (aside from the permanent `production` and `dev` branches).
+Whether the branch is merged or scrapped, it should always [ultimately be deleted](#deleting-branches)[1](https://rickandmorty.fandom.com/wiki/Mr._Meeseeks) (aside from the permanent `production` and `dev` branches).
 
 - **Repository**: A Repository (or Repo) is a single storage location for a given code base.
 A single github user may have many repos for all of their different software projects.
