@@ -33,6 +33,8 @@ It is a bigger topic than we can get into here, but if you are curious you shoul
 Learning git is somewhat similar to learning a new language, and it can be difficult to fully grasp the vocabulary when starting out (which makes searching the internet for help significantly more challenging!).
 Some of the most fundamental terms are [described below](#terminology) to assist new users.
 
+---
+
 ### Purpose of this document
 The purpose of this document is to:
 - Help COMPAS users who are new to git to get setup,
@@ -48,11 +50,9 @@ With that said, all developers should commit to learning the agreed upon workflo
 
 ---
 
-**_Note:_ If anything below doesn't make sense, try looking at the end of this document for relevant [Terminology.](#terminology)**
-
----
-
 ### Outline of the COMPAS code repository
+
+:arrow_right: *Note:* If anything below doesn't make sense, try looking at the end of this document for relevant [Terminology.](#terminology)
 
 COMPAS users who are not developers can download the source code from the Main Repository, found at [github.com/TeamCOMPAS/COMPAS](github.com/TeamCOMPAS/COMPAS) (details can be found below).
 You will only need the default `production` branch and do not need to worry about what branches are. 
@@ -74,19 +74,18 @@ This approach to the repository and workflow below are based on the [Feature Bra
 
 **Step-by-step directions for how to configure your local and remote git repositories**
 
-### *COMPAS Users and Developers*
+### :large_blue_diamond: *COMPAS Users and Developers*
 
 ### Setup a Github account and git
 
-1.
-If you have not already, go to [github.com](https://github.com/) and setup an account.
+1. If you have not already, go to [github.com](https://github.com/) and setup an account.
 
-2.
-Check that you have a [working install of git.](https://www.atlassian.com/git/tutorials/install-git)
+2. Check that you have a [working install of git.](https://www.atlassian.com/git/tutorials/install-git)
 
-3.
-It is recommended, though not necessary, that you configure [Github with ssh](https://help.github.com/en/articles/connecting-to-github-with-ssh) as well.
+3. It is recommended, though not necessary, that you configure [Github with ssh](https://help.github.com/en/articles/connecting-to-github-with-ssh) as well.
 This will allow you to bypass frequent login verification requests. 
+
+---
 
 ### Clone the COMPAS repository to your personal computer
 
@@ -94,45 +93,43 @@ Cloning a git repository is slightly different to downloading a code database.
 Git includes a history of changes made to a repo, and these changes are included with a clone.
 Cloning also includes pointers to the original (remote) repo, so that changes to the remote can be easily imported to your local machine.
 
-1.
-To clone the COMPAS repo, go to the public COMPAS Github page and click on the green `code` button (see below). 
+1. To clone the COMPAS repo, go to the public COMPAS Github page and click on the green `code` button (see below). 
 You can copy the repo address for ssh if you have it configured, otherwise click `Use HTTPS` and copy that address.
 
 <p align="center">
   <img src="./media/git_clone_button.png" width="600" />
 </p>
 
-2.
-In a terminal window, change directory into the location where you plan to install COMPAS, e.g `cd ~/git_repos/`
+2. In a terminal window, change directory into the location where you plan to install COMPAS, e.g `cd ~/git_repos/`
 
-3.
-Type the appropriate of the following two commands into a terminal window (pasting the repo name copied above).
+3. Type the appropriate of the following two commands into a terminal window (pasting the repo name copied above).
 
     - SSH: `git clone git@github.com:TeamCOMPAS/COMPAS.git`
     
     - HTTPS: `git clone https://github.com/TeamCOMPAS/COMPAS.git`
 
-4.
-To confirm that it worked, run the following two commands:
+4. To confirm that it worked, run the following two commands:
 
-    `cd COMPAS`
-    
-    `git branch`
+    ```
+    cd COMPAS
+    git branch
+    ```
 
-5.
-If the clone finished without error, you should see as output: 
+5. If the clone finished without error, you should see as output: 
 
     `* production`
 
 At this point, if you do not plan to do any COMPAS development, you're all set.
 See [getting_started.md](getting_started.md) to see how to compile and run COMPAS.
 If you run into issues or would like to see new features implemented, you can [contact us here.](mailto:compas-user@googlegroups.com).
-You should read on if you are curious, but if you are not invited to be a collaborator, you will only have read-access to the repository.
+You can read on if you are curious, but if you are not invited to be a collaborator, you will only have read-access to the repository.
 
-### *COMPAS Developers Only*
+### :large_blue_diamond: *COMPAS Developers Only*
 
-*Note:* This section is very technical.
+:arrow_right: *Note:* This section is very technical.
 Take a look at the section below on [Terminology,](#terminology) if you get stuck!
+
+---
 
 ### Join as a collaborator 
 
@@ -141,18 +138,23 @@ Non-collaborators have read-only access to all of the branches.
 
 [Contact us here](mailto:compas-dev@googlegroups.com) to inquire about collaborating, or reach out to one of us directly (see the [COMPAS homepage](https://compas.science/) for an up-to-date list).
 
+---
+
 ### Fork the main repo.
 
-As a COMPAS developer, you are highly encouraged to create your own personal fork of the Main repo.
-This serves as a public-facing 'sandbox' of your current work, where you can share partially-developed ideas and projects with others who might be interested in assisting.
+As a COMPAS developer, you are highly encouraged to create your own personal github fork of the Main repo.
+This is a second, remote repository (distinct from your local repo), but is managed by your github account.
+It serves as a public-facing 'sandbox' of your current work, where you can share partially-developed ideas and projects with others who might be interested in assisting, without interferring with or clogging up the Main repo.
 
 On Github, go to the TeamCOMPAS/COMPAS repo and click on `Fork` in the upper-right corner.
-This will create a copy of the current state of the TeamCOMPAS/COMPAS repo, including all branches and all commit histories, and place it in your profile as your personal Fork, identified as `<your-username>`/COMPAS.
+This will create a copy of the current state of the TeamCOMPAS/COMPAS repo, including all branches and all commit histories, and place it on your profile, identified as `<your-username>`/COMPAS.
 
 Since this is your personal repo, you can be as organized or scatter-brained as you wish here.
 If you work best with 50 branches, obscure names, and code scraps everywhere, have at it.
 You can also give or take away access to any other collaborators who you might wish to contribute.
 Note that for public repositories, your code will still be read-only for everyone who is not a collaborator. 
+
+---
 
 ### Clone from your remote fork to your local repo
 
@@ -174,7 +176,7 @@ The `<fork-nickname>` is your choice, but should be informative, e.g `reinhold_f
 Branches allow a developer to experiment with multiple new features simultaneously on the same code-base.
 In git, branches are very lightweight and easy to manage, making them incredibly useful.
 
-To view, switch, and create branches, use: (similar to `ls`, `cd`, and `mkdir`)
+To view, switch, and create branches (akin to `ls`, `cd`, and `mkdir`), use: 
 
 ```
 git branch
@@ -182,9 +184,11 @@ git checkout <branchname>
 git checkout -b <newbranch>
 ```
 
-*Note:* Many git commands require that you are on the correct branch before executing the command - using these 3 commands regularly before running more complicated commands will save you headaches down the road! 
+:arrow_right: *Note:* Many git commands require that you are on the correct branch before executing the command - using these 3 commands regularly before running more complicated commands will save you headaches down the road! 
 
 **Important:** A new branch is already created as a copy of the current branch, so you always need to double check that you're on the branch you want to copy (typically, `dev`)
+
+---
 
 ### Committing changes
 
@@ -205,7 +209,7 @@ The message should describe every change you made in some detail, so that in the
 
 `git commit -m "really clear message indicating all the changes you made in this commit."`
 
-*Note:* A single commit should capture an entire "fix" of one kind.
+:arrow_right: *Note:* A single commit should capture an entire "fix" of one kind.
 If, for example, you want to add a function to a C file and it's header, and you also want to update the internal contents of a completely different function in the same C file, you should do 2 commits.
 First, make the edits to the first function and header, then `git add file.C file.h`, `git commit -m "created function myFunction to do someStuff and added it to the header file"`.
 Then make the second edits for the contents of the existing function, and run `git add file.C`, `git commit -m "updated internal contents of thisOtherFunction to allow for specificUseCase"`. 
@@ -238,6 +242,8 @@ You can even view the commit history of a branch with:
 Looking through your git log, you may begin to appreciate the value of clear, detailed commit messages.
 If you ever have to go back through a git log to find a commit where something went wrong, it is indescribably helpful to have descriptive messages.
 
+---
+
 ### Merging branches 
 
 Creating a branch for every new idea is great, but at some point you'll have two somewhat-finalized, distinct features on different branches that you will want to combine into one.
@@ -256,6 +262,8 @@ If you try to merge two branches in which you edited the same line of the same f
 You will have to manually edit the files to choose how to resolve the conflict.
 Git has several [ways to deal with merge conflicts,](https://www.atlassian.com/git/tutorials/using-branches/merge-conflicts) the best option for you may depend on the particular IDE you are using. 
 
+---
+
 ### Deleting branches 
 
 You should become comfortable deleting branches, or else your repos might pile up with old branches that are no longer active.
@@ -268,6 +276,8 @@ To delete a branch, first navigate to any other branch, then:
 Either commit the branch before deleting, or if you decided against all the changes, you can force the delete with:
 
 `git branch -D <branch-name>`
+
+---
 
 ### Fetch other branches from a remote
 
@@ -303,7 +313,7 @@ To see all of the available branches across all your linked forks:
   remotes/reinhold_fork/production
 ```
 
-*Note:* The branch named `origin/HEAD` is a pointer to the `origin/production` branch.
+:arrow_right: *Note:* The branch named `origin/HEAD` is a pointer to the `origin/production` branch.
 HEAD, when used locally, is a pointer to the most recent commit, or "tip", of the current branch.
 [Read more.](https://stackoverflow.com/questions/2529971/what-is-the-head-in-git)
 
@@ -312,6 +322,8 @@ All of the remote branches are available to be copied locally with:
 `git checkout -b <new-local-branch-name> <remote-name>/<remote-branch-name>`
 
 e.g `git checkout -b myPySubmit another_fork/pythonSubmit`
+
+---
 
 ### Configuring remote tracking branches - pushing & pulling
 
@@ -350,6 +362,8 @@ If the local branch is tracking a remote branch, this will be specified in brack
 If there is a colon after the branch name with either "ahead N" or "behind M" (or both), this describes whether the tip of the local branch has additional commits that the remote does not, and vice versa.
 If there are no brackets, the branch is not tracking anything.
 
+---
+
 #### git pull
 
 If you have a branch which is "behind" the remote branch it is tracking by some number of commits, then yours is out of date and you should update it with:
@@ -367,7 +381,9 @@ git checkout <local-feature-branch>
 git pull <remote-fork> <remote-branch>
 ```
 
-*Note:* You should regularly check that your branches are updated, and pull if they are not, in order to avoid major conflicts later on. 
+:arrow_right: *Note:* You should regularly check that your branches are updated, and pull if they are not, in order to avoid major conflicts later on. 
+
+---
 
 #### git push
 
@@ -387,6 +403,8 @@ A good rule of thumb is to push any updated branches at the end of the day.
 
 Clarification of the difference between push, pull, and pull requests can be found in the Terminology section below.
 
+---
+
 #### set remote tracking branch
 
 You can add or update a branch's remote tracking branch (sometimes called the "upstream" branch) with:
@@ -396,7 +414,7 @@ git checkout <branch-to-update>`
 git branch --set-upstream-to=<remote-fork>/<remote-branch-to-track>
 ```
 
-*Note:* The syntax may vary slightly depending on your version of git.
+:arrow_right: *Note:* The syntax may vary slightly depending on your version of git.
 `man git branch` should be able to shed some light.
 
 ---
@@ -416,6 +434,8 @@ git checkout -b <new-project>
 The name of your branch should *clearly* describe exactly the features implemented.
 Generic names make it harder for future testers to know the intended scope of the changes.
 
+---
+
 ### Growing projects
 Commit regularly as you make changes
 
@@ -432,6 +452,8 @@ git branch -vv
 git push
 ```
 
+---
+
 ### Mature projects 
 
 When a project is nearing completion (e.g when the code is nearly ready to be pulled into the Main Repository and tested), the author of the branch should first double check that their branch is up to date with the remote tracking branches.
@@ -447,8 +469,7 @@ git merge dev
 At this point, the user might choose to submit their branch from their local repo, or from their personal fork (e.g if the mature branch has been worked on by several people).
 Either of these is fine. 
 
-1.
-If you are pushing from your local repo:
+1. If you are pushing from your local repo:
 
 	to an existing branch:
 
@@ -464,8 +485,7 @@ If you are pushing from your local repo:
 	git push -u origin
 	```
 	
-2.
-If you are pushing from your remote fork:
+2. If you are pushing from your remote fork:
 
 	to an existing branch on `origin`, go to the `<mature-branch>` on github, click on Pull Request, and set the dropdowns to `TeamCOMPAS/COMPAS`, `<target-branch>`, `<Your-Repo>/COMPAS`, and `<mature-branch>`.
 For feature target branches (i.e not `production`, `dev`) the Pull Request will be automatically approved (for official collaborators only, not the public). 
@@ -507,6 +527,8 @@ PRs to `production` can only come from `dev` or `hotfix*` branches.
 PRs to `dev` can only come from feature branches on Main.
 Any collaborator can push a new feature or `hotfix*` branch to Main, as long as it passes the Status Checks.
 Non-collaborators have read-only access; if they would like to contribute, we will first have to add them as collaborators. 
+
+---
 
 ### Reviewing Pull Requests
 
