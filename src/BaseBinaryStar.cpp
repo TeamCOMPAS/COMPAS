@@ -831,7 +831,7 @@ double BaseBinaryStar::SampleSemiMajorAxisDistribution(const double p_Mass1, con
 
                 // Make sure that the drawn semi-major axis is in the range specified by the user
                 do {                                                                                                                            // JR: todo: catch for non-convergence?
-                    double periodInDays = pow(10.0, 2.3 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 4.8);
+                    double periodInDays = utils::POW(10.0, 2.3 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 4.8);
                     semiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(p_Mass1, p_Mass2, periodInDays);                              // convert period in days to semi-major axis in AU
                 } while (semiMajorAxis < OPTIONS->SemiMajorAxisDistributionMin() || semiMajorAxis > OPTIONS->SemiMajorAxisDistributionMax());   // JR: don't use utils::Compare() here
                 break;
@@ -874,7 +874,7 @@ double BaseBinaryStar::SampleSemiMajorAxisDistribution(const double p_Mass1, con
         // MuLogA()  = m_MuLogA[aisvariables.RandomGaussianDraw]  = mean of the RandomGaussianDraw-th Gaussian
         // CovLogA() = m_CovLogA[aisvariables.RandomGaussianDraw] = cov of the RandomGaussianDraw-th Gaussin
 
-        semiMajorAxis = pow(10, RAND->RandomGaussian(m_AIS.CovLogA()) + m_AIS.MuLogA());                                                        // draw random number from Gaussian
+        semiMajorAxis = utils::POW(10, RAND->RandomGaussian(m_AIS.CovLogA()) + m_AIS.MuLogA());                                                        // draw random number from Gaussian
     }
 
     return semiMajorAxis;
@@ -950,20 +950,20 @@ double BaseBinaryStar::CalculateCDFKroupa(const double p_Mass) {
         OPTIONS->InitialMassFunctionMax() >  KROUPA_BREAK_1 &&
         OPTIONS->InitialMassFunctionMax() <= KROUPA_BREAK_2) {
 
-        double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
-        double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+        double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+        double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (utils::POW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
 
         double C1 = 1.0 / (term1 + term2);
         double C2 = C1 * KROUPA_BREAK_1_POWER_1_2;
 
         if (p_Mass >= OPTIONS->InitialMassFunctionMin() && p_Mass < KROUPA_BREAK_1) {
 
-            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (pow(p_Mass, KROUPA_POWER_PLUS1_1) - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (utils::POW(p_Mass, KROUPA_POWER_PLUS1_1) - utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
         }
         else if (p_Mass >= KROUPA_BREAK_1 && p_Mass < KROUPA_BREAK_2) {
 
-            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
-                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (pow(p_Mass, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
+                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (utils::POW(p_Mass, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
         }
         else {
             SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Using CDF = 0.0 (1)");
@@ -973,9 +973,9 @@ double BaseBinaryStar::CalculateCDFKroupa(const double p_Mass) {
     else if (OPTIONS->InitialMassFunctionMin() <= KROUPA_BREAK_1 &&
              OPTIONS->InitialMassFunctionMax() >  KROUPA_BREAK_2) {
 
-        double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+        double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
         double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
-        double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+        double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (utils::POW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
 
         double C1 = 1.0 / (term1 + term2 + term3);
         double C2 = C1 * KROUPA_BREAK_1_POWER_1_2;
@@ -983,18 +983,18 @@ double BaseBinaryStar::CalculateCDFKroupa(const double p_Mass) {
 
         if (p_Mass >= OPTIONS->InitialMassFunctionMin() && p_Mass < KROUPA_BREAK_1) {
 
-            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (pow(p_Mass, KROUPA_POWER_PLUS1_1) - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (utils::POW(p_Mass, KROUPA_POWER_PLUS1_1) - utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
         }
         else if (p_Mass >= KROUPA_BREAK_1 && p_Mass < KROUPA_BREAK_2) {
 
-            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
-                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (pow(p_Mass, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
+                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (utils::POW(p_Mass, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
         }
         else if (p_Mass >= KROUPA_BREAK_2 && p_Mass < OPTIONS->InitialMassFunctionMax()) {
 
-            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
                   ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2) +
-                  ONE_OVER_KROUPA_POWER_3_PLUS1 * C3 * (pow(p_Mass, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+                  ONE_OVER_KROUPA_POWER_3_PLUS1 * C3 * (utils::POW(p_Mass, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
         }
         else {
             SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Using CDF = 0.0 (2)");
@@ -1005,20 +1005,20 @@ double BaseBinaryStar::CalculateCDFKroupa(const double p_Mass) {
              OPTIONS->InitialMassFunctionMin() <= KROUPA_BREAK_2 &&
              OPTIONS->InitialMassFunctionMax() >  KROUPA_BREAK_2) {
 
-        double term1 = ONE_OVER_KROUPA_POWER_2_PLUS1 * (KROUPA_BREAK_2_PLUS1_2 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
-        double term2 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+        double term1 = ONE_OVER_KROUPA_POWER_2_PLUS1 * (KROUPA_BREAK_2_PLUS1_2 - utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
+        double term2 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_2_POWER_2_3 * (utils::POW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
 
         double C2 = 1.0 / (term1 + term2);
         double C3 = C2 * KROUPA_BREAK_2_POWER_2_3;
 
         if (p_Mass >= OPTIONS->InitialMassFunctionMin() && p_Mass < KROUPA_BREAK_2) {
 
-            CDF = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (pow(p_Mass, KROUPA_POWER_PLUS1_2) - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
+            CDF = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (utils::POW(p_Mass, KROUPA_POWER_PLUS1_2) - utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
         }
         else if (p_Mass >= KROUPA_BREAK_2 && p_Mass < OPTIONS->InitialMassFunctionMax()) {
 
-            CDF = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2)) +
-                  ONE_OVER_KROUPA_POWER_3_PLUS1 * C3 * (pow(p_Mass, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+            CDF = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2)) +
+                  ONE_OVER_KROUPA_POWER_3_PLUS1 * C3 * (utils::POW(p_Mass, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
         }
         else {
             SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Using CDF = 0.0 (3)");
@@ -1080,55 +1080,55 @@ double BaseBinaryStar::SampleInitialMassDistribution() {
                 else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1) <= 0 &&
                          utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_1)  > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2) <= 0) {
 
-                    double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
-                    double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+                    double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+                    double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (utils::POW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
 
                     double C1    = 1.0 / (term1 + term2);
                     double C2    = C1 * KROUPA_BREAK_1_POWER_1_2;
-                    double A     = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+                    double A     = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
 
                     double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
                     thisMass = utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_1)) < 0
-                                ? pow(rand * (KROUPA_POWER_PLUS1_1 / C1) + pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1), ONE_OVER_KROUPA_POWER_1_PLUS1)
-                                : pow((rand - A) * (KROUPA_POWER_PLUS1_2 / C2) + KROUPA_BREAK_1_PLUS1_2, ONE_OVER_KROUPA_POWER_2_PLUS1);
+                                ? utils::POW(rand * (KROUPA_POWER_PLUS1_1 / C1) + utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1), ONE_OVER_KROUPA_POWER_1_PLUS1)
+                                : utils::POW((rand - A) * (KROUPA_POWER_PLUS1_2 / C2) + KROUPA_BREAK_1_PLUS1_2, ONE_OVER_KROUPA_POWER_2_PLUS1);
                 }
                 else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2_POWER_2_3) > 0) {
 
-                    double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+                    double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
                     double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
-                    double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+                    double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (utils::POW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
                     
                     double C1    = 1.0 / (term1 + term2 + term3);
                     double C2    = C1 * KROUPA_BREAK_1_POWER_1_2;
                     double C3    = C2 * KROUPA_BREAK_2_POWER_2_3;
 
-                    double A     = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+                    double A     = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
                     double B     = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
 
                     double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
 
                     if (utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_1)) < 0)
-                        thisMass = pow(rand * (KROUPA_POWER_PLUS1_1 / C1) + pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1), ONE_OVER_KROUPA_POWER_1_PLUS1);
+                        thisMass = utils::POW(rand * (KROUPA_POWER_PLUS1_1 / C1) + utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1), ONE_OVER_KROUPA_POWER_1_PLUS1);
                     else if (utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_2)) < 0)
-                        thisMass = pow((rand - A) * (KROUPA_POWER_PLUS1_2 / C2) + KROUPA_BREAK_1_PLUS1_2, ONE_OVER_KROUPA_POWER_2_PLUS1);
+                        thisMass = utils::POW((rand - A) * (KROUPA_POWER_PLUS1_2 / C2) + KROUPA_BREAK_1_PLUS1_2, ONE_OVER_KROUPA_POWER_2_PLUS1);
                     else
-                        thisMass = pow((rand - A - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
+                        thisMass = utils::POW((rand - A - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
                 }
                 else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1)  > 0 &&
                          utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_2) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2) > 0) {
 
-                    double term1 = ONE_OVER_KROUPA_POWER_2_PLUS1 * (KROUPA_BREAK_2_PLUS1_2 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
-                    double term2 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+                    double term1 = ONE_OVER_KROUPA_POWER_2_PLUS1 * (KROUPA_BREAK_2_PLUS1_2 - utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
+                    double term2 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_2_POWER_2_3 * (utils::POW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
 
                     double C2    = 1.0 / (term1 + term2);
                     double C3    = C2 * KROUPA_BREAK_2_POWER_2_3;
-                    double B     = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
+                    double B     = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
 
                     double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
 
                     thisMass = utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_2)) < 0
-                                ? pow(rand * (KROUPA_POWER_PLUS1_2 / C2) + pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2), ONE_OVER_KROUPA_POWER_2_PLUS1)
-                                : pow((rand - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
+                                ? utils::POW(rand * (KROUPA_POWER_PLUS1_2 / C2) + utils::POW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2), ONE_OVER_KROUPA_POWER_2_PLUS1)
+                                : utils::POW((rand - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
                 }
                 // JR: no other case possible - as long as OPTIONS->InitialMassFunctionMin() < OPTIONS->InitialMassFunctionMax() (currently enforced in Options.cpp)
                 break;
@@ -1462,12 +1462,12 @@ double BaseBinaryStar::CalculateTimeToCoalescence(const double p_SemiMajorAxis,
     if (utils::Compare(p_Eccentricity, 0) != 0) {
 
         double e0_2  = p_Eccentricity * p_Eccentricity;
-        double c0    = p_SemiMajorAxis * (1.0 - e0_2) * pow(p_Eccentricity, -12.0/19.0) * pow(1.0 + (121.0 * e0_2 / 304.0), -870.0/2299.0);
+        double c0    = p_SemiMajorAxis * (1.0 - e0_2) * utils::POW(p_Eccentricity, -12.0/19.0) * utils::POW(1.0 + (121.0 * e0_2 / 304.0), -870.0/2299.0);
 
 		double _4_c0 = c0 * c0 * c0 * c0;
 
         if (utils::Compare(p_Eccentricity, 0.01) < 0) {
-            tC = _4_c0 *pow(p_Eccentricity, 48.0/19.0) / _4_beta;
+            tC = _4_c0 *utils::POW(p_Eccentricity, 48.0/19.0) / _4_beta;
         }
         else if (utils::Compare(p_Eccentricity, 0.99) > 0) {
 
@@ -1481,7 +1481,7 @@ double BaseBinaryStar::CalculateTimeToCoalescence(const double p_SemiMajorAxis,
 
             for (double e = 0.0; utils::Compare(e, p_Eccentricity) < 0; e += de) {
                 double _1_e_2 = 1.0 - (e * e);
-                sum += de * pow(e, 29.0 / 19.0) * pow((1.0 + (121.0 / 304.0) * e * e), 1181.0 / 2299.0) / ( _1_e_2 * sqrt( _1_e_2));
+                sum += de * utils::POW(e, 29.0 / 19.0) * utils::POW((1.0 + (121.0 / 304.0) * e * e), 1181.0 / 2299.0) / ( _1_e_2 * sqrt( _1_e_2));
             }
 
             tC = (12.0 / 19.0) * (_4_c0 / beta) * sum;
@@ -2057,7 +2057,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
  */
 double BaseBinaryStar::CalculateRocheLobeRadius_Static(const double p_MassPrimary, const double p_MassSecondary) {
     double q = p_MassPrimary / p_MassSecondary;
-    double qCubeRoot = pow(q, 1.0 / 3.0);                                                                           // cube roots are expensive, only compute once
+    double qCubeRoot = utils::POW(q, 1.0 / 3.0);                                                                           // cube roots are expensive, only compute once
     return 0.49 / (0.6 + log(1.0 + qCubeRoot)/ qCubeRoot / qCubeRoot);
 }
 
@@ -2166,7 +2166,7 @@ double BaseBinaryStar::CalculateZRocheLobe(const double p_jLoss) {
 
     double q = donorMass / accretorMass;
 
-    double q_1_3 = pow(q, 1.0 / 3.0);
+    double q_1_3 = utils::POW(q, 1.0 / 3.0);
 
     double k1 = -2.0 * (1.0 - (beta * q) - (1.0 - beta) * (gamma + 0.5) * (q / (1.0 + q)));
     double k2 = (2.0 / 3.0) - q_1_3 * (1.2 * q_1_3 + 1.0 / (1.0 + q_1_3)) / (3.0 * (0.6 * q_1_3 * q_1_3 + log(1.0 + q_1_3)));
