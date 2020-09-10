@@ -90,7 +90,7 @@ typedef struct SupernovaDetails {                           // Holds attributes,
     double           HeCoreMassAtCOFormation;               // Helium core mass of the star when it goes supernova and forms a compact objec
     bool             isHydrogenPoor;                        // Flag to indicate if exploding star is hydrogen-poor. We consider an H-rich star all SN progenitors that have an H envelope, otherwise H-poor
     double           kickMagnitude;                          // Kick magnitude the system received during the supernova (km s^-1)
-    double           kickMagnitudeRandom;                    // Random number U(0,1) for choosing the supernova kick magnitude magnitude - drawn once at star creation
+    double           kickMagnitudeRandom;                    // Random number U(0,1) for choosing the supernova kick magnitude - drawn once at star creation
     double           meanAnomaly;                           // Mean anomaly at instantaneous time of the SN - uniform in [0, 2pi]
     double           phi;                                   // Angle between 'x' and 'y', both in the orbital plane of supernovae vector (rad)
     SN_STATE         supernovaState;                        // indicates which star (or stars) are undergoing / hove undergone a supernova event
