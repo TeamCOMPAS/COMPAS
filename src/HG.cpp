@@ -23,7 +23,7 @@
  */
 double HG::CalculateRho(const double p_Mass) {
 
-    double m_5_25 = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass * sqrt(sqrt(p_Mass));    // utils::POW() is slow - use multiplication (sqrt() is much faster than utils::POW())
+    double m_5_25 = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass * sqrt(sqrt(p_Mass));    // pow() is slow - use multiplication (sqrt() is much faster than pow())
 
     return (1.586 + m_5_25) / (2.434 + (1.02 * m_5_25));
 }
@@ -54,8 +54,8 @@ double HG::CalculateRho(const double p_Mass) {
  */
 double HG::CalculateLambdaDewi() {
 
-	double lambda1 = std::min(0.80, (3.0 / (2.4 + utils::POW(m_Mass,-3.0 / 2.0))) - (0.15 * log10(m_Luminosity)));              // (A.3) Claeys+2014
-	double lambda2 = 0.42 * utils::POW(m_RZAMS / m_Radius, 0.4);                                                                   // (A.2) Claeys+2014
+	double lambda1 = std::min(0.80, (3.0 / (2.4 + PPOW(m_Mass,-3.0 / 2.0))) - (0.15 * log10(m_Luminosity)));              // (A.3) Claeys+2014
+	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                   // (A.2) Claeys+2014
 	double envMass = utils::Compare(m_CoreMass, 0.0) > 0 && utils::Compare(m_Mass, m_CoreMass) > 0 ? m_Mass - m_CoreMass : 0.0;
 
     double lambdaCE;
@@ -443,7 +443,7 @@ double HG::CalculateLuminosityOnPhase(const double p_Age, const double p_Mass) {
     double tBGB = timescales(tBGB);
     double tau  = (p_Age - tMS) / (tBGB - tMS);
 
-    return LTMS * utils::POW((LEHG / LTMS), tau);
+    return LTMS * PPOW((LEHG / LTMS), tau);
 
 #undef timescales
 }
@@ -496,7 +496,7 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
     double RTMS = MainSequence::CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
     double REHG = CalculateRadiusAtPhaseEnd(p_Mass);
 
-    return RTMS * utils::POW((REHG / RTMS), p_Tau);
+    return RTMS * PPOW((REHG / RTMS), p_Tau);
 }
 
 
@@ -517,7 +517,7 @@ double HG::CalculateRadialExtentConvectiveEnvelope() {
 	BaseStar clone = *this;                         // clone this star so can manipulate without changes persisiting
 	clone.ResolveRemnantAfterEnvelopeLoss();        // update clone's attributes after envelope is lost
 
-    return utils::POW(m_Tau, 1.0 / 2.0) * (m_Radius - clone.Radius());
+    return PPOW(m_Tau, 1.0 / 2.0) * (m_Radius - clone.Radius());
 }
 
 
