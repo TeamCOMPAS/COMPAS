@@ -71,7 +71,7 @@ Following is the list of program options that can be specified at the command li
 
 \programOption{evolve-unbound-systems}{}{Continue evolving stars even if the binary is disrupted.}{FALSE}
 
-\programOption{fix-dimensionless-kick-velocity}{}{Fix dimensionless kick velocity to this value.}{n/a (not used if option not present)}
+\programOption{fix-dimensionless-kick-magnitude}{}{Fix dimensionless kick magnitude to this value.}{n/a (not used if option not present)}
 
 \programOption{fryer-supernova-engine}{}{Supernova engine type if using the fallback prescription from \citet{Fryer_2012}. \\ Options: \lcb\ DELAYED, RAPID\ \rcb}{DELAYED}
 
@@ -91,17 +91,17 @@ Following is the list of program options that can be specified at the command li
 
 \programOption{kick-scaling-factor}{}{Arbitrary factor used to scale kicks.}{1.0}
 
-\programOption{kick-velocity-distribution}{}{Natal kick velocity distribution. \\ Options: \lcb\ ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL\ \rcb}{MAXWELLIAN}
+\programOption{kick-magnitude-distribution}{}{Natal kick magnitude distribution. \\ Options: \lcb\ ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL\ \rcb}{MAXWELLIAN}
 
-\programOption{kick-velocity-max}{}{Maximum drawn kick velocity~(km~s$^{-1}$). \\ Must be $>$ 0 if using \textit{\texttt{-{}-}kick-velocity-distribution~=~FLAT}.}{\minus(1.0)}
+\programOption{kick-magnitude-max}{}{Maximum drawn kick magnitude~(km~s$^{-1}$). \\ Must be $>$ 0 if using \textit{\texttt{-{}-}kick-magnitude-distribution~=~FLAT}.}{\minus(1.0)}
 
-\programOption{kick-velocity-sigma-CCSN-BH}{}{Sigma for chosen kick velocity distribution for black holes~(km~s$^{\minus{1}}$).}{250.0}
+\programOption{kick-magnitude-sigma-CCSN-BH}{}{Sigma for chosen kick magnitude distribution for black holes~(km~s$^{\minus{1}}$).}{250.0}
 
-\programOption{kick-velocity-sigma-CCSN-NS}{}{Sigma for chosen kick velocity distribution for neutron stars~(km~s$^{\minus{1}}$).}{250.0}
+\programOption{kick-magnitude-sigma-CCSN-NS}{}{Sigma for chosen kick magnitude distribution for neutron stars~(km~s$^{\minus{1}}$).}{250.0}
 
-\programOption{kick-velocity-sigma-ECSN}{}{Sigma for chosen kick velocity distribution for ECSN~(km~s$^{\minus{1}}$).}{30.0}
+\programOption{kick-magnitude-sigma-ECSN}{}{Sigma for chosen kick magnitude distribution for ECSN~(km~s$^{\minus{1}}$).}{30.0}
 
-\programOption{kick-velocity-sigma-USSN}{}{Sigma for chosen kick velocity distribution for USSN~(km~s$^{\minus{1}}$).}{30.0}
+\programOption{kick-magnitude-sigma-USSN}{}{Sigma for chosen kick magnitude distribution for USSN~(km~s$^{\minus{1}}$).}{30.0}
 
 \programOption{log-classes}{}{Logging classes enabled.}{'{}'~(None)}
 

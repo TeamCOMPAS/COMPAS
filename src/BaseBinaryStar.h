@@ -515,7 +515,7 @@ private:
                                             const double p_Mass,
                                             const double p_SemiMajorAxis)   { return p_Mu * sqrt(G1 * p_Mass * p_SemiMajorAxis); }
 
-    double  CalculateOrbitalEccentricityPostSupernova(const double p_KickVelocity,
+    double  CalculateOrbitalEccentricityPostSupernova(const double p_KickMagnitude,
                                                       const double p_TotalMassPreSN,
                                                       const double p_TotalMassPostSN,
                                                       const double p_KickTheta,
@@ -535,7 +535,7 @@ private:
 
     double  CalculateZRocheLobe(const double p_jLoss);
 
-    double  CalculateSemiMajorAxisPostSupernova(const double p_KickVelocity,
+    double  CalculateSemiMajorAxisPostSupernova(const double p_KickMagnitude,
                                                 const double p_TotalMassPreSN,
                                                 const double p_TotalMassPostSN,
                                                 const double p_KickTheta,
