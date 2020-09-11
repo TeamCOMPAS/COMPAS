@@ -37,9 +37,9 @@ void EAGB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
     double tBAGB = CalculateLifetimeToBAGB(timescales(tHeI), timescales(tHe));
     double LBAGB = CalculateLuminosityAtBAGB(p_Mass);
 
-    timescales(tinf1_FAGB) = tBAGB + ((1.0 / (p1 * gbParams(AHe) * gbParams(D))) * utils::POW((gbParams(D) / LBAGB), p1_p));
-    timescales(tMx_FAGB)   = timescales(tinf1_FAGB) - ((timescales(tinf1_FAGB) - tBAGB) * utils::POW((LBAGB / gbParams(Lx)), p1_p));
-    timescales(tinf2_FAGB) = timescales(tMx_FAGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * utils::POW((gbParams(B) / gbParams(Lx)), q1_q));
+    timescales(tinf1_FAGB) = tBAGB + ((1.0 / (p1 * gbParams(AHe) * gbParams(D))) * PPOW((gbParams(D) / LBAGB), p1_p));
+    timescales(tMx_FAGB)   = timescales(tinf1_FAGB) - ((timescales(tinf1_FAGB) - tBAGB) * PPOW((LBAGB / gbParams(Lx)), p1_p));
+    timescales(tinf2_FAGB) = timescales(tMx_FAGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
 
 #undef gbParams
 #undef timescales
@@ -465,7 +465,7 @@ double EAGB::CalculateRadiusOnPhase_Static(const double      p_Mass,
     double b50;
 
     if (utils::Compare(p_Mass, p_MHeF) >= 0) {
-        A = std::min((b[51] * utils::POW(p_Mass, -b[52])), (b[53] * utils::POW(p_Mass, -b[54])));
+        A = std::min((b[51] * PPOW(p_Mass, -b[52])), (b[53] * PPOW(p_Mass, -b[54])));
         b50 = b[55] * b[3];
     }
     else if (utils::Compare(p_Mass, (p_MHeF - 0.2)) <= 0) {
@@ -478,7 +478,7 @@ double EAGB::CalculateRadiusOnPhase_Static(const double      p_Mass,
         double x2_x1     = x2 - x1;
 
         double y1        = b[56] + (b[57] * x1);
-        double y2        = b[51] * utils::POW(x2, -b[52]);
+        double y2        = b[51] * PPOW(x2, -b[52]);
         double gradient  = (y2 - y1) / x2_x1;
         double intercept = y2 - (gradient * x2);
                A         = (gradient * p_Mass) + intercept;
@@ -491,7 +491,7 @@ double EAGB::CalculateRadiusOnPhase_Static(const double      p_Mass,
     }
 
     // now calculate the radius
-    return A * (utils::POW(p_Luminosity, b[1]) + (b[2] * utils::POW(p_Luminosity, b50)));
+    return A * (PPOW(p_Luminosity, b[1]) + (b[2] * PPOW(p_Luminosity, b50)));
 
 #undef b
 }
@@ -540,8 +540,8 @@ double EAGB::CalculateCOCoreMassOnPhase(const double p_Time) {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
 
     return utils::Compare(p_Time, timescales(tMx_FAGB)) <= 0
-            ? utils::POW((gbParams(p) - 1.0) * gbParams(AHe) * gbParams(D) * (timescales(tinf1_FAGB) - p_Time), 1.0 / (1.0 - gbParams(p)))
-            : utils::POW((gbParams(q) - 1.0) * gbParams(AHe) * gbParams(B) * (timescales(tinf2_FAGB) - p_Time), 1.0 / (1.0 - gbParams(q)));
+            ? PPOW((gbParams(p) - 1.0) * gbParams(AHe) * gbParams(D) * (timescales(tinf1_FAGB) - p_Time), 1.0 / (1.0 - gbParams(p)))
+            : PPOW((gbParams(q) - 1.0) * gbParams(AHe) * gbParams(B) * (timescales(tinf2_FAGB) - p_Time), 1.0 / (1.0 - gbParams(q)));
 
 #undef gbParams
 #undef timescales
@@ -597,8 +597,8 @@ double EAGB::CalculateLifetimeTo2ndDredgeUp(const double p_Tinf1_FAGB, const dou
     double LDU = CalculateLuminosityGivenCoreMass(gbParams(McDU));
 
     return utils::Compare(LDU, gbParams(Lx)) <= 0
-            ? p_Tinf1_FAGB - (1.0 / (p1 * gbParams(AHe) * gbParams(D))) * utils::POW((gbParams(D) / LDU), (p1 / gbParams(p)))
-            : p_Tinf2_FAGB - (1.0 / (q1 * gbParams(AHe) * gbParams(B))) * utils::POW((gbParams(B) / LDU), (q1 / gbParams(q)));
+            ? p_Tinf1_FAGB - (1.0 / (p1 * gbParams(AHe) * gbParams(D))) * PPOW((gbParams(D) / LDU), (p1 / gbParams(p)))
+            : p_Tinf2_FAGB - (1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW((gbParams(B) / LDU), (q1 / gbParams(q)));
 
 #undef gbParams
 }
@@ -684,9 +684,9 @@ STELLAR_TYPE EAGB::ResolveRemnantAfterEnvelopeLoss() {
 
     double LTHe = HeMS::CalculateLuminosityAtPhaseEnd_Static(m_Mass);
 
-    timescales(tinf1_HeGB) = timescales(tHeMS) + (1.0 / ((p1 * gbParams(AHe) * gbParams(D))) * utils::POW((gbParams(D) / LTHe), p1_p));
-    timescales(tx_HeGB) = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * utils::POW((LTHe / gbParams(Lx)), p1_p);
-    timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * utils::POW((gbParams(B) / gbParams(Lx)), q1_q));
+    timescales(tinf1_HeGB) = timescales(tHeMS) + (1.0 / ((p1 * gbParams(AHe) * gbParams(D))) * PPOW((gbParams(D) / LTHe), p1_p));
+    timescales(tx_HeGB) = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * PPOW((LTHe / gbParams(Lx)), p1_p);
+    timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
 
     m_Age      = HeGB::CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, timescales(tHeMS), m_GBParams);
 
@@ -744,9 +744,9 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
         double LTHe = HeMS::CalculateLuminosityAtPhaseEnd_Static(m_Mass);
 
-        timescales(tinf1_HeGB) = timescales(tHeMS) + (1.0 / ((p1 * gbParams(AHe) * gbParams(D))) * utils::POW((gbParams(D) / LTHe), p1_p));
-        timescales(tx_HeGB) = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * utils::POW((LTHe / gbParams(Lx)), p1_p);
-        timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * utils::POW((gbParams(B) / gbParams(Lx)), q1_q));
+        timescales(tinf1_HeGB) = timescales(tHeMS) + (1.0 / ((p1 * gbParams(AHe) * gbParams(D))) * PPOW((gbParams(D) / LTHe), p1_p));
+        timescales(tx_HeGB) = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * PPOW((LTHe / gbParams(Lx)), p1_p);
+        timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
 
 
         // Need to calculate gbParams for new stellar type - calculations of stellar attributes below depend

@@ -55,7 +55,7 @@ void HeMS::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
  */
 double HeMS::CalculateLuminosityAtZAMS_Static(const double p_Mass) {
 
-    // utils::POW() is slow - use multiplication (sqrt() is much faster than utils::POW())
+    // pow() is slow - use multiplication (sqrt() is much faster than PPOW())
     double m_0_5   = sqrt(p_Mass);
     double m_3     = p_Mass * p_Mass * p_Mass;
     double m_6     = m_3 * m_3;
@@ -122,11 +122,11 @@ double HeMS::CalculateLuminosityOnPhase_Static(const double p_Mass, const double
  * @return                                      Radius at ZAMS for a Helium Main Sequence star in Rsol
  */
 double HeMS::CalculateRadiusAtZAMS_Static(const double p_Mass) {
-    // utils::POW() is slow - use multiplication
+    // pow() is slow - use multiplication
     double m_3 = p_Mass * p_Mass * p_Mass;
     double m_4 = m_3 * p_Mass;
 
-    return (0.2391 * utils::POW(p_Mass, 4.6)) / (m_4 + (0.162 * m_3) + 0.0065);
+    return (0.2391 * PPOW(p_Mass, 4.6)) / (m_4 + (0.162 * m_3) + 0.0065);
 }
 
 
@@ -144,7 +144,7 @@ double HeMS::CalculateRadiusAtZAMS_Static(const double p_Mass) {
  */
 double HeMS::CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Tau) {
 
-    double tau_6 = p_Tau * p_Tau * p_Tau * p_Tau * p_Tau * p_Tau;   // utils::POW() is slow - use multiplication
+    double tau_6 = p_Tau * p_Tau * p_Tau * p_Tau * p_Tau * p_Tau;   // pow() is slow - use multiplication
     double beta  = std::max(0.0, 0.4 - 0.22 * log10(p_Mass));
 
     return CalculateRadiusAtZAMS_Static(p_Mass) * (1.0 + (beta * (p_Tau - tau_6)));
@@ -282,7 +282,7 @@ bool HeMS::IsMassRatioUnstable(const double p_AccretorMass, const bool p_Accreto
  */
 double HeMS::CalculateLifetimeOnPhase_Static(const double p_Mass) {
 
-    // utils::POW() is slow - use multiplication (sqrt() is much faster than utils::POW())
+    // pow() is slow - use multiplication (sqrt() is much faster than PPOW())
     double m_4   = p_Mass * p_Mass * p_Mass * p_Mass;
     double m_6   = m_4 * p_Mass * p_Mass;
     double m_6_5 = m_6 * sqrt(p_Mass);

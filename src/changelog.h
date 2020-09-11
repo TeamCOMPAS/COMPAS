@@ -420,7 +420,12 @@
 //                                      - added TIMESCALE_MS as a valid property in BaseStar::StellarPropertyValue().  The TIMESCALE_MS value in the SSE_Parameters file was being printed as "ERROR!" and nobody noticed :-)  It now prints correctly.
 // 02.15.01     RS - Sep 10, 2020   - Enhancement
 //                                       - added profiling option to keep track of repeated pow() calls
+// 02.15.02     JR - Sep 11, 2020   - Enhancement
+//                                       - refactored profiling code
+//                                          - profiling code can now be #defined away for production build
+//                                          - added options (via #defines) to profiling code: counts only (no CPU spinning), and print calling function name
+//                                       - removed profiling program option
 
-const std::string VERSION_STRING = "02.15.01";
+const std::string VERSION_STRING = "02.15.02";
 
 # endif // __changelog_h__

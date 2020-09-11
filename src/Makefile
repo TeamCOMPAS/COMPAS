@@ -34,6 +34,7 @@ CXXFLAGS := -g -std=c++11 -Wall $(OPTFLAGS)
 ICFLAGS := -I$(BOOST)/include -I.
 LFLAGS :=  -L$(BOOST)/lib -lgsl -lgslcblas -lstdc++ -lm -lz -ldl -lboost_filesystem -lboost_program_options -lboost_system -Xlinker -rpath -Xlinker $(BOOST)/lib
 SOURCES :=                                                               \
+			profiling.cpp				\
 			utils.cpp					\
 									\
 			Rand.cpp					\

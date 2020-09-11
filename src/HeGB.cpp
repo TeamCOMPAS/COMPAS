@@ -44,15 +44,15 @@ std::tuple<double, double> HeGB::CalculateRadiusOnPhase_Static(const double p_Ma
     double RZHe = HeMS::CalculateRadiusAtZAMS_Static(p_Mass);
     double LTHe = CalculateLuminosityAtPhaseEnd_Static(p_Mass);
 
-    // utils::POW() is slow - use multiplication (srqt() is much faster than utils::POW())
+    // pow() is slow - use multiplication (srqt() is much faster than PPOW())
     double m_2   = p_Mass * p_Mass;
     double m_2_5 = m_2 * sqrt(p_Mass);
     double m_5   = m_2_5 * m_2_5;
 
     double lamda = 500.0 * (2.0 + m_5) / m_2_5;
 
-    double R1 = RZHe * utils::POW((p_Luminosity / LTHe), 0.2) + (0.02 * (exp(p_Luminosity / lamda) - exp(LTHe / lamda)));
-    double R2 = 0.08 * utils::POW(p_Luminosity, 0.75);     // Mimics the Hayashi track
+    double R1 = RZHe * PPOW((p_Luminosity / LTHe), 0.2) + (0.02 * (exp(p_Luminosity / lamda) - exp(LTHe / lamda)));
+    double R2 = 0.08 * PPOW(p_Luminosity, 0.75);     // Mimics the Hayashi track
 
     // May need to change this according to section 2.1.2 of http://iopscience.iop.org/article/10.1086/340304/pdf which talks about updated helium star evolution
     // or replace with helium star tracks from binary_c
@@ -150,17 +150,17 @@ double HeGB::CalculateAgeOnPhase_Static(const double      p_Mass,
     double p1_p  = p1 / gbParams(p);
 
     double LtHe  = HeMS::CalculateLuminosityAtPhaseEnd_Static(p_Mass);
-    double tinf1 = p_tHeMS + ((1.0 / (p1 * gbParams(AHe) * gbParams(D))) * utils::POW(gbParams(D) / LtHe, p1_p));
+    double tinf1 = p_tHeMS + ((1.0 / (p1 * gbParams(AHe) * gbParams(D))) * PPOW(gbParams(D) / LtHe, p1_p));
 
     if (utils::Compare(p_CoreMass, gbParams(Mx)) > 0) {
         double q1    = gbParams(q) - 1.0;
-        double tx    = tinf1 - ((tinf1 - p_tHeMS) * utils::POW(LtHe / gbParams(Lx), p1_p));
-        double tinf2 = tx + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * utils::POW(gbParams(B) / gbParams(Lx), q1 / gbParams(q)));
+        double tx    = tinf1 - ((tinf1 - p_tHeMS) * PPOW(LtHe / gbParams(Lx), p1_p));
+        double tinf2 = tx + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW(gbParams(B) / gbParams(Lx), q1 / gbParams(q)));
 
-        age = tinf2 - (utils::POW(p_CoreMass, 1.0 - gbParams(q)) / (q1 * gbParams(AHe) * gbParams(B)));
+        age = tinf2 - (PPOW(p_CoreMass, 1.0 - gbParams(q)) / (q1 * gbParams(AHe) * gbParams(B)));
     }
     else {
-        age = tinf1 - (utils::POW(p_CoreMass, 1.0 - gbParams(p)) / (p1 * gbParams(AHe) * gbParams(D)));
+        age = tinf1 - (PPOW(p_CoreMass, 1.0 - gbParams(p)) / (p1 * gbParams(AHe) * gbParams(D)));
     }
 
     return age;
@@ -202,16 +202,16 @@ double HeGB::CalculateCoreMassOnPhase_Static(const double      p_Mass,
     double p1_p = p1 / gbParams(p);
 
     double LtHe  = HeMS::CalculateLuminosityAtPhaseEnd_Static(p_Mass);
-    double tinf1 = p_tHeMS + ((1.0 / (p1 * gbParams(AHe) * gbParams(D))) * utils::POW(gbParams(D) / LtHe, p1_p));
-    double tx    = tinf1 - (tinf1 - p_tHeMS) * utils::POW((LtHe / gbParams(Lx)), p1_p);
+    double tinf1 = p_tHeMS + ((1.0 / (p1 * gbParams(AHe) * gbParams(D))) * PPOW(gbParams(D) / LtHe, p1_p));
+    double tx    = tinf1 - (tinf1 - p_tHeMS) * PPOW((LtHe / gbParams(Lx)), p1_p);
     
     if (utils::Compare(p_Time, tx) > 0) {
         double q1    = gbParams(q) - 1.0;
-        double tinf2 = tx + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * utils::POW(gbParams(B) / gbParams(Lx), q1 / gbParams(q)));
-        coreMass = utils::POW(q1 * gbParams(AHe) * gbParams(B) * (tinf2 - p_Time), 1.0 / (1.0 - gbParams(q)));
+        double tinf2 = tx + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW(gbParams(B) / gbParams(Lx), q1 / gbParams(q)));
+        coreMass = PPOW(q1 * gbParams(AHe) * gbParams(B) * (tinf2 - p_Time), 1.0 / (1.0 - gbParams(q)));
     }
     else {
-        coreMass = utils::POW(p1 * gbParams(AHe) * gbParams(D) * (tinf1 - p_Time), 1.0 / (1.0 - gbParams(p)));
+        coreMass = PPOW(p1 * gbParams(AHe) * gbParams(D) * (tinf1 - p_Time), 1.0 / (1.0 - gbParams(p)));
     }
 
     return coreMass;
