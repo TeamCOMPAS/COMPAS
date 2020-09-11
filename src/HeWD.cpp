@@ -35,7 +35,7 @@ void HeWD::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
  * @return                                      Luminosity of a White Dwarf in Lsol
  */
 double HeWD::CalculateLuminosityOnPhase_Static(const double p_Mass, const double p_Time, const double p_Metallicity) {
-    return (635.0 * p_Mass * utils::POW(p_Metallicity, 0.4)) / utils::POW(WD_Baryon_Number.at(STELLAR_TYPE::HELIUM_WHITE_DWARF) * (p_Time + 0.1), 1.4);
+    return (635.0 * p_Mass * PPOW(p_Metallicity, 0.4)) / PPOW(WD_Baryon_Number.at(STELLAR_TYPE::HELIUM_WHITE_DWARF) * (p_Time + 0.1), 1.4);
 }
 
 
@@ -51,7 +51,7 @@ double HeWD::CalculateLuminosityOnPhase_Static(const double p_Mass, const double
  * @return                                      Radius of a White Dwarf in Rsol (since WD is ~ Earth sized, expect answer around 0.009)
  */
 double HeWD::CalculateRadiusOnPhase_Static(const double p_Mass) {
-    return std::max(NEUTRON_STAR_RADIUS, 0.0115 * sqrt(utils::POW(MCH / p_Mass, 2.0 / 3.0) - utils::POW(p_Mass / MCH, 2.0 / 3.0)));
+    return std::max(NEUTRON_STAR_RADIUS, 0.0115 * sqrt(PPOW(MCH / p_Mass, 2.0 / 3.0) - PPOW(p_Mass / MCH, 2.0 / 3.0)));
 }
 
 

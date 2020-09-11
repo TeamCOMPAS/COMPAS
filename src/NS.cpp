@@ -194,8 +194,8 @@ double NS::CalculatePulsarBirthMagneticField_Static() {
         case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::UNIFORM: {                                                       // UNIFORM flat distribution used in Kiel et al 2008 https://arxiv.org/abs/0805.0059 (log10B0min = 11, log10B0max = 13.5 see section 3.4 and Table 1.)
             
       
-            double maximum = utils::POW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMax());
-            double minimum = utils::POW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMin());
+            double maximum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMax());
+            double minimum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMin());
 
             log10B = log10(minimum + (RAND->Random() * (maximum - minimum)));
             } break;
@@ -240,7 +240,7 @@ double NS::CalculatePulsarBirthMagneticField_Static() {
  */
 double NS::CalculateMomentOfInertia_Static(const double p_Mass, const double p_Radius) {
 
-    // utils::POW() is slow - use multiplication
+    // pow() is slow - use multiplication
     double m_r    = p_Mass / p_Radius;
     double m_r_4  = m_r * m_r * m_r * m_r;
     double r_km   = p_Radius * KM_TO_CM;
@@ -267,7 +267,7 @@ double NS::CalculateMomentOfInertia_Static(const double p_Mass, const double p_R
  */
 double NS::CalculateSpinDownRate_Static(const double p_Omega, const double p_MomentOfInteria, const double p_MagField, const double p_Radius, double const p_Alpha) {
 
-   // utils::POW() is slow - use multiplication
+   // pow() is slow - use multiplication
    double omega_3              = p_Omega * p_Omega * p_Omega;
    double radius_6             = p_Radius * p_Radius * p_Radius * p_Radius * p_Radius * p_Radius;
    double magField_2           = p_MagField * p_MagField;
@@ -291,7 +291,7 @@ double NS::CalculateSpinDownRate_Static(const double p_Omega, const double p_Mom
  */
 void NS::CalculateAndSetPulsarParameters() {
 
-    m_PulsarDetails.magneticField = utils::POW(10.0, CalculatePulsarBirthMagneticField_Static()) * GAUSS_TO_TESLA ;                                                                        // magnetic field in Gauss -> convert to Tesla
+    m_PulsarDetails.magneticField = PPOW(10.0, CalculatePulsarBirthMagneticField_Static()) * GAUSS_TO_TESLA ;                                                                        // magnetic field in Gauss -> convert to Tesla
     m_PulsarDetails.spinPeriod    = CalculatePulsarBirthSpinPeriod_Static();                                                                                                        // spin period in ms
     m_PulsarDetails.spinFrequency = _2_PI / (m_PulsarDetails.spinPeriod * SECONDS_IN_MS);
 
@@ -378,7 +378,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const double p_
     double mass                 = m_Mass * MSOL_TO_KG;
     double radius               = m_Radius * RSOL;
     double initialMagField      = m_PulsarDetails.magneticField;
-    double magFieldLowerLimit   = utils::POW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA;                                       
+    double magFieldLowerLimit   = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA;                                       
     double momentOfInertia      = m_MomentOfInertia * unitsMoI;
     double tau                  = OPTIONS->PulsarMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR;                                 
     double kappa                = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_KG;                                                          
@@ -409,9 +409,9 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const double p_
         // calculate the Alfven radius for an accreting neutron star, see Equation 8 in  arXiv:0903.3538v2       
         double mDot         = p_MassGainPerTimeStep / p_Stepsize ;
         double p            = ((radius * radius * radius * radius * radius * radius) / (sqrt(mass) * mDot));
-        double q            = utils::POW(p, 2.0 / 7.0);
-        double constant     = utils::POW((2.0 * M_PI * M_PI) / (G * MU_0 * MU_0), 1.0 / 7.0);                                                         
-        double alfvenRadius = constant * q * utils::POW(m_PulsarDetails.magneticField, 4.0 / 7.0);
+        double q            = PPOW(p, 2.0 / 7.0);
+        double constant     = PPOW((2.0 * M_PI * M_PI) / (G * MU_0 * MU_0), 1.0 / 7.0);                                                         
+        double alfvenRadius = constant * q * PPOW(m_PulsarDetails.magneticField, 4.0 / 7.0);
   
         // calculate the difference in the keplerian angular velocity and surface angular velocity of the neutron star in m - see Equation 2 in 1994MNRAS.269..455J       
         double keplerianVelocityAtAlfvenRadius        = sqrt(G * mass) / sqrt(alfvenRadius / 2.0);

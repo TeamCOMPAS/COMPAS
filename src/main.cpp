@@ -13,6 +13,7 @@
 #include "constants.h"
 #include "typedefs.h"
 
+#include "profiling.h"
 #include "utils.h"
 #include "Options.h"
 #include "Rand.h"
@@ -1334,11 +1335,9 @@ int main(int argc, char * argv[]) {
 
     PROGRAM_STATUS programStatus = OPTIONS->Initialise(argc, argv);                     // get the program options from the commandline
 
-    if (OPTIONS->Profiling()) {
-        utils::setProfiling(true);                                                      // keep track of repeated calls to pow() functions, wrapped via utils::POW()
-    }
-
     if (programStatus == PROGRAM_STATUS::CONTINUE) {
+
+        InitialiseProfiling;                                                            // initialise profiling functionality
 
         // start the logging service
         LOGGING->Start(OPTIONS->OutputPathString(),                                     // location of logfiles
@@ -1375,10 +1374,8 @@ int main(int argc, char * argv[]) {
 
             programStatus = PROGRAM_STATUS::SUCCESS;                                    // set program status, and...
         }
-    }
 
-    if (OPTIONS->Profiling()) {
-        utils::finalisePOW();                                                           // clean up repeated calls to pow() functions
+        ReportProfiling;                                                                // report profiling statistics
     }
 
     return static_cast<int>(programStatus);                                             // we're done
