@@ -94,7 +94,7 @@ double CHeB::CalculateLambdaDewi() {
 
     double lambda3 = std::min(-0.9, 0.58 + (0.75 * log10(m_Mass))) - (0.08 * log10(m_Luminosity));                          // (A.4) Claeys+2014
     double lambda1 = std::min(lambda3, std::min(0.8, 1.25 - (0.15 * log10(m_Luminosity))));                                 // (A.5) Top, Claeys+2014
-	double lambda2 = 0.42 * utils::POW(m_RZAMS / m_Radius, 0.4);                                                                   // (A.2) Claeys+2014
+	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                   // (A.2) Claeys+2014
 	double envMass = utils::Compare(m_CoreMass, 0.0) > 0 && utils::Compare(m_Mass, m_CoreMass) > 0 ? m_Mass - m_CoreMass : 0.0;
 
     double lambdaCE;
@@ -484,9 +484,9 @@ double CHeB::CalculateMinimumLuminosityOnPhase(const double      p_Mass,
 #define b p_BnCoefficients  // for convenience and readability - undefined at end of function
 
     double LHeI = GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, p_Alpha1, p_MHeF, p_BnCoefficients);
-    double c    = (b[17] / utils::POW(p_MFGB, 0.1)) + (((b[16] * b[17]) - b[14]) / (utils::POW(p_MFGB, (b[15] + 0.1))));
+    double c    = (b[17] / PPOW(p_MFGB, 0.1)) + (((b[16] * b[17]) - b[14]) / (PPOW(p_MFGB, (b[15] + 0.1))));
 
-    return  LHeI * ((b[14] + (c * utils::POW(p_Mass, (b[15] + 0.1)))) / (b[16] + utils::POW(p_Mass, b[15])));
+    return  LHeI * ((b[14] + (c * PPOW(p_Mass, (b[15] + 0.1)))) / (b[16] + PPOW(p_Mass, b[15])));
 
 #undef b
 }
@@ -549,14 +549,14 @@ double CHeB::CalculateLuminosityAtBluePhaseEnd(const double p_Mass) {
         double Rx      = CalculateRadiusAtBluePhaseStart(p_Mass);
         double RMinHe  = CalculateMinimumRadiusOnPhase_Static(p_Mass, m_CoreMass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_MinimumLuminosityOnPhase, m_BnCoefficients);
         double epsilon = std::min(2.5, std::max(0.4, RMinHe / Rx));
-        double lambda  = (utils::Compare(ty, tx) == 0) ? 0.0 : utils::POW(((ty - tx) / (1.0 - tx)), epsilon);     // JR: tx can be 1.0 here - if so, lambda = 0.0
-        Ly             = Lx * utils::POW(CalculateLuminosityAtBAGB(p_Mass) / Lx, lambda);
+        double lambda  = (utils::Compare(ty, tx) == 0) ? 0.0 : PPOW(((ty - tx) / (1.0 - tx)), epsilon);     // JR: tx can be 1.0 here - if so, lambda = 0.0
+        Ly             = Lx * PPOW(CalculateLuminosityAtBAGB(p_Mass) / Lx, lambda);
     }
     else {
-        // utils::POW() is slow - use multiplication
+        // pow() is slow - use multiplication
         double tmp         = (tx - ty) / tx;                                                        // JR: tx cannot be 0.0 here - so safe (tx > ty, ty = [0, 1])
         double lambdaPrime = tmp * tmp * tmp;
-        Ly                 = Lx * utils::POW(GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients) / Lx, lambdaPrime);
+        Ly                 = Lx * PPOW(GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients) / Lx, lambdaPrime);
     }
 
     return Ly;
@@ -592,14 +592,14 @@ double CHeB::CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau)
         double RmHe    = CalculateMinimumRadiusOnPhase_Static(p_Mass, m_CoreMass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_MinimumLuminosityOnPhase, m_BnCoefficients);
         double LBAGB   = CalculateLuminosityAtBAGB(p_Mass);
         double epsilon = std::min(2.5, std::max(0.4, (RmHe / Rx)));
-        double lambda  = (utils::Compare(p_Tau, tx) == 0) ? 0.0 : utils::POW((p_Tau - tx) / (1.0 - tx), epsilon);                                  // JR: tx can be 1.0 here - if so, lambda = 0.0
-        lCHeB          = Lx * utils::POW(LBAGB / Lx, lambda);
+        double lambda  = (utils::Compare(p_Tau, tx) == 0) ? 0.0 : PPOW((p_Tau - tx) / (1.0 - tx), epsilon);                                  // JR: tx can be 1.0 here - if so, lambda = 0.0
+        lCHeB          = Lx * PPOW(LBAGB / Lx, lambda);
     }
     else {
-        double LHeI        = GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);    // utils::POW() is slow - use multiplication
+        double LHeI        = GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);    // pow() is slow - use multiplication
         double tmp         = (tx - p_Tau) / tx;                                                                                             // JR: tx cannot be 0.0 here, so safe (tx > tau, tau = [0, 1])
         double lambdaPrime = tmp * tmp * tmp;
-        lCHeB              = Lx * utils::POW((LHeI / Lx), lambdaPrime);
+        lCHeB              = Lx * PPOW((LHeI / Lx), lambdaPrime);
     }
 
     return lCHeB;
@@ -677,19 +677,19 @@ double CHeB::CalculateMinimumRadiusOnPhase_Static(const double      p_Mass,
     double minR = 0.0;  // Minimum radius
 
     if (utils::Compare(p_MHeF, p_Mass) < 0) {
-        double m_b28 = utils::POW(p_Mass, b[28]);     // utils::POW() is slow - do it once only
-        minR = ((b[24] * p_Mass) + (utils::POW((b[25] * p_Mass), b[26]) * m_b28)) / (b[27] + m_b28);
+        double m_b28 = PPOW(p_Mass, b[28]);     // pow() is slow - do it once only
+        minR = ((b[24] * p_Mass) + (PPOW((b[25] * p_Mass), b[26]) * m_b28)) / (b[27] + m_b28);
     }
     else {
         double LZAHB_MHeF = GiantBranch::CalculateLuminosityOnZAHB_Static(p_MHeF, p_CoreMass, p_Alpha1, p_MHeF, p_MFGB, p_MinimumLuminosityOnPhase, p_BnCoefficients);
         double LZAHB      = GiantBranch::CalculateLuminosityOnZAHB_Static(p_Mass, p_CoreMass, p_Alpha1, p_MHeF, p_MFGB, p_MinimumLuminosityOnPhase, p_BnCoefficients);
         double mu         = p_Mass / p_MHeF;
-        double MHeF_b28   = utils::POW(p_MHeF, b[28]);     // utils::POW() is slow - do it once only
-        double top        = ((b[24] * p_MHeF) + (utils::POW((b[25] * p_Mass), b[26]) * MHeF_b28)) / (b[27] + MHeF_b28);
+        double MHeF_b28   = PPOW(p_MHeF, b[28]);     // pow() is slow - do it once only
+        double top        = ((b[24] * p_MHeF) + (PPOW((b[25] * p_Mass), b[26]) * MHeF_b28)) / (b[27] + MHeF_b28);
         // still unsure about this line.
         double bottom     = GiantBranch::CalculateRadiusOnPhase_Static(p_MHeF, LZAHB_MHeF, p_BnCoefficients); // Mass or MHeF
 
-        minR = GiantBranch::CalculateRadiusOnPhase_Static(p_Mass, LZAHB, p_BnCoefficients) * utils::POW(top / bottom, mu);
+        minR = GiantBranch::CalculateRadiusOnPhase_Static(p_Mass, LZAHB, p_BnCoefficients) * PPOW(top / bottom, mu);
     }
 
     return minR;
@@ -781,9 +781,9 @@ double CHeB::CalculateRadiusRho(const double p_Mass, const double p_Tau) {
 
     double ty_tx = ty - tx;
 
-    double one   = utils::POW(log((Ry / Rmin)), 1.0 / 3.0);
+    double one   = PPOW(log((Ry / Rmin)), 1.0 / 3.0);
     double two   = (p_Tau - tx) / ty_tx;
-    double three = utils::POW(log((Rx / Rmin)), 1.0 / 3.0);
+    double three = PPOW(log((Rx / Rmin)), 1.0 / 3.0);
     double four  = (ty - p_Tau) / ty_tx;
 
     return (one * two) - (three * four);
@@ -929,12 +929,12 @@ double CHeB::CalculateLifetimeOnPhase(const double p_Mass) {
         double tHeMS = HeMS::CalculateLifetimeOnPhase_Static(m_CoreMass);   // can't use Timescales here - calculated using Mass not CoreMass
         double mu    = p_Mass / massCutoffs(MHeF);
 
-        tHe = (b[39] + ((tHeMS - b[39]) * utils::POW((1.0 - mu), b[40]))) * (1.0 + (m_Alpha4 * exp(15.0 * (p_Mass - massCutoffs(MHeF)))));
+        tHe = (b[39] + ((tHeMS - b[39]) * PPOW((1.0 - mu), b[40]))) * (1.0 + (m_Alpha4 * exp(15.0 * (p_Mass - massCutoffs(MHeF)))));
     }
     else {
-        double m_5 = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass;            // utils::POW() is slow - use multiplication (sqrt() is much faster than utils::POW())
+        double m_5 = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass;            // pow() is slow - use multiplication (sqrt() is much faster than pow())
 
-        tHe = timescales(tBGB) * (((b[41] * utils::POW(p_Mass, b[42])) + (b[43] * m_5)) / (b[44] + m_5));
+        tHe = timescales(tBGB) * (((b[41] * PPOW(p_Mass, b[42])) + (b[43] * m_5)) / (b[44] + m_5));
     }
 
     return tHe;
@@ -961,8 +961,8 @@ double CHeB::CalculateBluePhaseFBL(const double p_Mass) {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     // Calculate RmHe for M > MFGB > MHeF
-    double m_b28 = utils::POW(p_Mass, b[28]);  // utils::POW() is slow - do it once only
-    double top   = ((b[24] * p_Mass) + (utils::POW((b[25] * p_Mass), b[26]) * m_b28)) / (b[27] + m_b28);
+    double m_b28 = PPOW(p_Mass, b[28]);  // pow() is slow - do it once only
+    double top   = ((b[24] * p_Mass) + (PPOW((b[25] * p_Mass), b[26]) * m_b28)) / (b[27] + m_b28);
 
     // Might be that we are supposed to use min(RmHe, Rx=RHeI)
     double RHeI = CalculateRadiusAtHeIgnition(p_Mass);
@@ -974,7 +974,7 @@ double CHeB::CalculateBluePhaseFBL(const double p_Mass) {
     double bottom   = EAGB::CalculateRadiusOnPhase_Static(p_Mass, LHeI, massCutoffs(MHeF), m_BnCoefficients);
     double brackets = 1.0 - (top / bottom);
 
-    return utils::POW(p_Mass, b[48]) * utils::POW(brackets, b[49]);
+    return PPOW(p_Mass, b[48]) * PPOW(brackets, b[49]);
 
 #undef massCutoffs
 #undef b
@@ -1003,8 +1003,8 @@ double CHeB::CalculateLifetimeOnBluePhase(const double p_Mass) {
     }
     else if (utils::Compare(p_Mass, massCutoffs(MFGB)) <= 0) {
         double m_MFGB    = p_Mass / massCutoffs(MFGB);
-        double firstTerm = (b[45] * utils::POW(m_MFGB, 0.414));
-        tbl              = firstTerm + ((1.0 - firstTerm) * utils::POW((log10(m_MFGB) / log10(massCutoffs(MHeF) / massCutoffs(MFGB))), b[46]));
+        double firstTerm = (b[45] * PPOW(m_MFGB, 0.414));
+        tbl              = firstTerm + ((1.0 - firstTerm) * PPOW((log10(m_MFGB) / log10(massCutoffs(MHeF) / massCutoffs(MFGB))), b[46]));
     }
     else {
         double fblM    = CalculateBluePhaseFBL(p_Mass);

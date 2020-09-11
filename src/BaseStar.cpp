@@ -483,7 +483,7 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
     double xi    = m_LogMetallicityXi;
     double sigma = m_LogMetallicitySigma;
 
-    // utils::POW() is slow - use multiplication
+    // pow() is slow - use multiplication
     // do these calculations once only - and esp. outside the loop
     double xi_2  = xi * xi;
     double xi_3  = xi * xi_2;
@@ -500,10 +500,10 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
 
     a[11] *= a[14];
     a[12] *= a[14];
-    a[17] = utils::POW(10.0, max((0.097 - (0.1072 * (sigma + 3.0))), max(0.097, min(0.1461, (0.1461 + (0.1237 * (sigma + 2.0)))))));
+    a[17] = PPOW(10.0, max((0.097 - (0.1072 * (sigma + 3.0))), max(0.097, min(0.1461, (0.1461 + (0.1237 * (sigma + 2.0)))))));
     a[18] *= a[20];
     a[19] *= a[20];
-    a[29] = utils::POW(a[29], (a[32]));
+    a[29] = PPOW(a[29], (a[32]));
     a[33] = min(1.4, 1.5135 + (0.3769 * xi));
     a[42] = min(1.25, max(1.1, a[42]));
     a[44] = min(1.3, max(0.45, a[44]));
@@ -521,7 +521,7 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
     a[68] = max(0.9, min(a[68], 1.0));
 
     // Need bAlpaR - calculate it now
-    RConstants(B_ALPHA_R) = (a[58] * utils::POW(a[66], a[60])) / (a[59] + utils::POW(a[66], a[61]));                          // Hurley et al. 2000, eq 21a (wrong in the arxiv version - says = a59*M**(a61))
+    RConstants(B_ALPHA_R) = (a[58] * PPOW(a[66], a[60])) / (a[59] + PPOW(a[66], a[61]));                          // Hurley et al. 2000, eq 21a (wrong in the arxiv version - says = a59*M**(a61))
 
     // Continue special cases
 
@@ -538,16 +538,16 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
     a[80] = max(0.0585542, a[80]);
     a[81] = min(1.5, max(0.4, a[81]));
 
-    LConstants(B_ALPHA_L)   = (a[45] + (a[46] * utils::POW(2.0, a[48]))) / (utils::POW(2.0, 0.4) + (a[47] * utils::POW(2.0, 1.9)));  // Hurley et al. 2000, eq 19a
-    LConstants(B_BETA_L)    = max(0.0, (a[54] - (a[55] * utils::POW(a[57], a[56]))));                                  // Hurley et al. 2000, eq 20
-    LConstants(B_DELTA_L)   = min((a[34] / utils::POW(a[33], a[35])), (a[36] / utils::POW(a[33], a[37])));                    // Hurley et al. 2000, eq 16
+    LConstants(B_ALPHA_L)   = (a[45] + (a[46] * PPOW(2.0, a[48]))) / (PPOW(2.0, 0.4) + (a[47] * PPOW(2.0, 1.9)));  // Hurley et al. 2000, eq 19a
+    LConstants(B_BETA_L)    = max(0.0, (a[54] - (a[55] * PPOW(a[57], a[56]))));                                  // Hurley et al. 2000, eq 20
+    LConstants(B_DELTA_L)   = min((a[34] / PPOW(a[33], a[35])), (a[36] / PPOW(a[33], a[37])));                    // Hurley et al. 2000, eq 16
 
-    RConstants(C_ALPHA_R)   = (a[58] * utils::POW(a[67], a[60])) / (a[59] + utils::POW(a[67], a[61]));                        // Hurley et al. 2000, eq 21a (wrong in the arxiv version)
-    RConstants(B_BETA_R)    = (a[69] * 8.0 * M_SQRT2) / (a[70] + utils::POW(2.0, a[71]));                              // Hurley et al. 2000, eq 22a
-    RConstants(C_BETA_R)    = (a[69] * 16384.0) / (a[70] + utils::POW(16.0, a[71]));                                   // Hurley et al. 2000, eq 22a
-    RConstants(B_DELTA_R)   = (a[38] + (a[39] * 8.0 * M_SQRT2)) / ((a[40] * 8.0) + utils::POW(2.0, a[41]));            // Hurley et al. 2000, eq 17
+    RConstants(C_ALPHA_R)   = (a[58] * PPOW(a[67], a[60])) / (a[59] + PPOW(a[67], a[61]));                        // Hurley et al. 2000, eq 21a (wrong in the arxiv version)
+    RConstants(B_BETA_R)    = (a[69] * 8.0 * M_SQRT2) / (a[70] + PPOW(2.0, a[71]));                              // Hurley et al. 2000, eq 22a
+    RConstants(C_BETA_R)    = (a[69] * 16384.0) / (a[70] + PPOW(16.0, a[71]));                                   // Hurley et al. 2000, eq 22a
+    RConstants(B_DELTA_R)   = (a[38] + (a[39] * 8.0 * M_SQRT2)) / ((a[40] * 8.0) + PPOW(2.0, a[41]));            // Hurley et al. 2000, eq 17
 
-    GammaConstants(B_GAMMA) = a[76] + (a[77] * utils::POW((1.0 - a[78]), a[79]));                                      // Hurley et al. 2000, eq 23
+    GammaConstants(B_GAMMA) = a[76] + (a[77] * PPOW((1.0 - a[78]), a[79]));                                      // Hurley et al. 2000, eq 23
     GammaConstants(C_GAMMA) = (utils::Compare(a[75], 1.0) == 0) ? GammaConstants(B_GAMMA) : a[80];              // Hurley et al. 2000, eq 23
 
 #undef GammaConstants
@@ -585,7 +585,7 @@ void BaseStar::CalculateBnCoefficients(DBL_VECTOR &p_BnCoefficients) {
     double sigma = m_LogMetallicitySigma;
     double rho   = m_LogMetallicityRho;
 
-    // utils::POW() is slow - use multiplication
+    // pow() is slow - use multiplication
     // do these calculations once only - and esp. outside the loop
     double xi_2  = xi * xi;
     double xi_3  = xi * xi_2;
@@ -603,34 +603,34 @@ void BaseStar::CalculateBnCoefficients(DBL_VECTOR &p_BnCoefficients) {
     // Special Cases - see Hurley et al. 2000
 
     b[1] = min(0.54, b[1]);
-    b[2] = utils::POW(10.0, (-4.6739 - (0.9394 * sigma)));
-    b[2] = min(max(b[2], (-0.04167 + (55.67 * Z))), (0.4771 - (9329.21 * utils::POW(Z, 2.94))));
+    b[2] = PPOW(10.0, (-4.6739 - (0.9394 * sigma)));
+    b[2] = min(max(b[2], (-0.04167 + (55.67 * Z))), (0.4771 - (9329.21 * PPOW(Z, 2.94))));
     b[3] = max(-0.1451, (-2.2794 - (1.5175 * sigma) - (0.254 * sigma * sigma)));
-    b[3] = (utils::Compare(Z, 0.004) > 0) ? max(b[3], 0.7307 + (14265.1 * utils::POW(Z, 3.395))) : utils::POW(10.0, b[3]);
+    b[3] = (utils::Compare(Z, 0.004) > 0) ? max(b[3], 0.7307 + (14265.1 * PPOW(Z, 3.395))) : PPOW(10.0, b[3]);
     b[4] += 0.1231572 * xi_5;
     b[6] += 0.01640687 * xi_5;
     b[11] = b[11] * b[11];
     b[13] = b[13] * b[13];
-    b[14] = utils::POW(b[14], b[15]);
-    b[16] = utils::POW(b[16], b[15]);
-    b[17] = (utils::Compare(xi, -1.0) > 0) ? 1.0 - (0.3880523 * utils::POW((xi + 1.0), 2.862149)) : 1.0;
-    b[24] = utils::POW(b[24], b[28]);
-    b[26] = 5.0 - (0.09138012 * utils::POW(Z, -0.3671407));
-    b[27] = utils::POW(b[27], (2.0 * b[28]));
-    b[31] = utils::POW(b[31], b[33]);
-    b[34] = utils::POW(b[34], b[33]);
+    b[14] = PPOW(b[14], b[15]);
+    b[16] = PPOW(b[16], b[15]);
+    b[17] = (utils::Compare(xi, -1.0) > 0) ? 1.0 - (0.3880523 * PPOW((xi + 1.0), 2.862149)) : 1.0;
+    b[24] = PPOW(b[24], b[28]);
+    b[26] = 5.0 - (0.09138012 * PPOW(Z, -0.3671407));
+    b[27] = PPOW(b[27], (2.0 * b[28]));
+    b[31] = PPOW(b[31], b[33]);
+    b[34] = PPOW(b[34], b[33]);
     b[36] = b[36] * b[36] * b[36] * b[36];
     b[37] = 4.0 * b[37];
     b[38] = b[38] * b[38] * b[38] * b[38];
     b[40] = max(b[40], 1.0);
-    b[41] = utils::POW(b[41], b[42]);
+    b[41] = PPOW(b[41], b[42]);
     b[44] = b[44] * b[44] * b[44] * b[44] * b[44];
     b[45] = utils::Compare(rho, 0.0) <= 0 ? 1.0 : 1.0 - ((2.47162 * rho) - (5.401682 * rho_2) + (3.247361 * rho_3));
     b[46] = -1.0 * b[46] * log10(massCutoffs(MHeF) / massCutoffs(MFGB));
     b[47] = (1.127733 * rho) + (0.2344416 * rho_2) - (0.3793726 * rho_3);
     b[51] -= 0.1343798 * xi_5;
     b[53] += 0.4426929 * xi_5;
-    b[55] = min((0.99164 - (743.123 * utils::POW(Z, 2.83))), b[55]);
+    b[55] = min((0.99164 - (743.123 * PPOW(Z, 2.83))), b[55]);
     b[56] += 0.1140142 * xi_5;
     b[57] -= 0.01308728 * xi_5;
 
@@ -660,7 +660,7 @@ void BaseStar::CalculateLCoefficients(const double p_LogMetallicityXi, DBL_VECTO
 #define index    coeff.first                // for convenience and readability - undefined at end of function
 #define coeff(x) coeff.second[LR_TCoeff::x] // for convenience and readability - undefined at end of function
 
-    // utils::POW() is slow - use multiplication
+    // pow() is slow - use multiplication
     // do these calculations once only - and esp. outside the loop
     double xi   = p_LogMetallicityXi;
     double xi_2 = xi * xi;
@@ -698,7 +698,7 @@ void BaseStar::CalculateRCoefficients(const double p_LogMetallicityXi, DBL_VECTO
 #define index    coeff.first                // for convenience and readability - undefined at end of function
 #define coeff(x) coeff.second[LR_TCoeff::x] // for convenience and readability - undefined at end of function
 
-    // utils::POW() is slow - use multiplication
+    // pow() is slow - use multiplication
     // do these calculations once only - and esp. outside the loop
     double xi   = p_LogMetallicityXi;
     double xi_2 = xi * xi;
@@ -733,8 +733,8 @@ double BaseStar::CalculateAlpha1() {
 #define b m_BnCoefficients                                              // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
-    double LHeI_MHeF = (b[11] + (b[12] * utils::POW(massCutoffs(MHeF), 3.8))) / (b[13] + (massCutoffs(MHeF) * massCutoffs(MHeF)));
-    return ((b[9] * utils::POW(massCutoffs(MHeF), b[10])) - LHeI_MHeF) / LHeI_MHeF;
+    double LHeI_MHeF = (b[11] + (b[12] * PPOW(massCutoffs(MHeF), 3.8))) / (b[13] + (massCutoffs(MHeF) * massCutoffs(MHeF)));
+    return ((b[9] * PPOW(massCutoffs(MHeF), b[10])) - LHeI_MHeF) / LHeI_MHeF;
 
 #undef massCutoffs
 #undef b
@@ -757,8 +757,8 @@ double BaseStar::CalculateAlpha3() {
 #define b m_BnCoefficients                                              // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
-    double LBAGB = (b[31] + (b[32] * utils::POW(massCutoffs(MHeF), (b[33] + 1.8)))) / (b[34] + utils::POW(massCutoffs(MHeF), b[33]));
-    return ((b[29] * utils::POW(massCutoffs(MHeF), b[30])) - LBAGB) / LBAGB;
+    double LBAGB = (b[31] + (b[32] * PPOW(massCutoffs(MHeF), (b[33] + 1.8)))) / (b[34] + PPOW(massCutoffs(MHeF), b[33]));
+    return ((b[29] * PPOW(massCutoffs(MHeF), b[30])) - LBAGB) / LBAGB;
 
 #undef massCutoffs
 #undef b
@@ -782,10 +782,10 @@ double BaseStar::CalculateAlpha4() {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     double MHeF      = massCutoffs(MHeF);
-    double MHeF_5    = MHeF * MHeF * MHeF * MHeF * MHeF;    // utils::POW() is slow - use multiplication
+    double MHeF_5    = MHeF * MHeF * MHeF * MHeF * MHeF;    // pow() is slow - use multiplication
     double tBGB_MHeF = CalculateLifetimeToBGB(MHeF);        // tBGB for mass M = MHeF
 
-    return tBGB_MHeF * (((b[41] * utils::POW(MHeF, b[42])) + (b[43] * MHeF_5)) / (b[44] + MHeF_5));
+    return tBGB_MHeF * (((b[41] * PPOW(MHeF, b[42])) + (b[43] * MHeF_5)) / (b[44] + MHeF_5));
 
 #undef massCutoffs
 #undef b
@@ -822,13 +822,13 @@ double BaseStar::CalculateAlpha4() {
 void BaseStar::CalculateMassCutoffs(const double p_Metallicity, const double p_LogMetallicityXi, DBL_VECTOR &p_MassCutoffs) {
 #define massCutoffs(x) p_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
-    double xi_2 = p_LogMetallicityXi * p_LogMetallicityXi;                          // utils::POW() is slow - use multiplication
+    double xi_2 = p_LogMetallicityXi * p_LogMetallicityXi;                          // pow() is slow - use multiplication
 
     massCutoffs(MHook) = 1.0185 + (0.16015 * p_LogMetallicityXi) + (0.0892 * xi_2); // MHook - Hurley et al. 2000, eq 1
     massCutoffs(MHeF)  = 1.995 + (0.25 * p_LogMetallicityXi) + (0.087 * xi_2);      // MHeF - Hurley et al. 2000, eq 2
 
-    double top         = 13.048 * utils::POW((p_Metallicity / ZSOL), 0.06);
-    double bottom      = 1.0 + (0.0012 * utils::POW((ZSOL / p_Metallicity), 1.27));
+    double top         = 13.048 * PPOW((p_Metallicity / ZSOL), 0.06);
+    double bottom      = 1.0 + (0.0012 * PPOW((ZSOL / p_Metallicity), 1.27));
     massCutoffs(MFGB)  = top / bottom;                                              // MFGB - Hurley et al. 2000, eq 3
 
     massCutoffs(MCHE)  = 100.0;                                                     // MCHE - Mandel/Butler - CHE calculation
@@ -852,7 +852,7 @@ void BaseStar::CalculateMassCutoffs(const double p_Metallicity, const double p_L
  */
 double BaseStar::CalculateGBRadiusXExponent() {
 
-    // utils::POW()is slow - use multiplication
+    // pow()is slow - use multiplication
     double xi   = m_LogMetallicityXi;
     double xi_2 = xi * xi;
     double xi_3 = xi_2 * xi;
@@ -909,7 +909,7 @@ double BaseStar::CalculatePerturbationC(double p_Mass) {
 double BaseStar::CalculatePerturbationS(const double p_Mu, const double p_Mass) {
 
     double b      = CalculatePerturbationB(p_Mass);
-    double b_3    = b * b * b;                      // utils::POW() is slow - use multiplication
+    double b_3    = b * b * b;                      // pow() is slow - use multiplication
     double mu_b_3 = p_Mu * p_Mu * p_Mu / b_3;       // calculate once, use many times...
 
     return ((1.0 + b_3) * mu_b_3) / (1.0 + mu_b_3);
@@ -952,13 +952,13 @@ double BaseStar::CalculatePerturbationR(const double p_Mu, const double p_Mass, 
     if(utils::Compare(p_Mu, 0.0) >= 0) {                            // only if mu >= 0
 
         double c      = CalculatePerturbationC(p_Mass);
-        double c_3    = c * c * c;                                  // utils::POW() is slow - use multiplication
+        double c_3    = c * c * c;                                  // pow() is slow - use multiplication
         double mu_c_3 = p_Mu * p_Mu * p_Mu / c_3;                   // calculate once
 
         double q        = CalculatePerturbationQ(p_Radius, p_Rc);
         double exponent = min((0.1 / q), (-14.0 / log10(p_Mu)));    // JR: todo: Hurley et al. 2000 is just 0.1 / q ?
 
-        r = ((1.0 + c_3) * mu_c_3 * utils::POW((p_Mu), exponent)) / ((1.0 + mu_c_3));
+        r = ((1.0 + c_3) * mu_c_3 * PPOW((p_Mu), exponent)) / ((1.0 + mu_c_3));
     }
 
     return r;
@@ -990,7 +990,7 @@ double BaseStar::CalculateLambdaKruckow(const double p_Radius, const double p_Al
 
 	double alpha = max(-2.0 / 3.0, min(-1.0, p_Alpha));             // clamp alpha to [-1.0, -2/3]
 
-	return 1600.0 * utils::POW(0.00125, -alpha) * utils::POW(p_Radius, alpha);
+	return 1600.0 * PPOW(0.00125, -alpha) * PPOW(p_Radius, alpha);
 }
 
 
@@ -1081,7 +1081,7 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) {
  */
 double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss) {
 
-    double bindingEnergy = utils::POW(10.0, CalculateLogBindingEnergyLoveridge(p_IsMassLoss));
+    double bindingEnergy = PPOW(10.0, CalculateLogBindingEnergyLoveridge(p_IsMassLoss));
     return bindingEnergy > 0.0 ? (G_CGS * m_Mass * MSOL_TO_G * p_EnvMass * MSOL_TO_G) / (m_Radius * RSOL_TO_AU * AU_TO_CM * bindingEnergy) : 1E-20;
 }
 
@@ -1212,8 +1212,8 @@ void BaseStar::CalculateLambdas(const double p_EnvMass) {
 double BaseStar::CalculateLuminosityAtZAMS(const double p_MZAMS) {
 #define coeff(x) m_LCoefficients[static_cast<int>(L_Coeff::x)]   // for convenience and readability - undefined at end of function
 
-    // utils::POW() is slow - use multiplication where it makes sense
-    // sqrt() is much faster than utils::POW()
+    // pow() is slow - use multiplication where it makes sense
+    // sqrt() is much faster than pow()
     double m_0_5 = sqrt(p_MZAMS);
     double m_2   = p_MZAMS * p_MZAMS;
     double m_3   = m_2 * p_MZAMS;
@@ -1249,8 +1249,8 @@ double BaseStar::CalculateLuminosityAtBAGB(double p_Mass) {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     return (utils::Compare(p_Mass, massCutoffs(MHeF)) < 0)
-            ? (b[29] * utils::POW(p_Mass, b[30])) / (1.0 + (m_Alpha3 * exp(15.0 * (p_Mass - massCutoffs(MHeF)))))
-            : (b[31] + (b[32] * utils::POW(p_Mass, (b[33] + 1.8)))) / (b[34] + utils::POW(p_Mass, b[33]));
+            ? (b[29] * PPOW(p_Mass, b[30])) / (1.0 + (m_Alpha3 * exp(15.0 * (p_Mass - massCutoffs(MHeF)))))
+            : (b[31] + (b[32] * PPOW(p_Mass, (b[33] + 1.8)))) / (b[34] + PPOW(p_Mass, b[33]));
 
 #undef massCutoffs
 #undef b
@@ -1271,7 +1271,7 @@ double BaseStar::CalculateLuminosityAtBAGB(double p_Mass) {
 double BaseStar::CalculateLuminosityGivenCoreMass(const double p_CoreMass) {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
 
-    return min((gbParams(B) * utils::POW(p_CoreMass, gbParams(q))), (gbParams(D) * utils::POW(p_CoreMass, gbParams(p))));
+    return min((gbParams(B) * PPOW(p_CoreMass, gbParams(q))), (gbParams(D) * PPOW(p_CoreMass, gbParams(p))));
 
 #undef gbParams
 }
@@ -1298,8 +1298,8 @@ double BaseStar::CalculateLuminosityGivenCoreMass(const double p_CoreMass) {
 double BaseStar::CalculateRadiusAtZAMS(const double p_MZAMS) {
 #define coeff(x) m_RCoefficients[static_cast<int>(R_Coeff::x)]  // for convenience and readability - undefined at end of function
 
-    // utils::POW() is slow - use multiplication where it makes sense
-    // sqrt() is much faster than utils::POW()
+    // pow() is slow - use multiplication where it makes sense
+    // sqrt() is much faster than pow()
     double m_0_5  = sqrt(p_MZAMS);
     double m_2    = p_MZAMS * p_MZAMS;
     double m_2_5  = m_2 * m_0_5;
@@ -1363,7 +1363,7 @@ double BaseStar::CalculateInitialEnvelopeMass_Static(const double p_Mass) {
         envMass = p_Mass;
     }
     else if (utils::Compare(p_Mass, 1.25) < 0) {
-        double brackets = (1.25 - p_Mass) / 0.9;            // utils::POW() is slow - use multiplication
+        double brackets = (1.25 - p_Mass) / 0.9;            // pow() is slow - use multiplication
         envMass         = 0.35 * brackets * brackets;       // Hurley et al. 2000, just after eq 111
     }
 
@@ -1423,9 +1423,9 @@ double BaseStar::CalculateMassTransferRejuvenationFactor() {
 double BaseStar::CalculateMassLossRateVassiliadisWood() {
 
     double logP0      = min(3.3, (-2.07 - (0.9 * log10(m_Mass)) + (1.94 * log10(m_Radius))));
-    double P0         = utils::POW(10.0, (logP0)); // In their fortran code, Hurley et al take P0 to be min(p0, 2000.0), implemented here as a minimum power
+    double P0         = PPOW(10.0, (logP0)); // In their fortran code, Hurley et al take P0 to be min(p0, 2000.0), implemented here as a minimum power
     double logMdot_VW = -11.4 + (0.0125 * (P0 - 100.0 * max((m_Mass - 2.5), 0.0)));
-    double Mdot_VW    = utils::POW(10.0, (logMdot_VW));
+    double Mdot_VW    = PPOW(10.0, (logMdot_VW));
 
     return min(Mdot_VW, (1.36E-9 * m_Luminosity));
 }
@@ -1460,7 +1460,7 @@ double BaseStar::CalculateMassLossRateKudritzkiReimers() {
  */
 double BaseStar::CalculateMassLossRateNieuwenhuijzenDeJager() {
     double smoothTaper = min(1.0, (m_Luminosity - 4000.0) / 500.0); // Smooth taper between no mass loss and mass loss
-    return sqrt((m_Metallicity / ZSOL)) * smoothTaper * 9.6E-15 * utils::POW(m_Radius, 0.81) * utils::POW(m_Luminosity, 1.24) * utils::POW(m_Mass, 0.16);
+    return sqrt((m_Metallicity / ZSOL)) * smoothTaper * 9.6E-15 * PPOW(m_Radius, 0.81) * PPOW(m_Luminosity, 1.24) * PPOW(m_Mass, 0.16);
 }
 
 
@@ -1475,7 +1475,7 @@ double BaseStar::CalculateMassLossRateNieuwenhuijzenDeJager() {
  * @return                                      LBV-like mass loss rate (in Msol yr^{-1})
  */
 double BaseStar::CalculateMassLossRateLBV() {
-    return 0.1 * utils::POW(((1.0E-5 * m_Radius * sqrt(m_Luminosity)) - 1.0), 3.0) * ((m_Luminosity / 6.0E5) - 1.0);
+    return 0.1 * PPOW(((1.0E-5 * m_Radius * sqrt(m_Luminosity)) - 1.0), 3.0) * ((m_Luminosity / 6.0E5) - 1.0);
 }
 
 
@@ -1512,7 +1512,7 @@ double BaseStar::CalculateMassLossRateLBV2(const double p_Flbv) {
 double BaseStar::CalculateMassLossRateWolfRayetLike(const double p_Mu) {
     // In the fortran code there is a parameter here hewind which by default is 1.0 -
     // can be set to zero to disable this particular part of winds. We instead opt for all winds on or off.
-    return utils::POW(m_Luminosity, 1.5) * (1.0 - p_Mu) * 1.0E-13;
+    return PPOW(m_Luminosity, 1.5) * (1.0 - p_Mu) * 1.0E-13;
 }
 
 
@@ -1533,7 +1533,7 @@ double BaseStar::CalculateMassLossRateWolfRayet2(const double p_Mu) {
     // I think StarTrack may still do something different here,
     // there are references to Hamann & Koesterke 1998 and Vink and de Koter 2005
 
-    return m_WolfRayetFactor * 1.0E-13 * utils::POW(m_Luminosity, 1.5) * utils::POW(m_Metallicity / ZSOL, 0.86) * (1.0 - p_Mu);
+    return m_WolfRayetFactor * 1.0E-13 * PPOW(m_Luminosity, 1.5) * PPOW(m_Metallicity / ZSOL, 0.86) * (1.0 - p_Mu);
 }
 
 
@@ -1578,7 +1578,7 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
                            (0.85  * log10(m_Metallicity / ZSOL)) +
                            (1.07  * log10(p_Teff / 20000.0));
 
-        rate = utils::POW(10.0, logMdotOB);
+        rate = PPOW(10.0, logMdotOB);
     }
     else if (utils::Compare(p_Teff, 25000.0) > 0) {
         SHOW_WARN_IF(utils::Compare(p_Teff, 50000.0) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
@@ -1593,7 +1593,7 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
                            (0.933 * log10(p_Teff / 40000.0))     -
                            (10.92 * log10(p_Teff / 40000.0) * log10(p_Teff/40000.0));
 
-        rate = utils::POW(10.0, logMdotOB);
+        rate = PPOW(10.0, logMdotOB);
     }
     else{
         SHOW_WARN(ERROR::LOW_TEFF_WINDS, "Mass Loss Rate = 0.0");                           // too cold to use winds - show warning
@@ -1797,8 +1797,8 @@ double BaseStar::CalculateCoreMassGivenLuminosity_Static(const double p_Luminosi
 #define gbParams(x) p_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
 
     return (utils::Compare(p_Luminosity, gbParams(Lx)) > 0)
-            ? utils::POW((p_Luminosity / gbParams(B)), (1.0 / gbParams(q)))
-            : utils::POW((p_Luminosity / gbParams(D)), (1.0 / gbParams(p)));
+            ? PPOW((p_Luminosity / gbParams(B)), (1.0 / gbParams(q)))
+            : PPOW((p_Luminosity / gbParams(D)), (1.0 / gbParams(p)));
 
 #undef gbParams
 }
@@ -1874,7 +1874,7 @@ DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
  * @return                                      Effective temperature of the star (Tsol)
  */
 double BaseStar::CalculateTemperatureOnPhase_Static(const double p_Luminosity, const double p_Radius) {
-    return sqrt(sqrt(p_Luminosity)) / sqrt(p_Radius);   // sqrt() is much faster than utils::POW()
+    return sqrt(sqrt(p_Luminosity)) / sqrt(p_Radius);   // sqrt() is much faster than pow()
 }
 
 
@@ -2041,7 +2041,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
         case ROTATIONAL_VELOCITY_DISTRIBUTION::HURLEY:                                  // HURLEY
 
             // Hurley et al. 2000, eq 107 (uses fit from Lang 1992)
-            vRot = (330.0 * utils::POW(p_MZAMS, 3.3)) / (15.0 + utils::POW(p_MZAMS, 3.45));
+            vRot = (330.0 * PPOW(p_MZAMS, 3.3)) / (15.0 + PPOW(p_MZAMS, 3.45));
             break;
 
         case ROTATIONAL_VELOCITY_DISTRIBUTION::VLTFLAMES:                               // VLTFLAMES
@@ -2062,7 +2062,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
             else {
                 // Don't know what better to use for low mass stars so for now
                 // default to Hurley et al. 2000, eq 107 (uses fit from Lang 1992)
-                vRot = (330.0 * utils::POW(p_MZAMS, 3.3)) / (15.0 + utils::POW(p_MZAMS, 3.45));
+                vRot = (330.0 * PPOW(p_MZAMS, 3.3)) / (15.0 + PPOW(p_MZAMS, 3.45));
             }
             break;
 
@@ -2129,12 +2129,12 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
     double omegaZ004 = 0.0;
     if (utils::Compare(p_MZAMS, massCutoffs(MCHE)) <= 0) {
         for (std::size_t i = 0; i < CHE_Coefficients.size(); i++) {
-            omegaZ004 += CHE_Coefficients[i] * utils::intPow(mRatio, i) / utils::POW(mRatio, 0.4);
+            omegaZ004 += CHE_Coefficients[i] * utils::intPow(mRatio, i) / PPOW(mRatio, 0.4);
         }
     }
     else {
         for (std::size_t i = 0; i < CHE_Coefficients.size(); i++) {
-            omegaZ004 += CHE_Coefficients[i] * utils::intPow(100.0, i) / utils::POW(mRatio, 0.4);
+            omegaZ004 += CHE_Coefficients[i] * utils::intPow(100.0, i) / PPOW(mRatio, 0.4);
         }
     }
 
@@ -2167,7 +2167,7 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
 double BaseStar::CalculateLifetimeToBGB(const double p_Mass) {
 #define a m_AnCoefficients    // for convenience and readability - undefined at end of function
 
-    // utils::POW() is slow - use multiplication (sqrt() is much faster than utils::POW())
+    // pow() is slow - use multiplication (sqrt() is much faster than pow())
     double m_2   = p_Mass * p_Mass;
     double m_4   = m_2 * m_2;
     double m_5_5 = m_4 * p_Mass * sqrt(p_Mass);
@@ -2207,7 +2207,7 @@ double BaseStar::CalculateLifetimeToBAGB(const double p_tHeI, const double p_tHe
  * @return                                      Dynamical timescale in Myr
  */
 double BaseStar::CalculateDynamicalTimescale_Static(const double p_Mass, const double p_Radius) {
-    return 5.0 * 1.0E-5 * p_Radius * sqrt(p_Radius) * YEAR_TO_MYR / sqrt(p_Mass);   // sqrt() is much faster than utils::POW()
+    return 5.0 * 1.0E-5 * p_Radius * sqrt(p_Radius) * YEAR_TO_MYR / sqrt(p_Mass);   // sqrt() is much faster than pow()
 }
 
 
@@ -2273,7 +2273,7 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
 
 	double rEnv	= CalculateRadialExtentConvectiveEnvelope();
 
-	return 0.4311 * utils::POW((m_Mass * rEnv * (m_Radius - (0.5 * rEnv))) / (3.0 * m_Luminosity), 1.0 / 3.0);
+	return 0.4311 * PPOW((m_Mass * rEnv * (m_Radius - (0.5 * rEnv))) / (3.0 * m_Luminosity), 1.0 / 3.0);
 }
 
 

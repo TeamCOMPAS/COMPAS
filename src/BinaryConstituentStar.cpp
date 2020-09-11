@@ -323,7 +323,7 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
 	        double tauConv          = CalculateEddyTurnoverTimescale();
 	        double fConv            = 1.0;                                                                                              // currently, as COMPAS doesn't have rotating stars tested, we set f_conv = 1 always.
             double fConvOverTauConv = fConv / tauConv;
-            double rOverAPow8       = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;                            // use multiplication - utils::POW() is slow
+            double rOverAPow8       = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;                            // use multiplication - pow() is slow
 
 	        timescale               = 1.0 / (fConvOverTauConv * ((Mass() - CoreMass()) / Mass()) * q2 * (1.0 + q2) * rOverAPow8);
         } break;
@@ -331,14 +331,14 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
         case ENVELOPE::RADIATIVE: {                                                                                                     // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
 
             double rInAU                  = Radius() * RSOL_TO_AU;
-            double rInAUPow3              = rInAU * rInAU * rInAU;                                                                      // use multiplication - utils::POW() is slow
-            double rOverAPow10            = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;    // use multiplication - utils::POW() is slow
-            double rOverAPow21Over2       = rOverAPow10 * rOverA * sqrt(rOverA);                                                        // srqt() is faster than utils::POW()
+            double rInAUPow3              = rInAU * rInAU * rInAU;                                                                      // use multiplication - pow() is slow
+            double rOverAPow10            = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;    // use multiplication - pow() is slow
+            double rOverAPow21Over2       = rOverAPow10 * rOverA * sqrt(rOverA);                                                        // srqt() is faster than pow()
 
-		    double	secondOrderTidalCoeff = 1.592E-09 * utils::POW(Mass(), 2.84);                                                              // aka E_2.
+		    double	secondOrderTidalCoeff = 1.592E-09 * PPOW(Mass(), 2.84);                                                              // aka E_2.
 		    double	freeFallFactor        = sqrt(G1 * Mass() / rInAUPow3);
 		
-		    timescale                     = 1.0 / ((21.0 / 2.0) * freeFallFactor * q2 * utils::POW(1.0 + q2, 11.0/6.0) * secondOrderTidalCoeff * rOverAPow21Over2);
+		    timescale                     = 1.0 / ((21.0 / 2.0) * freeFallFactor * q2 * PPOW(1.0 + q2, 11.0/6.0) * secondOrderTidalCoeff * rOverAPow21Over2);
         } break;
 
         default:                                                                                                                        // all other envelope types (remnants?)
@@ -382,17 +382,17 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
 
         case ENVELOPE::RADIATIVE: {                                             // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
 
-            double coeff2          = utils::POW(52.0, 5.0 / 3.0);                      // JR: todo: replace this with a constant (calculated) value?
-            double e2              = 1.592E-9 * utils::POW(Mass(), 2.84);              // second order tidal coefficient (a.k.a. E_2)
+            double coeff2          = PPOW(52.0, 5.0 / 3.0);                      // JR: todo: replace this with a constant (calculated) value?
+            double e2              = 1.592E-9 * PPOW(Mass(), 2.84);              // second order tidal coefficient (a.k.a. E_2)
             double rAU             = Radius() * RSOL_TO_AU;
             double rAU_3           = rAU * rAU * rAU;
             double freeFallFactor  = sqrt(G1 * Mass() / rAU_3);
 
-		    timescale              = 1.0 / (coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * utils::POW(1.0 + q2, 5.0 / 6.0) * e2 * utils::POW(rOverA, 17.0 / 2.0));
+		    timescale              = 1.0 / (coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * PPOW(1.0 + q2, 5.0 / 6.0) * e2 * PPOW(rOverA, 17.0 / 2.0));
             } break;
 
         default:                                                                // all other envelope types (remnants?)
-            timescale = 1.0 / ((1.0 / 1.3E7) * utils::POW(Luminosity() / Mass(), 5.0 / 7.0) * rOverA_6);
+            timescale = 1.0 / ((1.0 / 1.3E7) * PPOW(Luminosity() / Mass(), 5.0 / 7.0) * rOverA_6);
 	}
 
 	return timescale;

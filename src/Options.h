@@ -13,6 +13,7 @@
 
 #include "constants.h"
 #include "typedefs.h"
+#include "profiling.h"
 #include "utils.h"
 #include "Rand.h"
 #include "changelog.h"
@@ -245,7 +246,6 @@ public:
 
     bool                                        PopulationDataPrinting() const                                          { return populationDataPrinting; }
     bool                                        PrintBoolAsString() const                                               { return printBoolAsString; }
-    bool                                        Profiling() const                                                       { return profiling; }
 
     PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION    PulsarBirthMagneticFieldDistribution() const                            { return pulsarBirthMagneticFieldDistribution; }
     double                                      PulsarBirthMagneticFieldDistributionMax() const                         { return pulsarBirthMagneticFieldDistributionMax; }
@@ -346,7 +346,7 @@ private:
     unsigned long int                           randomSeed;                                                     // Random seed to use
     double                                      maxEvolutionTime;                                               // Maximum time to evolve a binary by
     int                                         maxNumberOfTimestepIterations;                                  // Maximum number of timesteps to evolve binary for before giving up
-    bool                                        profiling;                                                      // Whether to perform custom performance profiling tasks
+
     // Initial distribution variables
 
     INITIAL_MASS_FUNCTION                       initialMassFunction;                                            // Which initial mass function to use (default="Kroupa")
