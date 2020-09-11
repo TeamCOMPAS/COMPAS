@@ -50,7 +50,7 @@ The BSE Grid file header record must be a comma-separated list of strings taken 
 
 \gridsRow{\textbf{Period}}{Orbital period value to be assigned to the binary~(days).}
 
-\gridsRow{Kick\_Magnitude\_Random\_1 }{Value to be used as the kick magnitude magnitude random number, used to draw the kick magnitude, for the primary star should it undergo a supernova event. This must be a floating-point number in the range [0.0, 1.0). If this column is present in the grid file, the kick magnitude for the primary star, should it undergo a supernova event, will be drawn from the appropriate distribution at the time of the SN event. This column is used in preference to the \textit{Kick\_Magnitude\_1} column if both are present in the grid file.}
+\gridsRow{Kick\_Magnitude\_Random\_1 }{Value to be used as the kick magnitude random number, used to draw the kick magnitude, for the primary star should it undergo a supernova event. This must be a floating-point number in the range [0.0, 1.0). If this column is present in the grid file, the kick magnitude for the primary star, should it undergo a supernova event, will be drawn from the appropriate distribution at the time of the SN event. This column is used in preference to the \textit{Kick\_Magnitude\_1} column if both are present in the grid file.}
 
 \gridsRow{Kick\_Magnitude\_1}{Value to be used as the (drawn) kick magnitude for the primary star should it undergo a supernova event ($km~s^{\minus1}$). If both this column and \textit{Kick\_Magnitude\_Random\_1} are present in the grid file, \textit{Kick\_Magnitude\_Random\_1} will be used in preference to \textit{Kick\_Magnitude\_1}.}
 
