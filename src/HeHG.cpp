@@ -432,22 +432,57 @@ bool HeHG::ShouldEvolveOnPhase() {
 STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
-
+    
     if (p_NoCheck || utils::Compare(m_COCoreMass, m_Mass) > 0) {        // Envelope lost - determine what type of star to form
-
-        stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
 
         m_CoreMass  = m_COCoreMass;
         m_HeCoreMass= m_COCoreMass;
         m_Mass      = m_CoreMass;
         m_Mass0     = m_Mass;
-        m_Age       = 0.0;
-        m_Radius    = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
+        
+        if(IsSupernova()){
+            stellarType = ResolveSupernova();
+        }
+        else {
+            stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
+            m_Age       = 0.0;
+            m_Radius    = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
+        }
     }
 
     return stellarType;
 }
 
+/*
+ * Determine if star should continue evolution as a supernova
+ *
+ *
+ * bool IsSupernova()
+ *
+ * @return                                      Boolean flag: true if star has gone Supernova, false if not
+ */
+bool HeHG::IsSupernova() {
+    if(utils::Compare(m_COCoreMass, m_Mass)==0) {                // special case of ultra-stripped-star -- go SN immediately if over ECSN limit
+        return (utils::Compare(m_Mass, MECS) > 0);
+    }
+        
+    return (utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(m_GBParams[static_cast<int>(GBP::McBAGB)]))>= 0);   // Go supernova if CO core mass large enough
+}
+
+/*
+ * Assistant function for determining the supernova explosion type
+ *
+ *
+ * double       CalculateInitialSupernovaMass()
+ *
+ * @return                                      double: Initial supernova supernova mass variable
+ */
+double  HeHG::CalculateInitialSupernovaMass(){
+    if(utils::Compare(m_COCoreMass, m_Mass)==0) {                // special case of ultra-stripped-star -- use current mass
+        return std::max(m_Mass, m_GBParams[static_cast<int>(GBP::McBAGB)]);
+    }
+    return GiantBranch::CalculateInitialSupernovaMass();
+}
 
 /*
  * Set parameters for evolution to next phase and return Stellar Type for next phase

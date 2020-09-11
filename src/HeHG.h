@@ -110,8 +110,9 @@ protected:
 
             bool            IsEndOfPhase()                                                                   { return !ShouldEvolveOnPhase(); }
             bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate);
-            bool            IsSupernova()                                                                    { return (utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(m_GBParams[static_cast<int>(GBP::McBAGB)]))>= 0); }   // Going supernova if CO core mass large enough
-
+            bool            IsSupernova() ;
+            double          CalculateInitialSupernovaMass();
+    
             void            PerturbLuminosityAndRadius()                                                     { GiantBranch::PerturbLuminosityAndRadius(); }                                                                                        // NO-OP
 
             STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);

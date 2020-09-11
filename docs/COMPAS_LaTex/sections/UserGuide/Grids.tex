@@ -50,9 +50,9 @@ The BSE Grid file header record must be a comma-separated list of strings taken 
 
 \gridsRow{\textbf{Period}}{Orbital period value to be assigned to the binary~(days).}
 
-\gridsRow{Kick\_Velocity\_Random\_1 }{Value to be used as the kick velocity magnitude random number, used to draw the kick velocity, for the primary star should it undergo a supernova event. This must be a floating-point number in the range [0.0, 1.0). If this column is present in the grid file, the kick velocity for the primary star, should it undergo a supernova event, will be drawn from the appropriate distribution at the time of the SN event. This column is used in preference to the \textit{Kick\_Velocity\_1} column if both are present in the grid file.}
+\gridsRow{Kick\_Magnitude\_Random\_1 }{Value to be used as the kick magnitude random number, used to draw the kick magnitude, for the primary star should it undergo a supernova event. This must be a floating-point number in the range [0.0, 1.0). If this column is present in the grid file, the kick magnitude for the primary star, should it undergo a supernova event, will be drawn from the appropriate distribution at the time of the SN event. This column is used in preference to the \textit{Kick\_Magnitude\_1} column if both are present in the grid file.}
 
-\gridsRow{Kick\_Velocity\_1}{Value to be used as the (drawn) kick velocity for the primary star should it undergo a supernova event ($km~s^{\minus1}$). If both this column and \textit{Kick\_Velocity\_Random\_1} are present in the grid file, \textit{Kick\_Velocity\_Random\_1} will be used in preference to \textit{Kick\_Velocity\_1}.}
+\gridsRow{Kick\_Magnitude\_1}{Value to be used as the (drawn) kick magnitude for the primary star should it undergo a supernova event ($km~s^{\minus1}$). If both this column and \textit{Kick\_Magnitude\_Random\_1} are present in the grid file, \textit{Kick\_Magnitude\_Random\_1} will be used in preference to \textit{Kick\_Magnitude\_1}.}
 
 \gridsRow{Kick\_Theta\_1}{Value to be as the angle between the orbital plane and the 'z' axis of the supernova vector for the primary star should it undergo a supernova event~(radians).}
 
@@ -60,9 +60,9 @@ The BSE Grid file header record must be a comma-separated list of strings taken 
 
 \gridsRow{Kick\_Mean\_Anomaly\_1}{Value to be used as the mean anomaly at the instant of the supernova for the primary star should it undergo a supernova event -- should be uniform in~[0, 2$\pi$).}
 
-\gridsRow{Kick\_Velocity\_Random\_2}{Value to be used as the kick velocity magnitude random number, used to draw the kick velocity, for the secondary star should it undergo a supernova event. This must be a floating-point number in the range [0.0, 1.0). If this column is present in the grid file, the kick velocity for the secondary star, should it undergo a supernova event, will be drawn from the appropriate distribution at the time of the SN event. This column is used in preference to the \textit{Kick\_Velocity\_2} column if both are present in the grid file.}
+\gridsRow{Kick\_Magnitude\_Random\_2}{Value to be used as the kick magnitude random number, used to draw the kick magnitude, for the secondary star should it undergo a supernova event. This must be a floating-point number in the range [0.0, 1.0). If this column is present in the grid file, the kick magnitude for the secondary star, should it undergo a supernova event, will be drawn from the appropriate distribution at the time of the SN event. This column is used in preference to the \textit{Kick\_Magnitude\_2} column if both are present in the grid file.}
 
-\gridsRow{Kick\_Velocity\_2}{Value to be used as the (drawn) kick velocity for the secondary star should it undergo a supernova event ($km~s^{\minus1}$). If both this column and \textit{Kick\_Velocity\_Random\_2} are present in the grid file, \textit{Kick\_Velocity\_Random\_2} will be used in preference to \textit{Kick\_Velocity\_2}.}
+\gridsRow{Kick\_Magnitude\_2}{Value to be used as the (drawn) kick magnitude for the secondary star should it undergo a supernova event ($km~s^{\minus1}$). If both this column and \textit{Kick\_Magnitude\_Random\_2} are present in the grid file, \textit{Kick\_Magnitude\_Random\_2} will be used in preference to \textit{Kick\_Magnitude\_2}.}
 
 \gridsRow{Kick\_Theta\_2}{Value to be as the angle between the orbital plane and the 'z' axis of the supernova vector for the secondary star should it undergo a supernova event~(radians).}
 
@@ -110,9 +110,9 @@ The SSE Grid file header record must be a comma-separated list of strings taken 
 
 \gridsRow{Metallicity }{Metallicity value to be assigned to the star.}
 
-\gridsRow{Kick\_Velocity\_Random}{Value to be used as the kick velocity magnitude random number, used to draw the kick velocity, for the star should it undergo a supernova event. This must be a floating-point number in the range [0.0, 1.0). If this column is present in the grid file, the kick velocity for the star, should it undergo a supernova event, will be drawn from the appropriate distribution at the time of the SN event. This column is used in preference to the \textit{Kick\_Velocity} column if both are present in the grid file.}
+\gridsRow{Kick\_Magnitude\_Random}{Value to be used as the kick magnitude random number, used to draw the kick magnitude, for the star should it undergo a supernova event. This must be a floating-point number in the range [0.0, 1.0). If this column is present in the grid file, the kick magnitude for the star, should it undergo a supernova event, will be drawn from the appropriate distribution at the time of the SN event. This column is used in preference to the \textit{Kick\_Magnitude} column if both are present in the grid file.}
 
-\gridsRow{Kick\_Velocity}{Value to be used as the (drawn) kick velocity for the star should it undergo a supernova event ($km~s^{\minus1}$). If both this column and \textit{Kick\_Velocity\_Random} are present in the grid file, \textit{Kick\_Velocity\_Random} will be used in preference to \textit{Kick\_Velocity}.}
+\gridsRow{Kick\_Magnitude}{Value to be used as the (drawn) kick magnitude for the star should it undergo a supernova event ($km~s^{\minus1}$). If both this column and \textit{Kick\_Magnitude\_Random} are present in the grid file, \textit{Kick\_Magnitude\_Random} will be used in preference to \textit{Kick\_Magnitude}.}
 
 \end{tabularx}
 \normalsize
