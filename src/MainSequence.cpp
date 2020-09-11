@@ -322,7 +322,7 @@ double MainSequence::CalculateBetaR(const double p_Mass) {
          if (utils::Compare(p_Mass, 1.0)   <= 0) betaRPrime = 1.06;
     else if (utils::Compare(p_Mass, a[74]) <  0) betaRPrime = 1.06 + ((a[72] - 1.06) * (p_Mass - 1.0) / (a[74] - 1.06));
     else if (utils::Compare(p_Mass, 2.0)   <  0) betaRPrime = a[72] + m_RConstants[static_cast<int>(R_CONSTANTS::B_BETA_R)] - (a[72] * (p_Mass - a[74]) / (2.0 - a[74]));
-    else if (utils::Compare(p_Mass, 16.0)  <= 0) betaRPrime = (a[69] * p_Mass * p_Mass * p_Mass * sqrt(p_Mass)) / (a[70] + PPOW(p_Mass, a[71]));  // PPOW()is slow - use multiplication (sqrt() is faster than PPOW())
+    else if (utils::Compare(p_Mass, 16.0)  <= 0) betaRPrime = (a[69] * p_Mass * p_Mass * p_Mass * sqrt(p_Mass)) / (a[70] + PPOW(p_Mass, a[71]));  // pow()is slow - use multiplication (sqrt() is faster than pow())
     else                                         betaRPrime = m_RConstants[static_cast<int>(R_CONSTANTS::C_BETA_R)] + (a[73] * (p_Mass - 16.0));
 
     return betaRPrime - 1.0;
@@ -352,7 +352,7 @@ double MainSequence::CalculateDeltaR(const double p_Mass) {
     else if (utils::Compare(p_Mass, a[42])         <= 0) deltaR = a[43] * PPOW(((p_Mass - massCutoffs(MHook)) / (a[42] - massCutoffs(MHook))), 0.5);
     else if (utils::Compare(p_Mass, 2.0)            < 0) deltaR = a[43] + ((m_RConstants[static_cast<int>(R_CONSTANTS::B_DELTA_R)] - a[43]) * PPOW(((p_Mass - a[42]) / (2.0 - a[42])), a[44]));
     else {
-        // pow() is slow - use multiplication (sqrt() is faster than PPOW())
+        // pow() is slow - use multiplication (sqrt() is faster than pow())
         double top    = a[38] + (a[39] * p_Mass * p_Mass * p_Mass * sqrt(p_Mass));
         double bottom = (a[40] * p_Mass * p_Mass * p_Mass) + PPOW(p_Mass, a[41]);
         deltaR = (top / bottom) - 1.0;

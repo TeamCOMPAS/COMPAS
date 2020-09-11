@@ -852,7 +852,7 @@ void BaseStar::CalculateMassCutoffs(const double p_Metallicity, const double p_L
  */
 double BaseStar::CalculateGBRadiusXExponent() {
 
-    // PPOW()is slow - use multiplication
+    // pow()is slow - use multiplication
     double xi   = m_LogMetallicityXi;
     double xi_2 = xi * xi;
     double xi_3 = xi_2 * xi;
@@ -1213,7 +1213,7 @@ double BaseStar::CalculateLuminosityAtZAMS(const double p_MZAMS) {
 #define coeff(x) m_LCoefficients[static_cast<int>(L_Coeff::x)]   // for convenience and readability - undefined at end of function
 
     // pow() is slow - use multiplication where it makes sense
-    // sqrt() is much faster than PPOW()
+    // sqrt() is much faster than pow()
     double m_0_5 = sqrt(p_MZAMS);
     double m_2   = p_MZAMS * p_MZAMS;
     double m_3   = m_2 * p_MZAMS;
@@ -1299,7 +1299,7 @@ double BaseStar::CalculateRadiusAtZAMS(const double p_MZAMS) {
 #define coeff(x) m_RCoefficients[static_cast<int>(R_Coeff::x)]  // for convenience and readability - undefined at end of function
 
     // pow() is slow - use multiplication where it makes sense
-    // sqrt() is much faster than PPOW()
+    // sqrt() is much faster than pow()
     double m_0_5  = sqrt(p_MZAMS);
     double m_2    = p_MZAMS * p_MZAMS;
     double m_2_5  = m_2 * m_0_5;
@@ -1874,7 +1874,7 @@ DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
  * @return                                      Effective temperature of the star (Tsol)
  */
 double BaseStar::CalculateTemperatureOnPhase_Static(const double p_Luminosity, const double p_Radius) {
-    return sqrt(sqrt(p_Luminosity)) / sqrt(p_Radius);   // sqrt() is much faster than PPOW()
+    return sqrt(sqrt(p_Luminosity)) / sqrt(p_Radius);   // sqrt() is much faster than pow()
 }
 
 
@@ -2167,7 +2167,7 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
 double BaseStar::CalculateLifetimeToBGB(const double p_Mass) {
 #define a m_AnCoefficients    // for convenience and readability - undefined at end of function
 
-    // pow() is slow - use multiplication (sqrt() is much faster than PPOW())
+    // pow() is slow - use multiplication (sqrt() is much faster than pow())
     double m_2   = p_Mass * p_Mass;
     double m_4   = m_2 * m_2;
     double m_5_5 = m_4 * p_Mass * sqrt(p_Mass);
@@ -2207,7 +2207,7 @@ double BaseStar::CalculateLifetimeToBAGB(const double p_tHeI, const double p_tHe
  * @return                                      Dynamical timescale in Myr
  */
 double BaseStar::CalculateDynamicalTimescale_Static(const double p_Mass, const double p_Radius) {
-    return 5.0 * 1.0E-5 * p_Radius * sqrt(p_Radius) * YEAR_TO_MYR / sqrt(p_Mass);   // sqrt() is much faster than PPOW()
+    return 5.0 * 1.0E-5 * p_Radius * sqrt(p_Radius) * YEAR_TO_MYR / sqrt(p_Mass);   // sqrt() is much faster than pow()
 }
 
 

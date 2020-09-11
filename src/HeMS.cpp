@@ -55,7 +55,7 @@ void HeMS::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
  */
 double HeMS::CalculateLuminosityAtZAMS_Static(const double p_Mass) {
 
-    // pow() is slow - use multiplication (sqrt() is much faster than PPOW())
+    // pow() is slow - use multiplication (sqrt() is much faster than pow())
     double m_0_5   = sqrt(p_Mass);
     double m_3     = p_Mass * p_Mass * p_Mass;
     double m_6     = m_3 * m_3;
@@ -282,7 +282,7 @@ bool HeMS::IsMassRatioUnstable(const double p_AccretorMass, const bool p_Accreto
  */
 double HeMS::CalculateLifetimeOnPhase_Static(const double p_Mass) {
 
-    // pow() is slow - use multiplication (sqrt() is much faster than PPOW())
+    // pow() is slow - use multiplication (sqrt() is much faster than pow())
     double m_4   = p_Mass * p_Mass * p_Mass * p_Mass;
     double m_6   = m_4 * p_Mass * p_Mass;
     double m_6_5 = m_6 * sqrt(p_Mass);

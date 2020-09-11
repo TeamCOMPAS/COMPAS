@@ -932,7 +932,7 @@ double CHeB::CalculateLifetimeOnPhase(const double p_Mass) {
         tHe = (b[39] + ((tHeMS - b[39]) * PPOW((1.0 - mu), b[40]))) * (1.0 + (m_Alpha4 * exp(15.0 * (p_Mass - massCutoffs(MHeF)))));
     }
     else {
-        double m_5 = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass;            // pow() is slow - use multiplication (sqrt() is much faster than PPOW())
+        double m_5 = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass;            // pow() is slow - use multiplication (sqrt() is much faster than pow())
 
         tHe = timescales(tBGB) * (((b[41] * PPOW(p_Mass, b[42])) + (b[43] * m_5)) / (b[44] + m_5));
     }

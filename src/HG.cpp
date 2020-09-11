@@ -23,7 +23,7 @@
  */
 double HG::CalculateRho(const double p_Mass) {
 
-    double m_5_25 = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass * sqrt(sqrt(p_Mass));    // pow() is slow - use multiplication (sqrt() is much faster than PPOW())
+    double m_5_25 = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass * sqrt(sqrt(p_Mass));    // pow() is slow - use multiplication (sqrt() is much faster than pow())
 
     return (1.586 + m_5_25) / (2.434 + (1.02 * m_5_25));
 }

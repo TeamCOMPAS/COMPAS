@@ -333,7 +333,7 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
             double rInAU                  = Radius() * RSOL_TO_AU;
             double rInAUPow3              = rInAU * rInAU * rInAU;                                                                      // use multiplication - pow() is slow
             double rOverAPow10            = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;    // use multiplication - pow() is slow
-            double rOverAPow21Over2       = rOverAPow10 * rOverA * sqrt(rOverA);                                                        // srqt() is faster than PPOW()
+            double rOverAPow21Over2       = rOverAPow10 * rOverA * sqrt(rOverA);                                                        // srqt() is faster than pow()
 
 		    double	secondOrderTidalCoeff = 1.592E-09 * PPOW(Mass(), 2.84);                                                              // aka E_2.
 		    double	freeFallFactor        = sqrt(G1 * Mass() / rInAUPow3);

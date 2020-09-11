@@ -44,7 +44,7 @@ std::tuple<double, double> HeGB::CalculateRadiusOnPhase_Static(const double p_Ma
     double RZHe = HeMS::CalculateRadiusAtZAMS_Static(p_Mass);
     double LTHe = CalculateLuminosityAtPhaseEnd_Static(p_Mass);
 
-    // pow() is slow - use multiplication (srqt() is much faster than PPOW())
+    // pow() is slow - use multiplication (srqt() is much faster than pow())
     double m_2   = p_Mass * p_Mass;
     double m_2_5 = m_2 * sqrt(p_Mass);
     double m_5   = m_2_5 * m_2_5;
