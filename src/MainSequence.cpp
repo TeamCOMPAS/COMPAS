@@ -184,8 +184,8 @@ double MainSequence::CalculateGamma(const double p_Mass) {
 
          if (utils::Compare(p_Mass,  1.0)          <= 0) gamma = a[76] + (a[77] * utils::POW(p_Mass - a[78], a[79]));
     else if (utils::Compare(p_Mass,  a[75])        <= 0) gamma = B_GAMMA + (a[80] - B_GAMMA) * utils::POW((p_Mass - 1.0) / (a[75] - 1.0), a[81]);
-    else if (utils::Compare(p_Mass, (a[75] + 0.1)) <= 0) gamma = C_GAMMA - (10.0 * (p_Mass - a[75]) * C_GAMMA);             // the end point here is wrong in the arxiv version       // JR: todo: defect in original code - should have been [75 - 1]   JR: todo: defect in original code - should have been [75 - 1]  (also Hurley misses the "=" case)
-    else                                                 gamma = 0.0;                                                       // this really is zero
+    else if (utils::Compare(p_Mass, (a[75] + 0.1)) <= 0) gamma = C_GAMMA - (10.0 * (p_Mass - a[75]) * C_GAMMA);                                                             // included = case, missing from Hurley+ 2000
+    else                                                 gamma = 0.0;           // this really is zero
 
     return gamma;
 
