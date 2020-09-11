@@ -420,9 +420,10 @@
 //                                      - added TIMESCALE_MS as a valid property in BaseStar::StellarPropertyValue().  The TIMESCALE_MS value in the SSE_Parameters file was being printed as "ERROR!" and nobody noticed :-)  It now prints correctly.
 // 02.15.01     RS - Sep 10, 2020   - Enhancement
 //                                       - added profiling option to keep track of repeated pow() calls
-// 02.15.02     RW - Sep 10, 2020   - Code cleanup:
+// 02.15.02     IM - Sep 11, 2020   - Defect repair
+//                                       - changed ultra-stripped HeHG and HeGB stars to immediately check for supernovae before collapsing into WDs; this resolves issue #367
+// 02.15.03     RW - Sep 11, 2020   - Code cleanup:
 //                                      - Set all references to kick "velocity" to magnitude. This is more correct, and will help distinguish from system and component vector velocities later
-
-const std::string VERSION_STRING = "02.15.02";
+const std::string VERSION_STRING = "02.15.03";
 
 # endif // __changelog_h__
