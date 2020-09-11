@@ -1695,7 +1695,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         m_SupernovaDetails.coreMassAtCOFormation   = m_CoreMass;
 
         double snMass = CalculateInitialSupernovaMass();                                            // calculate SN initial mass
-
+        
         SetSNHydrogenContent();                                                                     // ALEJANDRO - 04/05/2018 - Check if the SN is H-rich or H-poor. For now, classify it for all possible SNe and not only CCSN forming NS.
 
         if (                             OPTIONS->UsePulsationalPairInstability()              &&

@@ -111,7 +111,6 @@ class pythonProgramOptions:
     mass_transfer_thermal_limit_C= 10.0
     eddington_accretion_factor = 1    #multiplication Factor for eddington accretion onto NS&BH
 
-    #-- Stability criteria for case BB/BC mass transfer (for BNS project)
     case_bb_stability_prescription = 'ALWAYS_STABLE'
     zeta_Main_Sequence = 2.0
     zeta_Radiative_Envelope_Giant = 6.5
