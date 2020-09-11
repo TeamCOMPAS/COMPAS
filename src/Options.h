@@ -144,14 +144,14 @@ public:
     KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return kickDirectionDistribution; }
     double                                      KickDirectionPower() const                                              { return kickDirectionPower; }
     double                                      KickScalingFactor() const                                               { return kickScalingFactor; }
-    KICK_VELOCITY_DISTRIBUTION                  KickVelocityDistribution() const                                        { return kickVelocityDistribution; }
+    KICK_MAGNITUDE_DISTRIBUTION                  KickMagnitudeDistribution() const                                        { return kickMagnitudeDistribution; }
 
-    double                                      KickVelocityDistributionMaximum() const                                 { return kickVelocityDistributionMaximum; }
+    double                                      KickMagnitudeDistributionMaximum() const                                 { return kickMagnitudeDistributionMaximum; }
 
-    double                                      KickVelocityDistributionSigmaCCSN_BH() const                            { return kickVelocityDistributionSigmaCCSN_BH; }
-    double                                      KickVelocityDistributionSigmaCCSN_NS() const                            { return kickVelocityDistributionSigmaCCSN_NS; }
-    double                                      KickVelocityDistributionSigmaForECSN() const                            { return kickVelocityDistributionSigmaForECSN; }
-    double                                      KickVelocityDistributionSigmaForUSSN() const                            { return kickVelocityDistributionSigmaForUSSN; }
+    double                                      KickMagnitudeDistributionSigmaCCSN_BH() const                            { return kickMagnitudeDistributionSigmaCCSN_BH; }
+    double                                      KickMagnitudeDistributionSigmaCCSN_NS() const                            { return kickMagnitudeDistributionSigmaCCSN_NS; }
+    double                                      KickMagnitudeDistributionSigmaForECSN() const                            { return kickMagnitudeDistributionSigmaForECSN; }
+    double                                      KickMagnitudeDistributionSigmaForUSSN() const                            { return kickMagnitudeDistributionSigmaForUSSN; }
 
 
     vector<string>                              LogClasses() const                                                      { return logClasses; }
@@ -381,13 +381,13 @@ private:
     double                                      eccentricityDistributionMax;                                    // Maximum initial eccentricity when using a distribution
 
     // Supernova variables
-    KICK_VELOCITY_DISTRIBUTION                  kickVelocityDistribution;                                       // Which kick velocity distribution to use (default = "Maxwellian". Can also choose "flat")
-    string                                      kickVelocityDistributionString;                                 // Which kick velocity distribution to use (default = "Maxwellian". Can also choose "flat")
-    double                                      kickVelocityDistributionSigmaCCSN_NS;                           // Kick velocity sigma in km s^-1 for neutron stars (default = "250" )
-    double                                      kickVelocityDistributionSigmaCCSN_BH;                           // Kick velocity sigma in km s^-1 for black holes (default = "250" )
-    double                                      kickVelocityDistributionMaximum;                                // Maximum kick velocity to draw. If negative, no maximum
-	double                                      kickVelocityDistributionSigmaForECSN;			                // Kick velocity sigma for ECSN in km s^-1 (default = "0" )
-	double                                      kickVelocityDistributionSigmaForUSSN;			                // Kick velocity sigma for USSN in km s^-1 (default = "20" )
+    KICK_MAGNITUDE_DISTRIBUTION                  kickMagnitudeDistribution;                                       // Which kick magnitude distribution to use (default = "Maxwellian". Can also choose "flat")
+    string                                      kickMagnitudeDistributionString;                                 // Which kick magnitude distribution to use (default = "Maxwellian". Can also choose "flat")
+    double                                      kickMagnitudeDistributionSigmaCCSN_NS;                           // Kick magnitude sigma in km s^-1 for neutron stars (default = "250" )
+    double                                      kickMagnitudeDistributionSigmaCCSN_BH;                           // Kick magnitude sigma in km s^-1 for black holes (default = "250" )
+    double                                      kickMagnitudeDistributionMaximum;                                // Maximum kick magnitude to draw. If negative, no maximum
+	double                                      kickMagnitudeDistributionSigmaForECSN;			                // Kick magnitude sigma for ECSN in km s^-1 (default = "0" )
+	double                                      kickMagnitudeDistributionSigmaForUSSN;			                // Kick magnitude sigma for USSN in km s^-1 (default = "20" )
 	double                                      kickScalingFactor;								                // Arbitrary factor for scaling kicks
 
     // Black hole kicks
@@ -410,11 +410,11 @@ private:
 
     // Fixed uk options
     bool                                        useFixedUK;                                                     // Whether to fix uk to a certain value (default is to NOT fix uk)
-    double                                      fixedUK;                                                        // Dimensionless value to fix the kick velocity to
+    double                                      fixedUK;                                                        // Dimensionless value to fix the kick magnitude to
 
     // Kick direction options
     KICK_DIRECTION_DISTRIBUTION                 kickDirectionDistribution;                                      // Which distribution to use for the kick directions
-    string                                      kickDirectionDistributionString;                                // Which kick velocity distribution to use (default = "Maxwellian". Can also choose "flat")
+    string                                      kickDirectionDistributionString;                                // Which kick magnitude distribution to use (default = "Maxwellian". Can also choose "flat")
     double                                      kickDirectionPower;
 
     // Pair instability and pulsational pair instability mass loss
@@ -602,9 +602,9 @@ private:
 	double                                      sampleKickDirectionPowerMax;
 	double                                      sampleKickDirectionPowerMin;
 
-	bool                                        sampleKickVelocitySigma;
-	double                                      sampleKickVelocitySigmaMax;
-	double                                      sampleKickVelocitySigmaMin;
+	bool                                        sampleKickMagnitudeSigma;
+	double                                      sampleKickMagnitudeSigmaMax;
+	double                                      sampleKickMagnitudeSigmaMin;
 
 	bool                                        sampleLuminousBlueVariableMultiplier;
 	double                                      sampleLuminousBlueVariableMultiplierMax;

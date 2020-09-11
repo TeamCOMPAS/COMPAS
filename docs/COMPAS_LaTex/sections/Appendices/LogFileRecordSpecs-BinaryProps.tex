@@ -20,7 +20,7 @@ Following is the list of binary properties available for inclusion in log file r
 
 \binaryProperty{COMMON\_ENVELOPE\_EVENT\_COUNT}{INT}{BaseBinaryStar::m\_CEDetails.CEEcount}{The number of common envelope events.}{CE\_Event\_Count}{}
 
-\binaryProperty{DIMENSIONLESS\_KICK\_VELOCITY}{DOUBLE}{BaseBinaryStar::m\_uK}{Dimensionless kick velocity supplied by user (see option \textit{\texttt{-{}-}fix-dimensionless-kick-velocity)}.}{Kick\_Velocity(uK)}{}
+\binaryProperty{DIMENSIONLESS\_KICK\_MAGNITUDE}{DOUBLE}{BaseBinaryStar::m\_uK}{Dimensionless kick magnitude supplied by user (see option \textit{\texttt{-{}-}fix-dimensionless-kick-magnitude)}.}{Kick\_Magnitude(uK)}{}
 
 \binaryProperty{DOUBLE\_CORE\_COMMON\_ENVELOPE}{BOOL}{BaseBinaryStar::m\_CEDetails.doubleCoreCE}{Flag to indicate double-core common envelope.}{Double\_Core\_CE}{}
 
@@ -102,61 +102,48 @@ Following is the list of binary properties available for inclusion in log file r
 
 \binaryProperty{RLOF\_CURRENT\_EVENT\_COUNTER}{UNSIGNED INT}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$eventCounter}{The number of times the binary has overflowed its Roche lobe up to and including this episode}{Event\_Counter}{}
 
-\binaryProperty{RLOF\_CURRENT\_ID}{OBJECT\_ID}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$id}{\needsAttention{Description required}}{ID}{ID \& ANY\_STAR\_PROPERTY::ID}
+\binaryProperty{RLOF\_CURRENT\_SEPARATION}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$separation}{Separation (\Rsun) immediately after RLOF.}{Separation}{SEMI\_MAJOR\_AXIS, SEMI\_MAJOR\_AXIS\_RSOL \& ANY\_STAR\_PROPERTY::SEED}
 
-\binaryProperty{RLOF\_CURRENT\_RANDOM\_SEED}{UNSIGNED LONG INT}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$randomSeed}{\needsAttention{Description required}}{SEED}{SEED \& ANY\_STAR\_PROPERTY::SEED}
+\binaryProperty{RLOF\_CURRENT\_STAR1\_MASS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$mass1}{Mass (\Msun) of the primary immediately after RLOF.}{Mass\_1}{ANY\_STAR\_PROPERTY::MASS (Star 1)}
 
-\binaryProperty{RLOF\_CURRENT\_SEPARATION}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$separation}{\needsAttention{Description required}}{Separation}{SEMI\_MAJOR\_AXIS, SEMI\_MAJOR\_AXIS\_RSOL \& ANY\_STAR\_PROPERTY::SEED}
+\binaryProperty{RLOF\_CURRENT\_STAR2\_MASS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$mass2}{Mass (\Msun) of the secondary immediately after RLOF.}{Mass\_2}{ANY\_STAR\_PROPERTY::MASS (Star 2)}
 
-\binaryProperty{RLOF\_CURRENT\_STAR1\_MASS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$mass1}{\needsAttention{Description required}}{Mass\_1}{ANY\_STAR\_PROPERTY::MASS (Star 1)}
+\binaryProperty{RLOF\_CURRENT\_STAR1\_RADIUS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$radius1}{Radius (\Rsun) of the primary immediately after RLOF.}{Radius\_1}{ANY\_STAR\_PROPERTY::RADIUS (Star 1)}
 
-\binaryProperty{RLOF\_CURRENT\_STAR2\_MASS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$mass2}{\needsAttention{Description required}}{Mass\_2}{ANY\_STAR\_PROPERTY::MASS (Star 2)}
+\binaryProperty{RLOF\_CURRENT\_STAR2\_RADIUS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$radius2}{Radius (\Rsun) of the secondary immediately after RLOF.}{Radius\_2}{ANY\_STAR\_PROPERTY::RADIUS (Star 2)}
 
-\binaryProperty{RLOF\_CURRENT\_STAR1\_RADIUS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$radius1}{\needsAttention{Description required}}{Radius\_1}{ANY\_STAR\_PROPERTY::RADIUS (Star 1)}
+\binaryProperty{RLOF\_CURRENT\_STAR1\_RLOF}{BOOL}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$isRLOF1}{Flag to indicate whether the primary is overflowing its Roche Lobe.}{RLOF\_1}{}
 
-\binaryProperty{RLOF\_CURRENT\_STAR2\_RADIUS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$radius2}{\needsAttention{Description required}}{Radius\_2}{ANY\_STAR\_PROPERTY::RADIUS (Star 2)}
+\binaryProperty{RLOF\_CURRENT\_STAR2\_RLOF}{BOOL}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$isRLOF2}{Flag to indicate whether the secondary is overflowing its Roche Lobe.}{RLOF\_2}{}
 
-\binaryProperty{RLOF\_CURRENT\_STAR1\_RLOF}{BOOL}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$isRLOF1}{\needsAttention{Description required}}{RLOF\_1}{}
+\binaryProperty{RLOF\_CURRENT\_STAR1\_STELLAR\_TYPE}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$stellarType1}{Stellar type (per \citet{Hurley_2000}) of the primary star immediately after RLOF.}{Type\_1}{RLOF\_CURRENT\_STAR1\_STELLAR\_TYPE\_NAME}
 
-\binaryProperty{RLOF\_CURRENT\_STAR2\_RLOF}{BOOL}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$isRLOF2}{\needsAttention{Description required}}{RLOF\_2}{}
+\binaryProperty{RLOF\_CURRENT\_STAR2\_STELLAR\_TYPE}{DOUBLE}{\textit{derived from }BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$stellarType1}{Stellar type (per \citet{Hurley_2000}) of the secondary star immediately after RLOF.}{Type\_2}{RLOF\_CURRENT\_STAR2\_STELLAR\_TYPE\_NAME}
 
-\binaryProperty{RLOF\_CURRENT\_STAR1\_STELLAR\_TYPE}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$stellarType1}{\needsAttention{Description required}}{Type\_1}{RLOF\_CURRENT\_STAR1\_STELLAR\_TYPE\_NAME}
+\binaryProperty{RLOF\_CURRENT\_TIME}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$time}{Time since ZAMS (Myr) immediately after RLOF.}{Time}{TIME \& ANY\_STAR\_PROPERTY::TIME}
 
-\binaryProperty{RLOF\_CURRENT\_STAR1\_STELLAR\_TYPE\_NAME}{STRING}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$stellarType2}{\needsAttention{Description required}}{Type\_1}{RLOF\_CURRENT\_STAR1\_STELLAR\_TYPE}
+\binaryProperty{RLOF\_PREVIOUS\_EVENT\_COUNTER}{UNSIGNED INT}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$eventCounter}{The number of times the binary has overflowed its Roche lobe up to and excluding this episode}{Event\_Counter\_Prev}{}
 
-\binaryProperty{RLOF\_CURRENT\_STAR2\_STELLAR\_TYPE}{DOUBLE}{\textit{derived from }BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$stellarType1}{\needsAttention{Description required}}{Type\_2}{RLOF\_CURRENT\_STAR2\_STELLAR\_TYPE\_NAME}
+\binaryProperty{RLOF\_PREVIOUS\_SEPARATION}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$separation}{Separation (\Rsun) at the onset of RLOF.}{Separation\_Prev}{SEMI\_MAJOR\_AXIS, SEMI\_MAJOR\_AXIS\_RSOL \& ANY\_STAR\_PROPERTY::SEED}
 
-\binaryProperty{RLOF\_CURRENT\_STAR2\_STELLAR\_TYPE\_NAME}{STRING}{\textit{derived from }BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$stellarType2}{\needsAttention{Description required}}{Type\_2}{RLOF\_CURRENT\_STAR2\_STELLAR\_TYPE}
+\binaryProperty{RLOF\_PREVIOUS\_STAR1\_MASS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$mass1}{Mass (\Msun) of the primary at the onset of RLOF.}{Mass\_1\_Prev}{}
 
-\binaryProperty{RLOF\_CURRENT\_TIME}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$time}{\needsAttention{Description required}}{Time}{TIME \& ANY\_STAR\_PROPERTY::TIME}
+\binaryProperty{RLOF\_PREVIOUS\_STAR2\_MASS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$mass2}{Mass (\Msun) of the secondary at the onset of RLOF.}{Mass\_2\_Prev}{}
 
-\binaryProperty{RLOF\_PREVIOUS\_EVENT\_COUNTER}{UNSIGNED INT}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$eventCounter}{\needsAttention{Description required}}{Event\_Counter\_Prev}{}
+\binaryProperty{RLOF\_PREVIOUS\_STAR1\_RADIUS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$radius1}{Radius (\Rsun) of the primary at the onset of RLOF.}{Radius\_1\_Prev}{}
 
-\binaryProperty{RLOF\_PREVIOUS\_SEPARATION}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$separation}{\needsAttention{Description required}}{Separation\_Prev}{SEMI\_MAJOR\_AXIS, SEMI\_MAJOR\_AXIS\_RSOL \& ANY\_STAR\_PROPERTY::SEED}
+\binaryProperty{RLOF\_PREVIOUS\_STAR2\_RADIUS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$radius2}{Radius (\Rsun) of the secondary at the onset of RLOF.}{Radius\_2\_Prev}{}
 
-\binaryProperty{RLOF\_PREVIOUS\_STAR1\_MASS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$mass1}{\needsAttention{Description required}}{Mass\_1\_Prev}{}
+\binaryProperty{RLOF\_PREVIOUS\_STAR1\_RLOF}{BOOL}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$isRLOF1}{Flag to indicate whether the primary is overflowing its Roche Lobe.}{RLOF\_1\_Prev}{}
 
-\binaryProperty{RLOF\_PREVIOUS\_STAR2\_MASS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$mass2}{\needsAttention{Description required}}{Mass\_2\_Prev}{}
+\binaryProperty{RLOF\_PREVIOUS\_STAR2\_RLOF}{BOOL}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$isRLOF2}{Flag to indicate whether the secondary is overflowing its Roche Lobe.}{RLOF\_2\_Prev}{}
 
-\binaryProperty{RLOF\_PREVIOUS\_STAR1\_RADIUS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$radius1}{\needsAttention{Description required}}{Radius\_1\_Prev}{}
+\binaryProperty{RLOF\_PREVIOUS\_STAR1\_STELLAR\_TYPE}{INT}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$stellarType1}{Stellar type (per \citet{Hurley_2000}) of the primary star at the onset of RLOF.}{Type\_1\_Prev}{RLOF\_PREVIOUS\_STAR1\_STELLAR\_TYPE\_NAME}
 
-\binaryProperty{RLOF\_PREVIOUS\_STAR2\_RADIUS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$radius2}{\needsAttention{Description required}}{Radius\_2\_Prev}{}
+\binaryProperty{RLOF\_PREVIOUS\_STAR2\_STELLAR\_TYPE}{INT}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$stellarType2}{Stellar type (per \citet{Hurley_2000}) of the secondary star at the onset of RLOF.}{Type\_2\_Prev}{RLOF\_PREVIOUS\_STAR2\_STELLAR\_TYPE\_NAME}
 
-\binaryProperty{RLOF\_PREVIOUS\_STAR1\_RLOF}{BOOL}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$isRLOF1}{\needsAttention{Description required}}{RLOF\_1\_Prev}{}
+\binaryProperty{RLOF\_PREVIOUS\_TIME}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$time}{Time since ZAMS (Myr) at the onset of RLOF.}{Time\_Prev}{}
 
-\binaryProperty{RLOF\_PREVIOUS\_STAR2\_RLOF}{BOOL}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$isRLOF2}{\needsAttention{Description required}}{RLOF\_2\_Prev}{}
-
-\binaryProperty{RLOF\_PREVIOUS\_STAR1\_STELLAR\_TYPE}{INT}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$stellarType1}{\needsAttention{Description required}}{Type\_1\_Prev}{RLOF\_PREVIOUS\_STAR1\_STELLAR\_TYPE\_NAME}
-
-\binaryProperty{RLOF\_PREVIOUS\_STAR1\_STELLAR\_TYPE\_NAME}{STRING}{\textit{derived from }BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$stellarType1}{\needsAttention{Description required}}{Type\_1\_Prev}{RLOF\_PREVIOUS\_STAR1\_STELLAR\_TYPE}
-
-\binaryProperty{RLOF\_PREVIOUS\_STAR2\_STELLAR\_TYPE}{INT}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$stellarType2}{\needsAttention{Description required}}{Type\_2\_Prev}{RLOF\_PREVIOUS\_STAR2\_STELLAR\_TYPE\_NAME}
-
-\binaryProperty{RLOF\_PREVIOUS\_STAR2\_STELLAR\_TYPE\_NAME}{STRING}{\textit{derived from }BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$stellarType2}{\needsAttention{Description required}}{Type\_2\_Prev}{RLOF\_PREVIOUS\_STAR2\_STELLAR\_TYPE}
-
-\binaryProperty{RLOF\_PREVIOUS\_TIME}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$time}{\needsAttention{Description required}}{Time\_Prev}{}
-
-\binaryProperty{RLOF\_SECONDARY\_POST\_COMMON\_ENVELOPE}{BOOL}{BinaryConstituentStar::m\_RLOFDetails.RLOFPostCEE}{\needsAttention{Description required}}{RLOF\_Secondary$>$CE}{}
 
 \binaryProperty{ROCHE\_LOBE\_RADIUS\_1}{DOUBLE}{BinaryConstituentStar::m\_RocheLobeRadius}{Roche radius of the primary star~(\Rsun).}{RocheLobe\_1/a}{}
 

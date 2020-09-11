@@ -1415,7 +1415,7 @@ double GiantBranch::CalculateRemnantMassByBelczynski2002(const double p_Mass, co
  * This function determines which prescription is used for the core collapse SN (via program options)
  *
  * The function calls prescription functions that update the following parameters:
- *      Mass, stellarType, drawnKickVelocity, kickVelocity
+ *      Mass, stellarType, drawnKickMagnitude, kickMagnitude
  *
  * At the end of this function we set the following parameters which are (so far) independent of the
  * ccSN prescriptions (but do depend on the parameters above):
@@ -1550,8 +1550,8 @@ STELLAR_TYPE GiantBranch::ResolveTypeIIaSN() {
     m_Luminosity        = 0.0;
     m_Temperature       = 0.0;
 
-    m_SupernovaDetails.drawnKickVelocity = 0.0;
-    m_SupernovaDetails.kickVelocity      = 0.0;
+    m_SupernovaDetails.drawnKickMagnitude = 0.0;
+    m_SupernovaDetails.kickMagnitude      = 0.0;
 
     return STELLAR_TYPE::MASSLESS_REMNANT;
 }
@@ -1582,8 +1582,8 @@ STELLAR_TYPE GiantBranch::ResolvePairInstabilitySN() {
     m_Radius      = 0.0;
     m_Temperature = 0.0;
 
-    m_SupernovaDetails.drawnKickVelocity = 0.0;
-    m_SupernovaDetails.kickVelocity      = 0.0;
+    m_SupernovaDetails.drawnKickMagnitude = 0.0;
+    m_SupernovaDetails.kickMagnitude      = 0.0;
     m_SupernovaDetails.fallbackFraction  = 0.0;
 
     SetSNCurrentEvent(SN_EVENT::PISN);                                                                  // pair instability SN happening now
@@ -1695,7 +1695,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         m_SupernovaDetails.coreMassAtCOFormation   = m_CoreMass;
 
         double snMass = CalculateInitialSupernovaMass();                                            // calculate SN initial mass
-
+        
         SetSNHydrogenContent();                                                                     // ALEJANDRO - 04/05/2018 - Check if the SN is H-rich or H-poor. For now, classify it for all possible SNe and not only CCSN forming NS.
 
         if (                             OPTIONS->UsePulsationalPairInstability()              &&
@@ -1720,7 +1720,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
             stellarType = ResolveCoreCollapseSN(OPTIONS->FryerSupernovaEngine());
         }
             
-    	CalculateSNKickVelocity(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
+    	CalculateSNKickMagnitude(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
 
         // stash SN details for later printing to the SSE Supernova log
         // can't print it now because we may revert state (in Star::EvolveOneTimestep())
