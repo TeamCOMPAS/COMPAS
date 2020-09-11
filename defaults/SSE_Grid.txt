@@ -3,7 +3,7 @@
 # note the order of the columns is not significant
 
 
-Mass, Metallicity, Kick_Velocity_Random, Kick_Velocity
+Mass, Metallicity, Kick_Magnitude_Random, Kick_Magnitude
 
 
 10.0						# default metallicity (OPTIONS->Metallicity()) will be used, 0.0 will be used for kick values

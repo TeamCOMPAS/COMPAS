@@ -422,7 +422,8 @@
 //                                       - added profiling option to keep track of repeated pow() calls
 // 02.15.02     IM - Sep 11, 2020   - Defect repair
 //                                       - changed ultra-stripped HeHG and HeGB stars to immediately check for supernovae before collapsing into WDs; this resolves issue #367
-
-const std::string VERSION_STRING = "02.15.02";
+// 02.15.03     RW - Sep 11, 2020   - Code cleanup:
+//                                      - Set all references to kick "velocity" to magnitude. This is more correct, and will help distinguish from system and component vector velocities later
+const std::string VERSION_STRING = "02.15.03";
 
 # endif // __changelog_h__

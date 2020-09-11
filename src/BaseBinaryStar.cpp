@@ -574,7 +574,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::COMMON_ENVELOPE_ALPHA:                                value = CEAlpha();                                                          break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE:                        value = CEAtLeastOnce();                                                    break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT:                          value = CommonEnvelopeEventCount();                                         break;
-        case BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY:                          value = UK();                                                               break;
+        case BINARY_PROPERTY::DIMENSIONLESS_KICK_MAGNITUDE:                          value = UK();                                                               break;
         case BINARY_PROPERTY::UNBOUND:                                              value = Unbound();                                                          break;
         case BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE:                          value = DoubleCoreCE();                                                     break;
         case BINARY_PROPERTY::DT:                                                   value = Dt();                                                               break;
@@ -1627,27 +1627,27 @@ double BaseBinaryStar::CalculateCosFinalPlaneTilt(const double p_KickTheta, cons
  * Also given in Hurley et al 2002 (http://arxiv.org/pdf/astro-ph/0201220v1.pdf), eq A.12
  *
  *
- * double CalculateOrbitalEccentricityPostSupernova(const double p_KickVelocity,
+ * double CalculateOrbitalEccentricityPostSupernova(const double p_KickMagnitude,
  *                                                  const double p_TotalMassPreSN,
  *                                                  const double p_TotalMassPostSN,
  *                                                  const double p_KickTheta,
  *                                                  const double p_KickPhi)
  *
- * @param   [IN]    p_KickVelocity              Dimensionless kick velocity vk/vrel
+ * @param   [IN]    p_KickMagnitude              Dimensionless kick magnitude vk/vrel
  * @param   [IN]    p_TotalMassPreSN            Total mass of binary before supernova event
  * @param   [IN]    p_TotalMassPostSN           Total mass of binary after supernova event
  * @param   [IN]    p_KickTheta                 Kick direction angle out of the plane
  * @param   [IN]    p_KickPhi                   Kick direction angle in the plane
  * @return                                      Orbital eccentricity after a supernova
  */
-double BaseBinaryStar::CalculateOrbitalEccentricityPostSupernova(const double p_KickVelocity,
+double BaseBinaryStar::CalculateOrbitalEccentricityPostSupernova(const double p_KickMagnitude,
                                                                  const double p_TotalMassPreSN,
                                                                  const double p_TotalMassPostSN,
                                                                  const double p_KickTheta,
                                                                  const double p_KickPhi) {
     // calculate these once for use later
     double mOverMprime           = p_TotalMassPreSN / p_TotalMassPostSN;
-    double uk_2                  = p_KickVelocity * p_KickVelocity;
+    double uk_2                  = p_KickMagnitude * p_KickMagnitude;
     double _2_r_Minus_1_a        = (2.0 / m_Radius) - (1.0 / m_SemiMajorAxis);
     double sinTheta              = sin(p_KickTheta);
     double cosTheta              = cos(p_KickTheta);
@@ -1655,8 +1655,8 @@ double BaseBinaryStar::CalculateOrbitalEccentricityPostSupernova(const double p_
     double cosPhi                = cos(p_KickPhi);
     double sinBeta               = sin(m_Beta);
     double cosBeta               = cos(m_Beta);
-    double ukCosTheta            = p_KickVelocity * cosTheta;
-    double ukCosThetaCosPhi      = p_KickVelocity * cosTheta * cosPhi;
+    double ukCosTheta            = p_KickMagnitude * cosTheta;
+    double ukCosThetaCosPhi      = p_KickMagnitude * cosTheta * cosPhi;
     double ukCosThetaCosPhiPlus1 = ukCosThetaCosPhi + 1.0;
 
     // calculate orbital eccentricity
@@ -1678,27 +1678,27 @@ double BaseBinaryStar::CalculateOrbitalEccentricityPostSupernova(const double p_
  * Post-SN orbital characteristics 2 document, eq 22        JR: todo get reference to document
  *
  *
- * double CalculateSemiMajorAxisPostSupernova(const double p_KickVelocity,
+ * double CalculateSemiMajorAxisPostSupernova(const double p_KickMagnitude,
  *                                            const double p_TotalMassPreSN,
  *                                            const double p_TotalMassPostSN,
  *                                            const double p_KickTheta,
  *                                            const double p_KickPhi)
  *
- * @param   [IN]    p_KickVelocity              Dimensionless kick velocity vk/vrel
+ * @param   [IN]    p_KickMagnitude              Dimensionless kick magnitude vk/vrel
  * @param   [IN]    p_TotalMassPreSN            Total mass of binary before supernova event
  * @param   [IN]    p_TotalMassPostSN           Total mass of binary after supernova event
  * @param   [IN]    p_KickTheta                 Kick direction angle out of the plane
  * @param   [IN]    p_KickPhi                   Kick direction angle in the plane
  * @return                                      Semi major axis of the orbit after the supernova
  */
-double BaseBinaryStar::CalculateSemiMajorAxisPostSupernova(const double p_KickVelocity,
+double BaseBinaryStar::CalculateSemiMajorAxisPostSupernova(const double p_KickMagnitude,
                                                            const double p_TotalMassPreSN,
                                                            const double p_TotalMassPostSN,
                                                            const double p_KickTheta,
                                                            const double p_KickPhi) {
 
     double r_2           = 2.0 / m_Radius;
-    double quadraticTerm = 1.0 + (2.0 * p_KickVelocity * cos(p_KickTheta) * cos(p_KickPhi)) + (p_KickVelocity * p_KickVelocity);
+    double quadraticTerm = 1.0 + (2.0 * p_KickMagnitude * cos(p_KickTheta) * cos(p_KickPhi)) + (p_KickMagnitude * p_KickMagnitude);
 
     return 1.0 / (r_2 - ((p_TotalMassPreSN / p_TotalMassPostSN) * (r_2 - (1.0 / m_SemiMajorAxis)) * quadraticTerm));
 }
@@ -1749,7 +1749,7 @@ bool BaseBinaryStar::ResolveSupernova() {
     #undef e
     #undef a
 
-    double vK = m_Supernova->SN_KickVelocity();												
+    double vK = m_Supernova->SN_KickMagnitude();												
 
     ///////////////////////////////////////////////////////////////////////////////////
 	//          AT THE MOMENT, QUANTITIES BEYOND HERE ARE IN SI (NOT IDEAL)          //                                             // JR: todo: do we need to change this?
@@ -1761,7 +1761,7 @@ bool BaseBinaryStar::ResolveSupernova() {
 	vK                       *= KM;                                                                                                 // convert vK to m s^-1.  Would be nice to draw this in nicer units to avoid this secion
 	m_VRel                    = sqrt(G * (totalMass * MSOL_TO_KG) * ((2.0 / (m_Radius * AU)) - (1.0 / (m_SemiMajorAxis * AU))));    // orbital velocity
 	m_uK                      = OPTIONS->UseFixedUK() ? OPTIONS->FixedUK() : vK / m_VRel;                                           // fix uK to user-defined value if required, otherwise calculate it.  uK is dimensionless
-	m_OrbitalVelocityPreSN    = m_VRel;                                                                                             // since the kick velocity always occurs in equations as vk/vrel, we need to know vrel
+	m_OrbitalVelocityPreSN    = m_VRel;                                                                                             // since the kick magnitude always occurs in equations as vk/vrel, we need to know vrel
 
 	///////////////////////////////////////////////////////////////////////////////////
 	//                       SHOULD BE BACK TO NICE UNITS NOW                        //
