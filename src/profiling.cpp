@@ -3,8 +3,6 @@
 // profiled here too).
 //
 // See the "#define PROFILING" statement in profiling.h to learn how to turn profiling on and off
-#ifndef __profiling_cpp__
-#define __profiling_cpp_
 
 
 #include <iostream>
@@ -56,7 +54,14 @@ namespace profiling {
      * 
      */
     void Report() {
+        
+        std::cout << "\n";
+        std::cout << "========== BEGIN PROFILING OUTCOMES ==========\n";
+        std::cout << "\n";
+
         ReportPow();
+        
+        std::cout << "=========== END PROFILING OUTCOMES ===========\n";
     } 
 
 
@@ -210,12 +215,8 @@ namespace profiling {
      */
     void ReportPow() {
 
-        std::cout << "\n";
-        std::cout << "========== PROFILING OUTCOMES ==========\n";
-        std::cout << "\n";
-
-        std::cout << "Profiling outcomes for std::pow()\n";
-        std::cout << "---------------------------------\n";
+        std::cout << "Begin profiling outcomes for std::pow()\n";
+        std::cout << "---------------------------------------\n";
         std::cout << "Total accumulated call count: " << m_PowCallCount << "\n";
         std::cout << "\n";
         std::cout << "Minimum base passed         : " << m_PowBaseMin << "\n";
@@ -224,7 +225,7 @@ namespace profiling {
         std::cout << "Maximum exponent passed     : " << m_PowExponentMax << "\n";
 
         std::cout << "\n";
-        std::cout << "----------------------------------------\n";
+        std::cout << "---------------------------------------\n";
         std::cout << "\n";
 
         // print the call map entries
@@ -238,11 +239,11 @@ namespace profiling {
         }
 
         std::cout << "\n";
-        std::cout << "========================================\n";
+        std::cout << "End profiling outcomes for std::pow()\n";
+        std::cout << "---------------------------------------\n";
+        std::cout << "\n";
     }
 
 }
 
 #endif // DOPROFILING
-
-#endif // __profiling_cpp__
