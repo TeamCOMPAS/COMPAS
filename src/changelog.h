@@ -432,7 +432,10 @@
 // 02.15.05     JR - Sep 12, 2020   - Code cleanup
 //                                       - removed superfluous (and broken) #define guard around profiling.cpp
 //                                       - minor change to profiling output (moved header and trailer to better place)
+// 02.15.06     IM - Sep 12, 2020   - Defect repair
+//                                       - Changed BaseBinaryStar::ResolveSupernova to account only for mass lost by the exploding binary during the SN when correcting the orbit
+//                                       - Delayed supernova of ultra-stripped stars so that the orbit is adjusted in response to mass transfer first, before the SN happens
 
-const std::string VERSION_STRING = "02.15.05";
+const std::string VERSION_STRING = "02.15.06";
 
 # endif // __changelog_h__
