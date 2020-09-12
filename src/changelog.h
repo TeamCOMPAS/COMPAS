@@ -429,7 +429,10 @@
 //                                          - profiling code can now be #defined away for production build
 //                                          - added options (via #defines) to profiling code: counts only (no CPU spinning), and print calling function name
 //                                       - removed profiling program option
+// 02.15.05     JR - Sep 12, 2020   - Code cleanup
+//                                       - removed superfluous (and broken) #define guard around profiling.cpp
+//                                       - minor change to profiling output (moved header and trailer to better place)
 
-const std::string VERSION_STRING = "02.15.04";
+const std::string VERSION_STRING = "02.15.05";
 
 # endif // __changelog_h__
