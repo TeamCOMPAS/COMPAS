@@ -1733,8 +1733,8 @@ bool BaseBinaryStar::ResolveSupernova() {
 
 	m_Radius = (m_SemiMajorAxis * (1.0 - (m_Eccentricity * m_Eccentricity))) / (1.0 + m_Eccentricity * cos(m_Supernova->SN_TrueAnomaly()));   // radius of orbit at current time in AU as a function of the true anomaly psi
 
-	double totalMass        = m_Supernova->MassPrev() + m_Companion->MassPrev();                                                    // total mass of binary before supernova event
-	double reducedMass      = (m_Supernova->MassPrev() * m_Companion->MassPrev()) / totalMass;                                      // reduced mass before supernova event
+	double totalMass        = m_Supernova->SN_TotalMassAtCOFormation() + m_Companion->Mass();                                                    // total mass of binary before supernova event
+	double reducedMass      = (m_Supernova->SN_TotalMassAtCOFormation() * m_Companion->Mass()) / totalMass;                                      // reduced mass before supernova event
 	double totalMassPrime   = m_Supernova->Mass() + m_Companion->Mass();                                                            // total mass of binary after supernova event
 	double reducedMassPrime = (m_Supernova->Mass() * m_Companion->Mass()) / totalMassPrime;                                         // reduced mass after supernova event
 
