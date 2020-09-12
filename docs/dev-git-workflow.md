@@ -147,7 +147,7 @@ This is a second, remote repository (distinct from your local repo), but is mana
 It serves as a public-facing 'sandbox' of your current work, where you can share partially-developed ideas and projects with others who might be interested in assisting, without interferring with or clogging up the Main repo.
 
 On Github, go to the TeamCOMPAS/COMPAS repo and click on `Fork` in the upper-right corner.
-This will create a copy of the current state of the TeamCOMPAS/COMPAS repo, including all branches and all commit histories, and place it on your profile, identified as `<your-username>`/COMPAS.
+This will create a copy of the current state of the TeamCOMPAS/COMPAS repo, including all branches and all commit histories, and place it on your profile, identified as `<your-username>/COMPAS`.
 
 Since this is your personal repo, you can be as organized or scatter-brained as you wish here.
 If you work best with 50 branches, obscure names, and code scraps everywhere, have at it.
@@ -288,6 +288,32 @@ Git has some pretty clever tools to figure out which changes to pull into the me
 You will have to manually edit the files to choose how to resolve the conflict.
 You are encouraged to make backup copies of both parent branches until you are more comfortable.
 Git has several [ways to deal with merge conflicts;](https://www.atlassian.com/git/tutorials/using-branches/merge-conflicts) the best option for you may depend on the particular IDE you are using. 
+
+---
+
+### Comparing branches 
+
+Often it is useful to see differences between branches and workspaces without actually making any changes to either.
+To accomplish this, we use the `git diff` command. 
+The arguments (or lack thereof) determine which objects are compared.
+
+To see all the recent changes in your working directory:
+
+```
+git diff            # compare working directory to index
+git diff HEAD       # compare working directory to tip of the current branch
+git diff --cached   # compare index to tip of the current branch
+```
+
+To compare two branches `<b1>` and `<b2>` (or even a single file on separate branches): 
+
+```
+git diff <b1> <b2>                         # compare the tips of two branches
+git diff <b1> <remote-fork>/<b2>           # compare local branch to a remote branch
+git diff <b1>:./file/path <b2>:./file/path # compare the same file on different branches
+```
+
+For even more flexibility and control over branch/file comparisons, you should checkout `git difftool` and its customizations for your preferred text editor.
 
 ---
 
@@ -471,11 +497,12 @@ git branch --set-upstream-to=<remote-fork>/<remote-branch-to-track>
 
 ---
 
-# Lifetime of a project
+# Lifetime of a New Feature
 
-### New projects
+### New feature branches
 
-When beginning a new project, you will typically want to branch off of the most updated version of the `dev` branch
+When beginning a new feature, you will typically want to branch off of the most updated version of the `dev` branch.
+Ultimately, the feature will be merged back into `dev` (or else abandoned), and this will facilitate the merge later on.
 
 ```
 git checkout dev 
@@ -483,13 +510,14 @@ git pull
 git checkout -b <new-project>
 ``` 
 
-The name of your branch should *clearly* describe exactly the features implemented.
-Generic names make it harder for future testers to know the intended scope of the changes.
+The name of your branch should *clearly* describe the feature you plan to implemented.
+This will help you to keep track of where different bits of code live once the number of branches gets large.
 
 ---
 
-### Growing projects
-Commit regularly as you make changes
+### Ongoing feature branches
+
+Commit regularly as you make changes.
 
 ```
 git status
@@ -497,19 +525,28 @@ git add <file1> <file2> <...>
 git commit -m "useful message"
 ```
 
-When you have made many commits and want to save on the remote, first check that you have the correct current and target branches
+When you have made many commits and want to push your work up to the remote, first check that you have the correct current and target branches
 
 ```
 git branch -vv
 git push
 ```
 
+If you are working on a shared remote branch, you should also pull regularly to keep up with any changes that are made there. A safe way to check if there are any changes, without risking overwriting your local work, is to fetch and diff.
+
+```
+git fetch <remote-fork>
+git diff HEAD <remote-fork>/<remote-branch>
+```
+
 ---
 
-### Mature projects 
+### Finalized features
 
-When a project is nearing completion (e.g when the code is nearly ready to be pulled into the Main Repository and tested), the author of the branch should first double check that their branch is up to date with the remote tracking branches.
-At the very least, they should update `dev`, and merge any updates into their branch.
+When a feature branch is nearing completion (e.g when the code is nearly ready to be submitted into the Main Repository and tested), you will want to ensure that it is fully up-to-date with the Main repo. 
+Then, push your branches up to your personal remote repo before submitting a Pull Request.
+
+1. Ensure that your branch has the latest updates from `dev`.
 
 ```
 git checkout dev
@@ -518,38 +555,26 @@ git checkout <mature-branch>
 git merge dev
 ```
 
-At this point, the user might choose to submit their branch from their local repo, or from their personal fork (e.g if the mature branch has been worked on by several people).
-Either of these is fine. 
-
-1. If you are pushing from your local repo:
-
-to an existing branch:
+2. Push to your personal remote repo
 
 ```
 git checkout <mature-branch>
-git push origin <existing-branch>
+git push --set-upstream <your-remote-repo>
 ```
 
-to a new branch (with the same name):
+3. Submit a Pull Request to the Main repo
 
-```
-git checkout <mature-branch>
-git push -u origin
-```
+#### TODO RTW: add in images for this section
 
-2. If you are pushing from your remote fork:
+    - Login to github and go to your personal remote repo `<your-username>/COMPAS`.
 
-	to an existing branch on `origin`, go to the `<mature-branch>` on github, click on Pull Request, and set the dropdowns to `TeamCOMPAS/COMPAS`, `<target-branch>`, `<Your-Repo>/COMPAS`, and `<mature-branch>`.
-For feature target branches (i.e not `production`, `dev`) the Pull Request will be automatically approved (for official collaborators only, not the public). 
+    - Click `Pull request` (If you recently pushed your branch, you could also click on `Compare & pull request`)
 
-	to a new branch on `origin`, you will first need to create the branch.
-Go to the Main repo on github, click on the Branch dropdown, and type in a name for the new branch.
-Then, follow the steps above for pushing to an existing branch.
+    - Double check that you have selected the correct feature and target branches. In almost all cases, the base should be `TeamCOMPAS/COMPAS` with branch `dev`, which will probably not be the default. Then click `Create pull request`
+    
+    - Add a comment describing your feature and what changes you made. If you have any particular reviewers in mind, or your feature solves one of the Git Issues, you should link those here. Then click `Create pull request`, and you're all set!
 
-You should leave a detailed description of the branch in the comment section, and if you would like to request any Reviewers, feel free to do so.
-You can leave Assignees, Labels, Projects, and Milestones blank for now.
-
-Once you have created the pull request, it is up to the other team members to review it (see below). 
+Once you have created the pull request, it is up to the other team members to review it (see below). They may ask you to fix some parts before accepting it, so keep an eye on the pull request conversation.
 
 ---
 
@@ -560,41 +585,36 @@ This section delves into how we apply these specifically to the COMPAS workflow.
 
 ### Overview 
 
-There are 4 types of branches on the Main Repo.
-`production` and `dev` are the first two.
-They are both permanent, and both can only be modified with Pull Requests (PRs) from other branches on the Main repo.
-These PRs must be approved by one or more other COMPAS developers.
-`production` is the current "long term service release" meaning we expect that it works well for all typical use cases.
-Of course, code is never bug-free, but this branch is the one the public will use, so updates should be extensively tested.
-`dev` is where new well-tested features are joined together in preparation for the next release.
-Presumably, these new features have been well-tested in isolation, but `dev` is a place to confirm that the tests still pass when other new features are included.
+There should always be only 2 branches on the Main Repo: `production` and `dev`.
+They are both permanent, and both can only be modified with pull requests which must be approved by another COMPAS developer. 
 
-The third kind is `hotfix*` branches.
-When an urgent bug is detected and needs to be rushed through to `production`, the changes should be pushed directly to a branch on `origin` that starts with "hotfix-" followed by some descriptive name.
-The fourth kind is all other feature branches.
-These can have any name you like as long as it doesn't conflict with the previous three.
-Any branches that get pulled into Main need to pass a set of Status Checks to ensure that the updates pass basic unit tests (e.g does it compile?). 
+The `production` branch is the current "long term service release", meaning that it should be well-tested. 
+Of course, code is never truly bug-free, but this branch is the one that the public will use, so updates should be extensively tested.
 
-PRs to `production` can only come from `dev` or `hotfix*` branches.
-PRs to `dev` can only come from feature branches on Main.
-Any collaborator can push a new feature or `hotfix*` branch to Main, as long as it passes the Status Checks.
-Non-collaborators have read-only access; if they would like to contribute, we will first have to add them as collaborators. 
+The `dev` branch is where new features are joined together in preparation for the next release.
+Pull requests to `dev` should be made from feature branches sitting on other remote repos (e.g the personal repo of the author).
+Presumably, these new features have each been tested in isolation and correctly do what they propose to do. 
+But `dev` is a place to confirm that all the new features combined together still produce sensible output. 
 
 ---
 
 ### Reviewing Pull Requests
 
-A typical new feature will be formally reviewed twice.
-The first is in the PR from `<feature-branch>` to `dev`.
-This review checks that the feature works well in isolation (on it's current branch) and can be merged into `dev` without conflict.
-It is not intended to test for introduced bugs in `dev`.
-It needs to be approved by only one other developer, so the reviewer is equally responsible if any bugs slip through.
-The second review occurs before `dev` is pulled into `production`.
-When we are nearing a new version release, we should asign various testing roles to the different developers to check for any introduced bugs from all the new features in `dev`.
-This review requires two approvers, but this is more of a formality and protection, since hopefully the development team will collectively approve of any new version releases. 
+Typically, a new feature branch will be formally reviewed when it is submitted as a pull request into `dev`. 
+Reviewers have a responsibility to check the following:
 
-A `hotfix*` branch will only be reviewed once in the PR from `hotfix*` to `dev`, to help streamline the process of fixing the bug.
-This PR still requires two approvers, to ensure no new bugs are "introduced in production" to the `production` branch. 
+- The code compiles without error on the usual assortment of Operating Systems.
+- The code runs without error using all default values (`./COMPAS`).
+- The code runs without error on a medium-sized population of binaries.
+- The new feature(s) do what they propose to do.
+- All new features are explicitly mentioned (i.e nothing is fixed quietly).
+- Documentation has been updated appropriately.
+- Formatting conforms to the rest of COMPAS.
+
+This does not all have to be done by one reviewer, but there should be a consensus among all reviewers that all tests have been passed. 
+
+A new release is defined by a pull request from `dev` to `production` and should involve most of the active developers. 
+The `dev` branch should be tested heavily for a variety of potential bugs, including speed tests, different package and OS versions, and comparisons of key plots from different papers. 
 
 ---
 
