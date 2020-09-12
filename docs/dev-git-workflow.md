@@ -632,11 +632,11 @@ The imagery of the shared history of commits, followed by the split into two sep
 A branch will often represent a place to experiment with changes in a way that doesn't risk destroying the existing code.
 Major branches will add some new functionality or some new physical prescription, while sub-branches may pop-up to quickly test some variation to the new functionality.
 These sub-branches might be merged in to the major feature branch, destroyed, or possibly continue on their own to be expanded into a more major feature (and then merged in later on).
-Whether the branch is merged or scrapped, it should always [ultimately be deleted](#deleting-branches)[1](https://rickandmorty.fandom.com/wiki/Mr._Meeseeks) (aside from the permanent `production` and `dev` branches).
+Whether the branch is merged or scrapped, it should always [ultimately be deleted](#deleting-branches) [[1]](https://rickandmorty.fandom.com/wiki/Mr._Meeseeks) (aside from the permanent `production` and `dev` branches).
 
 - **Repository**: A Repository (or Repo) is a single storage location for a given code base.
 A single github user may have many repos for all of their different software projects.
-In our case, we have the Main Repository hosted by on Github by TeamCOMPAS/COMPAS.
+In our case, we have the Main Repository hosted by on Github at [TeamCOMPAS/COMPAS.](github.com/TeamCOMPAS/COMPAS) 
 There are often many repositories for a given development project - these can be local or remote repositories (see below), each (usually) hosted by one the developers.
 Each repo can contain different branches each with slight variations on the code base, and these branches can be readily shared between repos, along with their history of commits.
 A Repo can be public (often called Open Source) or private.
@@ -645,8 +645,7 @@ Prospective contributors need to be added as a collaborator in order to make cha
 
 - **Local/Remote**: Local refers to the repository on your personal computer, while Remote refers to any repo that isn't.
 Github repos (whether Main or someone else's) will be remote for everyone.
-My local computer is only local to me, and would be considered remote to anyone else.
-This should not come up often, because it would be very foolish to give anyone access to your local computer.
+My local computer is only local to me; from a purely git perspective, it would be considered remote to anyone else, though this should not come up often because other users should never have even remote access to your personal computer. 
 The purpose of your personal remote fork is to be a public proxy for your local fork, where you can add things you've worked on that you wish to share around.
 
 - **Fork**: A Fork is a full copy of a repo, including all its branches, to another location.
@@ -660,8 +659,8 @@ It is configured by default whenever you clone from a repository, so yours will 
 If you track multiple remote forks, you should give them all helpful, distinguishing names (e.g `jeff_fork`, `reinhold_fork`, etc.)
 
 - **Working Directory**: The Working Directory is where a user makes edits to files.
-It has meaning in git only in reference to the Index and the last commit.
-Files are editted in the working directory, before being added to the Index, and then finally committed to the current branch, or HEAD (see below).
+It has meaning in git only in reference to the Index and the most recent commit (i.e the tip of the current branch).
+Files are editted in the working directory, before being added to the Index (or "staged"), and then finally committed to the current branch, or HEAD (see below).
 
 - **Index**: The Index (aka Staging Area) exists only in the intermediate step between editing local files and committing those files.
 Historically, other Version Control systems only allowed editting files, and then committing those files one by one.
@@ -670,16 +669,15 @@ The classic example of this is adding a function to a .C file and it's header .h
 If you need to revert this commit back for any reason, it makes sense to remove both of those edits at once - you would virtually never need to remove the function from the C file but leave it in the header.
 Adding files to the index is the way to collect all of the files that were involved in a given series of edits that you want to treat as one big Edit.
 
-- **Tracking**: The word tracking refers to either remote repositories, or local files in a single branch, but they have slightly different meanings.
+- **Tracking**: The word tracking has two meanings, and could refer to either tracked remote repositories, or tracked local files in the current branch, and they have slightly different meanings.
 
     - A tracked repository is one which contains a branch which is currently being tracked, or "upstream", of a branch in your local repository.
 By default, all the branches on a forked repository track the branches they were forked from.
-You can modify the upstream branch of a given branch to point at any other branch you like, whether local or remote, and can even track multiple remote repositories.
-This is useful if you want to check out a branch that sits on a colleague's fork.
+You can modify the upstream branch of a given branch to point at any other branch you like, whether local or remote. You can also have multiple tracked remote repositories, though any given branch can only track at most one other branch at a time.
+This is useful if you want to check out and keep up-to-date with a branch that sits on a colleague's fork.
 You can view all tracked repositories with `git remote -v`
-    - A tracked file is one that git "knows about".
-It is one that was included in the last commit.
-You can have other files in the same folders as your git repo which are not tracked (if, e.g, you want to have output files from COMPAS runs but not push those to other repos).
+    - A tracked file is one that git "knows about", meaning it was included in the last commit.
+You can have other files in the same folders as your git repo which are not tracked (if, e.g, you want to have output files from COMPAS runs but do not want to share those around).
 If you make modifications to a tracked file but don't commit it, git will not let you leave the branch.
 
 - **Push, Pull, and Pull Request**: These commands form the backbone of file-sharing across repositories.
@@ -688,9 +686,9 @@ You `pull` from a remote into your local, and you `push` from your local into a 
 For many remotes, there are protections in place to keep arbitrary users from pushing changes ad hoc.
 `Pull-requests` are the polite version of a `push` - instead of forcing your changes onto a remote, you are asking the manager of the remote to review your changes, and hopefully pull them into the remote if they approve.
 
-- **Revert**: A revert is used when the chain of commits that make up a branch has gone too far - you have decided that you don't like the latest edits and we want to remove them from the branch.
-In this case, you revert the HEAD of the branch (the latest commit) to an earlier commit, identified by it's unique SHA hash.
-This can get quite complicated though, so make sure to use this one with caution, and do lots of testing before you try anything.
+- **Revert**: A revert is used when it is decided that a particular previous commit (or perhaps several) have introduced bugs or are otherwise no longer undesired, and we want to remove them from the branch.
+A `git revert` will attempt to identify the changes made in those commits, and create a new commit to undo them. 
+This is a fairly advanced git command and can easily become quite complicated, so make sure to use this one with caution, make backups of your work, and do lots of testing before you try anything.
 
 - **HEAD**: HEAD is a pointer to a commit, but the specific commit it points to moves around regularly.
 In general, it refers to the tip of whichever is the current branch.
