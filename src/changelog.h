@@ -424,7 +424,7 @@
 //                                       - changed ultra-stripped HeHG and HeGB stars to immediately check for supernovae before collapsing into WDs; this resolves issue #367
 // 02.15.03     RW - Sep 11, 2020   - Code cleanup:
 //                                      - Set all references to kick "velocity" to magnitude. This is more correct, and will help distinguish from system and component vector velocities later
-// 02.15.02     JR - Sep 11, 2020   - Enhancement
+// 02.15.04     JR - Sep 11, 2020   - Enhancement
 //                                       - refactored profiling code
 //                                          - profiling code can now be #defined away for production build
 //                                          - added options (via #defines) to profiling code: counts only (no CPU spinning), and print calling function name
