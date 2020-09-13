@@ -126,7 +126,7 @@ double HeMS::CalculateRadiusAtZAMS_Static(const double p_Mass) {
     double m_3 = p_Mass * p_Mass * p_Mass;
     double m_4 = m_3 * p_Mass;
 
-    return (0.2391 * pow(p_Mass, 4.6)) / (m_4 + (0.162 * m_3) + 0.0065);
+    return (0.2391 * PPOW(p_Mass, 4.6)) / (m_4 + (0.162 * m_3) + 0.0065);
 }
 
 
