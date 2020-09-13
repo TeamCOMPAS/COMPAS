@@ -20,4 +20,12 @@ Thumbs.db
 .ipynb_checkpoints/
 __pycache__/
 COMPAS
-
+*.log
+*.aux
+*.toc
+*.bbl
+*.blg
+*.synctex
+*.synctex(busy)
+*.synctex.gz
+*.synctex.gz(busy)

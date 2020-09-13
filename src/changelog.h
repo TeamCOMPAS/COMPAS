@@ -412,7 +412,30 @@
 //                                      - Recreate RLOF printing (resolve issue #212)
 // 02.14.01     ML - Sep 05, 2020   - Code cleanup:
 //                                      - Issue #354 - Combine HYDROGEN_RICH and HYDROGEN_POOR supernova output variables into a single boolean variable IS_HYDROGEN_POOR 
-// 02.14.02     RW - Sep 08, 2020   - Enhancement:
+// 02.15.00     JR - Sep 09, 2020   - Enhancements and related code cleanup:
+//                                      - implemented "DETAILED_OUTPUT" folder inside "COMPAS_Output" container for SSE output
+//                                      - SSE Parameters files moved to "DETAILED_OUTPUT" folder (they are analogous to BSE_Detailed_Output files)
+//                                      - implemented SSE Switch Log and BSE Switch Log files (record written at the time of stellar type switch - see documentation)
+//                                      - implemented SSE Supernova log file - see documentation (issue #253)
+//                                      - added TIMESCALE_MS as a valid property in BaseStar::StellarPropertyValue().  The TIMESCALE_MS value in the SSE_Parameters file was being printed as "ERROR!" and nobody noticed :-)  It now prints correctly.
+// 02.15.01     RS - Sep 10, 2020   - Enhancement
+//                                       - added profiling option to keep track of repeated pow() calls
+// 02.15.02     IM - Sep 11, 2020   - Defect repair
+//                                       - changed ultra-stripped HeHG and HeGB stars to immediately check for supernovae before collapsing into WDs; this resolves issue #367
+// 02.15.03     RW - Sep 11, 2020   - Code cleanup:
+//                                      - Set all references to kick "velocity" to magnitude. This is more correct, and will help distinguish from system and component vector velocities later
+// 02.15.04     JR - Sep 11, 2020   - Enhancement
+//                                       - refactored profiling code
+//                                          - profiling code can now be #defined away for production build
+//                                          - added options (via #defines) to profiling code: counts only (no CPU spinning), and print calling function name
+//                                       - removed profiling program option
+// 02.15.05     JR - Sep 12, 2020   - Code cleanup
+//                                       - removed superfluous (and broken) #define guard around profiling.cpp
+//                                       - minor change to profiling output (moved header and trailer to better place)
+// 02.15.06     IM - Sep 12, 2020   - Defect repair
+//                                       - Changed BaseBinaryStar::ResolveSupernova to account only for mass lost by the exploding binary during the SN when correcting the orbit
+//                                       - Delayed supernova of ultra-stripped stars so that the orbit is adjusted in response to mass transfer first, before the SN happens
+// 02.15.07     RW - Sep 08, 2020   - Enhancement:
 //                                      - Issue #12 - Move enhancement STROOPWAFEL from Legacy COMPAS to new COMPAS
 //                                      - Issue #18 - double check STROOPWAFEL works in newCOMPAS
 //                                      - Issue #154 - Test compatibility of CompasHPC and BSE_Grid.txt
@@ -420,6 +443,6 @@
 //
 //
 
-const std::string VERSION_STRING = "02.14.02";
+const std::string VERSION_STRING = "02.15.07";
 
 # endif // __changelog_h__

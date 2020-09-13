@@ -71,10 +71,14 @@ class pythonProgramOptions:
 
     metallicity = 0.0142                                # Solar metallicity Asplund+2010
 
-    allow_rlof_at_birth = False;                                            # allow binaries that have one or both stars in RLOF at birth to evolve?
-    allow_touching_at_birth = False;                                        # allow binaries that have stars touching at birth to evolve?
+    allow_rlof_at_birth = False                                            # allow binaries that have one or both stars in RLOF at birth to evolve?
+    allow_touching_at_birth = False                                        # allow binaries that have stars touching at birth to evolve?
 
     chemically_homogeneous_evolution = 'NONE'                               # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
+
+    SSEswitchLog = False
+    BSEswitchLog = False
+
 
     common_envelope_alpha = 1.0
     common_envelope_lambda = 0.1                # Only if using 'LAMBDA_FIXED'
@@ -107,7 +111,6 @@ class pythonProgramOptions:
     mass_transfer_thermal_limit_C= 10.0
     eddington_accretion_factor = 1    #multiplication Factor for eddington accretion onto NS&BH
 
-    #-- Stability criteria for case BB/BC mass transfer (for BNS project)
     case_bb_stability_prescription = 'ALWAYS_STABLE'
     zeta_Main_Sequence = 2.0
     zeta_Radiative_Envelope_Giant = 6.5
@@ -159,18 +162,18 @@ class pythonProgramOptions:
     remnant_mass_prescription = 'FRYER2012'
     fryer_supernova_engine = 'DELAYED'
     black_hole_kicks = 'FALLBACK'
-    kick_velocity_distribution = 'MAXWELLIAN'
+    kick_magnitude_distribution = 'MAXWELLIAN'
 
-    kick_velocity_sigma_CCSN_NS = 265.0                 #  [km/s]
-    kick_velocity_sigma_CCSN_BH = 265.0                 #  [km/s]
-    kick_velocity_sigma_ECSN = 30.0                     #  [km/s]
-    kick_velocity_sigma_USSN = 30.0                     #  [km/s]
+    kick_magnitude_sigma_CCSN_NS = 265.0                 #  [km/s]
+    kick_magnitude_sigma_CCSN_BH = 265.0                 #  [km/s]
+    kick_magnitude_sigma_ECSN = 30.0                     #  [km/s]
+    kick_magnitude_sigma_USSN = 30.0                     #  [km/s]
 
-    fix_dimensionless_kick_velocity = -1
+    fix_dimensionless_kick_magnitude = -1
     kick_direction = 'ISOTROPIC'
     kick_direction_power = 0.0
     kick_scaling_factor = 1.0
-    kick_velocity_maximum = -1.0
+    kick_magnitude_maximum = -1.0
 
     pair_instability_supernovae = True
     PISN_lower_limit = 60.0                             # Minimum core mass for PISN [Msol]
@@ -200,7 +203,6 @@ class pythonProgramOptions:
     # set to a string (e.g. logfile_BSE_supernovae = 'mySNfilename') to use that string as the filename 
     # set to empty string (e.g. logfile_BSE_supernovae = '""') to disable logging for that file (the file will not be created)
 
-    logfile_BSE_be_binaries = None
     logfile_BSE_common_envelopes = None
     logfile_BSE_detailed_output = None
     logfile_BSE_double_compact_objects = None
@@ -208,6 +210,10 @@ class pythonProgramOptions:
     logfile_BSE_pulsar_evolution = None
     logfile_BSE_supernovae = None
     logfile_BSE_system_parameters = None
+    logfile_BSE_switch_log = None
+    logfile_SSE_parameters = None
+    logfile_SSE_supernova = None
+    logfile_SSE_switch_log = None
 
     debug_to_file  = False
     errors_to_file = False
@@ -232,7 +238,9 @@ class pythonProgramOptions:
             self.debug_to_file,
             self.errors_to_file,
             self.allow_rlof_at_birth,
-            self.allow_touching_at_birth
+            self.allow_touching_at_birth,
+            self.BSEswitchLog,
+            self.SSEswitchLog
         ]
 
         return booleanChoices
@@ -257,7 +265,9 @@ class pythonProgramOptions:
             '--debug-to-file',
             '--errors-to-file',
             '--allow-rlof-at-birth',
-            '--allow-touching-at-birth'
+            '--allow-touching-at-birth',
+            '--BSEswitchLog',
+            '--SSEswitchLog'
         ]
 
         return booleanCommands
@@ -296,9 +306,9 @@ class pythonProgramOptions:
             self.pulsar_minimum_magnetic_field,
             self.orbital_period_min,
             self.orbital_period_max,
-            self.kick_velocity_sigma_CCSN_NS,
-            self.kick_velocity_sigma_CCSN_BH,
-            self.fix_dimensionless_kick_velocity,
+            self.kick_magnitude_sigma_CCSN_NS,
+            self.kick_magnitude_sigma_CCSN_BH,
+            self.fix_dimensionless_kick_magnitude,
             self.kick_direction_power,
             self.random_seed,
             self.mass_transfer_thermal_limit_C,
@@ -308,8 +318,8 @@ class pythonProgramOptions:
             self.PPI_lower_limit,
             self.PPI_upper_limit,
             self.maximum_neutron_star_mass,
-            self.kick_velocity_sigma_ECSN,
-            self.kick_velocity_sigma_USSN,
+            self.kick_magnitude_sigma_ECSN,
+            self.kick_magnitude_sigma_USSN,
             self.kick_scaling_factor,
             self.common_envelope_maximum_donor_mass_revised_energy_formalism,
             self.common_envelope_recombination_energy_density,
@@ -317,7 +327,7 @@ class pythonProgramOptions:
             self.common_envelope_mass_accretion_min,
             self.zeta_Main_Sequence,
             self.zeta_Radiative_Envelope_Giant,
-            self.kick_velocity_maximum,
+            self.kick_magnitude_maximum,
             self.log_level,
             self.debug_level,
             self.single_star_mass_steps,
@@ -361,9 +371,9 @@ class pythonProgramOptions:
             '--pulsar-minimum-magnetic-field',
             '--orbital-period-min',
             '--orbital-period-max',
-            '--kick-velocity-sigma-CCSN-NS',
-            '--kick-velocity-sigma-CCSN-BH',
-            '--fix-dimensionless-kick-velocity',
+            '--kick-magnitude-sigma-CCSN-NS',
+            '--kick-magnitude-sigma-CCSN-BH',
+            '--fix-dimensionless-kick-magnitude',
             '--kick-direction-power',
             '--random-seed',
             '--mass-transfer-thermal-limit-C',
@@ -372,8 +382,8 @@ class pythonProgramOptions:
             '--PISN-upper-limit','--PPI-lower-limit',
             '--PPI-upper-limit',
             '--maximum-neutron-star-mass',
-            '--kick-velocity-sigma-ECSN',
-            '--kick-velocity-sigma-USSN',
+            '--kick-magnitude-sigma-ECSN',
+            '--kick-magnitude-sigma-USSN',
             '--kick-scaling-factor',
             '--maximum-mass-donor-Nandez-Ivanova',
             '--common-envelope-recombination-energy-density',
@@ -381,7 +391,7 @@ class pythonProgramOptions:
             '--common-envelope-mass-accretion-min',
             '--zeta-main-sequence',
             '--zeta-radiative-envelope-giant',
-            '--kick-velocity-max',
+            '--kick-magnitude-max',
             '--log-level',
             '--debug-level',
             '--single-star-mass-steps',
@@ -407,7 +417,7 @@ class pythonProgramOptions:
             self.remnant_mass_prescription,
             self.fryer_supernova_engine,
             self.black_hole_kicks,
-            self.kick_velocity_distribution,
+            self.kick_magnitude_distribution,
             self.kick_direction,
             self.output,
             self.output_container,
@@ -424,14 +434,17 @@ class pythonProgramOptions:
             self.logfile_delimiter,
             self.logfile_definitions,
             self.grid_filename,
-            self.logfile_BSE_be_binaries,
             self.logfile_BSE_common_envelopes,
             self.logfile_BSE_detailed_output,
             self.logfile_BSE_double_compact_objects,
             self.logfile_BSE_pulsar_evolution,
             self.logfile_BSE_rlof_parameters,
             self.logfile_BSE_supernovae,
-            self.logfile_BSE_system_parameters
+            self.logfile_BSE_system_parameters,
+            self.logfile_BSE_switch_log,
+            self.logfile_SSE_parameters,
+            self.logfile_SSE_supernova,
+            self.logfile_SSE_switch_log
         ]
 
         return stringChoices
@@ -452,7 +465,7 @@ class pythonProgramOptions:
             '--remnant-mass-prescription',
             '--fryer-supernova-engine',
             '--black-hole-kicks',
-            '--kick-velocity-distribution',
+            '--kick-magnitude-distribution',
             '--kick-direction',
             '--outputPath',
             '--output-container',
@@ -469,14 +482,17 @@ class pythonProgramOptions:
             '--logfile-delimiter',
             '--logfile-definitions',
             '--grid',
-            '--logfile-BSE-be-binaries',
             '--logfile-BSE-common-envelopes',
             '--logfile-BSE-detailed-output',
             '--logfile-BSE-double-compact-objects',
             '--logfile-BSE-pulsar-evolution',
             '--logfile-BSE-rlof-parameters',
             '--logfile-BSE-supernovae',
-            '--logfile-BSE-system-parameters'
+            '--logfile-BSE-system-parameters',
+            '--logfile-BSE-switch-log',
+            '--logfile-SSE-parameters',
+            '--logfile-SSE-supernova',
+            '--logfile-SSE-switch-log',
         ]
 
         return stringCommands

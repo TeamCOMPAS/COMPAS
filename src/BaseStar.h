@@ -6,6 +6,7 @@
 
 #include "constants.h"
 #include "typedefs.h"
+#include "profiling.h"
 #include "utils.h"
 
 #include "Options.h"
@@ -102,19 +103,19 @@ public:
             double              SN_CoreMassAtCOFormation() const                                { return m_SupernovaDetails.coreMassAtCOFormation; }
             double              SN_COCoreMassAtCOFormation() const                              { return m_SupernovaDetails.COCoreMassAtCOFormation; }
             SupernovaDetailsT   SN_Details() const                                              { return m_SupernovaDetails; }
-            double              SN_DrawnKickVelocity() const                                    { return m_SupernovaDetails.drawnKickVelocity; }
+            double              SN_DrawnKickMagnitude() const                                    { return m_SupernovaDetails.drawnKickMagnitude; }
             double              SN_EccentricAnomaly() const                                     { return m_SupernovaDetails.eccentricAnomaly; }
             double              SN_FallbackFraction() const                                     { return m_SupernovaDetails.fallbackFraction; }
             double              SN_HeCoreMassAtCOFormation() const                              { return m_SupernovaDetails.HeCoreMassAtCOFormation; }
             bool                SN_IsHydrogenPoor() const                                       { return m_SupernovaDetails.isHydrogenPoor; }
-            double              SN_KickVelocity() const                                         { return m_SupernovaDetails.kickVelocity; }
+            double              SN_KickMagnitude() const                                         { return m_SupernovaDetails.kickMagnitude; }
             double              SN_MeanAnomaly() const                                          { return m_SupernovaDetails.meanAnomaly; }
             double              SN_Phi() const                                                  { return m_SupernovaDetails.phi; }
             double              SN_TotalMassAtCOFormation() const                               { return m_SupernovaDetails.totalMassAtCOFormation; }
             double              SN_TrueAnomaly() const                                          { return m_SupernovaDetails.trueAnomaly; }
             double              SN_Theta() const                                                { return m_SupernovaDetails.theta; }
             SN_EVENT            SN_Type() const                                                 { return utils::SNEventType(m_SupernovaDetails.events.current); }
-            double              SN_KickVelocityRandom() const                                   { return m_SupernovaDetails.kickVelocityRandom; }
+            double              SN_KickMagnitudeRandom() const                                   { return m_SupernovaDetails.kickMagnitudeRandom; }
             COMPAS_VARIABLE     StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
             double              Tau() const                                                     { return m_Tau; }
             double              Temperature() const                                             { return m_Temperature; }
@@ -136,14 +137,14 @@ public:
 
             void            CalculateBindingEnergies(const double p_CoreMass, const double p_EnvMass, const double p_Radius);
 
-            double          CalculateDynamicalTimescale() const                                                        { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }         // Use class member variables
+            double          CalculateDynamicalTimescale() const                                                 { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }         // Use class member variables
     
             double          CalculateEddyTurnoverTimescale();
 
     virtual void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) { }                                                                                      // Default is NO-OP
     virtual void            CalculateGBParams()                                                                 { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
 
-    virtual double          CalculateGyrationRadius() const                                                          { return 0.0; }                                                     // Default is 0.0
+    virtual double          CalculateGyrationRadius() const                                                     { return 0.0; }                                                     // Default is 0.0
 
             void            CalculateLambdas()                                                                  { CalculateLambdas(m_Mass - m_CoreMass); }                          // Use class member variables
             void            CalculateLambdas(const double p_EnvMass);
@@ -156,29 +157,29 @@ public:
     virtual double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0)    { return 0.0; }                                                                         // Use inheritance hierarchy
     virtual double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)  { return 0.0; }                                                                         // Use inheritance hierarchy
     
-            double          CalculateNuclearTimescale() const                                                        { return CalculateNuclearTimescale_Static(m_Mass, m_Luminosity); }     // Use class member variables
+            double          CalculateNuclearTimescale() const                                                   { return CalculateNuclearTimescale_Static(m_Mass, m_Luminosity); }     // Use class member variables
     
             double          CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity);
 
             double          CalculateRadialChange()                                                             { return std::abs(m_Radius - m_RadiusPrev) / m_RadiusPrev; }
 
-            double          CalculateRadialExpansionTimescale() const                                                { return CalculateRadialExpansionTimescale_Static(m_StellarType, m_StellarTypePrev, m_Radius, m_RadiusPrev, m_DtPrev); }              // Use class member variables
+            double          CalculateRadialExpansionTimescale() const                                           { return CalculateRadialExpansionTimescale_Static(m_StellarType, m_StellarTypePrev, m_Radius, m_RadiusPrev, m_DtPrev); }              // Use class member variables
     
             void            CalculateSNAnomalies(const double p_Eccentricity);
 
-            double          CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType);
+            double          CalculateSNKickMagnitude(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType);
 
     virtual double          CalculateThermalMassLossRate()                                                      { return m_Mass / CalculateThermalTimescale(); }                    // Use class member variables - and inheritance hierarchy
 
     virtual double          CalculateThermalTimescale(const double p_Mass,
                                                       const double p_Radius,
                                                       const double p_Luminosity,
-                                                      const double p_EnvMass = 1.0) const { return 0.0; }                                                                                 // Use inheritance hierarchy
-    virtual double          CalculateThermalTimescale() const { return 0.0; }                                                                                                             // Use inheritance hierarchy
+                                                      const double p_EnvMass = 1.0) const { return 0.0; }                                                                           // Use inheritance hierarchy
+    virtual double          CalculateThermalTimescale() const { return 0.0; }                                                                                                       // Use inheritance hierarchy
 
             double          CalculateTimestep();
 
-    virtual double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription) { return 0.0; }                                                                                // Use inheritance hierarchy
+    virtual double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription) { return 0.0; }                                                                                     // Use inheritance hierarchy
 
     virtual void            CheckRunaway(const bool p_Unbound)                                                  { if (p_Unbound) SetSNPastEvent(SN_EVENT::RUNAWAY); }
 
@@ -190,7 +191,10 @@ public:
 
             void            IncrementOmega(const double p_OmegaDelta)                                           { m_Omega += p_OmegaDelta; }                                        // Apply delta to current m_Omega
 
-            void            PrintSingleStarParameters(const int p_Id)                                           { LOGGING->LogSingleStarParameters(this, p_Id); }
+            void            PrintParameters(const int p_Id)                                                     { LOGGING->LogSSEParameters(this, p_Id, ""); }                      // Write record to SSE Parameters log file
+            void            PrintSupernovaDetails()                                                             { LOGGING->LogSSESupernovaDetails(this, ""); }                      // Write record to SSE Supernova log file
+            void            PrintStashedSupernovaDetails()                                                      { LOGGING->LogStashedSSESupernovaDetails(this); }                      // Write record to SSE Supernova log file
+            void            PrintSwitchLog(const long int p_Id)                                                 { if (OPTIONS->SSESwitchLog()) LOGGING->LogSSESwitchLog(this, p_Id, ""); }
 
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative
 
@@ -201,6 +205,8 @@ public:
     virtual STELLAR_TYPE    ResolveRemnantAfterEnvelopeLoss()                                                   { return m_StellarType; }
 
             void            SetStellarTypePrev(const STELLAR_TYPE p_StellarTypePrev)                            { m_StellarTypePrev = p_StellarTypePrev; }
+
+            void            StashSupernovaDetails(const STELLAR_TYPE p_StellarType)                             { LOGGING->StashSSESupernovaDetails(this, p_StellarType); }
 
     virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                            // Default is NO-OP
 
@@ -326,7 +332,6 @@ protected:
     // Stellar details squirrelled away...
     SupernovaDetailsT       m_SupernovaDetails;                         // Supernova attributes
     PulsarDetailsT          m_PulsarDetails;                            // Pulsar attributes
-
 
     // member functions - alphabetically
             void            AgeOneTimestepPreamble(const double p_DeltaTime);
@@ -469,13 +474,13 @@ protected:
 
             DBL_DBL         DrawKickDirection();
 
-            double          DrawKickVelocityBrayEldridge(const double p_EjectaMass,
+            double          DrawKickMagnitudeBrayEldridge(const double p_EjectaMass,
                                                          const double p_RemnantMass,
                                                          const double p_Alpha,
                                                          const double p_Beta);
 
-            double          DrawKickVelocityDistributionFlat(const double p_MaxVK, const double p_Rand);
-            double          DrawKickVelocityDistributionMaxwell(const double p_Sigma, const double p_Rand);
+            double          DrawKickMagnitudeDistributionFlat(const double p_MaxVK, const double p_Rand);
+            double          DrawKickMagnitudeDistributionMaxwell(const double p_Sigma, const double p_Rand);
 
             double          DrawRemnantKickMuller(const double p_COCoreMass);
 
@@ -483,7 +488,7 @@ protected:
                                     			const double p_Rand,
                                     			const double p_RemnantMass);
 
-            double          DrawSNKickVelocity(const double p_Sigma,
+            double          DrawSNKickMagnitude(const double p_Sigma,
                                                const double p_COCoreMass,
                                                const double p_Rand,
                                                const double p_EjectaMass,
