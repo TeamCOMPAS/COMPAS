@@ -37,7 +37,7 @@ Some of the most fundamental terms are [described below](#terminology) to assist
 
 ### Purpose of this document
 The purpose of this document is to:
-- Help COMPAS users who are new to git to get setup,
+- Help COMPAS users who are new to git to get set up,
 - Outline a consistent workflow for COMPAS developers in their day-to-day use of git, and
 - Provide some of the commands that are required for this workflow 
 
@@ -76,7 +76,7 @@ This approach to the repository and workflow below are based on the [Feature Bra
 
 ### :large_blue_diamond: *COMPAS Users and Developers*
 
-### Setup a Github account and git
+### Set up git and create a Github account
 
 1. If you have not already, go to [github.com](https://github.com/) and setup an account.
 
