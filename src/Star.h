@@ -5,6 +5,7 @@
 
 #include "constants.h"
 #include "typedefs.h"
+#include "profiling.h"
 #include "utils.h"
 
 #include "BaseStar.h"
@@ -117,6 +118,7 @@ public:
     SupernovaDetailsT           SN_Details() const                                                                          { return m_Star->SN_Details(); }
     double                      SN_Phi() const                                                                              { return m_Star->SN_Phi(); }
     double                      SN_Theta() const                                                                            { return m_Star->SN_Theta(); }
+    double                      SN_TotalMassAtCOFormation() const                                                           { return m_Star->SN_TotalMassAtCOFormation(); }
     double                      SN_TrueAnomaly() const                                                                      { return m_Star->SN_TrueAnomaly(); }
     SN_EVENT                    SN_Type() const                                                                             { return m_Star->SN_Type(); }
     COMPAS_VARIABLE             StellarPropertyValue(const T_ANY_PROPERTY p_Property) const                                 { return m_Star->StellarPropertyValue(p_Property); }
@@ -154,8 +156,8 @@ public:
     double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)                              { return m_Star->CalculateMomentOfInertiaAU(p_RemnantRadius); }
 
     void            CalculateSNAnomalies(const double p_Eccentricity)                                           { m_Star->CalculateSNAnomalies(p_Eccentricity); }
-    double          CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass, 
-								const STELLAR_TYPE p_StellarType)               { return m_Star->CalculateSNKickVelocity(p_RemnantMass, 
+    double          CalculateSNKickMagnitude(const double p_RemnantMass, const double p_EjectaMass, 
+								const STELLAR_TYPE p_StellarType)               { return m_Star->CalculateSNKickMagnitude(p_RemnantMass, 
 																p_EjectaMass, p_StellarType); }
 
     double          CalculateThermalMassLossRate()                                                              { return m_Star->CalculateThermalMassLossRate(); }
@@ -200,7 +202,7 @@ public:
     void            SetSNCurrentEvent(const SN_EVENT p_SNEvent)                                                 { m_Star->SetSNCurrentEvent(p_SNEvent); }
     void            SetSNPastEvent(const SN_EVENT p_SNEvent)                                                    { m_Star->SetSNPastEvent(p_SNEvent); }
 
-    double     	    SN_KickVelocity()       									                                { return m_Star->SN_KickVelocity() ; }
+    double     	    SN_KickMagnitude()       									                                { return m_Star->SN_KickMagnitude() ; }
 
     STELLAR_TYPE    SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
 

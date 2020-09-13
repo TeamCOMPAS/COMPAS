@@ -574,7 +574,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::COMMON_ENVELOPE_ALPHA:                                value = CEAlpha();                                                          break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE:                        value = CEAtLeastOnce();                                                    break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT:                          value = CommonEnvelopeEventCount();                                         break;
-        case BINARY_PROPERTY::DIMENSIONLESS_KICK_VELOCITY:                          value = UK();                                                               break;
+        case BINARY_PROPERTY::DIMENSIONLESS_KICK_MAGNITUDE:                          value = UK();                                                               break;
         case BINARY_PROPERTY::UNBOUND:                                              value = Unbound();                                                          break;
         case BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE:                          value = DoubleCoreCE();                                                     break;
         case BINARY_PROPERTY::DT:                                                   value = Dt();                                                               break;
@@ -831,7 +831,7 @@ double BaseBinaryStar::SampleSemiMajorAxisDistribution(const double p_Mass1, con
 
                 // Make sure that the drawn semi-major axis is in the range specified by the user
                 do {                                                                                                                            // JR: todo: catch for non-convergence?
-                    double periodInDays = pow(10.0, 2.3 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 4.8);
+                    double periodInDays = PPOW(10.0, 2.3 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 4.8);
                     semiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(p_Mass1, p_Mass2, periodInDays);                              // convert period in days to semi-major axis in AU
                 } while (semiMajorAxis < OPTIONS->SemiMajorAxisDistributionMin() || semiMajorAxis > OPTIONS->SemiMajorAxisDistributionMax());   // JR: don't use utils::Compare() here
                 break;
@@ -874,7 +874,7 @@ double BaseBinaryStar::SampleSemiMajorAxisDistribution(const double p_Mass1, con
         // MuLogA()  = m_MuLogA[aisvariables.RandomGaussianDraw]  = mean of the RandomGaussianDraw-th Gaussian
         // CovLogA() = m_CovLogA[aisvariables.RandomGaussianDraw] = cov of the RandomGaussianDraw-th Gaussin
 
-        semiMajorAxis = pow(10, RAND->RandomGaussian(m_AIS.CovLogA()) + m_AIS.MuLogA());                                                        // draw random number from Gaussian
+        semiMajorAxis = PPOW(10, RAND->RandomGaussian(m_AIS.CovLogA()) + m_AIS.MuLogA());                                                        // draw random number from Gaussian
     }
 
     return semiMajorAxis;
@@ -950,20 +950,20 @@ double BaseBinaryStar::CalculateCDFKroupa(const double p_Mass) {
         OPTIONS->InitialMassFunctionMax() >  KROUPA_BREAK_1 &&
         OPTIONS->InitialMassFunctionMax() <= KROUPA_BREAK_2) {
 
-        double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
-        double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+        double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+        double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (PPOW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
 
         double C1 = 1.0 / (term1 + term2);
         double C2 = C1 * KROUPA_BREAK_1_POWER_1_2;
 
         if (p_Mass >= OPTIONS->InitialMassFunctionMin() && p_Mass < KROUPA_BREAK_1) {
 
-            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (pow(p_Mass, KROUPA_POWER_PLUS1_1) - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_1) - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
         }
         else if (p_Mass >= KROUPA_BREAK_1 && p_Mass < KROUPA_BREAK_2) {
 
-            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
-                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (pow(p_Mass, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
+                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
         }
         else {
             SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Using CDF = 0.0 (1)");
@@ -973,9 +973,9 @@ double BaseBinaryStar::CalculateCDFKroupa(const double p_Mass) {
     else if (OPTIONS->InitialMassFunctionMin() <= KROUPA_BREAK_1 &&
              OPTIONS->InitialMassFunctionMax() >  KROUPA_BREAK_2) {
 
-        double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+        double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
         double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
-        double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+        double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (PPOW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
 
         double C1 = 1.0 / (term1 + term2 + term3);
         double C2 = C1 * KROUPA_BREAK_1_POWER_1_2;
@@ -983,18 +983,18 @@ double BaseBinaryStar::CalculateCDFKroupa(const double p_Mass) {
 
         if (p_Mass >= OPTIONS->InitialMassFunctionMin() && p_Mass < KROUPA_BREAK_1) {
 
-            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (pow(p_Mass, KROUPA_POWER_PLUS1_1) - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_1) - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
         }
         else if (p_Mass >= KROUPA_BREAK_1 && p_Mass < KROUPA_BREAK_2) {
 
-            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
-                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (pow(p_Mass, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
+                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
         }
         else if (p_Mass >= KROUPA_BREAK_2 && p_Mass < OPTIONS->InitialMassFunctionMax()) {
 
-            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
+            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
                   ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2) +
-                  ONE_OVER_KROUPA_POWER_3_PLUS1 * C3 * (pow(p_Mass, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+                  ONE_OVER_KROUPA_POWER_3_PLUS1 * C3 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
         }
         else {
             SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Using CDF = 0.0 (2)");
@@ -1005,20 +1005,20 @@ double BaseBinaryStar::CalculateCDFKroupa(const double p_Mass) {
              OPTIONS->InitialMassFunctionMin() <= KROUPA_BREAK_2 &&
              OPTIONS->InitialMassFunctionMax() >  KROUPA_BREAK_2) {
 
-        double term1 = ONE_OVER_KROUPA_POWER_2_PLUS1 * (KROUPA_BREAK_2_PLUS1_2 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
-        double term2 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+        double term1 = ONE_OVER_KROUPA_POWER_2_PLUS1 * (KROUPA_BREAK_2_PLUS1_2 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
+        double term2 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_2_POWER_2_3 * (PPOW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
 
         double C2 = 1.0 / (term1 + term2);
         double C3 = C2 * KROUPA_BREAK_2_POWER_2_3;
 
         if (p_Mass >= OPTIONS->InitialMassFunctionMin() && p_Mass < KROUPA_BREAK_2) {
 
-            CDF = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (pow(p_Mass, KROUPA_POWER_PLUS1_2) - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
+            CDF = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_2) - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
         }
         else if (p_Mass >= KROUPA_BREAK_2 && p_Mass < OPTIONS->InitialMassFunctionMax()) {
 
-            CDF = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2)) +
-                  ONE_OVER_KROUPA_POWER_3_PLUS1 * C3 * (pow(p_Mass, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+            CDF = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2)) +
+                  ONE_OVER_KROUPA_POWER_3_PLUS1 * C3 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
         }
         else {
             SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Using CDF = 0.0 (3)");
@@ -1080,55 +1080,55 @@ double BaseBinaryStar::SampleInitialMassDistribution() {
                 else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1) <= 0 &&
                          utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_1)  > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2) <= 0) {
 
-                    double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
-                    double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+                    double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+                    double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (PPOW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
 
                     double C1    = 1.0 / (term1 + term2);
                     double C2    = C1 * KROUPA_BREAK_1_POWER_1_2;
-                    double A     = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+                    double A     = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
 
                     double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
                     thisMass = utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_1)) < 0
-                                ? pow(rand * (KROUPA_POWER_PLUS1_1 / C1) + pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1), ONE_OVER_KROUPA_POWER_1_PLUS1)
-                                : pow((rand - A) * (KROUPA_POWER_PLUS1_2 / C2) + KROUPA_BREAK_1_PLUS1_2, ONE_OVER_KROUPA_POWER_2_PLUS1);
+                                ? PPOW(rand * (KROUPA_POWER_PLUS1_1 / C1) + PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1), ONE_OVER_KROUPA_POWER_1_PLUS1)
+                                : PPOW((rand - A) * (KROUPA_POWER_PLUS1_2 / C2) + KROUPA_BREAK_1_PLUS1_2, ONE_OVER_KROUPA_POWER_2_PLUS1);
                 }
                 else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2_POWER_2_3) > 0) {
 
-                    double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+                    double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
                     double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
-                    double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+                    double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (PPOW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
                     
                     double C1    = 1.0 / (term1 + term2 + term3);
                     double C2    = C1 * KROUPA_BREAK_1_POWER_1_2;
                     double C3    = C2 * KROUPA_BREAK_2_POWER_2_3;
 
-                    double A     = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
+                    double A     = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
                     double B     = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
 
                     double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
 
                     if (utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_1)) < 0)
-                        thisMass = pow(rand * (KROUPA_POWER_PLUS1_1 / C1) + pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1), ONE_OVER_KROUPA_POWER_1_PLUS1);
+                        thisMass = PPOW(rand * (KROUPA_POWER_PLUS1_1 / C1) + PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1), ONE_OVER_KROUPA_POWER_1_PLUS1);
                     else if (utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_2)) < 0)
-                        thisMass = pow((rand - A) * (KROUPA_POWER_PLUS1_2 / C2) + KROUPA_BREAK_1_PLUS1_2, ONE_OVER_KROUPA_POWER_2_PLUS1);
+                        thisMass = PPOW((rand - A) * (KROUPA_POWER_PLUS1_2 / C2) + KROUPA_BREAK_1_PLUS1_2, ONE_OVER_KROUPA_POWER_2_PLUS1);
                     else
-                        thisMass = pow((rand - A - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
+                        thisMass = PPOW((rand - A - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
                 }
                 else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1)  > 0 &&
                          utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_2) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2) > 0) {
 
-                    double term1 = ONE_OVER_KROUPA_POWER_2_PLUS1 * (KROUPA_BREAK_2_PLUS1_2 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
-                    double term2 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_2_POWER_2_3 * (pow(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+                    double term1 = ONE_OVER_KROUPA_POWER_2_PLUS1 * (KROUPA_BREAK_2_PLUS1_2 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
+                    double term2 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_2_POWER_2_3 * (PPOW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
 
                     double C2    = 1.0 / (term1 + term2);
                     double C3    = C2 * KROUPA_BREAK_2_POWER_2_3;
-                    double B     = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
+                    double B     = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
 
                     double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
 
                     thisMass = utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_2)) < 0
-                                ? pow(rand * (KROUPA_POWER_PLUS1_2 / C2) + pow(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2), ONE_OVER_KROUPA_POWER_2_PLUS1)
-                                : pow((rand - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
+                                ? PPOW(rand * (KROUPA_POWER_PLUS1_2 / C2) + PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2), ONE_OVER_KROUPA_POWER_2_PLUS1)
+                                : PPOW((rand - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
                 }
                 // JR: no other case possible - as long as OPTIONS->InitialMassFunctionMin() < OPTIONS->InitialMassFunctionMax() (currently enforced in Options.cpp)
                 break;
@@ -1462,12 +1462,12 @@ double BaseBinaryStar::CalculateTimeToCoalescence(const double p_SemiMajorAxis,
     if (utils::Compare(p_Eccentricity, 0) != 0) {
 
         double e0_2  = p_Eccentricity * p_Eccentricity;
-        double c0    = p_SemiMajorAxis * (1.0 - e0_2) * pow(p_Eccentricity, -12.0/19.0) * pow(1.0 + (121.0 * e0_2 / 304.0), -870.0/2299.0);
+        double c0    = p_SemiMajorAxis * (1.0 - e0_2) * PPOW(p_Eccentricity, -12.0/19.0) * PPOW(1.0 + (121.0 * e0_2 / 304.0), -870.0/2299.0);
 
 		double _4_c0 = c0 * c0 * c0 * c0;
 
         if (utils::Compare(p_Eccentricity, 0.01) < 0) {
-            tC = _4_c0 *pow(p_Eccentricity, 48.0/19.0) / _4_beta;
+            tC = _4_c0 *PPOW(p_Eccentricity, 48.0/19.0) / _4_beta;
         }
         else if (utils::Compare(p_Eccentricity, 0.99) > 0) {
 
@@ -1481,7 +1481,7 @@ double BaseBinaryStar::CalculateTimeToCoalescence(const double p_SemiMajorAxis,
 
             for (double e = 0.0; utils::Compare(e, p_Eccentricity) < 0; e += de) {
                 double _1_e_2 = 1.0 - (e * e);
-                sum += de * pow(e, 29.0 / 19.0) * pow((1.0 + (121.0 / 304.0) * e * e), 1181.0 / 2299.0) / ( _1_e_2 * sqrt( _1_e_2));
+                sum += de * PPOW(e, 29.0 / 19.0) * PPOW((1.0 + (121.0 / 304.0) * e * e), 1181.0 / 2299.0) / ( _1_e_2 * sqrt( _1_e_2));
             }
 
             tC = (12.0 / 19.0) * (_4_c0 / beta) * sum;
@@ -1627,27 +1627,27 @@ double BaseBinaryStar::CalculateCosFinalPlaneTilt(const double p_KickTheta, cons
  * Also given in Hurley et al 2002 (http://arxiv.org/pdf/astro-ph/0201220v1.pdf), eq A.12
  *
  *
- * double CalculateOrbitalEccentricityPostSupernova(const double p_KickVelocity,
+ * double CalculateOrbitalEccentricityPostSupernova(const double p_KickMagnitude,
  *                                                  const double p_TotalMassPreSN,
  *                                                  const double p_TotalMassPostSN,
  *                                                  const double p_KickTheta,
  *                                                  const double p_KickPhi)
  *
- * @param   [IN]    p_KickVelocity              Dimensionless kick velocity vk/vrel
+ * @param   [IN]    p_KickMagnitude              Dimensionless kick magnitude vk/vrel
  * @param   [IN]    p_TotalMassPreSN            Total mass of binary before supernova event
  * @param   [IN]    p_TotalMassPostSN           Total mass of binary after supernova event
  * @param   [IN]    p_KickTheta                 Kick direction angle out of the plane
  * @param   [IN]    p_KickPhi                   Kick direction angle in the plane
  * @return                                      Orbital eccentricity after a supernova
  */
-double BaseBinaryStar::CalculateOrbitalEccentricityPostSupernova(const double p_KickVelocity,
+double BaseBinaryStar::CalculateOrbitalEccentricityPostSupernova(const double p_KickMagnitude,
                                                                  const double p_TotalMassPreSN,
                                                                  const double p_TotalMassPostSN,
                                                                  const double p_KickTheta,
                                                                  const double p_KickPhi) {
     // calculate these once for use later
     double mOverMprime           = p_TotalMassPreSN / p_TotalMassPostSN;
-    double uk_2                  = p_KickVelocity * p_KickVelocity;
+    double uk_2                  = p_KickMagnitude * p_KickMagnitude;
     double _2_r_Minus_1_a        = (2.0 / m_Radius) - (1.0 / m_SemiMajorAxis);
     double sinTheta              = sin(p_KickTheta);
     double cosTheta              = cos(p_KickTheta);
@@ -1655,8 +1655,8 @@ double BaseBinaryStar::CalculateOrbitalEccentricityPostSupernova(const double p_
     double cosPhi                = cos(p_KickPhi);
     double sinBeta               = sin(m_Beta);
     double cosBeta               = cos(m_Beta);
-    double ukCosTheta            = p_KickVelocity * cosTheta;
-    double ukCosThetaCosPhi      = p_KickVelocity * cosTheta * cosPhi;
+    double ukCosTheta            = p_KickMagnitude * cosTheta;
+    double ukCosThetaCosPhi      = p_KickMagnitude * cosTheta * cosPhi;
     double ukCosThetaCosPhiPlus1 = ukCosThetaCosPhi + 1.0;
 
     // calculate orbital eccentricity
@@ -1678,27 +1678,27 @@ double BaseBinaryStar::CalculateOrbitalEccentricityPostSupernova(const double p_
  * Post-SN orbital characteristics 2 document, eq 22        JR: todo get reference to document
  *
  *
- * double CalculateSemiMajorAxisPostSupernova(const double p_KickVelocity,
+ * double CalculateSemiMajorAxisPostSupernova(const double p_KickMagnitude,
  *                                            const double p_TotalMassPreSN,
  *                                            const double p_TotalMassPostSN,
  *                                            const double p_KickTheta,
  *                                            const double p_KickPhi)
  *
- * @param   [IN]    p_KickVelocity              Dimensionless kick velocity vk/vrel
+ * @param   [IN]    p_KickMagnitude              Dimensionless kick magnitude vk/vrel
  * @param   [IN]    p_TotalMassPreSN            Total mass of binary before supernova event
  * @param   [IN]    p_TotalMassPostSN           Total mass of binary after supernova event
  * @param   [IN]    p_KickTheta                 Kick direction angle out of the plane
  * @param   [IN]    p_KickPhi                   Kick direction angle in the plane
  * @return                                      Semi major axis of the orbit after the supernova
  */
-double BaseBinaryStar::CalculateSemiMajorAxisPostSupernova(const double p_KickVelocity,
+double BaseBinaryStar::CalculateSemiMajorAxisPostSupernova(const double p_KickMagnitude,
                                                            const double p_TotalMassPreSN,
                                                            const double p_TotalMassPostSN,
                                                            const double p_KickTheta,
                                                            const double p_KickPhi) {
 
     double r_2           = 2.0 / m_Radius;
-    double quadraticTerm = 1.0 + (2.0 * p_KickVelocity * cos(p_KickTheta) * cos(p_KickPhi)) + (p_KickVelocity * p_KickVelocity);
+    double quadraticTerm = 1.0 + (2.0 * p_KickMagnitude * cos(p_KickTheta) * cos(p_KickPhi)) + (p_KickMagnitude * p_KickMagnitude);
 
     return 1.0 / (r_2 - ((p_TotalMassPreSN / p_TotalMassPostSN) * (r_2 - (1.0 / m_SemiMajorAxis)) * quadraticTerm));
 }
@@ -1733,8 +1733,8 @@ bool BaseBinaryStar::ResolveSupernova() {
 
 	m_Radius = (m_SemiMajorAxis * (1.0 - (m_Eccentricity * m_Eccentricity))) / (1.0 + m_Eccentricity * cos(m_Supernova->SN_TrueAnomaly()));   // radius of orbit at current time in AU as a function of the true anomaly psi
 
-	double totalMass        = m_Supernova->MassPrev() + m_Companion->MassPrev();                                                    // total mass of binary before supernova event
-	double reducedMass      = (m_Supernova->MassPrev() * m_Companion->MassPrev()) / totalMass;                                      // reduced mass before supernova event
+	double totalMass        = m_Supernova->SN_TotalMassAtCOFormation() + m_Companion->Mass();                                                    // total mass of binary before supernova event
+	double reducedMass      = (m_Supernova->SN_TotalMassAtCOFormation() * m_Companion->Mass()) / totalMass;                                      // reduced mass before supernova event
 	double totalMassPrime   = m_Supernova->Mass() + m_Companion->Mass();                                                            // total mass of binary after supernova event
 	double reducedMassPrime = (m_Supernova->Mass() * m_Companion->Mass()) / totalMassPrime;                                         // reduced mass after supernova event
 
@@ -1749,7 +1749,7 @@ bool BaseBinaryStar::ResolveSupernova() {
     #undef e
     #undef a
 
-    double vK = m_Supernova->SN_KickVelocity();												
+    double vK = m_Supernova->SN_KickMagnitude();												
 
     ///////////////////////////////////////////////////////////////////////////////////
 	//          AT THE MOMENT, QUANTITIES BEYOND HERE ARE IN SI (NOT IDEAL)          //                                             // JR: todo: do we need to change this?
@@ -1761,7 +1761,7 @@ bool BaseBinaryStar::ResolveSupernova() {
 	vK                       *= KM;                                                                                                 // convert vK to m s^-1.  Would be nice to draw this in nicer units to avoid this secion
 	m_VRel                    = sqrt(G * (totalMass * MSOL_TO_KG) * ((2.0 / (m_Radius * AU)) - (1.0 / (m_SemiMajorAxis * AU))));    // orbital velocity
 	m_uK                      = OPTIONS->UseFixedUK() ? OPTIONS->FixedUK() : vK / m_VRel;                                           // fix uK to user-defined value if required, otherwise calculate it.  uK is dimensionless
-	m_OrbitalVelocityPreSN    = m_VRel;                                                                                             // since the kick velocity always occurs in equations as vk/vrel, we need to know vrel
+	m_OrbitalVelocityPreSN    = m_VRel;                                                                                             // since the kick magnitude always occurs in equations as vk/vrel, we need to know vrel
 
 	///////////////////////////////////////////////////////////////////////////////////
 	//                       SHOULD BE BACK TO NICE UNITS NOW                        //
@@ -2057,7 +2057,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
  */
 double BaseBinaryStar::CalculateRocheLobeRadius_Static(const double p_MassPrimary, const double p_MassSecondary) {
     double q = p_MassPrimary / p_MassSecondary;
-    double qCubeRoot = pow(q, 1.0 / 3.0);                                                                           // cube roots are expensive, only compute once
+    double qCubeRoot = PPOW(q, 1.0 / 3.0);                                                                           // cube roots are expensive, only compute once
     return 0.49 / (0.6 + log(1.0 + qCubeRoot)/ qCubeRoot / qCubeRoot);
 }
 
@@ -2166,7 +2166,7 @@ double BaseBinaryStar::CalculateZRocheLobe(const double p_jLoss) {
 
     double q = donorMass / accretorMass;
 
-    double q_1_3 = pow(q, 1.0 / 3.0);
+    double q_1_3 = PPOW(q, 1.0 / 3.0);
 
     double k1 = -2.0 * (1.0 - (beta * q) - (1.0 - beta) * (gamma + 0.5) * (q / (1.0 + q)));
     double k2 = (2.0 / 3.0) - q_1_3 * (1.2 * q_1_3 + 1.0 / (1.0 + q_1_3)) / (3.0 * (0.6 * q_1_3 * q_1_3 + log(1.0 + q_1_3)));

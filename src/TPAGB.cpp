@@ -43,12 +43,12 @@ void TPAGB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
     if (utils::Compare(LDU, gbParams(Lx)) > 0) {
         timescales(tinf1_SAGB) = timescales(tinf1_FAGB);
         timescales(tMx_SAGB)   = timescales(tMx_FAGB);
-        timescales(tinf2_SAGB) = timescales(tP) + ((1.0 / (q1 * gbParams(AHHe) * gbParams(B))) * pow((gbParams(B) / LDU), q1_q));
+        timescales(tinf2_SAGB) = timescales(tP) + ((1.0 / (q1 * gbParams(AHHe) * gbParams(B))) * PPOW((gbParams(B) / LDU), q1_q));
     }
     else {
-        timescales(tinf1_SAGB) = timescales(tP) + ((1.0 / (p1 * gbParams(AHHe) * gbParams(D) )) * pow((gbParams(D) / LDU), p1_p));
-        timescales(tMx_SAGB)   = timescales(tinf1_SAGB) - ((timescales(tinf1_SAGB) - timescales(tP)) * pow((LDU / gbParams(Lx)), p1_p));
-        timescales(tinf2_SAGB) = timescales(tMx_SAGB) + ((1.0 / (q1 * gbParams(AHHe) * gbParams(B))) * pow((gbParams(B) / gbParams(Lx)), q1_q));
+        timescales(tinf1_SAGB) = timescales(tP) + ((1.0 / (p1 * gbParams(AHHe) * gbParams(D) )) * PPOW((gbParams(D) / LDU), p1_p));
+        timescales(tMx_SAGB)   = timescales(tinf1_SAGB) - ((timescales(tinf1_SAGB) - timescales(tP)) * PPOW((LDU / gbParams(Lx)), p1_p));
+        timescales(tinf2_SAGB) = timescales(tMx_SAGB) + ((1.0 / (q1 * gbParams(AHHe) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
     }
 
 #undef gbParams
@@ -82,7 +82,7 @@ double TPAGB::CalculateLambdaDewi() {
 
     double lambda3 = std::min(-0.9, 0.58 + (0.75 * log10(m_Mass))) - (0.08 * log10(m_Luminosity));                          // (A.4) Claeys+2014
     double lambda1 = std::max(1.0, std::max(lambda3, -3.5 - (0.75 * log10(m_Mass)) + log10(m_Luminosity)));                 // (A.5) Bottom, Claeys+2014
-	double lambda2 = 0.42 * pow(m_RZAMS / m_Radius, 0.4);                                                                   // (A.2) Claeys+2014
+	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                   // (A.2) Claeys+2014
 	double envMass = utils::Compare(m_CoreMass, 0.0) > 0 && utils::Compare(m_Mass, m_CoreMass) > 0 ? m_Mass - m_CoreMass : 0.0;
 
     double lambdaCE;
@@ -445,8 +445,8 @@ double TPAGB::CalculateMcPrime(const double p_Time) {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
     return utils::Compare(p_Time, timescales(tMx_SAGB)) <= 0
-            ? pow((gbParams(p) - 1.0) * gbParams(AHHe) * gbParams(D) * (timescales(tinf1_SAGB) - p_Time), 1.0 / (1.0 - gbParams(p)))
-            : pow((gbParams(q) - 1.0) * gbParams(AHHe) * gbParams(B) * (timescales(tinf2_SAGB) - p_Time), 1.0 / (1.0 - gbParams(q)));
+            ? PPOW((gbParams(p) - 1.0) * gbParams(AHHe) * gbParams(D) * (timescales(tinf1_SAGB) - p_Time), 1.0 / (1.0 - gbParams(p)))
+            : PPOW((gbParams(q) - 1.0) * gbParams(AHHe) * gbParams(B) * (timescales(tinf2_SAGB) - p_Time), 1.0 / (1.0 - gbParams(q)));
 
 #undef gbParams
 #undef timescales
