@@ -564,8 +564,6 @@ git push --set-upstream <your-remote-repo>
 
 3. Submit a Pull Request to the Main repo
 
-#### TODO RTW: add in images for this section
-
     - Login to github and go to your personal remote repo `<your-username>/COMPAS`.
 
     - Click `Pull request` (If you recently pushed your branch, you could also click on `Compare & pull request`)
@@ -573,6 +571,10 @@ git push --set-upstream <your-remote-repo>
     - Double check that you have selected the correct feature and target branches. In almost all cases, the base should be `TeamCOMPAS/COMPAS` with branch `dev`, which will probably not be the default. Then click `Create pull request`
     
     - Add a comment describing your feature and what changes you made. If you have any particular reviewers in mind, or your feature solves one of the Git Issues, you should link those here. Then click `Create pull request`, and you're all set!
+
+<p align="center">
+  <img src="./media/git_pr_button.png" width="600" />
+</p>
 
 Once you have created the pull request, it is up to the other team members to review it (see below). They may ask you to fix some parts before accepting it, so keep an eye on the pull request conversation.
 
@@ -633,6 +635,12 @@ A branch will often represent a place to experiment with changes in a way that d
 Major branches will add some new functionality or some new physical prescription, while sub-branches may pop-up to quickly test some variation to the new functionality.
 These sub-branches might be merged in to the major feature branch, destroyed, or possibly continue on their own to be expanded into a more major feature (and then merged in later on).
 Whether the branch is merged or scrapped, it should always [ultimately be deleted](#deleting-branches) [[1]](https://rickandmorty.fandom.com/wiki/Mr._Meeseeks) (aside from the permanent `production` and `dev` branches).
+
+<p align="center">
+  <a href="https://nvie.com/posts/a-successful-git-branching-model/">
+  <img src="./media/git_branches.png" width="600" />
+  </a>
+</p>
 
 - **Repository**: A Repository (or Repo) is a single storage location for a given code base.
 A single github user may have many repos for all of their different software projects.
