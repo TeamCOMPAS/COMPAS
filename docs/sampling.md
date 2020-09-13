@@ -57,7 +57,7 @@ If so, see [docs/compasHPC.md](compasHPC.md) for assistance.
 
 `output_filename` a string specifying the name of the output samples file.
 
-`debug` for development purposes.
+`debug` whether to print the COMPAS output/error.
 
 #### 3. Sampling parameters
 

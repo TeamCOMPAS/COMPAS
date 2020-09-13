@@ -10,7 +10,6 @@ import argparse
 
 # TODO fix issues with adaptive sampling
 # TODO add in functionality for alternative pythonSubmit names and locations
-# TODO fix random number caller
 
 #######################################################
 ### 
@@ -22,17 +21,20 @@ import argparse
 ### Include options from local pythonSubmit file      
 usePythonSubmit = False #If false, use stroopwafel defaults
 
-
 ### Set default stroopwafel inputs - these are overwritten by any command-line arguments
-num_systems = 1000 # Note: overrides pythonSubmit
-num_cores = 4
-num_per_core = 25
-mc_only = True
-run_on_hpc = False
-output_folder = 'output/'
 
-output_filename = 'samples.csv'
-debug = False
+compas_executable = os.path.join(os.environ.get('COMPAS_ROOT_DIR'), 'src/COMPAS')   # Location of the executable      # Note: overrides pythonSubmit value
+num_systems = 1000                  # Number of binary systems to evolve                                              # Note: overrides pythonSubmit value
+output_folder = 'output/'           # Location of output folder (relative to cwd)                                     # Note: overrides pythonSubmit value
+random_seed_base = 0                # The initial random seed to increment from                                       # Note: overrides pythonSubmit value
+
+num_cores = 4                       # Number of cores to parallelize over 
+num_per_core = 76                   # Number of binaries per batch
+mc_only = True                      # Exclude adaptive importance sampling (currently not implemented, leave set to True)
+run_on_hpc = False                  # Run on slurm based cluster HPC
+
+output_filename = 'samples.csv'     # output filename for the stroopwafel samples
+debug = False                       # show COMPAS output/errors
 
 def create_dimensions():
     """
@@ -104,7 +106,8 @@ def configure_code_run(batch):
     batch_num = batch['number']
     grid_filename = os.path.join(output_folder, 'grid_' + str(batch_num) + '.csv')
     output_container = 'batch_' + str(batch_num)
-    compas_args = [compas_executable, '--grid', grid_filename, '--output-container', output_container, '--random-seed' , np.random.randint(2, 2**63 - 1)]
+    random_seed = random_seed_base + batch_num*NUM_SYSTEMS_PER_RUN  # ensure that random numbers are not reused across batches
+    compas_args = [compas_executable, '--grid', grid_filename, '--output-container', output_container, '--random-seed' , random_seed]
     [compas_args.extend([key, val]) for key, val in commandOptions.items()]
     for params in extra_params:
         compas_args.extend(params.split("="))
@@ -226,8 +229,7 @@ if __name__ == '__main__':
     # Set commandOptions defaults - these are Compas option arguments
     commandOptions = dict()
     commandOptions.update({'--outputPath' : output_folder}) 
-    commandOptions.update({'--logfile-delimiter' : 'COMMA'}) 
-    compas_executable = os.path.join(os.environ.get('COMPAS_ROOT_DIR'), 'src/COMPAS') # Location of the executable
+    commandOptions.update({'--logfile-delimiter' : 'COMMA'})  # overriden if there is a pythonSubmit
 
     # Over-ride with pythonSubmit parameters, if desired
     if usePythonSubmit:
@@ -235,8 +237,6 @@ if __name__ == '__main__':
             from pythonSubmit import pythonProgramOptions
             programOptions = pythonProgramOptions()
             pySubOptions = programOptions.generateCommandLineOptionsDict()
-
-            compas_executable = pySubOptions['compas_executable']
 
             # Remove extraneous options
             pySubOptions.pop('compas_executable', None)
@@ -276,7 +276,7 @@ if __name__ == '__main__':
     intial_pdf = distributions.InitialDistribution(dimensions)
     # STEP 4: Run the 4 phases of stroopwafel
     sw_object.explore(intial_pdf) #Pass in the initial distribution for exploration phase
-    sw_object.adapt(n_dimensional_distribution_type = distributions.Gaussian) #Adaptaion phase, tell stroopwafel what kind of distribution you would like to create instrumental distributions
+    #sw_object.adapt(n_dimensional_distribution_type = distributions.Gaussian) #Adaptaion phase, tell stroopwafel what kind of distribution you would like to create instrumental distributions
     ## Do selection effects
     #selection_effects(sw)
     #sw_object.refine() #Stroopwafel will draw samples from the adapted distributions
