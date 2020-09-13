@@ -435,14 +435,16 @@
 // 02.15.06     IM - Sep 12, 2020   - Defect repair
 //                                       - Changed BaseBinaryStar::ResolveSupernova to account only for mass lost by the exploding binary during the SN when correcting the orbit
 //                                       - Delayed supernova of ultra-stripped stars so that the orbit is adjusted in response to mass transfer first, before the SN happens
-// 02.15.07     RW - Sep 08, 2020   - Enhancement:
+// 02.15.07     RW - Sep 13, 2020   - Enhancement:
 //                                      - Issue #12 - Move enhancement STROOPWAFEL from Legacy COMPAS to new COMPAS
 //                                      - Issue #18 - double check STROOPWAFEL works in newCOMPAS
 //                                      - Issue #154 - Test compatibility of CompasHPC and BSE_Grid.txt
 //                                      - Added in combined functionaltiy of Stroopwafel and pythonSubmit, with support for HPC runs
+// 02.15.08     RW - Sep 13, 2020   - Enhancement:
+//                                      - Updated git workflow document for clarity and closer alignment with current workflow
 //
 //
 
-const std::string VERSION_STRING = "02.15.07";
+const std::string VERSION_STRING = "02.15.08";
 
 # endif // __changelog_h__
