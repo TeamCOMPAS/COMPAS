@@ -440,8 +440,9 @@
 //                                      - Issue #18 - double check STROOPWAFEL works in newCOMPAS
 //                                      - Issue #154 - Test compatibility of CompasHPC and BSE_Grid.txt
 //                                      - Added in combined functionaltiy of Stroopwafel and pythonSubmit, with support for HPC runs
-//
+// 02.15.08     IM - Sep 14, 2020   - Defect repair:
+//                                      - Issue #375 Error in Hurley remnant mass calculation
 
-const std::string VERSION_STRING = "02.15.07";
+const std::string VERSION_STRING = "02.15.08";
 
 # endif // __changelog_h__
