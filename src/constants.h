@@ -535,6 +535,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::OUT_OF_BOUNDS,                                         { ERROR_SCOPE::ALWAYS,              "Value out of bounds" }},
     { ERROR::RADIUS_NOT_POSITIVE,                                   { ERROR_SCOPE::ALWAYS,              "Radius <= 0.0" }},
     { ERROR::RADIUS_NOT_POSITIVE_ONCE,                              { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Radius <= 0.0" }},
+    // RTW
     { ERROR::RESOLVE_SUPERNOVA_IMPROPERLY_CALLED,                   { ERROR_SCOPE::ALWAYS,              "ResolveSupernova() called, but m_Supernova->IsSNevent() is false" }},
     { ERROR::STELLAR_EVOLUTION_STOPPED,                             { ERROR_SCOPE::ALWAYS,              "Evolution of current star stopped" }},
     { ERROR::STELLAR_SIMULATION_STOPPED,                            { ERROR_SCOPE::ALWAYS,              "Stellar simulation stopped" }},
@@ -1025,21 +1026,13 @@ const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
 };
 
 
-// Supernova State types
-enum class SN_STATE: int { NONE=0, 
-						   STAR10=10, 
-						   STAR20=20, 
-						   STAR12=12, 
-						   STAR21=21, 
-						   SIMUL =3 };
-
+// Supernova types
+enum class SN_STATE: int { NONE, STAR1, STAR2, BOTH };
 const COMPASUnorderedMap<SN_STATE, std::string> SN_STATE_LABEL = {
-    { SN_STATE::NONE,   "No Supernova" },
-    { SN_STATE::STAR10, "Star1 only" },
-    { SN_STATE::STAR20, "Star2 only" },
-    { SN_STATE::STAR12, "Star1, then Star2" },
-    { SN_STATE::STAR21, "Star2, then Star1" },
-    { SN_STATE::SIMUL,  "Both stars simultaneously" }
+    { SN_STATE::NONE,  "No Supernova" },
+    { SN_STATE::STAR1, "Star1 only" },
+    { SN_STATE::STAR2, "Star2 only" },
+    { SN_STATE::BOTH,  "Both stars" }
 };
 
 // enum class L_CONSTANTS
