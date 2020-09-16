@@ -3,6 +3,7 @@
 
 #include "constants.h"
 #include "typedefs.h"
+#include "profiling.h"
 #include "utils.h"
 
 #include "ONeWD.h"
@@ -36,7 +37,7 @@ public:
     static  double          CalculateRadiusOnPhaseInKM_Static(const double p_Mass);                                                                                 // Radius on phase in km
     static  double          CalculateRadiusOnPhase_Static(const double p_Mass)      { return CalculateRadiusOnPhaseInKM_Static(p_Mass) * KM_TO_RSOL; }              // Radius on phase in Rsol
 
-    static  double          CalculateRemnantMass_Static(const double p_CoreMass)    { return 1.17 + (0.09 * p_CoreMass); }                                          // Hurley et al., eq 92
+    static  double          CalculateRemnantMass_Static(const double p_COCoreMass)    { return 1.17 + (0.09 * p_COCoreMass); }                                          // Hurley et al., eq 92
 
 
 protected:

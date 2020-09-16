@@ -39,10 +39,10 @@ double FGB::CalculateLuminosityOnPhase(const double p_Time) {
     // Calculate the core mass according to Hurley at al. 2000, eq 39, regardless
     // of whether it is the correct expression to use given the star's mass
     double coreMass = utils::Compare(p_Time, timescales(tMx_FGB)) <= 0
-                        ? pow(((p - 1.0) * AH * D * (timescales(tinf1_FGB) - p_Time)), (1.0 / (1.0 - p)))
-                        : pow(((q - 1.0) * AH * B * (timescales(tinf2_FGB) - p_Time)), (1.0 / (1.0 - q)));
+                        ? PPOW(((p - 1.0) * AH * D * (timescales(tinf1_FGB) - p_Time)), (1.0 / (1.0 - p)))
+                        : PPOW(((q - 1.0) * AH * B * (timescales(tinf2_FGB) - p_Time)), (1.0 / (1.0 - q)));
 
-    return std::min((B * pow(coreMass, q)), (D * pow(coreMass, p)));
+    return std::min((B * PPOW(coreMass, q)), (D * PPOW(coreMass, p)));
 
 #undef gbParams
 #undef timescales
@@ -74,8 +74,8 @@ double FGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     double McGB  = utils::Compare(p_Time, timescales(tMx_FGB)) <= 0
-                    ? pow(((gbParams(p) - 1.0) * gbParams(AH) * gbParams(D) * (timescales(tinf1_FGB) - p_Time)), (1.0 / (1.0 - gbParams(p))))
-                    : pow(((gbParams(q) - 1.0) * gbParams(AH) * gbParams(B) * (timescales(tinf2_FGB) - p_Time)), (1.0 / (1.0 - gbParams(q))));
+                    ? PPOW(((gbParams(p) - 1.0) * gbParams(AH) * gbParams(D) * (timescales(tinf1_FGB) - p_Time)), (1.0 / (1.0 - gbParams(p))))
+                    : PPOW(((gbParams(q) - 1.0) * gbParams(AH) * gbParams(B) * (timescales(tinf2_FGB) - p_Time)), (1.0 / (1.0 - gbParams(q))));
 
     double tau   = std::max(0.0, std::min(1.0, (p_Time - timescales(tBGB)) / (timescales(tHeI) - timescales(tBGB))));
 

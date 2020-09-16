@@ -3,6 +3,7 @@
 
 #include "constants.h"
 #include "typedefs.h"
+
 #include <algorithm> 
 
 namespace utils {
@@ -13,7 +14,8 @@ namespace utils {
     inline OBJECT_TYPE  ObjectType()  { return OBJECT_TYPE::UTILS; }                       // object type for utils - always "UTILS"
     inline STELLAR_TYPE StellarType() { return STELLAR_TYPE::NONE; }                       // stellar type for utils - always "NONE"
 
-    // member functions - alphabetical in groups
+
+    // namespace functions - alphabetical in groups
     std::string                 CentreJustify(const std::string p_Str, std::size_t p_Width);
 
     int                         Compare(const double p_X, const double p_Y);
@@ -104,7 +106,6 @@ namespace utils {
 
         return iter != p_Vector.end() ? std::make_tuple(true, distance(p_Vector.begin(), iter)) : std::make_tuple(false, -1l);  // if found return index, otherwise -1
     }
-
 }
 
 #endif // __utils_h__
