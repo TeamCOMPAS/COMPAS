@@ -13,6 +13,7 @@
 #include "constants.h"
 #include "typedefs.h"
 
+#include "profiling.h"
 #include "utils.h"
 #include "vector3d.h"
 #include "Options.h"
@@ -183,15 +184,15 @@ std::tuple<int, std::vector<std::string>> OpenSSEGridFile(std::ifstream &p_Grid,
 
                         switch (_(token.c_str())) {                                                                             // which column header?
 
-                            case _("MASS")                : mass++;                 gridHeaders.push_back(token); break;        // Mass
+                            case _("MASS")                  : mass++;                 gridHeaders.push_back(token); break;      // Mass
 
-                            case _("METALLICITY")         : metallicity++;          gridHeaders.push_back(token); break;        // Metallicity
+                            case _("METALLICITY")           : metallicity++;          gridHeaders.push_back(token); break;      // Metallicity
 
-                            case _("KICK_MAGNITUDE_RANDOM"): kickMagnitudeRandom++;   gridHeaders.push_back(token); break;        // Kick magnitude random number
+                            case _("KICK_MAGNITUDE_RANDOM") : kickMagnitudeRandom++;   gridHeaders.push_back(token); break;     // Kick magnitude random number
 
-                            case _("KICK_MAGNITUDE")       : kickMagnitude++;         gridHeaders.push_back(token); break;        // Kick magnitude
+                            case _("KICK_MAGNITUDE")        : kickMagnitude++;         gridHeaders.push_back(token); break;     // Kick magnitude
 
-                            default                       : unknown++;                                                          // unknown - deal with this later
+                            default                         : unknown++;                                                        // unknown - deal with this later
                         }
                     }
 
@@ -202,9 +203,9 @@ std::tuple<int, std::vector<std::string>> OpenSSEGridFile(std::ifstream &p_Grid,
         }
     }
 
-    if (mass != 1 || metallicity > 1 || kickMagnitude > 1 || kickMagnitudeRandom > 1 || unknown > 0) {                            // check we have all the headers we need, and in the right numbers, and no extraneous headers
+    if (mass != 1 || metallicity > 1 || kickMagnitude > 1 || kickMagnitudeRandom > 1 || unknown > 0) {                          // check we have all the headers we need, and in the right numbers, and no extraneous headers
                                                                                                                                 // we don't, but maybe this wasn't a header record
-        if (tokenCount > 1 || mass >= 1 || metallicity >= 1 || kickMagnitude >= 1 || kickMagnitudeRandom >= 1) {                  // more than 1 column, or we got some header strings, so should have been a header
+        if (tokenCount > 1 || mass >= 1 || metallicity >= 1 || kickMagnitude >= 1 || kickMagnitudeRandom >= 1) {                // more than 1 column, or we got some header strings, so should have been a header
             bool error = true;                                                                                                  // error
 
             if (mass < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << ": Mass")                                             // no 'Mass'
@@ -213,9 +214,9 @@ std::tuple<int, std::vector<std::string>> OpenSSEGridFile(std::ifstream &p_Grid,
             if (tokenCount > 1 && metallicity < 1) SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << ": Metallicity")             // no 'Metallicity'
             else if (metallicity > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << ": Metallicity");                       // duplicate 'Metallicity'
 
-            if (kickMagnitude > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << ": Kick_Magnitude");                         // duplicate 'Kick_Magnitude'
+            if (kickMagnitude > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << ": Kick_Magnitude");                       // duplicate 'Kick_Magnitude'
 
-            if (kickMagnitudeRandom > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << ": Kick_Magnitude_Random");            // duplicate 'Kick_Magnitude_Random'
+            if (kickMagnitudeRandom > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << ": Kick_Magnitude_Random");          // duplicate 'Kick_Magnitude_Random'
 
             if (unknown > 0) SAY(ERR_MSG(ERROR::GRID_FILE_UNKNOWN_HEADER));                                                     // unknown header string
 
@@ -246,7 +247,7 @@ std::tuple<int, std::vector<std::string>> OpenSSEGridFile(std::ifstream &p_Grid,
  * Plus boolean flags (see definition of KickParameters in typedefs.h):
  * 
  *     supplied{1,2}          - true if kick values were supplied in the grid file
- *     useVelocityRandom{1,2} - true if the user supplied the kick magnitude magnitude random number
+ *     useMagnitudeRandom{1,2} - true if the user supplied the kick magnitude random number
  * 
  * Missing values are treated as zero (0.0) - a warning will be issued, and reading of the Grid file continues
  * (A value is considered missing only if there is a header for the column, but no data value in the column)
@@ -268,12 +269,12 @@ std::tuple<bool, int, SSEGridParameters> ReadSSEGridRecord(std::ifstream &p_Grid
 
     SSEGridParameters gridValues;                                                                                       // grid record values
 
-    gridValues.mass                             = 0.0;
-    gridValues.metallicity                      = 0.0;
-    gridValues.kickParameters.supplied          = false;
-    gridValues.kickParameters.useVelocityRandom = false;
-    gridValues.kickParameters.velocityRandom    = 0.0;
-    gridValues.kickParameters.velocity          = 0.0;
+    gridValues.mass                              = 0.0;
+    gridValues.metallicity                       = 0.0;
+    gridValues.kickParameters.supplied           = false;
+    gridValues.kickParameters.useMagnitudeRandom = false;
+    gridValues.kickParameters.magnitudeRandom    = 0.0;
+    gridValues.kickParameters.magnitude          = 0.0;
 
     int lineNo = p_LineNo;                                                                                              // line number - for error messages
 
@@ -360,26 +361,26 @@ std::tuple<bool, int, SSEGridParameters> ReadSSEGridRecord(std::ifstream &p_Grid
                             else gridValues.metallicity = value;                                                        // no - proceed
                             break;
 
-                        case _("KICK_MAGNITUDE_RANDOM"):                                                                 // Kick magnitude random number
+                        case _("KICK_MAGNITUDE_RANDOM"):                                                                // Kick magnitude random number
                             if (value < 0.0 || value >= 1.0) {                                                          // in the range [0.0, 1.0)? 
                                 error = true;                                                                           // no - set error flag
                                 SAY(ERR_MSG(ERROR::GRID_FILE_INVALID_DATA) << " at line " << lineNo << ": " << token);  // show error
                             }
                             else {                                                                                      // yes - proceed
                                 gridValues.kickParameters.supplied          = true;                                     // kick parameters supplied
-                                gridValues.kickParameters.velocityRandom    = value;                                    // Kick magnitude random number
-                                gridValues.kickParameters.useVelocityRandom = true;                                     // use this in preference to actual kick value
+                                gridValues.kickParameters.magnitudeRandom    = value;                                   // Kick magnitude random number
+                                gridValues.kickParameters.useMagnitudeRandom = true;                                    // use this in preference to actual kick value
                             }
                             break;
 
-                        case _("KICK_MAGNITUDE"):                                                                        // Kick magnitude (magnitude only, so must be +ve - probably technically "speed" rather than "velocity")                        
+                        case _("KICK_MAGNITUDE"):                                                                       // Kick magnitude (must be +ve)
                             if (value < 0.0) {                                                                          // value < 0?
                                 error = true;                                                                           // yes - set error flag
                                 SAY(ERR_MSG(ERROR::GRID_FILE_NEGATIVE_DATA) << " at line " << lineNo << ": " << token); // show error
                             }
                             else {                                                                                      // no - proceed
                                 gridValues.kickParameters.supplied = true;                                              // kick parameters supplied
-                                gridValues.kickParameters.velocity = value;                                             // Kick magnitude
+                                gridValues.kickParameters.magnitude = value;                                            // Kick magnitude
                             }
                             break;
 
@@ -611,14 +612,14 @@ std::tuple<int, std::vector<std::string>> OpenBSEGridFile(std::ifstream &p_Grid,
     int eccentricity        = 0;                                                                                                    // count 'Eccentricity" occurrences
     int period              = 0;                                                                                                    // count 'Period" occurrences
 
-    int kickMagnitudeRandom1 = 0;                                                                                                    // count 'Kick_Magnitude_Random_1' occurrences
-    int kickMagnitude1       = 0;                                                                                                    // count 'Kick_Magnitude_1" occurrences
+    int kickMagnitudeRandom1 = 0;                                                                                                   // count 'Kick_Magnitude_Random_1' occurrences
+    int kickMagnitude1       = 0;                                                                                                   // count 'Kick_Magnitude_1" occurrences
     int kickTheta1          = 0;                                                                                                    // count 'Kick_Theta_1" occurrences
     int kickPhi1            = 0;                                                                                                    // count 'Kick_Phi_1" occurrences
     int kickMeanAnomaly1    = 0;                                                                                                    // count 'Kick_Mean_Anomaly_1" occurrences
 
-    int kickMagnitudeRandom2 = 0;                                                                                                    // count 'Kick_Magnitude_Random_1' occurrences
-    int kickMagnitude2       = 0;                                                                                                    // count 'Kick_Magnitude_2" occurrences
+    int kickMagnitudeRandom2 = 0;                                                                                                   // count 'Kick_Magnitude_Random_1' occurrences
+    int kickMagnitude2       = 0;                                                                                                   // count 'Kick_Magnitude_2" occurrences
     int kickTheta2          = 0;                                                                                                    // count 'Kick_Theta_2" occurrences
     int kickPhi2            = 0;                                                                                                    // count 'Kick_Phi_2" occurrences
     int kickMeanAnomaly2    = 0;                                                                                                    // count 'Kick_Mean_Anomaly_2" occurrences
@@ -687,9 +688,9 @@ std::tuple<int, std::vector<std::string>> OpenBSEGridFile(std::ifstream &p_Grid,
 
                         case _("PERIOD")                : period++;                 gridHeaders.push_back(token); break;            // Period
 
-                        case _("KICK_MAGNITUDE_RANDOM_1"): kickMagnitudeRandom1++;    gridHeaders.push_back(token); break;            // Star 1 Kick magnitude random number
+                        case _("KICK_MAGNITUDE_RANDOM_1"): kickMagnitudeRandom1++;    gridHeaders.push_back(token); break;          // Star 1 Kick magnitude random number
 
-                        case _("KICK_MAGNITUDE_1")       : kickMagnitude1++;          gridHeaders.push_back(token); break;            // Star 1 Kick magnitude
+                        case _("KICK_MAGNITUDE_1")       : kickMagnitude1++;          gridHeaders.push_back(token); break;          // Star 1 Kick magnitude
 
                         case _("KICK_THETA_1")          : kickTheta1++;             gridHeaders.push_back(token); break;            // Star 1 Kick theta
 
@@ -697,9 +698,9 @@ std::tuple<int, std::vector<std::string>> OpenBSEGridFile(std::ifstream &p_Grid,
 
                         case _("KICK_MEAN_ANOMALY_1")   : kickMeanAnomaly1++;       gridHeaders.push_back(token); break;            // Star 1 Kick mean anomaly
 
-                        case _("KICK_MAGNITUDE_RANDOM_2"): kickMagnitudeRandom2++;    gridHeaders.push_back(token); break;            // Star 2 Kick magnitude random number
+                        case _("KICK_MAGNITUDE_RANDOM_2"): kickMagnitudeRandom2++;    gridHeaders.push_back(token); break;          // Star 2 Kick magnitude random number
 
-                        case _("KICK_MAGNITUDE_2")       : kickMagnitude2++;          gridHeaders.push_back(token); break;            // Star 2 Kick magnitude
+                        case _("KICK_MAGNITUDE_2")       : kickMagnitude2++;          gridHeaders.push_back(token); break;          // Star 2 Kick magnitude
 
                         case _("KICK_THETA_2")          : kickTheta2++;             gridHeaders.push_back(token); break;            // Star 2 Kick theta
 
@@ -757,7 +758,7 @@ std::tuple<int, std::vector<std::string>> OpenBSEGridFile(std::ifstream &p_Grid,
                     else if (kickMeanAnomaly1 > 1) SAY(ERR_MSG(ERROR::GRID_FILE_DUPLICATE_HEADER) << ": Kick_Mean_Anomaly_1");      // duplicate 'Kick_Mean_Anomaly_1'
 
 
-                    if (kickMagnitudeRandom2 < 1 && kickMagnitude2 < 1) {                                                             // neither 'Kick_Magnitude_Random_2' nor 'Kick_Magnitude_2'
+                    if (kickMagnitudeRandom2 < 1 && kickMagnitude2 < 1) {                                                           // neither 'Kick_Magnitude_Random_2' nor 'Kick_Magnitude_2'
                         SAY(ERR_MSG(ERROR::GRID_FILE_MISSING_HEADER) << ": One of {Kick_Magnitude_Random_2, Kick_Magnitude_2}");
                     }
                     else {
@@ -790,19 +791,19 @@ std::tuple<int, std::vector<std::string>> OpenBSEGridFile(std::ifstream &p_Grid,
              (separation + period) >  0 &&                                                                                          // must have at least one of separation and period
               eccentricity         == 1);                                                                                           // must have exactly one eccentricity
 
-    if ((kickMagnitudeRandom1 + kickMagnitude1 + kickTheta1 + kickPhi1 + kickMeanAnomaly1 +                                           // if any kick parameter is present
+    if ((kickMagnitudeRandom1 + kickMagnitude1 + kickTheta1 + kickPhi1 + kickMeanAnomaly1 +                                         // if any kick parameter is present
          kickMagnitudeRandom2 + kickMagnitude2 + kickTheta2 + kickPhi2 + kickMeanAnomaly2) > 0) {     
 
         error = error || !(
         
-                kickMagnitudeRandom1 <= 1 && kickMagnitude1 <= 1 &&                                                                   // must have at most one each of kickMagnitudeRandom1 and kickMagnitude1
-               (kickMagnitudeRandom1 + kickMagnitude1)      >  0 &&                                                                   // must have at least one of kickMagnitudeRandom1 and kickMagnitude1
+                kickMagnitudeRandom1 <= 1 && kickMagnitude1 <= 1 &&                                                                 // must have at most one each of kickMagnitudeRandom1 and kickMagnitude1
+               (kickMagnitudeRandom1 + kickMagnitude1)      >  0 &&                                                                 // must have at least one of kickMagnitudeRandom1 and kickMagnitude1
                 kickTheta1                                == 1 &&                                                                   // must have exactly one kickTheta1
                 kickPhi1                                  == 1 &&                                                                   // must have exactly one kickPhi1
                 kickMeanAnomaly1                          == 1 &&                                                                   // must have exactly one kickMeanAnomaly1
 
-                kickMagnitudeRandom2 <= 1 && kickMagnitude2 <= 1 &&                                                                   // must have at most one each of kickMagnitudeRandom2 and kickMagnitude2
-               (kickMagnitudeRandom2 + kickMagnitude2)      >  0 &&                                                                   // must have at least one of kickMagnitudeRandom2 and kickMagnitude2
+                kickMagnitudeRandom2 <= 1 && kickMagnitude2 <= 1 &&                                                                 // must have at most one each of kickMagnitudeRandom2 and kickMagnitude2
+               (kickMagnitudeRandom2 + kickMagnitude2)      >  0 &&                                                                 // must have at least one of kickMagnitudeRandom2 and kickMagnitude2
                 kickTheta2                                == 1 &&                                                                   // must have exactly one kickTheta2
                 kickPhi2                                  == 1 &&                                                                   // must have exactly one kickPhi2
                 kickMeanAnomaly2                          == 1                                                                      // must have exactly one kickMeanAnomaly2
@@ -850,13 +851,13 @@ std::tuple<int, std::vector<std::string>> OpenBSEGridFile(std::ifstream &p_Grid,
  * Plus boolean flags (see definition of KickParameters in typedefs.h):
  * 
  *     supplied{1,2}          - true if kick values were supplied in the grid file
- *     useVelocityRandom{1,2} - true if the user supplied the kick magnitude magnitude random number
+ *     useMagnitudeRandom{1,2} - true if the user supplied the kick magnitude random number
  *
  * If the user specifies Period rather than Separation, the separation is calculated using the masses and the orbital period
  * If the user specifies both Separation and Period, Separation is used in preference to Period
  * 
- * If the user specifies the kick magnitude magnitude random number, the appropriate flag is set (per star)
- * If the use specifies both the kick magnitude magnitude random number and the kick magnitude, the random number will be used in preference to the supplied velocity
+ * If the user specifies the kick magnitude random number, the appropriate flag is set (per star)
+ * If the use specifies both the kick magnitude random number and the kick magnitude, the random number will be used in preference to the supplied velocity
  * 
  * Missing values are treated as zero (0.0) - a warning will be issued, and reading of the Grid file continues
  * (A value is considered missing only if there is a header for the column, but no data value in the column)
@@ -881,28 +882,28 @@ std::tuple<bool, int, BSEGridParameters> ReadBSEGridRecord(std::ifstream &p_Grid
 
     // initialise grid values
 
-    gridValues.mass1                                 = 0.0;
-    gridValues.mass2                                 = 0.0;
-    gridValues.metallicity1                          = 0.0; 
-    gridValues.metallicity2                          = 0.0;
-    gridValues.separation                            = 0.0;
-    gridValues.eccentricity                          = 0.0;
+    gridValues.mass1                                  = 0.0;
+    gridValues.mass2                                  = 0.0;
+    gridValues.metallicity1                           = 0.0; 
+    gridValues.metallicity2                           = 0.0;
+    gridValues.separation                             = 0.0;
+    gridValues.eccentricity                           = 0.0;
 
-    gridValues.star1KickParameters.supplied          = false;
-    gridValues.star1KickParameters.useVelocityRandom = false;
-    gridValues.star1KickParameters.velocityRandom    = 0.0;
-    gridValues.star1KickParameters.velocity          = 0.0;
-    gridValues.star1KickParameters.theta             = 0.0;
-    gridValues.star1KickParameters.phi               = 0.0;
-    gridValues.star1KickParameters.meanAnomaly       = 0.0;
+    gridValues.star1KickParameters.supplied           = false;
+    gridValues.star1KickParameters.useMagnitudeRandom = false;
+    gridValues.star1KickParameters.magnitudeRandom    = 0.0;
+    gridValues.star1KickParameters.magnitude          = 0.0;
+    gridValues.star1KickParameters.theta              = 0.0;
+    gridValues.star1KickParameters.phi                = 0.0;
+    gridValues.star1KickParameters.meanAnomaly        = 0.0;
 
-    gridValues.star2KickParameters.supplied          = false;
-    gridValues.star2KickParameters.useVelocityRandom = false;
-    gridValues.star2KickParameters.velocityRandom    = 0.0;
-    gridValues.star2KickParameters.velocity          = 0.0;
-    gridValues.star2KickParameters.theta             = 0.0;
-    gridValues.star2KickParameters.phi               = 0.0;
-    gridValues.star2KickParameters.meanAnomaly       = 0.0;
+    gridValues.star2KickParameters.supplied           = false;
+    gridValues.star2KickParameters.useMagnitudeRandom = false;
+    gridValues.star2KickParameters.magnitudeRandom    = 0.0;
+    gridValues.star2KickParameters.magnitude          = 0.0;
+    gridValues.star2KickParameters.theta              = 0.0;
+    gridValues.star2KickParameters.phi                = 0.0;
+    gridValues.star2KickParameters.meanAnomaly        = 0.0;
 
     int lineNo = p_LineNo;                                                                                                  // line number - for error messages
 
@@ -1025,26 +1026,26 @@ std::tuple<bool, int, BSEGridParameters> ReadBSEGridRecord(std::ifstream &p_Grid
                             else period = value;                                                                            // no - proceed
                             break;
 
-                        case _("KICK_MAGNITUDE_RANDOM_1"):                                                                   // Star 1 Kick magnitude random number
+                        case _("KICK_MAGNITUDE_RANDOM_1"):                                                                  // Star 1 Kick magnitude random number
                             if (value < 0.0 || value >= 1.0) {                                                              // in the range [0.0, 1.0)? 
                                 error = true;                                                                               // no - set error flag
                                 SAY(ERR_MSG(ERROR::GRID_FILE_INVALID_DATA) << " at line " << lineNo << ": " << token);      // show error
                             }
                             else {                                                                                          // yes - proceed
                                 gridValues.star1KickParameters.supplied          = true;                                    // Star 1 kick parameters supplied
-                                gridValues.star1KickParameters.velocityRandom    = value;                                   // Star 1 Kick magnitude random number
-                                gridValues.star1KickParameters.useVelocityRandom = true;                                    // use this in preference to actual kick value
+                                gridValues.star1KickParameters.magnitudeRandom    = value;                                  // Star 1 Kick magnitude random number
+                                gridValues.star1KickParameters.useMagnitudeRandom = true;                                   // use this in preference to actual kick value
                             }
                             break;
 
-                        case _("KICK_MAGNITUDE_1"):                                                                          // Star 1 Kick magnitude (magnitude only, so must be +ve - probably technically "speed" rather than "velocity")                        
+                        case _("KICK_MAGNITUDE_1"):                                                                         // Star 1 Kick magnitude (must be +ve) 
                             if (value < 0.0) {                                                                              // value < 0?
                                 error = true;                                                                               // yes - set error flag
                                 SAY(ERR_MSG(ERROR::GRID_FILE_NEGATIVE_DATA) << " at line " << lineNo << ": " << token);     // show error
                             }
                             else {                                                                                          // no - proceed
                                 gridValues.star1KickParameters.supplied = true;                                             // Star 1 kick parameters supplied
-                                gridValues.star1KickParameters.velocity = value;                                            // Star 1 Kick magnitude
+                                gridValues.star1KickParameters.magnitude = value;                                           // Star 1 Kick magnitude
                             }
                             break;
 
@@ -1069,26 +1070,26 @@ std::tuple<bool, int, BSEGridParameters> ReadBSEGridRecord(std::ifstream &p_Grid
                             }
                             break;  
 
-                        case _("KICK_MAGNITUDE_RANDOM_2"):                                                                   // Star 1 Kick magnitude random number
+                        case _("KICK_MAGNITUDE_RANDOM_2"):                                                                  // Star 1 Kick magnitude random number
                             if (value < 0.0 || value >= 1.0) {                                                              // in the range [0.0, 1.0)? 
                                 error = true;                                                                               // no - set error flag
                                 SAY(ERR_MSG(ERROR::GRID_FILE_INVALID_DATA) << " at line " << lineNo << ": " << token);      // show error
                             }
                             else {                                                                                          // yes - proceed                        
                                 gridValues.star2KickParameters.supplied          = true;                                    // Star 2 kick parameters supplied
-                                gridValues.star2KickParameters.velocityRandom    = value;                                   // Star 2 Kick magnitude random number
-                                gridValues.star2KickParameters.useVelocityRandom = true;                                    // use this in preference to actual kick value
+                                gridValues.star2KickParameters.magnitudeRandom    = value;                                  // Star 2 Kick magnitude random number
+                                gridValues.star2KickParameters.useMagnitudeRandom = true;                                   // use this in preference to actual kick value
                             }
                             break;
 
-                        case _("KICK_MAGNITUDE_2"):                                                                          // Star 2 Kick magnitude (magnitude only, so must be +ve - probably technically "speed" rather than "velocity")                        
+                        case _("KICK_MAGNITUDE_2"):                                                                         // Star 2 Kick magnitude (must be +ve) 
                             if (value < 0.0) {                                                                              // value < 0?
                                 error = true;                                                                               // yes - set error flag
                                 SAY(ERR_MSG(ERROR::GRID_FILE_NEGATIVE_DATA) << " at line " << lineNo << ": " << token);     // show error
                             }
                             else {                                                                                          // no - proceed
                                 gridValues.star2KickParameters.supplied = true;                                             // Star 2 kick parameters supplied
-                                gridValues.star2KickParameters.velocity = value;                                            // Star 2 Kick magnitude
+                                gridValues.star2KickParameters.magnitude = value;                                           // Star 2 Kick magnitude
                             }
                             break;
 
@@ -1333,9 +1334,11 @@ std::tuple<int, int> EvolveBinaryStars() {
  */
 int main(int argc, char * argv[]) {
 
-    PROGRAM_STATUS programStatus = OPTIONS->Initialise(argc, argv);                     // Get the program options from the commandline
+    PROGRAM_STATUS programStatus = OPTIONS->Initialise(argc, argv);                     // get the program options from the commandline
 
     if (programStatus == PROGRAM_STATUS::CONTINUE) {
+
+        InitialiseProfiling;                                                            // initialise profiling functionality
 
         // start the logging service
         LOGGING->Start(OPTIONS->OutputPathString(),                                     // location of logfiles
@@ -1372,6 +1375,8 @@ int main(int argc, char * argv[]) {
 
             programStatus = PROGRAM_STATUS::SUCCESS;                                    // set program status, and...
         }
+
+        ReportProfiling;                                                                // report profiling statistics
     }
 
     return static_cast<int>(programStatus);                                             // we're done

@@ -31,9 +31,9 @@ void HeHG::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
 
     double LTHe = HeMS::CalculateLuminosityAtPhaseEnd(p_Mass);
 
-    timescales(tinf1_HeGB) = timescales(tHeMS) + (1.0 / ((p1 * gbParams(AHe) * gbParams(D))) * pow((gbParams(D) / LTHe), p1_p));
-    timescales(tx_HeGB) = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * pow((LTHe / gbParams(Lx)), p1_p);
-    timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * pow((gbParams(B) / gbParams(Lx)), q1_q));
+    timescales(tinf1_HeGB) = timescales(tHeMS) + (1.0 / ((p1 * gbParams(AHe) * gbParams(D))) * PPOW((gbParams(D) / LTHe), p1_p));
+    timescales(tx_HeGB) = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * PPOW((LTHe / gbParams(Lx)), p1_p);
+    timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
 
 #undef gbParams
 #undef timescales
@@ -303,10 +303,10 @@ double HeHG::CalculateLambdaNanjing() {
     double rMin = 0.25;                              // minimum considered radius: Natasha       JR: todo: should this be in constants.h?
 	double rMax = 120.0;                             // maximum considered radius: Natasha       JR: todo: should this be in constants.h?
 
-	double rMinLambda = 0.3 * pow(rMin, -0.8);       // JR: todo: should this be in constants.h?
-	double rMaxLambda = 0.3 * pow(rMax, -0.8);       // JR: todo: should this be in constants.h?
+	double rMinLambda = 0.3 * PPOW(rMin, -0.8);       // JR: todo: should this be in constants.h?
+	double rMaxLambda = 0.3 * PPOW(rMax, -0.8);       // JR: todo: should this be in constants.h?
 
-	return m_Radius < rMin ? rMinLambda : (m_Radius > rMax ? rMaxLambda : 0.3 * pow(m_Radius, -0.8));
+	return m_Radius < rMin ? rMinLambda : (m_Radius > rMax ? rMaxLambda : 0.3 * PPOW(m_Radius, -0.8));
 }
 
 
@@ -432,22 +432,54 @@ bool HeHG::ShouldEvolveOnPhase() {
 STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
-
+    
     if (p_NoCheck || utils::Compare(m_COCoreMass, m_Mass) > 0) {        // Envelope lost - determine what type of star to form
-
-        stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
 
         m_CoreMass  = m_COCoreMass;
         m_HeCoreMass= m_COCoreMass;
         m_Mass      = m_CoreMass;
         m_Mass0     = m_Mass;
-        m_Age       = 0.0;
-        m_Radius    = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
+        
+        if(!(IsSupernova())){
+            stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
+            m_Age       = 0.0;
+            m_Radius    = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
+        }
     }
 
     return stellarType;
 }
 
+/*
+ * Determine if star should continue evolution as a supernova
+ *
+ *
+ * bool IsSupernova()
+ *
+ * @return                                      Boolean flag: true if star has gone Supernova, false if not
+ */
+bool HeHG::IsSupernova() {
+    if(utils::Compare(m_COCoreMass, m_Mass)==0) {                // special case of ultra-stripped-star -- go SN immediately if over ECSN limit
+        return (utils::Compare(m_Mass, MECS) > 0);
+    }
+        
+    return (utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(m_GBParams[static_cast<int>(GBP::McBAGB)]))>= 0);   // Go supernova if CO core mass large enough
+}
+
+/*
+ * Assistant function for determining the supernova explosion type
+ *
+ *
+ * double       CalculateInitialSupernovaMass()
+ *
+ * @return                                      double: Initial supernova supernova mass variable
+ */
+double  HeHG::CalculateInitialSupernovaMass(){
+    if(utils::Compare(m_COCoreMass, m_Mass)==0) {                // special case of ultra-stripped-star -- use current mass
+        return std::max(m_Mass, m_GBParams[static_cast<int>(GBP::McBAGB)]);
+    }
+    return GiantBranch::CalculateInitialSupernovaMass();
+}
 
 /*
  * Set parameters for evolution to next phase and return Stellar Type for next phase

@@ -3,10 +3,10 @@
 #include <fstream>
 #include <algorithm>
 #include <cstring>
+#include "profiling.h"
 #include "utils.h"
 #include "Rand.h"
 #include "changelog.h"
-
 
 /*
  * utility functions that don't belong in any class
@@ -407,9 +407,9 @@ namespace utils {
         }
         else {
             double powerPlus1     = p_Power + 1.0;
-            double min_powerPlus1 = pow(p_Xmin, powerPlus1);
+            double min_powerPlus1 = PPOW(p_Xmin, powerPlus1);
 
-            result = pow((rand * (pow(p_Xmax, powerPlus1) - min_powerPlus1) + min_powerPlus1), 1.0 / powerPlus1);
+            result = PPOW((rand * (PPOW(p_Xmax, powerPlus1) - min_powerPlus1) + min_powerPlus1), 1.0 / powerPlus1);
         }
 
         return result;
@@ -432,7 +432,7 @@ namespace utils {
         double a_cubed_SI_top    = G * ((p_Mass1 * MSOL_TO_KG) + (p_Mass2 * MSOL_TO_KG)) * p_Period * p_Period * SECONDS_IN_DAY * SECONDS_IN_DAY;
         double a_cubed_SI_bottom = 4.0 * M_PI * M_PI;
         double a_cubed_SI        = a_cubed_SI_top / a_cubed_SI_bottom;
-        double a_SI              = pow(a_cubed_SI, 1.0 / 3.0);
+        double a_SI              = PPOW(a_cubed_SI, 1.0 / 3.0);
 
         return a_SI / AU;
     }
@@ -556,5 +556,4 @@ namespace utils {
 
         return std::make_tuple(error, E, nu);
     }
-
 }

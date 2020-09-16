@@ -203,7 +203,6 @@ void Options::InitialiseMemberVariables(void) {
     fixedRandomSeed                                                 = false;                                                                            // Whether to use a fixed random seed given by options.randomSeed (set to true if --random-seed is passed on command line)
     randomSeed                                                      = 0;                                                                                // Random seed to use
 
-
     // Specify how long to evolve binaries for
     maxEvolutionTime                                                = 13700.0;                                                                          // Maximum evolution time in Myrs
     maxNumberOfTimestepIterations                                   = 99999;                                                                            // Maximum number of timesteps to evolve binary for before giving up
