@@ -42,6 +42,7 @@ public:
     Vector3d    RotateVector( const double p_ThetaE, 
                               const double p_PhiE, 
                               const double p_PsiE);
+    Vector3d    UnitVector();
 
     ///////////////////////////////
     // Overload operators

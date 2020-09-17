@@ -222,6 +222,18 @@ Vector3d Vector3d::RotateVector(const double p_ThetaE, const double p_PhiE, cons
 
 
 
+/*
+ * Returns the unit vector in the direction of the given vector
+ * 
+ *
+ * @return                                     Unit vector of input
+ */
+Vector3d Vector3d::UnitVector() {
+
+    Vector3d newVector = (*this)/(*this).Magnitude(); 
+
+    return newVector;
+}
 
 
 ///////////////////////////////////////////////////////////
