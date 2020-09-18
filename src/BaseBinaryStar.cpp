@@ -1591,9 +1591,9 @@ bool BaseBinaryStar::ResolveSupernova() {
     // Define the natal kick vector (see above for precise definitions of the angles)
     double theta = m_Supernova->SN_Theta();         // Angle out of the binary plane
     double phi   = m_Supernova->SN_Phi();           // Angle in the binary plane
-    Vector3d natalKickVector = m_Supernova->SN_KickMagnitude() * Vector3d(cos(theta)*cos(phi), 
-                                                                          cos(theta)*sin(phi),
-                                                                          sin(theta));
+    Vector3d natalKickVector = m_Supernova->SN_KickMagnitude() *Vector3d(cos(theta)*cos(phi), 
+                                                                cos(theta)*sin(phi),
+                                                                sin(theta));
     // Check if the system is already unbound
     if (IsUnbound()) {                                                                                    // Is system already unbound?
 
@@ -1618,53 +1618,49 @@ bool BaseBinaryStar::ResolveSupernova() {
         #define dot(x,y)            linalg::dot(x,y) 
         #define angleBetween(x,y)   linalg::angleBetween(x,y)
         #define mag                 Magnitude()
-
-        // Define gravitational constant G :=  km^3 Msol^-1 s^-2  - Defining G here as a preprocessing command improves readability without interferring with the existing G (in other units)
-        // TODO: remove this and below
+        #define hat                 UnitVector()
 
         // Pre-SN parameters
         double semiMajorAxisPrev_km = m_SemiMajorAxisPrev*AU_TO_KM;                         // km  - Semi-Major axis
-        //double m_EccentricityPrev = m_EccentricityPrev;                                   // --  - Eccentricity
-        double sqrt1MinusEccPrevSquared = sqrt(1-m_EccentricityPrev*m_EccentricityPrev);
+        double sqrt1MinusEccPrevSquared = sqrt(1-m_EccentricityPrev*m_EccentricityPrev);    // useful function of eccentricity
 
-        double m1Prev = m_Supernova->MassPrev();                             // Mo  - SN star pre-SN mass
-        double m2Prev = m_Companion->MassPrev();                             // Mo  - CP star pre-SN mass
+        double m1Prev = m_Supernova->MassPrev();                                            // Mo  - SN star pre-SN mass
+        double m2Prev = m_Companion->MassPrev();                                            // Mo  - CP star pre-SN mass
         double totalMassPrev = m1Prev + m2Prev;                                             // Mo  - Total binary pre-SN mass
         
-        // Functions of Eccentric Anomaly
+        // Functions of eccentric anomaly
         m_Supernova->CalculateSNAnomalies(m_EccentricityPrev);
         double cosEccAnomaly = cos(m_Supernova->SN_EccentricAnomaly());        
         double sinEccAnomaly = sin(m_Supernova->SN_EccentricAnomaly());
 
-        double omega = sqrt(G_SN*totalMassPrev /(semiMajorAxisPrev_km*semiMajorAxisPrev_km*semiMajorAxisPrev_km));                              // orbits/s  - Keplerian orbital frequency
+        // Derived quantities
+        double omega = sqrt(G_SN*totalMassPrev /
+                (semiMajorAxisPrev_km*semiMajorAxisPrev_km*semiMajorAxisPrev_km));          // orbits/s  - Keplerian orbital frequency
 
         Vector3d separationVectorPrev = Vector3d( semiMajorAxisPrev_km* (cosEccAnomaly-m_EccentricityPrev),            
                                                   semiMajorAxisPrev_km* (sinEccAnomaly)*sqrt1MinusEccPrevSquared,
                                                   0.0                    );                 // km        - Relative position vector, from m1Prev to m2Prev
-        double   separationPrev = separationVectorPrev.mag;                                              // km        - Instantaneous Separation
-        Vector3d unitSeparationVectorPrev = separationVectorPrev/separationVectorPrev.mag;
+        double   separationPrev = separationVectorPrev.mag;                                 // km        - Instantaneous Separation
 
         Vector3d relativeVelocityVectorPrev = Vector3d(-((semiMajorAxisPrev_km*semiMajorAxisPrev_km) *omega/separationPrev)*sinEccAnomaly,   
                                                         ((semiMajorAxisPrev_km*semiMajorAxisPrev_km) *omega/separationPrev)*cosEccAnomaly*sqrt1MinusEccPrevSquared,  
-                                                        0.0                                        );        // km/s      - Relative velocity vector, in the m1Prev rest frame
-        //double   relativeVelocityPrev = relativeVelocityVectorPrev.mag;                                      // km/s      - Relative orbital velocity, in the m1Prev rest frame
+                                                        0.0                                        );           // km/s      - Relative velocity vector, in the m1Prev rest frame
 
-        Vector3d orbitalAngularMomentumVectorPrev = cross(separationVectorPrev, relativeVelocityVectorPrev);                     // km^2 s^-1 - Specific orbital angular momentum vector 
-        //double   orbitalAngularMomentumPrev = orbitalAngularMomentumVectorPrev.mag;                                              // km^2 s^-1 - Specific orbital angular momentum 
-        Vector3d unitOrbitalAngularMomentumVectorPrev = orbitalAngularMomentumVectorPrev/orbitalAngularMomentumVectorPrev.mag;
+        Vector3d orbitalAngularMomentumVectorPrev = cross(separationVectorPrev, relativeVelocityVectorPrev);    // km^2 s^-1 - Specific orbital angular momentum vector 
 
-        Vector3d eccentricityVectorPrev = cross(relativeVelocityVectorPrev, orbitalAngularMomentumVectorPrev)/(G_SN*totalMassPrev) - unitSeparationVectorPrev;
-        Vector3d unitEccentricityVectorPrev = eccentricityVectorPrev/eccentricityVectorPrev.mag;
+        Vector3d eccentricityVectorPrev = cross(relativeVelocityVectorPrev, orbitalAngularMomentumVectorPrev) / (G_SN*totalMassPrev) 
+                                            - separationVectorPrev.hat;                                         // --        - Laplace-Runge-Lenz vector (magnitude = eccentricity)
 
-        m_OrbitalVelocityPreSN = relativeVelocityVectorPrev.mag;          // km/s      - Set the Pre-SN orbital velocity and 
-        m_uK = m_Supernova->SN_KickMagnitude() / m_OrbitalVelocityPreSN;  // --        - Dimensionless kick magnitude
+        m_OrbitalVelocityPreSN = relativeVelocityVectorPrev.mag;                                                // km/s      - Set the Pre-SN orbital velocity and 
+        m_uK = m_Supernova->SN_KickMagnitude() / m_OrbitalVelocityPreSN;                                        // --        - Dimensionless kick magnitude
 
-        ////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////
         // Note: In the following,
         // orbitalAngularMomentumVectorPrev defines the Z-axis, 
         // eccentricityVectorPrev defines the X-axis, and
         // (orbitalAngularMomentumVectorPrev x eccentricityVectorPrev) defines the Y-axis
-        ////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////
+        
 
         //////////////////////////////////////////////////////////////////////////////////////////////////
         // Apply supernova natal kick and mass loss  
@@ -1687,40 +1683,38 @@ bool BaseBinaryStar::ResolveSupernova() {
                                                                          sin(theta));
         }
 
-        Vector3d natalKickVector = natalKickVector;                                  // km/s - The supernova natal kick
-        Vector3d companionRecoilVector = Vector3d(0.0, 0.0, 0.0);                          // km/s - The recoil of the companion due to ablation
+        Vector3d companionRecoilVector = Vector3d(0.0, 0.0, 0.0);       // km/s - The recoil of the companion due to ablation
         double m1 = m_Supernova->Mass();                                // Mo   - supernova star postSN mass
         double m2 = m_Companion->Mass();                                // Mo   - companion star postSN mass
-        double totalMass = m1 + m2;                                          // Mo   - Total binary postSN mass
+        double totalMass = m1 + m2;                                     // Mo   - Total binary postSN mass
 
-        double dm1 = (m1Prev - m1);                                         // Mo   - Mass difference of supernova star
-        double dm2 = (m2Prev - m2);                                         // Mo   - Mass difference of companion star
+        double dm1 = (m1Prev - m1);                                     // Mo   - Mass difference of supernova star
+        double dm2 = (m2Prev - m2);                                     // Mo   - Mass difference of companion star
 
         Vector3d centerOfMassVelocity = (-m2Prev*dm1/(totalMassPrev*totalMass) + m1Prev*dm2/(totalMassPrev*totalMass)) *relativeVelocityVectorPrev 
                                          + (m1/totalMass) *natalKickVector 
-                                         + (m2/totalMass) *companionRecoilVector;       // km/s       - PostSN center of mass velocity vector
+                                         + (m2/totalMass) *companionRecoilVector;                                      // km/s       - PostSN center of mass velocity vector
 
-        Vector3d relativeVelocityVector = relativeVelocityVectorPrev + (natalKickVector - companionRecoilVector);                                   // km/s       - PostSN relative velocity vector
+        Vector3d relativeVelocityVector = relativeVelocityVectorPrev + (natalKickVector - companionRecoilVector);      // km/s       - PostSN relative velocity vector
 
-        Vector3d orbitalAngularMomentumVector = cross(separationVectorPrev, relativeVelocityVector);                                      // km^2 s^-1  - PostSN specific orbital angular momentum vector
+        Vector3d orbitalAngularMomentumVector = cross(separationVectorPrev, relativeVelocityVector);                   // km^2 s^-1  - PostSN specific orbital angular momentum vector
         double   orbitalAngularMomentum = orbitalAngularMomentumVector.mag;                                            // km^2 s^-1  - PostSN specific orbital angular momentum 
-        Vector3d unitOrbitalAngularMomentumVector = orbitalAngularMomentumVector/orbitalAngularMomentumVector.mag;
 
-        Vector3d eccentricityVector = cross(relativeVelocityVector, orbitalAngularMomentumVector)/(G_SN*totalMass) - separationVectorPrev/separationPrev;                       // --         - PostSN Laplace-Runge-Lenz vector
-        m_Eccentricity = eccentricityVector.mag;                                            // --         - PostSN eccentricity
-        Vector3d unitEccentricityVector = eccentricityVector/eccentricityVector.mag;
-        double sqrt1MinusEccSquared = sqrt(1 - m_Eccentricity*m_Eccentricity);
+        Vector3d eccentricityVector = cross(relativeVelocityVector, orbitalAngularMomentumVector)/(G_SN*totalMass) 
+                                      - separationVectorPrev/separationPrev;                                           // --         - PostSN Laplace-Runge-Lenz vector
+        m_Eccentricity = eccentricityVector.mag;                                                                       // --         - PostSN eccentricity
+        double eccSquared = m_Eccentricity*m_Eccentricity;                                                             // useful function of eccentricity
 
-        double semiMajorAxis_km = (orbitalAngularMomentum*orbitalAngularMomentum) / (G_SN*totalMass * sqrt1MinusEccSquared*sqrt1MinusEccSquared) ;                    // km         - PostSN semi-major axis
-        m_SemiMajorAxis = semiMajorAxis_km * KM_TO_AU;              // AU   - Semi-major axis PostSN       
+        double semiMajorAxis_km = (orbitalAngularMomentum*orbitalAngularMomentum) / (G_SN*totalMass * (1-eccSquared)); // km         - PostSN semi-major axis
+        m_SemiMajorAxis = semiMajorAxis_km * KM_TO_AU;                                                                 // AU         - PostSN semi-major axis 
 
 
-        ////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////
         // Note: similar to above,
         // orbitalAngularMomentumVector defines the Z'-axis, 
         // eccentricityVector defines the X'-axis, and
         // (orbitalAngularMomentumVector x eccentricityVector) defines the Y'-axis
-        ////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////
          
         UpdateSystemicVelocity( centerOfMassVelocity.RotateVector(m_ThetaE, m_PhiE, m_PsiE) );          // Update the system velocity with the new center of mass velocity
 
@@ -1738,10 +1732,10 @@ bool BaseBinaryStar::ResolveSupernova() {
             m_Unbound = true;
 
             // Calculate the asymptotic Center of Mass velocity 
-            double   relativeVelocityAtInfinity = (G_SN*totalMass/orbitalAngularMomentum)*sqrt1MinusEccSquared;
-            Vector3d relativeVelocityVectorAtInfinity = relativeVelocityAtInfinity * 
-                                                        (-1*(unitEccentricityVector/m_Eccentricity) + 
-                                                         sqrt(1-1/(m_Eccentricity*m_Eccentricity)) * cross(unitOrbitalAngularMomentumVector, unitEccentricityVector));
+            double   relativeVelocityAtInfinity = (G_SN*totalMass/orbitalAngularMomentum)*sqrt(eccSquared - 1);
+            Vector3d relativeVelocityVectorAtInfinity = relativeVelocityAtInfinity 
+                                                        * (-1*(eccentricityVector.hat /m_Eccentricity) 
+                                                        + sqrt(1-1.0/eccSquared) *cross(orbitalAngularMomentumVector.hat, eccentricityVector.hat));
 
             // Calculate the asymptotic velocities of Star1 (SN) and Star2 (CP)
             Vector3d component1VelocityVectorAtInfinity =  (m2/totalMass)*relativeVelocityVectorAtInfinity + centerOfMassVelocity;
@@ -1752,7 +1746,7 @@ bool BaseBinaryStar::ResolveSupernova() {
             m_Companion->UpdateComponentVelocity( component2VelocityVectorAtInfinity.RotateVector(m_ThetaE, m_PhiE, m_PsiE) );
 
             // Set Euler Angles 
-            m_ThetaE = angleBetween( unitOrbitalAngularMomentumVectorPrev, unitOrbitalAngularMomentumVector );                         // Angle between the angular momentum unit vectors, always well defined
+            m_ThetaE = angleBetween( orbitalAngularMomentumVectorPrev, orbitalAngularMomentumVector);  // Angle between the angular momentum unit vectors, always well defined
             m_PhiE  = _2_PI * RAND->Random(); 
             m_PsiE  = _2_PI * RAND->Random(); 
         }
@@ -1772,48 +1766,53 @@ bool BaseBinaryStar::ResolveSupernova() {
             ////////////////////////////////////////////////////////////////////////////////////
             // Calculate Euler angles - see RotateVector() in vector.cpp for details
 
-            m_ThetaE = angleBetween( unitOrbitalAngularMomentumVectorPrev, unitOrbitalAngularMomentumVector );                         // Angle between the angular momentum unit vectors, always well defined
+            m_ThetaE = angleBetween(orbitalAngularMomentumVector, orbitalAngularMomentumVectorPrev);   // Angle between the angular momentum unit vectors, always well defined
 
-            // If normalVectorToOrbitalAngularMomenta = orbitalAngularMomentumVectorPrev x orbitalAngularMomentumVector is not well-defined, need to account for degeneracy between eccentricities
+            // If the new orbital A.M. is parallel or anti-parallel to the previous orbital A.M., 
+            //   then the cross product is not well-defined, and we need to account for degeneracy between eccentricity vectors.
+            // Also, if either eccentricity is 0.0, then the eccentricity vector is not well defined.
+
             if ((utils::Compare(m_ThetaE, 0.0) == 0) &&                    // Is orbitalAngularMomentumVectorPrev parallel to orbitalAngularMomentumVector ...
-                ((utils::Compare(m_EccentricityPrev,  0.0) > 0)   &&                        // ...
-                 (utils::Compare(m_Eccentricity, 0.0) > 0)))  {                        // ...and both eccentricityVectorPrev and eccentricityVector are well defined?
+                ((utils::Compare(m_EccentricityPrev,  0.0) > 0)   &&       // ...
+                 (utils::Compare(m_Eccentricity, 0.0) > 0)))  {            // ...and both eccentricityVectorPrev and eccentricityVector are well defined?
 
-                 double psiPlusPhi = angleBetween(eccentricityVectorPrev, eccentricityVector);                  // yes - then psi + phi is constant
+                 double psiPlusPhi = angleBetween(eccentricityVector, eccentricityVectorPrev);  // yes - then psi + phi is constant
                  m_PhiE = _2_PI * RAND->Random();    
                  m_PsiE = psiPlusPhi - m_PhiE;
             }
             else if ((utils::Compare(m_ThetaE, M_PI) == 0) &&              // Is orbitalAngularMomentumVectorPrev anti-parallel to orbitalAngularMomentumVector ...
-                ((utils::Compare(m_EccentricityPrev,  0.0) > 0)   &&                        // ...
-                 (utils::Compare(m_Eccentricity, 0.0) > 0)))  {                        // ...and both eccentricityVectorPrev and eccentricityVector are well defined?
+                ((utils::Compare(m_EccentricityPrev,  0.0) > 0)   &&       // ...
+                 (utils::Compare(m_Eccentricity, 0.0) > 0)))  {            // ...and both eccentricityVectorPrev and eccentricityVector are well defined?
 
-                 double psiMinusPhi = angleBetween(eccentricityVectorPrev, eccentricityVector);                 // yes - then psi - phi is constant
+                                                                              // yes - then psi - phi is constant
+                 double psiMinusPhi = angleBetween(eccentricityVector, eccentricityVectorPrev); 
                  m_PhiE = _2_PI * RAND->Random();    
                  m_PsiE = psiMinusPhi + m_PhiE;
             }
-            else {                                                         // no - normalVectorToOrbitalAngularMomenta is well-defined
+            else {                                                         // Neither - the cross product of the orbit normals is well-defined
 
-                Vector3d orbitalTiltVector = cross(orbitalAngularMomentumVectorPrev, orbitalAngularMomentumVector);                                   // Normal vector to the angular momenta
-                Vector3d orbitalTiltAxis = orbitalTiltVector/orbitalTiltVector.mag;                                          // Magnitude of normal vector
-                //double   normalToOrbitalAngularMomenta = normalVectorToOrbitalAngularMomenta.mag;                                          // Magnitude of normal vector
-                // TODO
+                Vector3d orbitalPivotAxis = cross(orbitalAngularMomentumVectorPrev, orbitalAngularMomentumVector); // Cross product of the orbit normals
 
-                if ( utils::Compare(m_EccentricityPrev, 0.0) == 0     ) {                     // Is eccentricityVectorPrev well-defined?
-                    m_PhiE  = _2_PI * RAND->Random();                        // no - set phi random
+                if ( utils::Compare(m_EccentricityPrev, 0.0) == 0     ) {        // Is eccentricityVectorPrev well-defined?
+                    m_PhiE  = _2_PI * RAND->Random();                               // no - set phi random
                 }
-                else {                                                       // yes - phi is angle between eccentricityVectorPrev and normalVectorToOrbitalAngularMomenta
-                    m_PhiE = utils::Compare( dot(eccentricityVectorPrev, orbitalAngularMomentumVector), 0.0) >= 0 ?           // Are eccentricityVectorPrev and orbitalAngularMomentumVector in the same hemisphere?
-                         angleBetween( unitEccentricityVectorPrev, orbitalTiltAxis) :                             // yes - phi in [0,pi)
-                        -angleBetween( unitEccentricityVectorPrev, orbitalTiltAxis) ;                             // no  - phi in [-pi,0)
+                else {                                                              // yes - phi is +/- angle between eccentricityVectorPrev and orbitalPivotAxis
+                    
+                    m_PhiE = utils::Compare( dot(eccentricityVectorPrev, orbitalAngularMomentumVector), 0.0) >= 0 ? 
+                                                                                       // Are eccentricityVectorPrev and orbitalAngularMomentumVector in the same hemisphere?
+                         angleBetween( eccentricityVectorPrev, orbitalPivotAxis):         // yes - phi in [0,pi)
+                        -angleBetween( eccentricityVectorPrev, orbitalPivotAxis);         // no  - phi in [-pi,0)
                 }
 
-                if ( utils::Compare(m_Eccentricity, 0.0) == 0     ) {                    // Is eccentricityVector well-defined?
-                    m_PsiE  = _2_PI * RAND->Random();                        // no - set psi random 
+                if ( utils::Compare(m_Eccentricity, 0.0) == 0     ) {            // Is eccentricityVector well-defined?
+                    m_PsiE  = _2_PI * RAND->Random();                               // no - set psi random 
                 }                                                                                              
-                else {                                                       // yes - psi is angle between eccentricityVector and normalVectorToOrbitalAngularMomenta
-                    m_PsiE = utils::Compare( dot(eccentricityVector, orbitalAngularMomentumVectorPrev), 0.0) >= 0 ?           // Are eccentricityVector and orbitalAngularMomentumVectorPrev in the same hemisphere?
-                         angleBetween( unitEccentricityVector, orbitalTiltAxis) :                           // yes - psi in [0,pi)
-                        -angleBetween( unitEccentricityVector, orbitalTiltAxis) ;                           // no  - psi in [-pi,0)
+                else {                                                              // yes - psi is +/- angle between eccentricityVector and orbitalPivotAxis
+
+                    m_PsiE = utils::Compare( dot(eccentricityVector, orbitalAngularMomentumVectorPrev), 0.0) >= 0 ?           
+                                                                                       // Are eccentricityVector and orbitalAngularMomentumVectorPrev in the same hemisphere?
+                         angleBetween( eccentricityVector, orbitalPivotAxis):             // yes - psi in [0,pi)
+                        -angleBetween( eccentricityVector, orbitalPivotAxis);             // no  - psi in [-pi,0)
                 }
             }
 
@@ -1822,20 +1821,17 @@ bool BaseBinaryStar::ResolveSupernova() {
             // and accordingly randomize the angle of periapsis around the new orbital angular momentum, (i.e, Psi)
             // - RTW 15/05/20
             m_PsiE  = _2_PI * RAND->Random();
-            
         }
 
-        // Set other relevant post-SN parameters
-        m_Companion->CheckRunaway(m_Unbound);         // flag companion if runaway
-
-        //m_Eccentricity = m_Eccentricity;                          // --   - Eccentricity PostSN
-        //m_SemiMajorAxis = semiMajorAxis_km * KM_TO_AU;              // AU   - Semi-major axis PostSN       
+        // If binary is unbound, flag the companion as a runaway star
+        m_Companion->CheckRunaway(m_Unbound);         
 
         // Undefine the pre-processor commands 
         #undef cross
         #undef dot
         #undef angleBetween
         #undef mag        
+        #undef hat
     }
 
     //////////////////////////
