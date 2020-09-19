@@ -138,9 +138,9 @@ void AIS::DefineGaussians() {
  */
 void AIS::UpdateExploratoryPhaseFraction(const int p_PopulationSize) {
 
-    if (OPTIONS->NBatchesUsed() > 0) {                                                                                  // check user defined number of batches
+    if (OPTIONS->nBatchesUsed() > 0) {                                                                                  // check user defined number of batches
         double z1             = double(m_CounterDCOsAIS) / double(p_PopulationSize);                                    // the estimated weight of the target population region
-        double z2             = 1.0 / (m_FractionExploratory * OPTIONS->NBatchesUsed() * double(OPTIONS->NBinaries())); // estimated rate of unidentified region
+        double z2             = 1.0 / (m_FractionExploratory * OPTIONS->nBatchesUsed() * double(OPTIONS->nBinaries())); // estimated rate of unidentified region
         double _1_z1          = 1.0 - z1;
         double sqrt_1_z1      = sqrt(_1_z1);
 
@@ -174,7 +174,7 @@ bool AIS::ShouldStopExploratoryPhase(const int p_PopulationSize) {
         UpdateExploratoryPhaseFraction(p_PopulationSize);                                                   // update fexplAIS to estimate how long we should be spending on sampling from exploratory phase
     }                                                                                                       // Floor: we could update this only every other 10 runs in the future..
 
-    m_FractionSampled = double(p_PopulationSize) / OPTIONS->NBinaries();                                    // calculate fraction so far spent on exploratory phase
+    m_FractionSampled = double(p_PopulationSize) / OPTIONS->nBinaries();                                    // calculate fraction so far spent on exploratory phase
 
     if (utils::Compare(m_FractionExploratory, 1.0) != 0 && m_FractionSampled >= m_FractionExploratory) {    // if the fraction of total samples that we spend is larger than the exploratory fraction...
         shouldStop = true;                                                                                  // ... we should stop and switch to refinement phase

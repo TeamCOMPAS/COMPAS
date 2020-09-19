@@ -32,14 +32,6 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
                         ? RAND->Random(OPTIONS->SampleCommonEnvelopeAlphaMin(), OPTIONS->SampleCommonEnvelopeAlphaMax())
                         : OPTIONS->CommonEnvelopeAlpha();
 
-    m_LBVfactor       = OPTIONS->SampleLuminousBlueVariableMultiplier()
-                        ? RAND->Random(OPTIONS->SampleLuminousBlueVariableMultiplierMin(), OPTIONS->SampleLuminousBlueVariableMultiplierMax())
-                        : OPTIONS->LuminousBlueVariableFactor();
-
-    m_WolfRayetFactor = OPTIONS->SampleWolfRayetMultiplier()
-                        ? RAND->Random(OPTIONS->SampleWolfRayetMultiplierMin(), OPTIONS->SampleWolfRayetMultiplierMax())
-                        : OPTIONS->WolfRayetFactor();
-
 
     // generate initial properties of binary
     // check that the constituent stars are not touching
@@ -69,8 +61,8 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
 
         // binary star contains two instances of star to hold masses, radii and luminosities.
         // star 1 initially more massive
-        m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, {}, m_LBVfactor, m_WolfRayetFactor);
-        m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, {}, m_LBVfactor, m_WolfRayetFactor);
+        m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1);
+        m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2);
 
         double rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * (1.0 - m_Eccentricity) * CalculateRocheLobeRadius_Static(mass1, mass2));
         double rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * (1.0 - m_Eccentricity) * CalculateRocheLobeRadius_Static(mass2, mass1));
@@ -94,9 +86,9 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
 
             // create new stars with equal masses - all other ZAMS values recalculated
             delete m_Star1;
-            m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, {}, m_LBVfactor, m_WolfRayetFactor);
+            m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1);
             delete m_Star2;
-            m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, {}, m_LBVfactor, m_WolfRayetFactor);
+            m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2);
         
             rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass1, mass2));           //eccentricity already zero
             rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass2, mass1));
@@ -147,13 +139,11 @@ BaseBinaryStar::BaseBinaryStar(const AIS           &p_AIS,
     m_Eccentricity  = p_Eccentricity;                                                                                                           // specified eccentricity
 
     m_CEDetails.alpha = OPTIONS->CommonEnvelopeAlpha();
-    m_LBVfactor       = OPTIONS->LuminousBlueVariableFactor();
-    m_WolfRayetFactor = OPTIONS->WolfRayetFactor();
 
     // binary star contains two instances of star to hold masses, radii and luminosities.
     // star 1 initially more massive (JR: todo: this is not guaranteed...)
-    m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, p_KickParameters1, m_LBVfactor, m_WolfRayetFactor);
-    m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, p_KickParameters2, m_LBVfactor, m_WolfRayetFactor);
+    m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, p_KickParameters1);
+    m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, p_KickParameters2);
 
     m_Star1->SetCompanion(m_Star2);
     m_Star2->SetCompanion(m_Star1);
@@ -180,9 +170,9 @@ BaseBinaryStar::BaseBinaryStar(const AIS           &p_AIS,
             
         // create new stars with equal masses - all other ZAMS values recalculated
         delete m_Star1;
-        m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, p_KickParameters1, m_LBVfactor, m_WolfRayetFactor);
+        m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1, p_KickParameters1);
         delete m_Star2;
-        m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, p_KickParameters2, m_LBVfactor, m_WolfRayetFactor);
+        m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2, p_KickParameters2);
         
         m_Star1->SetCompanion(m_Star2);
         m_Star2->SetCompanion(m_Star1);

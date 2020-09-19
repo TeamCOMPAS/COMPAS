@@ -26,44 +26,6 @@ struct KickMagnitudeParams {
 };
 
 
-// KickParameters struct for both SSE and BSE grid file parameters
-
-typedef struct KickParameters {
-    bool   supplied;
-    bool   useMagnitudeRandom;
-    double magnitudeRandom;
-    double magnitude;
-    double theta;                   // only used for BSE
-    double phi;                     // only used for BSE
-    double meanAnomaly;             // only used for BSE
-} KickParameters;
-
-
-// struct for SSE grid file parameters
-
-typedef struct SSEGridParameters {
-    double mass;
-    double metallicity;
-
-    KickParameters kickParameters;
- } SSEGridParameters;
-
-
-// structs for binary stars and BSE grid file parameters
-
-typedef struct BSEGridParameters {
-    double mass1;
-    double mass2;
-    double metallicity1; 
-    double metallicity2;
-    double separation;
-    double eccentricity;
-
-    KickParameters star1KickParameters;
-    KickParameters star2KickParameters;
-} BSEGridParameters;
-
-
 // struct for supernova events:
 // CCSN, ECSN, PISN, PPSIN, USSN, RUNAWAY, RECYCLED_NS, RLOF_ONTO_NS
 
@@ -71,6 +33,34 @@ typedef struct SNEvents {
     SN_EVENT current;                                       // Supernova event at the current timestep: NONE if no supernova event happening
     SN_EVENT past;                                          // Supernova event at any past timestep   : NONE if no supernova event happened in any past timestep
 } SNEventsT;
+
+
+// supernova kick struct for both SSE and BSE options
+//
+// some of these are only required for binary stars, but
+// easier (and more logical I think (for now, anyway) to
+// keep all SN-related attributes in the same place
+//
+// we need to know if these values were actually specified
+// by the user via options - hence the boolean values
+
+typedef struct KickParameters {
+    bool   magnitudeRandomSpecified;                        // SSE and BSE
+    double magnitudeRandom;                                 // SSE and BSE
+
+    bool   magnitudeSpecified;                              // SSE and BSE
+    double magnitude;                                       // SSE and BSE
+
+    bool   phiSpecified;                                    // BSE only
+    double phi;                                             // BSE only
+
+    bool   thetaSpecified;                                  // BSE only
+    double theta;                                           // BSE only
+
+    bool   meanAnomalySpecified;                            // BSE only
+    double meanAnomaly;                                     // BSE only
+} KickParameters;
+
 
 // struct for supernova attributes of the base star
 // some of these are only required for binary stars, but
@@ -83,14 +73,14 @@ typedef struct SupernovaDetails {                           // Holds attributes,
     
     double           coreMassAtCOFormation;                 // Core mass of this star when it formed a compact object
     double           COCoreMassAtCOFormation;               // Carbon Oxygen core mass of the star when it goes supernova and forms a compact object
-    double           drawnKickMagnitude;                     // Kick magnitude the system received during the supernova (km s^-1)
+    double           drawnKickMagnitude;                    // Kick magnitude the system received during the supernova (km s^-1)
     double           eccentricAnomaly;                      // Eccentric anomaly at instataneous time of the SN
     SNEventsT        events;                                // Record of supernova events undergone by the star
     double           fallbackFraction;                      // Fallback fraction during a supernova event
     double           HeCoreMassAtCOFormation;               // Helium core mass of the star when it goes supernova and forms a compact objec
     bool             isHydrogenPoor;                        // Flag to indicate if exploding star is hydrogen-poor. We consider an H-rich star all SN progenitors that have an H envelope, otherwise H-poor
-    double           kickMagnitude;                          // Kick magnitude the system received during the supernova (km s^-1)
-    double           kickMagnitudeRandom;                    // Random number U(0,1) for choosing the supernova kick magnitude - drawn once at star creation
+    double           kickMagnitude;                         // Kick magnitude the system received during the supernova (km s^-1)
+    double           kickMagnitudeRandom;                   // Random number U(0,1) for choosing the supernova kick magnitude - drawn once at star creation
     double           meanAnomaly;                           // Mean anomaly at instantaneous time of the SN - uniform in [0, 2pi]
     double           phi;                                   // Angle between 'x' and 'y', both in the orbital plane of supernovae vector (rad)
     SN_STATE         supernovaState;                        // indicates which star (or stars) are undergoing / hove undergone a supernova event

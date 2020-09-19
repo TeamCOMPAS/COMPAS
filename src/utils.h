@@ -22,6 +22,8 @@ namespace utils {
 
     double                      ConvertPeriodInDaysToSemiMajorAxisInAU(const double p_Mass1, const double p_Mass2, const double p_Period);
 
+    DBL_DBL                     DrawKickDirection(const KICK_DIRECTION_DISTRIBUTION p_KickDirectionDistribution, const double p_KickDirectionPower);
+    
     bool                        Equals(std::string p_Str1, std::string p_Str2);
 
     bool                        FileExists(const std::string& p_Filename);
@@ -67,7 +69,12 @@ namespace utils {
 
     bool                                IsOneOf(const STELLAR_TYPE p_StellarType, const STELLAR_TYPE_LIST p_List);
 
+    std::string&                        ltrim(std::string& p_Str);
+
     std::string                         PadLeadingZeros(const std::string p_Str, const std::size_t p_MaxLength);
+
+    std::string&                        rtrim(std::string& p_Str);
+    std::string&                        trim(std::string& p_Str);
 
     std::string                         ToLower(std::string p_Str);
     std::string                         ToUpper(std::string p_Str);
