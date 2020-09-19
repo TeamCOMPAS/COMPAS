@@ -1236,11 +1236,14 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     recordProperties = m_BSE_RLOF_Rec;
                     break;
 
+                // Serena
+                /*
                 case LOGFILE::BSE_BE_BINARIES:                                                                                                  // BSE_BE_BINARIES
                     filename         = OPTIONS->LogfileBSEBeBinaries();
                     recordProperties = m_BSE_BE_Binaries_Rec;
                     break;
-
+                */
+               
                 case LOGFILE::BSE_PULSAR_EVOLUTION:                                                                                             // BSE_PULSAR_EVOLUTION
                     filename         = OPTIONS->LogfileBSEPulsarEvolution();
                     recordProperties = m_BSE_Pulsars_Rec;
