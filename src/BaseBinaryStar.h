@@ -12,16 +12,11 @@
 #include "BinaryConstituentStar.h"
 
 #include <boost/math/tools/roots.hpp>
-//using boost::math::policies::policy;
-//using boost::math::tools::newton_raphson_iterate;
-//using boost::math::tools::halley_iterate; //
-//using boost::math::tools::eps_tolerance; // Binary functor for specified number of bits.
-//using boost::math::tools::bracket_and_solve_root;
-//using boost::math::tools::toms748_solve;
 
-#include <boost/math/special_functions/next.hpp> // For float_distance.
-#include <tuple> // for std::tuple and std::make_tuple.
-#include <boost/math/special_functions/cbrt.hpp> // For boost::math::cbrt.
+#include <boost/math/special_functions/next.hpp>    // For float_distance.
+#include <boost/math/special_functions/cbrt.hpp>    // For boost::math::cbrt.
+
+#include <tuple>                                    // for std::tuple and std::make_tuple.
 
 
 class Log;
@@ -36,6 +31,7 @@ public:
 
     BaseBinaryStar(const AIS &p_AIS, const long int p_Id = -1l);
 
+/*
     BaseBinaryStar(const AIS           &p_AIS,
                    const double         p_Mass1,
                    const double         p_Mass2,
@@ -46,7 +42,7 @@ public:
                    const KickParameters p_KickParameters1,
                    const KickParameters p_KickParameters2,
                    const long int       p_Id = -1l);
-
+*/
 
     void CopyMemberVariables(const BaseBinaryStar& p_Star) {
 
@@ -320,7 +316,7 @@ public:
 
             EVOLUTION_STATUS    Evolve();
 
-            void                PrintSwitchLog(const long int p_Id, const bool p_PrimarySwitching) { if (OPTIONS->BSESwitchLog()) LOGGING->LogBSESwitchLog(this, p_Id, p_PrimarySwitching); }
+            void                PrintSwitchLog(const long int p_Id, const bool p_PrimarySwitching) { if (OPTIONS->SwitchLog()) LOGGING->LogBSESwitchLog(this, p_Id, p_PrimarySwitching); }
 
             COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
 
@@ -471,8 +467,8 @@ private:
     //                            and call the actual function
     // JR: todo: note in the orginal code the binary orbital velicity was passed in as a parameter but never used - I removed it
 
-    void    SetInitialCommonValues(const AIS &p_AIS, const long int p_Id);
-    void    SetRemainingCommonValues();
+    void    SetInitialValues(const AIS &p_AIS, const long int p_Id);
+    void    SetRemainingValues();
 
 
     double  CalculateAngularMomentum(const double p_SemiMajorAxis,
@@ -497,8 +493,6 @@ private:
 
     double  CalculateAngularMomentumPrev()                                  { return CalculateAngularMomentum(m_SemiMajorAxisPrev, m_EccentricityPrev, m_Star1->MassPrev(), m_Star2->MassPrev(), m_Star1->RadiusPrev(), m_Star2->RadiusPrev(), m_Star1->OmegaPrev(), m_Star2->OmegaPrev(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
 
-    double  CalculateCDFKroupa(const double p_Mass);
-
     double  CalculateCosFinalPlaneTilt(const double p_KickTheta, const double p_KickPhi);
 
     void    CalculateEnergyAndAngularMomentum();
@@ -508,7 +502,7 @@ private:
 
 
     void    CalculateMassTransfer(const double p_Dt);
-    double CalculateMassTransferOrbit(const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor, const double p_FractionAccreted);
+    double  CalculateMassTransferOrbit(const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor, const double p_FractionAccreted);
     void    CalculateWindsMassLoss();
     void    InitialiseMassTransfer();
 
@@ -579,12 +573,6 @@ private:
     void    ResolveMassChanges();
     bool    ResolveSupernova();
 
-    double  SampleSemiMajorAxisDistribution(const double p_Mass1, const double p_Mass2);
-    double  SampleEccentricityDistribution();
-    double  SampleInitialMassDistribution();
-    double  SampleMetallicityDistribution();
-    double  SampleQDistribution();
-
     void    SetPostCEEValues(const double p_SemiMajorAxis,
                              const double p_Eccentricity,
                              const double p_RocheLobe1to2,
@@ -601,10 +589,10 @@ private:
 
     // printing functions
     void PrintRLOFParameters(const string p_Rec = "");
-    void PrintBinarySystemParameters(const string p_Rec = "")               {                                   LOGGING->LogBSEParameters(this, p_Rec); }
+    void PrintBinarySystemParameters(const string p_Rec = "")               {                                   LOGGING->LogSystemParameters(this, p_Rec); }
     void PrintDetailedOutput(const long int p_Id, const string p_Rec = "")  { if (OPTIONS->DetailedOutput())    LOGGING->LogBSEDetailedOutput(this, p_Id, p_Rec); }
-    void PrintDoubleCompactObjects(const string p_Rec = "")                 {                                   LOGGING->LogBSEDoubleCompactObject(this, p_Rec); }
-    void PrintCommonEnvelope(const string p_Rec = "")                       {                                   LOGGING->LogBSECommonEnvelope(this, p_Rec); }
+    void PrintDoubleCompactObjects(const string p_Rec = "")                 {                                   LOGGING->LogDoubleCompactObject(this, p_Rec); }
+    void PrintCommonEnvelope(const string p_Rec = "")                       {                                   LOGGING->LogCommonEnvelope(this, p_Rec); }
     void PrintBeBinary(const string p_Rec = "");
     void PrintPulsarEvolutionParameters(const string p_Rec = "")            { if (OPTIONS->EvolvePulsars())     LOGGING->LogBSEPulsarEvolutionParameters(this, p_Rec); }
     void PrintSupernovaDetails(const string p_Rec = "")                     {                                   LOGGING->LogBSESupernovaDetails(this, p_Rec); }

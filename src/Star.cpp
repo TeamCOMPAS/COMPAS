@@ -15,15 +15,12 @@ Star::Star() : m_Star(new BaseStar()) {
 // Regular constructor - with parameters for RandomSeed, MZAMS, Metallicity, LBVFactor and WolfRayetFactor
 Star::Star(const unsigned long int p_RandomSeed,
            const double            p_MZAMS,
-           const double            p_Metallicity,
-           const KickParameters    p_KickParameters,
-           const double            p_LBVfactor,
-           const double            p_WolfRayetFactor) {
+           const KickParameters    p_KickParameters) {
 
     m_ObjectId   = globalObjectId++;                                                                                // set object id
     m_ObjectType = OBJECT_TYPE::STAR;                                                                               // set object type
 
-    m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_Metallicity, p_KickParameters, p_LBVfactor, p_WolfRayetFactor);  // create underlying BaseStar object
+    m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_KickParameters);                                                 // create underlying BaseStar object
 
     // star begins life as a main sequence star, unless it is
     // spinning fast enough for it to be chemically homogeneous
@@ -162,15 +159,13 @@ STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialT
 
         // write to switch log file if required
 
-        if (utils::IsOneOf(stellarTypePrev, EVOLVABLE_TYPES)) {                             // star should be evolving from one of the evolvable types (We don't want the initial switch from Star->MS.  Not necessary for BSE (handled differently), but no harm)
+        if (utils::IsOneOf(stellarTypePrev, EVOLVABLE_TYPES) && OPTIONS->SwitchLog()) {     // star should be evolving from one of the evolvable types (We don't want the initial switch from Star->MS.  Not necessary for BSE (handled differently), but no harm)
         
-            if (!OPTIONS->SingleStar() && OPTIONS->BSESwitchLog()) {                        // BSE and BSE Switch Log enabled?
-                LOGGING->SetSwitchParameters(m_ObjectId, stellarTypePrev, p_StellarType);   // yes - store switch details to LOGGING service
+            LOGGING->SetSwitchParameters(m_ObjectId, stellarTypePrev, p_StellarType);       // store switch details to LOGGING service
+            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::BSE) {                          // BSE?
                 raise(SIGUSR1);                                                             // signal to BSE that switch is occurring
             }
-
-            if (OPTIONS->SingleStar() && OPTIONS->SSESwitchLog()) {                         // SSE and SSE Switch Log enabled?
-                LOGGING->SetSwitchParameters(m_ObjectId, stellarTypePrev, p_StellarType);   // yes - store switch details to LOGGING service
+            else {                                                                          // SSE
                 m_Star->PrintSwitchLog(m_Id);                                               // no need for the BSE signal shenaningans - just call the function
             }
         }
@@ -494,7 +489,7 @@ void Star::Evolve(const long int p_Id) {
 
         dt = EvolveOneTimestep(dt);                 // evolve for timestep
 
-        m_Star->PrintParameters(m_Id);              // log record  JR: this should probably be before the star switches type, but this way matches the original code
+        m_Star->PrintDetailedOutput(m_Id);          // log record  JR: this should probably be before the star switches type, but this way matches the original code
     }
 
 }

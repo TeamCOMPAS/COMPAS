@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <unordered_map>
+#include <fstream>
 
 #include <boost/variant.hpp>
 
@@ -276,7 +277,7 @@ constexpr double NEWTON_RAPHSON_EPSILON                 = 1.0E-5;               
 constexpr double EPSILON_PULSAR                         = 1.0;                                                      // JR: todo: description
 
 constexpr double ADAPTIVE_RLOF_FRACTION_DONOR_GUESS     = 0.001;                                                    // Fraction of donor mass to use as guess in MassLossToFitInsideRocheLobe()
-constexpr int ADAPTIVE_RLOF_MAX_ITERATIONS              = 50;                                                       // Maximum number of iterations in MassLossToFitInsideRocheLobe()
+constexpr int    ADAPTIVE_RLOF_MAX_ITERATIONS           = 50;                                                       // Maximum number of iterations in MassLossToFitInsideRocheLobe()
 constexpr double ADAPTIVE_RLOF_SEARCH_FACTOR            = 2.0;                                                      // Search factor in MassLossToFitInsideRocheLobe()
 
 
@@ -359,7 +360,7 @@ const COMPASUnorderedMap<OBJECT_TYPE, std::string> OBJECT_TYPE_LABEL = {
 
 
 // Commandline Status constants
-enum class PROGRAM_STATUS: int { SUCCESS, CONTINUE, ERROR_IN_COMMAND_LINE, LOGGING_FAILED, ERROR_UNHANDLED_EXCEPTION };
+enum class PROGRAM_STATUS: int { SUCCESS, CONTINUE, STOPPED, ERROR_IN_COMMAND_LINE, LOGGING_FAILED, ERROR_UNHANDLED_EXCEPTION };
 
 
 // enum class ERROR
@@ -380,9 +381,11 @@ enum class ERROR: int {
     EXPECTED_PROPERTY_SPECIFIER,                                    // expected a valid property specifier
     EXPECTED_SN_EVENT,                                              // expected a supernova event
     EXPECTED_STELLAR_PROPERTY,                                      // expected a stellar property (STAR_PROPERTY)
+    EMPTY_FILENAME,                                                 // filename is an empty string
     FILE_DOES_NOT_EXIST,                                            // file does not exist
     FILE_NOT_CLOSED,                                                // error closing file - file not closed
     FILE_OPEN_ERROR,                                                // error opening file
+    FILE_READ_ERROR,                                                // error reading from file - data not read
     FILE_WRITE_ERROR,                                               // error writing to file - data not written
     GRID_FILE_DEFAULT_METALLICITY,                                  // grid file metallicity missing for SSE - using default
     GRID_FILE_DUPLICATE_HEADER,                                     // grid file has a duplicated header field
@@ -494,9 +497,11 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::EXPECTED_PROPERTY_SPECIFIER,                           { ERROR_SCOPE::ALWAYS,              "Expected a property specifier or close brace '}'" }},
     { ERROR::EXPECTED_SN_EVENT,                                     { ERROR_SCOPE::ALWAYS,              "Expected a supernova event" }},
     { ERROR::EXPECTED_STELLAR_PROPERTY,                             { ERROR_SCOPE::ALWAYS,              "Expected stellar logfile property: one of { STAR_PROPERTY, PROGRAM_OPTION }" }},
+    { ERROR::EMPTY_FILENAME,                                        { ERROR_SCOPE::ALWAYS,              "Filename is an empty string" }},
     { ERROR::FILE_DOES_NOT_EXIST,                                   { ERROR_SCOPE::ALWAYS,              "File does not exist" }},
     { ERROR::FILE_NOT_CLOSED,                                       { ERROR_SCOPE::ALWAYS,              "Error closing file - file not closed" }},
     { ERROR::FILE_OPEN_ERROR,                                       { ERROR_SCOPE::ALWAYS,              "Error opening file" }},
+    { ERROR::FILE_READ_ERROR,                                       { ERROR_SCOPE::ALWAYS,              "Error reading from file - data not read" }},
     { ERROR::FILE_WRITE_ERROR,                                      { ERROR_SCOPE::ALWAYS,              "Error writing to file - data not written" }},
     { ERROR::GRID_FILE_DEFAULT_METALLICITY,                         { ERROR_SCOPE::ALWAYS,              "GRID file missing metallicity - using program options value" }},
     { ERROR::GRID_FILE_DUPLICATE_HEADER,                            { ERROR_SCOPE::ALWAYS,              "Duplicated column heading in GRID file" }},
@@ -535,7 +540,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::RADIUS_NOT_POSITIVE_ONCE,                              { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Radius <= 0.0" }},
     { ERROR::STELLAR_EVOLUTION_STOPPED,                             { ERROR_SCOPE::ALWAYS,              "Evolution of current star stopped" }},
     { ERROR::STELLAR_SIMULATION_STOPPED,                            { ERROR_SCOPE::ALWAYS,              "Stellar simulation stopped" }},
-    { ERROR::TOO_MANY_RLOF_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maxmimum number of iterations when fitting star inside Roche Lobe in RLOF" }},
+    { ERROR::TOO_MANY_RLOF_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when fitting star inside Roche Lobe in RLOF" }},
     { ERROR::UNEXPECTED_END_OF_FILE,                                { ERROR_SCOPE::ALWAYS,              "Unexpected end of file" }},
     { ERROR::UNEXPECTED_SN_EVENT,                                   { ERROR_SCOPE::ALWAYS,              "Unexpected supernova event in this context" }},
     { ERROR::UNKNOWN_A_DISTRIBUTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown semi-major-axis (a) distribution" }},
@@ -621,6 +626,14 @@ const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL =
     { EVOLUTION_STATUS::AIS_EXPLORATORY,             "AIS fraction exceeded" }
 };
 
+
+// Evolution mode (SSE or BSE)
+enum class EVOLUTION_MODE: int { SSE, BSE };
+
+const COMPASUnorderedMap<EVOLUTION_MODE, std::string> EVOLUTION_MODE_LABEL = {
+    { EVOLUTION_MODE::SSE, "SSE" },
+    { EVOLUTION_MODE::BSE, "BSE" }
+};
 
 
 
@@ -1302,6 +1315,24 @@ const COMPASUnorderedMap<TYPENAME, std::tuple<std::string, std::string>> TYPENAM
 };
 
 
+// (convenience) initializer list for INT data types
+const std::initializer_list<TYPENAME> INT_TYPES = {
+    TYPENAME::SHORTINT,
+    TYPENAME::INT,
+    TYPENAME::LONGINT,
+    TYPENAME::USHORTINT,
+    TYPENAME::UINT,
+    TYPENAME::ULONGINT
+};
+
+// (convenience) initializer list for FLOAT data types
+const std::initializer_list<TYPENAME> FLOAT_TYPES = {
+    TYPENAME::FLOAT,
+    TYPENAME::DOUBLE,
+    TYPENAME::LONGDOUBLE
+};
+
+
 // boost variant definition for allowed data types
 // used for variable specification to define logfile records
 typedef boost::variant<
@@ -1958,7 +1989,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::CORE_MASS,                                         { TYPENAME::DOUBLE,         "Mass_Core",            "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::CORE_MASS_AT_COMMON_ENVELOPE,                      { TYPENAME::DOUBLE,         "Mass_Core@CE",         "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,             { TYPENAME::DOUBLE,         "Mass_Core@CO",         "Msol",             14, 6 }},
-    { ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE,                               { TYPENAME::DOUBLE,        "Drawn_Kick_Magnitude",  "kms^-1",           14, 6 }},
+    { ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE,                              { TYPENAME::DOUBLE,         "Drawn_Kick_Magnitude", "kms^-1",           14, 6 }},
     { ANY_STAR_PROPERTY::DT,                                                { TYPENAME::DOUBLE,         "dT",                   "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE,                               { TYPENAME::DOUBLE,         "Tau_Dynamical",        "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE_POST_COMMON_ENVELOPE,          { TYPENAME::DOUBLE,         "Tau_Dynamical>CE",     "Myr",              16, 8 }},
@@ -2194,11 +2225,11 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
 };
 
 
-// SSE_PARAMETERS_REC
+// SSE_DETAILED_OUTPUT_REC
 //
-// Default record definition for the Single Star Parameters logfile
+// Default record definition for the SSE Detailed Output logfile
 //
-const ANY_PROPERTY_VECTOR SSE_PARAMETERS_REC = {
+const ANY_PROPERTY_VECTOR SSE_DETAILED_OUTPUT_REC = {
     STAR_PROPERTY::AGE,
     STAR_PROPERTY::DT,
     STAR_PROPERTY::TIME,
@@ -2228,11 +2259,11 @@ const ANY_PROPERTY_VECTOR SSE_SWITCH_LOG_REC = {
 };
 
 
-// SSE_SUPERNOVA_REC
+// SSE_SUPERNOVAE_REC
 //
-// Default record definition for the SSE Supernova logfile
+// Default record definition for the SSE Supernovae logfile
 //
-const ANY_PROPERTY_VECTOR SSE_SUPERNOVA_REC = {
+const ANY_PROPERTY_VECTOR SSE_SUPERNOVAE_REC = {
     STAR_PROPERTY::RANDOM_SEED,
     STAR_PROPERTY::DRAWN_KICK_MAGNITUDE,
     STAR_PROPERTY::KICK_MAGNITUDE,
@@ -2253,11 +2284,11 @@ const ANY_PROPERTY_VECTOR SSE_SUPERNOVA_REC = {
 };
 
 
-// BSE_SYSTEM_PARAMETERS_REC
+// SYSTEM_PARAMETERS_REC
 //
-// Default record definition for the Binary System Parameters logfile
+// Default record definition for the System Parameters logfile
 //
-const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
+const ANY_PROPERTY_VECTOR SYSTEM_PARAMETERS_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
     STAR_1_PROPERTY::MZAMS,
     STAR_2_PROPERTY::MZAMS,
@@ -2293,11 +2324,11 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
 };
 
 
-// BSE_RLOF_PARAMETERS_REC
+// RLOF_PARAMETERS_REC
 //
-// Default record definition for the Binary RLOF Parameters logfile
+// Default record definition for the RLOF Parameters logfile
 //
-const ANY_PROPERTY_VECTOR BSE_RLOF_PARAMETERS_REC = {
+const ANY_PROPERTY_VECTOR RLOF_PARAMETERS_REC = {
     BINARY_PROPERTY::RLOF_CURRENT_RANDOM_SEED,
     BINARY_PROPERTY::RLOF_CURRENT_STAR1_MASS,
     BINARY_PROPERTY::RLOF_CURRENT_STAR2_MASS,
@@ -2333,11 +2364,11 @@ const ANY_PROPERTY_VECTOR BSE_RLOF_PARAMETERS_REC = {
 };
 
 
-// BSE_DOUBLE_COMPACT_OBJECT_REC
+// DOUBLE_COMPACT_OBJECT_REC
 //
-// Default record definition for the Binary Double Compact Objects logfile
+// Default record definition for the Double Compact Objects logfile
 //
-const ANY_PROPERTY_VECTOR BSE_DOUBLE_COMPACT_OBJECTS_REC = {
+const ANY_PROPERTY_VECTOR DOUBLE_COMPACT_OBJECTS_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION, 
     BINARY_PROPERTY::ECCENTRICITY_AT_DCO_FORMATION,
@@ -2355,11 +2386,11 @@ const ANY_PROPERTY_VECTOR BSE_DOUBLE_COMPACT_OBJECTS_REC = {
 };
 
 
-// BSE_BE_BINARY_REC
+// BE_BINARY_REC
 //
 // Default record definition for the BeBinaries logfile
 //
-const ANY_PROPERTY_VECTOR BSE_BE_BINARIES_REC = {
+const ANY_PROPERTY_VECTOR BE_BINARIES_REC = {
     BINARY_PROPERTY::BE_BINARY_CURRENT_ID,
     BINARY_PROPERTY::BE_BINARY_CURRENT_RANDOM_SEED,
     BINARY_PROPERTY::BE_BINARY_CURRENT_DT,
@@ -2376,7 +2407,7 @@ const ANY_PROPERTY_VECTOR BSE_BE_BINARIES_REC = {
 
 // BSE_DETAILED_OUTPUT_REC
 //
-// Default record definition for the Binary Detailed Output logfile
+// Default record definition for the BSE Detailed Output logfile
 //
 const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
@@ -2456,7 +2487,7 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
 
 // BSE_PULSAR_EVOLUTION_REC
 //
-// Default record definition for the Binary Pulsar Evolution logfile
+// Default record definition for the BSE Pulsar Evolution logfile
 //
 const ANY_PROPERTY_VECTOR BSE_PULSAR_EVOLUTION_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
@@ -2479,7 +2510,7 @@ const ANY_PROPERTY_VECTOR BSE_PULSAR_EVOLUTION_REC = {
 
 // BSE_SUPERNOVAE_REC
 //
-// Default record definition for the Binary Supernovae logfile
+// Default record definition for the BSE Supernovae logfile
 //
 const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
@@ -2515,11 +2546,11 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
 };
 
 
-// BSE_COMMON_ENVELOPES_REC
+// COMMON_ENVELOPES_REC
 //
-// Default record definition for the Binary Common Envelopes logfile
+// Default record definition for the Common Envelopes logfile
 //
-const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
+const ANY_PROPERTY_VECTOR COMMON_ENVELOPES_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
     BINARY_PROPERTY::TIME,
     STAR_1_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,
@@ -2612,15 +2643,15 @@ enum class LOGFILE: int {
     NONE,
     DEBUG_LOG,
     ERROR_LOG,
-    SSE_PARAMETERS,
+    SSE_DETAILED_OUTPUT,
     SSE_SWITCH_LOG,
-    SSE_SUPERNOVA,
-    BSE_SYSTEM_PARAMETERS,
-    BSE_DOUBLE_COMPACT_OBJECTS,
+    SSE_SUPERNOVAE,
+    SYSTEM_PARAMETERS,
+    DOUBLE_COMPACT_OBJECTS,
     BSE_SUPERNOVAE,
-    BSE_COMMON_ENVELOPES,
-    BSE_RLOF_PARAMETERS,
-    BSE_BE_BINARIES,
+    COMMON_ENVELOPES,
+    RLOF_PARAMETERS,
+    BE_BINARIES,
     BSE_PULSAR_EVOLUTION,
     BSE_DETAILED_OUTPUT,
     BSE_SWITCH_LOG
@@ -2636,22 +2667,24 @@ typedef std::tuple<std::string, ANY_PROPERTY_VECTOR, std::string, std::string, L
 
 // descriptors for logfiles
 // unordered_map - key is integer logfile (from enum class LOGFILE above)
+// fields are: {default filename, record descriptor, short file name, short record name, type}
+// (the short names are for logfile definitions file parsing)
 const std::map<LOGFILE, LOGFILE_DESCRIPTOR_T> LOGFILE_DESCRIPTOR = {
     { LOGFILE::NONE,                       { "" ,                          {},                             "",                "",                    LOGFILE_TYPE::NONE}},
     { LOGFILE::DEBUG_LOG,                  { "Debug_Log",                  {},                             "",                "",                    LOGFILE_TYPE::NONE }},
     { LOGFILE::ERROR_LOG,                  { "Error_Log",                  {},                             "",                "",                    LOGFILE_TYPE::NONE }},
-    { LOGFILE::SSE_PARAMETERS,             { "SSE_Parameters",             SSE_PARAMETERS_REC,             "SSE_PARMS",       "SSE_PARMS_REC",       LOGFILE_TYPE::STELLAR }},
-    { LOGFILE::SSE_SWITCH_LOG,             { "SSE_Switch_Log",             SSE_SWITCH_LOG_REC,             "SSE_SWITCH_LOG",  "SSE_SWITCH_REC",      LOGFILE_TYPE::STELLAR }},
-    { LOGFILE::SSE_SUPERNOVA,              { "SSE_Supernova",              SSE_SUPERNOVA_REC,              "SSE_SN",          "SSE_SN_REC",          LOGFILE_TYPE::STELLAR }},
-    { LOGFILE::BSE_SYSTEM_PARAMETERS,      { "BSE_System_Parameters",      BSE_SYSTEM_PARAMETERS_REC,      "BSE_SYSPARMS",    "BSE_SYSPARMS_REC",    LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, { "BSE_Double_Compact_Objects", BSE_DOUBLE_COMPACT_OBJECTS_REC, "BSE_DCO",         "BSE_DCO_REC",         LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_SUPERNOVAE,             { "BSE_Supernovae",             BSE_SUPERNOVAE_REC,             "BSE_SNE",         "BSE_SNE_REC",         LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_COMMON_ENVELOPES,       { "BSE_Common_Envelopes",       BSE_COMMON_ENVELOPES_REC,       "BSE_CEE",         "BSE_CEE_REC",         LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_RLOF_PARAMETERS,        { "BSE_RLOF",                   BSE_RLOF_PARAMETERS_REC,        "BSE_RLOF",        "BSE_RLOF_REC",        LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_BE_BINARIES,            { "BSE_BE_Binaries",            BSE_BE_BINARIES_REC,            "BSE_BE_BINARIES", "BSE_BE_BINARIES_REC", LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_PULSAR_EVOLUTION,       { "BSE_Pulsar_Evolution",       BSE_PULSAR_EVOLUTION_REC,       "BSE_PULSARS",     "BSE_PULSARS_REC",     LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_DETAILED_OUTPUT,        { "BSE_Detailed_Output",        BSE_DETAILED_OUTPUT_REC,        "BSE_DETAILED",    "BSE_DETAILED_REC",    LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_SWITCH_LOG,             { "BSE_Switch_Log",             BSE_SWITCH_LOG_REC,             "BSE_SWITCH_LOG",  "BSE_SWITCH_REC",      LOGFILE_TYPE::BINARY }}
+    { LOGFILE::SSE_DETAILED_OUTPUT,        { "Detailed_Output",            SSE_DETAILED_OUTPUT_REC,        "SSE_DETAILED",    "SSE_PARMS_REC",       LOGFILE_TYPE::STELLAR }},
+    { LOGFILE::SSE_SWITCH_LOG,             { "Switch_Log",                 SSE_SWITCH_LOG_REC,             "SSE_SWITCH_LOG",  "SSE_SWITCH_REC",      LOGFILE_TYPE::STELLAR }},
+    { LOGFILE::SSE_SUPERNOVAE,             { "Supernovae",                 SSE_SUPERNOVAE_REC,             "SSE_SNE",         "SSE_SNE_REC",         LOGFILE_TYPE::STELLAR }},
+    { LOGFILE::SYSTEM_PARAMETERS,          { "System_Parameters",          SYSTEM_PARAMETERS_REC,          "SYSPARMS",        "SYSPARMS_REC",        LOGFILE_TYPE::BINARY }},
+    { LOGFILE::DOUBLE_COMPACT_OBJECTS,     { "Double_Compact_Objects",     DOUBLE_COMPACT_OBJECTS_REC,     "DCO",             "DCO_REC",             LOGFILE_TYPE::BINARY }},
+    { LOGFILE::BSE_SUPERNOVAE,             { "Supernovae",                 BSE_SUPERNOVAE_REC,             "BSE_SNE",         "BSE_SNE_REC",         LOGFILE_TYPE::BINARY }},
+    { LOGFILE::COMMON_ENVELOPES,           { "Common_Envelopes",           COMMON_ENVELOPES_REC,           "CEE",             "CEE_REC",             LOGFILE_TYPE::BINARY }},
+    { LOGFILE::RLOF_PARAMETERS,            { "RLOF",                       RLOF_PARAMETERS_REC,            "RLOF",            "RLOF_REC",            LOGFILE_TYPE::BINARY }},
+    { LOGFILE::BE_BINARIES,                { "BE_Binaries",                BE_BINARIES_REC,                "BE_BINARIES",     "BE_BINARIES_REC",     LOGFILE_TYPE::BINARY }},
+    { LOGFILE::BSE_PULSAR_EVOLUTION,       { "Pulsar_Evolution",           BSE_PULSAR_EVOLUTION_REC,       "BSE_PULSARS",     "BSE_PULSARS_REC",     LOGFILE_TYPE::BINARY }},
+    { LOGFILE::BSE_DETAILED_OUTPUT,        { "Detailed_Output",            BSE_DETAILED_OUTPUT_REC,        "BSE_DETAILED",    "BSE_DETAILED_REC",    LOGFILE_TYPE::BINARY }},
+    { LOGFILE::BSE_SWITCH_LOG,             { "Switch_Log",                 BSE_SWITCH_LOG_REC,             "BSE_SWITCH_LOG",  "BSE_SWITCH_REC",      LOGFILE_TYPE::BINARY }}
 };
 
 

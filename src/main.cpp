@@ -87,7 +87,7 @@ bool        evolvingBinaryStarValid = false;            // flag to indicate whet
  */
 void sigHandler(int p_Sig) {   
     if (p_Sig == SIGUSR1) {                                         // SIGUSR1?  Just silently ignore anything else...
-        if (evolvingBinaryStarValid && OPTIONS->BSESwitchLog()) {   // yes - do we have a valid binary star, and are we logging BSE switches?
+        if (evolvingBinaryStarValid && OPTIONS->SwitchLog()) {      // yes - do we have a valid binary star, and are we logging switches?
             evolvingBinaryStar->PrintSwitchLog();                   // yes - assume SIGUSR1 is a binary constituent star switching...
         }
     }
@@ -112,12 +112,10 @@ std::tuple<int, int> EvolveSingleStars() {
     std::time_t timeStart = std::chrono::system_clock::to_time_t(wallStart);
     SAY("Start generating stars at " << std::ctime(&timeStart));
 
-    double massInc = (OPTIONS->SingleStarMassMax() - OPTIONS->SingleStarMassMin()) / OPTIONS->SingleStarMassSteps();    // use user-specified values if no grid file
-
     // generate and evolve stars
 
     bool usingGrid     = !OPTIONS->GridFilename().empty();                                                              // using grid file?
-    int  nStars        = usingGrid ? 1 : OPTIONS->SingleStarMassSteps();                                                // how many stars? (grid file is 1 per record...)
+    int  nStars        = usingGrid ? 1 : OPTIONS->nObjectsToEvolve();                                                   // how many stars? (grid file is 1 per record...)
     int  nStarsCreated = 0;                                                                                             // number of stars actually created
     int  index         = 0;                                                                                             // which star
 
@@ -134,14 +132,19 @@ std::tuple<int, int> EvolveSingleStars() {
 
                 case  1:                                                                                                // grid record read - not done yet...
                     nStars++;                                                                                           // increment count of stars requested to be evolved
-                    initialMass = OPTIONS->Mass();                                                                      // set initial mass for the star being evolved
+                    initialMass = OPTIONS->InitialMass();                                                               // set initial mass for the star being evolved
                     break;             
 
                 default: evolutionStatus = EVOLUTION_STATUS::STOPPED; break;                                            // problem - stop evolution
             }
         }
         else {                                                                                                          // no, not using a grid file
-            double initialMass = OPTIONS->SingleStarMassMin() + (index * massInc);                                      // calculate the initial mass for the next star
+            initialMass = OPTIONS->OptionSpecified("initial-mass") == 1                                                 // user specified mass?
+                            ? OPTIONS->InitialMass()                                                                    // yes, use it
+                            : utils::SampleInitialMassDistribution(OPTIONS->InitialMassFunction(), 
+                                                                   OPTIONS->InitialMassFunctionMax(), 
+                                                                   OPTIONS->InitialMassFunctionMin(), 
+                                                                   OPTIONS->InitialMassFunctionPower());                // no, sample it
         }
 
         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                            // ok?
@@ -179,15 +182,15 @@ std::tuple<int, int> EvolveSingleStars() {
             // constituents of binaries get different values, so use different options. The
             // Basestar.cpp code doesn't know if the star is a single star (SSE) or a constituent
             // of a binary (BSE) - it only knows that it is a star - so we have to setup the kick
-            // structure here (and in EvolveBinaryStars() for binaries).
+            // structure here.
             //
             // for SSE only need magnitudeRandom and magnitude - other values can just be ignored
 
             KickParameters kickParameters;
-            kickParameters.magnitudeRandomSpecied = OPTIONS->OptionSpecified("kick-magnitude-random");
-            kickParameters.magnitudeRandom        = OPTIONS->KickMagnitudeRandom();
-            kickParameters.magnitudeSpecied       = OPTIONS->OptionSpecified("kick-magnitude");
-            kickParameters.magnitude              = OPTIONS->KickMagnitude();
+            kickParameters.magnitudeRandomSpecified = OPTIONS->OptionSpecified("kick-magnitude-random") == 1;
+            kickParameters.magnitudeRandom          = OPTIONS->KickMagnitudeRandom();
+            kickParameters.magnitudeSpecified       = OPTIONS->OptionSpecified("kick-magnitude") == 1;
+            kickParameters.magnitude                = OPTIONS->KickMagnitude();
                        
             // create the star
             delete star;                                                                                                // so we don't leak...
@@ -211,7 +214,7 @@ std::tuple<int, int> EvolveSingleStars() {
             nStarsCreated++;                                                                                            // increment the number of stars created
         }
 
-        if (!LOGGING->CloseStandardFile(LOGFILE::SSE_PARAMETERS)) {                                                     // close single star output file
+        if (!LOGGING->CloseStandardFile(LOGFILE::SSE_DETAILED_OUTPUT)) {                                                // close SSE detailed output file
             SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                                          // close failed - show warning
             evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                // this will cause problems later - stop evolution
         }
@@ -230,7 +233,7 @@ std::tuple<int, int> EvolveSingleStars() {
 
     if (evolutionStatus == EVOLUTION_STATUS::CONTINUE && index >= nStars) evolutionStatus = EVOLUTION_STATUS::DONE;     // set done
 
-    int nStarsRequested = !usingGrid ? OPTIONS->SingleStarMassSteps() : (evolutionStatus == EVOLUTION_STATUS::DONE ? nStarsCreated : -1);
+    int nStarsRequested = !usingGrid ? OPTIONS->nObjectsToEvolve() : (evolutionStatus == EVOLUTION_STATUS::DONE ? nStarsCreated : -1);
 
     SAY("\nGenerated " << std::to_string(nStarsCreated) << " of " << (nStarsRequested < 0 ? "<INCOMPLETE GRID>" : std::to_string(nStarsRequested)) << " stars requested");
 
@@ -296,10 +299,10 @@ std::tuple<int, int> EvolveBinaryStars() {
 
     // generate and evolve binaries
 
-    bool usingGrid = !OPTIONS->GridFilename().empty();                                                                  // using grid file?
-    int  nBinaries = usingGrid ? 1 : OPTIONS->nBinaries();                                                              // how many binaries? (grid file is 1 per record...)
+    bool usingGrid        = !OPTIONS->GridFilename().empty();                                                           // using grid file?
+    int  nBinaries        = usingGrid ? 1 : OPTIONS->nObjectsToEvolve();                                                // how many binaries? (grid file is 1 per record...)
     int  nBinariesCreated = 0;                                                                                          // number of binaries actually created
-    int  index     = 0;                                                                                                 // which binary
+    int  index            = 0;                                                                                          // which binary
 
     BinaryStar *binary = nullptr;
     while (evolutionStatus == EVOLUTION_STATUS::CONTINUE && index < nBinaries) {                                        // for each binary to be evolved
@@ -320,121 +323,37 @@ std::tuple<int, int> EvolveBinaryStars() {
                 default: evolutionStatus = EVOLUTION_STATUS::STOPPED; break;                                            // problem - stop evolution
             }
         }
-        else {                                                                                                          // no, not using a grid file
-
-        DRAW MASSES HERE??? NO - LEAVE IT FOR BASEBINARYSTAR - IT KNOWS LL THE DEPENDENCIES
-            double initialMass = OPTIONS->SingleStarMassMin() + (index * massInc);                                      // calculate the initial mass for the next star
-        }
 
         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                            // ok?
 
-            // Single stars (in SSE) are provided with a random seed that is used
-            // to seed the random number generator.  The random number generator
-            // is re-seeded for each star. Here we generate the seed for the star
-            // being evolved - by this point we have picked up the option value
-            // from either the commandline or the grid file.
+            // we only need to pass the AIS structure and the index number
+            // to the binary - we let the BinaryStar class do the work wrt
+            // setting the parameters for each of the constituent stars
             //
-            // If OPTIONS->FixedRandomSeed() is true the user specified a random seed 
-            // via the program option --random-seed.  The random seed specified by the
-            // user is the base random seed - the actual random seed used for each star
-            // (in SSE) is the base random seed (specified by the user) plus the index
-            // of the star being evolved.  The index of the star being evolved starts at
-            // 0 for the first star, and increments by 1 for each subsequent star evolved
-            // (so the base random seed specified by the user is also the initial random 
-            // seed - the random seed of the first star evolved)
+            // Note: the AIS structure will probably go away when Stroopwafel
+            //       is completeley moved to outside COMPAS.
+            //       the index is really only needed for legacy comparison, so
+            //       can probably be removed at any time
 
-            unsigned long int randomSeed = 0l;
-            if (OPTIONS->FixedRandomSeed()) {                                                                           // user supplied seed for the random number generator?
-                randomSeed = RAND->Seed(OPTIONS->RandomSeed() + (long int)index);                                       // yes - this allows the user to reproduce results for each star
-            }
-            else {                                                                                                      // no
-                randomSeed = RAND->Seed(RAND->DefaultSeed() + (long int)index);                                         // use default seed (based on system time) + star id
-            }
-
-            // Single stars (in SSE) are provided with a kick structure that specifies the 
-            // values of the random number to be used to generate to kick magnitude, and the
-            // actual kick magnitude specified by the user via program option --kick-magnitude       
-            //
-            // See typedefs.h for the kick structure.
-            //
-            // We can't just pick up the values of the options inside Basestar.cpp because the
-            // constituents of binaries get different values, so use different options. The
-            // Basestar.cpp code doesn't know if the star is a single star (SSE) or a constituent
-            // of a binary (BSE) - it only knows that it is a star - so we have to setup the kick
-            // structure here (and in EvolveBinaryStars() for binaries).
-            //
-            // for SSE only need magnitudeRandom and magnitude - other values can just be ignored
-
-            KickParameters kickParameters;
-            kickParameters.magnitudeRandomSpecied = (OPTIONS->OptionSpecified("kick-magnitude-random") == 1);  // CHECK BAD OPTION HERE>???  RETURN = -1????
-            kickParameters.magnitudeRandom        = OPTIONS->KickMagnitudeRandom();
-            kickParameters.magnitudeSpecied       = OPTIONS->OptionSpecified("kick-magnitude");
-            kickParameters.magnitude              = OPTIONS->KickMagnitude();
-                       
-
-
-
-
-
-    EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
-
-    int nBinariesCreated = 0;                                                                                               // number of binaries actually created
-
-    auto wallStart = std::chrono::system_clock::now();                                                                      // start wall timer
-    clock_t clockStart = clock();                                                                                           // start CPU timer
-
-    if (!OPTIONS->Quiet()) {
-        std::time_t timeStart = std::chrono::system_clock::to_time_t(wallStart);
-        SAY("Start generating binaries at " << std::ctime(&timeStart));
-    }
-
-    AIS ais;                                                                                                                // Adaptive Importance Sampling (AIS)
-
-    if (OPTIONS->AIS_ExploratoryPhase()) ais.PrintExploratorySettings();                                                    // print the selected options for AIS Exploratory phase in the beginning of the run
-    if (OPTIONS->AIS_RefinementPhase() ) ais.DefineGaussians();                                                             // if we are sampling using AIS (step 2):read in gaussians
-
-    // generate and evolve binaries
-
-    bool usingGrid = !OPTIONS->GridFilename().empty();                                                                      // using grid file?
-    int  nBinaries = usingGrid ? 1 : OPTIONS->nBinaries();                                                                  // how many binaries? (grid file is 1 per record...)
-    int  index     = 0;                                                                                                     // which binary
-
-    BinaryStar *binary = nullptr;
-    while (evolutionStatus == EVOLUTION_STATUS::CONTINUE && index < nBinaries) {
-
-        evolvingBinaryStar      = NULL;                                                                                     // unset global pointer to evolving binary (for BSE Switch Log)
-        evolvingBinaryStarValid = false;                                                                                    // indicate that the global pointer is not (yet) valid (for BSE Switch log)
-
-        if (usingGrid) {                                                                                                    // using grid file?
-            int gridResult = OPTIONS->ApplyNextGridRecord();                                                                // yes - set options according to specified values in grid file              
-            switch (gridResult) {                                                                                           // handle result of grid file read
-                case -1: evolutionStatus = EVOLUTION_STATUS::STOPPED; break;                                                // read error - stop evolution
-                case  0: evolutionStatus = EVOLUTION_STATUS::DONE; break;                                                   // nothing to read - we're done
-                case  1: nBinaries++; break;                                                                                // grid record read - not done yet...             
-                default: evolutionStatus = EVOLUTION_STATUS::STOPPED; break;                                                // problem - stop evolution
-            }
-        }
-
-        if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                // ok?
-       
             delete binary;
-            binary = new BinaryStar(ais, (long int)index);                                                                  // generate binary according to the user options
+            binary = new BinaryStar(ais, (long int)index);                                                              // generate binary according to the user options
 
-            evolvingBinaryStar      = binary;                                                                               // set global pointer to evolving binary (for BSE Switch Log)
-            evolvingBinaryStarValid = true;                                                                                 // indicate that the global pointer is now valid (for BSE Switch Log)
+            evolvingBinaryStar      = binary;                                                                           // set global pointer to evolving binary (for BSE Switch Log)
+            evolvingBinaryStarValid = true;                                                                             // indicate that the global pointer is now valid (for BSE Switch Log)
 
-            EVOLUTION_STATUS binaryStatus = binary->Evolve();                                                               // evolve the binary
+            EVOLUTION_STATUS binaryStatus = binary->Evolve();                                                           // evolve the binary
 
             // announce result of evolving the binary
-            if (!OPTIONS->Quiet()) {
-                if (OPTIONS->CHE_Option() == CHE_OPTION::NONE) {
-                    SAY(index                                      << ": "  <<
+            if (!OPTIONS->Quiet()) {                                                                                    // quiet mode?
+                                                                                                                        // no - announce result of evolving the binary
+                if (OPTIONS->CHE_Option() == CHE_OPTION::NONE) {                                                        // CHE enabled?
+                    SAY(index                                      << ": "  <<                                          // no - CHE not enabled - don't need initial stellar type
                         EVOLUTION_STATUS_LABEL.at(binaryStatus)    << ": "  <<
                         STELLAR_TYPE_LABEL.at(binary->Star1Type()) << " + " <<
                         STELLAR_TYPE_LABEL.at(binary->Star2Type())
                     );
                 }
-                else {
+                else {                                                                                                  // CHE enabled - show initial stellar type
                     SAY(index                                             << ": "    <<
                         EVOLUTION_STATUS_LABEL.at(binaryStatus)           << ": ("   <<
                         STELLAR_TYPE_LABEL.at(binary->Star1InitialType()) << " -> "  <<
@@ -470,7 +389,7 @@ std::tuple<int, int> EvolveBinaryStars() {
 
     if (evolutionStatus == EVOLUTION_STATUS::CONTINUE && index >= nBinaries) evolutionStatus = EVOLUTION_STATUS::DONE;      // set done
 
-    int nBinariesRequested = usingGrid ? (evolutionStatus == EVOLUTION_STATUS::DONE ? nBinariesCreated : -1) : OPTIONS->nBinaries();
+    int nBinariesRequested = usingGrid ? (evolutionStatus == EVOLUTION_STATUS::DONE ? nBinariesCreated : -1) : OPTIONS->nObjectsToEvolve();
 
     SAY("\nGenerated " << std::to_string(nBinariesCreated) << " of " << (nBinariesRequested < 0 ? "<INCOMPLETE GRID>" : std::to_string(nBinariesRequested)) << " binaries requested");
 
@@ -530,66 +449,85 @@ std::tuple<int, int> EvolveBinaryStars() {
  */
 int main(int argc, char * argv[]) {
 
-    PROGRAM_STATUS programStatus = PROGRAM_STATUS::CONTINUE;                            // status - initially ok
-    
-    bool ok = OPTIONS->Initialise(argc, argv);                                          // get the program options from the commandline
-    
-    if (ok) {                                                                           // have commandline options ok?
-                                                                                        // yes
-        if (OPTIONS->RequestedHelp()) {                                                 // user requested help?
-            utils::SplashScreen();                                                      // yes - show splash screen
-//            SAY(cmdline_options);                                                       // and help
-            programStatus = PROGRAM_STATUS::SUCCESS;                                    // don't evolve anything
+    PROGRAM_STATUS programStatus = PROGRAM_STATUS::CONTINUE;                                        // status - initially ok
+
+    RAND->Initialise();                                                                             // initialise the random number service
+
+    bool ok = OPTIONS->Initialise(argc, argv);                                                      // get the program options from the commandline
+    if (!ok) {                                                                                      // have commandline options ok?
+                                                                                                    // no - commandline options not ok
+//            SAY(cmdline_options);                                                                 // and help                       JRFIX 
+        programStatus = PROGRAM_STATUS::ERROR_IN_COMMAND_LINE;                                      // set status
+    }
+    else {                                                                                          // yes - have commandline options
+        if (OPTIONS->RequestedHelp()) {                                                             // user requested help?
+            utils::SplashScreen();                                                                  // yes - show splash screen
+//            SAY(cmdline_options);                                                                 // and help                       JRFIX 
+            programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
         }
-        else if (OPTIONS->RequestedVersion()) {                                         // user requested version?
-            SAY("COMPAS v" << VERSION_STRING);                                          // yes, show version string
-            programStatus = PROGRAM_STATUS::SUCCESS;                                    // don't evolve anything
+        else if (OPTIONS->RequestedVersion()) {                                                     // user requested version?
+            SAY("COMPAS v" << VERSION_STRING);                                                      // yes, show version string
+            programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
+        }
+    
+
+        if (programStatus == PROGRAM_STATUS::CONTINUE) {
+
+            InitialiseProfiling;                                                                    // initialise profiling functionality
+
+            // start the logging service
+            LOGGING->Start(OPTIONS->OutputPathString(),                                             // location of logfiles
+                           OPTIONS->OutputContainerName(),                                          // directory to be created for logfiles
+                           OPTIONS->LogfileNamePrefix(),                                            // prefix for logfile names
+                           OPTIONS->LogLevel(),                                                     // log level - determines (in part) what is written to log file
+                           OPTIONS->LogClasses(),                                                   // log classes - determines (in part) what is written to log file
+                           OPTIONS->DebugLevel(),                                                   // debug level - determines (in part) what debug information is displayed
+                           OPTIONS->DebugClasses(),                                                 // debug classes - determines (in part) what debug information is displayed
+                           OPTIONS->DebugToFile(),                                                  // should debug statements also be written to logfile?
+                           OPTIONS->ErrorsToFile(),                                                 // should error messages also be written to logfile?
+                           DELIMITERValue.at(OPTIONS->LogfileDelimiter()));                         // log record field delimiter
+
+            (void)utils::SplashScreen();                                                            // announce ourselves
+
+            if (!LOGGING->Enabled()) programStatus = PROGRAM_STATUS::LOGGING_FAILED;                // logging failed to start
+            else {
+    
+                if (!OPTIONS->GridFilename().empty()) {                                             // have grid filename?
+                    ERROR error = OPTIONS->OpenGridFile(OPTIONS->GridFilename());                   // yes - open grid file
+                    if (error != ERROR::NONE) {                                                     // open ok?
+                        SHOW_ERROR(error, "Opening grid file '" + OPTIONS->GridFilename() + "'");   // no - show error
+                        programStatus = PROGRAM_STATUS::STOPPED;                                    // set status
+                    }
+                }
+
+                int objectsRequested = 0;                                                           // for logging
+                int objectsCreated   = 0;                                                           // for logging
+
+                if (programStatus == PROGRAM_STATUS::CONTINUE) {                                    // all ok?
+
+                    if(OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {                           // SSE?
+                        std::tie(objectsRequested, objectsCreated) = EvolveSingleStars();           // yes - evolve single stars
+                    }
+                    else {                                                                          // no - BSE
+                        std::tie(objectsRequested, objectsCreated) = EvolveBinaryStars();           // evolve binary stars
+                    }
+
+                    if (!OPTIONS->GridFilename().empty()) {                                         // have grid filename?
+                        OPTIONS->CloseGridFile();                                                   // yes - close it if it's open
+                    }
+
+                    programStatus = PROGRAM_STATUS::SUCCESS;                                        // set program status, and...
+                }
+                
+                LOGGING->Stop(std::make_tuple(objectsRequested, objectsCreated));                   // stop the logging service
+            }
+
+            ReportProfiling;                                                                        // report profiling statistics
         }
     }
 
-    if (programStatus == PROGRAM_STATUS::CONTINUE) {
+    RAND->Free();                                                                                   // release gsl dynamically allocated memory
 
-        InitialiseProfiling;                                                            // initialise profiling functionality
-
-        // start the logging service
-        LOGGING->Start(OPTIONS->OutputPathString(),                                     // location of logfiles
-                       OPTIONS->OutputContainerName(),                                  // directory to be created for logfiles
-                       OPTIONS->LogfileNamePrefix(),                                    // prefix for logfile names
-                       OPTIONS->LogLevel(),                                             // log level - determines (in part) what is written to log file
-                       OPTIONS->LogClasses(),                                           // log classes - determines (in part) what is written to log file
-                       OPTIONS->DebugLevel(),                                           // debug level - determines (in part) what debug information is displayed
-                       OPTIONS->DebugClasses(),                                         // debug classes - determines (in part) what debug information is displayed
-                       OPTIONS->DebugToFile(),                                          // should debug statements also be written to logfile?
-                       OPTIONS->ErrorsToFile(),                                         // should error messages also be written to logfile?
-                       DELIMITERValue.at(OPTIONS->LogfileDelimiter()));                 // log record field delimiter
-
-        (void)utils::SplashScreen();                                                    // announce ourselves
-
-        if (!LOGGING->Enabled()) programStatus = PROGRAM_STATUS::LOGGING_FAILED;        // logging failed to start
-        else {
-
-            RAND->Initialise();                                                         // initialise the random number service
-
-            int objectsRequested = 0;
-            int objectsCreated   = 0;
-
-            if(OPTIONS->SingleStar()) {                                                 // Single star?
-                std::tie(objectsRequested, objectsCreated) = EvolveSingleStars();       // yes - evolve single stars
-            }
-            else {                                                                      // no - binary
-                std::tie(objectsRequested, objectsCreated) = EvolveBinaryStars();       // evolve binary stars
-            }
-
-            RAND->Free();                                                               // release gsl dynamically allocated memory
-
-            LOGGING->Stop(std::make_tuple(objectsRequested, objectsCreated));           // stop the logging service
-
-            programStatus = PROGRAM_STATUS::SUCCESS;                                    // set program status, and...
-        }
-
-        ReportProfiling;                                                                // report profiling statistics
-    }
-
-    return static_cast<int>(programStatus);                                             // we're done
+    return static_cast<int>(programStatus);                                                         // we're done
 }
 

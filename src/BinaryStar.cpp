@@ -13,6 +13,7 @@ BinaryStar::BinaryStar(const AIS &p_AIS, const long int p_Id) : m_BinaryStar(new
 
 
 // binary is generated according to parameters passed
+/*
 BinaryStar::BinaryStar(const AIS           &p_AIS,
                        const double         p_Mass1,
                        const double         p_Mass2,
@@ -38,7 +39,7 @@ BinaryStar::BinaryStar(const AIS           &p_AIS,
 
     m_SaveBinaryStar = nullptr;
 }
-
+*/
 
 /*
  * Save current state of binary star

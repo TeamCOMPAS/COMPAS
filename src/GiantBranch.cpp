@@ -1727,7 +1727,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         // will be printed in Star::EvolveOneTimestep() after timestep is accepted (i.e. we don't revert state)
         // need to record the stellar type to which the star will switch if we don't revert state
 
-        if (OPTIONS->SingleStar()) {                                                                // only if SSE (BSE does its own SN printing)
+        if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {                                      // only if SSE (BSE does its own SN printing)
             StashSupernovaDetails(stellarType);
         }
     }

@@ -25,7 +25,7 @@ void AIS::Initialise() {
 
     m_DrawingFromAISDistributions = true;                       //  we are drawing from AIS distributions in AIS phase 2 // floor move this to only do once True
 
-    m_RandomGaussianDraw = RAND->RandomInt(m_CovLogA.size());   // the max int (i.e. index of gaussian) we want to sample. -1 since cov_loga also read in empty line  JR: todo: check I fixed the empty line...
+    m_RandomGaussianDraw = RAND->RandomInt(m_CovLogA.size());   // the max int (i.e. index of gaussian) we want to sample. -1 since cov_loga also read in empty line
 }
 
 
@@ -140,7 +140,7 @@ void AIS::UpdateExploratoryPhaseFraction(const int p_PopulationSize) {
 
     if (OPTIONS->nBatchesUsed() > 0) {                                                                                  // check user defined number of batches
         double z1             = double(m_CounterDCOsAIS) / double(p_PopulationSize);                                    // the estimated weight of the target population region
-        double z2             = 1.0 / (m_FractionExploratory * OPTIONS->nBatchesUsed() * double(OPTIONS->nBinaries())); // estimated rate of unidentified region
+        double z2             = 1.0 / (m_FractionExploratory * OPTIONS->nBatchesUsed() * double(OPTIONS->nObjectsToEvolve())); // estimated rate of unidentified region
         double _1_z1          = 1.0 - z1;
         double sqrt_1_z1      = sqrt(_1_z1);
 
@@ -174,7 +174,7 @@ bool AIS::ShouldStopExploratoryPhase(const int p_PopulationSize) {
         UpdateExploratoryPhaseFraction(p_PopulationSize);                                                   // update fexplAIS to estimate how long we should be spending on sampling from exploratory phase
     }                                                                                                       // Floor: we could update this only every other 10 runs in the future..
 
-    m_FractionSampled = double(p_PopulationSize) / OPTIONS->nBinaries();                                    // calculate fraction so far spent on exploratory phase
+    m_FractionSampled = double(p_PopulationSize) / OPTIONS->nObjectsToEvolve();                         // calculate fraction so far spent on exploratory phase
 
     if (utils::Compare(m_FractionExploratory, 1.0) != 0 && m_FractionSampled >= m_FractionExploratory) {    // if the fraction of total samples that we spend is larger than the exploratory fraction...
         shouldStop = true;                                                                                  // ... we should stop and switch to refinement phase
