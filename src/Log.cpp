@@ -156,7 +156,7 @@ void Log::Start(const string              p_LogBasePath,
                         std::time_t timeStart = std::chrono::system_clock::to_time_t(m_WallStart);                  // record start time
 
                         // record start time and whether evolving single stars or binaries   
-                        if(OPTIONS->SingleStar())
+                        if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE)
                             m_RunDetailsFile << "Start generating stars at " << std::ctime(&timeStart) << std::endl;
                         else
                             m_RunDetailsFile << "Start generating binaries at " << std::ctime(&timeStart) << std::endl;
@@ -219,7 +219,7 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
             std::time_t timeEnd = std::chrono::system_clock::to_time_t(m_WallEnd);                              // get end time and date
         
             // record end time and whether evolving single stars or binaries   
-            if(OPTIONS->SingleStar()) {
+            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {
                 m_RunDetailsFile << "Generated " << std::to_string(std::get<1>(p_ObjectStats)) << " of " << (std::get<0>(p_ObjectStats) < 0 ? "<INCOMPLETE GRID>" : std::to_string(std::get<0>(p_ObjectStats))) << " stars requested" << std::endl;
                 m_RunDetailsFile << "\nEnd generating stars at " << std::ctime(&timeEnd) << std::endl;
             }
@@ -1030,44 +1030,44 @@ std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> Log::GetStandardLogFileReco
 
         switch (p_Logfile) {                                                                                                        // which logfile?
 
-            case LOGFILE::SSE_PARAMETERS:                                                                                           // SSE_PARAMETERS
-                recordProperties = m_SSE_Parms_Rec;                                                                                 // record properties
+            case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                      // SSE_DETAILED_OUTPUT
+                recordProperties = m_SSE_Detailed_Rec;                                                                              // record properties
                 break;
 
             case LOGFILE::SSE_SWITCH_LOG:                                                                                           // SSE_SWITCH_LOG
                 recordProperties = m_SSE_Switch_Rec;                                                                                // record properties
                 break;
 
-            case LOGFILE::SSE_SUPERNOVA:                                                                                            // SSE_SUPERNOVA
-                recordProperties = m_SSE_SN_Rec;                                                                                    // record properties
+            case LOGFILE::SSE_SUPERNOVAE:                                                                                           // SSE_SUPERNOVAE
+                recordProperties = m_SSE_SNE_Rec;                                                                                   // record properties
                 break;
 
-            case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                    // BSE_SYSTEM_PARAMETERS
-                recordProperties = m_BSE_SysParms_Rec;                                                                              // record properties
+            case LOGFILE::SYSTEM_PARAMETERS:                                                                                        // SYSTEM_PARAMETERS
+                recordProperties = m_SysParms_Rec;                                                                                  // record properties
                 break;
 
             case LOGFILE::BSE_SWITCH_LOG:                                                                                           // BSE_SWITCH_LOG
                 recordProperties = m_BSE_Switch_Rec;                                                                                // record properties
                 break;
 
-            case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS:                                                                               // BSE_DOUBLE_COMPACT_OBJECTS
-                recordProperties = m_BSE_DCO_Rec;                                                                                   // record properties
+            case LOGFILE::DOUBLE_COMPACT_OBJECTS:                                                                                   // DOUBLE_COMPACT_OBJECTS
+                recordProperties = m_DCO_Rec;                                                                                       // record properties
                 break;
 
             case LOGFILE::BSE_SUPERNOVAE:                                                                                           // BSE_SUPERNOVAE
                 recordProperties = m_BSE_SNE_Rec;                                                                                   // record properties
                 break;
 
-            case LOGFILE::BSE_COMMON_ENVELOPES:                                                                                     // BSE_COMMON_ENVELOPES
-                recordProperties = m_BSE_CEE_Rec;                                                                                   // record properties
+            case LOGFILE::COMMON_ENVELOPES:                                                                                         // COMMON_ENVELOPES
+                recordProperties = m_CEE_Rec;                                                                                       // record properties
                 break;
 
-            case LOGFILE::BSE_RLOF_PARAMETERS:                                                                                      // BSE_RLOF_PARAMETERS
-                recordProperties = m_BSE_RLOF_Rec;                                                                                  // record properties
+            case LOGFILE::RLOF_PARAMETERS:                                                                                          // RLOF_PARAMETERS
+                recordProperties = m_RLOF_Rec;                                                                                      // record properties
                 break;
 
-            case LOGFILE::BSE_BE_BINARIES:                                                                                          // BSE_BE_BINARIES
-                recordProperties = m_BSE_BE_Binaries_Rec;                                                                           // record properties
+            case LOGFILE::BE_BINARIES:                                                                                              // BE_BINARIES
+                recordProperties = m_BE_Binaries_Rec;                                                                               // record properties
                 break;
 
             case LOGFILE::BSE_PULSAR_EVOLUTION:                                                                                     // BSE_PULSAR_EVOLUTION
@@ -1206,50 +1206,50 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
             switch (p_Logfile) {                                                                                                                // which logfile?
 
-                case LOGFILE::SSE_SUPERNOVA:                                                                                                    // SSE_SUPERNOVA
-                    filename         = OPTIONS->LogfileSSESupernova();
-                    recordProperties = m_SSE_SN_Rec;
+                case LOGFILE::SSE_SUPERNOVAE:                                                                                                   // SSE_SUPERNOVAE
+                    filename         = OPTIONS->LogfileSupernovae();
+                    recordProperties = m_SSE_SNE_Rec;
                     break;
 
-                case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                            // BSE_SYSTEM_PARAMETERS
-                    filename         = OPTIONS->LogfileBSESystemParameters();
-                    recordProperties = m_BSE_SysParms_Rec;
+                case LOGFILE::SYSTEM_PARAMETERS:                                                                                                // SYSTEM_PARAMETERS
+                    filename         = OPTIONS->LogfileSystemParameters();
+                    recordProperties = m_SysParms_Rec;
                     break;
 
-                case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS:                                                                                       // BSE_DOUBLE_COMPACT_OBJECTS
-                    filename         = OPTIONS->LogfileBSEDoubleCompactObjects();
-                    recordProperties = m_BSE_DCO_Rec;
+                case LOGFILE::DOUBLE_COMPACT_OBJECTS:                                                                                           // DOUBLE_COMPACT_OBJECTS
+                    filename         = OPTIONS->LogfileDoubleCompactObjects();
+                    recordProperties = m_DCO_Rec;
                     break;
 
                 case LOGFILE::BSE_SUPERNOVAE:                                                                                                   // BSE_SUPERNOVAE
-                    filename         = OPTIONS->LogfileBSESupernovae();
+                    filename         = OPTIONS->LogfileSupernovae();
                     recordProperties = m_BSE_SNE_Rec;
                     break;
 
-                case LOGFILE::BSE_COMMON_ENVELOPES:                                                                                             // BSE_COMMON_ENVELOPES
-                    filename         = OPTIONS->LogfileBSECommonEnvelopes();
-                    recordProperties = m_BSE_CEE_Rec;
+                case LOGFILE::COMMON_ENVELOPES:                                                                                                 // COMMON_ENVELOPES
+                    filename         = OPTIONS->LogfileCommonEnvelopes();
+                    recordProperties = m_CEE_Rec;
                     break;
 
-                case LOGFILE::BSE_RLOF_PARAMETERS:                                                                                              // BSE_RLOF_PARAMETERS
-                    filename         = OPTIONS->LogfileBSERLOFParameters();
-                    recordProperties = m_BSE_RLOF_Rec;
+                case LOGFILE::RLOF_PARAMETERS:                                                                                                  // RLOF_PARAMETERS
+                    filename         = OPTIONS->LogfileRLOFParameters();
+                    recordProperties = m_RLOF_Rec;
                     break;
 
                 // Serena
                 /*
-                case LOGFILE::BSE_BE_BINARIES:                                                                                                  // BSE_BE_BINARIES
-                    filename         = OPTIONS->LogfileBSEBeBinaries();
+                case LOGFILE::BSE_BE_BINARIES:                                                                                                  // BE_BINARIES
+                    filename         = OPTIONS->LogfileBeBinaries();
                     recordProperties = m_BSE_BE_Binaries_Rec;
                     break;
                 */
                
                 case LOGFILE::BSE_PULSAR_EVOLUTION:                                                                                             // BSE_PULSAR_EVOLUTION
-                    filename         = OPTIONS->LogfileBSEPulsarEvolution();
+                    filename         = OPTIONS->LogfilePulsarEvolution();
                     recordProperties = m_BSE_Pulsars_Rec;
                     break;
 
-                case LOGFILE::SSE_PARAMETERS:                                                                                                   // SSE_PARAMETERS
+                case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                              // SSE_DETAILED_OUTPUT
                 case LOGFILE::SSE_SWITCH_LOG:                                                                                                   // SSE_SWITCH_LOG
                 case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                              // BSE_DETAILED_OUTPUT
                 case LOGFILE::BSE_SWITCH_LOG: {                                                                                                 // BSE_SWITCH_LOG
@@ -1287,23 +1287,23 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                                                                                                                                                 // yes - add path to filename
                         switch (p_Logfile) {                                                                                                    // which logfile?
 
-                            case LOGFILE::SSE_PARAMETERS:                                                                                       // SSE_PARAMETERS
-                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileSSEParameters();                      // logfile filename with directory
-                                recordProperties = m_SSE_Parms_Rec;                                                                             // record properties
+                            case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                  // SSE_DETAILED_OUTPUT
+                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileDetailedOutput();                     // logfile filename with directory
+                                recordProperties = m_SSE_Detailed_Rec;                                                                          // record properties
                                 break;
 
                             case LOGFILE::SSE_SWITCH_LOG:                                                                                       // SSE_SWITCH_LOG
-                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileSSESwitchLog();                       // logfile filename with directory
+                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileSwitchLog();                          // logfile filename with directory
                                 recordProperties = m_SSE_Switch_Rec;                                                                            // record properties
                                 break;
 
                             case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                  // BSE_DETAILED_OUTPUT
-                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileBSEDetailedOutput();                  // logfile filename with directory
+                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileDetailedOutput();                     // logfile filename with directory
                                 recordProperties = m_BSE_Detailed_Rec;                                                                          // record properties
                                 break;
 
                             case LOGFILE::BSE_SWITCH_LOG:                                                                                       // BSE_SWITCH_LOG
-                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileBSESwitchLog();                       // logfile filename with directory
+                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileSwitchLog();                          // logfile filename with directory
                                 recordProperties = m_BSE_Switch_Rec;                                                                            // record properties
                                 break;
 
@@ -1638,18 +1638,18 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
     if (p_UseDefaultProps) {                                                                                            // use logfile default props as base?
                                                                                                                         // yes - get existing props for given logfile
         switch (p_Logfile) {
-            case LOGFILE::SSE_PARAMETERS            : baseProps = m_SSE_Parms_Rec;       break;
-            case LOGFILE::SSE_SWITCH_LOG            : baseProps = m_SSE_Switch_Rec;      break;
-            case LOGFILE::SSE_SUPERNOVA             : baseProps = m_SSE_SN_Rec;          break;
-            case LOGFILE::BSE_SYSTEM_PARAMETERS     : baseProps = m_BSE_SysParms_Rec;    break;
-            case LOGFILE::BSE_SWITCH_LOG            : baseProps = m_BSE_Switch_Rec;      break;
-            case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: baseProps = m_BSE_DCO_Rec;         break;
-            case LOGFILE::BSE_SUPERNOVAE            : baseProps = m_BSE_SNE_Rec;         break;
-            case LOGFILE::BSE_COMMON_ENVELOPES      : baseProps = m_BSE_CEE_Rec;         break;
-            case LOGFILE::BSE_RLOF_PARAMETERS       : baseProps = m_BSE_RLOF_Rec;        break;
-            case LOGFILE::BSE_BE_BINARIES           : baseProps = m_BSE_BE_Binaries_Rec; break;
-            case LOGFILE::BSE_PULSAR_EVOLUTION      : baseProps = m_BSE_Pulsars_Rec;     break;
-            case LOGFILE::BSE_DETAILED_OUTPUT       : baseProps = m_BSE_Detailed_Rec;    break;
+            case LOGFILE::SSE_DETAILED_OUTPUT   : baseProps = m_SSE_Detailed_Rec; break;
+            case LOGFILE::SSE_SWITCH_LOG        : baseProps = m_SSE_Switch_Rec;   break;
+            case LOGFILE::SSE_SUPERNOVAE        : baseProps = m_SSE_SNE_Rec;      break;
+            case LOGFILE::SYSTEM_PARAMETERS     : baseProps = m_SysParms_Rec;     break;
+            case LOGFILE::BSE_SWITCH_LOG        : baseProps = m_BSE_Switch_Rec;   break;
+            case LOGFILE::DOUBLE_COMPACT_OBJECTS: baseProps = m_DCO_Rec;          break;
+            case LOGFILE::BSE_SUPERNOVAE        : baseProps = m_BSE_SNE_Rec;      break;
+            case LOGFILE::COMMON_ENVELOPES      : baseProps = m_CEE_Rec;          break;
+            case LOGFILE::RLOF_PARAMETERS       : baseProps = m_RLOF_Rec;         break;
+            case LOGFILE::BE_BINARIES           : baseProps = m_BE_Binaries_Rec;  break;
+            case LOGFILE::BSE_PULSAR_EVOLUTION  : baseProps = m_BSE_Pulsars_Rec;  break;
+            case LOGFILE::BSE_DETAILED_OUTPUT   : baseProps = m_BSE_Detailed_Rec; break;
             default: break;                                                                                             // avoids compiler warning
         }
     }
@@ -1710,18 +1710,18 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
 
     // replace  existing props for given logfile
     switch (p_Logfile) {
-        case LOGFILE::SSE_PARAMETERS            : m_SSE_Parms_Rec       = newProps; break;
-        case LOGFILE::SSE_SWITCH_LOG            : m_SSE_Switch_Rec      = newProps; break;
-        case LOGFILE::SSE_SUPERNOVA             : m_SSE_SN_Rec          = newProps; break;
-        case LOGFILE::BSE_SYSTEM_PARAMETERS     : m_BSE_SysParms_Rec    = newProps; break;
-        case LOGFILE::BSE_SWITCH_LOG            : m_BSE_Switch_Rec      = newProps; break;
-        case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: m_BSE_DCO_Rec         = newProps; break;
-        case LOGFILE::BSE_SUPERNOVAE            : m_BSE_SNE_Rec         = newProps; break;
-        case LOGFILE::BSE_COMMON_ENVELOPES      : m_BSE_CEE_Rec         = newProps; break;
-        case LOGFILE::BSE_RLOF_PARAMETERS       : m_BSE_RLOF_Rec        = newProps; break;
-        case LOGFILE::BSE_BE_BINARIES           : m_BSE_BE_Binaries_Rec = newProps; break;
-        case LOGFILE::BSE_PULSAR_EVOLUTION      : m_BSE_Pulsars_Rec     = newProps; break;
-        case LOGFILE::BSE_DETAILED_OUTPUT       : m_BSE_Detailed_Rec    = newProps; break;
+        case LOGFILE::SSE_DETAILED_OUTPUT   : m_SSE_Detailed_Rec = newProps; break;
+        case LOGFILE::SSE_SWITCH_LOG        : m_SSE_Switch_Rec   = newProps; break;
+        case LOGFILE::SSE_SUPERNOVAE        : m_SSE_SNE_Rec      = newProps; break;
+        case LOGFILE::SYSTEM_PARAMETERS     : m_SysParms_Rec     = newProps; break;
+        case LOGFILE::BSE_SWITCH_LOG        : m_BSE_Switch_Rec   = newProps; break;
+        case LOGFILE::DOUBLE_COMPACT_OBJECTS: m_DCO_Rec          = newProps; break;
+        case LOGFILE::BSE_SUPERNOVAE        : m_BSE_SNE_Rec      = newProps; break;
+        case LOGFILE::COMMON_ENVELOPES      : m_CEE_Rec          = newProps; break;
+        case LOGFILE::RLOF_PARAMETERS       : m_RLOF_Rec         = newProps; break;
+        case LOGFILE::BE_BINARIES           : m_BE_Binaries_Rec  = newProps; break;
+        case LOGFILE::BSE_PULSAR_EVOLUTION  : m_BSE_Pulsars_Rec  = newProps; break;
+        case LOGFILE::BSE_DETAILED_OUTPUT   : m_BSE_Detailed_Rec = newProps; break;
         default: break;                                                                                                 // avoids compiler warning...
     }
 }
@@ -1759,7 +1759,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *
  * <rec_name>   ::= "SSE_PARMS_REC"       |				# SSE only
  *                  "SSE_SWITCH_REC"      |				# SSE only
- *                  "SSE_SN_REC"          |				# SSE only
+ *                  "SSE_SNE_REC"         |				# SSE only
  *                  "BSE_SYSPARMS_REC"    |				# BSE only
  *                  "BSE_DCO_REC"         |				# BSE only
  *                  "BSE_SNE_REC"         |				# BSE only

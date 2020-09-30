@@ -54,10 +54,7 @@ public:
     Star();
     Star(const unsigned long int p_RandomSeed, 
          const double            p_MZAMS, 
-         const double            p_Metallicity, 
-         const KickParameters    p_KickParameters = {},
-         const double            p_LBVfactor = 0.0, 
-         const double            p_WolfRayetFactor = 0.0);
+         const KickParameters    p_KickParameters = {});
     Star(const Star& p_Star);
     Star& operator = (const Star& p_Star);
 
@@ -156,9 +153,9 @@ public:
     double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)                              { return m_Star->CalculateMomentOfInertiaAU(p_RemnantRadius); }
 
     void            CalculateSNAnomalies(const double p_Eccentricity)                                           { m_Star->CalculateSNAnomalies(p_Eccentricity); }
-    double          CalculateSNKickMagnitude(const double p_RemnantMass, const double p_EjectaMass, 
-								const STELLAR_TYPE p_StellarType)               { return m_Star->CalculateSNKickMagnitude(p_RemnantMass, 
-																p_EjectaMass, p_StellarType); }
+    double          CalculateSNKickMagnitude(const double p_RemnantMass, 
+                                             const double p_EjectaMass, 
+								             const STELLAR_TYPE p_StellarType)                                  { return m_Star->CalculateSNKickMagnitude(p_RemnantMass, p_EjectaMass, p_StellarType); }
 
     double          CalculateThermalMassLossRate()                                                              { return m_Star->CalculateThermalMassLossRate(); }
 

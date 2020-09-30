@@ -168,18 +168,18 @@ private:
 
     COMPASUnorderedMap<LOGFILE, LOGFILE_DETAILS> m_OpenStandardLogFileIds;          // currently open standard logfiles: fileId, property details, field format strings
 
-    ANY_PROPERTY_VECTOR m_SSE_Parms_Rec       = SSE_PARAMETERS_REC;                 // default specification
-    ANY_PROPERTY_VECTOR m_SSE_Switch_Rec      = SSE_SWITCH_LOG_REC;                 // default specification
-    ANY_PROPERTY_VECTOR m_SSE_SN_Rec          = SSE_SUPERNOVA_REC;                  // default specification
-    ANY_PROPERTY_VECTOR m_BSE_SysParms_Rec    = BSE_SYSTEM_PARAMETERS_REC;          // default specification
-    ANY_PROPERTY_VECTOR m_BSE_DCO_Rec         = BSE_DOUBLE_COMPACT_OBJECTS_REC;     // default specification
-    ANY_PROPERTY_VECTOR m_BSE_SNE_Rec         = BSE_SUPERNOVAE_REC;                 // default specification
-    ANY_PROPERTY_VECTOR m_BSE_CEE_Rec         = BSE_COMMON_ENVELOPES_REC;           // default specification
-    ANY_PROPERTY_VECTOR m_BSE_RLOF_Rec        = BSE_RLOF_PARAMETERS_REC;            // default specification
-    ANY_PROPERTY_VECTOR m_BSE_BE_Binaries_Rec = BSE_BE_BINARIES_REC;                // default specification
-    ANY_PROPERTY_VECTOR m_BSE_Pulsars_Rec     = BSE_PULSAR_EVOLUTION_REC;           // default specification
-    ANY_PROPERTY_VECTOR m_BSE_Detailed_Rec    = BSE_DETAILED_OUTPUT_REC;            // default specification
-    ANY_PROPERTY_VECTOR m_BSE_Switch_Rec      = BSE_SWITCH_LOG_REC;                 // default specification
+    ANY_PROPERTY_VECTOR m_SSE_Detailed_Rec = SSE_DETAILED_OUTPUT_REC;               // default specification
+    ANY_PROPERTY_VECTOR m_SSE_Switch_Rec   = SSE_SWITCH_LOG_REC;                    // default specification
+    ANY_PROPERTY_VECTOR m_SSE_SNE_Rec      = SSE_SUPERNOVAE_REC;                    // default specification
+    ANY_PROPERTY_VECTOR m_SysParms_Rec     = SYSTEM_PARAMETERS_REC;                 // default specification
+    ANY_PROPERTY_VECTOR m_DCO_Rec          = DOUBLE_COMPACT_OBJECTS_REC;            // default specification
+    ANY_PROPERTY_VECTOR m_BSE_SNE_Rec      = BSE_SUPERNOVAE_REC;                    // default specification
+    ANY_PROPERTY_VECTOR m_CEE_Rec          = COMMON_ENVELOPES_REC;                  // default specification
+    ANY_PROPERTY_VECTOR m_RLOF_Rec         = RLOF_PARAMETERS_REC;                   // default specification
+    ANY_PROPERTY_VECTOR m_BE_Binaries_Rec  = BE_BINARIES_REC;                       // default specification
+    ANY_PROPERTY_VECTOR m_BSE_Pulsars_Rec  = BSE_PULSAR_EVOLUTION_REC;              // default specification
+    ANY_PROPERTY_VECTOR m_BSE_Detailed_Rec = BSE_DETAILED_OUTPUT_REC;               // default specification
+    ANY_PROPERTY_VECTOR m_BSE_Switch_Rec   = BSE_SWITCH_LOG_REC;                    // default specification
 
 
     // the following block of variables support the BSE Switch Log file
@@ -592,21 +592,21 @@ public:
     std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> GetStandardLogFileRecordDetails(const LOGFILE p_Logfile);
 
     template <class T>
-    void LogSSEParameters(const T* const p_Star, const int p_Id, const string p_Rec)            { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PARAMETERS)), 0, LOGFILE::SSE_PARAMETERS, p_Star, p_Rec, "_" + std::to_string(abs(p_Id))); }
+    void LogSSEDetailedOutput(const T* const p_Star, const int p_Id, const string p_Rec)        { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_DETAILED_OUTPUT)), 0, LOGFILE::SSE_DETAILED_OUTPUT, p_Star, p_Rec, "_" + std::to_string(abs(p_Id))); }
     template <class T>
     void LogSSESwitchLog(const T* const p_Star, const int p_Id, const string p_Rec)             { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)), 0, LOGFILE::SSE_SWITCH_LOG, p_Star, p_Rec, "_" + std::to_string(abs(p_Id))); }
     template <class T>
-    void LogSSESupernovaDetails(const T* const p_Star, const string p_Rec)                      { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVA)), 0, LOGFILE::SSE_SUPERNOVA, p_Star, p_Rec); }
+    void LogSSESupernovaDetails(const T* const p_Star, const string p_Rec)                      { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, p_Star, p_Rec); }
     template <class T>
-    void LogBSEParameters(const T* const p_Binary, const string p_Rec)                          { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS)), 0, LOGFILE::BSE_SYSTEM_PARAMETERS, p_Binary, p_Rec); }
+    void LogSystemParameters(const T* const p_Binary, const string p_Rec)                       { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SYSTEM_PARAMETERS)), 0, LOGFILE::SYSTEM_PARAMETERS, p_Binary, p_Rec); }
     template <class T>
-    void LogBSEDoubleCompactObject(const T* const p_Binary, const string p_Rec)                 { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS)), 0, LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, p_Binary, p_Rec); }
+    void LogDoubleCompactObject(const T* const p_Binary, const string p_Rec)                    { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::DOUBLE_COMPACT_OBJECTS)), 0, LOGFILE::DOUBLE_COMPACT_OBJECTS, p_Binary, p_Rec); }
     template <class T>
-    void LogBSECommonEnvelope(const T* const p_Binary, const string p_Rec)                      { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES)), 0, LOGFILE::BSE_COMMON_ENVELOPES, p_Binary, p_Rec); }
+    void LogCommonEnvelope(const T* const p_Binary, const string p_Rec)                         { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::COMMON_ENVELOPES)), 0, LOGFILE::COMMON_ENVELOPES, p_Binary, p_Rec); }
     template <class T>
-    void LogBSERLOFParameters(const T* const p_Binary, const string p_Rec)                      { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS)), 0, LOGFILE::BSE_RLOF_PARAMETERS, p_Binary, p_Rec); }
+    void LogRLOFParameters(const T* const p_Binary, const string p_Rec)                         { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::RLOF_PARAMETERS)), 0, LOGFILE::RLOF_PARAMETERS, p_Binary, p_Rec); }
     template <class T>
-    void LogBSEBeBinary(const T* const p_Binary, const string p_Rec)                            { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES)), 0, LOGFILE::BSE_BE_BINARIES, p_Binary, p_Rec); }
+    void LogBeBinary(const T* const p_Binary, const string p_Rec)                               { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BE_BINARIES)), 0, LOGFILE::BE_BINARIES, p_Binary, p_Rec); }
     template <class T>
     void LogBSEDetailedOutput(const T* const p_Binary, const long int p_Id, const string p_Rec) { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT)), 0, LOGFILE::BSE_DETAILED_OUTPUT, p_Binary, p_Rec, "_" + std::to_string(abs(p_Id))); }
     template <class T>
@@ -626,12 +626,12 @@ public:
         // if we don't already have the SSE Supernova log record properties and format vector, get them
         // this will only need to be done one per run
         if (m_SSESupernova_LogRecordProperties.empty() || m_SSESupernova_LogRecordFmtVector.empty()) {
-            std::tie(m_SSESupernova_LogRecordProperties, m_SSESupernova_LogRecordFmtVector) = LOGGING->GetStandardLogFileRecordDetails(LOGFILE::SSE_SUPERNOVA);
+            std::tie(m_SSESupernova_LogRecordProperties, m_SSESupernova_LogRecordFmtVector) = LOGGING->GetStandardLogFileRecordDetails(LOGFILE::SSE_SUPERNOVAE);
         }
 
         // get a formatted record with current data
         // this will replace any existing stashed record - no queue here
-        m_SSESupernova_DelayedLogRecord = GetLogStandardRecord(LOGFILE::SSE_SUPERNOVA, 
+        m_SSESupernova_DelayedLogRecord = GetLogStandardRecord(LOGFILE::SSE_SUPERNOVAE, 
                                                                p_Star, 
                                                                m_SSESupernova_LogRecordProperties, 
                                                                m_SSESupernova_LogRecordFmtVector, 
@@ -646,7 +646,7 @@ public:
         // if the stashed SSE Supernova record is non-empty, print it, then clear it - otherwise do nothing
         if (!m_SSESupernova_DelayedLogRecord.empty()) {
 
-            LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVA)), 0, LOGFILE::SSE_SUPERNOVA, p_Star, m_SSESupernova_DelayedLogRecord);
+            LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, p_Star, m_SSESupernova_DelayedLogRecord);
             m_SSESupernova_DelayedLogRecord = "";
         }
     }

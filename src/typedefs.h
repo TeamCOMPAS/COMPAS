@@ -12,6 +12,13 @@ typedef std::initializer_list<SN_EVENT>                                         
 typedef std::tuple<int, std::string, ANY_PROPERTY_VECTOR, std::vector<std::string>> LOGFILE_DETAILS;
 
 
+// Grid file details
+typedef struct Gridfile {
+    std::string   filename;                                 // filename for grid file
+    ERROR         error;                                    // status - ERROR::NONE if no problem, otherwise an error number
+    std::ifstream handle;                                   // the file handle
+} GridfileT;
+
 
 // RotationalVelocityParams struct for gsl root solver
 struct RotationalVelocityParams {                           // Structure containing parameter (u) for the root solving function using gsl_root_solver

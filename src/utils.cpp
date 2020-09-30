@@ -603,6 +603,412 @@ namespace utils {
 
 
     /*
+     * Calculate the value of the CDF of the Kroupa (2001) IMF at p_Mass
+     *
+     * If p_Mass is outside the bounds of the IMF (< p_Min or >= p_Max), the returned CDF value will be 0.0
+     * 
+     * 
+     * double CalculateCDFKroupa(const double p_Mass, const double p_Max, const double p_Min)
+     *
+     * @param   [IN]    p_Mass                      Mass value (in Msol) at which to calculate the CDF
+     * @param   [IN]    p_Max                       IMF maximum
+     * @param   [IN]    p_Min                       IMF minimum
+     * @return                                      CDF value
+     */
+    double CalculateCDFKroupa(const double p_Mass, const double p_Max, const double p_Min) {
+
+        if ((p_Mass < p_Min) || (p_Mass >= p_Max)) return 0.0;      // return 0.0 if mass is out of bounds of function
+    
+        double CDF = 0.0;
+
+        if (p_Min <= KROUPA_BREAK_1 &&
+            p_Max >  KROUPA_BREAK_1 &&
+            p_Max <= KROUPA_BREAK_2) {
+
+            double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(p_Min, KROUPA_POWER_PLUS1_1));
+            double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (PPOW(p_Max, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+
+            double C1 = 1.0 / (term1 + term2);
+            double C2 = C1 * KROUPA_BREAK_1_POWER_1_2;
+
+            if (p_Mass >= p_Min && p_Mass < KROUPA_BREAK_1) {
+                CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_1) - PPOW(p_Min, KROUPA_POWER_PLUS1_1));
+            }
+            else if (p_Mass >= KROUPA_BREAK_1 && p_Mass < KROUPA_BREAK_2) {
+                CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(p_Min, KROUPA_POWER_PLUS1_1)) +
+                      ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+            }
+        }
+        else if (p_Min <= KROUPA_BREAK_1 &&
+                 p_Max >  KROUPA_BREAK_2) {
+
+            double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(p_Min, KROUPA_POWER_PLUS1_1));
+            double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
+            double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (PPOW(p_Max, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+
+            double C1 = 1.0 / (term1 + term2 + term3);
+            double C2 = C1 * KROUPA_BREAK_1_POWER_1_2;
+            double C3 = C2 * KROUPA_BREAK_2_POWER_2_3;
+
+            if (p_Mass >= p_Min && p_Mass < KROUPA_BREAK_1) {
+                CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_1) - PPOW(p_Min, KROUPA_POWER_PLUS1_1));
+            }
+            else if (p_Mass >= KROUPA_BREAK_1 && p_Mass < KROUPA_BREAK_2) {
+                CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(p_Min, KROUPA_POWER_PLUS1_1)) +
+                      ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+            }
+            else if (p_Mass >= KROUPA_BREAK_2 && p_Mass < p_Max) {
+                CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(p_Min, KROUPA_POWER_PLUS1_1)) +
+                      ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2) +
+                      ONE_OVER_KROUPA_POWER_3_PLUS1 * C3 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+            }
+        }
+        else if (p_Min >  KROUPA_BREAK_1 &&
+                 p_Min <= KROUPA_BREAK_2 &&
+                 p_Max >  KROUPA_BREAK_2) {
+
+            double term1 = ONE_OVER_KROUPA_POWER_2_PLUS1 * (KROUPA_BREAK_2_PLUS1_2 - PPOW(p_Min, KROUPA_POWER_PLUS1_2));
+            double term2 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_2_POWER_2_3 * (PPOW(p_Max, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+
+            double C2 = 1.0 / (term1 + term2);
+            double C3 = C2 * KROUPA_BREAK_2_POWER_2_3;
+
+            if (p_Mass >= p_Min && p_Mass < KROUPA_BREAK_2) {
+                CDF = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_2) - PPOW(p_Min, KROUPA_POWER_PLUS1_2));
+            }
+            else if (p_Mass >= KROUPA_BREAK_2 && p_Mass < p_Max) {
+                CDF = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - PPOW(p_Min, KROUPA_POWER_PLUS1_2)) +
+                      ONE_OVER_KROUPA_POWER_3_PLUS1 * C3 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+            }
+        }
+
+        return CDF;
+    }
+
+
+    /*
+     * Draw eccentricity from the distribution specified by the user
+     *
+     *
+     * double SampleEccentricityDistribution()
+     *
+     * @param   [IN]    p_Edist                     The eccentricity distribution to use to draw the eccentricity
+     * @param   [IN]    p_Max                       Distribution maximum
+     * @param   [IN]    p_Min                       Distribution minimum
+     * @return                                      Eccentricity
+     */
+    double SampleEccentricityDistribution(const ECCENTRICITY_DISTRIBUTION p_Edist, const double p_Max, const double p_Min) {
+
+        double eccentricity;
+
+        switch (p_Edist) {                                                  // which distribution?
+
+            case ECCENTRICITY_DISTRIBUTION::ZERO:                                                       // ZERO - all systems are initially circular i.e. have zero eccentricity
+                eccentricity = 0.0;
+                break;
+
+            case ECCENTRICITY_DISTRIBUTION::FLAT:                                                       // FLAT
+                eccentricity = utils::InverseSampleFromPowerLaw(0.0, p_Max, p_Min);
+                break;
+
+            case ECCENTRICITY_DISTRIBUTION::THERMALISED:                                                // THERMAL eccentricity distribution p(e) = 2e
+            case ECCENTRICITY_DISTRIBUTION::THERMAL:
+                eccentricity = utils::InverseSampleFromPowerLaw(1.0, p_Max, p_Min);
+                break;
+
+            case ECCENTRICITY_DISTRIBUTION::GELLER_2013:                                                // M35 eccentricity distribution from Geller, Hurley and Mathieu 2013
+                // Gaussian with mean 0.38 and sigma 0.23
+                // http://iopscience.iop.org/article/10.1088/0004-6256/145/1/8/pdf
+                // Sampling function taken from binpop.f in NBODY6
+
+                do {                                                                                    // JR: todo: catch non-convergence?
+                    eccentricity = 0.23 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.38;
+                } while(eccentricity < 0.0 || eccentricity > 1.0);                                      // JR: don't use utils::Compare() here
+                break;
+
+            case ECCENTRICITY_DISTRIBUTION::DUQUENNOYMAYOR1991:                                        // eccentricity distribution from Duquennoy & Mayor (1991)
+                // http://adsabs.harvard.edu/abs/1991A%26A...248..485D
+                // Sampling function taken from binpop.f in NBODY6
+
+                do {                                                                                    // JR: todo: catch non-convergence?
+                    eccentricity = 0.15 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.3;
+                } while(eccentricity < 0.0 or eccentricity > 1.0);                                      // JR: don't use utils::Compare() here
+                break;
+
+            case ECCENTRICITY_DISTRIBUTION::SANA2012:                                                   // Sana et al 2012
+                // (http://science.sciencemag.org/content/sci/337/6093/444.full.pdf) distribution of eccentricities.
+                // Taken from table S3 in http://science.sciencemag.org/content/sci/suppl/2012/07/25/337.6093.444.DC1/1223344.Sana.SM.pdf
+                // See also de Mink and Belczynski 2015 http://arxiv.org/pdf/1506.03573v2.pdf
+
+                eccentricity = utils::InverseSampleFromPowerLaw(-0.42, p_Max, p_Min);
+                break;
+
+            case ECCENTRICITY_DISTRIBUTION::FIXED:                                                      // FIXED - all systems have same initial eccentricity - not implemented
+            case ECCENTRICITY_DISTRIBUTION::IMPORTANCE:                                                 // IMPORTANCE - not implemented
+            default:                                                                                    // unknown distribution
+                eccentricity = 0.0;
+        }
+
+        return eccentricity;
+    }
+
+
+    /*
+     * Draw mass from the distribution specified by the user
+     *
+     *
+     * double SampleInitialMassDistribution(const INITIAL_MASS_FUNCTION p_IMF, const double p_Max, const double p_Min, const double p_Power)
+     *
+     * @param   [IN]    p_IMF                       The IMF to use to draw the mass
+     * @param   [IN]    p_Max                       IMF maximum
+     * @param   [IN]    p_Min                       IMF minimum
+     * @param   [IN]    p_Power                     IMF power (for IMF::POWERLAW)
+     * @return                                      Mass
+     */
+    double SampleInitialMassDistribution(const INITIAL_MASS_FUNCTION p_IMF, const double p_Max, const double p_Min, const double p_Power) {
+
+        double thisMass = 0.0;
+
+        switch (p_IMF) {                                                                                            // which IMF?
+
+            case INITIAL_MASS_FUNCTION::SALPETER:                                                                   // SALPETER
+
+                thisMass = utils::InverseSampleFromPowerLaw(SALPETER_POWER, p_Max, p_Min);
+                break;
+
+            case INITIAL_MASS_FUNCTION::POWERLAW:                                                                   // POWER LAW
+
+                thisMass = utils::InverseSampleFromPowerLaw(p_Power, p_Max, p_Min);
+                break;
+
+            case INITIAL_MASS_FUNCTION::UNIFORM:                                                                    // UNIFORM - convienience function for POWERLAW with slope of 0
+
+                thisMass = RAND->Random(p_Min, p_Max);
+                break;
+
+            case INITIAL_MASS_FUNCTION::KROUPA:                                                                     // KROUPA
+
+                // find out where the user specificed their minimum and maximum masses to generate
+                if (utils::Compare(p_Min, KROUPA_BREAK_1) <= 0 && utils::Compare(p_Max, KROUPA_BREAK_1) <= 0) {
+                    thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER_1, p_Max, p_Min);                      // draw mass using inverse sampling
+                }
+                else if (utils::Compare(p_Min, KROUPA_BREAK_1) > 0 && utils::Compare(p_Min, KROUPA_BREAK_2) <= 0 &&
+                         utils::Compare(p_Max, KROUPA_BREAK_1) > 0 && utils::Compare(p_Max, KROUPA_BREAK_2) <= 0) {
+
+                    thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER_2, p_Max, p_Min);                      // draw mass using inverse sampling
+                }
+                else if (utils::Compare(p_Min, KROUPA_BREAK_2) > 0 && utils::Compare(p_Max, KROUPA_BREAK_2) > 0) {
+
+                    thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER_3, p_Max, p_Min);                      // draw mass using inverse sampling
+                }
+                else if (utils::Compare(p_Min, KROUPA_BREAK_1) <= 0 &&
+                         utils::Compare(p_Max, KROUPA_BREAK_1)  > 0 && utils::Compare(p_Max, KROUPA_BREAK_2) <= 0) {
+
+                    double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(p_Min, KROUPA_POWER_PLUS1_1));
+                    double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (PPOW(p_Max, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
+
+                    double C1    = 1.0 / (term1 + term2);
+                    double C2    = C1 * KROUPA_BREAK_1_POWER_1_2;
+                    double A     = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(p_Min, KROUPA_POWER_PLUS1_1));
+
+                    double rand  = RAND->Random();                                                                  // draw a random number between 0 and 1
+                    thisMass = utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_1, p_Max, p_Min)) < 0
+                                ? PPOW(rand * (KROUPA_POWER_PLUS1_1 / C1) + PPOW(p_Min, KROUPA_POWER_PLUS1_1), ONE_OVER_KROUPA_POWER_1_PLUS1)
+                                : PPOW((rand - A) * (KROUPA_POWER_PLUS1_2 / C2) + KROUPA_BREAK_1_PLUS1_2, ONE_OVER_KROUPA_POWER_2_PLUS1);
+                }
+                else if (utils::Compare(p_Min, KROUPA_BREAK_1) <= 0 && utils::Compare(p_Max, KROUPA_BREAK_2_POWER_2_3) > 0) {
+
+                    double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(p_Min, KROUPA_POWER_PLUS1_1));
+                    double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
+                    double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (PPOW(p_Max, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+                    
+                    double C1    = 1.0 / (term1 + term2 + term3);
+                    double C2    = C1 * KROUPA_BREAK_1_POWER_1_2;
+                    double C3    = C2 * KROUPA_BREAK_2_POWER_2_3;
+
+                    double A     = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(p_Min, KROUPA_POWER_PLUS1_1));
+                    double B     = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
+
+                    double rand  = RAND->Random();                                                                  // draw a random number between 0 and 1
+
+                    if (utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_1, p_Max, p_Min)) < 0)
+                        thisMass = PPOW(rand * (KROUPA_POWER_PLUS1_1 / C1) + PPOW(p_Min, KROUPA_POWER_PLUS1_1), ONE_OVER_KROUPA_POWER_1_PLUS1);
+                    else if (utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_2, p_Max, p_Min)) < 0)
+                        thisMass = PPOW((rand - A) * (KROUPA_POWER_PLUS1_2 / C2) + KROUPA_BREAK_1_PLUS1_2, ONE_OVER_KROUPA_POWER_2_PLUS1);
+                    else
+                        thisMass = PPOW((rand - A - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
+                }
+                else if (utils::Compare(p_Min, KROUPA_BREAK_1)  > 0 &&
+                         utils::Compare(p_Min, KROUPA_BREAK_2) <= 0 && utils::Compare(p_Max, KROUPA_BREAK_2) > 0) {
+
+                    double term1 = ONE_OVER_KROUPA_POWER_2_PLUS1 * (KROUPA_BREAK_2_PLUS1_2 - PPOW(p_Min, KROUPA_POWER_PLUS1_2));
+                    double term2 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_2_POWER_2_3 * (PPOW(p_Max, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
+
+                    double C2    = 1.0 / (term1 + term2);
+                    double C3    = C2 * KROUPA_BREAK_2_POWER_2_3;
+                    double B     = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - PPOW(p_Min, KROUPA_POWER_PLUS1_2));
+
+                    double rand  = RAND->Random();                                                                  // draw a random number between 0 and 1
+
+                    thisMass = utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_2, p_Max, p_Min)) < 0
+                                ? PPOW(rand * (KROUPA_POWER_PLUS1_2 / C2) + PPOW(p_Min, KROUPA_POWER_PLUS1_2), ONE_OVER_KROUPA_POWER_2_PLUS1)
+                                : PPOW((rand - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
+                }
+                // JR: no other case possible - as long as p_Min < p_Max (currently enforced in Options.cpp)
+                break;
+
+            default:                                                                                                // unknown IMF
+                thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER, KROUPA_MAXIMUM, KROUPA_MINIMUM);          // calculate mass using power law with default values
+        }
+
+        return thisMass;
+    }
+
+
+    /*
+     * Draw mass ratio q from the distribution specified by the user
+     *
+     *
+     * double SampleQDistribution(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min)
+     *
+     * @param   [IN]    p_IMF                       The distribution to use to draw the ratio
+     * @param   [IN]    p_Max                       Distribution maximum
+     * @param   [IN]    p_Min                       Distribution minimum
+     * @return                                      Mass ratio q
+     */
+    double SampleQDistribution(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min) {
+
+        double q;
+
+        switch (p_Qdist) {
+
+            case MASS_RATIO_DISTRIBUTION::FLAT:                                                                 // FLAT mass ratio distriution
+                q = utils::InverseSampleFromPowerLaw(0.0, p_Max, p_Min);
+                break;
+
+            case MASS_RATIO_DISTRIBUTION::DUQUENNOYMAYOR1991:                                                   // mass ratio distribution from Duquennoy & Mayor (1991) (http://adsabs.harvard.edu/abs/1991A%26A...248..485D)
+
+                do {                                                                                            // JR: todo: catch non-convergence?
+                    q = 0.42 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.23;
+                } while (q < 0.0 || q > 1.0);                                                                   // JR: don't use utils::Compare() here
+                break;
+
+            case MASS_RATIO_DISTRIBUTION::SANA2012:                                                                                     // Sana et al 2012 (http://science.sciencemag.org/content/sci/337/6093/444.full.pdf) distribution of eccentricities.
+                // Taken from table S3 in http://science.sciencemag.org/content/sci/suppl/2012/07/25/337.6093.444.DC1/1223344.Sana.SM.pdf
+                // See also de Mink and Belczynski 2015 http://arxiv.org/pdf/1506.03573v2.pdf
+
+                q = utils::InverseSampleFromPowerLaw(-0.1, p_Max, p_Min);   // de Mink and Belczynski use min = 0.1, max = 1.0
+                break;
+
+            default:                                                                                            // unknown q-distribution
+                q = utils::InverseSampleFromPowerLaw(0.0, 1.0, 0.0);                                            // calculate q using power law with default values
+        }
+
+        return std::min(std::max(p_Min, q), p_Max);                                                             // clamp to [min, max]
+    }
+
+
+    /*
+     * Draw semi-major axis from the distribution specified by the user
+     * 
+     * 
+     * double SampleSemiMajorAxisDistribution(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
+     *                                        const double p_AdistMax, 
+     *                                        const double p_AdistMin, 
+     *                                        const double p_AdistPower, 
+     *                                        const double p_PdistMax, 
+     *                                        const double p_PdistMin, 
+     *                                        const double p_Mass1, 
+     *                                        const double p_Mass2)
+     *
+     * @param   [IN]    p_Adist                     The distribution to use to draw semi-major axis
+     * @param   [IN]    p_AdistMax                  Semi-major axis distribution maximum
+     * @param   [IN]    p_AdistMin                  Semi-major axis distribution minimum
+     * @param   [IN]    p_Power                     Semi-major axis distribution power (for CUSTOM distribution)
+     * @param   [IN]    p_PdistMax                  Period distribution maximum (for SANA2012 distribution)
+     * @param   [IN]    p_PdistMin                  Period distribution minimum (for SANA2012 distribution)
+     * @param   [IN]    p_Mass1                     Mass of the primary
+     * @param   [IN]    p_Mass2                     Mass of the secondary
+     * @return                                      Semi-major axis in AU
+     */
+    double SampleSemiMajorAxisDistribution(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
+                                           const double p_AdistMax, 
+                                           const double p_AdistMin, 
+                                           const double p_AdistPower, 
+                                           const double p_PdistMax, 
+                                           const double p_PdistMin, 
+                                           const double p_Mass1, 
+                                           const double p_Mass2) {
+
+        double semiMajorAxis;
+
+        switch (p_Adist) {                                                                                              // which distribution?
+
+            case SEMI_MAJOR_AXIS_DISTRIBUTION::FLATINLOG:                                                               // FLAT IN LOG
+
+                semiMajorAxis = utils::InverseSampleFromPowerLaw(-1.0, p_AdistMax, p_AdistMin);
+                break;
+
+            case SEMI_MAJOR_AXIS_DISTRIBUTION::DUQUENNOYMAYOR1991:                                                      // Duquennoy & Mayor (1991) period distribution
+                // http://adsabs.harvard.edu/abs/1991A%26A...248..485D
+                // See also the period distribution (Figure 1) of M35 in Geller+ 2013 https://arxiv.org/abs/1210.1575
+                // See also the period distribution (Figure 13) of local solar type binaries from Raghavan et al 2010 https://arxiv.org/abs/1007.0414
+                // They have log-normal distribution with a mean of 5.03 and a standard deviation of 2.28, with a minimum period of around 0.1 days
+                // Sampling function taken from binpop.f in NBODY6
+
+                // Make sure that the drawn semi-major axis is in the range specified by the user
+                do {                                                                                                    // JR: todo: catch for non-convergence?
+                    double periodInDays = PPOW(10.0, 2.3 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 4.8);
+                    semiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(p_Mass1, p_Mass2, periodInDays);      // convert period in days to semi-major axis in AU
+                } while (semiMajorAxis < p_AdistMin || semiMajorAxis > p_AdistMax);                                     // JR: don't use utils::Compare() here
+                break;
+
+            case SEMI_MAJOR_AXIS_DISTRIBUTION::CUSTOM:                                                                  // CUSTOM
+
+                semiMajorAxis = utils::InverseSampleFromPowerLaw(p_AdistPower, p_AdistMax, p_AdistMin);
+                break;
+
+            case SEMI_MAJOR_AXIS_DISTRIBUTION::SANA2012: {                                                              // Sana et al 2012
+                // http://science.sciencemag.org/content/sci/337/6093/444.full.pdf
+                // distribution of semi-major axes. Sana et al fit for the orbital period, which we sample in here, before returning the semi major axis
+                // Taken from table S3 in http://science.sciencemag.org/content/sci/suppl/2012/07/25/337.6093.444.DC1/1223344.Sana.SM.pdf
+                // See also de Mink and Belczynski 2015 http://arxiv.org/pdf/1506.03573v2.pdf
+
+                double logPeriodMin = p_PdistMin > 1.0 ? log(p_PdistMin) : 0.0;                                         // smallest initial log period  JR: don't use utils::Compare() here
+                double logPeriodMax = p_PdistMax > 1.0 ? log(p_PdistMax) : 0.0;                                         // largest initial log period   JR: don't use utils::Compare() here
+
+                double periodInDays = exp(utils::InverseSampleFromPowerLaw(-0.55, logPeriodMax, logPeriodMin));         // draw a period in days from their distribution
+
+                semiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(p_Mass1, p_Mass2, periodInDays);          // convert period in days to semi-major axis in AU
+                } break;
+
+            default:                                                                                                    // unknown distribution
+                semiMajorAxis = utils::InverseSampleFromPowerLaw(-1.0, 100.0, 0.5);                                     // calculate semiMajorAxis using power law with default values
+        }
+
+        return semiMajorAxis;
+    }
+
+
+    /*
+     * Placeholder for function to sample metallicity
+     *
+     * For now we just return the default (Zsolar).  If we ever decide to sample metallicity
+     * we should only sample if the user wants it to be sampled (perhaps by specifying which 
+     * distribution), and return the default if the user doesn't ask for sampling (or doesn't
+     * specify a distribution)
+     *
+     *
+     * double SampleMetallicity()
+     *
+     * @return                                      Sampled metallicity
+     */
+    double SampleMetallicity() {
+        return ZSOL;
+    }
+
+
+    /*
      * Draw the angular components of the supernova kick theta and phi.
      *
      * 
@@ -634,7 +1040,7 @@ namespace utils {
                 // need a lower cutoff (currently set at 1E-6), check it doesn't affect things too much
                 // JR: todo: should these be in constants.h?
                 double magnitude_of_cos_theta = utils::InverseSampleFromPowerLaw(p_KickDirectionPower, 1.0, 1E-6);
-                if (p_KickDirectionPower< 0.0) magnitude_of_cos_theta = 1.0 - magnitude_of_cos_theta;               // don't use utils::Compare() here
+                if (p_KickDirectionPower < 0.0) magnitude_of_cos_theta = 1.0 - magnitude_of_cos_theta;              // don't use utils::Compare() here
 
                 double actual_cos_theta = magnitude_of_cos_theta;
 
@@ -670,7 +1076,7 @@ namespace utils {
                 break;
 
             default:                                                                                                // unknown kick direction distribution - use ISOTROPIC
-                // the kick direction distribution is set my a commandline option that
+                // the kick direction distribution is set by a commandline option that
                 // has already been checked by the time we get to this function - the
                 // default case should never be taken.
                 theta = acos(1.0 - (2.0 * RAND->Random())) - M_PI_2;

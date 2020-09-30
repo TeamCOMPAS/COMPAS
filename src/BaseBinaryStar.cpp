@@ -26,12 +26,7 @@
 // binary is generated according to distributions specified in program options
 BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
 
-    SetInitialCommonValues(p_AIS, p_Id);                                                                                                        // start construction of the binary
-
-    m_CEDetails.alpha = OPTIONS->SampleCommonEnvelopeAlpha()
-                        ? RAND->Random(OPTIONS->SampleCommonEnvelopeAlphaMin(), OPTIONS->SampleCommonEnvelopeAlphaMax())
-                        : OPTIONS->CommonEnvelopeAlpha();
-
+    SetInitialValues(p_AIS, p_Id);                                                                                                      // start construction of the binary
 
     // generate initial properties of binary
     // check that the constituent stars are not touching
@@ -43,54 +38,120 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
     bool secondarySmallerThanMinimumMass        = false;
     bool initialParametersOutsideParameterSpace = false;
 
+    // Single stars are provided with a kick structure that specifies the values of the random
+    // number to be used to generate to kick magnitude, and the actual kick magnitude specified
+    // by the user via program option --kick-magnitude 
+    //
+    // See typedefs.h for the kick structure.
+    //
+    // We can't just pick up the values of the options inside Basestar.cpp because the constituents
+    // of binaries get different values, so use different options. The Basestar.cpp code doesn't 
+    // know if the star is a single star (SSE) or a constituent of a binary (BSE) - it only knows 
+    // that it is a star - so we have to setup the kick structures here for each constituent star.
+    //
+    // We can do these outsid ethe following loop - AIS doesn't know about these
+
+    KickParameters kickParameters1;
+    kickParameters1.magnitudeRandomSpecified = OPTIONS->OptionSpecified("kick-magnitude-random-1") == 1;
+    kickParameters1.magnitudeRandom          = OPTIONS->KickMagnitudeRandom1();
+    kickParameters1.magnitudeSpecified       = OPTIONS->OptionSpecified("kick-magnitude-1") == 1;
+    kickParameters1.magnitude                = OPTIONS->KickMagnitude1();
+    kickParameters1.phiSpecified             = OPTIONS->OptionSpecified("kick-phi-1") == 1;
+    kickParameters1.phi                      = OPTIONS->SN_Phi1();
+    kickParameters1.thetaSpecified           = OPTIONS->OptionSpecified("kick-theta-1") == 1;
+    kickParameters1.theta                    = OPTIONS->SN_Theta1();
+    kickParameters1.meanAnomalySpecified     = OPTIONS->OptionSpecified("kick-mean-anomaly-1") == 1;
+    kickParameters1.meanAnomaly              = OPTIONS->SN_MeanAnomaly1();
+
+    KickParameters kickParameters2;
+    kickParameters2.magnitudeRandomSpecified = OPTIONS->OptionSpecified("kick-magnitude-random-2") == 1;
+    kickParameters2.magnitudeRandom          = OPTIONS->KickMagnitudeRandom2();
+    kickParameters2.magnitudeSpecified       = OPTIONS->OptionSpecified("kick-magnitude-2") == 1;
+    kickParameters2.magnitude                = OPTIONS->KickMagnitude2();
+    kickParameters2.phiSpecified             = OPTIONS->OptionSpecified("kick-phi-2") == 1;
+    kickParameters2.phi                      = OPTIONS->SN_Phi2();
+    kickParameters2.thetaSpecified           = OPTIONS->OptionSpecified("kick-theta-2") == 1;
+    kickParameters2.theta                    = OPTIONS->SN_Theta2();
+    kickParameters2.meanAnomalySpecified     = OPTIONS->OptionSpecified("kick-mean-anomaly-2") == 1;
+    kickParameters2.meanAnomaly              = OPTIONS->SN_MeanAnomaly2();
+
     do {
 
-        if(OPTIONS->AIS_RefinementPhase()) {                                                                                                    // JR: todo: Floor, do we need to do this inside the loop?
-            m_AIS.Initialise();                                                                                                                 // run AIS step 2 and sample from importance sampling distribution
+        if(OPTIONS->AIS_RefinementPhase()) {                                                                                            // AIS refinement phase?
+            m_AIS.Initialise();                                                                                                         // yes - run AIS step 2 and sample from importance sampling distribution
         }
 
-        double mass1        = SampleInitialMassDistribution();
-        double massRatio    = SampleQDistribution();
-        double mass2        = massRatio * mass1;
 
-        double metallicity1 = std::min(std::max(SampleMetallicityDistribution(), 0.0), 1.0);
-        double metallicity2 = std::min(std::max(SampleMetallicityDistribution(), 0.0), 1.0);
+        // this is a bit messy for now - but AIS will migrate out of the C++ code soon and we can clean this up
 
-        m_SemiMajorAxis     = SampleSemiMajorAxisDistribution(mass1, mass2);
-        m_Eccentricity      = SampleEccentricityDistribution();
+        double mass1    = OPTIONS->OptionSpecified("initial-mass-1") == 1                                                               // user specified primary mass?
+                            ? OPTIONS->InitialMass1()                                                                                   // yes, use it
+                            : m_AIS.DrawingFromAISDistributions()                                                                       // no - asmple it
+                                ? RAND->RandomGaussian(m_AIS.CovM1()) + m_AIS.MuM1()                                                    // ... using AIS
+                                : utils::SampleInitialMassDistribution(OPTIONS->InitialMassFunction(), 
+                                                                       OPTIONS->InitialMassFunctionMax(), 
+                                                                       OPTIONS->InitialMassFunctionMin(), 
+                                                                       OPTIONS->InitialMassFunctionPower());
+                                  
+        double mass2    = OPTIONS->OptionSpecified("initial-mass-2") == 1                                                               // user specified secondary mass?
+                            ? OPTIONS->InitialMass2()                                                                                   // yes, use it
+                            : m_AIS.DrawingFromAISDistributions()                                                                       // no, sample q and calculate mass2
+                                ? RAND->RandomGaussian(m_AIS.CovQ()) + m_AIS.MuQ() * mass1                                              // ... using AIS
+                                : utils::SampleQDistribution(OPTIONS->MassRatioDistribution(),
+                                                             OPTIONS->MassRatioDistributionMax(), 
+                                                             OPTIONS->MassRatioDistributionMin()) * mass1;                                                                        
+
+        m_SemiMajorAxis = OPTIONS->OptionSpecified("semi-major-axis") == 1                                                              // user specified semi-major axis?
+                            ? OPTIONS->SemiMajorAxis()                                                                                  // yes, use it
+                            : m_AIS.DrawingFromAISDistributions()                                                                       // no, sample q and calculate mass2
+                                ? PPOW(10, RAND->RandomGaussian(m_AIS.CovLogA()) + m_AIS.MuLogA())                                      // ... using AIS
+                                : utils::SampleSemiMajorAxisDistribution(OPTIONS->SemiMajorAxisDistribution(), 
+                                                                         OPTIONS->SemiMajorAxisDistributionMax(), 
+                                                                         OPTIONS->SemiMajorAxisDistributionMin(),
+                                                                         OPTIONS->SemiMajorAxisDistributionPower(), 
+                                                                         OPTIONS->PeriodDistributionMax(), 
+                                                                         OPTIONS->PeriodDistributionMin(), 
+                                                                         mass1, 
+                                                                         mass2);
+
+        m_Eccentricity  = OPTIONS->OptionSpecified("eccentricity") == 1                                                                 // user specified semi-major axis?
+                            ? OPTIONS->Eccentricity()                                                                                   // yes, use it
+                            : utils::SampleEccentricityDistribution(OPTIONS->EccentricityDistribution(), 
+                                                                    OPTIONS->EccentricityDistributionMax(), 
+                                                                    OPTIONS->EccentricityDistributionMin());                            // no, sample it
 
         // binary star contains two instances of star to hold masses, radii and luminosities.
         // star 1 initially more massive
-        m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1);
-        m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2);
+        m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, kickParameters1);
+        m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, kickParameters2);
 
         double rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * (1.0 - m_Eccentricity) * CalculateRocheLobeRadius_Static(mass1, mass2));
         double rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * (1.0 - m_Eccentricity) * CalculateRocheLobeRadius_Static(mass2, mass1));
 
-        m_MassesEquilibrated        = false;                                                                                                    // default
-        m_MassesEquilibratedAtBirth = false;                                                                                                    // default
+        m_MassesEquilibrated        = false;                                                                                            // default
+        m_MassesEquilibratedAtBirth = false;                                                                                            // default
 
-        rlof = utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0;					// either star overflowing Roche Lobe?
+        rlof = utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0;					            // either star overflowing Roche Lobe?
 
-        if (rlof && OPTIONS->AllowRLOFAtBirth()) {                                                                                                // over-contact binaries at birth allowed?    
-            m_MassesEquilibratedAtBirth = true;                                                                                                 // record that we've equilbrated at birth
+        if (rlof && OPTIONS->AllowRLOFAtBirth()) {                                                                                      // over-contact binaries at birth allowed?    
+            m_MassesEquilibratedAtBirth = true;                                                                                         // record that we've equilbrated at birth
 
-            mass1                       = (mass1 + mass2) / 2.0;                                                                                // equilibrate masses
-            mass2                       = mass1;                                                                                                // ditto
+            mass1                       = (mass1 + mass2) / 2.0;                                                                        // equilibrate masses
+            mass2                       = mass1;                                                                                        // ditto
             
             double M                    = mass1 + mass2;
             double m1m2                 = mass1 * mass2;
-            m_SemiMajorAxis            *= 16.0 * m1m2 * m1m2 / (M * M * M * M) * (1.0 - (m_Eccentricity * m_Eccentricity));                     // circularise; conserve angular momentum
+            m_SemiMajorAxis            *= 16.0 * m1m2 * m1m2 / (M * M * M * M) * (1.0 - (m_Eccentricity * m_Eccentricity));             // circularise; conserve angular momentum
 
-            m_Eccentricity              = 0.0;                                                                                                  // now circular
+            m_Eccentricity              = 0.0;                                                                                          // now circular
 
             // create new stars with equal masses - all other ZAMS values recalculated
             delete m_Star1;
-            m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity1);
+            m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, kickParameters1);
             delete m_Star2;
-            m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity2);
+            m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, kickParameters2);
         
-            rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass1, mass2));           //eccentricity already zero
+            rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass1, mass2));   //eccentricity already zero
             rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass2, mass1));
         }
 
@@ -101,21 +162,26 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
         secondarySmallerThanMinimumMass        = utils::Compare(mass2, OPTIONS->MinimumMassSecondary()) < 0;
         initialParametersOutsideParameterSpace = false;
 
-        if(OPTIONS->AIS_RefinementPhase()) {                                                                                                    // when using Adaptive Importance Sampling (step 2) check if drawns from Gaussians are inside the COMPAS parameter space
-            initialParametersOutsideParameterSpace = utils::Compare(mass1,           OPTIONS->InitialMassFunctionMin())       < 0 ||            // mass1 is outside (below) parameter space
-                                                     utils::Compare(mass1,           OPTIONS->InitialMassFunctionMax())       > 0 ||            // mass1 is outside (above) parameter space
-                                                     utils::Compare(massRatio,       OPTIONS->MassRatioDistributionMin())     < 0 ||            // massRatio is outside (below) parameter space
-                                                     utils::Compare(massRatio,       OPTIONS->MassRatioDistributionMax())     > 0 ||            // massRatio is outside (above) parameter space
-                                                     utils::Compare(m_SemiMajorAxis, OPTIONS->SemiMajorAxisDistributionMin()) < 0 ||            // semiMajorAxis is outside (below) parameter space
-                                                     utils::Compare(m_SemiMajorAxis, OPTIONS->SemiMajorAxisDistributionMax()) > 0;              // semiMajorAxis is outside (above) parameter space
+        // the following checks will be removed when the AIS code is removed
+        // until then we'll just turn them off if any of the initial parameters
+        // checked here are specified by the user
+        // (removed the check for massratio out of bounds - it is now clamped in the sampling function)
+
+        // when using Adaptive Importance Sampling (step 2) check if drawns from Gaussians are inside the COMPAS parameter space
+        if(OPTIONS->AIS_RefinementPhase()) {
+            initialParametersOutsideParameterSpace = (OPTIONS->OptionSpecified("initial-mass-1") != 1 && utils::Compare(mass1, OPTIONS->InitialMassFunctionMin()) < 0) ||                   // mass1 is outside (below) parameter space
+                                                     (OPTIONS->OptionSpecified("initial-mass-1") != 1 && utils::Compare(mass1, OPTIONS->InitialMassFunctionMax()) > 0) ||                   // mass1 is outside (above) parameter space
+                                                     (OPTIONS->OptionSpecified("semi-major-axis") != 1 && utils::Compare(m_SemiMajorAxis, OPTIONS->SemiMajorAxisDistributionMin()) < 0) ||  // semiMajorAxis is outside (below) parameter space
+                                                     (OPTIONS->OptionSpecified("semi-major-axis") != 1 && utils::Compare(m_SemiMajorAxis, OPTIONS->SemiMajorAxisDistributionMax())) > 0;    // semiMajorAxis is outside (above) parameter space
         }
     } while ( (!OPTIONS->AllowRLOFAtBirth() && rlof) || (!OPTIONS->AllowTouchingAtBirth() && merger) || secondarySmallerThanMinimumMass || initialParametersOutsideParameterSpace);
 
-    SetRemainingCommonValues();                                                                                                             // complete the construction of the binary
+    SetRemainingValues();                                                                                                               // complete the construction of the binary
 }
 
 
 // binary is generated according to parameters passed
+/*
 BaseBinaryStar::BaseBinaryStar(const AIS           &p_AIS,
                                const double         p_Mass1,
                                const double         p_Mass2,
@@ -180,18 +246,19 @@ BaseBinaryStar::BaseBinaryStar(const AIS           &p_AIS,
 
     SetRemainingCommonValues();                                                                                                                 // complete the construction of the binary
 }
+*/
 
 
 /*
- * Initiate the construction of the binary - initial common values
+ * Initiate the construction of the binary - initial values
  *
  *
- * void SetInitialCommonValues(const AIS &p_AIS, const long int p_Id)
+ * void SetInitialValues(const AIS &p_AIS, const long int p_Id)
  *
  * @param   [IN]    p_AIS                       AIS object passed to the constructor
  * @param   [IN]    p_Id                        Ordinal value of binary - see constructor notes above
  */
-void BaseBinaryStar::SetInitialCommonValues(const AIS &p_AIS, const long int p_Id) {
+void BaseBinaryStar::SetInitialValues(const AIS &p_AIS, const long int p_Id) {
 
     m_Error = ERROR::NONE;
 
@@ -223,16 +290,21 @@ void BaseBinaryStar::SetInitialCommonValues(const AIS &p_AIS, const long int p_I
     }
 
     m_AIS = p_AIS;                                                                                                                              // Adaptive Importance Sampling
+
+    // apply option values for initial values
+
+    m_CEDetails.alpha = OPTIONS->CommonEnvelopeAlpha(); // JR: we can probably remove this variable now and just use the option value directly in the code
+
 }
 
 
 /*
- * Complete the construction of the binary - remaining common values
+ * Complete the construction of the binary - remaining values
  *
  *
- * void SetRemainingCommonValues()
+ * void SetRemainingValues()
  */
-void BaseBinaryStar::SetRemainingCommonValues() {
+void BaseBinaryStar::SetRemainingValues() {
 
     // Initialise other parameters
 
@@ -789,452 +861,6 @@ bool BaseBinaryStar::HasTwoOf(STELLAR_TYPE_LIST p_List) const {
 
 
 /*
- * Draw semi-major axis from the distribution specified by the user
- * (SemiMajorAxisDistribution program option; will use AIS distribution if specified (AIS.DrawingFromAISDistributions))
- *
- *
- * double SampleSemiMajorAxisDistribution(const double p_Mass1, const double p_Mass2)
- *
- * @param   [IN]    p_Mass1                     Mass of the primary
- * @param   [IN]    p_Mass1                     Mass of the secondary
- * @return                                      Semi-major axis in AU
- */
-double BaseBinaryStar::SampleSemiMajorAxisDistribution(const double p_Mass1, const double p_Mass2) {
-
-    double semiMajorAxis;
-
-    if (!m_AIS.DrawingFromAISDistributions()) {                                                                                                 // draw from priors (not from AIS distributions)
-
-        switch (OPTIONS->SemiMajorAxisDistribution()) {                                                                                         // which distribution?
-
-            case SEMI_MAJOR_AXIS_DISTRIBUTION::FLATINLOG:                                                                                       // FLAT IN LOG
-
-                semiMajorAxis = utils::InverseSampleFromPowerLaw(-1.0, OPTIONS->SemiMajorAxisDistributionMax(), OPTIONS->SemiMajorAxisDistributionMin());
-                break;
-
-            case SEMI_MAJOR_AXIS_DISTRIBUTION::DUQUENNOYMAYOR1991:                                                                              // Duquennoy & Mayor (1991) period distribution
-                // http://adsabs.harvard.edu/abs/1991A%26A...248..485D
-                // See also the period distribution (Figure 1) of M35 in Geller+ 2013 https://arxiv.org/abs/1210.1575
-                // See also the period distribution (Figure 13) of local solar type binaries from Raghavan et al 2010 https://arxiv.org/abs/1007.0414
-                // They have log-normal distribution with a mean of 5.03 and a standard deviation of 2.28, with a minimum period of around 0.1 days
-                // Sampling function taken from binpop.f in NBODY6
-
-                // Make sure that the drawn semi-major axis is in the range specified by the user
-                do {                                                                                                                            // JR: todo: catch for non-convergence?
-                    double periodInDays = PPOW(10.0, 2.3 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 4.8);
-                    semiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(p_Mass1, p_Mass2, periodInDays);                              // convert period in days to semi-major axis in AU
-                } while (semiMajorAxis < OPTIONS->SemiMajorAxisDistributionMin() || semiMajorAxis > OPTIONS->SemiMajorAxisDistributionMax());   // JR: don't use utils::Compare() here
-                break;
-
-            case SEMI_MAJOR_AXIS_DISTRIBUTION::CUSTOM:                                                                                          // CUSTOM
-
-                semiMajorAxis = utils::InverseSampleFromPowerLaw(OPTIONS->SemiMajorAxisDistributionPower(), OPTIONS->SemiMajorAxisDistributionMax(), OPTIONS->SemiMajorAxisDistributionMin());
-                break;
-
-            case SEMI_MAJOR_AXIS_DISTRIBUTION::SANA2012: {                                                                                      // Sana et al 2012
-                // http://science.sciencemag.org/content/sci/337/6093/444.full.pdf
-                // distribution of semi-major axes. Sana et al fit for the orbital period, which we sample in here, before returning the semi major axis
-                // Taken from table S3 in http://science.sciencemag.org/content/sci/suppl/2012/07/25/337.6093.444.DC1/1223344.Sana.SM.pdf
-                // See also de Mink and Belczynski 2015 http://arxiv.org/pdf/1506.03573v2.pdf
-
-                if (OPTIONS->PeriodDistributionMin() <= 1.0 || OPTIONS->PeriodDistributionMax() <= 1.0) {                                       // bounds check  JR: don't use utils::Compare() here
-                    SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Period distribution requires period > 1 day")
-                }
-
-                double logPeriodMin = OPTIONS->PeriodDistributionMin() > 1.0 ? log(OPTIONS->PeriodDistributionMin()) : 0.0;                     // smallest initial log period  JR: don't use utils::Compare() here
-                double logPeriodMax = OPTIONS->PeriodDistributionMax() > 1.0 ? log(OPTIONS->PeriodDistributionMax()) : 0.0;                     // largest initial log period   JR: don't use utils::Compare() here
-
-                double periodInDays = exp(utils::InverseSampleFromPowerLaw(-0.55, logPeriodMax, logPeriodMin));                                 // draw a period in days from their distribution
-
-                semiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(p_Mass1, p_Mass2, periodInDays);                                  // convert period in days to semi-major axis in AU
-                } break;
-
-            default:                                                                                                                            // unknown distribution
-                SHOW_WARN(ERROR::UNKNOWN_A_DISTRIBUTION, "Using default");                                                                      // show warning
-
-                semiMajorAxis = utils::InverseSampleFromPowerLaw(-1.0, 100.0, 0.5);                                                             // calculate semiMajorAxis using power law with default values
-        }
-    }
-    else {                                                                                                                                      // draw from AIS distributions
-        // Mass ratio distribution from Adaptive Importance Sampling v1 from Broekgaarden et al. (in prep 2018)
-        // Function Returns a random semiMajorAxis drawn from one of the random gaussians defined bu vectors mu_loga & cov_loga
-        // Notice-> the mu and cov are in log10(a) space so range is e.g. (-1,3) instead of (0.1, 1000).
-
-        // draw randomly from the random Gaussian chosen with RandomGaussianDraw
-        // MuLogA()  = m_MuLogA[aisvariables.RandomGaussianDraw]  = mean of the RandomGaussianDraw-th Gaussian
-        // CovLogA() = m_CovLogA[aisvariables.RandomGaussianDraw] = cov of the RandomGaussianDraw-th Gaussin
-
-        semiMajorAxis = PPOW(10, RAND->RandomGaussian(m_AIS.CovLogA()) + m_AIS.MuLogA());                                                        // draw random number from Gaussian
-    }
-
-    return semiMajorAxis;
-}
-
-
-/*
- * Draw mass ratio q from the distribution specified by the user
- * (MassRatioDistribution, EccentricityDistribution program options; will use AIS distribution if specified (AIS.DrawingFromAISDistributions))
- *
- *
- * double SampleQDistribution()
- *
- * @return                                      Mass ratio q
- */
-double BaseBinaryStar::SampleQDistribution() {
-
-    double q;
-
-    if (!m_AIS.DrawingFromAISDistributions()) {                                                                                         // draw from priors (not from AIS distributions)
-        switch (OPTIONS->MassRatioDistribution()) {
-
-            case MASS_RATIO_DISTRIBUTION::FLAT:                                                                                         // FLAT mass ratio distriution
-                q = utils::InverseSampleFromPowerLaw(0.0, OPTIONS->MassRatioDistributionMax(), OPTIONS->MassRatioDistributionMin());
-                break;
-
-            case MASS_RATIO_DISTRIBUTION::DUQUENNOYMAYOR1991:                                                                           // mass ratio distribution from Duquennoy & Mayor (1991) (http://adsabs.harvard.edu/abs/1991A%26A...248..485D)
-
-                do {                                                                                                                    // JR: todo: catch non-convergence?
-                    q = 0.42 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.23;
-                } while (q < 0.0 || q > 1.0);                                                                                           // JR: don't use utils::Compare() here
-                break;
-
-            case MASS_RATIO_DISTRIBUTION::SANA2012:                                                                                     // Sana et al 2012 (http://science.sciencemag.org/content/sci/337/6093/444.full.pdf) distribution of eccentricities.
-                // Taken from table S3 in http://science.sciencemag.org/content/sci/suppl/2012/07/25/337.6093.444.DC1/1223344.Sana.SM.pdf
-                // See also de Mink and Belczynski 2015 http://arxiv.org/pdf/1506.03573v2.pdf
-
-                q = utils::InverseSampleFromPowerLaw(-0.1, OPTIONS->MassRatioDistributionMax(), OPTIONS->MassRatioDistributionMin());   // de Mink and Belczynski use min = 0.1, max = 1.0
-                break;
-
-            default:            // unknown q-distribution - reset to default
-                SHOW_WARN(ERROR::UNKNOWN_Q_DISTRIBUTION, "Using default");                                                              // show warning
-                q = utils::InverseSampleFromPowerLaw(0.0, 1.0, 0.0);                                                                    // calculate q using power law with default values
-        }
-    }
-    else {                                                                                                                              // draw from AIS distributions
-        // draw randomly from the random Gaussian chosen with RandomGaussianDraw
-        // MuQ()  = m_MuQ[aisvariables.RandomGaussianDraw]  = mean of the RandomGaussianDraw-th Gaussian
-        // CovQ() = m_CovQ[aisvariables.RandomGaussianDraw] = cov of the RandomGaussianDraw-th Gaussin
-
-        q = RAND->RandomGaussian(m_AIS.CovQ()) + m_AIS.MuQ();                                                                           // draw random number from Gaussian
-    }
-
-    return q;
-}
-
-
-//JR: todo: talk to Floor about using utils::Compare() in this function
-/*
- * Calculate the value of the CDF of the Kroupa (2001) IMF at p_Mass
- *
- *
- * double CalculateCDFKroupa(const double p_Mass)
- *
- * @param   [IN]    p_Mass                      Mass value (in Msol) at which to calculate the CDF
- * @return                                      CDF value
- */
-double BaseBinaryStar::CalculateCDFKroupa(const double p_Mass) {
-
-    double CDF = 0.0;
-
-    if (OPTIONS->InitialMassFunctionMin() <= KROUPA_BREAK_1 &&
-        OPTIONS->InitialMassFunctionMax() >  KROUPA_BREAK_1 &&
-        OPTIONS->InitialMassFunctionMax() <= KROUPA_BREAK_2) {
-
-        double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
-        double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (PPOW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
-
-        double C1 = 1.0 / (term1 + term2);
-        double C2 = C1 * KROUPA_BREAK_1_POWER_1_2;
-
-        if (p_Mass >= OPTIONS->InitialMassFunctionMin() && p_Mass < KROUPA_BREAK_1) {
-
-            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_1) - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
-        }
-        else if (p_Mass >= KROUPA_BREAK_1 && p_Mass < KROUPA_BREAK_2) {
-
-            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
-                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
-        }
-        else {
-            SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Using CDF = 0.0 (1)");
-        }
-
-    }
-    else if (OPTIONS->InitialMassFunctionMin() <= KROUPA_BREAK_1 &&
-             OPTIONS->InitialMassFunctionMax() >  KROUPA_BREAK_2) {
-
-        double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
-        double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
-        double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (PPOW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
-
-        double C1 = 1.0 / (term1 + term2 + term3);
-        double C2 = C1 * KROUPA_BREAK_1_POWER_1_2;
-        double C3 = C2 * KROUPA_BREAK_2_POWER_2_3;
-
-        if (p_Mass >= OPTIONS->InitialMassFunctionMin() && p_Mass < KROUPA_BREAK_1) {
-
-            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_1) - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
-        }
-        else if (p_Mass >= KROUPA_BREAK_1 && p_Mass < KROUPA_BREAK_2) {
-
-            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
-                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
-        }
-        else if (p_Mass >= KROUPA_BREAK_2 && p_Mass < OPTIONS->InitialMassFunctionMax()) {
-
-            CDF = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1)) +
-                  ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2) +
-                  ONE_OVER_KROUPA_POWER_3_PLUS1 * C3 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
-        }
-        else {
-            SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Using CDF = 0.0 (2)");
-        }
-
-    }
-    else if (OPTIONS->InitialMassFunctionMin() >  KROUPA_BREAK_1 &&
-             OPTIONS->InitialMassFunctionMin() <= KROUPA_BREAK_2 &&
-             OPTIONS->InitialMassFunctionMax() >  KROUPA_BREAK_2) {
-
-        double term1 = ONE_OVER_KROUPA_POWER_2_PLUS1 * (KROUPA_BREAK_2_PLUS1_2 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
-        double term2 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_2_POWER_2_3 * (PPOW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
-
-        double C2 = 1.0 / (term1 + term2);
-        double C3 = C2 * KROUPA_BREAK_2_POWER_2_3;
-
-        if (p_Mass >= OPTIONS->InitialMassFunctionMin() && p_Mass < KROUPA_BREAK_2) {
-
-            CDF = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_2) - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
-        }
-        else if (p_Mass >= KROUPA_BREAK_2 && p_Mass < OPTIONS->InitialMassFunctionMax()) {
-
-            CDF = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2)) +
-                  ONE_OVER_KROUPA_POWER_3_PLUS1 * C3 * (PPOW(p_Mass, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
-        }
-        else {
-            SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Using CDF = 0.0 (3)");
-        }
-    }
-
-    return CDF;
-}
-
-
-//JR: todo: talk to Floor about using utils::Compare() in this function
-/*
- * Draw mass from the distribution specified by the user
- * (InitialMassFunction program option; will use AIS distribution if specified (AIS.DrawingFromAISDistributions))
- *
- *
- * double SampleInitialMassDistribution()
- *
- * @return                                      Mass
- */
-double BaseBinaryStar::SampleInitialMassDistribution() {
-
-    double thisMass = 0.0;
-
-    if (!m_AIS.DrawingFromAISDistributions()) {                                                                                                         // draw from priors (not from AIS distributions)
-
-        switch (OPTIONS->InitialMassFunction()) {                                                                                                       // which IMF?
-
-            case INITIAL_MASS_FUNCTION::SALPETER:                                                                                                       // SALPETER
-
-                thisMass = utils::InverseSampleFromPowerLaw(SALPETER_POWER, OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());
-                break;
-
-            case INITIAL_MASS_FUNCTION::POWERLAW:                                                                                                       // POWER LAW
-
-                thisMass = utils::InverseSampleFromPowerLaw(OPTIONS->InitialMassFunctionPower(), OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());
-                break;
-
-            case INITIAL_MASS_FUNCTION::UNIFORM:                                                                                                        // UNIFORM - convienience function for POWERLAW with slope of 0
-
-                thisMass = RAND->Random(OPTIONS->InitialMassFunctionMin(), OPTIONS->InitialMassFunctionMax());
-                break;
-
-            case INITIAL_MASS_FUNCTION::KROUPA:                                                                                                         // KROUPA
-
-                // find out where the user specificed their minimum and maximum masses to generate
-                if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_1) <= 0) {
-                    thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER_1, OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
-                }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_2) <= 0 &&
-                         utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_1) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2) <= 0) {
-
-                    thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER_2, OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
-                }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_2) > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2) > 0) {
-
-                    thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER_3, OPTIONS->InitialMassFunctionMax(), OPTIONS->InitialMassFunctionMin());    // draw mass using inverse sampling
-                }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1) <= 0 &&
-                         utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_1)  > 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2) <= 0) {
-
-                    double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
-                    double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (PPOW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_2) - KROUPA_BREAK_1_PLUS1_2);
-
-                    double C1    = 1.0 / (term1 + term2);
-                    double C2    = C1 * KROUPA_BREAK_1_POWER_1_2;
-                    double A     = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
-
-                    double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
-                    thisMass = utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_1)) < 0
-                                ? PPOW(rand * (KROUPA_POWER_PLUS1_1 / C1) + PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1), ONE_OVER_KROUPA_POWER_1_PLUS1)
-                                : PPOW((rand - A) * (KROUPA_POWER_PLUS1_2 / C2) + KROUPA_BREAK_1_PLUS1_2, ONE_OVER_KROUPA_POWER_2_PLUS1);
-                }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2_POWER_2_3) > 0) {
-
-                    double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
-                    double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
-                    double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (PPOW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
-                    
-                    double C1    = 1.0 / (term1 + term2 + term3);
-                    double C2    = C1 * KROUPA_BREAK_1_POWER_1_2;
-                    double C3    = C2 * KROUPA_BREAK_2_POWER_2_3;
-
-                    double A     = ONE_OVER_KROUPA_POWER_1_PLUS1 * C1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1));
-                    double B     = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
-
-                    double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
-
-                    if (utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_1)) < 0)
-                        thisMass = PPOW(rand * (KROUPA_POWER_PLUS1_1 / C1) + PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_1), ONE_OVER_KROUPA_POWER_1_PLUS1);
-                    else if (utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_2)) < 0)
-                        thisMass = PPOW((rand - A) * (KROUPA_POWER_PLUS1_2 / C2) + KROUPA_BREAK_1_PLUS1_2, ONE_OVER_KROUPA_POWER_2_PLUS1);
-                    else
-                        thisMass = PPOW((rand - A - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
-                }
-                else if (utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_1)  > 0 &&
-                         utils::Compare(OPTIONS->InitialMassFunctionMin(), KROUPA_BREAK_2) <= 0 && utils::Compare(OPTIONS->InitialMassFunctionMax(), KROUPA_BREAK_2) > 0) {
-
-                    double term1 = ONE_OVER_KROUPA_POWER_2_PLUS1 * (KROUPA_BREAK_2_PLUS1_2 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
-                    double term2 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_2_POWER_2_3 * (PPOW(OPTIONS->InitialMassFunctionMax(), KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
-
-                    double C2    = 1.0 / (term1 + term2);
-                    double C3    = C2 * KROUPA_BREAK_2_POWER_2_3;
-                    double B     = ONE_OVER_KROUPA_POWER_2_PLUS1 * C2 * (KROUPA_BREAK_2_PLUS1_2 - PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2));
-
-                    double rand  = RAND->Random();                                                                                                      // draw a random number between 0 and 1
-
-                    thisMass = utils::Compare(rand, CalculateCDFKroupa(KROUPA_BREAK_2)) < 0
-                                ? PPOW(rand * (KROUPA_POWER_PLUS1_2 / C2) + PPOW(OPTIONS->InitialMassFunctionMin(), KROUPA_POWER_PLUS1_2), ONE_OVER_KROUPA_POWER_2_PLUS1)
-                                : PPOW((rand - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
-                }
-                // JR: no other case possible - as long as OPTIONS->InitialMassFunctionMin() < OPTIONS->InitialMassFunctionMax() (currently enforced in Options.cpp)
-                break;
-
-            default:                                                                                                                                    // unknown IMF
-                SHOW_WARN(ERROR::UNKNOWN_INITIAL_MASS_FUNCTION, "Using default");                                                                       // show warning
-
-                thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER, KROUPA_MAXIMUM, KROUPA_MINIMUM);                                              // calculate mass using power law with default values
-        }
-    }
-    else {                                                                                                                                              // draw from AIS distributions if  DrawingFromAISDistributions = true
-        // draw a random Mass from the random Gaussian chosen with RandomGaussianDraw
-        // MuM1()  = m_MuM1[m_RandomGaussianDraw]  = mean of the RandomGaussianDraw-th Gaussian
-        // CovM1() = m_CovM1[m_RandomGaussianDraw] = cov of the RandomGaussianDraw-th Gaussin
-
-        thisMass = RAND->RandomGaussian(m_AIS.CovM1()) + m_AIS.MuM1();                                                                                  // draw random number from Gaussian
-    }
-
-    return thisMass;
-}
-
-
-/*
- * Draw eccentricity from the distribution specified by the user
- * (EccentricityDistribution program option; will use AIS distribution if specified (AIS.DrawingFromAISDistributions))
- *
- *
- * double SampleEccentricityDistribution()
- *
- * @return                                      Eccentricity
- */
-double BaseBinaryStar::SampleEccentricityDistribution() {
-
-    double eccentricity;
-
-    switch (OPTIONS->EccentricityDistribution()) {                                                  // which distribution?
-
-        case ECCENTRICITY_DISTRIBUTION::ZERO:                                                       // ZERO - all systems are initially circular i.e. have zero eccentricity
-
-            eccentricity = 0.0;
-            break;
-
-        case ECCENTRICITY_DISTRIBUTION::FIXED:                                                      // FIXED - all systems have same initial eccentricity - not implemented
-
-            SHOW_WARN(ERROR::UNSUPPORTED_ECCENTRICITY_DISTRIBUTION, "Using eccentricity = 0.0");    // show warning
-            eccentricity = 0.0;
-            break;
-
-        case ECCENTRICITY_DISTRIBUTION::FLAT:                                                       // FLAT
-
-            eccentricity = utils::InverseSampleFromPowerLaw(0.0, OPTIONS->EccentricityDistributionMax(), OPTIONS->EccentricityDistributionMin());
-            break;
-
-        case ECCENTRICITY_DISTRIBUTION::THERMALISED:                                                // THERMA eccentricity distribution p(e) = 2e
-        case ECCENTRICITY_DISTRIBUTION::THERMAL:
-
-            eccentricity = utils::InverseSampleFromPowerLaw(1.0, OPTIONS->EccentricityDistributionMax(), OPTIONS->EccentricityDistributionMin());
-            break;
-
-        case ECCENTRICITY_DISTRIBUTION::GELLER_2013:                                                // M35 eccentricity distribution from Geller, Hurley and Mathieu 2013
-            // Gaussian with mean 0.38 and sigma 0.23
-            // http://iopscience.iop.org/article/10.1088/0004-6256/145/1/8/pdf
-            // Sampling function taken from binpop.f in NBODY6
-
-            do {                                                                                    // JR: todo: catch non-convergence?
-                eccentricity = 0.23 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.38;
-            } while(eccentricity < 0.0 || eccentricity > 1.0);                                      // JR: don't use utils::Compare() here
-            break;
-
-         case ECCENTRICITY_DISTRIBUTION::DUQUENNOYMAYOR1991:                                        // eccentricity distribution from Duquennoy & Mayor (1991)
-            // http://adsabs.harvard.edu/abs/1991A%26A...248..485D
-            // Sampling function taken from binpop.f in NBODY6
-
-            do {                                                                                    // JR: todo: catch non-convergence?
-                eccentricity = 0.15 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.3;
-            } while(eccentricity < 0.0 or eccentricity > 1.0);                                      // JR: don't use utils::Compare() here
-            break;
-
-        case ECCENTRICITY_DISTRIBUTION::SANA2012:                                                   // Sana et al 2012
-            // (http://science.sciencemag.org/content/sci/337/6093/444.full.pdf) distribution of eccentricities.
-            // Taken from table S3 in http://science.sciencemag.org/content/sci/suppl/2012/07/25/337.6093.444.DC1/1223344.Sana.SM.pdf
-            // See also de Mink and Belczynski 2015 http://arxiv.org/pdf/1506.03573v2.pdf
-
-            eccentricity = utils::InverseSampleFromPowerLaw(-0.42, OPTIONS->EccentricityDistributionMax(), OPTIONS->EccentricityDistributionMin());
-            break;
-
-        case ECCENTRICITY_DISTRIBUTION::IMPORTANCE:                                                 // IMPORTANCE - not implemented
-
-            SHOW_WARN(ERROR::UNSUPPORTED_ECCENTRICITY_DISTRIBUTION, "Using eccentricity = 0.0");    // show warning
-            eccentricity = 0.0;
-            break;
-
-        default:                                                                                    // unknown distribution
-            SHOW_WARN(ERROR::UNKNOWN_ECCENTRICITY_DISTRIBUTION, "Using eccentricity = 0.0");        // show warning
-            eccentricity = 0.0;
-    }
-
-    return eccentricity;
-}
-
-/*
- * Choose metallicity based on program option (not really drawing from a distribution here...)
- *
- * Chooses metallicity from user-supplied metallicity (program options FixedMetallicity, Metallicity) or ZSOL (constant)
- *
- *
- * double SampleMetallicityDistribution()
- *
- * @return                                      Metallicity
- */
-double BaseBinaryStar::SampleMetallicityDistribution() {
-    return OPTIONS->FixedMetallicity() ? OPTIONS->Metallicity() : ZSOL;         // user specified value if provided, else solar metallicity by default
-}
-
-
-/*
  * Write RLOF parameters to RLOF logfile if RLOF printing is enabled and at least one of the stars is in RLOF
  *
  *
@@ -1251,7 +877,7 @@ void BaseBinaryStar::PrintRLOFParameters(const string p_Rec) {
 
     if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {               // print if either star is in RLOF
         m_RLOFDetails.currentProps->eventCounter += 1;          // every time we print a MT event happened, increment counter
-        LOGGING->LogBSERLOFParameters(this, p_Rec);             // yes - write to log file
+        LOGGING->LogRLOFParameters(this, p_Rec);                // yes - write to log file
     }
 }
 
@@ -1270,7 +896,7 @@ void BaseBinaryStar::PrintBeBinary(const string p_Rec) {
     
     StashBeBinaryProperties();                                  // stash Be binary properties
     
-    LOGGING->LogBSEBeBinary(this, p_Rec);
+    LOGGING->LogBeBinary(this, p_Rec);
 }
 
 
@@ -1728,7 +1354,7 @@ bool BaseBinaryStar::ResolveSupernova() {
 	double totalMassPrime   = m_Supernova->Mass() + m_Companion->Mass();                                                            // total mass of binary after supernova event
 	double reducedMassPrime = (m_Supernova->Mass() * m_Companion->Mass()) / totalMassPrime;                                         // reduced mass after supernova event
 
-    // JR todo - check whether m_Beta needs to be a class variable
+    // JR: todo - check whether m_Beta needs to be a class variable
     #define a m_SemiMajorAxis       // for convenience - undefined below
     #define e m_Eccentricity        // for convenience - undefined below
     #define r m_Radius              // for convenience - undefined below

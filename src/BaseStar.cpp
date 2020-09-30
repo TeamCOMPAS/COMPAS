@@ -2,7 +2,7 @@
 #include <gsl/gsl_roots.h>
 #include <gsl/gsl_cdf.h>
 
-// boos includes
+// boost includes
 #include <boost/math/distributions.hpp>
 
 #include "Rand.h"
@@ -31,14 +31,14 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     // initialise member variables
 
-    m_ObjectId            = globalObjectId++;                           // unique object id - remains for life of star (even through evolution to other phases)
-    m_ObjectType          = OBJECT_TYPE::BASE_STAR;                     // object type - remains for life of star (even through evolution to other phases)
-    m_InitialStellarType  = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
-    m_StellarType         = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
+    m_ObjectId            = globalObjectId++;                                                       // unique object id - remains for life of star (even through evolution to other phases)
+    m_ObjectType          = OBJECT_TYPE::BASE_STAR;                                                 // object type - remains for life of star (even through evolution to other phases)
+    m_InitialStellarType  = STELLAR_TYPE::STAR;                                                     // stellar type - changes throughout life of star (through evolution to other phases)
+    m_StellarType         = STELLAR_TYPE::STAR;                                                     // stellar type - changes throughout life of star (through evolution to other phases)
 
-    m_Error               = ERROR::NONE;                                // clear error flag
+    m_Error               = ERROR::NONE;                                                            // clear error flag
 
-    m_CHE                 = false;                                      // initially
+    m_CHE                 = false;                                                                  // initially
     
     // Initialise member variables from input parameters
     // (kick parameters initialised below - see m_SupernovaDetails)
@@ -48,7 +48,10 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     // Initialise metallicity
 
-    m_Metallicity         = std::min(std::max(OPTIONS->Metallicity(), 0.0), 1.0);
+    m_Metallicity         = OPTIONS->OptionSpecified("metallicity") == 1                            // user specified metallicity?
+                                ? OPTIONS->Metallicity()                                            // yes, use it
+                                : utils::SampleMetallicity();                                       // no, sample it
+
 
     // Initialise metallicity dependent values
     m_LogMetallicityXi    = log10(m_Metallicity / ZSOL);
@@ -122,7 +125,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Time                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Dt                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Tau                                      = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Age                                      = 0.0;           // ensure age = 0.0 at construction (rather than default initial value)
+    m_Age                                      = 0.0;                                               // ensure age = 0.0 at construction (rather than default initial value)
     m_Mass                                     = m_MZAMS;
     m_Mass0                                    = m_MZAMS;
     m_Luminosity                               = m_LZAMS;
@@ -174,7 +177,9 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     // Supernova detais
 
-    m_SupernovaDetails.initialKickParameters   = p_KickParameters
+    m_SupernovaDetails.initialKickParameters   = p_KickParameters;
+
+    m_SupernovaDetails.kickMagnitudeRandom     = p_KickParameters.magnitudeRandom;
 
     m_SupernovaDetails.events.current          = SN_EVENT::NONE;
     m_SupernovaDetails.events.past             = SN_EVENT::NONE;
@@ -194,18 +199,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_SupernovaDetails.trueAnomaly             = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_SupernovaDetails.supernovaState          = SN_STATE::NONE;
-
-    m_SupernovaDetails.kickMagnitudeRandom     = OPTIONS->KickMagnitudeRandom();
-    m_SupernovaDetails.theta                   = OPTIONS->SN_Theta();
-    m_SupernovaDetails.phi                     = OPTIONS->SN_Phi();
-    m_SupernovaDetails.meanAnomaly             = OPTIONS->SN_MeanAnomaly();
-
-    m_SupernovaDetails.kickMagnitudeRandom     = OPTIONS->OptionSpecified("kick-magnitude-random")KickMagnitudeRandom < 0.0 ? RAND->Random() : OPTIONS->KickMagnitudeRandom;
-    double phi, theta;
-    std::tie(theta, phi) = utils::DrawKickDirection();
-    m_SupernovaDetails.phi         = OPTIONS->KickPhi         < 0.0 || OPTIONS->KickPhi         >= _2_PI ? RAND->Random(0.0, _2_PI) : phi;
-    m_SupernovaDetails.theta       = OPTIONS->KickTheta       < 0.0 || OPTIONS->KickTheta       >= _2_PI ? RAND->Random(0.0, _2_PI) : theta;
-    m_SupernovaDetails.meanAnomaly = OPTIONS->KickMeanAnomaly < 0.0 || OPTIONS->KickMeanAnomaly >= _2_PI ? RAND->Random(0.0, _2_PI) : OPTIONS->KickMeanAnomaly;
 
 
     // Calculates the Baryonic mass for which the GravitationalRemnantMass will be equal to the maximumNeutronStarMass (inverse of SolveQuadratic())
@@ -2538,16 +2531,15 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
  *
  * @param   [IN]    p_RemnantMass               The mass of the remnant (Msol)
  * @param   [IN]    p_EjectaMass                Change in mass of the exploding star (i.e. mass of the ejecta) (Msol)
- * @param   [IN]    p_StellarType		Expected remnant type
+ * @param   [IN]    p_StellarType		        Expected remnant type
  * @return                                      Kick magnitude
  */
 double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType) {
     ERROR error = ERROR::NONE;
 	double vK;
 
-    if (!m_SupernovaDetails.initialKickParameters.supplied ||                                       // user did not supply kick parameters, or
-        (m_SupernovaDetails.initialKickParameters.supplied &&                                       // user did supply kick parameters but ...
-         m_SupernovaDetails.initialKickParameters.useMagnitudeRandom)) {                            // ... wants to draw magnitude using supplied random number
+    if (!m_SupernovaDetails.initialKickParameters.magnitudeSpecified ||                             // user did not supply kick magnitue, or
+         m_SupernovaDetails.initialKickParameters.magnitudeRandomSpecified) {                       // ... wants to draw magnitude using supplied random number
 
         double sigma;
         switch (utils::SNEventType(m_SupernovaDetails.events.current)) {                            // what type of supernova event happening now?

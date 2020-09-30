@@ -16,20 +16,33 @@ namespace utils {
 
 
     // namespace functions - alphabetical in groups
-    std::string                 CentreJustify(const std::string p_Str, std::size_t p_Width);
+    std::string         CentreJustify(const std::string p_Str, std::size_t p_Width);
 
-    int                         Compare(const double p_X, const double p_Y);
+    int                 Compare(const double p_X, const double p_Y);
 
-    double                      ConvertPeriodInDaysToSemiMajorAxisInAU(const double p_Mass1, const double p_Mass2, const double p_Period);
+    double              ConvertPeriodInDaysToSemiMajorAxisInAU(const double p_Mass1, const double p_Mass2, const double p_Period);
 
-    DBL_DBL                     DrawKickDirection(const KICK_DIRECTION_DISTRIBUTION p_KickDirectionDistribution, const double p_KickDirectionPower);
+    DBL_DBL             DrawKickDirection(const KICK_DIRECTION_DISTRIBUTION p_KickDirectionDistribution, const double p_KickDirectionPower);
     
-    bool                        Equals(std::string p_Str1, std::string p_Str2);
+    bool                Equals(std::string p_Str1, std::string p_Str2);
 
-    bool                        FileExists(const std::string& p_Filename);
-    bool                        vFileExists(const char *p_Filename);
+    bool                FileExists(const std::string& p_Filename);
+    bool                vFileExists(const char *p_Filename);
 
-    SN_EVENT                    SNEventType(const SN_EVENT p_SNEvent);
+    double              SampleEccentricityDistribution(const ECCENTRICITY_DISTRIBUTION p_Edist, const double p_Max, const double p_Min);
+    double              SampleInitialMassDistribution(const INITIAL_MASS_FUNCTION p_IMF, const double p_Max, const double p_Min, const double p_Power);
+    double              SampleMetallicity();
+    double              SampleQDistribution(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min);
+    double              SampleSemiMajorAxisDistribution(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
+                                                        const double p_AdistMax, 
+                                                        const double p_AdistMin, 
+                                                        const double p_AdistPower, 
+                                                        const double p_PdistMax, 
+                                                        const double p_PdistMin, 
+                                                        const double p_Mass1, 
+                                                        const double p_Mass2);
+
+    SN_EVENT            SNEventType(const SN_EVENT p_SNEvent);
 
 
     /*
