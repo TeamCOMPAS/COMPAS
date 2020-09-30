@@ -117,7 +117,7 @@ public:
             double              SN_Theta() const                                                { return m_SupernovaDetails.theta; }
             SN_EVENT            SN_Type() const                                                 { return utils::SNEventType(m_SupernovaDetails.events.current); }
             double              SN_KickMagnitudeRandom() const                                  { return m_SupernovaDetails.kickMagnitudeRandom; }
-            double              Speed() const                                                   { return m_ComponentSpeed; }
+            double              Speed() const                                                   { return m_ComponentVelocity.Magnitude(); }
             COMPAS_VARIABLE     StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
             double              Tau() const                                                     { return m_Tau; }
             double              Temperature() const                                             { return m_Temperature; }
@@ -338,10 +338,8 @@ protected:
     SupernovaDetailsT       m_SupernovaDetails;                         // Supernova attributes
     PulsarDetailsT          m_PulsarDetails;                            // Pulsar attributes
 
-    // Star speed and velocity, and related Euler angles 
-	// between pre- and post-SN orbital planes, for velocity addition
+    // Star vector velocity 
 	Vector3d                m_ComponentVelocity; 	                    // Isolated star velocity vector
-    double                  m_ComponentSpeed;                           // Magnitude of velocity vector
 
     // member functions - alphabetically
             void            AgeOneTimestepPreamble(const double p_DeltaTime);
