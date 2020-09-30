@@ -132,7 +132,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
 	m_ComponentVelocity						   = Vector3d();
-	m_ComponentSpeed						   = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_CoreMass                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_COCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -2739,7 +2738,6 @@ void BaseStar::CalculateSNAnomalies(const double p_Eccentricity) {
  */
 void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity) {
     m_ComponentVelocity += p_newVelocity;                        // Add new velocity to previous velocity 
-    m_ComponentSpeed     = m_ComponentVelocity.Magnitude();      // Calculate component speed from new velocity
 }
 
 
