@@ -391,7 +391,6 @@ void BaseBinaryStar::SetRemainingCommonValues() {
     m_Unbound                                    = false;
 
     m_SystemicVelocity                           = Vector3d();
-	m_SystemicSpeed                              = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_ThetaE                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_PhiE                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_PsiE                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -1865,9 +1864,8 @@ bool BaseBinaryStar::ResolveSupernova() {
  */
 void BaseBinaryStar::UpdateSystemicVelocity(Vector3d p_newVelocity) {
 
-    // Update the systemic velocity and speed
+    // Update the systemic velocity
     m_SystemicVelocity += p_newVelocity;            
-    m_SystemicSpeed     = m_SystemicVelocity.Magnitude();
 }
 
 
