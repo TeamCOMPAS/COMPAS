@@ -136,7 +136,6 @@ public:
         m_SynchronizationTimescale         = p_Star.m_SynchronizationTimescale;
 
         m_SystemicVelocity                 = p_Star.m_SystemicVelocity;
-		m_SystemicSpeed                    = p_Star.m_SystemicSpeed;
 
         m_ThetaE                           = p_Star.m_ThetaE;
         m_PhiE                             = p_Star.m_PhiE;  
@@ -297,7 +296,7 @@ public:
     STELLAR_TYPE        StellarType2PreCEE() const                  { return m_Star2->StellarTypePreCEE(); }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
     double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
-    double              SystemicSpeed() const                       { return m_SystemicSpeed; }
+    double              SystemicSpeed() const                       { return m_SystemicVelocity.Magnitude(); }
     double              Time() const                                { return m_Time; }
     double              TimeToCoalescence() const                   { return m_TimeToCoalescence; }
     double              TotalAngularMomentum() const                { return m_TotalAngularMomentum; }
@@ -411,7 +410,6 @@ private:
     double              m_SynchronizationTimescale;
 
     Vector3d            m_SystemicVelocity;                                                 // Systemic velocity vector, relative to ZAMS Center of Mass
-    double              m_SystemicSpeed;                                                    // Systemic speed, magnitude of velocity vector
     double              m_ThetaE;                                                           // Euler Theta
     double              m_PhiE;                                                             // Euler Phi                
     double              m_PsiE;                                                             // Euler Psi
