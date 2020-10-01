@@ -1583,16 +1583,16 @@ bool BaseBinaryStar::ResolveSupernova() {
     m_EccentricityPreSN = m_EccentricityPrev;                                                 
     m_SemiMajorAxisPreSN = m_SemiMajorAxisPrev;                                               
 
-    double totalMassPreSN = m_Supernova->MassPrev() + m_Companion->MassPrev();                                           // Total Mass preSN
-    double reducedMassPreSN = m_Supernova->MassPrev() * m_Companion->MassPrev() / totalMassPreSN;                        // Reduced Mass preSN
+    double totalMassPreSN = m_Supernova->SN_TotalMassAtCOFormation() + m_Companion->MassPrev();                                           // Total Mass preSN
+    double reducedMassPreSN = m_Supernova->SN_TotalMassAtCOFormation() * m_Companion->MassPrev() / totalMassPreSN;                        // Reduced Mass preSN
     m_Supernova->SetOrbitalEnergyPreSN(CalculateOrbitalEnergy(reducedMassPreSN, totalMassPreSN, m_SemiMajorAxisPreSN));  // Orbital energy preSN
 
     // Define the natal kick vector (see above for precise definitions of the angles)
     double theta = m_Supernova->SN_Theta();         // Angle out of the binary plane
     double phi   = m_Supernova->SN_Phi();           // Angle in the binary plane
     Vector3d natalKickVector = m_Supernova->SN_KickMagnitude() *Vector3d(cos(theta)*cos(phi), 
-                                                                cos(theta)*sin(phi),
-                                                                sin(theta));
+                                                                         cos(theta)*sin(phi),
+                                                                         sin(theta));
     // Check if the system is already unbound
     if (IsUnbound()) {                                                                                    // Is system already unbound?
 
@@ -1623,7 +1623,7 @@ bool BaseBinaryStar::ResolveSupernova() {
         double semiMajorAxisPrev_km = m_SemiMajorAxisPrev*AU_TO_KM;                         // km  - Semi-Major axis
         double sqrt1MinusEccPrevSquared = sqrt(1-m_EccentricityPrev*m_EccentricityPrev);    // useful function of eccentricity
 
-        double m1Prev = m_Supernova->MassPrev();                                            // Mo  - SN star pre-SN mass
+        double m1Prev = m_Supernova->SN_TotalMassAtCOFormation();                                            // Mo  - SN star pre-SN mass
         double m2Prev = m_Companion->MassPrev();                                            // Mo  - CP star pre-SN mass
         double totalMassPrev = m1Prev + m2Prev;                                             // Mo  - Total binary pre-SN mass
         
