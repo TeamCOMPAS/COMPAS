@@ -1583,8 +1583,8 @@ bool BaseBinaryStar::ResolveSupernova() {
     m_EccentricityPreSN = m_EccentricityPrev;                                                 
     m_SemiMajorAxisPreSN = m_SemiMajorAxisPrev;                                               
 
-    double totalMassPreSN = m_Supernova->SN_TotalMassAtCOFormation() + m_Companion->MassPrev();                                           // Total Mass preSN
-    double reducedMassPreSN = m_Supernova->SN_TotalMassAtCOFormation() * m_Companion->MassPrev() / totalMassPreSN;                        // Reduced Mass preSN
+    double totalMassPreSN = m_Supernova->SN_TotalMassAtCOFormation() + m_Companion->Mass();                                           // Total Mass preSN
+    double reducedMassPreSN = m_Supernova->SN_TotalMassAtCOFormation() * m_Companion->Mass() / totalMassPreSN;                        // Reduced Mass preSN
     m_Supernova->SetOrbitalEnergyPreSN(CalculateOrbitalEnergy(reducedMassPreSN, totalMassPreSN, m_SemiMajorAxisPreSN));  // Orbital energy preSN
 
     // Define the natal kick vector (see above for precise definitions of the angles)
@@ -1624,7 +1624,7 @@ bool BaseBinaryStar::ResolveSupernova() {
         double sqrt1MinusEccPrevSquared = sqrt(1-m_EccentricityPrev*m_EccentricityPrev);    // useful function of eccentricity
 
         double m1Prev = m_Supernova->SN_TotalMassAtCOFormation();                                            // Mo  - SN star pre-SN mass
-        double m2Prev = m_Companion->MassPrev();                                            // Mo  - CP star pre-SN mass
+        double m2Prev = m_Companion->Mass();                                            // Mo  - CP star pre-SN mass
         double totalMassPrev = m1Prev + m2Prev;                                             // Mo  - Total binary pre-SN mass
         
         // Functions of eccentric anomaly
@@ -1633,8 +1633,7 @@ bool BaseBinaryStar::ResolveSupernova() {
         double sinEccAnomaly = sin(m_Supernova->SN_EccentricAnomaly());
 
         // Derived quantities
-        double omega = sqrt(G_SN*totalMassPrev /
-                (semiMajorAxisPrev_km*semiMajorAxisPrev_km*semiMajorAxisPrev_km));          // orbits/s  - Keplerian orbital frequency
+        double omega = sqrt(G_SN*totalMassPrev / (semiMajorAxisPrev_km*semiMajorAxisPrev_km*semiMajorAxisPrev_km));          // orbits/s  - Keplerian orbital frequency
 
         Vector3d separationVectorPrev = Vector3d( semiMajorAxisPrev_km* (cosEccAnomaly-m_EccentricityPrev),            
                                                   semiMajorAxisPrev_km* (sinEccAnomaly)*sqrt1MinusEccPrevSquared,
