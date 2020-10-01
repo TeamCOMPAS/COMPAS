@@ -1580,8 +1580,8 @@ bool BaseBinaryStar::ResolveSupernova() {
     }
 
     // Set relevant preSN parameters 
-    m_EccentricityPreSN = m_EccentricityPrev;                                                 
-    m_SemiMajorAxisPreSN = m_SemiMajorAxisPrev;                                               
+    m_EccentricityPreSN = m_Eccentricity;                                                 
+    m_SemiMajorAxisPreSN = m_SemiMajorAxis;                                               
 
     double totalMassPreSN = m_Supernova->SN_TotalMassAtCOFormation() + m_Companion->Mass();                                           // Total Mass preSN
     double reducedMassPreSN = m_Supernova->SN_TotalMassAtCOFormation() * m_Companion->Mass() / totalMassPreSN;                        // Reduced Mass preSN
@@ -1620,22 +1620,23 @@ bool BaseBinaryStar::ResolveSupernova() {
         #define hat                 UnitVector()
 
         // Pre-SN parameters
-        double semiMajorAxisPrev_km = m_SemiMajorAxisPrev*AU_TO_KM;                         // km  - Semi-Major axis
-        double sqrt1MinusEccPrevSquared = sqrt(1-m_EccentricityPrev*m_EccentricityPrev);    // useful function of eccentricity
+        double semiMajorAxisPrev_km = m_SemiMajorAxis*AU_TO_KM;                         // km  - Semi-Major axis
+        double eccentricityPrev = m_Eccentricity;                                       // --  - Eccentricity, written with a prev to distinguish from later use
+        double sqrt1MinusEccPrevSquared = sqrt(1-eccentricityPrev*eccentricityPrev);    // useful function of eccentricity
 
         double m1Prev = m_Supernova->SN_TotalMassAtCOFormation();                                            // Mo  - SN star pre-SN mass
         double m2Prev = m_Companion->Mass();                                            // Mo  - CP star pre-SN mass
         double totalMassPrev = m1Prev + m2Prev;                                             // Mo  - Total binary pre-SN mass
         
         // Functions of eccentric anomaly
-        m_Supernova->CalculateSNAnomalies(m_EccentricityPrev);
+        m_Supernova->CalculateSNAnomalies(eccentricityPrev);
         double cosEccAnomaly = cos(m_Supernova->SN_EccentricAnomaly());        
         double sinEccAnomaly = sin(m_Supernova->SN_EccentricAnomaly());
 
         // Derived quantities
         double omega = sqrt(G_SN*totalMassPrev / (semiMajorAxisPrev_km*semiMajorAxisPrev_km*semiMajorAxisPrev_km));          // orbits/s  - Keplerian orbital frequency
 
-        Vector3d separationVectorPrev = Vector3d( semiMajorAxisPrev_km* (cosEccAnomaly-m_EccentricityPrev),            
+        Vector3d separationVectorPrev = Vector3d( semiMajorAxisPrev_km* (cosEccAnomaly-eccentricityPrev),            
                                                   semiMajorAxisPrev_km* (sinEccAnomaly)*sqrt1MinusEccPrevSquared,
                                                   0.0                    );                 // km        - Relative position vector, from m1Prev to m2Prev
         double   separationPrev = separationVectorPrev.mag;                                 // km        - Instantaneous Separation
@@ -1771,7 +1772,7 @@ bool BaseBinaryStar::ResolveSupernova() {
             // Also, if either eccentricity is 0.0, then the eccentricity vector is not well defined.
 
             if ((utils::Compare(m_ThetaE, 0.0) == 0) &&                    // Is orbitalAngularMomentumVectorPrev parallel to orbitalAngularMomentumVector ...
-                ((utils::Compare(m_EccentricityPrev,  0.0) > 0)   &&       // ...
+                ((utils::Compare(eccentricityPrev,  0.0) > 0)   &&       // ...
                  (utils::Compare(m_Eccentricity, 0.0) > 0)))  {            // ...and both eccentricityVectorPrev and eccentricityVector are well defined?
 
                  double psiPlusPhi = angleBetween(eccentricityVector, eccentricityVectorPrev);  // yes - then psi + phi is constant
@@ -1779,7 +1780,7 @@ bool BaseBinaryStar::ResolveSupernova() {
                  m_PsiE = psiPlusPhi - m_PhiE;
             }
             else if ((utils::Compare(m_ThetaE, M_PI) == 0) &&              // Is orbitalAngularMomentumVectorPrev anti-parallel to orbitalAngularMomentumVector ...
-                ((utils::Compare(m_EccentricityPrev,  0.0) > 0)   &&       // ...
+                ((utils::Compare(eccentricityPrev,  0.0) > 0)   &&       // ...
                  (utils::Compare(m_Eccentricity, 0.0) > 0)))  {            // ...and both eccentricityVectorPrev and eccentricityVector are well defined?
 
                                                                               // yes - then psi - phi is constant
@@ -1791,7 +1792,7 @@ bool BaseBinaryStar::ResolveSupernova() {
 
                 Vector3d orbitalPivotAxis = cross(orbitalAngularMomentumVectorPrev, orbitalAngularMomentumVector); // Cross product of the orbit normals
 
-                if ( utils::Compare(m_EccentricityPrev, 0.0) == 0     ) {        // Is eccentricityVectorPrev well-defined?
+                if ( utils::Compare(eccentricityPrev, 0.0) == 0     ) {        // Is eccentricityVectorPrev well-defined?
                     m_PhiE  = _2_PI * RAND->Random();                               // no - set phi random
                 }
                 else {                                                              // yes - phi is +/- angle between eccentricityVectorPrev and orbitalPivotAxis
