@@ -24,21 +24,9 @@ using std::get;
 
 namespace po = boost::program_options;
 
-
 // for convenience
-#define ANNOUNCE(announceStr)           {                                                                                                           \
-                                            std::stringstream _ss; _ss << announceStr; std::cerr << _ss.str() << std::endl;                         \
-                                        }
 
-#define WARN(warnStr)                   {                                                                                                           \
-                                            std::stringstream _ss; _ss << warnStr; std::cerr << "OPTIONS Warning: " << _ss.str() << std::endl;      \
-                                        }
-
-#define COMPLAIN(complainStr)           {                                                                                                           \
-                                            std::stringstream _ss; _ss << complainStr; std::cerr << "OPTIONS Error: " << _ss.str() << std::endl;    \
-                                            throw("OptionError");                                                                                   \
-                                        }
-
+#define COMPLAIN(complainStr)           { std::stringstream _ss; _ss << complainStr; throw _ss.str(); }
 #define COMPLAIN_IF(cond, complainStr)  { if (cond) COMPLAIN(complainStr) }
 
 
@@ -429,9 +417,30 @@ public:
     };  // class OptionValues
 
 
+    // complex option values are values for options that the user has entered as ranges or sets
+    //
+    // complex option valies are described by a tuple containing:
+    //
+    //     optionName       (std::string)               the name of the option
+    //     complexValue     (RangeOrSetDescriptorT)     the complex option value - a RANGE or a SET
+    //
+    // ranges and sets are described by the RangeOrSetDescriptorT struct (see below)
+    // the struct elements are described as:
+    //
+    //     type         (INT)                       type indicates whether the entry refers to a RANGE (type 0) or SET (type 1)
+    //     parameters   (std::vector<std::string>)  a vector of strings that hold the parameters as they were supplied by the user
+    //                                              for a RANGE there must be exactly 3 parameters: start, count, increment
+    //                                              a SET must have at least one parameter (element); there is no maximum number of elements
+    //     currPos      (INT)                       the current iterator position (the code iterates over the range or set)
 
-    //                              optionName / type (0 = range,1 = set) / vector of values inside the range or set
-    typedef std::vector<std::tuple<std::string, std::tuple<int, std::vector<std::string>>>> COMPLEX_OPTION_VALUES;
+    typedef struct RangeOrSetDescriptor {
+        int                      type;          // type = 0 = RANGE, 1 = SET
+        std::vector<std::string> parameters;    // the range or set parameters
+        int                      currPos;       // current position of iterator                                              
+    } RangeOrSetDescriptorT;
+
+    typedef std::vector<std::tuple<std::string, RangeOrSetDescriptorT>> COMPLEX_OPTION_VALUES;
+
 
     // we have two structs:
     //    one for the program-level options, and 
@@ -444,7 +453,7 @@ public:
 
     typedef struct OptionsDescriptor {
         OptionValues            optionValues;
-        po::options_description optionDescriptions;       // all the commandline options.  maybe call something else?  this is what gets printed for help
+        po::options_description optionDescriptions;
         COMPLEX_OPTION_VALUES   complexOptionValues;
     } OptionsDescriptorT;
 
@@ -473,7 +482,7 @@ private:
 
     std::string ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], OptionsDescriptorT &p_OptionsDescriptor);
 
-
+int GetProgramOptionValues();
 
     OptionsDescriptorT m_Program;
     OptionsDescriptorT m_EvolvingObject;
@@ -525,243 +534,243 @@ public:
     // will always be program if no grid file in use
     // will always be object after the first grid file record is read when a grid file is in use
 
-    AIS_DCO                                     AIS_DCOType() const                                                     { return m_Opts->m_AISDCOtype; }
-    string                                      AIS_DCOTypeString() const                                               { return m_Opts->m_AISDCOtypeString; }
-    bool                                        AIS_ExploratoryPhase() const                                            { return m_Opts->m_AISexploratoryPhase; }
-    bool                                        AIS_Hubble() const                                                      { return m_Opts->m_AIShubble; }
-    bool                                        AIS_Pessimistic() const                                                 { return m_Opts->m_AISpessimistic; }
-    bool                                        AIS_RefinementPhase() const                                             { return m_Opts->m_AISrefinementPhase; }
-    bool                                        AIS_RLOF() const                                                        { return m_Opts->m_AISrlof; }
+    AIS_DCO                                     AIS_DCOType() const                                                     { return m_Opts->optionValues.m_AISDCOtype; }
+    string                                      AIS_DCOTypeString() const                                               { return m_Opts->optionValues.m_AISDCOtypeString; }
+    bool                                        AIS_ExploratoryPhase() const                                            { return m_Opts->optionValues.m_AISexploratoryPhase; }
+    bool                                        AIS_Hubble() const                                                      { return m_Opts->optionValues.m_AIShubble; }
+    bool                                        AIS_Pessimistic() const                                                 { return m_Opts->optionValues.m_AISpessimistic; }
+    bool                                        AIS_RefinementPhase() const                                             { return m_Opts->optionValues.m_AISrefinementPhase; }
+    bool                                        AIS_RLOF() const                                                        { return m_Opts->optionValues.m_AISrlof; }
 
-    bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return m_Opts->m_AllowMainSequenceStarToSurviveCommonEnvelope; }
-    bool                                        AllowRLOFAtBirth() const                                                { return m_Opts->m_AllowRLOFAtBirth; }
-    bool                                        AllowTouchingAtBirth() const                                            { return m_Opts->m_AllowTouchingAtBirth; }
-    bool                                        AngularMomentumConservationDuringCircularisation() const                { return m_Opts->m_AngularMomentumConservationDuringCircularisation; }
+    bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return m_Opts->optionValues.m_AllowMainSequenceStarToSurviveCommonEnvelope; }
+    bool                                        AllowRLOFAtBirth() const                                                { return m_Opts->optionValues.m_AllowRLOFAtBirth; }
+    bool                                        AllowTouchingAtBirth() const                                            { return m_Opts->optionValues.m_AllowTouchingAtBirth; }
+    bool                                        AngularMomentumConservationDuringCircularisation() const                { return m_Opts->optionValues.m_AngularMomentumConservationDuringCircularisation; }
 
-    bool                                        BeBinaries() const                                                      { return m_Opts->m_BeBinaries; }
+    bool                                        BeBinaries() const                                                      { return m_Opts->optionValues.m_BeBinaries; }
 
-    BLACK_HOLE_KICK_OPTION                      BlackHoleKicksOption() const                                            { return m_Opts->m_BlackHoleKicksOption; }
+    BLACK_HOLE_KICK_OPTION                      BlackHoleKicksOption() const                                            { return m_Opts->optionValues.m_BlackHoleKicksOption; }
 
-    EVOLUTION_MODE                              EvolutionMode() const                                                   { return m_Opts->m_EvolutionMode; }
+    EVOLUTION_MODE                              EvolutionMode() const                                                   { return m_Opts->optionValues.m_EvolutionMode; }
     
-    CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return m_Opts->m_CaseBBStabilityPrescription; }
+    CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return m_Opts->optionValues.m_CaseBBStabilityPrescription; }
     
-    CHE_OPTION                                  CHE_Option() const                                                      { return m_Opts->m_CheOption; }
+    CHE_OPTION                                  CHE_Option() const                                                      { return m_Opts->optionValues.m_CheOption; }
 
-    bool                                        CirculariseBinaryDuringMassTransfer() const                             { return m_Opts->m_CirculariseBinaryDuringMassTransfer; }
+    bool                                        CirculariseBinaryDuringMassTransfer() const                             { return m_Opts->optionValues.m_CirculariseBinaryDuringMassTransfer; }
 
-    double                                      CommonEnvelopeAlpha() const                                             { return m_Opts->m_CommonEnvelopeAlpha; }
-    double                                      CommonEnvelopeAlphaThermal() const                                      { return m_Opts->m_CommonEnvelopeAlphaThermal; }
-    double                                      CommonEnvelopeLambda() const                                            { return m_Opts->m_CommonEnvelopeLambda; }
-    double                                      CommonEnvelopeLambdaMultiplier() const                                  { return m_Opts->m_CommonEnvelopeLambdaMultiplier; }
-    CE_LAMBDA_PRESCRIPTION                      CommonEnvelopeLambdaPrescription() const                                { return m_Opts->m_CommonEnvelopeLambdaPrescription; }
-    double                                      CommonEnvelopeMassAccretionConstant() const                             { return m_Opts->m_CommonEnvelopeMassAccretionConstant; }
-    double                                      CommonEnvelopeMassAccretionMax() const                                  { return m_Opts->m_CommonEnvelopeMassAccretionMax; }
-    double                                      CommonEnvelopeMassAccretionMin() const                                  { return m_Opts->m_CommonEnvelopeMassAccretionMin; }
-    CE_ACCRETION_PRESCRIPTION                   CommonEnvelopeMassAccretionPrescription() const                         { return m_Opts->m_CommonEnvelopeMassAccretionPrescription; }
-    double                                      CommonEnvelopeRecombinationEnergyDensity() const                        { return m_Opts->m_CommonEnvelopeRecombinationEnergyDensity; }
-    double                                      CommonEnvelopeSlopeKruckow() const                                      { return m_Opts->m_CommonEnvelopeSlopeKruckow; }
+    double                                      CommonEnvelopeAlpha() const                                             { return m_Opts->optionValues.m_CommonEnvelopeAlpha; }
+    double                                      CommonEnvelopeAlphaThermal() const                                      { return m_Opts->optionValues.m_CommonEnvelopeAlphaThermal; }
+    double                                      CommonEnvelopeLambda() const                                            { return m_Opts->optionValues.m_CommonEnvelopeLambda; }
+    double                                      CommonEnvelopeLambdaMultiplier() const                                  { return m_Opts->optionValues.m_CommonEnvelopeLambdaMultiplier; }
+    CE_LAMBDA_PRESCRIPTION                      CommonEnvelopeLambdaPrescription() const                                { return m_Opts->optionValues.m_CommonEnvelopeLambdaPrescription; }
+    double                                      CommonEnvelopeMassAccretionConstant() const                             { return m_Opts->optionValues.m_CommonEnvelopeMassAccretionConstant; }
+    double                                      CommonEnvelopeMassAccretionMax() const                                  { return m_Opts->optionValues.m_CommonEnvelopeMassAccretionMax; }
+    double                                      CommonEnvelopeMassAccretionMin() const                                  { return m_Opts->optionValues.m_CommonEnvelopeMassAccretionMin; }
+    CE_ACCRETION_PRESCRIPTION                   CommonEnvelopeMassAccretionPrescription() const                         { return m_Opts->optionValues.m_CommonEnvelopeMassAccretionPrescription; }
+    double                                      CommonEnvelopeRecombinationEnergyDensity() const                        { return m_Opts->optionValues.m_CommonEnvelopeRecombinationEnergyDensity; }
+    double                                      CommonEnvelopeSlopeKruckow() const                                      { return m_Opts->optionValues.m_CommonEnvelopeSlopeKruckow; }
 
-    vector<string>                              DebugClasses() const                                                    { return m_Opts->m_DebugClasses; }
-    int                                         DebugLevel() const                                                      { return m_Opts->m_DebugLevel; }
-    bool                                        DebugToFile() const                                                     { return m_Opts->m_DebugToFile; }
-    bool                                        DetailedOutput() const                                                  { return m_Opts->m_DetailedOutput; }
+    vector<string>                              DebugClasses() const                                                    { return m_Opts->optionValues.m_DebugClasses; }
+    int                                         DebugLevel() const                                                      { return m_Opts->optionValues.m_DebugLevel; }
+    bool                                        DebugToFile() const                                                     { return m_Opts->optionValues.m_DebugToFile; }
+    bool                                        DetailedOutput() const                                                  { return m_Opts->optionValues.m_DetailedOutput; }
 
-    bool                                        EnableWarnings() const                                                  { return m_Opts->m_EnableWarnings; }
-    bool                                        ErrorsToFile() const                                                    { return m_Opts->m_ErrorsToFile; }
-    double                                      Eccentricity() const                                                    { return m_Opts->m_Eccentricity; }
-    ECCENTRICITY_DISTRIBUTION                   EccentricityDistribution() const                                        { return m_Opts->m_EccentricityDistribution; }
-    double                                      EccentricityDistributionMax() const                                     { return m_Opts->m_EccentricityDistributionMax; }
-    double                                      EccentricityDistributionMin() const                                     { return m_Opts->m_EccentricityDistributionMin; }
-    double                                      EddingtonAccretionFactor() const                                        { return m_Opts->m_EddingtonAccretionFactor; }
-    ENVELOPE_STATE_PRESCRIPTION                 EnvelopeStatePrescription() const                                       { return m_Opts->m_EnvelopeStatePrescription; }
-    bool                                        EvolvePulsars() const                                                   { return m_Opts->m_EvolvePulsars; }
-    bool                                        EvolveUnboundSystems() const                                            { return m_Opts->m_EvolveUnboundSystems; }
+    bool                                        EnableWarnings() const                                                  { return m_Opts->optionValues.m_EnableWarnings; }
+    bool                                        ErrorsToFile() const                                                    { return m_Opts->optionValues.m_ErrorsToFile; }
+    double                                      Eccentricity() const                                                    { return m_Opts->optionValues.m_Eccentricity; }
+    ECCENTRICITY_DISTRIBUTION                   EccentricityDistribution() const                                        { return m_Opts->optionValues.m_EccentricityDistribution; }
+    double                                      EccentricityDistributionMax() const                                     { return m_Opts->optionValues.m_EccentricityDistributionMax; }
+    double                                      EccentricityDistributionMin() const                                     { return m_Opts->optionValues.m_EccentricityDistributionMin; }
+    double                                      EddingtonAccretionFactor() const                                        { return m_Opts->optionValues.m_EddingtonAccretionFactor; }
+    ENVELOPE_STATE_PRESCRIPTION                 EnvelopeStatePrescription() const                                       { return m_Opts->optionValues.m_EnvelopeStatePrescription; }
+    bool                                        EvolvePulsars() const                                                   { return m_Opts->optionValues.m_EvolvePulsars; }
+    bool                                        EvolveUnboundSystems() const                                            { return m_Opts->optionValues.m_EvolveUnboundSystems; }
 
-    bool                                        FixedMetallicity() const                                                { return m_Opts->m_FixedMetallicity; }
-    bool                                        FixedRandomSeed() const                                                 { return m_Opts->m_FixedRandomSeed; }
-    double                                      FixedUK() const                                                         { return m_Opts->m_FixedUK; }                 // JR: todo: this isn't consistent naming see fixedMetallicity, fixedRandomSeed)
-    SN_ENGINE                                   FryerSupernovaEngine() const                                            { return m_Opts->m_FryerSupernovaEngine; }
+    bool                                        FixedMetallicity() const                                                { return m_Opts->optionValues.m_FixedMetallicity; }
+    bool                                        FixedRandomSeed() const                                                 { return m_Opts->optionValues.m_FixedRandomSeed; }
+    double                                      FixedUK() const                                                         { return m_Opts->optionValues.m_FixedUK; }                 // JR: todo: this isn't consistent naming see fixedMetallicity, fixedRandomSeed)
+    SN_ENGINE                                   FryerSupernovaEngine() const                                            { return m_Opts->optionValues.m_FryerSupernovaEngine; }
 
-    string                                      GridFilename() const                                                    { return m_Opts->m_GridFilename; }
+    string                                      GridFilename() const                                                    { return m_Opts->optionValues.m_GridFilename; }
 
-    double                                      InitialMass() const                                                     { return m_Opts->m_InitialMass; }
-    double                                      InitialMass1() const                                                    { return m_Opts->m_InitialMass1; }
-    double                                      InitialMass2() const                                                    { return m_Opts->m_InitialMass2; }
+    double                                      InitialMass() const                                                     { return m_Opts->optionValues.m_InitialMass; }
+    double                                      InitialMass1() const                                                    { return m_Opts->optionValues.m_InitialMass1; }
+    double                                      InitialMass2() const                                                    { return m_Opts->optionValues.m_InitialMass2; }
 
-    INITIAL_MASS_FUNCTION                       InitialMassFunction() const                                             { return m_Opts->m_InitialMassFunction; }
-    double                                      InitialMassFunctionMax() const                                          { return m_Opts->m_InitialMassFunctionMax; }
-    double                                      InitialMassFunctionMin() const                                          { return m_Opts->m_InitialMassFunctionMin; }
-    double                                      InitialMassFunctionPower() const                                        { return m_Opts->m_InitialMassFunctionPower; }
+    INITIAL_MASS_FUNCTION                       InitialMassFunction() const                                             { return m_Opts->optionValues.m_InitialMassFunction; }
+    double                                      InitialMassFunctionMax() const                                          { return m_Opts->optionValues.m_InitialMassFunctionMax; }
+    double                                      InitialMassFunctionMin() const                                          { return m_Opts->optionValues.m_InitialMassFunctionMin; }
+    double                                      InitialMassFunctionPower() const                                        { return m_Opts->optionValues.m_InitialMassFunctionPower; }
 
-    KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return m_Opts->m_KickDirectionDistribution; }
-    double                                      KickDirectionPower() const                                              { return m_Opts->m_KickDirectionPower; }
-    double                                      KickScalingFactor() const                                               { return m_Opts->m_KickScalingFactor; }
-    KICK_MAGNITUDE_DISTRIBUTION                 KickMagnitudeDistribution() const                                       { return m_Opts->m_KickMagnitudeDistribution; }
+    KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return m_Opts->optionValues.m_KickDirectionDistribution; }
+    double                                      KickDirectionPower() const                                              { return m_Opts->optionValues.m_KickDirectionPower; }
+    double                                      KickScalingFactor() const                                               { return m_Opts->optionValues.m_KickScalingFactor; }
+    KICK_MAGNITUDE_DISTRIBUTION                 KickMagnitudeDistribution() const                                       { return m_Opts->optionValues.m_KickMagnitudeDistribution; }
 
-    double                                      KickMagnitudeDistributionMaximum() const                                { return m_Opts->m_KickMagnitudeDistributionMaximum; }
+    double                                      KickMagnitudeDistributionMaximum() const                                { return m_Opts->optionValues.m_KickMagnitudeDistributionMaximum; }
 
-    double                                      KickMagnitudeDistributionSigmaCCSN_BH() const                           { return m_Opts->m_KickMagnitudeDistributionSigmaCCSN_BH; }
-    double                                      KickMagnitudeDistributionSigmaCCSN_NS() const                           { return m_Opts->m_KickMagnitudeDistributionSigmaCCSN_NS; }
-    double                                      KickMagnitudeDistributionSigmaForECSN() const                           { return m_Opts->m_KickMagnitudeDistributionSigmaForECSN; }
-    double                                      KickMagnitudeDistributionSigmaForUSSN() const                           { return m_Opts->m_KickMagnitudeDistributionSigmaForUSSN; }
+    double                                      KickMagnitudeDistributionSigmaCCSN_BH() const                           { return m_Opts->optionValues.m_KickMagnitudeDistributionSigmaCCSN_BH; }
+    double                                      KickMagnitudeDistributionSigmaCCSN_NS() const                           { return m_Opts->optionValues.m_KickMagnitudeDistributionSigmaCCSN_NS; }
+    double                                      KickMagnitudeDistributionSigmaForECSN() const                           { return m_Opts->optionValues.m_KickMagnitudeDistributionSigmaForECSN; }
+    double                                      KickMagnitudeDistributionSigmaForUSSN() const                           { return m_Opts->optionValues.m_KickMagnitudeDistributionSigmaForUSSN; }
 
-    double                                      KickMagnitude() const                                                   { return m_Opts->m_KickMagnitude; }
-    double                                      KickMagnitude1() const                                                  { return m_Opts->m_KickMagnitude1; }
-    double                                      KickMagnitude2() const                                                  { return m_Opts->m_KickMagnitude2; }
+    double                                      KickMagnitude() const                                                   { return m_Opts->optionValues.m_KickMagnitude; }
+    double                                      KickMagnitude1() const                                                  { return m_Opts->optionValues.m_KickMagnitude1; }
+    double                                      KickMagnitude2() const                                                  { return m_Opts->optionValues.m_KickMagnitude2; }
 
-    double                                      KickMagnitudeRandom() const                                             { return m_Opts->m_KickMagnitudeRandom; }
-    double                                      KickMagnitudeRandom1() const                                            { return m_Opts->m_KickMagnitudeRandom1; }
-    double                                      KickMagnitudeRandom2() const                                            { return m_Opts->m_KickMagnitudeRandom2; }
+    double                                      KickMagnitudeRandom() const                                             { return m_Opts->optionValues.m_KickMagnitudeRandom; }
+    double                                      KickMagnitudeRandom1() const                                            { return m_Opts->optionValues.m_KickMagnitudeRandom1; }
+    double                                      KickMagnitudeRandom2() const                                            { return m_Opts->optionValues.m_KickMagnitudeRandom2; }
 
-    double                                      SN_MeanAnomaly1() const                                                 { return m_Opts->m_KickMeanAnomaly1; }
-    double                                      SN_MeanAnomaly2() const                                                 { return m_Opts->m_KickMeanAnomaly2; }
-    double                                      SN_Phi1() const                                                         { return m_Opts->m_KickPhi1; }
-    double                                      SN_Phi2() const                                                         { return m_Opts->m_KickPhi2; }
-    double                                      SN_Theta1() const                                                       { return m_Opts->m_KickTheta1; }
-    double                                      SN_Theta2() const                                                       { return m_Opts->m_KickTheta2; }
+    double                                      SN_MeanAnomaly1() const                                                 { return m_Opts->optionValues.m_KickMeanAnomaly1; }
+    double                                      SN_MeanAnomaly2() const                                                 { return m_Opts->optionValues.m_KickMeanAnomaly2; }
+    double                                      SN_Phi1() const                                                         { return m_Opts->optionValues.m_KickPhi1; }
+    double                                      SN_Phi2() const                                                         { return m_Opts->optionValues.m_KickPhi2; }
+    double                                      SN_Theta1() const                                                       { return m_Opts->optionValues.m_KickTheta1; }
+    double                                      SN_Theta2() const                                                       { return m_Opts->optionValues.m_KickTheta2; }
 
-    vector<string>                              LogClasses() const                                                      { return m_Opts->m_LogClasses; }
-    string                                      LogfileBeBinaries() const                                               { return m_Opts->m_LogfileBeBinaries; }
-    string                                      LogfileCommonEnvelopes() const                                          { return m_Opts->m_LogfileCommonEnvelopes; }
-    string                                      LogfileDefinitionsFilename() const                                      { return m_Opts->m_LogfileDefinitionsFilename; }
-    DELIMITER                                   LogfileDelimiter() const                                                { return m_Opts->m_LogfileDelimiter; }
-    string                                      LogfileDelimiterString() const                                          { return m_Opts->m_LogfileDelimiterString; }
-    string                                      LogfileDetailedOutput() const                                           { return m_Opts->m_LogfileDetailedOutput; }
-    string                                      LogfileDoubleCompactObjects() const                                     { return m_Opts->m_LogfileDoubleCompactObjects; }
-    string                                      LogfileNamePrefix() const                                               { return m_Opts->m_LogfileNamePrefix; }
-    string                                      LogfilePulsarEvolution() const                                          { return m_Opts->m_LogfilePulsarEvolution; }
-    string                                      LogfileRLOFParameters() const                                           { return m_Opts->m_LogfileRLOFParameters; }
-    string                                      LogfileSupernovae() const                                               { return m_Opts->m_LogfileSupernovae; }
-    string                                      LogfileSwitchLog() const                                                { return m_Opts->m_LogfileSwitchLog; }
-    string                                      LogfileSystemParameters() const                                         { return m_Opts->m_LogfileSystemParameters; }
-    int                                         LogLevel() const                                                        { return m_Opts->m_LogLevel; }
+    vector<string>                              LogClasses() const                                                      { return m_Opts->optionValues.m_LogClasses; }
+    string                                      LogfileBeBinaries() const                                               { return m_Opts->optionValues.m_LogfileBeBinaries; }
+    string                                      LogfileCommonEnvelopes() const                                          { return m_Opts->optionValues.m_LogfileCommonEnvelopes; }
+    string                                      LogfileDefinitionsFilename() const                                      { return m_Opts->optionValues.m_LogfileDefinitionsFilename; }
+    DELIMITER                                   LogfileDelimiter() const                                                { return m_Opts->optionValues.m_LogfileDelimiter; }
+    string                                      LogfileDelimiterString() const                                          { return m_Opts->optionValues.m_LogfileDelimiterString; }
+    string                                      LogfileDetailedOutput() const                                           { return m_Opts->optionValues.m_LogfileDetailedOutput; }
+    string                                      LogfileDoubleCompactObjects() const                                     { return m_Opts->optionValues.m_LogfileDoubleCompactObjects; }
+    string                                      LogfileNamePrefix() const                                               { return m_Opts->optionValues.m_LogfileNamePrefix; }
+    string                                      LogfilePulsarEvolution() const                                          { return m_Opts->optionValues.m_LogfilePulsarEvolution; }
+    string                                      LogfileRLOFParameters() const                                           { return m_Opts->optionValues.m_LogfileRLOFParameters; }
+    string                                      LogfileSupernovae() const                                               { return m_Opts->optionValues.m_LogfileSupernovae; }
+    string                                      LogfileSwitchLog() const                                                { return m_Opts->optionValues.m_LogfileSwitchLog; }
+    string                                      LogfileSystemParameters() const                                         { return m_Opts->optionValues.m_LogfileSystemParameters; }
+    int                                         LogLevel() const                                                        { return m_Opts->optionValues.m_LogLevel; }
 
-    double                                      LuminousBlueVariableFactor() const                                      { return m_Opts->m_LuminousBlueVariableFactor; }
+    double                                      LuminousBlueVariableFactor() const                                      { return m_Opts->optionValues.m_LuminousBlueVariableFactor; }
 
-    MASS_LOSS_PRESCRIPTION                      MassLossPrescription() const                                            { return m_Opts->m_MassLossPrescription; }
+    MASS_LOSS_PRESCRIPTION                      MassLossPrescription() const                                            { return m_Opts->optionValues.m_MassLossPrescription; }
 
-    MASS_RATIO_DISTRIBUTION                     MassRatioDistribution() const                                           { return m_Opts->m_MassRatioDistribution; }
-    double                                      MassRatioDistributionMax() const                                        { return m_Opts->m_MassRatioDistributionMax; }
-    double                                      MassRatioDistributionMin() const                                        { return m_Opts->m_MassRatioDistributionMin; }
+    MASS_RATIO_DISTRIBUTION                     MassRatioDistribution() const                                           { return m_Opts->optionValues.m_MassRatioDistribution; }
+    double                                      MassRatioDistributionMax() const                                        { return m_Opts->optionValues.m_MassRatioDistributionMax; }
+    double                                      MassRatioDistributionMin() const                                        { return m_Opts->optionValues.m_MassRatioDistributionMin; }
 
-    MT_ACCRETION_EFFICIENCY_PRESCRIPTION        MassTransferAccretionEfficiencyPrescription() const                     { return m_Opts->m_MassTransferAccretionEfficiencyPrescription; }
-    MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION       MassTransferAngularMomentumLossPrescription() const                     { return m_Opts->m_MassTransferAngularMomentumLossPrescription; }
-    double                                      MassTransferCParameter() const                                          { return m_Opts->m_MassTransferCParameter; }
+    MT_ACCRETION_EFFICIENCY_PRESCRIPTION        MassTransferAccretionEfficiencyPrescription() const                     { return m_Opts->optionValues.m_MassTransferAccretionEfficiencyPrescription; }
+    MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION       MassTransferAngularMomentumLossPrescription() const                     { return m_Opts->optionValues.m_MassTransferAngularMomentumLossPrescription; }
+    double                                      MassTransferCParameter() const                                          { return m_Opts->optionValues.m_MassTransferCParameter; }
 
     //
-    bool                                        MassTransferCriticalMassRatioGiant() const                              { return m_Opts->m_MassTransferCriticalMassRatioGiant; }
-    double                                      MassTransferCriticalMassRatioGiantDegenerateAccretor() const            { return m_Opts->m_MassTransferCriticalMassRatioGiantDegenerateAccretor; }
-    double                                      MassTransferCriticalMassRatioGiantNonDegenerateAccretor() const         { return m_Opts->m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor; }
-    bool                                        MassTransferCriticalMassRatioHeliumGiant() const                        { return m_Opts->m_MassTransferCriticalMassRatioHeliumGiant; }
-    double                                      MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor() const      { return m_Opts->m_MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor; }
-    double                                      MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor() const   { return m_Opts->m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor; }
-    bool                                        MassTransferCriticalMassRatioHeliumHG() const                           { return m_Opts->m_MassTransferCriticalMassRatioHeliumHG; }
-    double                                      MassTransferCriticalMassRatioHeliumHGDegenerateAccretor() const         { return m_Opts->m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor; }
-    double                                      MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor() const      { return m_Opts->m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor; }
-    bool                                        MassTransferCriticalMassRatioHeliumMS() const                           { return m_Opts->m_MassTransferCriticalMassRatioHeliumMS; }
-    double                                      MassTransferCriticalMassRatioHeliumMSDegenerateAccretor() const         { return m_Opts->m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor; }
-    double                                      MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor() const      { return m_Opts->m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor; }
-    bool                                        MassTransferCriticalMassRatioHG() const                                 { return m_Opts->m_MassTransferCriticalMassRatioHG; }
-    double                                      MassTransferCriticalMassRatioHGDegenerateAccretor() const               { return m_Opts->m_MassTransferCriticalMassRatioHGDegenerateAccretor; }
-    double                                      MassTransferCriticalMassRatioHGNonDegenerateAccretor() const            { return m_Opts->m_MassTransferCriticalMassRatioHGNonDegenerateAccretor; }
-    bool                                        MassTransferCriticalMassRatioMSHighMass() const                         { return m_Opts->m_MassTransferCriticalMassRatioMSHighMass; }
-    double                                      MassTransferCriticalMassRatioMSHighMassDegenerateAccretor() const       { return m_Opts->m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor; }
-    double                                      MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor() const    { return m_Opts->m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor; }
-    bool                                        MassTransferCriticalMassRatioMSLowMass() const                          { return m_Opts->m_MassTransferCriticalMassRatioMSLowMass; }
-    double                                      MassTransferCriticalMassRatioMSLowMassDegenerateAccretor() const        { return m_Opts->m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor; }
-    double                                      MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor() const     { return m_Opts->m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor; }
-    bool                                        MassTransferCriticalMassRatioWhiteDwarf() const                         { return m_Opts->m_MassTransferCriticalMassRatioWhiteDwarf; }
+    bool                                        MassTransferCriticalMassRatioGiant() const                              { return m_Opts->optionValues.m_MassTransferCriticalMassRatioGiant; }
+    double                                      MassTransferCriticalMassRatioGiantDegenerateAccretor() const            { return m_Opts->optionValues.m_MassTransferCriticalMassRatioGiantDegenerateAccretor; }
+    double                                      MassTransferCriticalMassRatioGiantNonDegenerateAccretor() const         { return m_Opts->optionValues.m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor; }
+    bool                                        MassTransferCriticalMassRatioHeliumGiant() const                        { return m_Opts->optionValues.m_MassTransferCriticalMassRatioHeliumGiant; }
+    double                                      MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor() const      { return m_Opts->optionValues.m_MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor; }
+    double                                      MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor() const   { return m_Opts->optionValues.m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor; }
+    bool                                        MassTransferCriticalMassRatioHeliumHG() const                           { return m_Opts->optionValues.m_MassTransferCriticalMassRatioHeliumHG; }
+    double                                      MassTransferCriticalMassRatioHeliumHGDegenerateAccretor() const         { return m_Opts->optionValues.m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor; }
+    double                                      MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor() const      { return m_Opts->optionValues.m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor; }
+    bool                                        MassTransferCriticalMassRatioHeliumMS() const                           { return m_Opts->optionValues.m_MassTransferCriticalMassRatioHeliumMS; }
+    double                                      MassTransferCriticalMassRatioHeliumMSDegenerateAccretor() const         { return m_Opts->optionValues.m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor; }
+    double                                      MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor() const      { return m_Opts->optionValues.m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor; }
+    bool                                        MassTransferCriticalMassRatioHG() const                                 { return m_Opts->optionValues.m_MassTransferCriticalMassRatioHG; }
+    double                                      MassTransferCriticalMassRatioHGDegenerateAccretor() const               { return m_Opts->optionValues.m_MassTransferCriticalMassRatioHGDegenerateAccretor; }
+    double                                      MassTransferCriticalMassRatioHGNonDegenerateAccretor() const            { return m_Opts->optionValues.m_MassTransferCriticalMassRatioHGNonDegenerateAccretor; }
+    bool                                        MassTransferCriticalMassRatioMSHighMass() const                         { return m_Opts->optionValues.m_MassTransferCriticalMassRatioMSHighMass; }
+    double                                      MassTransferCriticalMassRatioMSHighMassDegenerateAccretor() const       { return m_Opts->optionValues.m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor; }
+    double                                      MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor() const    { return m_Opts->optionValues.m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor; }
+    bool                                        MassTransferCriticalMassRatioMSLowMass() const                          { return m_Opts->optionValues.m_MassTransferCriticalMassRatioMSLowMass; }
+    double                                      MassTransferCriticalMassRatioMSLowMassDegenerateAccretor() const        { return m_Opts->optionValues.m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor; }
+    double                                      MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor() const     { return m_Opts->optionValues.m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor; }
+    bool                                        MassTransferCriticalMassRatioWhiteDwarf() const                         { return m_Opts->optionValues.m_MassTransferCriticalMassRatioWhiteDwarf; }
 
-    double                                      MassTransferFractionAccreted() const                                    { return m_Opts->m_MassTransferFractionAccreted; }
-    double                                      MassTransferJloss() const                                               { return m_Opts->m_MassTransferJloss; }
-    MT_REJUVENATION_PRESCRIPTION                MassTransferRejuvenationPrescription() const                            { return m_Opts->m_MassTransferRejuvenationPrescription; }
-    MT_THERMALLY_LIMITED_VARIATION              MassTransferThermallyLimitedVariation() const                           { return m_Opts->m_MassTransferThermallyLimitedVariation; }
-    double                                      MaxEvolutionTime() const                                                { return m_Opts->m_MaxEvolutionTime; }
-    int                                         MaxNumberOfTimestepIterations() const                                   { return m_Opts->m_MaxNumberOfTimestepIterations; }
-    double                                      MaxPercentageAdaptiveMassTransfer() const                               { return m_Opts->m_MaxPercentageAdaptiveMassTransfer; }
+    double                                      MassTransferFractionAccreted() const                                    { return m_Opts->optionValues.m_MassTransferFractionAccreted; }
+    double                                      MassTransferJloss() const                                               { return m_Opts->optionValues.m_MassTransferJloss; }
+    MT_REJUVENATION_PRESCRIPTION                MassTransferRejuvenationPrescription() const                            { return m_Opts->optionValues.m_MassTransferRejuvenationPrescription; }
+    MT_THERMALLY_LIMITED_VARIATION              MassTransferThermallyLimitedVariation() const                           { return m_Opts->optionValues.m_MassTransferThermallyLimitedVariation; }
+    double                                      MaxEvolutionTime() const                                                { return m_Opts->optionValues.m_MaxEvolutionTime; }
+    int                                         MaxNumberOfTimestepIterations() const                                   { return m_Opts->optionValues.m_MaxNumberOfTimestepIterations; }
+    double                                      MaxPercentageAdaptiveMassTransfer() const                               { return m_Opts->optionValues.m_MaxPercentageAdaptiveMassTransfer; }
 
-    double                                      MCBUR1() const                                                          { return m_Opts->m_mCBUR1; }
+    double                                      MCBUR1() const                                                          { return m_Opts->optionValues.m_mCBUR1; }
 
-    double                                      Metallicity() const                                                     { return m_Opts->m_Metallicity; }
+    double                                      Metallicity() const                                                     { return m_Opts->optionValues.m_Metallicity; }
 
-    double                                      MinimumMassSecondary() const                                            { return m_Opts->m_MinimumMassSecondary; }
-    double                                      MaximumNeutronStarMass() const                                          { return m_Opts->m_MaximumNeutronStarMass; }
+    double                                      MinimumMassSecondary() const                                            { return m_Opts->optionValues.m_MinimumMassSecondary; }
+    double                                      MaximumNeutronStarMass() const                                          { return m_Opts->optionValues.m_MaximumNeutronStarMass; }
 
-    int                                         nBatchesUsed() const                                                    { return m_Opts->m_nBatchesUsed; }
+    int                                         nBatchesUsed() const                                                    { return m_Opts->optionValues.m_nBatchesUsed; }
 
-    NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return m_Opts->m_NeutrinoMassLossAssumptionBH; }
-    double                                      NeutrinoMassLossValueBH() const                                         { return m_Opts->m_NeutrinoMassLossValueBH; }
+    NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return m_Opts->optionValues.m_NeutrinoMassLossAssumptionBH; }
+    double                                      NeutrinoMassLossValueBH() const                                         { return m_Opts->optionValues.m_NeutrinoMassLossValueBH; }
 
-    NS_EOS                                      NeutronStarEquationOfState() const                                      { return m_Opts->m_NeutronStarEquationOfState; }
+    NS_EOS                                      NeutronStarEquationOfState() const                                      { return m_Opts->optionValues.m_NeutronStarEquationOfState; }
 
-    int                                         nObjectsToEvolve() const                                                { return m_Opts->m_ObjectsToEvolve; }
-    bool                                        OptimisticCHE() const                                                   { return m_Opts->m_CheOption == CHE_OPTION::OPTIMISTIC; }
+    int                                         nObjectsToEvolve() const                                                { return m_Opts->optionValues.m_ObjectsToEvolve; }
+    bool                                        OptimisticCHE() const                                                   { return m_Opts->optionValues.m_CheOption == CHE_OPTION::OPTIMISTIC; }
 
     string                                      OptionsDetails() const                                                  { return m_OptionsDetails; }
 
-    string                                      OutputContainerName() const                                             { return m_Opts->m_OutputContainerName; }
-    string                                      OutputPathString() const                                                { return m_Opts->m_OutputPath.string(); }
+    string                                      OutputContainerName() const                                             { return m_Opts->optionValues.m_OutputContainerName; }
+    string                                      OutputPathString() const                                                { return m_Opts->optionValues.m_OutputPath.string(); }
 
-    double                                      PairInstabilityLowerLimit() const                                       { return m_Opts->m_PairInstabilityLowerLimit; }
-    double                                      PairInstabilityUpperLimit() const                                       { return m_Opts->m_PairInstabilityUpperLimit; }
+    double                                      PairInstabilityLowerLimit() const                                       { return m_Opts->optionValues.m_PairInstabilityLowerLimit; }
+    double                                      PairInstabilityUpperLimit() const                                       { return m_Opts->optionValues.m_PairInstabilityUpperLimit; }
 
-    double                                      PeriodDistributionMax() const                                           { return m_Opts->m_PeriodDistributionMax; }
-    double                                      PeriodDistributionMin() const                                           { return m_Opts->m_PeriodDistributionMin; }
+    double                                      PeriodDistributionMax() const                                           { return m_Opts->optionValues.m_PeriodDistributionMax; }
+    double                                      PeriodDistributionMin() const                                           { return m_Opts->optionValues.m_PeriodDistributionMin; }
 
-    bool                                        PopulationDataPrinting() const                                          { return m_Opts->m_PopulationDataPrinting; }
-    bool                                        PrintBoolAsString() const                                               { return m_Opts->m_PrintBoolAsString; }
+    bool                                        PopulationDataPrinting() const                                          { return m_Opts->optionValues.m_PopulationDataPrinting; }
+    bool                                        PrintBoolAsString() const                                               { return m_Opts->optionValues.m_PrintBoolAsString; }
 
-    PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION    PulsarBirthMagneticFieldDistribution() const                            { return m_Opts->m_PulsarBirthMagneticFieldDistribution; }
-    double                                      PulsarBirthMagneticFieldDistributionMax() const                         { return m_Opts->m_PulsarBirthMagneticFieldDistributionMax; }
-    double                                      PulsarBirthMagneticFieldDistributionMin() const                         { return m_Opts->m_PulsarBirthMagneticFieldDistributionMin; }
+    PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION    PulsarBirthMagneticFieldDistribution() const                            { return m_Opts->optionValues.m_PulsarBirthMagneticFieldDistribution; }
+    double                                      PulsarBirthMagneticFieldDistributionMax() const                         { return m_Opts->optionValues.m_PulsarBirthMagneticFieldDistributionMax; }
+    double                                      PulsarBirthMagneticFieldDistributionMin() const                         { return m_Opts->optionValues.m_PulsarBirthMagneticFieldDistributionMin; }
 
-    PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION       PulsarBirthSpinPeriodDistribution() const                               { return m_Opts->m_PulsarBirthSpinPeriodDistribution; }
-    double                                      PulsarBirthSpinPeriodDistributionMax() const                            { return m_Opts->m_PulsarBirthSpinPeriodDistributionMax; }
-    double                                      PulsarBirthSpinPeriodDistributionMin() const                            { return m_Opts->m_PulsarBirthSpinPeriodDistributionMin; }
+    PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION       PulsarBirthSpinPeriodDistribution() const                               { return m_Opts->optionValues.m_PulsarBirthSpinPeriodDistribution; }
+    double                                      PulsarBirthSpinPeriodDistributionMax() const                            { return m_Opts->optionValues.m_PulsarBirthSpinPeriodDistributionMax; }
+    double                                      PulsarBirthSpinPeriodDistributionMin() const                            { return m_Opts->optionValues.m_PulsarBirthSpinPeriodDistributionMin; }
 
-    double                                      PulsarLog10MinimumMagneticField() const                                 { return m_Opts->m_PulsarLog10MinimumMagneticField; }
+    double                                      PulsarLog10MinimumMagneticField() const                                 { return m_Opts->optionValues.m_PulsarLog10MinimumMagneticField; }
 
-    double                                      PulsarMagneticFieldDecayMassscale() const                               { return m_Opts->m_PulsarMagneticFieldDecayMassscale; }
-    double                                      PulsarMagneticFieldDecayTimescale() const                               { return m_Opts->m_PulsarMagneticFieldDecayTimescale; }
+    double                                      PulsarMagneticFieldDecayMassscale() const                               { return m_Opts->optionValues.m_PulsarMagneticFieldDecayMassscale; }
+    double                                      PulsarMagneticFieldDecayTimescale() const                               { return m_Opts->optionValues.m_PulsarMagneticFieldDecayTimescale; }
 
-    PPI_PRESCRIPTION                            PulsationalPairInstabilityPrescription() const                          { return m_Opts->m_PulsationalPairInstabilityPrescription; }
-    double                                      PulsationalPairInstabilityLowerLimit() const                            { return m_Opts->m_PulsationalPairInstabilityLowerLimit; }
-    double                                      PulsationalPairInstabilityUpperLimit() const                            { return m_Opts->m_PulsationalPairInstabilityUpperLimit; }
+    PPI_PRESCRIPTION                            PulsationalPairInstabilityPrescription() const                          { return m_Opts->optionValues.m_PulsationalPairInstabilityPrescription; }
+    double                                      PulsationalPairInstabilityLowerLimit() const                            { return m_Opts->optionValues.m_PulsationalPairInstabilityLowerLimit; }
+    double                                      PulsationalPairInstabilityUpperLimit() const                            { return m_Opts->optionValues.m_PulsationalPairInstabilityUpperLimit; }
 
-    bool                                        Quiet() const                                                           { return m_Opts->m_Quiet; }
+    bool                                        Quiet() const                                                           { return m_Opts->optionValues.m_Quiet; }
 
-    unsigned long int                           RandomSeed() const                                                      { return m_Opts->m_RandomSeed; }
+    unsigned long int                           RandomSeed() const                                                      { return m_Opts->optionValues.m_RandomSeed; }
 
-    REMNANT_MASS_PRESCRIPTION                   RemnantMassPrescription() const                                         { return m_Opts->m_RemnantMassPrescription; }
-    bool                                        RLOFPrinting() const                                                    { return m_Opts->m_RlofPrinting; }
+    REMNANT_MASS_PRESCRIPTION                   RemnantMassPrescription() const                                         { return m_Opts->optionValues.m_RemnantMassPrescription; }
+    bool                                        RLOFPrinting() const                                                    { return m_Opts->optionValues.m_RlofPrinting; }
 
-    ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return m_Opts->m_RotationalVelocityDistribution; }
+    ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return m_Opts->optionValues.m_RotationalVelocityDistribution; }
    
-    double                                      SemiMajorAxis() const                                                   { return m_Opts->m_SemiMajorAxis; }
-    SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return m_Opts->m_SemiMajorAxisDistribution; }
-    double                                      SemiMajorAxisDistributionMax() const                                    { return m_Opts->m_SemiMajorAxisDistributionMax; }
-    double                                      SemiMajorAxisDistributionMin() const                                    { return m_Opts->m_SemiMajorAxisDistributionMin; }
-    double                                      SemiMajorAxisDistributionPower() const                                  { return m_Opts->m_SemiMajorAxisDistributionPower; }
+    double                                      SemiMajorAxis() const                                                   { return m_Opts->optionValues.m_SemiMajorAxis; }
+    SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return m_Opts->optionValues.m_SemiMajorAxisDistribution; }
+    double                                      SemiMajorAxisDistributionMax() const                                    { return m_Opts->optionValues.m_SemiMajorAxisDistributionMax; }
+    double                                      SemiMajorAxisDistributionMin() const                                    { return m_Opts->optionValues.m_SemiMajorAxisDistributionMin; }
+    double                                      SemiMajorAxisDistributionPower() const                                  { return m_Opts->optionValues.m_SemiMajorAxisDistributionPower; }
 
     bool                                        RequestedHelp() const                                                   { return m_Program.optionValues.m_VM["help"].as<bool>(); }
     bool                                        RequestedVersion() const                                                { return m_Program.optionValues.m_VM["version"].as<bool>(); }
 
-    bool                                        SwitchLog() const                                                       { return m_Opts->m_SwitchLog; }
+    bool                                        SwitchLog() const                                                       { return m_Opts->optionValues.m_SwitchLog; }
 
-    ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return m_Opts->m_StellarZetaPrescription; }
+    ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return m_Opts->optionValues.m_StellarZetaPrescription; }
 
-    bool                                        UseFixedUK() const                                                      { return m_Opts->m_UseFixedUK; }
-    bool                                        UseMassLoss() const                                                     { return m_Opts->m_UseMassLoss; }
-    bool                                        UseMassTransfer() const                                                 { return m_Opts->m_UseMassTransfer; }
-    bool                                        UsePairInstabilitySupernovae() const                                    { return m_Opts->m_UsePairInstabilitySupernovae; }
-    bool                                        UsePulsationalPairInstability() const                                   { return m_Opts->m_UsePulsationalPairInstability; }
+    bool                                        UseFixedUK() const                                                      { return m_Opts->optionValues.m_UseFixedUK; }
+    bool                                        UseMassLoss() const                                                     { return m_Opts->optionValues.m_UseMassLoss; }
+    bool                                        UseMassTransfer() const                                                 { return m_Opts->optionValues.m_UseMassTransfer; }
+    bool                                        UsePairInstabilitySupernovae() const                                    { return m_Opts->optionValues.m_UsePairInstabilitySupernovae; }
+    bool                                        UsePulsationalPairInstability() const                                   { return m_Opts->optionValues.m_UsePulsationalPairInstability; }
 
-    double                                      WolfRayetFactor() const                                                 { return m_Opts->m_WolfRayetFactor; }
+    double                                      WolfRayetFactor() const                                                 { return m_Opts->optionValues.m_WolfRayetFactor; }
 
-    double                                      ZetaRadiativeEnvelopeGiant() const                                      { return m_Opts->m_ZetaRadiativeEnvelopeGiant; }
-    double                                      ZetaMainSequence() const                                                { return m_Opts->m_ZetaMainSequence; }
-    double                                      ZetaAdiabaticArbitrary() const                                          { return m_Opts->m_ZetaAdiabaticArbitrary; }
+    double                                      ZetaRadiativeEnvelopeGiant() const                                      { return m_Opts->optionValues.m_ZetaRadiativeEnvelopeGiant; }
+    double                                      ZetaMainSequence() const                                                { return m_Opts->optionValues.m_ZetaMainSequence; }
+    double                                      ZetaAdiabaticArbitrary() const                                          { return m_Opts->optionValues.m_ZetaAdiabaticArbitrary; }
 
 };
 
