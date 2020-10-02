@@ -16,9 +16,9 @@ Vector3d::Vector3d() {
 
     m_ObjectId = globalObjectId++; 
 
-    m_0 = 0.0;
-    m_1 = 0.0;
-    m_2 = 0.0;
+    m_x = 0.0;
+    m_y = 0.0;
+    m_z = 0.0;
 
 }
 
@@ -28,25 +28,25 @@ Vector3d::Vector3d(double x, double y, double z) {
 
     m_ObjectId = globalObjectId++; 
 
-    m_0 = x;
-    m_1 = y;
-    m_2 = z;
+    m_x = x;
+    m_y = y;
+    m_z = z;
 }
 
 Vector3d::Vector3d(DBL_VECTOR v) {
 
     m_ObjectId = globalObjectId++; 
     
-    m_0 = v[0];
-    m_1 = v[1];
-    m_2 = v[2];
+    m_x = v[0];
+    m_y = v[1];
+    m_z = v[2];
 }
 
 // Update after initialization
 void Vector3d::updateVector( const double x, const double y, const double z) {
-    m_0 = x;
-    m_1 = y;
-    m_2 = z;
+    m_x = x;
+    m_y = y;
+    m_z = z;
 }
 
 ///////////////////////////////
@@ -55,9 +55,9 @@ void Vector3d::updateVector( const double x, const double y, const double z) {
 // Indexing Operator
 double& Vector3d::operator[] (size_t i) {
     switch (i) {
-        case 0: return m_0;
-        case 1: return m_1;
-        case 2: return m_2;
+        case 0: return m_x;
+        case 1: return m_y;
+        case 2: return m_z;
         default: throw "Not an index!\n";
     }
 }

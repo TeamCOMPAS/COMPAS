@@ -31,9 +31,9 @@ public:
     virtual ~Vector3d() {}
 
     // getters 
-    double      xValue() const       { return m_0; }
-    double      yValue() const       { return m_1; }
-    double      zValue() const       { return m_2; }
+    double      xValue() const       { return m_x; }
+    double      yValue() const       { return m_y; }
+    double      zValue() const       { return m_z; }
     double      Magnitude() const;
 
     DBL_VECTOR  asDBL_VECTOR();
@@ -78,9 +78,9 @@ protected:
     OBJECT_ID   m_ObjectId;
 
     // member variables
-    double m_0;
-    double m_1;
-    double m_2;
+    double m_x;
+    double m_y;
+    double m_z;
 
     // member functions
     void updateVector( const double x, const double y, const double z);
