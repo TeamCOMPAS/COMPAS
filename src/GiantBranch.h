@@ -119,7 +119,7 @@ protected:
     virtual void            PerturbLuminosityAndRadius();
 
             STELLAR_TYPE    ResolveSupernova();
-            STELLAR_TYPE    ResolveCoreCollapseSN(const SN_ENGINE SNEngine);
+            STELLAR_TYPE    ResolveCoreCollapseSN();
             STELLAR_TYPE    ResolveElectronCaptureSN();
             STELLAR_TYPE    ResolvePairInstabilitySN();
             STELLAR_TYPE    ResolvePulsationalPairInstabilitySN();

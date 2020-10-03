@@ -442,12 +442,16 @@
 //                                      - Added in combined functionaltiy of Stroopwafel and pythonSubmit, with support for HPC runs
 // 02.15.08     IM - Sep 14, 2020   - Defect repair:
 //                                      - Issue #375 Error in Hurley remnant mass calculation
-// --.--.--     RTW - --- --, 20--  - Code cleanup:
+// 02.15.09     RTW - Oct 1, 2020   - Code cleanup:
 //                                      - Rewrote ResolveSupernova to match Pfahl, Rappaport, Podsiadlowski 2002, and to allow for vector addition of system and component velocities
 //                                      - Changed meaning of Supernova_State (see Docs)
 //                                      - PostSN parameters have been removed
 //                                      - SN phi has been redefined
+// 02.15.10     IM - Oct 3, 2020    - Code cleanup:
+//                                      - Removed some unnecessary internal variables and functions (m_TotalMass, m_TotalMassPrev, m_ReducedMass, m_ReducedMassPrev, m_TotalAngularMomentumPrev, CalculateAngularMomentumPrev(), EvaluateBinaryPreamble(),...
+//                                      - Cleaned up some unclear comments
+//                                      - ResolveCoreCollapseSN() no longer takes the Fryer engine as an argument (Fryer is just one of many possible prescriptions)
 
-const std::string VERSION_STRING = "02.15.08";
+const std::string VERSION_STRING = "02.15.10";
 
 # endif // __changelog_h__

@@ -339,7 +339,7 @@ protected:
     PulsarDetailsT          m_PulsarDetails;                            // Pulsar attributes
 
     // Star vector velocity 
-	Vector3d                m_ComponentVelocity; 	                    // Isolated star velocity vector
+	Vector3d                m_ComponentVelocity; 	                    // Isolated star velocity vector (binary's center-of-mass velocity for bound binary)
 
     // member functions - alphabetically
             void            AgeOneTimestepPreamble(const double p_DeltaTime);
