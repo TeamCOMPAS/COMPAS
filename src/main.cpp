@@ -15,6 +15,7 @@
 
 #include "profiling.h"
 #include "utils.h"
+#include "vector3d.h"
 #include "Options.h"
 #include "Rand.h"
 #include "Log.h"

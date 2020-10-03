@@ -7,6 +7,7 @@
 
 #include "Rand.h"
 #include "BaseStar.h"
+#include "vector3d.h"
 
 using std::max;
 using std::min;
@@ -130,6 +131,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Luminosity                               = m_LZAMS;
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
+	m_ComponentVelocity						   = Vector3d();
 
     m_CoreMass                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_COCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -295,7 +297,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_COCoreMassAtCOFormation();                           break;
             case ANY_STAR_PROPERTY::CORE_MASS:                                          value = CoreMass();                                             break;
             case ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION:              value = SN_CoreMassAtCOFormation();                             break;
-            case ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE:                                value = SN_DrawnKickMagnitude();                                 break;
+            case ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE:                               value = SN_DrawnKickMagnitude();                                break;
             case ANY_STAR_PROPERTY::DT:                                                 value = Dt();                                                   break;
             case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE:                                value = CalculateDynamicalTimescale();                          break;
             case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
@@ -319,7 +321,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::IS_PISN:                                            value = IsPISN();                                               break;
             case ANY_STAR_PROPERTY::IS_PPISN:                                           value = IsPPISN();                                              break;
             case ANY_STAR_PROPERTY::IS_USSN:                                            value = IsUSSN();                                               break;
-            case ANY_STAR_PROPERTY::KICK_MAGNITUDE:                                      value = SN_KickMagnitude();                                      break;
+            case ANY_STAR_PROPERTY::KICK_MAGNITUDE:                                     value = SN_KickMagnitude();                                     break;
             case ANY_STAR_PROPERTY::LAMBDA_DEWI:                                        value = Lambda_Dewi();                                          break;
             case ANY_STAR_PROPERTY::LAMBDA_FIXED:                                       value = Lambda_Fixed();                                         break;
             case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW:                                     value = Lambda_Kruckow();                                       break;
@@ -353,6 +355,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::RUNAWAY:                                            value = ExperiencedRunaway();                                   break;
             case ANY_STAR_PROPERTY::RZAMS:                                              value = RZAMS();                                                break;
             case ANY_STAR_PROPERTY::SN_TYPE:                                            value = SN_Type();                                              break;
+            case ANY_STAR_PROPERTY::SPEED:                                              value = Speed();												break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE:                                       value = StellarType();                                          break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE_NAME:                                  value = STELLAR_TYPE_LABEL.at(StellarType());                   break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE_PREV:                                  value = StellarTypePrev();                                      break;
@@ -2627,6 +2630,10 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
  /*
   * Draw the angular components of the supernova kick theta and phi according to user specified options.
   *
+  * Explicitly, theta is defined on [-pi/2, pi/2], where theta=0 is in the orbital plane, and theta=pi/2 is
+  * parallel to the orbital angular momentum. Phi is defined on [0, 2*pi), with phi=0 defined in the direction
+  * of the radial vector from the companion to the star undergoing SN, and increasing in the same direction as the 
+  * binary orbit (i.e it appears counter-clockwise when the binary motion is viewed as counter-clockwise)
   * 
   * DBL_DBL DrawKickDirection()
   */
@@ -2719,6 +2726,21 @@ void BaseStar::CalculateSNAnomalies(const double p_Eccentricity) {
 
     return;
 }
+
+
+/*
+ * Update the current velocity vector of the star, adding to a previous one if it exists.
+ *
+ *
+ * void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity)
+ *
+ * @param   [IN]    p_newVelocity               The new velocity vector 
+ */
+void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity) {
+    m_ComponentVelocity += p_newVelocity;                        // Add new velocity to previous velocity 
+}
+
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
