@@ -478,7 +478,7 @@ double EAGB::CalculateRadiusOnPhase_Static(const double      p_Mass,
         double x2_x1     = x2 - x1;
 
         double y1        = b[56] + (b[57] * x1);
-        double y2        = b[51] * PPOW(x2, -b[52]);
+        double y2        = std::min((b[51] * PPOW(x2, -b[52])), (b[53] * PPOW(x2, -b[54])));
         double gradient  = (y2 - y1) / x2_x1;
         double intercept = y2 - (gradient * x2);
                A         = (gradient * p_Mass) + intercept;

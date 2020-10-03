@@ -548,7 +548,7 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
     RConstants(C_ALPHA_R)   = (a[58] * PPOW(a[67], a[60])) / (a[59] + PPOW(a[67], a[61]));                        // Hurley et al. 2000, eq 21a (wrong in the arxiv version)
     RConstants(B_BETA_R)    = (a[69] * 8.0 * M_SQRT2) / (a[70] + PPOW(2.0, a[71]));                              // Hurley et al. 2000, eq 22a
     RConstants(C_BETA_R)    = (a[69] * 16384.0) / (a[70] + PPOW(16.0, a[71]));                                   // Hurley et al. 2000, eq 22a
-    RConstants(B_DELTA_R)   = (a[38] + (a[39] * 8.0 * M_SQRT2)) / ((a[40] * 8.0) + PPOW(2.0, a[41]));            // Hurley et al. 2000, eq 17
+    RConstants(B_DELTA_R)   = (a[38] + a[39] * 8.0 * M_SQRT2) / (a[40] * 8.0 + PPOW(2.0, a[41])) - 1.0;            // Hurley et al. 2000, eq 17
 
     GammaConstants(B_GAMMA) = a[76] + (a[77] * PPOW((1.0 - a[78]), a[79]));                                      // Hurley et al. 2000, eq 23
     GammaConstants(C_GAMMA) = (utils::Compare(a[75], 1.0) == 0) ? GammaConstants(B_GAMMA) : a[80];              // Hurley et al. 2000, eq 23
@@ -787,8 +787,9 @@ double BaseStar::CalculateAlpha4() {
     double MHeF      = massCutoffs(MHeF);
     double MHeF_5    = MHeF * MHeF * MHeF * MHeF * MHeF;    // pow() is slow - use multiplication
     double tBGB_MHeF = CalculateLifetimeToBGB(MHeF);        // tBGB for mass M = MHeF
-
-    return tBGB_MHeF * (((b[41] * PPOW(MHeF, b[42])) + (b[43] * MHeF_5)) / (b[44] + MHeF_5));
+    double tHe_MHeF  = tBGB_MHeF * (b[41] * PPOW(MHeF, b[42]) + b[43] * MHeF_5) / (b[44] + MHeF_5);
+    
+    return ((tHe_MHeF - b[39]) / b[39]);
 
 #undef massCutoffs
 #undef b

@@ -1328,14 +1328,13 @@ double GiantBranch::CalculateFallbackFractionDelayed(const double p_PreSNMass, c
  * Ref?  Fryer et al. 2012?
  *
  *
- * std::tuple<double, double> CalculateRemnantMassByFryer2012(const SNE p_Engine, const double p_Mass, const double p_COCoreMass)
+ * std::tuple<double, double> CalculateRemnantMassByFryer2012(const double p_Mass, const double p_COCoreMass)
  *
- * @param   [IN]    p_Engine                    The SN Engine to use for the calculation
  * @param   [IN]    p_Mass                      Pre supernova mass in Msol
  * @param   [IN]    p_COCoreMass                Pre supernova Carbon Oxygen (CO) core mass in Msol
  * @return                                      Tuple containing Remnant mass in Msol and updated fraction of mass falling back onto compact object
  */
-std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const SN_ENGINE p_Engine, const double p_Mass, const double p_COCoreMass) {
+std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const double p_Mass, const double p_COCoreMass) {
 
     double mProto;
     double fallbackMass;
@@ -1344,7 +1343,7 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const SN
     double fallbackFraction         = 0.0;
     double gravitationalRemnantMass = 0.0;
 
-    switch (p_Engine) {                                                                                     // which SN_ENGINE?
+    switch (OPTIONS->FryerSupernovaEngine()) {                                                                                     // which SN_ENGINE?
 
         case SN_ENGINE::DELAYED:                                                                            // DELAYED
 
@@ -1447,7 +1446,7 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
 
         case REMNANT_MASS_PRESCRIPTION::FRYER2012:                                                          // Fryer 2012
 
-            std::tie(m_Mass, m_SupernovaDetails.fallbackFraction) = CalculateRemnantMassByFryer2012(OPTIONS->FryerSupernovaEngine(), m_Mass, m_COCoreMass);
+            std::tie(m_Mass, m_SupernovaDetails.fallbackFraction) = CalculateRemnantMassByFryer2012(m_Mass, m_COCoreMass);
             break;
 
         case REMNANT_MASS_PRESCRIPTION::MULLER2016:                                                         // Muller 2016
