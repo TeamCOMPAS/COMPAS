@@ -103,12 +103,6 @@ public:
 
         m_MassTransferTrackerHistory       = p_Star.m_MassTransferTrackerHistory;
 
-        m_ReducedMassPrev                  = p_Star.m_ReducedMassPrev;
-        m_ReducedMass                      = p_Star.m_ReducedMass;
-
-        m_TotalMassPrev                    = p_Star.m_TotalMassPrev;
-        m_TotalMass                        = p_Star.m_TotalMass;
-
         m_Merged                           = p_Star.m_Merged;
         m_MergesInHubbleTime               = p_Star.m_MergesInHubbleTime;
 
@@ -145,7 +139,6 @@ public:
         m_TimePrev                         = p_Star.m_TimePrev;
         m_TimeToCoalescence                = p_Star.m_TimeToCoalescence;
 
-        m_TotalAngularMomentumPrev         = p_Star.m_TotalAngularMomentumPrev;
         m_TotalAngularMomentum             = p_Star.m_TotalAngularMomentum;
 
         m_TotalEnergy                      = p_Star.m_TotalEnergy;
@@ -418,7 +411,6 @@ private:
     double              m_TimePrev;                                                         // Previous simulation time
     double              m_TimeToCoalescence;                                                // Coalescence time
 
-    double              m_TotalAngularMomentumPrev;
     double              m_TotalAngularMomentum;
 
     double              m_TotalEnergy;
@@ -535,7 +527,6 @@ private:
 
 
     void    EvaluateBinary(const double p_Dt);
-    void    EvaluateBinaryPreamble();
 
     void    EvaluateSupernovae(const bool p_Resolve2ndSN);
 

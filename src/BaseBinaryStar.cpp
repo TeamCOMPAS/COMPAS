@@ -325,15 +325,12 @@ void BaseBinaryStar::SetRemainingCommonValues() {
                                                                             gyrationRadius1,
                                                                             gyrationRadius2);
 
-    m_TotalAngularMomentumPrev                   = m_TotalAngularMomentum;
-	m_TotalMass 					             = m_Star1->Mass() + m_Star2->Mass();
-	m_TotalMassPrev						         = m_TotalMass;
-	m_ReducedMass					             = (m_Star1->Mass() * m_Star2->Mass()) / m_TotalMass;
-	m_ReducedMassPrev					         = m_ReducedMass;
-	m_OrbitalEnergy 			                 = CalculateOrbitalEnergy(m_ReducedMass, m_TotalMass, m_SemiMajorAxis);
+	double totalMass 					         = m_Star1->Mass() + m_Star2->Mass();
+	double reducedMass					         = (m_Star1->Mass() * m_Star2->Mass()) / totalMass;
+	m_OrbitalEnergy 			                 = CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxis);
 	m_OrbitalEnergyPrev 			             = m_OrbitalEnergy;
 
-	m_OrbitalAngularMomentum 	                 = CalculateOrbitalAngularMomentum(m_ReducedMass, m_TotalMass, m_SemiMajorAxis);
+	m_OrbitalAngularMomentum 	                 = CalculateOrbitalAngularMomentum(reducedMass, totalMass, m_SemiMajorAxis);
 	m_OrbitalAngularMomentumPrev 	             = m_OrbitalAngularMomentum;
 
     m_Time                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -1634,7 +1631,7 @@ bool BaseBinaryStar::ResolveSupernova() {
         double sinEccAnomaly = sin(m_Supernova->SN_EccentricAnomaly());
 
         // Derived quantities
-        double omega = sqrt(G_SN*totalMassPrev / (semiMajorAxisPrev_km*semiMajorAxisPrev_km*semiMajorAxisPrev_km));          // orbits/s  - Keplerian orbital frequency
+        double omega = sqrt(G_SN*totalMassPrev / (semiMajorAxisPrev_km*semiMajorAxisPrev_km*semiMajorAxisPrev_km));          // rad/s  - Keplerian orbital frequency
 
         Vector3d separationVectorPrev = Vector3d( semiMajorAxisPrev_km* (cosEccAnomaly-eccentricityPrev),            
                                                   semiMajorAxisPrev_km* (sinEccAnomaly)*sqrt1MinusEccPrevSquared,
@@ -1757,7 +1754,7 @@ bool BaseBinaryStar::ResolveSupernova() {
             // 
             ////////////////////////////////////////
 
-            // Set the component velocites to the system velocity (to simplify the UpdateComponentVelocity function). System velocity was already correctly set above.
+            // Set the component velocites to the system velocity. System velocity was already correctly set above.
              
             m_Supernova->UpdateComponentVelocity( centerOfMassVelocity.RotateVector(m_ThetaE, m_PhiE, m_PsiE) );
             m_Companion->UpdateComponentVelocity( centerOfMassVelocity.RotateVector(m_ThetaE, m_PhiE, m_PsiE) );
@@ -2602,15 +2599,13 @@ void BaseBinaryStar::CalculateEnergyAndAngularMomentum() {
     if (m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) return;
 
     // Calculate orbital energy and angular momentum
-    m_TotalMassPrev                    = m_TotalMass;
-    m_ReducedMassPrev                  = m_ReducedMass;
     m_OrbitalEnergyPrev                = m_OrbitalEnergy;
     m_OrbitalAngularMomentumPrev       = m_OrbitalAngularMomentum;
 
-    m_TotalMass                        = m_Star1->Mass() + m_Star2->Mass();
-    m_ReducedMass                      = (m_Star1->Mass() * m_Star2->Mass()) / m_TotalMass;
-    m_OrbitalEnergy                    = CalculateOrbitalEnergy(m_ReducedMass, m_TotalMass, m_SemiMajorAxis);
-    m_OrbitalAngularMomentum           = CalculateOrbitalAngularMomentum(m_ReducedMass, m_TotalMass, m_SemiMajorAxis);
+    double totalMass                        = m_Star1->Mass() + m_Star2->Mass();
+    double reducedMass                      = (m_Star1->Mass() * m_Star2->Mass()) / totalMass;
+    m_OrbitalEnergy                    = CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxis);
+    m_OrbitalAngularMomentum           = CalculateOrbitalAngularMomentum(reducedMass, totalMass, m_SemiMajorAxis);
 
     // Calculate total energy and angular momentum using regular conservation of energy, especially useful for checking tides and rotational effects
     m_TotalEnergy                 = CalculateTotalEnergy();
@@ -2664,19 +2659,6 @@ void BaseBinaryStar::ResolveMassChanges() {
 }
 
 
-/*
- * Perform calculations required before evaluating the binary
- *
- * Calculates:
- *
- *    Total angular momentum (previous) - m_TotalAngularMomentumPrev
- *
- * void EvaluateBinaryPreamble()
- */
-void BaseBinaryStar::EvaluateBinaryPreamble() {
-    m_TotalAngularMomentumPrev = CalculateAngularMomentumPrev();        // squirrel away previous value for total angular momentum
-}
-
 
 /*
  * Evaluate the binary system
@@ -2696,8 +2678,6 @@ void BaseBinaryStar::EvaluateBinaryPreamble() {
  * @param   [in]        p_Dt                    Timestep (in Myr)
  */
 void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
-
-    EvaluateBinaryPreamble();                                                                                           // get things ready - do some house-keeping
 
     CalculateMassTransfer(p_Dt);                                                                                        // calculate mass transfer if necessary
 
@@ -2811,8 +2791,6 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
         double dt      = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) / 1000.0;                                     // initialise the timestep
         int    stepNum = 1;                                                                                                                 // initialise step number
         while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                             // perform binary evolution - iterate over timesteps until told to stop
-
-            m_TotalAngularMomentumPrev = m_TotalAngularMomentum;   // Is this line ok here?        JR: todo - this probably should be in evaluateBinary(), except that evaluateBinary() may not be executed at each timestep - maybe this has to stay here
 
             EvolveOneTimestep(dt);                                                                                                          // evolve the binary system one timestep
 
