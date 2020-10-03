@@ -442,6 +442,11 @@
 //                                      - Added in combined functionaltiy of Stroopwafel and pythonSubmit, with support for HPC runs
 // 02.15.08     IM - Sep 14, 2020   - Defect repair:
 //                                      - Issue #375 Error in Hurley remnant mass calculation
+// --.--.--     RTW - --- --, 20--  - Code cleanup:
+//                                      - Rewrote ResolveSupernova to match Pfahl, Rappaport, Podsiadlowski 2002, and to allow for vector addition of system and component velocities
+//                                      - Changed meaning of Supernova_State (see Docs)
+//                                      - PostSN parameters have been removed
+//                                      - SN phi has been redefined
 
 const std::string VERSION_STRING = "02.15.08";
 
