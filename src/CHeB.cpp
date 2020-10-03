@@ -38,7 +38,7 @@ void CHeB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
     // until we work out how to skip the blue loop (when it is 0-length) we will set the length of a 
     // 0-length blue loop to the absolute minimum timestep (currently 100 seconds).
     //
-    // Note that this works-around a long-standing problem, which was worked-around in legacy COMPAS
+    // Note that this works around a long-standing problem, which was worked around in legacy COMPAS
     // by the following code in calculateBluePhaseFBL() in star.cpp:
 	//
     //    if(brackets ==0){brackets = 1e-12;}  //If zero gives R=NaN Coen Neijssel 10-01-2017
