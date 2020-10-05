@@ -71,10 +71,10 @@ class pythonProgramOptions:
 
     metallicity = 0.0142                                # Solar metallicity Asplund+2010
 
-    allow_rlof_at_birth = False                                            # allow binaries that have one or both stars in RLOF at birth to evolve?
+    allow_rlof_at_birth = True                                             # allow binaries that have one or both stars in RLOF at birth to evolve?
     allow_touching_at_birth = False                                        # allow binaries that have stars touching at birth to evolve?
 
-    chemically_homogeneous_evolution = 'NONE'                               # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
+    chemically_homogeneous_evolution = 'PESSIMISTIC'                       # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
 
     SSEswitchLog = False
     BSEswitchLog = False
@@ -117,6 +117,7 @@ class pythonProgramOptions:
 
     maximum_evolution_time = 13700.0                    # Maximum physical time a system can be evolved [Myrs]
     maximum_number_timesteps = 99999
+    timestep_multiplier = 1.0				# Optional multiplier relative to default time step duration
 
     initial_mass_function = 'KROUPA'
     initial_mass_min = 5.0                              # Use 1.0 for LRNe, 5.0 for DCOs  [Msol]
@@ -287,6 +288,7 @@ class pythonProgramOptions:
             self.mass_transfer_jloss,
             self.maximum_evolution_time,
             self.maximum_number_timesteps,
+            self.timestep_multiplier,
             self.initial_mass_min,
             self.initial_mass_max,
             self.initial_mass_power,
@@ -352,6 +354,7 @@ class pythonProgramOptions:
             '--mass-transfer-jloss',
             '--maximum-evolution-time',
             '--maximum-number-timestep-iterations',
+            '--timestep-multiplier',
             '--initial-mass-min',
             '--initial-mass-max',
             '--initial-mass-power',
