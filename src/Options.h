@@ -297,6 +297,8 @@ public:
 
     bool                                        SSESwitchLog() const                                                    { return SSEswitchLog; }
 
+    double                                      TimestepMultiplier() const                                              { return timestepMultiplier; }
+
     bool                                        UseFixedUK() const                                                      { return useFixedUK; }
     bool                                        UseMassLoss() const                                                     { return useMassLoss; }
     bool                                        UseMassTransfer() const                                                 { return useMassTransfer; }
@@ -307,7 +309,6 @@ public:
     double                                      ZetaRadiativeEnvelopeGiant() const                                      { return zetaRadiativeEnvelopeGiant; }
     double                                      ZetaMainSequence() const                                                { return zetaMainSequence; }
     double                                      ZetaAdiabaticArbitrary() const                                          { return zetaAdiabaticArbitrary; }
-
 
     COMPAS_VARIABLE OptionValue(const T_ANY_PROPERTY p_Property) const;
 
@@ -346,6 +347,7 @@ private:
     unsigned long int                           randomSeed;                                                     // Random seed to use
     double                                      maxEvolutionTime;                                               // Maximum time to evolve a binary by
     int                                         maxNumberOfTimestepIterations;                                  // Maximum number of timesteps to evolve binary for before giving up
+    double                                      timestepMultiplier;                                              // Multiplicative factor for timestep duration
 
     // Initial distribution variables
 
