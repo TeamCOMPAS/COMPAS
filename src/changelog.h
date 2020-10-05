@@ -454,7 +454,7 @@
 // 02.15.11     IM - Oct 3, 2020    - Defect repair and code cleanup:
 //                                      - Fixed a number of defects in single stellar evolution (Github issues #381, 382, 383, 384, 385)
 //                                      - The Fryer SN engine (delayed vs rapid) is no longer passed around, but read in directly in CalculateRemnantMassByFryer2012()
-// 02.15.12     IM - Oct 5, 2010    - Enhancement
+// 02.15.12     IM - Oct 5, 2020    - Enhancement
 //                                      - Added timestep-multiplier option to adjust SSE and BSE timesteps relative to default
 //                                      - Added eccentricity printing to RLOF logging
 //                                      - Adjusted pythonSubmitDefault.py to include PESSIMISTIC CHE

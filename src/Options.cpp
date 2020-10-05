@@ -1116,7 +1116,8 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             COMPLAIN_IF(singleStar && BSEswitchLog, "--BSEswitchLog does not apply to Single Star evolution");
             COMPLAIN_IF(!singleStar && SSEswitchLog, "--SSEswitchLog does not apply to Binary Star evolution");
 
-
+            COMPLAIN_IF(timestepMultiplier <= 0.0, "Timestep multiplier (--timestep-multiplier) <= 0");
+            
             m_OptionsDetails = ProgramOptionDetails(vm);                                                                                  // construct options details string for output
 
         }
