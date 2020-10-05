@@ -417,7 +417,8 @@ void BaseBinaryStar::SetRemainingCommonValues() {
     m_RLOFDetails.props1.radius1           = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props1.radius2           = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props1.separation        = DEFAULT_INITIAL_DOUBLE_VALUE;
-
+    m_RLOFDetails.props1.eccentricity      = DEFAULT_INITIAL_DOUBLE_VALUE;
+    
     m_RLOFDetails.props1.eventCounter      = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_RLOFDetails.props1.time              = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -440,7 +441,8 @@ void BaseBinaryStar::SetRemainingCommonValues() {
     m_RLOFDetails.props2.radius1          = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props2.radius2          = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props2.separation       = DEFAULT_INITIAL_DOUBLE_VALUE;
-
+    m_RLOFDetails.props2.eccentricity     = DEFAULT_INITIAL_DOUBLE_VALUE;
+    
     m_RLOFDetails.props2.eventCounter     = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_RLOFDetails.props2.time             = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -596,6 +598,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RADIUS_2_PRE_COMMON_ENVELOPE:                         value = Radius2PreCEE();                                                    break;
         case BINARY_PROPERTY::RANDOM_SEED:                                          value = RandomSeed();                                                       break;
         case BINARY_PROPERTY::RLOF_CURRENT_COMMON_ENVELOPE:                         value = RLOFDetails().currentProps->isCE;                                   break;
+        case BINARY_PROPERTY::RLOF_CURRENT_ECCENTRICITY:                            value = RLOFDetails().currentProps->eccentricity;                           break;
         case BINARY_PROPERTY::RLOF_CURRENT_EVENT_COUNTER:                           value = RLOFDetails().currentProps->eventCounter;                           break;
         case BINARY_PROPERTY::RLOF_CURRENT_ID:                                      value = RLOFDetails().currentProps->id;                                     break;
         case BINARY_PROPERTY::RLOF_CURRENT_RANDOM_SEED:                             value = RLOFDetails().currentProps->randomSeed;                             break;
@@ -611,6 +614,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_CURRENT_STAR2_STELLAR_TYPE:                      value = RLOFDetails().currentProps->stellarType2;                           break;
         case BINARY_PROPERTY::RLOF_CURRENT_STAR2_STELLAR_TYPE_NAME:                 value = STELLAR_TYPE_LABEL.at(RLOFDetails().currentProps->stellarType2);    break;
         case BINARY_PROPERTY::RLOF_CURRENT_TIME:                                    value = RLOFDetails().currentProps->time;                                   break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_ECCENTRICITY:                           value = RLOFDetails().previousProps->eccentricity;                           break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_EVENT_COUNTER:                          value = RLOFDetails().previousProps->eventCounter;                          break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_SEPARATION:                             value = RLOFDetails().previousProps->separation;                            break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_STAR1_MASS:                             value = RLOFDetails().previousProps->mass1;                                 break;
@@ -1301,6 +1305,7 @@ void BaseBinaryStar::StashRLOFProperties() {
     m_RLOFDetails.currentProps->radius2         = m_Star2->Radius();
     m_RLOFDetails.currentProps->stellarType1    = m_Star1->StellarType();
     m_RLOFDetails.currentProps->stellarType2    = m_Star2->StellarType();
+    m_RLOFDetails.currentProps->eccentricity    = m_Eccentricity;
     m_RLOFDetails.currentProps->separation      = m_SemiMajorAxis * AU_TO_RSOL;                                    // semi-major axis - change units to Rsol
     m_RLOFDetails.currentProps->eventCounter    = m_RLOFDetails.previousProps->eventCounter;
     m_RLOFDetails.currentProps->time            = m_Time;
@@ -2865,7 +2870,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
             if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                            // continue evolution?
 
-                dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep());                                                  // new timestep
+                dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier();                                                  // new timestep
                 if ((m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) || dt<NUCLEAR_MINIMUM_TIMESTEP)
                     dt=NUCLEAR_MINIMUM_TIMESTEP;                                                                                            // but not less than minimum
                 stepNum++;                                                                                                                  // increment stepNum
