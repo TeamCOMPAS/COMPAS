@@ -158,6 +158,7 @@ typedef struct RLOFProperties {
     double        radius1;
     double        radius2;
 
+    double        eccentricity;
     double        separation;
 
     unsigned int  eventCounter;

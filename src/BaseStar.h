@@ -144,6 +144,8 @@ public:
 
             double          CalculateDynamicalTimescale() const                                                 { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }         // Use class member variables
     
+            double          CalculateEddingtonLuminosity()                                                      { return 3.2E4*Mass(); }                                                    // In solar luminosities; assumes pure hydrogen, should multiply by (1+X)/2 for lower H fractions -- see, e.g., Eq. (2) of http://adsabs.harvard.edu/abs/2017A%26A...604A..55M
+
             double          CalculateEddyTurnoverTimescale();
 
     virtual void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) { }                                                                                      // Default is NO-OP
