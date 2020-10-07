@@ -109,8 +109,7 @@ void Options::OptionValues::Initialise() {
     m_SemiMajorAxisDistributionString                               = SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL.at(SEMI_MAJOR_AXIS_DISTRIBUTION::FLATINLOG);
     m_SemiMajorAxisDistributionMin                                  = 0.1;
     m_SemiMajorAxisDistributionMax                                  = 1000.0;
-    m_SemiMajorAxisDistributionPower                                = -1.0; 
-
+    m_SemiMajorAxisDistributionPower                                = -1.0;
 
     // Initial orbital period
     m_PeriodDistributionMin                                         = 1.1;
@@ -232,10 +231,6 @@ void Options::OptionValues::Initialise() {
     m_CaseBBStabilityPrescription                                   = CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE;
     m_CaseBBStabilityPrescriptionString                             = CASE_BB_STABILITY_PRESCRIPTION_LABEL.at(m_CaseBBStabilityPrescription);
 
-    // Options adaptive Roche Lobe Overflow prescription
-    m_MassTransferAdaptiveAlphaParameter                            = 0.5;
-    m_MaxPercentageAdaptiveMassTransfer                             = 0.01;
-
     // Options for mass transfer accretion efficiency
     m_MassTransferAccretionEfficiencyPrescription                   = MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED;
     m_MassTransferAccretionEfficiencyPrescriptionString             = MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL.at(m_MassTransferAccretionEfficiencyPrescription);
@@ -262,6 +257,8 @@ void Options::OptionValues::Initialise() {
     m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor   = 1.44;                                                 // Claeys+ 2014 = 1.44
     m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor      = 1.0;                                                  // Claeys+ 2014 = 1.0
 
+    // AVG
+    /*
     m_MassTransferCriticalMassRatioMSHighMass                       = false;
     m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor  = 0.625;                                                // Claeys+ 2014 = 0.625
     m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor     = 0.0;
@@ -289,7 +286,7 @@ void Options::OptionValues::Initialise() {
     m_MassTransferCriticalMassRatioWhiteDwarf                       = false;
 	m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor  = 0.0;
     m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor     = 1.6;                                                  // Claeys+ 2014 = 1.6
-
+    */
 
     // Common Envelope options
     m_CommonEnvelopeAlpha                                           = 1.0;
@@ -402,8 +399,6 @@ void Options::OptionValues::Initialise() {
     m_LogfileBeBinaries                                             = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BE_BINARIES));
     m_LogfilePulsarEvolution                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)); // only BSE for now
     m_LogfileSwitchLog                                              = (m_EvolutionMode == EVOLUTION_MODE::SSE) ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)) : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));
-
-
     
 }
     
@@ -444,13 +439,13 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         bool found;
 
         m_FixedRandomSeed  = !m_VM["random-seed"].defaulted();                                              // use random seed if it is provided by the user
-        m_FixedMetallicity = !m_VM["metallicity"].defaulted();                                              // determine if user supplied a metallicity value
+//        m_FixedMetallicity = !m_VM["metallicity"].defaulted();                                              // determine if user supplied a metallicity value
         m_UseFixedUK       = !m_VM["fix-dimensionless-kick-magnitude"].defaulted() && (m_FixedUK >= 0.0);   // determine if user supplied a valid kick magnitude
 
 
         // Floor
         /*
-        if (!vmCmdLine["AIS-DCOtype"].defaulted()) {                                                        // Adaptive Importance Sampling DCO type
+        if (!vmCmdLine["ais-dcotype"].defaulted()) {                                                        // Adaptive Importance Sampling DCO type
             std::tie(found, p_OptionValues->m_AISDCOtype) = utils::GetMapKey(p_OptionValues->m_AISDCOtypeString, AIS_DCO_LABEL, p_OptionValues->m_AISDCOtype);
             return "Unknown AIS DCO Type";
         }
@@ -699,9 +694,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         if (m_WolfRayetFactor < 0.0) return "WR multiplier (--wolf-rayet-multiplier) < 0";
 
 
-    } catch (po::error& e) {                                                                                // program options exception
+    }
+    catch (po::error& e) {                                                                                  // program options exception
         errStr = e.what();
-    } catch (...) {                                                                                         // unhandled exception
+    }
+    catch (...) {                                                                                           // unhandled exception
         errStr = "unhandled exception";
     }
 
@@ -710,7 +707,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
 
 /*
- * determine if the user specified a value for the option
+ * Determine if the user specified a value for the option
  * 
  * 
  * int OptionSpecified(std::string p_OptionString) 
@@ -728,20 +725,22 @@ int Options::OptionSpecified(std::string p_OptionString) {
     
     try {
 
-        if (m_EvolvingObject.optionValues.m_VM.count(p_OptionString) > 0) {                     // option exists at object level?
-            result = m_EvolvingObject.optionValues.m_VM[p_OptionString].defaulted() ? 0 : 1;    // yes - set result
+        if (m_GridLine.optionValues.m_VM.count(p_OptionString) > 0) {                           // option exists at object level?
+            result = m_GridLine.optionValues.m_VM[p_OptionString].defaulted() ? 0 : 1;          // yes - set result
         }
         else {                                                                                  // option does not exist at object level
-            if (m_Program.optionValues.m_VM.count(p_OptionString) > 0) {                        // option exists at program level
-                result = m_Program.optionValues.m_VM[p_OptionString].defaulted() ? 0 : 1;       // yes - set result
+            if (m_CmdLine.optionValues.m_VM.count(p_OptionString) > 0) {                        // option exists at the commandline (program-level)
+                result = m_CmdLine.optionValues.m_VM[p_OptionString].defaulted() ? 0 : 1;       // yes - set result
             }
-            else {                                                                              // option does not exist at program level
+            else {                                                                              // option does not exist at the commandline (program-level)
                 result = -1;                                                                    // set result
             }    
         }
-    } catch (po::error& e) {                                                                    // program options exception
+    }
+    catch (po::error& e) {                                                                      // program options exception
         result = -1;
-    } catch (...) {                                                                             // unhandled exception
+    }
+    catch (...) {                                                                               // unhandled exception
         result = -1;                                                                            // set return value - invalid/unknown option
     }
     
@@ -749,13 +748,14 @@ int Options::OptionSpecified(std::string p_OptionString) {
 }
 
 
-// JR: todo: For SetProgramOptions() and SetObjectOptions(), one day we should construct the list of
+// JR: todo: For AddOptions(), one day we should construct the list of
 //           options shown in the help string from the maps in constants.h rather than have them
 //           here as literal strings - too much opportunity for then to get out of sync doing it
 //           this way (and more work to update the strings here every time something changes)
 
+// DOCUMENTATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-bool Options::SetProgramOptions(OptionValues *p_Options, po::options_description *p_OptionsDescription) {
+bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_OptionsDescription) {
 
     bool ok = true;                             // status - unless a problem occurs
 
@@ -805,32 +805,67 @@ bool Options::SetProgramOptions(OptionValues *p_Options, po::options_description
         // Floor
         /*
         (
-            "AIS-exploratory-phase",                                       
+            "ais-exploratory-phase",                                       
             po::value<bool>(&p_Options->m_AISexploratoryPhase)->default_value(p_Options->m_AISexploratoryPhase)->implicit_value(true),                                                            
             ("Run exploratory phase of STROOPWAFEL (default = " + std::string(p_Options->m_AISexploratoryPhase ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
-            "AIS-Hubble",                                                  
+            "ais-hubble",                                                  
             po::value<bool>(&p_Options->m_AIShubble)->default_value(p_Options->m_AIShubble)->implicit_value(true),                                                                                
             ("Excluding not in Hubble time mergers selection in exploratory phase of STROOPWAFEL (default = " + std::string(p_Options->m_AIShubble ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
-            "AIS-Pessimistic",                                             
+            "ais-pessimistic",                                             
             po::value<bool>(&p_Options->m_AISpessimistic)->default_value(p_Options->m_AISpessimistic)->implicit_value(true),                                                                      
             ("Optimistic or Pessimistic selection in exploratory phase of STROOPWAFEL (default = " + std::string(p_Options->m_AISpessimistic ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
-            "AIS-refinement-phase",                                        
+            "ais-refinement-phase",                                        
             po::value<bool>(&p_Options->m_AISrefinementPhase)->default_value(p_Options->m_AISrefinementPhase)->implicit_value(true),                                                              
             ("Run main sampling phase (step2) of STROOPWAFEL (default = " + std::string(p_Options->m_AISrefinementPhase ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
-            "AIS-RLOF",                                                    
+            "ais-rlof",                                                    
             po::value<bool>(&p_Options->m_AISrlof)->default_value(p_Options->m_AISrlof)->implicit_value(true),                                                                                    
             ("RLOFSecondaryZAMS selection in exploratory phase of STROOPWAFEL (default = " + std::string(p_Options->m_AISrlof ? "TRUE" : "FALSE") + ")").c_str()
        )
         */
 
+        (
+            "allow-rlof-at-birth",                                         
+            po::value<bool>(&p_Options->m_AllowRLOFAtBirth)->default_value(p_Options->m_AllowRLOFAtBirth)->implicit_value(true),                                                                  
+            ("Allow binaries that have one or both stars in RLOF at birth to evolve (default = " + std::string(p_Options->m_AllowRLOFAtBirth ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "allow-touching-at-birth",                                     
+            po::value<bool>(&p_Options->m_AllowTouchingAtBirth)->default_value(p_Options->m_AllowTouchingAtBirth)->implicit_value(true),                                                          
+            ("Allow binaries that are touching at birth to evolve (default = " + std::string(p_Options->m_AllowTouchingAtBirth ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "angular-momentum-conservation-during-circularisation",            
+            po::value<bool>(&p_Options->m_AngularMomentumConservationDuringCircularisation)->default_value(p_Options->m_AngularMomentumConservationDuringCircularisation)->implicit_value(true),  
+            ("Conserve angular momentum when binary is circularised when entering a Mass Transfer episode (default = " + std::string(p_Options->m_AngularMomentumConservationDuringCircularisation ? "TRUE" : "FALSE") + ")").c_str()
+        )
+
+        // Serena
+        /* 
+        (
+            "be-binaries",                                                  
+            po::value<bool>(&p_Options->m_BeBinaries)->default_value(p_Options->m_BeBinaries)->implicit_value(true),                                                                              
+            ("Enable Be Binaries study (default = " + std::string(p_Options->m_BeBinaries ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        */
+
+        (
+            "circularise-binary-during-mass-transfer",                         
+            po::value<bool>(&p_Options->m_CirculariseBinaryDuringMassTransfer)->default_value(p_Options->m_CirculariseBinaryDuringMassTransfer)->implicit_value(true),                            
+            ("Circularise binary when it enters a Mass Transfer episode (default = " + std::string(p_Options->m_CirculariseBinaryDuringMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "common-envelope-allow-main-sequence-survive",                 
+            po::value<bool>(&p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope)->default_value(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope)->implicit_value(true),          
+            ("Allow main sequence stars to survive common envelope evolution (default = " + std::string(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str()
+        )
         (
             "debug-to-file",                                               
             po::value<bool>(&p_Options->m_DebugToFile)->default_value(p_Options->m_DebugToFile)->implicit_value(true),                                                                            
@@ -852,9 +887,39 @@ bool Options::SetProgramOptions(OptionValues *p_Options, po::options_description
             ("Write error messages to file (default = " + std::string(p_Options->m_ErrorsToFile ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
+            "evolve-pulsars",                                              
+            po::value<bool>(&p_Options->m_EvolvePulsars)->default_value(p_Options->m_EvolvePulsars)->implicit_value(true),                                                                        
+            ("Evolve pulsars (default = " + std::string(p_Options->m_EvolvePulsars ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "evolve-unbound-systems",                                      
+            po::value<bool>(&p_Options->m_EvolveUnboundSystems)->default_value(p_Options->m_EvolveUnboundSystems)->implicit_value(true),                                                          
+            ("Continue evolving stars even if the binary is disrupted (default = " + std::string(p_Options->m_EvolveUnboundSystems ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "mass-transfer",                                                
+            po::value<bool>(&p_Options->m_UseMassTransfer)->default_value(p_Options->m_UseMassTransfer)->implicit_value(true),                                                                    
+            ("Enable mass transfer (default = " + std::string(p_Options->m_UseMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "pair-instability-supernovae",                                 
+            po::value<bool>(&p_Options->m_UsePairInstabilitySupernovae)->default_value(p_Options->m_UsePairInstabilitySupernovae)->implicit_value(true),                                          
+            ("Enable pair instability supernovae (PISN) (default = " + std::string(p_Options->m_UsePairInstabilitySupernovae ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
             "populationDataPrinting",                                      
             po::value<bool>(&p_Options->m_PopulationDataPrinting)->default_value(p_Options->m_PopulationDataPrinting)->implicit_value(true),                                                      
             ("Print details of population (default = " + std::string(p_Options->m_PopulationDataPrinting ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "print-bool-as-string",                                        
+            po::value<bool>(&p_Options->m_PrintBoolAsString)->default_value(p_Options->m_PrintBoolAsString)->implicit_value(true),                                                                
+            ("Print boolean properties as 'TRUE' or 'FALSE' (default = " + std::string(p_Options->m_PrintBoolAsString ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "pulsational-pair-instability",                                
+            po::value<bool>(&p_Options->m_UsePulsationalPairInstability)->default_value(p_Options->m_UsePulsationalPairInstability)->implicit_value(true),                                        
+            ("Enable mass loss due to pulsational-pair-instability (PPI) (default = " + std::string(p_Options->m_UsePulsationalPairInstability ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "quiet",                                                       
@@ -862,18 +927,38 @@ bool Options::SetProgramOptions(OptionValues *p_Options, po::options_description
             ("Suppress printing (default = " + std::string(p_Options->m_Quiet ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
-            "RLOFPrinting",                                                
+            "revised-energy-formalism-Nandez-Ivanova",                     
+            po::value<bool>(&p_Options->m_RevisedEnergyFormalismNandezIvanova)->default_value(p_Options->m_RevisedEnergyFormalismNandezIvanova)->implicit_value(true),                            
+            ("Enable revised energy formalism (default = " + std::string(p_Options->m_RevisedEnergyFormalismNandezIvanova ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "rlof-printing",                                                
             po::value<bool>(&p_Options->m_RlofPrinting)->default_value(p_Options->m_RlofPrinting)->implicit_value(true),                                                                          
             ("Enable output parameters before/after RLOF (default = " + std::string(p_Options->m_RlofPrinting ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
-            "switchLog",                                                
+            "switchlog",                                                
             po::value<bool>(&p_Options->m_SwitchLog)->default_value(p_Options->m_SwitchLog)->implicit_value(true),                                                                          
             ("Print switch log to file (default = " + std::string(p_Options->m_SwitchLog ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "use-mass-loss",                                               
+            po::value<bool>(&p_Options->m_UseMassLoss)->default_value(p_Options->m_UseMassLoss)->implicit_value(true),                                                                            
+            ("Enable mass loss (default = " + std::string(p_Options->m_UseMassLoss ? "TRUE" : "FALSE") + ")").c_str()
         )
 
 
         // numerical options - alphabetically grouped by type 
+
+
+        // unsigned long
+
+        (
+            "random-seed",                                                 
+            po::value<unsigned long>(&p_Options->m_RandomSeed)->default_value(p_Options->m_RandomSeed),                                                                                           
+            ("Random seed to use (default = " + std::to_string(p_Options->m_RandomSeed) + ")").c_str()
+        )
+
 
         // int
 
@@ -886,6 +971,11 @@ bool Options::SetProgramOptions(OptionValues *p_Options, po::options_description
             "log-level",                                                   
             po::value<int>(&p_Options->m_LogLevel)->default_value(p_Options->m_LogLevel),                                                                                                         
             ("Determines which print statements are included in the logfile (default = " + std::to_string(p_Options->m_LogLevel) + ")").c_str()
+        )
+        (
+            "maximum-number-timestep-iterations",                          
+            po::value<int>(&p_Options->m_MaxNumberOfTimestepIterations)->default_value(p_Options->m_MaxNumberOfTimestepIterations),                                                               
+            ("Maximum number of timesteps to evolve binary before giving up (default = " + std::to_string(p_Options->m_MaxNumberOfTimestepIterations) + ")").c_str()
         )
 
         // Floor
@@ -901,257 +991,6 @@ bool Options::SetProgramOptions(OptionValues *p_Options, po::options_description
             "number-of-stars",                                        
             po::value<int>(&p_Options->m_ObjectsToEvolve)->default_value(p_Options->m_ObjectsToEvolve),                                                                                                       
             ("Specify the number of stars to simulate (SSE) (default = " + std::to_string(p_Options->m_ObjectsToEvolve) + ")").c_str()
-        )
-
-
-        // double
-
-        // Floor
-        /*
-        (
-            "kappa-gaussians",                                             
-            po::value<double>(&p_Options->m_KappaGaussians)->default_value(p_Options->m_KappaGaussians),                                                                                          
-            ("Scaling factor for the width of the Gaussian distributions in STROOPWAFEL main sampling phase (default = " + std::to_string(p_Options->m_KappaGaussians) + ")").c_str()
-        )
-        */
-
-
-        // string options - alphabetically
-
-        // Floor
-        /*
-        (
-            "AIS-DCOtype",                                                 
-            po::value<string>(&p_Options->m_AISDCOtypeString)->default_value(p_Options->m_AISDCOtypeString),                                                                                      
-            ("DCO type selection in exploratory phase of STROOPWAFEL, (options: [ALL, BBH, BNS, BHNS], default = " + p_Options->m_AISDCOtypeString + ")").c_str()
-        )
-        */
-
-        (
-            "grid",                                                        
-            po::value<string>(&p_Options->m_GridFilename)->default_value(p_Options->m_GridFilename)->implicit_value(""),                                                                      
-            ("Grid filename (default = " + p_Options->m_GridFilename + ")").c_str()
-        )
-
-        // Serena
-        /*
-        (
-            "logfile-be-binaries",                                     
-            po::value<string>(&p_Options->m_LogfileBeBinaries)->default_value(p_Options->m_LogfileBeBinaries),                                                                              
-            ("Filename for Be Binaries logfile (default = " + p_Options->m_LogfileBeBinaries + ")").c_str()
-        )
-        */
-
-        (
-            "logfile-rlof-parameters",                                 
-            po::value<string>(&p_Options->m_LogfileRLOFParameters)->default_value(p_Options->m_LogfileRLOFParameters),                                                                      
-            ("Filename for RLOF Parameters logfile ( default = " + p_Options->m_LogfileRLOFParameters + ")").c_str()
-        )
-        (
-            "logfile-common-envelopes",                                
-            po::value<string>(&p_Options->m_LogfileCommonEnvelopes)->default_value(p_Options->m_LogfileCommonEnvelopes),                                                                    
-            ("Filename for Common Envelopes logfile (default = " + p_Options->m_LogfileCommonEnvelopes + ")").c_str()
-        )
-        (
-            "logfile-detailed-output",                                 
-            po::value<string>(&p_Options->m_LogfileDetailedOutput)->default_value(p_Options->m_LogfileDetailedOutput),                                                                      
-            ("Filename for Detailed Output logfile (default = " + p_Options->m_LogfileDetailedOutput + ")").c_str()
-        )
-        (
-            "logfile-double-compact-objects",                          
-            po::value<string>(&p_Options->m_LogfileDoubleCompactObjects)->default_value(p_Options->m_LogfileDoubleCompactObjects),                                                          
-            ("Filename for Double Compact Objects logfile (default = " + p_Options->m_LogfileDoubleCompactObjects + ")").c_str()
-        )
-        (
-            "logfile-pulsar-evolution",                                
-            po::value<string>(&p_Options->m_LogfilePulsarEvolution)->default_value(p_Options->m_LogfilePulsarEvolution),                                                                    
-            ("Filename for Pulsar Evolution logfile (default = " + p_Options->m_LogfilePulsarEvolution + ")").c_str()
-        )
-        (
-            "logfile-supernovae",                                      
-            po::value<string>(&p_Options->m_LogfileSupernovae)->default_value(p_Options->m_LogfileSupernovae),                                                                              
-            ("Filename for Supernovae logfile (default = " + p_Options->m_LogfileSupernovae + ")").c_str()
-        )
-        (
-            "logfile-system-parameters",                               
-            po::value<string>(&p_Options->m_LogfileSystemParameters)->default_value(p_Options->m_LogfileSystemParameters),                                                                  
-            ("Filename for System Parameters logfile (default = " + p_Options->m_LogfileSystemParameters + ")").c_str()
-        )
-        (
-            "logfile-definitions",                                         
-            po::value<string>(&p_Options->m_LogfileDefinitionsFilename)->default_value(p_Options->m_LogfileDefinitionsFilename)->implicit_value(""),                                              
-            ("Filename for logfile record definitions (default = " + p_Options->m_LogfileDefinitionsFilename + ")").c_str()
-        )
-        (
-            "logfile-delimiter",                                           
-            po::value<string>(&p_Options->m_LogfileDelimiterString)->default_value(p_Options->m_LogfileDelimiterString),                                                                          
-            ("Field delimiter for logfile records (default = " + p_Options->m_LogfileDelimiterString + ")").c_str()
-        )
-        (
-            "logfile-name-prefix",                                         
-            po::value<string>(&p_Options->m_LogfileNamePrefix)->default_value(p_Options->m_LogfileNamePrefix)->implicit_value(""),                                                                
-            ("Prefix for logfile names (default = " + p_Options->m_LogfileNamePrefix + ")").c_str()
-        )
-        (
-            "logfile-switch-log",                                      
-            po::value<string>(&p_Options->m_LogfileSwitchLog)->default_value(p_Options->m_LogfileSwitchLog),                                                                                
-            ("Filename for Switch Log logfile (default = " + p_Options->m_LogfileSwitchLog + ")").c_str()
-        )
-
-        (
-            "mode",                                                 
-            po::value<string>(&p_Options->m_EvolutionModeString)->default_value(p_Options->m_EvolutionModeString),                                                                              
-            ("Evolution mode (options: [SSE, BSE], default = " + p_Options->m_EvolutionModeString + ")").c_str()
-        )
-
-        (
-            "output-container,c",                                          
-            po::value<string>(&p_Options->m_OutputContainerName)->default_value(p_Options->m_OutputContainerName)->implicit_value(""),                                                            
-            ("Container (directory) name for output files (default = " + p_Options->m_OutputContainerName + ")").c_str()
-        )
-        (
-            "outputPath,o",                                                
-            po::value<string>(&p_Options->m_OutputPathString)->default_value(p_Options->m_OutputPathString)->implicit_value(""),                                                                  
-            ("Directory for output (default = " + p_Options->m_OutputPathString + ")").c_str()
-        )
-
-
-        // vector (list) options - alphabetically
-
-        (
-            "debug-classes",                                               
-            po::value<vector<string>>(&p_Options->m_DebugClasses)->multitoken()->default_value(p_Options->m_DebugClasses),                                                                        
-            ("Debug classes enabled (default = " + defaultDebugClasses + ")").c_str()
-        )
-        (
-            "log-classes",                                                 
-            po::value<vector<string>>(&p_Options->m_LogClasses)->multitoken()->default_value(p_Options->m_LogClasses),                                                                            
-            ("Logging classes enabled (default = " + defaultLogClasses + ")").c_str()
-        )
-    
-        ;   // end the list of options to be added
-
-    } catch (po::error& e) {    // program options exception
-        ok = false;             // set status
-    } catch (...) {             // unhandled exception
-        ok = false;             // set status
-    }
-
-    return ok;
-}
-
-
-bool Options::SetObjectOptions(OptionValues *p_Options, po::options_description *p_OptionsDescription) {
-
-    bool ok = true;                             // status - unless a problem occurs
-
-    // add options
-
-    try {
-
-        p_OptionsDescription->add_options()     // begin the list of options to be added - boost syntactic sugar
-
-        // there is no good way of formatting these - the boost syntz doesn't help that much
-        // there is just a boatload of options, so this function (and similar functions) are just going to be long...
-    
-
-        // boolean options - alphabetically 
-
-        (
-            "allow-rlof-at-birth",                                         
-            po::value<bool>(&p_Options->m_AllowRLOFAtBirth)->default_value(p_Options->m_AllowRLOFAtBirth)->implicit_value(true),                                                                  
-            ("Allow binaries that have one or both stars in RLOF at birth to evolve (default = " + std::string(p_Options->m_AllowRLOFAtBirth ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "allow-touching-at-birth",                                     
-            po::value<bool>(&p_Options->m_AllowTouchingAtBirth)->default_value(p_Options->m_AllowTouchingAtBirth)->implicit_value(true),                                                          
-            ("Allow binaries that are touching at birth to evolve (default = " + std::string(p_Options->m_AllowTouchingAtBirth ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "angularMomentumConservationDuringCircularisation",            
-            po::value<bool>(&p_Options->m_AngularMomentumConservationDuringCircularisation)->default_value(p_Options->m_AngularMomentumConservationDuringCircularisation)->implicit_value(true),  
-            ("Conserve angular momentum when binary is circularised when entering a Mass Transfer episode (default = " + std::string(p_Options->m_AngularMomentumConservationDuringCircularisation ? "TRUE" : "FALSE") + ")").c_str()
-        )
-
-        // Serena
-        /* 
-        (
-            "BeBinaries",                                                  
-            po::value<bool>(&p_Options->m_BeBinaries)->default_value(p_Options->m_BeBinaries)->implicit_value(true),                                                                              
-            ("Enable Be Binaries study (default = " + std::string(p_Options->m_BeBinaries ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        */
-
-        (
-            "circulariseBinaryDuringMassTransfer",                         
-            po::value<bool>(&p_Options->m_CirculariseBinaryDuringMassTransfer)->default_value(p_Options->m_CirculariseBinaryDuringMassTransfer)->implicit_value(true),                            
-            ("Circularise binary when it enters a Mass Transfer episode (default = " + std::string(p_Options->m_CirculariseBinaryDuringMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "common-envelope-allow-main-sequence-survive",                 
-            po::value<bool>(&p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope)->default_value(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope)->implicit_value(true),          
-            ("Allow main sequence stars to survive common envelope evolution (default = " + std::string(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "evolve-pulsars",                                              
-            po::value<bool>(&p_Options->m_EvolvePulsars)->default_value(p_Options->m_EvolvePulsars)->implicit_value(true),                                                                        
-            ("Evolve pulsars (default = " + std::string(p_Options->m_EvolvePulsars ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "evolve-unbound-systems",                                      
-            po::value<bool>(&p_Options->m_EvolveUnboundSystems)->default_value(p_Options->m_EvolveUnboundSystems)->implicit_value(true),                                                          
-            ("Continue evolving stars even if the binary is disrupted (default = " + std::string(p_Options->m_EvolveUnboundSystems ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "massTransfer",                                                
-            po::value<bool>(&p_Options->m_UseMassTransfer)->default_value(p_Options->m_UseMassTransfer)->implicit_value(true),                                                                    
-            ("Enable mass transfer (default = " + std::string(p_Options->m_UseMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "pair-instability-supernovae",                                 
-            po::value<bool>(&p_Options->m_UsePairInstabilitySupernovae)->default_value(p_Options->m_UsePairInstabilitySupernovae)->implicit_value(true),                                          
-            ("Enable pair instability supernovae (PISN) (default = " + std::string(p_Options->m_UsePairInstabilitySupernovae ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "print-bool-as-string",                                        
-            po::value<bool>(&p_Options->m_PrintBoolAsString)->default_value(p_Options->m_PrintBoolAsString)->implicit_value(true),                                                                
-            ("Print boolean properties as 'TRUE' or 'FALSE' (default = " + std::string(p_Options->m_PrintBoolAsString ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "pulsational-pair-instability",                                
-            po::value<bool>(&p_Options->m_UsePulsationalPairInstability)->default_value(p_Options->m_UsePulsationalPairInstability)->implicit_value(true),                                        
-            ("Enable mass loss due to pulsational-pair-instability (PPI) (default = " + std::string(p_Options->m_UsePulsationalPairInstability ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "revised-energy-formalism-Nandez-Ivanova",                     
-            po::value<bool>(&p_Options->m_RevisedEnergyFormalismNandezIvanova)->default_value(p_Options->m_RevisedEnergyFormalismNandezIvanova)->implicit_value(true),                            
-            ("Enable revised energy formalism (default = " + std::string(p_Options->m_RevisedEnergyFormalismNandezIvanova ? "TRUE" : "FALSE") + ")").c_str()
-        )
-
-        (
-            "use-mass-loss",                                               
-            po::value<bool>(&p_Options->m_UseMassLoss)->default_value(p_Options->m_UseMassLoss)->implicit_value(true),                                                                            
-            ("Enable mass loss (default = " + std::string(p_Options->m_UseMassLoss ? "TRUE" : "FALSE") + ")").c_str()
-        )
-
-
-        // numerical options - alphabetically grouped by type
-
-        // unsigned long
-
-        (
-            "random-seed",                                                 
-            po::value<unsigned long>(&p_Options->m_RandomSeed)->default_value(p_Options->m_RandomSeed),                                                                                           
-            ("Random seed to use (default = " + std::to_string(p_Options->m_RandomSeed) + ")").c_str()
-        )
-
-
-        // int
-
-        (
-            "maximum-number-timestep-iterations",                          
-            po::value<int>(&p_Options->m_MaxNumberOfTimestepIterations)->default_value(p_Options->m_MaxNumberOfTimestepIterations),                                                               
-            ("Maximum number of timesteps to evolve binary before giving up (default = " + std::to_string(p_Options->m_MaxNumberOfTimestepIterations) + ")").c_str()
         )
 
 
@@ -1198,92 +1037,92 @@ bool Options::SetObjectOptions(OptionValues *p_Options, po::options_description 
             ("Recombination energy density in erg/g (default = " + std::to_string(p_Options->m_CommonEnvelopeRecombinationEnergyDensity) + ")").c_str()
         )
         (
-            "common-envelope-slope-Kruckow",                               
+            "common-envelope-slope-kruckow",                               
             po::value<double>(&p_Options->m_CommonEnvelopeSlopeKruckow)->default_value(p_Options->m_CommonEnvelopeSlopeKruckow),                                                                  
             ("Common Envelope slope for Kruckow lambda (default = " + std::to_string(p_Options->m_CommonEnvelopeSlopeKruckow) + ")").c_str()
         )
 
-        // AVG
+        // AVG - 17/03/2020 - Uncomment mass-ratio options when fully implemented
         /*
         (
-            "critical-mass-ratio-giant-degenerate-accretor",               
-            po::value<double>(&p_Options->m_MassTransferCriticalMassRatioGiantDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioGiantDegenerateAccretor),              
-            ("Critical mass ratio for MT from a giant star (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioGiantDegenerateAccretor) + ") Specify both giant flags to use. 0 is always stable, <0 is disabled").c_str()
+            "critical-mass-ratio-giant-degenerate-accretor",
+            po::value<double>(&m_MassTransferCriticalMassRatioGiantDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioGiantDegenerateAccretor),
+            ("Critical mass ratio for MT from a giant star (default = " + std::to_string(m_MassTransferCriticalMassRatioGiantDegenerateAccretor) + ") Specify both giant flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-giant-non-degenerate-accretor",           
-            po::value<double>(&p_Options->m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor),        
-            ("Critical mass ratio for MT from a giant star (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor) + ") Specify both giant flags to use. 0 is always stable, <0 is disabled").c_str()
+            "critical-mass-ratio-giant-non-degenerate-accretor",
+            po::value<double>(&m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor),
+            ("Critical mass ratio for MT from a giant star (default = " + std::to_string(m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor) + ") Specify both giant flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-helium-giant-degenerate-accretor",        
-            po::value<double>(&p_Options->m_MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor),  
-            ("Critical mass ratio for MT from a helium giant star (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor) + ") Specify both helium giant flags to use. 0 is always stable, <0 is disabled").c_str()
+            "critical-mass-ratio-helium-giant-degenerate-accretor",
+            po::value<double>(&m_MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor),
+            ("Critical mass ratio for MT from a helium giant star (default = " + std::to_string(m_MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor) + ") Specify both helium giant flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-helium-giant-non-degenerate-accretor",    
-            po::value<double>(&p_Options->m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor), 
-            ("Critical mass ratio for MT from a helium giant star (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor) + ") Specify both helium giant flags to use. 0 is always stable, <0 is disabled").c_str()
+            "critical-mass-ratio-helium-giant-non-degenerate-accretor",
+            po::value<double>(&m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor),
+            ("Critical mass ratio for MT from a helium giant star (default = " + std::to_string(m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor) + ") Specify both helium giant flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-helium-HG-degenerate-accretor",           
-            po::value<double>(&p_Options->m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor),        
-            ("Critical mass ratio for MT from a helium HG star (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor) + ") Specify both helium HG flags to use. 0 is always stable, <0 is disabled").c_str()
+            "critical-mass-ratio-helium-hg-degenerate-accretor",
+            po::value<double>(&m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor),
+            ("Critical mass ratio for MT from a helium HG star (default = " + std::to_string(m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor) + ") Specify both helium HG flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-helium-HG-non-degenerate-accretor",       
-            po::value<double>(&p_Options->m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor),  
-            ("Critical mass ratio for MT from a helium HG star (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor) + ") Specify both helium HG flags to use. 0 is always stable, <0 is disabled").c_str()
+            "critical-mass-ratio-helium-hg-non-degenerate-accretor",
+            po::value<double>(&m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor),
+            ("Critical mass ratio for MT from a helium HG star (default = " + std::to_string(m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor) + ") Specify both helium HG flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-helium-MS-degenerate-accretor",           
-            po::value<double>(&p_Options->m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor),        
-            ("Critical mass ratio for MT from a helium MS star (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor) + ") Specify both helium MS flags to use. 0 is always stable, <0 is disabled").c_str()
+            "critical-mass-ratio-helium-ms-degenerate-accretor",
+            po::value<double>(&m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor),
+            ("Critical mass ratio for MT from a helium MS star (default = " + std::to_string(m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor) + ") Specify both helium MS flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-helium-MS-non-degenerate-accretor",       
-            po::value<double>(&p_Options->m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor),  
-            ("Critical mass ratio for MT from a helium MS star (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor) + ") Specify both helium MS flags to use. 0 is always stable, <0 is disabled").c_str()
+            "critical-mass-ratio-helium-ms-non-degenerate-accretor",
+            po::value<double>(&m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor),
+            ("Critical mass ratio for MT from a helium MS star (default = " + std::to_string(m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor) + ") Specify both helium MS flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-HG-degenerate-accretor",                  
-            po::value<double>(&p_Options->m_MassTransferCriticalMassRatioHGDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioHGDegenerateAccretor),                    
-            ("Critical mass ratio for MT from a HG star (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHGDegenerateAccretor) + ") Specify both HG flags to use. 0 is always stable, <0 is disabled").c_str()
+            "critical-mass-ratio-hg-degenerate-accretor",
+            po::value<double>(&m_MassTransferCriticalMassRatioHGDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioHGDegenerateAccretor),
+            ("Critical mass ratio for MT from a HG star (default = " + std::to_string(m_MassTransferCriticalMassRatioHGDegenerateAccretor) + ") Specify both HG flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-HG-non-degenerate-accretor",              
-            po::value<double>(&p_Options->m_MassTransferCriticalMassRatioHGNonDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioHGNonDegenerateAccretor),              
-            ("Critical mass ratio for MT from a HG star (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHGNonDegenerateAccretor) + ") Specify both HG flags to use. 0 is always stable, <0 is disabled").c_str()
+            "critical-mass-ratio-hg-non-degenerate-accretor",
+            po::value<double>(&m_MassTransferCriticalMassRatioHGNonDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioHGNonDegenerateAccretor),
+            ("Critical mass ratio for MT from a HG star (default = " + std::to_string(m_MassTransferCriticalMassRatioHGNonDegenerateAccretor) + ") Specify both HG flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-MS-high-mass-degenerate-accretor",        
-            po::value<double>(&p_Options->m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor),    
-            ("Critical mass ratio for MT from a MS star to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor) + " Specify both MS high mass flags to use. 0 is always stable, <0 is disabled").c_str()
+            "critical-mass-ratio-ms-high-mass-degenerate-accretor",
+            po::value<double>(&m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor),
+            ("Critical mass ratio for MT from a MS star to a degenerate accretor (default = " + std::to_string(m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor) + " Specify both MS high mass flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-MS-high-mass-non-degenerate-accretor",    
-            po::value<double>(&p_Options->m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor), 
-            ("Critical mass ratio for MT from a MS star (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor) + ") Specify both MS high mass flags to use. 0 is always stable, <0 is disabled").c_str()
+            "critical-mass-ratio-ms-high-mass-non-degenerate-accretor",
+            po::value<double>(&m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor),
+            ("Critical mass ratio for MT from a MS star (default = " + std::to_string(m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor) + ") Specify both MS high mass flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-MS-low-mass-degenerate-accretor",         
-            po::value<double>(&p_Options->m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor),      
-            ("Critical mass ratio for MT from a MS star to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor) + " Specify both MS low mass flags to use. 0 is always stable, <0 is disabled").c_str()
+            "critical-mass-ratio-ms-low-mass-degenerate-accretor",
+            po::value<double>(&m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor),
+            ("Critical mass ratio for MT from a MS star to a degenerate accretor (default = " + std::to_string(m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor) + " Specify both MS low mass flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-MS-low-mass-non-degenerate-accretor",     
-            po::value<double>(&p_Options->m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor), 
-            ("Critical mass ratio for MT from a MS star (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor) + ") Specify both MS low mass flags to use. 0 is always stable, <0 is disabled").c_str()
+            "critical-mass-ratio-ms-low-mass-non-degenerate-accretor",
+            po::value<double>(&m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor),
+            ("Critical mass ratio for MT from a MS star (default = " + std::to_string(m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor) + ") Specify both MS low mass flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-white-dwarf-degenerate-accretor",         
-            po::value<double>(&p_Options->m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor),    
-            ("Critical mass ratio for MT from a white dwarf (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor) + ") Specify both white dwarf flags to use. 0 is always stable, <0 is disabled").c_str()
+            "critical-mass-ratio-white-dwarf-degenerate-accretor",
+            po::value<double>(&m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor),
+            ("Critical mass ratio for MT from a white dwarf (default = " + std::to_string(m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor) + ") Specify both white dwarf flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-white-dwarf-non-degenerate-accretor",     
-            po::value<double>(&p_Options->m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor), 
-            ("Critical mass ratio for MT from a white dwarf (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor) + ") Specify both white dwarf flags to use. 0 is always stable, <0 is disabled").c_str()
+            "critical-mass-ratio-white-dwarf-non-degenerate-accretor",
+            po::value<double>(&m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor),
+            ("Critical mass ratio for MT from a white dwarf (default = " + std::to_string(m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor) + ") Specify both white dwarf flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         */
 
@@ -1292,7 +1131,6 @@ bool Options::SetObjectOptions(OptionValues *p_Options, po::options_description 
             po::value<double>(&p_Options->m_Eccentricity)->default_value(p_Options->m_Eccentricity),                                                                
             ("Eccentricity, e (default = " + std::to_string(p_Options->m_Eccentricity) + ")").c_str()
         )
-
         (
             "eccentricity-max",                                            
             po::value<double>(&p_Options->m_EccentricityDistributionMax)->default_value(p_Options->m_EccentricityDistributionMax),                                                                
@@ -1346,6 +1184,15 @@ bool Options::SetObjectOptions(OptionValues *p_Options, po::options_description 
             ("Single power law power to generate primary mass using given IMF (default = " + std::to_string(p_Options->m_InitialMassFunctionPower) + ")").c_str()
         )
 
+        // Floor
+        /*
+        (
+            "kappa-gaussians",                                             
+            po::value<double>(&p_Options->m_KappaGaussians)->default_value(p_Options->m_KappaGaussians),                                                                                          
+            ("Scaling factor for the width of the Gaussian distributions in STROOPWAFEL main sampling phase (default = " + std::to_string(p_Options->m_KappaGaussians) + ")").c_str()
+        )
+        */
+
         (
             "kick-direction-power",                                        
             po::value<double>(&p_Options->m_KickDirectionPower)->default_value(p_Options->m_KickDirectionPower),                                                                                  
@@ -1387,22 +1234,22 @@ bool Options::SetObjectOptions(OptionValues *p_Options, po::options_description 
             "Number used to choose the kick velocity magnitude for the secondary during the a supernova (default = uniform random number [0.0, 1.0))"
         )
         (
-            "kick-magnitude-sigma-CCSN-BH",                                
+            "kick-magnitude-sigma-ccsn-bh",                                
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH)->default_value(p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH),                                            
             ("Sigma for chosen kick magnitude distribution for black holes (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH) + " km s^-1 )").c_str()
         )
         (
-            "kick-magnitude-sigma-CCSN-NS",                                
+            "kick-magnitude-sigma-ccsn-ns",                                
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS)->default_value(p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS),                                            
             ("Sigma for chosen kick magnitude distribution for neutron stars (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS) + " km s^-1 )").c_str()
         )
         (
-            "kick-magnitude-sigma-ECSN",                                   
+            "kick-magnitude-sigma-ecsn",                                   
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaForECSN)->default_value(p_Options->m_KickMagnitudeDistributionSigmaForECSN),                                            
             ("Sigma for chosen kick magnitude distribution for ECSN (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaForECSN) + " km s^-1 )").c_str()
         )
         (
-            "kick-magnitude-sigma-USSN",                                   
+            "kick-magnitude-sigma-ussn",                                   
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaForUSSN)->default_value(p_Options->m_KickMagnitudeDistributionSigmaForUSSN),                                            
             ("Sigma for chosen kick magnitude distribution for USSN (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaForUSSN) + " km s^-1 )").c_str()
         )
@@ -1469,7 +1316,7 @@ bool Options::SetObjectOptions(OptionValues *p_Options, po::options_description 
             ("Specific angular momentum with which the non-accreted system leaves the system (default = " + std::to_string(p_Options->m_MassTransferJloss) + ")").c_str()
         )
         (
-            "mass-transfer-thermal-limit-C",                               
+            "mass-transfer-thermal-limit-c",                               
             po::value<double>(&p_Options->m_MassTransferCParameter)->default_value(p_Options->m_MassTransferCParameter),                                                                          
             ("Mass Transfer Thermal rate factor fo the accretor (default = " + std::to_string(p_Options->m_MassTransferCParameter) + ")").c_str()
         )
@@ -1479,7 +1326,7 @@ bool Options::SetObjectOptions(OptionValues *p_Options, po::options_description 
             ("Maximum time to evolve binaries in Myrs (default = " + std::to_string(p_Options->m_MaxEvolutionTime) + ")").c_str()
         )
         (
-            "maximum-mass-donor-Nandez-Ivanova",                           
+            "maximum-mass-donor-nandez-ivanova",                           
             po::value<double>(&p_Options->m_MaximumMassDonorNandezIvanova)->default_value(p_Options->m_MaximumMassDonorNandezIvanova),                                                            
             ("Maximum donor mass allowed for the revised common envelope formalism in Msol (default = " + std::to_string(p_Options->m_MaximumMassDonorNandezIvanova) + ")").c_str()
         )
@@ -1489,7 +1336,7 @@ bool Options::SetObjectOptions(OptionValues *p_Options, po::options_description 
             ("Maximum mass of a neutron star (default = " + std::to_string(p_Options->m_MaximumNeutronStarMass) + ")").c_str()
         )
         (
-            "MCBUR1",                                                      
+            "mcbur1",                                                      
             po::value<double>(&p_Options->m_mCBUR1)->default_value(p_Options->m_mCBUR1),                                                                                                          
             ("MCBUR1: Min core mass at BAGB to avoid fully degenerate CO core  (default = " + std::to_string(p_Options->m_mCBUR1) + ")").c_str()
         )
@@ -1522,22 +1369,22 @@ bool Options::SetObjectOptions(OptionValues *p_Options, po::options_description 
         )
 
         (
-            "PISN-lower-limit",                                            
+            "pisn-lower-limit",                                            
             po::value<double>(&p_Options->m_PairInstabilityLowerLimit)->default_value(p_Options->m_PairInstabilityLowerLimit),                                                                    
             ("Minimum core mass for PISN (default = " + std::to_string(p_Options->m_PairInstabilityLowerLimit) + ")").c_str()
         )
         (
-            "PISN-upper-limit",                                            
+            "pisn-upper-limit",                                            
             po::value<double>(&p_Options->m_PairInstabilityUpperLimit)->default_value(p_Options->m_PairInstabilityUpperLimit),                                                                    
             ("Maximum core mass for PISN (default = " + std::to_string(p_Options->m_PairInstabilityUpperLimit) + ")").c_str()
         )
         (
-            "PPI-lower-limit",                                             
+            "ppi-lower-limit",                                             
             po::value<double>(&p_Options->m_PulsationalPairInstabilityLowerLimit)->default_value(p_Options->m_PulsationalPairInstabilityLowerLimit),                                              
             ("Minimum core mass for PPI (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityLowerLimit) + ")").c_str()
         )
         (
-            "PPI-upper-limit",                                             
+            "ppi-upper-limit",                                             
             po::value<double>(&p_Options->m_PulsationalPairInstabilityUpperLimit)->default_value(p_Options->m_PulsationalPairInstabilityUpperLimit),                                              
             ("Maximum core mass for PPI (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityUpperLimit) + ")").c_str()
         )
@@ -1618,6 +1465,15 @@ bool Options::SetObjectOptions(OptionValues *p_Options, po::options_description 
 
         // string options - alphabetically
 
+        // Floor
+        /*
+        (
+            "ais-dcotype",                                                 
+            po::value<string>(&p_Options->m_AISDCOtypeString)->default_value(p_Options->m_AISDCOtypeString),                                                                                      
+            ("DCO type selection in exploratory phase of STROOPWAFEL, (options: [ALL, BBH, BNS, BHNS], default = " + p_Options->m_AISDCOtypeString + ")").c_str()
+        )
+        */
+
         (
             "black-hole-kicks",                                            
             po::value<string>(&p_Options->m_BlackHoleKicksOptionString)->default_value(p_Options->m_BlackHoleKicksOptionString),                                                                              
@@ -1663,6 +1519,12 @@ bool Options::SetObjectOptions(OptionValues *p_Options, po::options_description 
         )
 
         (
+            "grid",                                                        
+            po::value<string>(&p_Options->m_GridFilename)->default_value(p_Options->m_GridFilename)->implicit_value(""),                                                                      
+            ("Grid filename (default = " + p_Options->m_GridFilename + ")").c_str()
+        )
+
+        (
             "initial-mass-function,i",                                     
             po::value<string>(&p_Options->m_InitialMassFunctionString)->default_value(p_Options->m_InitialMassFunctionString),                                                                    
             ("Initial mass function (options: [SALPETER, POWERLAW, UNIFORM, KROUPA], default = " + p_Options->m_InitialMassFunctionString + ")").c_str()
@@ -1677,6 +1539,71 @@ bool Options::SetObjectOptions(OptionValues *p_Options, po::options_description 
             "kick-magnitude-distribution",                                 
             po::value<string>(&p_Options->m_KickMagnitudeDistributionString)->default_value(p_Options->m_KickMagnitudeDistributionString),                                                        
             ("Natal kick magnitude distribution (options: [ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL], default = " + p_Options->m_KickMagnitudeDistributionString + ")").c_str()
+        )
+
+        // Serena
+        /*
+        (
+            "logfile-be-binaries",                                     
+            po::value<string>(&p_Options->m_LogfileBeBinaries)->default_value(p_Options->m_LogfileBeBinaries),                                                                              
+            ("Filename for Be Binaries logfile (default = " + p_Options->m_LogfileBeBinaries + ")").c_str()
+        )
+        */
+
+        (
+            "logfile-rlof-parameters",                                 
+            po::value<string>(&p_Options->m_LogfileRLOFParameters)->default_value(p_Options->m_LogfileRLOFParameters),                                                                      
+            ("Filename for RLOF Parameters logfile ( default = " + p_Options->m_LogfileRLOFParameters + ")").c_str()
+        )
+        (
+            "logfile-common-envelopes",                                
+            po::value<string>(&p_Options->m_LogfileCommonEnvelopes)->default_value(p_Options->m_LogfileCommonEnvelopes),                                                                    
+            ("Filename for Common Envelopes logfile (default = " + p_Options->m_LogfileCommonEnvelopes + ")").c_str()
+        )
+        (
+            "logfile-detailed-output",                                 
+            po::value<string>(&p_Options->m_LogfileDetailedOutput)->default_value(p_Options->m_LogfileDetailedOutput),                                                                      
+            ("Filename for Detailed Output logfile (default = " + p_Options->m_LogfileDetailedOutput + ")").c_str()
+        )
+        (
+            "logfile-double-compact-objects",                          
+            po::value<string>(&p_Options->m_LogfileDoubleCompactObjects)->default_value(p_Options->m_LogfileDoubleCompactObjects),                                                          
+            ("Filename for Double Compact Objects logfile (default = " + p_Options->m_LogfileDoubleCompactObjects + ")").c_str()
+        )
+        (
+            "logfile-pulsar-evolution",                                
+            po::value<string>(&p_Options->m_LogfilePulsarEvolution)->default_value(p_Options->m_LogfilePulsarEvolution),                                                                    
+            ("Filename for Pulsar Evolution logfile (default = " + p_Options->m_LogfilePulsarEvolution + ")").c_str()
+        )
+        (
+            "logfile-supernovae",                                      
+            po::value<string>(&p_Options->m_LogfileSupernovae)->default_value(p_Options->m_LogfileSupernovae),                                                                              
+            ("Filename for Supernovae logfile (default = " + p_Options->m_LogfileSupernovae + ")").c_str()
+        )
+        (
+            "logfile-system-parameters",                               
+            po::value<string>(&p_Options->m_LogfileSystemParameters)->default_value(p_Options->m_LogfileSystemParameters),                                                                  
+            ("Filename for System Parameters logfile (default = " + p_Options->m_LogfileSystemParameters + ")").c_str()
+        )
+        (
+            "logfile-definitions",                                         
+            po::value<string>(&p_Options->m_LogfileDefinitionsFilename)->default_value(p_Options->m_LogfileDefinitionsFilename)->implicit_value(""),                                              
+            ("Filename for logfile record definitions (default = " + p_Options->m_LogfileDefinitionsFilename + ")").c_str()
+        )
+        (
+            "logfile-delimiter",                                           
+            po::value<string>(&p_Options->m_LogfileDelimiterString)->default_value(p_Options->m_LogfileDelimiterString),                                                                          
+            ("Field delimiter for logfile records (default = " + p_Options->m_LogfileDelimiterString + ")").c_str()
+        )
+        (
+            "logfile-name-prefix",                                         
+            po::value<string>(&p_Options->m_LogfileNamePrefix)->default_value(p_Options->m_LogfileNamePrefix)->implicit_value(""),                                                                
+            ("Prefix for logfile names (default = " + p_Options->m_LogfileNamePrefix + ")").c_str()
+        )
+        (
+            "logfile-switch-log",                                      
+            po::value<string>(&p_Options->m_LogfileSwitchLog)->default_value(p_Options->m_LogfileSwitchLog),                                                                                
+            ("Filename for Switch Log logfile (default = " + p_Options->m_LogfileSwitchLog + ")").c_str()
         )
 
         (
@@ -1711,6 +1638,12 @@ bool Options::SetObjectOptions(OptionValues *p_Options, po::options_description 
         )
 
         (
+            "mode",                                                 
+            po::value<string>(&p_Options->m_EvolutionModeString)->default_value(p_Options->m_EvolutionModeString),                                                                              
+            ("Evolution mode (options: [SSE, BSE], default = " + p_Options->m_EvolutionModeString + ")").c_str()
+        )
+
+        (
             "neutrino-mass-loss-bh-formation",                             
             po::value<string>(&p_Options->m_NeutrinoMassLossAssumptionBHString)->default_value(p_Options->m_NeutrinoMassLossAssumptionBHString),                                                  
             ("Assumption about neutrino mass loss during BH formation (options: [FIXED_FRACTION, FIXED_MASS], default = " + p_Options->m_NeutrinoMassLossAssumptionBHString + ")").c_str()
@@ -1719,6 +1652,17 @@ bool Options::SetObjectOptions(OptionValues *p_Options, po::options_description 
             "neutron-star-equation-of-state",                              
             po::value<string>(&p_Options->m_NeutronStarEquationOfStateString)->default_value(p_Options->m_NeutronStarEquationOfStateString),                                                      
             ("Neutron star equation of state to use (options: [SSE, ARP3], default = " + p_Options->m_NeutronStarEquationOfStateString + ")").c_str()
+        )
+
+        (
+            "output-container,c",                                          
+            po::value<string>(&p_Options->m_OutputContainerName)->default_value(p_Options->m_OutputContainerName)->implicit_value(""),                                                            
+            ("Container (directory) name for output files (default = " + p_Options->m_OutputContainerName + ")").c_str()
+        )
+        (
+            "outputPath,o",                                                
+            po::value<string>(&p_Options->m_OutputPathString)->default_value(p_Options->m_OutputPathString)->implicit_value(""),                                                                  
+            ("Directory for output (default = " + p_Options->m_OutputPathString + ")").c_str()
         )
 
         (
@@ -1758,18 +1702,33 @@ bool Options::SetObjectOptions(OptionValues *p_Options, po::options_description 
             po::value<string>(&p_Options->m_StellarZetaPrescriptionString)->default_value(p_Options->m_StellarZetaPrescriptionString),                                                            
             ("Prescription for stellar zeta (default = " + p_Options->m_StellarZetaPrescriptionString + ")").c_str()
         )
-   
+
+
+        // vector (list) options - alphabetically
+
+        (
+            "debug-classes",                                               
+            po::value<vector<string>>(&p_Options->m_DebugClasses)->multitoken()->default_value(p_Options->m_DebugClasses),                                                                        
+            ("Debug classes enabled (default = " + defaultDebugClasses + ")").c_str()
+        )
+        (
+            "log-classes",                                                 
+            po::value<vector<string>>(&p_Options->m_LogClasses)->multitoken()->default_value(p_Options->m_LogClasses),                                                                            
+            ("Logging classes enabled (default = " + defaultLogClasses + ")").c_str()
+        )
+    
         ;   // end the list of options to be added
 
-    } catch (po::error& e) {    // program options exception
+    }
+    catch (po::error& e) {      // program options exception
         ok = false;             // set status
-    } catch (...) {             // unhandled exception
+    }
+    catch (...) {               // unhandled exception
         ok = false;             // set status
     }
 
     return ok;
 }
-
 
 
 /* DOCUMENTATION!!!!!!!!!!!!!!!!
@@ -1779,14 +1738,14 @@ bool Options::SetObjectOptions(OptionValues *p_Options, po::options_description 
  * dataType is overall type (INT, FLOAT, STRING)
  * typeStr is detailed data type ("UNSIGNED LONG INT" etc)
  */
-std::tuple<TYPENAME, bool, std::string, std::string> Options::OptionAttributes(const po::variables_map p_VM, const po::variables_map::const_iterator p_IT) {
+Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::variables_map::const_iterator p_IT) {
             
     TYPENAME    dataType  = TYPENAME::NONE;
     std::string typeStr   = "";
     bool        defaulted = false;
     std::string valueStr  = "";
 
-    if (((boost::any)p_IT->second.value()).empty()) return std::make_tuple(TYPENAME::NONE, true, "", "");    // empty option 
+    if (((boost::any)p_IT->second.value()).empty()) return std::make_tuple(TYPENAME::NONE, true, "", "");   // empty option 
 
     // determine if option values was supplied, or whether the default was used
 
@@ -1802,7 +1761,8 @@ std::tuple<TYPENAME, bool, std::string, std::string> Options::OptionAttributes(c
     try {
         boost::any_cast<const char *>(p_IT->second.value());
         isCharPtr = true;
-    } catch (const boost::bad_any_cast &) {
+    }
+    catch (const boost::bad_any_cast &) {
         isCharPtr = false;
     }
 
@@ -1811,7 +1771,8 @@ std::tuple<TYPENAME, bool, std::string, std::string> Options::OptionAttributes(c
         try {
             boost::any_cast<std::string>(p_IT->second.value());
             isStr = true;
-        } catch (const boost::bad_any_cast &) {
+        }
+        catch (const boost::bad_any_cast &) {
             isStr = false;
         }
     }
@@ -1894,7 +1855,8 @@ std::tuple<TYPENAME, bool, std::string, std::string> Options::OptionAttributes(c
             dataType = TYPENAME::NONE;                                                  // not supported by COMPAS as an option data type            
             typeStr  = "VECTOR<STRING>";                                                // ... but we know what type it is, and
             valueStr = elems;                                                           // ... we can still format the value
-        } catch (const boost::bad_any_cast &) {
+        }
+        catch (const boost::bad_any_cast &) {
             dataType = TYPENAME::NONE;                                                  // unknown data type               
             typeStr  = "<UNKNOWN_DATA_TYPE>";
             valueStr = "<UNKNOWN_DATA_TYPE>";
@@ -1909,36 +1871,36 @@ std::tuple<TYPENAME, bool, std::string, std::string> Options::OptionAttributes(c
  * DOCUMENTATION HERE!
  * 
  */
-string Options::ProgramOptionDetails(const OptionValues *p_Options, const po::variables_map p_VM) {
+string Options::OptionDetails(const OptionsDescriptorT &p_Options) {
             
     TYPENAME    dataType  = TYPENAME::NONE;
     std::string typeStr   = "";
     bool        defaulted = false;
     std::string valueStr  = "";
 
-    std::ostringstream ss;                                                                                              // output string
+    std::ostringstream ss;                                                                                                              // output string
 
     ss << "COMMAND LINE OPTIONS\n-------------------\n\n";
 
-    for (po::variables_map::const_iterator it = p_VM.begin(); it != p_VM.end(); it++) {                                 // for all options in the variable map
+    for (po::variables_map::const_iterator it = p_Options.optionValues.m_VM.begin(); it != p_Options.optionValues.m_VM.end(); it++) {   // for all options in the variable map
   
-        ss << it->first << " = ";                                                                                       // add option name to output string
+        ss << it->first << " = ";                                                                                                       // add option name to output string
 
-        std::tie(dataType, defaulted, typeStr, valueStr) = OptionAttributes(p_VM, it);                                  // get option attributes
+        std::tie(dataType, defaulted, typeStr, valueStr) = OptionAttributes(p_Options.optionValues.m_VM, it);                           // get option attributes
 
-        if (valueStr == "")                                                                                             // empty option?
-            ss << "<EMPTY_OPTION>\n";                                                                                   // yes - say so
-        else                                                                                                            // no
-            ss << valueStr + ", " << (defaulted ? "DEFAULT_USED, " : "USER_SUPPLIED, ") << typeStr << "\n";             // add option details to output string
+        if (valueStr == "")                                                                                                             // empty option?
+            ss << "<EMPTY_OPTION>\n";                                                                                                   // yes - say so
+        else                                                                                                                            // no
+            ss << valueStr + ", " << (defaulted ? "DEFAULT_USED, " : "USER_SUPPLIED, ") << typeStr << "\n";                             // add option details to output string
     }
   
     ss << "\n\nOTHER PARAMETERS\n----------------\n\n";
 
 // JRFIX <<<<<<<<<<<<<<<<<<<<<<<<<<<< fix these!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ss << "fixedMetallicity   = " << (p_Options->m_FixedMetallicity ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";     // fixedMetallicity
-    ss << "useFixedUK         = " << (p_Options->m_UseFixedUK ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";           // useFixedUK
-    ss << "outputPath         = " << p_Options->m_OutputPath.string() << ", CALCULATED, STRING\n";                     // outputPath (fully qualified)
-    ss << "fixedRandomSeed    = " << (p_Options->m_FixedRandomSeed ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";      // fixedRandomSeed
+    ss << "fixedMetallicity   = " << (p_Options.optionValues.m_FixedMetallicity ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";          // fixedMetallicity
+    ss << "useFixedUK         = " << (p_Options.optionValues.m_UseFixedUK ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";                // useFixedUK
+    ss << "outputPath         = " <<  p_Options.optionValues.m_OutputPath.string() << ", CALCULATED, STRING\n";                         // outputPath (fully qualified)
+    ss << "fixedRandomSeed    = " << (p_Options.optionValues.m_FixedRandomSeed ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";           // fixedRandomSeed
 
     return ss.str();
 }
@@ -1968,13 +1930,17 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
     try {
 
-        std::string optionName         = "";                                                                        // option name
-        int type                       = -1;                                                                        // arg type (range = 0, set = 1, neither = -1
+        p_OptionsDescriptor.complexOptionValues = {};                                                               // initially
+
+        std::string  optionName        = "";                                                                        // option name
+        COMPLEX_TYPE type              = COMPLEX_TYPE::NONE;                                                        // complex arg type (range, set, neither/none)
         std::vector<std::string> parms = {};                                                                        // the range or set parameters
 
         for (int iArg = 0; iArg < p_ArgCount; iArg++) {                                                             // for each arg string
 
             if (iArg == 0) continue;                                                                                // ignore the executable name
+
+            type = COMPLEX_TYPE::NONE;                                                                              // initially
 
             optionName = p_ArgStrings[iArg - 1];                                                                    // get the option name for the argument we're processing
             if (optionName[0] == '-') optionName.erase(0, optionName.find_first_not_of("-"));                       // remove the "-" or "--"
@@ -1990,7 +1956,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                 if ((str[0] == '[') || (str.rfind("r[", 0) == 0) || (str.rfind("range[", 0) == 0)) {                // starts with '[', 'r[' or 'range[', so...
                     error = true;                                                                                   // unless set otherwise
                     if (str[str.length()-1] == ']') {                                                               // ... needs to end with ']' to be a valid RANGE
-                        type  = 0;                                                                                  // it did - so RANGE
+                        type = COMPLEX_TYPE::RANGE;                                                                 // it did - so RANGE
 
                         // check for RANGE requested for option in range excluded list
                         if (iArg > 1) {                                                                             // range not valid for arg[1]
@@ -2009,7 +1975,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                     if ((str.rfind("s[", 0) == 0) || (str.rfind("set[", 0) == 0)) {                                 // starts with 's[' or 'set[', so ...
                         error = true;                                                                               // unless set otherwise
                         if (str[str.length()-1] == ']') {                                                           // ... needs to end with ']' to be a valid SET
-                            type  = 1;                                                                              // it did - so SET
+                            type = COMPLEX_TYPE::SET;                                                               // it did - so SET
 
                             // check for SET requested for option in set excluded list
                             if (iArg > 1) {                                                                         // set not valid for arg[1]
@@ -2022,7 +1988,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                     }
                 }
 
-                if (!error && type != -1) {                                                                         // range or set?
+                if (!error && type != COMPLEX_TYPE::NONE) {                                                         // range or set?
                                                                                                                     // yes
                     // we have what looks like a 'range' or 'set' argument
                     // for now, just stash the details away and substitute the
@@ -2060,7 +2026,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
                         if (!error) {                                                                               // still ok?
                                                                                                                     // yes
-                            if (type == 0 && parms.size() != 3) {                                                   // ranges require exactly 3 parameters
+                            if (type == COMPLEX_TYPE::RANGE && parms.size() != 3) {                                 // ranges require exactly 3 parameters
                                 error  = true;                                                                      // error
                                 errStr = "argument range requires exactly three parameters"; 
                             }
@@ -2068,8 +2034,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                 // if range, then we have 3 parameters (checked above)
                                 // if set, we have at least one parameter (check earlier), so we're good
 
-//                                p_OptionsDescriptor.complexOptionValues.push_back(std::make_tuple(optionName, std::make_tuple(type, parms, 0))); // store the range/set
-                                RangeOrSetDescriptorT details = {type, parms, 0};
+                                RangeOrSetDescriptorT details = {type, TYPENAME::NONE, parms, {}, 0};               // dummy values for datatype and numerical parms
                                 p_OptionsDescriptor.complexOptionValues.push_back(std::make_tuple(optionName, details)); // store the range/set
 
                                 strncpy(p_ArgStrings[iArg], parms[0].c_str(), parms[0].length());                   // replace arg value (temporarily)
@@ -2094,6 +2059,8 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
         po::parsed_options const parsedOptions = po::parse_command_line(p_ArgCount, p_ArgStrings, p_OptionsDescriptor.optionDescriptions);  // parse user-supplied options
         po::store(parsedOptions, p_OptionsDescriptor.optionValues.m_VM);                                            // store parsed options into variable map
+        po::notify(p_OptionsDescriptor.optionValues.m_VM);                                                          // populate the variables with option values
+
 
         // if we've made it this far then boost parsed the commandline arguments ok
         // if there were any ranges or sets specified by the user we can now work
@@ -2105,105 +2072,259 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
         // need to check:
         //     - ranges have not bee specified for non-numeric options
         //     - range values are all numeric
+        //     - values for ranges and sets match the data type of the option
+        //       (i.e. INTs for integer options, FLOATs for fp options, STRINGs for string options)
+        //
+        // it would be preferable to range check values against valid values for specific
+        // options here but, for now at least, too problematic - we'll just let the
+        // evolution fail if an option value is bad (we don't want to read through every
+        // record of a grid file and check...)
 
-// MAKE THIS A TYPEDEF - in .h as well!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        RangeOrSetDescriptorT details = {};                                                // initialised to please the compiler...
+        RangeOrSetDescriptorT details = {};
 
-        for (size_t idx = 0; idx < p_OptionsDescriptor.complexOptionValues.size(); idx++) {                         // for each range or set specified
+        size_t count = p_OptionsDescriptor.complexOptionValues.size();                                              // count of complex values (ranges or sets)
+        for (size_t idx = 0; idx < count; idx++) {                                                                  // for each range or set specified
 
             error = false;                                                                                          // for now...
 
-            parms.clear();                                                                                          // clear the range/set parameters
-
-
-
-
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// FIGURE OUT HOW TO CHECK RANGE AND SET PARAMETERS AGINST VALID VALUES
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-
-
             optionName = get<0>(p_OptionsDescriptor.complexOptionValues[idx]);                                      // the option name
             details    = get<1>(p_OptionsDescriptor.complexOptionValues[idx]);                                      // range/set details for this optionName
-            type       = details.type;                                                                           // range = 0, set = 1
-            parms      = details.parameters;                                                                           // range/set parameter values
+            type       = details.type;                                                                              // range or set
+            parms      = details.parameters;                                                                        // range/set parameter values (as strings)
 
-            if (type == 0) {                                                                                        // range?
-                po::variables_map::const_iterator it = p_OptionsDescriptor.optionValues.m_VM.find(optionName);      // yes - find the option in the boost variables map
-                if (it != p_OptionsDescriptor.optionValues.m_VM.end()) {                                            // found?
-                    TYPENAME dataType;                                                                              // yes
-                    std::tie(dataType, std::ignore, std::ignore, std::ignore) = OptionAttributes(p_OptionsDescriptor.optionValues.m_VM, it);    // get data type
-                    if (dataType != TYPENAME::INT && dataType != TYPENAME::FLOAT) {                                 // numeric?
+            po::variables_map::const_iterator it = p_OptionsDescriptor.optionValues.m_VM.find(optionName);          // yes - find the option in the boost variables map
+            if (it != p_OptionsDescriptor.optionValues.m_VM.end()) {                                                // found?
+                TYPENAME dataType = TYPENAME::NONE;                                                                 // yes
+                std::tie(dataType, std::ignore, std::ignore, std::ignore) = OptionAttributes(p_OptionsDescriptor.optionValues.m_VM, it); // data type
+                details.dataType = dataType;                                                                        // set data type
+
+                if (idx == (count - 1)) details.currPos = 0;                                                        // initial position for inner iterator
+
+                if (type == COMPLEX_TYPE::RANGE) {                                                                  // RANGE?
+                    if (dataType != TYPENAME::INT && dataType != TYPENAME::FLOAT) {                                 // yes - numeric?
                         error  = true;                                                                              // no - that's not ok
                         errStr = std::string("argument range not supported for option '") + optionName + std::string("'");
                     }
                     else {                                                                                          // yes - numeric
-                        for (size_t ip = 0; ip < parms.size(); ip++) {                                              // for each range parameter specified
-                            if (parms[ip].empty() || !std::all_of(parms[ip].begin(), parms[ip].end(), ::isdigit)) { // numeric?
+                                                                                                                    // yes - determine numerical range parameters
+                        if (dataType == TYPENAME::INT) {                                                            // option data type is INT?
+                                                                                                                    // yes - expecting integer values for start, count, and inc
+                            try {
+                                RangeParameterT tmp = {0.0};                                                        // dummy value
+                                details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
+
+                                details.rangeParms[0].iVal = std::stoi(details.parameters[0]);                      // integer start
+                                details.rangeParms[1].iVal = std::stoi(details.parameters[1]);                      // integer count
+                                details.rangeParms[2].iVal = std::stoi(details.parameters[2]);                      // integer inc
+
+                                p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
+                            }
+                            catch (const std::out_of_range& e) {
+                                errStr = std::string("expected an integer in range parameters for option '") + optionName  + std::string("'");
+                            }
+                        }
+                        else {                                                                                      // no - expecting fp values for start and inc, and integer for count
+                            try {
+                                RangeParameterT tmp = {0.0};                                                        // dummy value
+                                details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
+
+                                details.rangeParms[0].fVal = std::stod(details.parameters[0]);                      // floating point start
+                                details.rangeParms[2].fVal = std::stod(details.parameters[2]);                      // floating point inc
+
+                                try {
+                                    details.rangeParms[1].iVal = std::stoi(details.parameters[1]);                  // integer count
+
+                                    p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
+                                }
+                                catch (const std::out_of_range& e) {                                                // not a valid integer
+                                    errStr = std::string("expected an integer in range count for option '") + optionName  + std::string("'");
+                                }
+                            }
+                            catch (const std::out_of_range& e) {                                                    // not a valid floating point number
+                                errStr = std::string("expected a floating point number in range start and increment for option '") + optionName  + std::string("'");
+                            }
+                        }
+                    }
+                }
+                else {                                                                                              // SET
+                    // check for numeric/bool data types only that all set parameters are numeric/bool
+                    // can't check for string data types 
+
+                    if (dataType == TYPENAME::INT || dataType == TYPENAME::FLOAT) {                                 // numeric?
+                        for (size_t ip = 0; ip < parms.size(); ip++) {                                              // yes - for each set parameter specified
+                            if ((dataType == TYPENAME::INT && !utils::IsINT(parms[ip])) ||                          // INT?
+                                (dataType == TYPENAME::FLOAT && !utils::IsFLOAT(parms[ip]))) {                      // FLOAT?
                                 error  = true;                                                                      // no - that's not ok
-                                errStr = std::string("all parameters of argument range must be numeric for option '") + optionName  + std::string("'");
+                                errStr = std::string("all parameters of argument set must be numeric for option '") + optionName  + std::string("'");
                                 break;
                             }
                         }
+                    }
+                    else if (dataType == TYPENAME::BOOL) {                                                          // bool?
+                        // we allow boolean set values to be specified as 1|0, T|F, or TRUE|FALSE - but not mixed
+                        // i.e. all must be 0|1, or all must be T|F, or all must be TRUE|FALSE - case is not significant (downshifted already)
 
-
-                        if (!error) {
-
-                                // CALCULATE FIRST AND LAST (=FIRST + (COUNT * INC)) AND RANEG CHECK AGANIST MIN & MAX FOR OPTION (MAY BE 0 AND INFINITE)
+                        size_t check1, check2, check3 = 0;
+                        for (size_t ip = 0; ip < parms.size(); ip++) {                                              // yes - for each set parameter specified
+                            int check = utils::IsBOOL(parms[ip]);                                                   // check parm for valid BOOL
+                                 if (check == 1) check1++;                                                          // valid: 0|1
+                            else if (check == 2) check2++;                                                          // valid: t/f
+                            else if (check == 3) check3++;                                                          // valid: true/false
+                            else                 break;                                                             // not a valid BOOL
                         }
 
-
+                        if (check1 != parms.size() && check2 != parms.size() && check3 != parms.size()) {           // all boolean, and consistent?
+                            error  = true;                                                                          // no - that's not ok
+                            errStr = std::string("all parameters of argument set must be boolean for option '") + optionName  + std::string("'");
+                        }
                     }
-                }
-                else {                                                                                              // option not found in boost variables map
-                    error  = true;                                                                                  // that can't be good...
-                    errStr = std::string("internal error: boost vm, option '") + optionName + std::string("'");
+
+                    if (!error) p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details);// reset values
+
                 }
             }
-
-
-
-            else {      // SET
-
-                // CHECK SET VALUES FOR OPTION ARE VALID - CF CHECKANDSET()
-
+            else {                                                                                                  // option not found in boost variables map
+                error  = true;                                                                                      // that can't be good...
+                errStr = std::string("internal error: boost vm, option '") + optionName + std::string("'");
             }
-
-
 
             if (error) break;                                                                                       // stop now
-
         }
     
-    } catch (po::error& e) {                                                                                        // program options exception
-        errStr = e.what();                                                                                          // set error string
-    } catch (...) {                                                                                                 // unhandled exception
-        errStr = "uhandled exception";                                                                              // set errors tring
+    }
+    catch (po::error& e) {                                                                                          // program options exception
+        errStr = std::string("unexpected error (") + e.what() + std::string(")");                                   // set error string
+    }
+    catch (...) {                                                                                                   // unhandled exception
+        errStr = "unhandled exception";                                                                             // set errors tring
     }
 
     return errStr;
 }
 
 
-int Options::GetProgramOptionValues() {
+/*
+ * DOCUMENTATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ * 
+ * 
+ * 
+ * return 0 if all done, 1 if new options applied, -1 if problem
+ */
+int Options::AdvanceCmdLineOptionValues() {
 
-    m_Opts = &m_Program;                        // point at program options
+    int retVal = 0;
 
-    // upon entry iterators for ranges and sets will be pointing at the
-    // values that should be returned - so those values need to be copied
-    // into place, then the iterators advanced as required
+    if (m_CmdLine.complexOptionValues.size() == 0) return retVal;
 
+    // upon entry iterators for ranges and sets need to be advanced in order
+    // to pick up the correct values to be loaded into the options.  Really
+    // all we need to do is pick up the inner (fastest-counting) iterator (the
+    // right-most in terms of placement on the commandline).  If we have to 
+    // wrap-around to get that value, then we have to increment the next outer
+    // (immediately left) iterator.
+    
+    // traverse each of the complex option values and gather the option values
+    // we only need values for the options that have changing values
+    // values have already been sanity checked by the time we get here
+    // we traverse the complex options values in reverse order because the
+    // fastest change is to the right...
 
+    bool stop  = false;                                                 // stop once we have all the values we need
+    size_t idx = m_CmdLine.complexOptionValues.size() - 1;              // start at innermost iterator
+    while (!stop && idx >= 0) {
 
-     
+        stop = true;                                                    // assume we have what we need
 
+        std::string optionName        = get<0>(m_CmdLine.complexOptionValues[idx]);        
+        RangeOrSetDescriptorT details = get<1>(m_CmdLine.complexOptionValues[idx]);
 
-    return 0;
+        details.currPos++;                                              // advance iterator
 
+        if (details.type == COMPLEX_TYPE::SET) {                        // SET
+            if (details.currPos >= int(details.parameters.size())) {    // currPos is set position - wrap?
+                if (idx == 0) {                                         // outermost iterator?
+                    retVal = 0;                                         // yes - we're done
+                    break;
+                }
+                else {                                                  // no - wrap
+                    details.currPos = 0;                                // ... back to zero
+                    stop = false;                                       // ... and don't stop at this iterator
+                }
+            }
+            std::string optionValue = details.parameters[details.currPos];  // option value (as string)
+
+            switch (details.dataType) {                                 // which data type?
+
+                case TYPENAME::INT: {                                   // INT
+                    int thisVal = std::stoi(optionValue);
+                    m_CmdLine.optionValues.ModifyVariableMap(m_CmdLine.optionValues.m_VM, optionName, thisVal);
+                    po::notify(m_CmdLine.optionValues.m_VM);
+                }   break;
+
+                case TYPENAME::FLOAT: {                                 // FLOAT
+                    double thisVal = std::stod(optionValue);                    
+                    m_CmdLine.optionValues.ModifyVariableMap(m_CmdLine.optionValues.m_VM, optionName, thisVal);
+                    po::notify(m_CmdLine.optionValues.m_VM);
+                }   break;
+
+                case TYPENAME::BOOL: {                                  // BOOL
+                    bool thisVal = (optionValue == "1" || optionValue == "t" || optionValue == "true") ? true : false;
+                    m_CmdLine.optionValues.ModifyVariableMap(m_CmdLine.optionValues.m_VM, optionName, thisVal);
+                    po::notify(m_CmdLine.optionValues.m_VM);
+                }   break;
+
+                case TYPENAME::STRING: {                                // STRING
+                    m_CmdLine.optionValues.ModifyVariableMap(m_CmdLine.optionValues.m_VM, optionName, optionValue);
+                    po::notify(m_CmdLine.optionValues.m_VM);
+                }   break;
+                                
+                default: break;                                         // already checked before we get here
+            }            
+        }
+        else {                                                          // RANGE
+            if (details.currPos >= details.rangeParms[1].iVal) {        // currPos is range count - wrap?
+                if (idx == 0) {                                         // outermost iterator?
+                    retVal = 0;                                         // yes - we're done
+                    break;
+                }
+                else {                                                  // no - wrap
+                    details.currPos = 0;                                // ... back to zero
+                    stop = false;                                       // ... and don't stop at this iterator
+                }
+            }
+
+            switch (details.dataType) {                                 // which data type?
+
+                case TYPENAME::INT: {                                   // INT
+                    int start = details.rangeParms[0].iVal;
+                    int inc   = details.rangeParms[2].iVal;
+                    int thisVal = start + (details.currPos * inc);
+                    
+                    m_CmdLine.optionValues.ModifyVariableMap(m_CmdLine.optionValues.m_VM, optionName, thisVal);
+                    po::notify(m_CmdLine.optionValues.m_VM);
+                }   break;
+
+                case TYPENAME::FLOAT: {                                 // FLOAT
+                    double start   = details.rangeParms[0].fVal;
+                    double inc     = details.rangeParms[2].fVal;
+                    double thisVal = start + (details.currPos * inc);
+                    
+                    m_CmdLine.optionValues.ModifyVariableMap(m_CmdLine.optionValues.m_VM, optionName, thisVal);
+                    po::notify(m_CmdLine.optionValues.m_VM);
+                }   break;
+
+                default: break;                                         // already checked before we get here
+            }
+        }
+
+        m_CmdLine.complexOptionValues[idx] = std::make_tuple(optionName, details);  // reset values
+
+        retVal = 1;
+        idx--;                                                          // next (outer) iterator
+    }
+
+    return retVal;
 }
-
 
 
 /*
@@ -2212,9 +2333,13 @@ int Options::GetProgramOptionValues() {
  * Intitialises the options service.  Constructs options objects for the program options
  * (options that are specified only on the commandline and that cannot be specified in a 
  * grid file on a per object (star/binary) basis), and the grid file options (options that
- * can be specified in a grid file on a per object (star/binary) basis).  Populates the
- * program options object from the commandline arguments passed to main() - this object
- * stays static throughout the life of the program.
+ * can be specified in a grid file on a per object (star/binary) basis).
+ * 
+ * Initialises the commandline (program-level) options object, and the grid line (evolving 
+ * object-level) options object.  Populates the commandline (program-level) options object
+ * from the commandline arguments passed to main() - this object stays static throughout the
+ * life of the program.
+ * 
  * 
  * bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[])
  * 
@@ -2225,91 +2350,219 @@ int Options::GetProgramOptionValues() {
  */
 bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
 
-    bool ok = true;                                                                                                         // status - unless something changes
+    bool ok = true;                                                                                                 // status - unless something changes
 
     try {
-        m_Program.optionsServed = false;                                                                                    // not yet
 
-        m_Program.optionValues.Initialise();                                                                                // initialise option variables for program options
-        m_EvolvingObject.optionValues.Initialise();                                                                         // initialise option variables for evolving object options
+        m_CmdLine.optionValues.Initialise();                                                                        // initialise option variables for program-level options
+        m_GridLine.optionValues.Initialise();                                                                       // initialise option variables for evolving object-level options
 
-        // initialise program options - these are the options that are specified only on the 
-        // commandline and that cannot be specified in a grid file on a per evolving object (star/binary) basis
-
-        po::options_description programLevelOptions("Program Level Options");                                               // boost options descriptions object for program-level options
-        ok = SetProgramOptions(&m_Program.optionValues, &programLevelOptions);                                              // ... populate
-        if (!ok) {                                                                                                          // ok?
-            COMPLAIN("failed to initialise options descriptions for program-level options");                                // no, complain - this throws an exception
+        po::options_description programLevelOptions("Program Level Options");                                       // boost options descriptions object for program-level options
+        ok = AddOptions(&m_CmdLine.optionValues, &programLevelOptions);                                             // ... add
+        if (!ok) {                                                                                                  // ok?
+            COMPLAIN("failed to initialise options descriptions for program-level options");                        // no, complain - this throws an exception
         }
-        else {                                                                                                              // yes, ok
-            // initialise evolving object options - these are the options that can be specified in a grid file
-            // on a per evolving object (star/binary) basis.  The values of options specified in a grid file
-            // take precedence over the values of the same options specified on the commandline, but only for
-            // the object (star/binary) corresponding to the grid file record.
+        else {                                                                                                      // yes, ok
 
-            po::options_description objectLevelOptions("Star/Binary Level Options");                                        // boost options descriptions object for evolving object (star/binary) level options
-            ok = SetObjectOptions(&m_EvolvingObject.optionValues, &objectLevelOptions);                                     // ... populate
-            if (!ok) {                                                                                                      // ok?
-                COMPLAIN("failed to initialise options descriptions for evolving object-level options");                    // no, complain - this throws an exception
-            }
-            else {                                                                                                          // yes, ok
-                // populate the commandline options
-                // this stays static throughout the life of the program
-                m_Program.optionDescriptions.add(programLevelOptions).add(objectLevelOptions);                              // both program and object options are available on the commandline
+            m_CmdLine.optionDescriptions.add(programLevelOptions);                                                  // commandline options - stays static throughout the life of the program
     
-                // we parse the option values before handing them over to boost
-                // boost knows nothing about ranges and sets, so we have to handlde
-                // them ourselves first
-                m_Program.complexOptionValues = {};                                                                         // no ranges or sets - unless we find them in the parse
-                std::string errStr = ParseOptionValues(p_ArgCount, p_ArgStrings, m_Program);                                // parse the option values - specifically for ranges and sets
-                if (!errStr.empty()) {                                                                                      // parsed ok?
-                    COMPLAIN(errStr);                                                                                       // no, complain - this throws an exception
+            // we parse the option values before handing them over to boost
+            // boost knows nothing about ranges and sets, so we have to handlde
+            // them ourselves first
+            m_CmdLine.complexOptionValues = {};                                                                     // no ranges or sets - unless we find them in the parse
+            std::string errStr = ParseOptionValues(p_ArgCount, p_ArgStrings, m_CmdLine);                            // parse & populate the option values - specifically for ranges and sets
+            if (!errStr.empty()) {                                                                                  // parsed ok?
+                COMPLAIN(errStr);                                                                                   // no, complain - this throws an exception
+            }
+            else {
+                errStr = m_CmdLine.optionValues.CheckAndSetOptions();                                               // yes - sanity check, and set, program-level values
+                if (!errStr.empty()) {                                                                              // check ok?
+                    COMPLAIN(errStr);                                                                               // no, complain - this throws an exception
                 }
                 else {
-                    errStr = m_Program.optionValues.CheckAndSetOptions();                                                   // yes - sanity check, and set, values
-                    if (!errStr.empty()) {                                                                                  // check ok?
-                        COMPLAIN(errStr);                                                                                   // no, complain - this throws an exception
+
+                    m_CmdLineOptionsDetails = OptionDetails(m_CmdLine);                                             // yes - get Run_Details contents
+
+                    // initialise evolving object-level options.  The values of options specified in a 
+                    // grid file take precedence over the values of the same options specified on the 
+                    // commandline, but only for the object (star/binary) corresponding to the grid file
+                    // record.
+
+                    po::options_description objectLevelOptions("Star/Binary Level Options");                        // boost options descriptions object for per object (star/binary) options
+                    ok = AddOptions(&m_GridLine.optionValues, &objectLevelOptions);                                 // ... add
+                    if (!ok) {                                                                                      // ok?
+                        COMPLAIN("Failed to initialise program options descriptions for ObjectOptions");            // no, complain - this throws an exception
                     }
-                    else {
-
-                        m_OptionsDetails = ProgramOptionDetails(&m_Program.optionValues, m_Program.optionValues.m_VM);      // yes - get Run_Details contents
-
-                        m_Opts = &m_Program;                                                                                // point at program options
-
-                        // We now have the options the user entered at the commandline, including any ranges and/or 
-                        // sets, so this is where we stop the initialisation - from here we just play out the options 
-                        // that are specified by any ranges and sets via the GetProgramOptionValues() function.
-                        //
-                        // If the user has specified any ranges or sets we set the options to the first value in each
-                        // range or set (already done by the time we get here).  Calls to GetProgramOptionValues() will
-                        // then advance the option values through the ranges and sets as required - *however*, the very
-                        // first call to GetProgramOptionValues() just returns the options as they are set here, so that 
-                        // a call to GetProgramOptionValues() can be put in a loop, and the first evaluation of the loop
-                        // will be the first star/binary - and if only 1 star/binary is required then no loop, and no call 
-                        // to GetProgramOptionValues() is required (because the initial values have already been set).
-                        //
-                        // Note that there are analogous functikns for object (star/binary) initialisation and retrievel
-                        // option values: InitialiseObject() and GetObjectOptionValues().  These functions intitialise
-                        // and retrieve options specified in grid file records.
+                    else {                                                                                          // yes, ok
+                        m_GridLine.optionDescriptions.add(objectLevelOptions);                                      // grid line options - stays static throughout the life of the program
                     }
+
+                    // We now have the options the user entered at the commandline, including any ranges and/or 
+                    // sets, so this is where we stop the initialisation - from here we just play out the options 
+                    // that are specified by any ranges and sets via the AdvanceCmdLineOptionValues() function.
+                    //
+                    // If the user has specified any ranges or sets we set the options to the first value in each
+                    // range or set (already done by the time we get here).  Calls to AdvanceCmdLineOptionValues()
+                    // will then advance the option values through the ranges and sets as required - *however*, the
+                    // very first call to AdvanceCmdLineOptionValues() just returns the options as they are set here,
+                    // so that a call to AdvanceCmdLineOptionValues() can be put in a loop, and the first evaluation
+                    // of the loop will be the first star/binary - and if only 1 star/binary is required then no loop,
+                    // and no call to AdvanceCmdLineOptionValues() is required (because the initial values have already
+                    // been set).
+                    //
+                    // Note that there are analogous functions for object (star/binary) initialisation and retrievel
+                    // option values: InitialiseObject() and AdvanceGridLineOptionValues().  These functions intitialise
+                    // and retrieve options specified in grid file records.
                 }
             }
         }  
-    } catch (po::error& e) {                                                                                                // program options exception
-        std::cerr << "Program Options error: " << e.what() << std::endl;                                                    // show the problem
-        std::cerr << m_Program.optionDescriptions << std::endl;                                                             // show help
-        ok = false;                                                                                                         // set status
-    }  catch (const std::string eStr) {                                                                                     // custom exception
-        std::cerr << "Program Options error: " << eStr << std::endl;                                                        // show the problem
-        std::cerr << m_Program.optionDescriptions << std::endl;                                                             // show help
-        ok = false;                                                                                                         // set status
-    } catch (...) {                                                                                                         // unhandled exception
-        std::cerr << "Program Options error: unhandled exception" << std::endl;                                             // show the problem
-        std::cerr << m_Program.optionDescriptions << std::endl;                                                             // show help
-        ok = false;                                                                                                         // set status
+    }
+    catch (po::error& e) {                                                                                          // program options exception
+        std::cerr << "Program Options error: " << e.what() << std::endl;                                            // show the problem
+        std::cerr << m_CmdLine.optionDescriptions << std::endl;                                                     // show help
+        ok = false;                                                                                                 // set status
+    } 
+    catch (const std::string eStr) {                                                                                // custom exception
+        std::cerr << "Program Options error: " << eStr << std::endl;                                                // show the problem
+        std::cerr << m_CmdLine.optionDescriptions << std::endl;                                                     // show help
+        ok = false;                                                                                                 // set status
+    }
+    catch (...) {                                                                                                   // unhandled exception
+        std::cerr << "Program Options error: unhandled exception" << std::endl;                                     // show the problem
+        std::cerr << m_CmdLine.optionDescriptions << std::endl;                                                     // show help
+        ok = false;                                                                                                 // set status
     }
 
     return ok;
+}
+
+
+/*
+ * DOCUMENTATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ * 
+ * 
+ * 
+ * return 0 if all done, 1 if new options applied, -1 if problem
+ */
+int Options::AdvanceGridLineOptionValues() {
+
+    int retVal = 0;
+
+    if (m_GridLine.complexOptionValues.size() == 0) return retVal;
+
+    // upon entry iterators for ranges and sets need to be advanced in order
+    // to pick up the correct values to be loaded into the options.  Really
+    // all we need to do is pick up the inner (fastest-counting) iterator (the
+    // right-most in terms of placement on the commandline).  If we have to 
+    // wrap-around to get that value, then we have to increment the next outer
+    // (immediately left) iterator.
+    
+    // traverse each of the complex option values and gather the option values
+    // we only need values for the options that have changing values
+    // values have already been sanity checked by the time we get here
+    // we traverse the complex options values in reverse order because the
+    // fastest change is to the right...
+
+    bool stop  = false;                                                 // stop once we have all the values we need
+    size_t idx = m_GridLine.complexOptionValues.size() - 1;
+    while (!stop && idx >= 0) {
+
+        stop = true;                                                    // assume we have what we need
+
+        std::string optionName        = get<0>(m_GridLine.complexOptionValues[idx]);        
+        RangeOrSetDescriptorT details = get<1>(m_GridLine.complexOptionValues[idx]);
+
+        details.currPos++;                                              // advance iterator
+
+        if (details.type == COMPLEX_TYPE::SET) {                        // SET
+            if (details.currPos >= int(details.parameters.size())) {    // currPos is set position - wrap?
+                if (idx == 0) {                                         // outermost iterator?
+                    retVal = 0;                                         // yes - we're done
+                    break;
+                }
+                else {                                                  // no - wrap
+                    details.currPos = 0;                                // ... back to zero
+                    stop = false;                                       // ... and don't stop at this iterator
+                }
+            }
+            std::string optionValue = details.parameters[details.currPos];  // option value (as string)
+
+            switch (details.dataType) {                                 // which data type?
+
+                case TYPENAME::INT: {                                   // INT
+
+                    int thisVal = std::stoi(optionValue);
+                    m_GridLine.optionValues.ModifyVariableMap(m_GridLine.optionValues.m_VM, optionName, thisVal);
+                    po::notify(m_GridLine.optionValues.m_VM);
+                }   break;
+
+                case TYPENAME::FLOAT: {                                 // FLOAT
+                    double thisVal = std::stod(optionValue);                    
+                    m_GridLine.optionValues.ModifyVariableMap(m_GridLine.optionValues.m_VM, optionName, thisVal);
+                    po::notify(m_GridLine.optionValues.m_VM);
+                }   break;
+
+                case TYPENAME::BOOL: {                                  // BOOL
+                    bool thisVal = (optionValue == "1" || optionValue == "t" || optionValue == "true") ? true : false;
+                    m_CmdLine.optionValues.ModifyVariableMap(m_CmdLine.optionValues.m_VM, optionName, thisVal);
+                    po::notify(m_CmdLine.optionValues.m_VM);
+                }   break;
+
+                case TYPENAME::STRING: {                                // STRING
+                    m_CmdLine.optionValues.ModifyVariableMap(m_CmdLine.optionValues.m_VM, optionName, optionValue);
+                    po::notify(m_CmdLine.optionValues.m_VM);
+                }   break;
+                                
+                default: break;                                         // already checked before we get here
+            }            
+        }
+        else {                                                          // RANGE
+
+            if (details.currPos >= details.rangeParms[1].iVal) {        // currPos is range count - wrap?
+                if (idx == 0) {                                         // outermost iterator?
+                    retVal = 0;                                         // yes - we're done
+                    break;
+                }
+                else {                                                  // no - wrap
+                    details.currPos = 0;                                // ... back to zero
+                    stop = false;                                       // ... and don't stop at this iterator
+                }
+            }
+
+            switch (details.dataType) {                                 // which data type?
+
+                case TYPENAME::INT: {                                   // INT
+
+                    int start = details.rangeParms[0].iVal;
+                    int inc   = details.rangeParms[2].iVal;
+                    int thisVal = start + (details.currPos * inc);
+                    
+                    m_GridLine.optionValues.ModifyVariableMap(m_GridLine.optionValues.m_VM, optionName, thisVal);
+                    po::notify(m_CmdLine.optionValues.m_VM);
+                }   break;
+
+                case TYPENAME::FLOAT: {                                 // FLOAT
+
+                    double start   = details.rangeParms[0].fVal;
+                    double inc     = details.rangeParms[2].fVal;
+                    double thisVal = start + (details.currPos * inc);
+                    
+                    m_GridLine.optionValues.ModifyVariableMap(m_GridLine.optionValues.m_VM, optionName, thisVal);
+                    po::notify(m_GridLine.optionValues.m_VM);
+                }   break;
+
+                default: break;                                         // already checked before we get here
+            }
+
+        }
+
+        m_GridLine.complexOptionValues[idx] = std::make_tuple(optionName, details);  // reset values
+
+        retVal = 1;
+        idx--;                                                          // next (outer) iterator
+    }
+
+    return retVal;
 }
 
 
@@ -2329,128 +2582,61 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
  */
 bool Options::InitialiseObject(const std::string p_OptionsString) {
 
-    bool ok = true;                                                                                                         // status - unless something changes
-
-    po::options_description gridfileOptions;                                                                                // boost options descriptions object for options available on commandline
+    bool ok = true;                                                                                                 // status - unless something changes
 
     try {
 
         // parse the option string (just as the OS/shell would do)
 
-        std::vector<std::string> parsedStrings;                                                                             // parsed option strings
+        std::vector<std::string> parsedStrings;                                                                     // parsed option strings
 
-        size_t start      = 0;                                                                                              // start position of parsed option string
-        size_t end        = 0;                                                                                              // end position of parsed option strinf
-        std::string delim = " ";                                                                                            // delimiter
-        while (end != string::npos) {                                                                                       // iterate over input string
-            end = p_OptionsString.find(delim, start);                                                                       // find delimiter
-            std::string s = p_OptionsString.substr(start, end - start);                                                     // grab option/argument string
-            parsedStrings.push_back(utils::trim(s));                                                                        // trim whitespace and store
-            start = end + delim.length();                                                                                   // new start position
+        size_t start      = 0;                                                                                      // start position of parsed option string
+        size_t end        = 0;                                                                                      // end position of parsed option strinf
+        std::string delim = " ";                                                                                    // delimiter
+        while (end != string::npos) {                                                                               // iterate over input string
+            end = p_OptionsString.find(delim, start);                                                               // find delimiter
+            std::string s = p_OptionsString.substr(start, end - start);                                             // grab option/argument string
+            parsedStrings.push_back(utils::trim(s));                                                                // trim whitespace and store
+            start = end + delim.length();                                                                           // new start position
         }
     
-        std::vector<char const*> args {"placeHolder"};                                                                      // place-holder - boost expects command name as argv[0]
-        for (auto& arg : parsedStrings)                                                                                     // iterate over the parsed strings
-            args.push_back(arg.c_str());                                                                                    // and grab the c_str  
+        std::vector<char const *> args {"placeHolder"};                                                             // place-holder - boost expects command name as argv[0]
+        for (auto& arg : parsedStrings)                                                                             // iterate over the parsed strings
+            args.push_back(arg.c_str());                                                                            // and grab the c_str  
 
-        m_EvolvingObject.optionValues = m_Program.optionValues;                                                             // start with program/commandline options
-
-        // initialise object options - these are the options that can be specified in a grid 
-        // file on a per object (star/binary) basis.  The values of options specified in a grid 
-        // file take precedence over the values of the same options specified on the commandline,
-        // but only for the object (star/binary) corresponding to the grid file record.
-
-        po::options_description objectLevelOptions("Star/Binary Level Options");                                            // boost options descriptions object for per object (star/binary) options
-        ok = SetObjectOptions(&m_EvolvingObject.optionValues, &objectLevelOptions);                                         // ... populate
-        if (!ok) {                                                                                                          // ok?
-            COMPLAIN("Failed to initialise program options descriptions for ObjectOptions");                                // no, complain - this throws an exception
+        // parse the option values before handing them over to boost
+        // boost knows nothing about ranges and sets, so we have to handlde
+        // them ourselves first
+        m_GridLine.complexOptionValues = {};                                                                        // no ranges or sets - unless we find them in the parse
+                                                    /*****  << do *not* try this at home >> *****/
+        std::string errStr = ParseOptionValues(args.size(), const_cast<char**>(args.data()), m_GridLine);           // parse the option values - specifically for ranges and sets
+        if (!errStr.empty()) {                                                                                      // parsed ok?
+            COMPLAIN(errStr);                                                                                       // no, complain - this throws an exception
         }
-        else {                                                                                                              // yes, ok
-
-            // populate the grid file options
-            // this changes for every record in the grid file
-
-            m_EvolvingObject.optionDescriptions.add(objectLevelOptions);                                                    // object options only
-            po::parsed_options const parsedOptions = po::parse_command_line(args.size(), args.data(), gridfileOptions);     // parse user-supplied options
-
-            po::store(parsedOptions, m_EvolvingObject.optionValues.m_VM);                                                   // store parsed options into variable map
-            po::notify(m_EvolvingObject.optionValues.m_VM);                                                                 // populate the variables with option values
-
-            m_EvolvingObject.optionValues.CheckAndSetOptions();                                                             // check user-supplied options and set values as appropriate
-    
-            m_Opts = &m_EvolvingObject;   // REVISIT THIS!!!!!!!!!!!!!!!!!                                                                                  // point at object options
+        else {
+            errStr = m_GridLine.optionValues.CheckAndSetOptions();                                                  // yes - sanity check, and set, evolving object-level values
+            if (!errStr.empty()) {                                                                                  // check ok?
+                COMPLAIN(errStr);                                                                                   // no, complain - this throws an exception
+            }
         }
-
-    } catch (po::error& e) {                                                                                                // program options exception
-        std::cerr << "Program Options error: " << e.what() << std::endl;
-        std::cerr << gridfileOptions << std::endl;
-        ok = false;                                                                                                         // set status
-    } catch (...) {                                                                                                           // unhandled exception - something wrong...
-        std::cerr << "Program Options error: unhandled exception" << std::endl;
-        std::cerr << gridfileOptions << std::endl;
-        ok = false;                                                                                                         // set status
+    }
+    catch (po::error& e) {                                                                                          // program options exception
+        std::cerr << "Program Options error: " << e.what() << std::endl;                                            // show the problem
+        std::cerr << m_GridLine.optionDescriptions << std::endl;                                                    // show help
+        ok = false;                                                                                                 // set status
+    } 
+    catch (const std::string eStr) {                                                                                // custom exception
+        std::cerr << "Program Options error: " << eStr << std::endl;                                                // show the problem
+        std::cerr << m_GridLine.optionDescriptions << std::endl;                                                    // show help
+        ok = false;                                                                                                 // set status
+    }
+    catch (...) {                                                                                                   // unhandled exception
+        std::cerr << "Program Options error: unhandled exception" << std::endl;                                     // show the problem
+        std::cerr << m_GridLine.optionDescriptions << std::endl;                                                    // show help
+        ok = false;                                                                                                 // set status
     }
     
     return ok;
-}
-
-
-/*
- * Determine the value of the requested program option
- *
- * The property is a boost variant variable, and is one of the following types:
- *
- *      STAR_PROPERTY           - any individual star property
- *      STAR_1_PROPERTY         - property of the primary (m_Star1)
- *      STAR_2_PROPERTY         - property of the secondary (m_Star2)
- *      SUPERNOVA_PROPERTY      - property of the star that has gone supernova
- *      COMPANION_PROPERTY      - property of the companion to the supernova
- *      BINARY_PROPERTY         - property of the binary
- *      PROGRAM_OPTION          - program option
- *
- * This function handles properties of type PROGRAM_OPTION
- *
- * This is the function used to retrieve values for properties required to be printed.
- * This allows the composition of the log records to be dynamically modified - this is
- * how we allow users to specify what properties they want recorded in log files.
- *
- * The functional return is the value of the property requested.  The type of the
- * functional return is a tuple: std::tuple<bool, COMPAS_VARIABLE_TYPE>.  This type
- * is COMPAS_VARIABLE by typedef.
- *
- * The bool returned indicates whether the property value was retrieved ok: true = yes, fales = no
- * The COMPAS_VARIABLE_TYPE variable returned is a boost variant variable, the value of which is the
- * value of the underlying primitive variable.
- *
- *
- * COMPAS_VARIABLE OptionValue(const T_ANY_PROPERTY p_Property) const
- *
- * @param   [IN]    p_Property                  The property for which the value is required
- * @return                                      The value of the requested property
- */
-COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
-
-    bool ok = true;                                                                                                     // status - unless a problem occurs
-
-    COMPAS_VARIABLE_TYPE value;                                                                                         // default property value
-
-    PROGRAM_OPTION property = boost::get<PROGRAM_OPTION>(p_Property);                                                   // get property
-                                                                                                                        // get property value
-    switch (property) {
-
-        case PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_BH:  value = KickMagnitudeDistributionSigmaCCSN_BH(); break;
-        case PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_NS:  value = KickMagnitudeDistributionSigmaCCSN_NS(); break;
-        case PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_ECSN: value = KickMagnitudeDistributionSigmaForECSN(); break;
-        case PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_USSN: value = KickMagnitudeDistributionSigmaForUSSN(); break;
-        case PROGRAM_OPTION::RANDOM_SEED:                                value = RandomSeed();                            break;
-
-        default:                                                                                                        // unknown property
-            ok    = false;                                                                                              // that's not ok...
-            value = "UNKNOWN";                                                                                          // default value
-            std::cerr << ERR_MSG(ERROR::UNKNOWN_PROGRAM_OPTION) << std::endl;                                           // show warning (don't have logging or errors here...)
-    }
-
-    return std::make_tuple(ok, value);
 }
 
 
@@ -2474,14 +2660,14 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
  * stored in the struct.  
  * 
  * 
- * int ApplyNextGridRecord()
+ * int ApplyNextGridLine()
  * 
  * @return                                      Int result:
  *                                                  -1: Error reading grid file record (error value in grid file struct)
  *                                                   0: No record to read - end of file
  *                                                   1: Grid file record read and applied ok
  */
-int Options::ApplyNextGridRecord() {
+int Options::ApplyNextGridLine() {
 
     int status = -1;                                        // default status is failure
 
@@ -2532,4 +2718,242 @@ ERROR Options::OpenGridFile(const std::string p_GridFilename) {
     else m_Gridfile.error = ERROR::EMPTY_FILENAME;              // empty filename
 
     return m_Gridfile.error;
+}
+
+
+/*
+ * Determine the value of the requested program option
+ *
+ * The property is a boost variant variable, and is one of the following types:
+ *
+ *      STAR_PROPERTY           - any individual star property
+ *      STAR_1_PROPERTY         - property of the primary (m_Star1)
+ *      STAR_2_PROPERTY         - property of the secondary (m_Star2)
+ *      SUPERNOVA_PROPERTY      - property of the star that has gone supernova
+ *      COMPANION_PROPERTY      - property of the companion to the supernova
+ *      BINARY_PROPERTY         - property of the binary
+ *      PROGRAM_OPTION          - program option
+ *
+ * This function handles properties of type PROGRAM_OPTION
+ *
+ * This is the function used to retrieve values for properties required to be printed.
+ * This allows the composition of the log records to be dynamically modified - this is
+ * how we allow users to specify what properties they want recorded in log files.
+ *
+ * The functional return is the value of the property requested.  The type of the
+ * functional return is a tuple: std::tuple<bool, COMPAS_VARIABLE_TYPE>.  This type
+ * is COMPAS_VARIABLE by typedef.
+ *
+ * The bool returned indicates whether the property value was retrieved ok: true = yes, fales = no
+ * The COMPAS_VARIABLE_TYPE variable returned is a boost variant variable, the value of which is the
+ * value of the underlying primitive variable.
+ *
+ *
+ * COMPAS_VARIABLE OptionValue(const T_ANY_PROPERTY p_Property) const
+ *
+ * @param   [IN]    p_Property                  The property for which the value is required
+ * @return                                      The value of the requested property
+ */
+COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
+
+    bool ok = true;                                                                                                     // status - unless a problem occurs
+
+    COMPAS_VARIABLE_TYPE value;                                                                                         // default property value
+
+    PROGRAM_OPTION property = boost::get<PROGRAM_OPTION>(p_Property);                                                   // get property
+                                                                                                                        // get property value
+    switch (property) {
+
+        // Floor
+        /*
+        case PROGRAM_OPTION::AIS_DCO_TYPE                                   : value = AIS_DCOType();                                                        break;
+        case PROGRAM_OPTION::AIS_EXPLORATORY_PHASE                          : value = AIS_ExploratoryPhase();                                               break;
+        case PROGRAM_OPTION::AIS_HUBBLE                                     : value = AIS_Hubble();                                                         break;
+        case PROGRAM_OPTION::AIS_PESSIMISTIC                                : value = AIS_Pessimistic();                                                    break;
+        case PROGRAM_OPTION::AIS_REFINEMENT_PHASE                           : value = AIS_RefinementPhase();                                                break;
+        case PROGRAM_OPTION::AIS_RLOF                                       : value = AIS_RLOF();                                                           break;
+        */
+
+        case PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE       : value = AllowMainSequenceStarToSurviveCommonEnvelope();                       break;
+        case PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH                            : value = AllowRLOFAtBirth();                                                   break;
+        case PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH                        : value = AllowTouchingAtBirth();                                               break;
+        case PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION    : value = AngularMomentumConservationDuringCircularisation();                   break;
+
+        // Serena
+        //case PROGRAM_OPTION::BE_BINARIES                                    : value = BeBinaries();                                                         break;
+
+        case PROGRAM_OPTION::BLACK_HOLE_KICKS_OPTION                        : value = static_cast<int>(BlackHoleKicksOption());                             break;
+
+        case PROGRAM_OPTION::EVOLUTION_MODE                                 : value = static_cast<int>(EvolutionMode());                                    break;
+    
+        case PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION                 : value = static_cast<int>(CaseBBStabilityPrescription());                      break;
+    
+        case PROGRAM_OPTION::CHE_OPTION                                     : value = static_cast<int>(CHE_Option());                                       break;
+
+        case PROGRAM_OPTION::CIRCULARISE_BINARY_DURING_MT                   : value = CirculariseBinaryDuringMassTransfer();                                break;
+
+        case PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA                          : value = CommonEnvelopeAlpha();                                                break;
+        case PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA_THERMAL                  : value = CommonEnvelopeAlphaThermal();                                         break;
+        case PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA                         : value = CommonEnvelopeLambda();                                               break;
+        case PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_MULTIPLIER              : value = CommonEnvelopeLambdaMultiplier();                                     break;
+        case PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_PRESCRIPTION            : value = static_cast<int>(CommonEnvelopeLambdaPrescription());                 break;
+        case PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_CONSTANT        : value = CommonEnvelopeMassAccretionConstant();                                break;
+        case PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_MAX             : value = CommonEnvelopeMassAccretionMax();                                     break;
+        case PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_MIN             : value = CommonEnvelopeMassAccretionMin();                                     break;
+        case PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION    : value = static_cast<int>(CommonEnvelopeMassAccretionPrescription());          break;
+        case PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY   : value = CommonEnvelopeRecombinationEnergyDensity();                           break;
+        case PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW                  : value = CommonEnvelopeSlopeKruckow();                                         break;
+
+        case PROGRAM_OPTION::ECCENTRICITY                                   : value = Eccentricity();                                                       break;
+        case PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION                      : value = static_cast<int>(EccentricityDistribution());                         break;
+        case PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MAX                  : value = EccentricityDistributionMax();                                        break;
+        case PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MIN                  : value = EccentricityDistributionMin();                                        break;
+        case PROGRAM_OPTION::EDDINGTON_ACCRETION_FACTOR                     : value = EddingtonAccretionFactor();                                           break;
+        case PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION                    : value = static_cast<int>(EnvelopeStatePrescription());                        break;
+
+        case PROGRAM_OPTION::FRYER_SUPERNOVA_ENGINE                         : value = static_cast<int>(FryerSupernovaEngine());                             break;
+
+        case PROGRAM_OPTION::INITIAL_MASS                                   : value = InitialMass();                                                        break;
+        case PROGRAM_OPTION::INITIAL_MASS_1                                 : value = InitialMass1();                                                       break;
+        case PROGRAM_OPTION::INITIAL_MASS_2                                 : value = InitialMass2();                                                       break;
+
+        case PROGRAM_OPTION::INITIAL_MASS_FUNCTION                          : value = static_cast<int>(InitialMassFunction());                              break;
+        case PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX                      : value = InitialMassFunctionMax();                                             break;
+        case PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN                      : value = InitialMassFunctionMin();                                             break;
+        case PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER                     : value = InitialMassFunctionPower();                                           break;
+
+        case PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION                    : value = static_cast<int>(KickDirectionDistribution());                        break;
+        case PROGRAM_OPTION::KICK_DIRECTION_POWER                           : value = KickDirectionPower();                                                 break;
+        case PROGRAM_OPTION::KICK_SCALING_FACTOR                            : value = KickScalingFactor();                                                  break;
+        case PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION                    : value = static_cast<int>(KickMagnitudeDistribution());                        break;
+        case PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_MAXIMUM            : value = KickMagnitudeDistributionMaximum();                                   break;
+
+        case PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_BH      : value = KickMagnitudeDistributionSigmaCCSN_BH();                              break;
+        case PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_NS      : value = KickMagnitudeDistributionSigmaCCSN_NS();                              break;
+        case PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_ECSN     : value = KickMagnitudeDistributionSigmaForECSN();                              break;
+        case PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_USSN     : value = KickMagnitudeDistributionSigmaForUSSN();                              break;
+
+        case PROGRAM_OPTION::KICK_MAGNITUDE                                 : value = KickMagnitude();                                                      break;
+        case PROGRAM_OPTION::KICK_MAGNITUDE_1                               : value = KickMagnitude1();                                                     break;
+        case PROGRAM_OPTION::KICK_MAGNITUDE_2                               : value = KickMagnitude2();                                                     break;
+
+        case PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM                          : value = KickMagnitudeRandom();                                                break;
+        case PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM_1                        : value = KickMagnitudeRandom1();                                               break;
+        case PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM_2                        : value = KickMagnitudeRandom2();                                               break;
+
+        case PROGRAM_OPTION::KICK_MEAN_ANOMALY_1                            : value = SN_MeanAnomaly1();                                                    break;
+        case PROGRAM_OPTION::KICK_MEAN_ANOMALY_2                            : value = SN_MeanAnomaly2();                                                    break;
+        case PROGRAM_OPTION::KICK_PHI_1                                     : value = SN_Phi1();                                                            break;
+        case PROGRAM_OPTION::KICK_PHI_2                                     : value = SN_Phi2();                                                            break;
+        case PROGRAM_OPTION::KICK_THETA_1                                   : value = SN_Theta1();                                                          break;
+        case PROGRAM_OPTION::KICK_THETA_2                                   : value = SN_Theta2();                                                          break;
+
+        case PROGRAM_OPTION::LBV_FACTOR                                     : value = LuminousBlueVariableFactor();                                         break;
+
+        case PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION                         : value = static_cast<int>(MassLossPrescription());                             break;
+
+        case PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION                        : value = static_cast<int>(MassRatioDistribution());                            break;
+        case PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MAX                    : value = MassRatioDistributionMax();                                           break;
+        case PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MIN                    : value = MassRatioDistributionMin();                                           break;
+
+        case PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION           : value = static_cast<int>(MassTransferAccretionEfficiencyPrescription());      break;
+        case PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION                   : value = static_cast<int>(MassTransferAngularMomentumLossPrescription());      break;
+        case PROGRAM_OPTION::MT_C_PARAMETER                                 : value = MassTransferCParameter();                                             break;
+
+        // AVG
+        /*
+        case PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS                         : value = MassTransferCriticalMassRatioMSLowMass();                             break;
+        case PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS_DEGENERATE_ACCRETOR     : value = MassTransferCriticalMassRatioMSLowMassDegenerateAccretor();           break;
+        case PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS_NON_DEGENERATE_ACCRETOR : value = MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor();        break;
+        case PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS                        : value = MassTransferCriticalMassRatioMSHighMass();                            break;
+        case PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS_DEGENERATE_ACCRETOR    : value = MassTransferCriticalMassRatioMSHighMassDegenerateAccretor();          break;
+        case PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS_NON_DEGENERATE_ACCRETOR: value = MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor();       break;
+        case PROGRAM_OPTION::MT_CRIT_MR_GIANT                               : value = MassTransferCriticalMassRatioGiant();                                 break;
+        case PROGRAM_OPTION::MT_CRIT_MR_GIANT_DEGENERATE_ACCRETOR           : value = MassTransferCriticalMassRatioGiantDegenerateAccretor();               break;
+        case PROGRAM_OPTION::MT_CRIT_MR_GIANT_NON_DEGENERATE_ACCRETOR       : value = MassTransferCriticalMassRatioGiantNonDegenerateAccretor();            break;
+        case PROGRAM_OPTION::MT_CRIT_MR_HG                                  : value = MassTransferCriticalMassRatioHG();                                    break;
+        case PROGRAM_OPTION::MT_CRIT_MR_HG_DEGENERATE_ACCRETOR              : value = MassTransferCriticalMassRatioHGDegenerateAccretor();                  break;
+        case PROGRAM_OPTION::MT_CRIT_MR_HG_NON_DEGENERATE_ACCRETOR          : value = MassTransferCriticalMassRatioHGNonDegenerateAccretor();               break;
+        case PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT                            : value = MassTransferCriticalMassRatioHeliumGiant();                           break;
+        case PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT_DEGENERATE_ACCRETOR        : value = MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor();         break;
+        case PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT_NON_DEGENERATE_ACCRETOR    : value = MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor();      break;
+        case PROGRAM_OPTION::MT_CRIT_MR_HE_HG                               : value = MassTransferCriticalMassRatioHeliumHG();                              break;
+        case PROGRAM_OPTION::MT_CRIT_MR_HE_HG_DEGENERATE_ACCRETOR           : value = MassTransferCriticalMassRatioHeliumHGDegenerateAccretor();            break;
+        case PROGRAM_OPTION::MT_CRIT_MR_HE_HG_NON_DEGENERATE_ACCRETOR       : value = MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor();         break;
+        case PROGRAM_OPTION::MT_CRIT_MR_HE_MS                               : value = MassTransferCriticalMassRatioHeliumMS();                              break;
+        case PROGRAM_OPTION::MT_CRIT_MR_HE_MS_DEGENERATE_ACCRETOR           : value = MassTransferCriticalMassRatioHeliumMSDegenerateAccretor();            break;
+        case PROGRAM_OPTION::MT_CRIT_MR_HE_MS_NON_DEGENERATE_ACCRETOR       : value = MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor();         break;
+        case PROGRAM_OPTION::MT_CRIT_MR_WD                                  : value = MassTransferCriticalMassRatioWhiteDwarf();                            break;
+        case PROGRAM_OPTION::MT_CRIT_MR_WD_DEGENERATE_ACCRETOR              : value = MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor();          break;
+        case PROGRAM_OPTION::MT_CRIT_MR_WD_NONDEGENERATE_ACCRETOR           : value = MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor();       break;
+        */
+
+        case PROGRAM_OPTION::MT_FRACTION_ACCRETED                           : value = MassTransferFractionAccreted();                                       break;
+        case PROGRAM_OPTION::MT_JLOSS                                       : value = MassTransferJloss();                                                  break;
+        case PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION                   : value = static_cast<int>(MassTransferRejuvenationPrescription());             break;
+        case PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION                 : value = static_cast<int>(MassTransferThermallyLimitedVariation());            break;
+
+        case PROGRAM_OPTION::MCBUR1                                         : value = MCBUR1();                                                             break;
+
+        case PROGRAM_OPTION::METALLICITY                                    : value = Metallicity();                                                        break;
+
+        case PROGRAM_OPTION::MINIMUM_MASS_SECONDARY                         : value = MinimumMassSecondary();                                               break;
+        case PROGRAM_OPTION::MAXIMUM_NEUTRON_STAR_MASS                      : value = MaximumNeutronStarMass();                                             break;
+
+        case PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH               : value = static_cast<int>(NeutrinoMassLossAssumptionBH());                     break;
+        case PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH                    : value = NeutrinoMassLossValueBH();                                            break;
+
+        case PROGRAM_OPTION::NS_EOS                                         : value = static_cast<int>(NeutronStarEquationOfState());                       break;
+
+        case PROGRAM_OPTION::PISN_LOWER_LIMIT                               : value = PairInstabilityLowerLimit();                                          break;
+        case PROGRAM_OPTION::PISN_UPPER_LIMIT                               : value = PairInstabilityUpperLimit();                                          break;
+
+        case PROGRAM_OPTION::PERIOD_DISTRIBUTION_MAX                        : value = PeriodDistributionMax();                                              break;
+        case PROGRAM_OPTION::PERIOD_DISTRIBUTION_MIN                        : value = PeriodDistributionMin();                                              break;
+
+        case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION             : value = static_cast<int>(PulsarBirthMagneticFieldDistribution());             break;
+        case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MAX         : value = PulsarBirthMagneticFieldDistributionMax();                            break;
+        case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MIN         : value = PulsarBirthMagneticFieldDistributionMin();                            break;
+
+        case PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION          : value = static_cast<int>(PulsarBirthSpinPeriodDistribution());                break;
+        case PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_MAX      : value = PulsarBirthSpinPeriodDistributionMax();                               break;
+        case PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_MIN      : value = PulsarBirthSpinPeriodDistributionMin();                               break;
+
+        case PROGRAM_OPTION::PULSAR_LOG10_MINIMUM_MAGNETIC_FIELD            : value = PulsarLog10MinimumMagneticField();                                    break;
+
+        case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_MASS_SCALE         : value = PulsarMagneticFieldDecayMassscale();                                  break;
+        case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE         : value = PulsarMagneticFieldDecayTimescale();                                  break;
+
+        case PROGRAM_OPTION::PPI_PRESCRIPTION                               : value = static_cast<int>(PulsationalPairInstabilityPrescription());           break;
+        case PROGRAM_OPTION::PPI_LOWER_LIMIT                                : value = PulsationalPairInstabilityLowerLimit();                               break;
+        case PROGRAM_OPTION::PPI_UPPER_LIMIT                                : value = PulsationalPairInstabilityUpperLimit();                               break;
+
+        case PROGRAM_OPTION::RANDOM_SEED                                    : value = RandomSeed();                                                         break;
+        case PROGRAM_OPTION::RANDOM_SEED_CMDLINE                            : value = RandomSeedCmdLine();                                                  break;
+
+        case PROGRAM_OPTION::REMNANT_MASS_PRESCRIPTION                      : value = static_cast<int>(RemnantMassPrescription());                          break;
+
+        case PROGRAM_OPTION::ROTATIONAL_VELOCITY_DISTRIBUTION               : value = static_cast<int>(RotationalVelocityDistribution());                   break;
+   
+        case PROGRAM_OPTION::SEMI_MAJOR_AXIS                                : value = SemiMajorAxis();                                                      break;
+        case PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION                   : value = static_cast<int>(SemiMajorAxisDistribution());                        break;
+        case PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MAX               : value = SemiMajorAxisDistributionMax();                                       break;
+        case PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MIN               : value = SemiMajorAxisDistributionMin();                                       break;
+        case PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_POWER             : value = SemiMajorAxisDistributionPower();                                     break;
+
+        case PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION                      : value = static_cast<int>(StellarZetaPrescription());                          break;
+
+        case PROGRAM_OPTION::WR_FACTOR                                      : value = WolfRayetFactor();                                                    break;
+
+        case PROGRAM_OPTION::ZETA_RADIATIVE_ENVELOPE_GIANT                  : value = ZetaRadiativeEnvelopeGiant();                                         break;
+        case PROGRAM_OPTION::ZETA_MS                                        : value = ZetaMainSequence();                                                   break;
+        case PROGRAM_OPTION::ZETA_ADIABATIC_ARBITRARY                       : value = ZetaAdiabaticArbitrary();                                             break;
+
+        default:                                                                                                        // unknown property
+            ok    = false;                                                                                              // that's not ok...
+            value = "UNKNOWN";                                                                                          // default value
+            std::cerr << ERR_MSG(ERROR::UNKNOWN_PROGRAM_OPTION) << std::endl;                                           // show warning (don't have logging or errors here...)
+    }
+
+    return std::make_tuple(ok, value);
 }
