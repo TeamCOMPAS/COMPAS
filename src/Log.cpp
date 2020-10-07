@@ -238,8 +238,8 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
 
             m_RunDetailsFile << "Wall time  = " << wallHH << ":" << wallMM << ":" << wallSS << " (hh:mm:ss)" << std::endl; 
 
-            m_RunDetailsFile << "\n\n" << OPTIONS->OptionsDetails();                                            // record the options details string
-            m_RunDetailsFile << "Actual random seed = " << (OPTIONS->FixedRandomSeed() ? OPTIONS->RandomSeed() : RAND->DefaultSeed()) << ", CALCULATED, UNSIGNED_LONG" << std::endl;    // actual random seed
+            m_RunDetailsFile << "\n\n" << OPTIONS->CmdLineOptionsDetails();                                     // record the commandline options details string
+            m_RunDetailsFile << "Actual random seed = " << (OPTIONS->FixedRandomSeedCmdLine() ? OPTIONS->RandomSeedCmdLine() : RAND->DefaultSeed()) << ", CALCULATED, UNSIGNED_LONG" << std::endl;    // actual random seed
         }
         catch (const std::ofstream::failure &e) {                                                               // problem...
             Squawk("ERROR: Unable to update run details file with file name " + filename);                      // announce error

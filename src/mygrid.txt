@@ -1,1 +1,2 @@
-kick-direction = 1.2
+--wolf-rayet-multiplier s[2.3,4.6,7.8,9.0] --common-envelope-alpha r[1.0,3,0.1]
+--initial-mass-1 1.0 --initial-mass-2 3.0

@@ -269,27 +269,39 @@ void BaseBinaryStar::SetInitialValues(const AIS &p_AIS, const long int p_Id) {
 
 
     // binary stars generate their own random seed, and pass that to their constituent stars
+    // 
+    // there are three scenarios:
+    //
+    // if the user did not specify a random seed, either on the commandline or in a grid file
+    // record, we use a randomly chosen seed, based on the system time.
+    //
+    // if the user specified a random seed on the commandline, and not in the grid file for
+    // the current binary, the random seed specified on the commandline is used - and the 'id'
+    // offset applied
+    //
+    // if the user specified a random seed in the grid file for the current binary, regardless
+    // of whether a random seed was specified on the commandline, the random seed from the grid
+    // file is used, and no offset is added (i.e. the random seed specified is used as it).
+    // note that in this scenario it is the user's responsibility to ensure that there is no
+    // duplication of seeds.
 
-    OBJECT_ID id = p_Id < 0 ? m_ObjectId : p_Id;                                                                                                // for legacy testing
+    OBJECT_ID id = p_Id < 0 ? m_ObjectId : p_Id;                                                        // for legacy testing
 
-    if (OPTIONS->FixedRandomSeed()) {                                                                                                           // user supplied seed for the random number generator?
-
-        m_RandomSeed = RAND->Seed(OPTIONS->RandomSeed() + id);                                                                                  // yes - this allows the user to reproduce results for each binary
-
-        if (OPTIONS->PopulationDataPrinting()) {                                                                                                // JR: todo: what is the aim of PopulationDataPrinting?
-            SAY("Using supplied random seed " << m_RandomSeed << " for Binary Star id = " << m_ObjectId);
-        }
+    if (OPTIONS->FixedRandomSeedGridLine()) {                                                           // user specified a random seed in the grid file for this binary?
+        m_RandomSeed = OPTIONS->RandomSeedGridLine();                                                   // yes - use it as is
     }
-    else {                                                                                                                                      // no
-
-        m_RandomSeed = RAND->Seed(RAND->DefaultSeed() + id);                                                                                    // use default seed (based on system time) + id
-
-        if (OPTIONS->PopulationDataPrinting()) {                                                                                                // JR: todo: what is the aim of PopulationDataPrinting?
-            SAY("Using default random seed " << m_RandomSeed << " for Binary Star id = " << m_ObjectId);
-        }
+    else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                       // no - user supplied seed for the random number generator?
+        m_RandomSeed = RAND->Seed(OPTIONS->RandomSeedCmdLine() + id);                                   // yes - this allows the user to reproduce results for each binary
+    }
+    else {                                                                                              // no
+        m_RandomSeed = RAND->Seed(RAND->DefaultSeed() + id);                                            // use default seed (based on system time) + id
     }
 
-    m_AIS = p_AIS;                                                                                                                              // Adaptive Importance Sampling
+    if (OPTIONS->PopulationDataPrinting()) {                                                            // user wants to see details of binary?
+        SAY("Using supplied random seed " << m_RandomSeed << " for Binary Star id = " << m_ObjectId);   // yes - show them
+    }
+
+    m_AIS = p_AIS;                                                                                      // Adaptive Importance Sampling
 
     // apply option values for initial values
 
@@ -345,7 +357,7 @@ void BaseBinaryStar::SetRemainingValues() {
         // newly-assigned rotational frequencies
 
         // star 1
-        if (utils::Compare(m_Star1->Omega(), m_Star1->OmegaCHE()) >= 0) {                                                                              // star 1 CH?
+        if (utils::Compare(m_Star1->Omega(), m_Star1->OmegaCHE()) >= 0) {                                                                               // star 1 CH?
             if (m_Star1->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star1->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not alread Chemically Homogeneous
         }
         else if (m_Star1->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
@@ -356,7 +368,7 @@ void BaseBinaryStar::SetRemainingValues() {
         }
 
         // star 2
-        if (utils::Compare(m_Star1->Omega(), m_Star2->OmegaCHE()) >= 0) {                                                                              // star 2 CH?
+        if (utils::Compare(m_Star1->Omega(), m_Star2->OmegaCHE()) >= 0) {                                                                               // star 2 CH?
             if (m_Star2->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star2->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not alread Chemically Homogeneous
         }
         else if (m_Star2->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
