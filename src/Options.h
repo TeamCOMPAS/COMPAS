@@ -108,7 +108,7 @@ public:
             int                                         m_nBatchesUsed;                                                 // Number of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
 
 
-            // Micellaneous evolution variables
+            // Miscellaneous evolution variables
             EVOLUTION_MODE                              m_EvolutionMode;                                                // Mode of evolution: SSE or BSE
             string                                      m_EvolutionModeString;
 
@@ -118,6 +118,7 @@ public:
     
             double                                      m_MaxEvolutionTime;                                             // Maximum time to evolve a binary by
             int                                         m_MaxNumberOfTimestepIterations;                                // Maximum number of timesteps to evolve binary for before giving up
+            double                                      m_TimestepMultiplier;                                           // Multiplier for time step size (<1 -- shorter timesteps, >1 -- longer timesteps)
 
             // Initial distribution variables
 

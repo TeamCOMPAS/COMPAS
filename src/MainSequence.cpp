@@ -276,7 +276,7 @@ double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const doubl
 
 /*
  * Calculate the radius constant alpha_R
- * Hurley et al. 2000, eqs 21 & 21a
+ * Hurley et al. 2000, eqs 21a & 21b
  *
  *
  * double CalculateAlphaR(const double p_Mass)
@@ -291,11 +291,11 @@ double MainSequence::CalculateAlphaR(const double p_Mass) {
     double alphaR = 0.0;
 
          if (utils::Compare(p_Mass,   0.5) <  0) alphaR = a[62];
-    else if (utils::Compare(p_Mass,  0.65) <  0) alphaR = a[62] + ((a[63] - a[62]) * (p_Mass - 0.5) / 0.15);
-    else if (utils::Compare(p_Mass, a[68]) <  0) alphaR = a[63] + ((a[64] - a[63]) * (p_Mass - 0.65) / (a[68 - 1] - 0.65));
-    else if (utils::Compare(p_Mass, a[66]) <  0) alphaR = a[64] + ((m_RConstants[static_cast<int>(R_CONSTANTS::B_ALPHA_R)] - a[64]) * (p_Mass - a[68]) / (a[66] - a[68]));
-    else if (utils::Compare(p_Mass, a[67]) <= 0) alphaR = (a[58] * PPOW(p_Mass, a[60])) / (a[59] + PPOW(p_Mass, a[61]));
-    else                                         alphaR = m_RConstants[static_cast<int>(R_CONSTANTS::C_ALPHA_R)] + (a[65] * (p_Mass - a[67]));
+    else if (utils::Compare(p_Mass,  0.65) <  0) alphaR = a[62] + (a[63] - a[62]) * (p_Mass - 0.5) / 0.15;
+    else if (utils::Compare(p_Mass, a[68]) <  0) alphaR = a[63] + (a[64] - a[63]) * (p_Mass - 0.65) / (a[68] - 0.65);
+    else if (utils::Compare(p_Mass, a[66]) <  0) alphaR = a[64] + (m_RConstants[static_cast<int>(R_CONSTANTS::B_ALPHA_R)] - a[64]) * (p_Mass - a[68]) / (a[66] - a[68]);
+    else if (utils::Compare(p_Mass, a[67]) <= 0) alphaR = a[58] * PPOW(p_Mass, a[60]) / (a[59] + PPOW(p_Mass, a[61]));
+    else                                         alphaR = m_RConstants[static_cast<int>(R_CONSTANTS::C_ALPHA_R)] + a[65] * (p_Mass - a[67]);
 
     return alphaR;
 
@@ -320,10 +320,10 @@ double MainSequence::CalculateBetaR(const double p_Mass) {
     double betaRPrime = 0.0;
 
          if (utils::Compare(p_Mass, 1.0)   <= 0) betaRPrime = 1.06;
-    else if (utils::Compare(p_Mass, a[74]) <  0) betaRPrime = 1.06 + ((a[72] - 1.06) * (p_Mass - 1.0) / (a[74] - 1.06));
-    else if (utils::Compare(p_Mass, 2.0)   <  0) betaRPrime = a[72] + m_RConstants[static_cast<int>(R_CONSTANTS::B_BETA_R)] - (a[72] * (p_Mass - a[74]) / (2.0 - a[74]));
+    else if (utils::Compare(p_Mass, a[74]) <  0) betaRPrime = 1.06 + (a[72] - 1.06) * (p_Mass - 1.0) / (a[74] - 1.06);
+    else if (utils::Compare(p_Mass, 2.0)   <  0) betaRPrime = a[72] + (m_RConstants[static_cast<int>(R_CONSTANTS::B_BETA_R)] - a[72]) * (p_Mass - a[74]) / (2.0 - a[74]);
     else if (utils::Compare(p_Mass, 16.0)  <= 0) betaRPrime = (a[69] * p_Mass * p_Mass * p_Mass * sqrt(p_Mass)) / (a[70] + PPOW(p_Mass, a[71]));  // pow()is slow - use multiplication (sqrt() is faster than pow())
-    else                                         betaRPrime = m_RConstants[static_cast<int>(R_CONSTANTS::C_BETA_R)] + (a[73] * (p_Mass - 16.0));
+    else                                         betaRPrime = m_RConstants[static_cast<int>(R_CONSTANTS::C_BETA_R)] + a[73] * (p_Mass - 16.0);
 
     return betaRPrime - 1.0;
 
@@ -404,7 +404,7 @@ double MainSequence::CalculateRadiusAtPhaseEnd(const double p_Mass, const double
         double mA_5 = mA_3 * mAsterisk * mAsterisk;
 
         double y2   = ((C_COEFF.at(1) * mA_3) + (a[23] * PPOW(mAsterisk, a[26])) + (a[24] * PPOW(mAsterisk, a[26] + 1.5))) / (a[25] + mA_5); // RTMS(mAsterisk)
-        double y1   = (a[18] + (a[19] * PPOW(a[17], a[21]))) / (a[20] + PPOW(a[17], a[2]));                                                  // RTMS(a17)
+        double y1   = (a[18] + (a[19] * PPOW(a[17], a[21]))) / (a[20] + PPOW(a[17], a[22]));                                                  // RTMS(a17)
 
         double gradient  = (y2 - y1) / 0.1;
         double intercept = y1 - (gradient * a[17]);

@@ -7,6 +7,7 @@
 
 #include "Rand.h"
 #include "BaseStar.h"
+#include "vector3d.h"
 
 using std::max;
 using std::min;
@@ -131,6 +132,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Luminosity                               = m_LZAMS;
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
+	m_ComponentVelocity						   = Vector3d();
 
     m_CoreMass                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_COCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -292,7 +294,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_COCoreMassAtCOFormation();                           break;
             case ANY_STAR_PROPERTY::CORE_MASS:                                          value = CoreMass();                                             break;
             case ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION:              value = SN_CoreMassAtCOFormation();                             break;
-            case ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE:                                value = SN_DrawnKickMagnitude();                                 break;
+            case ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE:                               value = SN_DrawnKickMagnitude();                                break;
             case ANY_STAR_PROPERTY::DT:                                                 value = Dt();                                                   break;
             case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE:                                value = CalculateDynamicalTimescale();                          break;
             case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
@@ -350,6 +352,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::RUNAWAY:                                            value = ExperiencedRunaway();                                   break;
             case ANY_STAR_PROPERTY::RZAMS:                                              value = RZAMS();                                                break;
             case ANY_STAR_PROPERTY::SN_TYPE:                                            value = SN_Type();                                              break;
+            case ANY_STAR_PROPERTY::SPEED:                                              value = Speed();												break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE:                                       value = StellarType();                                          break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE_NAME:                                  value = STELLAR_TYPE_LABEL.at(StellarType());                   break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE_PREV:                                  value = StellarTypePrev();                                      break;
@@ -542,7 +545,7 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
     RConstants(C_ALPHA_R)   = (a[58] * PPOW(a[67], a[60])) / (a[59] + PPOW(a[67], a[61]));                        // Hurley et al. 2000, eq 21a (wrong in the arxiv version)
     RConstants(B_BETA_R)    = (a[69] * 8.0 * M_SQRT2) / (a[70] + PPOW(2.0, a[71]));                              // Hurley et al. 2000, eq 22a
     RConstants(C_BETA_R)    = (a[69] * 16384.0) / (a[70] + PPOW(16.0, a[71]));                                   // Hurley et al. 2000, eq 22a
-    RConstants(B_DELTA_R)   = (a[38] + (a[39] * 8.0 * M_SQRT2)) / ((a[40] * 8.0) + PPOW(2.0, a[41]));            // Hurley et al. 2000, eq 17
+    RConstants(B_DELTA_R)   = (a[38] + a[39] * 8.0 * M_SQRT2) / (a[40] * 8.0 + PPOW(2.0, a[41])) - 1.0;            // Hurley et al. 2000, eq 17
 
     GammaConstants(B_GAMMA) = a[76] + (a[77] * PPOW((1.0 - a[78]), a[79]));                                      // Hurley et al. 2000, eq 23
     GammaConstants(C_GAMMA) = (utils::Compare(a[75], 1.0) == 0) ? GammaConstants(B_GAMMA) : a[80];              // Hurley et al. 2000, eq 23
@@ -781,8 +784,9 @@ double BaseStar::CalculateAlpha4() {
     double MHeF      = massCutoffs(MHeF);
     double MHeF_5    = MHeF * MHeF * MHeF * MHeF * MHeF;    // pow() is slow - use multiplication
     double tBGB_MHeF = CalculateLifetimeToBGB(MHeF);        // tBGB for mass M = MHeF
-
-    return tBGB_MHeF * (((b[41] * PPOW(MHeF, b[42])) + (b[43] * MHeF_5)) / (b[44] + MHeF_5));
+    double tHe_MHeF  = tBGB_MHeF * (b[41] * PPOW(MHeF, b[42]) + b[43] * MHeF_5) / (b[44] + MHeF_5);
+    
+    return ((tHe_MHeF - b[39]) / b[39]);
 
 #undef massCutoffs
 #undef b
@@ -2639,6 +2643,19 @@ void BaseStar::CalculateSNAnomalies(const double p_Eccentricity) {
     else if (error == ERROR::OUT_OF_BOUNDS ) { SHOW_WARN(error, "Eccentric anomaly"); }                 // eccentric anomaly out of bounds - show warning
 
     return;
+}
+
+
+/*
+ * Update the current velocity vector of the star, adding to a previous one if it exists.
+ *
+ *
+ * void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity)
+ *
+ * @param   [IN]    p_newVelocity               The new velocity vector 
+ */
+void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity) {
+    m_ComponentVelocity += p_newVelocity;                        // Add new velocity to previous velocity 
 }
 
 

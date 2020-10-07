@@ -8,6 +8,7 @@
 #include "typedefs.h"
 #include "profiling.h"
 #include "utils.h"
+#include "vector3d.h"
 
 #include "Options.h"
 #include "Log.h"
@@ -113,6 +114,7 @@ public:
             double              SN_Theta() const                                                { return m_SupernovaDetails.theta; }
             SN_EVENT            SN_Type() const                                                 { return utils::SNEventType(m_SupernovaDetails.events.current); }
             double              SN_KickMagnitudeRandom() const                                  { return m_SupernovaDetails.kickMagnitudeRandom; }
+            double              Speed() const                                                   { return m_ComponentVelocity.Magnitude(); }
             COMPAS_VARIABLE     StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
             double              Tau() const                                                     { return m_Tau; }
             double              Temperature() const                                             { return m_Temperature; }
@@ -127,6 +129,9 @@ public:
 
             void                SetSNCurrentEvent(SN_EVENT p_SNEvent)                           { m_SupernovaDetails.events.current |= p_SNEvent; }                                 // Set supernova primary event/state for current timestep
             void                SetSNPastEvent(const SN_EVENT p_SNEvent)                        { m_SupernovaDetails.events.past |= p_SNEvent; }                                    // Set supernova primary event/state for any past timestep
+            
+            void                UpdateComponentVelocity(const Vector3d p_newVelocity);	
+
 
 
     // member functions - alphabetically
@@ -136,6 +141,8 @@ public:
 
             double          CalculateDynamicalTimescale() const                                                 { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }         // Use class member variables
     
+            double          CalculateEddingtonLuminosity()                                                      { return 3.2E4*Mass(); }                                                    // In solar luminosities; assumes pure hydrogen, should multiply by (1+X)/2 for lower H fractions -- see, e.g., Eq. (2) of http://adsabs.harvard.edu/abs/2017A%26A...604A..55M
+
             double          CalculateEddyTurnoverTimescale();
 
     virtual void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) { }                                                                                      // Default is NO-OP
@@ -330,6 +337,9 @@ protected:
     SupernovaDetailsT       m_SupernovaDetails;                         // Supernova attributes
     PulsarDetailsT          m_PulsarDetails;                            // Pulsar attributes
 
+    // Star vector velocity 
+	Vector3d                m_ComponentVelocity; 	                    // Isolated star velocity vector (binary's center-of-mass velocity for bound binary)
+
     // member functions - alphabetically
             void            AgeOneTimestepPreamble(const double p_DeltaTime);
 
@@ -479,9 +489,9 @@ protected:
 
             double          DrawRemnantKickMuller(const double p_COCoreMass);
 
-	    double          DrawRemnantKickMullerMandel(const double p_COCoreMass,
-                                    			const double p_Rand,
-                                    			const double p_RemnantMass);
+            double          DrawRemnantKickMullerMandel(const double p_COCoreMass,
+                                                        const double p_Rand,
+                                                        const double p_RemnantMass);
 
             double          DrawSNKickMagnitude(const double p_Sigma,
                                                const double p_COCoreMass,
@@ -530,7 +540,7 @@ protected:
 
     virtual void            SetSNHydrogenContent()                                                              { m_SupernovaDetails.isHydrogenPoor = false; }                                  // Default is false
 
-    bool                    ShouldBeMasslessRemnant()                                                           { return (m_Mass <= 0.0 || m_StellarType==STELLAR_TYPE::MASSLESS_REMNANT); }
+            bool            ShouldBeMasslessRemnant()                                                           { return (m_Mass <= 0.0 || m_StellarType==STELLAR_TYPE::MASSLESS_REMNANT); }
     virtual bool            ShouldEvolveOnPhase()                                                               { return true; }
     virtual bool            ShouldSkipPhase()                                                                   { return false; }                                                               // Default is false
 

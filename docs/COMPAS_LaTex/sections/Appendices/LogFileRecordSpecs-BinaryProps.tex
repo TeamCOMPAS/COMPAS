@@ -100,6 +100,8 @@ Following is the list of binary properties available for inclusion in log file r
 
 \binaryProperty{RLOF\_CURRENT\_COMMON\_ENVELOPE}{BOOL}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$isCE}{Flag to indicate if the RLOF leads to a common-envelope event}{CEE}{COMMON\_ENVELOPE\_AT\_LEAST\_ONCE}
 
+\binaryProperty{RLOF\_CURRENT\_ECCENTRICITY}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$eccentricity}{Eccentricity immediately after RLOF.}{Eccentricity}{}
+
 \binaryProperty{RLOF\_CURRENT\_EVENT\_COUNTER}{UNSIGNED INT}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$eventCounter}{The number of times the binary has overflowed its Roche lobe up to and including this episode}{Event\_Counter}{}
 
 \binaryProperty{RLOF\_CURRENT\_SEPARATION}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$separation}{Separation (\Rsun) immediately after RLOF.}{Separation}{SEMI\_MAJOR\_AXIS, SEMI\_MAJOR\_AXIS\_RSOL \& ANY\_STAR\_PROPERTY::SEED}
@@ -121,6 +123,8 @@ Following is the list of binary properties available for inclusion in log file r
 \binaryProperty{RLOF\_CURRENT\_STAR2\_STELLAR\_TYPE}{DOUBLE}{\textit{derived from }BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$stellarType1}{Stellar type (per \citet{Hurley_2000}) of the secondary star immediately after RLOF.}{Type\_2}{RLOF\_CURRENT\_STAR2\_STELLAR\_TYPE\_NAME}
 
 \binaryProperty{RLOF\_CURRENT\_TIME}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$time}{Time since ZAMS (Myr) immediately after RLOF.}{Time}{TIME \& ANY\_STAR\_PROPERTY::TIME}
+
+\binaryProperty{RLOF\_PREVIOUS\_ECCENTRICITY}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$eccentricity}{Eccentricity at the onset of  RLOF.}{Eccentricity\_Prev}{}
 
 \binaryProperty{RLOF\_PREVIOUS\_EVENT\_COUNTER}{UNSIGNED INT}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$eventCounter}{The number of times the binary has overflowed its Roche lobe up to and excluding this episode}{Event\_Counter\_Prev}{}
 

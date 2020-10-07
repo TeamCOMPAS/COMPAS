@@ -5,6 +5,7 @@
 #include "typedefs.h"
 #include "profiling.h"
 #include "utils.h"
+#include "vector3d.h"
 
 #include "Log.h"
 #include "Star.h"
@@ -59,8 +60,6 @@ public:
         m_BeBinaryDetails.currentProps     = p_Star.m_BeBinaryDetails.currentProps  == &(p_Star.m_BeBinaryDetails.props1) ? &(m_BeBinaryDetails.props1) : &(m_BeBinaryDetails.props2);
         m_BeBinaryDetails.previousProps    = p_Star.m_BeBinaryDetails.previousProps == &(p_Star.m_BeBinaryDetails.props1) ? &(m_BeBinaryDetails.props1) : &(m_BeBinaryDetails.props2);
 
-        m_Beta                             = p_Star.m_Beta;
-
         m_CircularizationTimescale         = p_Star.m_CircularizationTimescale;
 
         m_CEDetails                        = p_Star.m_CEDetails;
@@ -100,25 +99,12 @@ public:
 
         m_MassTransferTrackerHistory       = p_Star.m_MassTransferTrackerHistory;
 
-        m_ReducedMassPrev                  = p_Star.m_ReducedMassPrev;
-        m_ReducedMassPrime                 = p_Star.m_ReducedMassPrime;
-
-        m_TotalMassPrev                    = p_Star.m_TotalMassPrev;
-        m_TotalMassPrime                   = p_Star.m_TotalMassPrime;
-
-        m_MC                               = p_Star.m_MC;
-        m_MCPrime                          = p_Star.m_MCPrime;
-
         m_Merged                           = p_Star.m_Merged;
         m_MergesInHubbleTime               = p_Star.m_MergesInHubbleTime;
-
-        m_MSN                              = p_Star.m_MSN;
-        m_MSNPrime                         = p_Star.m_MSNPrime;
 
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
 
         m_PrintExtraDetailedOutput         = p_Star.m_PrintExtraDetailedOutput;
-        m_Radius                           = p_Star.m_Radius;
 
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
         m_RLOFDetails.currentProps         = p_Star.m_RLOFDetails.currentProps  == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
@@ -141,12 +127,15 @@ public:
 
         m_SystemicVelocity                 = p_Star.m_SystemicVelocity;
 
+        m_ThetaE                           = p_Star.m_ThetaE;
+        m_PhiE                             = p_Star.m_PhiE;  
+        m_PsiE                             = p_Star.m_PsiE;  
+
         m_Time                             = p_Star.m_Time;
         m_TimePrev                         = p_Star.m_TimePrev;
         m_TimeToCoalescence                = p_Star.m_TimeToCoalescence;
 
-        m_TotalAngularMomentumPrev         = p_Star.m_TotalAngularMomentumPrev;
-        m_TotalAngularMomentum              = p_Star.m_TotalAngularMomentum;
+        m_TotalAngularMomentum             = p_Star.m_TotalAngularMomentum;
 
         m_TotalEnergy                      = p_Star.m_TotalEnergy;
 
@@ -157,8 +146,6 @@ public:
         m_OrbitalEnergy                    = p_Star.m_OrbitalEnergy;
 
         m_uK                               = p_Star.m_uK;
-
-        m_VRel                             = p_Star.m_VRel;
 
         m_WolfRayetFactor                  = p_Star.m_WolfRayetFactor;
 
@@ -246,7 +233,7 @@ public:
     bool                IsUnbound() const                           { return (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || (utils::Compare(m_Eccentricity, 1.0) > 0)); }         // semi major axis <= 0.0 means unbound, presumably by SN)
     bool                IsWDandWD() const                           { return HasTwoOf({STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF}); }
     double              LBV_Factor() const                          { return m_LBVfactor; }
-	double              Mass1Final() const                          { return m_Mass1Final; }
+    double              Mass1Final() const                          { return m_Mass1Final; }
     double              Mass2Final() const                          { return m_Mass2Final; }
     double              Mass1PostCEE() const                        { return m_Star1->MassPostCEE(); }
     double              Mass1PreCEE() const                         { return m_Star1->MassPreCEE(); }
@@ -297,8 +284,8 @@ public:
     STELLAR_TYPE        StellarType2PostCEE() const                 { return m_Star2->StellarTypePostCEE(); }
     STELLAR_TYPE        StellarType2PreCEE() const                  { return m_Star2->StellarTypePreCEE(); }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
-	double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
-    double              SystemicVelocity() const                    { return m_SystemicVelocity; }
+    double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
+    double              SystemicSpeed() const                       { return m_SystemicVelocity.Magnitude(); }
     double              Time() const                                { return m_Time; }
     double              TimeToCoalescence() const                   { return m_TimeToCoalescence; }
     double              TotalAngularMomentum() const                { return m_TotalAngularMomentum; }
@@ -342,11 +329,9 @@ private:
 
     BeBinaryDetailsT    m_BeBinaryDetails;                                                  // BeBinary details
 
-    double              m_Beta;                                                             // Angle between r and v, related to eccentricity (= pi/2 for circular e = 0)
-
     BinaryCEDetailsT    m_CEDetails;                                                        // Common Event details
 
-	double              m_CircularizationTimescale;
+    double              m_CircularizationTimescale;
 
     bool                m_Unbound;                                                          // Binary unbound?
 
@@ -355,7 +340,7 @@ private:
     double              m_Eccentricity;                                                     // Initial eccentricity
     double              m_EccentricityAtDCOFormation;                                       // Eccentricity at DCO formation
     double              m_EccentricityInitial;                                              // Record initial eccentricity              JR: todo: check necessary
-    double              m_EccentricityPreSN;                                             // Eccentricity prior to 2nd supernova
+    double              m_EccentricityPreSN;                                                // Eccentricity prior to supernova
     double              m_EccentricityPrev;                                                 // Eccentricity at previous timestep
 
     double	            m_FractionAccreted;	                                                // Fraction of mass accreted from the donor during mass transfer
@@ -363,14 +348,14 @@ private:
     double              m_CosIPrime;
     double              m_IPrime;
 
-   	double	            m_JLoss;			                                                // Specific angular momentum with which mass is lost during non-conservative mass transfer
+    double	            m_JLoss;			                                                // Specific angular momentum with which mass is lost during non-conservative mass transfer
 
     double              m_LBVfactor;
 
     bool                m_MassesEquilibrated;                                               // Indicates whether stars had masses equilbrated at some stage after birth
     bool                m_MassesEquilibratedAtBirth;                                        // Indicates whether stars had masses equilbrated at birth
 
-	double              m_Mass1Final;                                                       // Star1 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
+    double              m_Mass1Final;                                                       // Star1 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
     double              m_Mass2Final;                                                       // Star2 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
 
     double              m_MassEnv1;                                                         // Star1 envelope mass in Msol
@@ -383,26 +368,18 @@ private:
 
     MT_TRACKING         m_MassTransferTrackerHistory;
 
-	double              m_ReducedMassPrev;
-	double              m_ReducedMassPrime;
+    double              m_ReducedMassPrev;
+    double              m_ReducedMass;
 
-	double              m_TotalMassPrev;
-	double              m_TotalMassPrime;
-
-    double              m_MC;
-    double              m_MCPrime;
+    double              m_TotalMassPrev;
+    double              m_TotalMass;
 
     bool                m_Merged;                                                           // Indicates if the stars merged
     bool                m_MergesInHubbleTime;                                               // Indicates if the stars merge in Hubble Time
 
-    double              m_MSN;
-    double              m_MSNPrime;
-
     double              m_OrbitalVelocityPreSN;
 
     bool                m_PrintExtraDetailedOutput;                                         // Flag to ensure that detailed output only gets printed once per timestep
-
-    double              m_Radius;
 
     BinaryRLOFDetailsT  m_RLOFDetails;                                                      // RLOF details
 
@@ -411,24 +388,25 @@ private:
     double              m_SemiMajorAxis;                                                    // Semi-major axis
     double              m_SemiMajorAxisAtDCOFormation;                                      // Semi-major axis at DCO formation
     double              m_SemiMajorAxisInitial;                                             // Record initial semi-major axis              JR: todo: check necessary
-    double              m_SemiMajorAxisPreSN;                                            // Semi-major axis prior to 2nd supernova
+    double              m_SemiMajorAxisPreSN;                                               // Semi-major axis prior to supernova
     double              m_SemiMajorAxisPrev;                                                // Semi-major axis at previous timestep
-
 
     bool                m_StellarMerger;                                                    // Indicates that the constituent stars merged
     bool                m_StellarMergerAtBirth;                                             // Indicates that the constituent stars were touching at bierth
 
     SN_STATE            m_SupernovaState;                                                   // Indicates which star (or stars) are undergoing / have undergone a supernova event
 
-	double              m_SynchronizationTimescale;
+    double              m_SynchronizationTimescale;
 
-    double              m_SystemicVelocity;                                                 // Post supernova systemic velocity
+    Vector3d            m_SystemicVelocity;                                                 // Systemic velocity vector, relative to ZAMS Center of Mass
+    double              m_ThetaE;                                                           // Euler Theta
+    double              m_PhiE;                                                             // Euler Phi                
+    double              m_PsiE;                                                             // Euler Psi
     
     double              m_Time;                                                             // Physical simulation time
     double              m_TimePrev;                                                         // Previous simulation time
     double              m_TimeToCoalescence;                                                // Coalescence time
 
-    double              m_TotalAngularMomentumPrev;
     double              m_TotalAngularMomentum;
 
     double              m_TotalEnergy;
@@ -440,8 +418,6 @@ private:
 	double              m_OrbitalEnergy;
 
     double              m_uK;
-
-    double              m_VRel;
 
     double              m_WolfRayetFactor;
 
@@ -510,23 +486,9 @@ private:
                                             const double p_Mass,
                                             const double p_SemiMajorAxis)   { return p_Mu * sqrt(G1 * p_Mass * p_SemiMajorAxis); }
 
-    double  CalculateOrbitalEccentricityPostSupernova(const double p_KickMagnitude,
-                                                      const double p_TotalMassPreSN,
-                                                      const double p_TotalMassPostSN,
-                                                      const double p_KickTheta,
-                                                      const double p_KickPhi);
-
     double  CalculateOrbitalEnergy(const double p_Mu,
                                    const double p_Mass,
                                    const double p_SemiMajorAxis)            { return -(G1 * p_Mu * p_Mass) / (2.0 * p_SemiMajorAxis); }
-
-    double  CalculatePostSNSystemicVelocity(const double p_SNMass,
-                                            const double p_SNDeltaMass,
-                                            const double p_CompanionMass,
-                                            const double p_TotalMassPreSN,
-                                            const double p_TotalMassPostSN,
-                                            const double p_KickTheta,
-                                            const double p_KickPhi);
 
     double  CalculateZRocheLobe(const double p_jLoss);
 
@@ -561,7 +523,6 @@ private:
 
 
     void    EvaluateBinary(const double p_Dt);
-    void    EvaluateBinaryPreamble();
 
     void    EvaluateSupernovae(const bool p_Resolve2ndSN);
 
@@ -586,6 +547,8 @@ private:
     bool    ShouldPrintRLOFParameters();
     void    StashBeBinaryProperties();
     void    StashRLOFProperties();
+
+    void    UpdateSystemicVelocity(Vector3d p_newVelocity);
 
     // printing functions
     void PrintRLOFParameters(const string p_Rec = "");

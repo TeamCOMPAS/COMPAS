@@ -77,10 +77,10 @@ void Options::OptionValues::Initialise() {
     m_FixedRandomSeed                                               = false;                                                // TRUE if --random-seed is passed on command line
     m_RandomSeed                                                    = 0;
 
-    // Specify how long to evolve binaries for
+    // Specify how long to evolve for
     m_MaxEvolutionTime                                              = 13700.0;
     m_MaxNumberOfTimestepIterations                                 = 99999;
-
+    m_TimestepMultiplier                                            = 1.0;
 
     // Initial mass options
     m_InitialMass                                                   = 5.0;
@@ -691,8 +691,9 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         if (m_SemiMajorAxisDistributionMin < 0.0) return "Minimum semi-major Axis (--semi-major-axis-min) < 0";
         if (m_SemiMajorAxisDistributionMax < 0.0) return "Maximum semi-major Axis (--semi-major-axis-max) < 0";
 
-        if (m_WolfRayetFactor < 0.0) return "WR multiplier (--wolf-rayet-multiplier) < 0";
+        if (m_TimestepMultiplier <= 0.0) return "Timestep multiplier (--timestep-multiplier) <= 0";
 
+        if (m_WolfRayetFactor < 0.0) return "WR multiplier (--wolf-rayet-multiplier) < 0";
 
     }
     catch (po::error& e) {                                                                                  // program options exception
@@ -1438,6 +1439,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "semi-major-axis-min",                                         
             po::value<double>(&p_Options->m_SemiMajorAxisDistributionMin)->default_value(p_Options->m_SemiMajorAxisDistributionMin),                                                              
             ("Minimum semi major axis in AU to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMin) + ")").c_str()
+        )
+
+        (
+            "timestep-multiplier",
+            po::value<double>(&m_TimestepMultiplier)->default_value(m_TimestepMultiplier),
+            ("Timestep multiplier for SSE and BSE (default = " + std::to_string(m_TimestepMultiplier) + ")").c_str()
         )
 
         (
