@@ -435,7 +435,31 @@
 // 02.15.06     IM - Sep 12, 2020   - Defect repair
 //                                       - Changed BaseBinaryStar::ResolveSupernova to account only for mass lost by the exploding binary during the SN when correcting the orbit
 //                                       - Delayed supernova of ultra-stripped stars so that the orbit is adjusted in response to mass transfer first, before the SN happens
+// 02.15.07     RW - Sep 13, 2020   - Enhancement:
+//                                      - Issue #12 - Move enhancement STROOPWAFEL from Legacy COMPAS to new COMPAS
+//                                      - Issue #18 - double check STROOPWAFEL works in newCOMPAS
+//                                      - Issue #154 - Test compatibility of CompasHPC and BSE_Grid.txt
+//                                      - Added in combined functionaltiy of Stroopwafel and pythonSubmit, with support for HPC runs
+// 02.15.08     IM - Sep 14, 2020   - Defect repair:
+//                                      - Issue #375 Error in Hurley remnant mass calculation
+// 02.15.09     RTW - Oct 1, 2020   - Code cleanup:
+//                                      - Rewrote ResolveSupernova to match Pfahl, Rappaport, Podsiadlowski 2002, and to allow for vector addition of system and component velocities
+//                                      - Changed meaning of Supernova_State (see Docs)
+//                                      - PostSN parameters have been removed
+//                                      - SN phi has been redefined
+// 02.15.10     IM - Oct 3, 2020    - Code cleanup:
+//                                      - Removed some unnecessary internal variables and functions (m_TotalMass, m_TotalMassPrev, m_ReducedMass, m_ReducedMassPrev, m_TotalAngularMomentumPrev, CalculateAngularMomentumPrev(), EvaluateBinaryPreamble(),...
+//                                      - Cleaned up some unclear comments
+//                                      - ResolveCoreCollapseSN() no longer takes the Fryer engine as an argument (Fryer is just one of many possible prescriptions)
+// 02.15.11     IM - Oct 3, 2020    - Defect repair and code cleanup:
+//                                      - Fixed a number of defects in single stellar evolution (Github issues #381, 382, 383, 384, 385)
+//                                      - The Fryer SN engine (delayed vs rapid) is no longer passed around, but read in directly in CalculateRemnantMassByFryer2012()
+// 02.15.12     IM - Oct 5, 2020    - Enhancement
+//                                      - Added timestep-multiplier option to adjust SSE and BSE timesteps relative to default
+//                                      - Added eccentricity printing to RLOF logging
+//                                      - Adjusted pythonSubmitDefault.py to include PESSIMISTIC CHE
+//                                      - Updated documentation
 
-const std::string VERSION_STRING = "02.15.06";
+const std::string VERSION_STRING = "02.15.12";
 
 # endif // __changelog_h__

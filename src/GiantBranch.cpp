@@ -1328,14 +1328,13 @@ double GiantBranch::CalculateFallbackFractionDelayed(const double p_PreSNMass, c
  * Ref?  Fryer et al. 2012?
  *
  *
- * std::tuple<double, double> CalculateRemnantMassByFryer2012(const SNE p_Engine, const double p_Mass, const double p_COCoreMass)
+ * std::tuple<double, double> CalculateRemnantMassByFryer2012(const double p_Mass, const double p_COCoreMass)
  *
- * @param   [IN]    p_Engine                    The SN Engine to use for the calculation
  * @param   [IN]    p_Mass                      Pre supernova mass in Msol
  * @param   [IN]    p_COCoreMass                Pre supernova Carbon Oxygen (CO) core mass in Msol
  * @return                                      Tuple containing Remnant mass in Msol and updated fraction of mass falling back onto compact object
  */
-std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const SN_ENGINE p_Engine, const double p_Mass, const double p_COCoreMass) {
+std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const double p_Mass, const double p_COCoreMass) {
 
     double mProto;
     double fallbackMass;
@@ -1344,7 +1343,7 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const SN
     double fallbackFraction         = 0.0;
     double gravitationalRemnantMass = 0.0;
 
-    switch (p_Engine) {                                                                                     // which SN_ENGINE?
+    switch (OPTIONS->FryerSupernovaEngine()) {                                                                                     // which SN_ENGINE?
 
         case SN_ENGINE::DELAYED:                                                                            // DELAYED
 
@@ -1422,12 +1421,11 @@ double GiantBranch::CalculateRemnantMassByBelczynski2002(const double p_Mass, co
  *      Luminosity, Radius, Temperature, supernova events: current = SN, past = CCSN
  *
  *
- * STELLAR_TYPE ResolveCoreCollapseSN(const SNE SNEngine)
+ * STELLAR_TYPE ResolveCoreCollapseSN()
  *
- * @param   [IN]    SNEngine                    Fryer SN Engine to use (if required)
  * @return                                      The stellar type to which the star should evolve
  */
-STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN(const SN_ENGINE SNEngine) {
+STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
 
     STELLAR_TYPE stellarType = m_StellarType;
     double mass = m_Mass;                                                                                   // initial mass
@@ -1437,7 +1435,7 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN(const SN_ENGINE SNEngine) {
         case REMNANT_MASS_PRESCRIPTION::HURLEY2000:                                                         // Hurley 2000
 
             m_SupernovaDetails.fallbackFraction = 0.0;                                                      // Not defined
-            m_Mass                              = NS::CalculateRemnantMass_Static(m_CoreMass);
+            m_Mass                              = NS::CalculateRemnantMass_Static(m_COCoreMass);
             break;
 
         case REMNANT_MASS_PRESCRIPTION::BELCZYNSKI2002:                                                     // Belczynski 2002
@@ -1448,7 +1446,7 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN(const SN_ENGINE SNEngine) {
 
         case REMNANT_MASS_PRESCRIPTION::FRYER2012:                                                          // Fryer 2012
 
-            std::tie(m_Mass, m_SupernovaDetails.fallbackFraction) = CalculateRemnantMassByFryer2012(SNEngine, m_Mass, m_COCoreMass);
+            std::tie(m_Mass, m_SupernovaDetails.fallbackFraction) = CalculateRemnantMassByFryer2012(m_Mass, m_COCoreMass);
             break;
 
         case REMNANT_MASS_PRESCRIPTION::MULLER2016:                                                         // Muller 2016
@@ -1481,6 +1479,9 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN(const SN_ENGINE SNEngine) {
             stellarType = STELLAR_TYPE::BLACK_HOLE;
         else
             stellarType = STELLAR_TYPE::NEUTRON_STAR;
+    }
+    else if (OPTIONS->RemnantMassPrescription() == REMNANT_MASS_PRESCRIPTION::HURLEY2000) {
+        stellarType = (utils::Compare(m_Mass, 1.8 ) > 0)? STELLAR_TYPE::BLACK_HOLE : STELLAR_TYPE::NEUTRON_STAR;    //Hurley+ 2000, Eq. (92)
     }
     else if (utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass()) > 0) {
         std::tie(m_Luminosity, m_Radius, m_Temperature) = BH::CalculateCoreCollapseSNParams_Static(m_Mass);
@@ -1717,7 +1718,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
             stellarType = ResolveElectronCaptureSN();
         }
         else {                                                                                      // Core Collapse SuperNova
-            stellarType = ResolveCoreCollapseSN(OPTIONS->FryerSupernovaEngine());
+            stellarType = ResolveCoreCollapseSN();
         }
             
     	CalculateSNKickMagnitude(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);

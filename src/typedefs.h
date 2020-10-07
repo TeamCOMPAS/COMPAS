@@ -89,9 +89,9 @@ typedef struct SupernovaDetails {                           // Holds attributes,
     double           kickMagnitude;                         // Kick magnitude the system received during the supernova (km s^-1)
     double           kickMagnitudeRandom;                   // Random number U(0,1) for choosing the supernova kick magnitude - drawn once at star creation
     double           meanAnomaly;                           // Mean anomaly at instantaneous time of the SN - uniform in [0, 2pi]
-    double           phi;                                   // Angle between 'x' and 'y', both in the orbital plane of supernovae vector (rad)
-    SN_STATE         supernovaState;                        // indicates which star (or stars) are undergoing / hove undergone a supernova event
-    double           theta;                                 // Angle between the orbital plane and the 'z' axis of supernovae vector (rad)
+    double           phi;                                   // Kick angle in the orbital plane, defined CCW from the radial vector pointed away from the Companion (rad) [0, 2pi)
+    SN_STATE         supernovaState;                        // Indicates which star (or stars) are undergoing / have undergone a supernova event
+    double           theta;                                 // Kick angle out of the orbital plane, toward the orbital angular momentum axis (rad) [-pi/2, pi/2]
     double           totalMassAtCOFormation;                // Total mass of the star when it goes supernova and forms a compact object
     double           trueAnomaly;                           // True anomaly at instantaneous time of the SN
 } SupernovaDetailsT;
@@ -155,6 +155,7 @@ typedef struct RLOFProperties {
     double        radius1;
     double        radius2;
 
+    double        eccentricity;
     double        separation;
 
     unsigned int  eventCounter;

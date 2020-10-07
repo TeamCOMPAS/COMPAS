@@ -75,7 +75,7 @@ protected:
             double          CalculateProtoCoreMassDelayed(const double p_COCoreMass);
             double          CalculateProtoCoreMassRapid();
             double          CalculateRemnantMassByBelczynski2002(const double p_Mass, const double p_COCoreMass, const double p_FallbackFraction);
-            DBL_DBL         CalculateRemnantMassByFryer2012(const SN_ENGINE p_Engine, const double p_Mass, const double p_COCoreMass);
+            DBL_DBL         CalculateRemnantMassByFryer2012(const double p_Mass, const double p_COCoreMass);
             double          CalculateRemnantMassByMuller2016(const double p_Mass, const double p_COCoreMass);
 	        double          CalculateRemnantMassByMullerMandel(const double p_COCoreMass, const double p_HeCoreMass);
             double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0)             { return (0.1 * (m_Mass-m_CoreMass) * m_Radius * m_Radius) + (0.21 * m_CoreMass * p_RemnantRadius * p_RemnantRadius); }   // k2 = 0.1 and k3 = 0.21 as defined in Hurley et al. 2000, after eq 109
@@ -119,7 +119,7 @@ protected:
     virtual void            PerturbLuminosityAndRadius();
 
             STELLAR_TYPE    ResolveSupernova();
-            STELLAR_TYPE    ResolveCoreCollapseSN(const SN_ENGINE SNEngine);
+            STELLAR_TYPE    ResolveCoreCollapseSN();
             STELLAR_TYPE    ResolveElectronCaptureSN();
             STELLAR_TYPE    ResolvePairInstabilitySN();
             STELLAR_TYPE    ResolvePulsationalPairInstabilitySN();
