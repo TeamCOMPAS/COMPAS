@@ -1443,8 +1443,8 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         (
             "timestep-multiplier",
-            po::value<double>(&m_TimestepMultiplier)->default_value(m_TimestepMultiplier),
-            ("Timestep multiplier for SSE and BSE (default = " + std::to_string(m_TimestepMultiplier) + ")").c_str()
+            po::value<double>(&p_Options->m_TimestepMultiplier)->default_value(p_Options->m_TimestepMultiplier),
+            ("Timestep multiplier for SSE and BSE (default = " + std::to_string(p_Options->m_TimestepMultiplier) + ")").c_str()
         )
 
         (
@@ -2773,7 +2773,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         // Floor
         /*
-        case PROGRAM_OPTION::AIS_DCO_TYPE                                   : value = AIS_DCOType();                                                        break;
+        case PROGRAM_OPTION::AIS_DCO_TYPE                                   : value = static_cast<int>(AIS_DCOType());                                      break;
         case PROGRAM_OPTION::AIS_EXPLORATORY_PHASE                          : value = AIS_ExploratoryPhase();                                               break;
         case PROGRAM_OPTION::AIS_HUBBLE                                     : value = AIS_Hubble();                                                         break;
         case PROGRAM_OPTION::AIS_PESSIMISTIC                                : value = AIS_Pessimistic();                                                    break;
