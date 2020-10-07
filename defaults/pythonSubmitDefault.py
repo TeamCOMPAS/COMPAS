@@ -55,7 +55,9 @@ class pythonProgramOptions:
     hyperparameterList = False
     shareSeeds = False
 
-    single_star = False
+#    single_star = False
+    mode = 'BSE'
+
     single_star_mass_steps = 10
     single_star_mass_min   = 1.0
     single_star_mass_max   = 75.0    
@@ -76,8 +78,7 @@ class pythonProgramOptions:
 
     chemically_homogeneous_evolution = 'NONE'                               # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
 
-    SSEswitchLog = False
-    BSEswitchLog = False
+    switchLog = False
 
 
     common_envelope_alpha = 1.0
@@ -221,7 +222,6 @@ class pythonProgramOptions:
     def booleanChoices(self):
         booleanChoices = [
             self.enable_warnings,
-            self.single_star,
             self.use_mass_loss,
             self.mass_transfer,
             self.detailed_output,
@@ -239,8 +239,7 @@ class pythonProgramOptions:
             self.errors_to_file,
             self.allow_rlof_at_birth,
             self.allow_touching_at_birth,
-            self.BSEswitchLog,
-            self.SSEswitchLog
+            self.switchLog
         ]
 
         return booleanChoices
@@ -248,15 +247,14 @@ class pythonProgramOptions:
     def booleanCommands(self):
         booleanCommands = [
             '--enable-warnings',
-            '--single-star',
             '--use-mass-loss',
-            '--massTransfer',
+            '--mass-transfer',
             '--detailedOutput',
             '--evolve-unbound-systems',
-            '--populationDataPrinting',
-            '--RLOFPrinting',
-            '--circulariseBinaryDuringMassTransfer',
-            '--angularMomentumConservationDuringCircularisation',
+            '--population-data-printing',
+            '--rlof-printing',
+            '--circularise-binary-during-mass-transfer',
+            '--angular-momentum-conservation-during-circularisation',
             '--pair-instability-supernovae',
             '--pulsational-pair-instability',
             '--quiet',
@@ -266,8 +264,7 @@ class pythonProgramOptions:
             '--errors-to-file',
             '--allow-rlof-at-birth',
             '--allow-touching-at-birth',
-            '--BSEswitchLog',
-            '--SSEswitchLog'
+            '--switchlog'
         ]
 
         return booleanCommands
@@ -371,21 +368,22 @@ class pythonProgramOptions:
             '--pulsar-minimum-magnetic-field',
             '--orbital-period-min',
             '--orbital-period-max',
-            '--kick-magnitude-sigma-CCSN-NS',
-            '--kick-magnitude-sigma-CCSN-BH',
+            '--kick-magnitude-sigma-ccsn-ns',
+            '--kick-magnitude-sigma-ccsn-bh',
             '--fix-dimensionless-kick-magnitude',
             '--kick-direction-power',
             '--random-seed',
-            '--mass-transfer-thermal-limit-C',
+            '--mass-transfer-thermal-limit-c',
             '--eddington-accretion-factor',
-            '--PISN-lower-limit',
-            '--PISN-upper-limit','--PPI-lower-limit',
-            '--PPI-upper-limit',
+            '--pisn-lower-limit',
+            '--pisn-upper-limit',
+            '--ppi-lower-limit',
+            '--ppi-upper-limit',
             '--maximum-neutron-star-mass',
-            '--kick-magnitude-sigma-ECSN',
-            '--kick-magnitude-sigma-USSN',
+            '--kick-magnitude-sigma-ecsn',
+            '--kick-magnitude-sigma-ussn',
             '--kick-scaling-factor',
-            '--maximum-mass-donor-Nandez-Ivanova',
+            '--maximum-mass-donor-nandez-ivanova',
             '--common-envelope-recombination-energy-density',
             '--common-envelope-mass-accretion-max',
             '--common-envelope-mass-accretion-min',
@@ -403,6 +401,7 @@ class pythonProgramOptions:
 
     def stringChoices(self):
         stringChoices = [
+            self.mode,
             self.case_bb_stability_prescription,
             self.chemically_homogeneous_evolution,
             self.mass_loss_prescription,
@@ -451,6 +450,7 @@ class pythonProgramOptions:
 
     def stringCommands(self):
         stringCommands = [
+            '--mode',
             '--case-bb-stability-prescription',
             '--chemically-homogeneous-evolution',
             '--mass-loss-prescription',
