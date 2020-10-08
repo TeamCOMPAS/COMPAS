@@ -950,7 +950,7 @@ double BaseStar::CalculatePerturbationR(const double p_Mu, const double p_Mass, 
 
     double r = 0.0;
 
-    if(utils::Compare(p_Mu, 0.0) >= 0) {                            // only if mu >= 0
+    if(utils::Compare(p_Mu, 0.0) > 0 && utils::Compare(p_Radius, p_Rc) > 0) {                            // only if mu > 0 and radius is larger than core radius, otherwise r=0 and perturbed radius = core radius
 
         double c      = CalculatePerturbationC(p_Mass);
         double c_3    = c * c * c;                                  // pow() is slow - use multiplication
