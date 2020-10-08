@@ -517,17 +517,19 @@ std::tuple<int, int> EvolveSingleStars() {
 
         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // still good?
 
-            star->Evolve(index);                                                                                                // yes  - evolve the star
+            EVOLUTION_STATUS thisStatus = star->Evolve(index);                                                                  // yes  - evolve the star
 
             if (!OPTIONS->Quiet()) {                                                                                            // announce result of evolving the star
-                SAY(index               <<
-                    ": RandomSeed = "   <<
-                    randomSeed          <<
-                    ", Initial Mass = " <<
-                    initialMass         <<
-                    ", Metallicity = "  <<
-                    star->Metallicity() <<
-                    ", "                <<
+                SAY(index                                   <<
+                    ": "                                    <<
+                    EVOLUTION_STATUS_LABEL.at(thisStatus)   <<                  
+                    ": RandomSeed = "                       <<
+                    randomSeed                              <<
+                    ", Initial Mass = "                     <<
+                    initialMass                             <<
+                    ", Metallicity = "                      <<
+                    star->Metallicity()                     <<
+                    ", "                                    <<
                     STELLAR_TYPE_LABEL.at(star->StellarType()));
             }
 

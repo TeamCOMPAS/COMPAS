@@ -206,6 +206,9 @@ void Options::InitialiseMemberVariables(void) {
     // Specify how long to evolve binaries for
     maxEvolutionTime                                                = 13700.0;                                                                          // Maximum evolution time in Myrs
     maxNumberOfTimestepIterations                                   = 99999;                                                                            // Maximum number of timesteps to evolve binary for before giving up
+    
+    timestepMultiplier                                              = 1.0;
+        // Multiplier for time step size (<1 -- shorter timesteps, >1 -- longer timesteps)
 
 
     // Initial mass options
@@ -769,7 +772,7 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
 		    ("semi-major-axis-min",                                         po::value<double>(&semiMajorAxisDistributionMin)->default_value(semiMajorAxisDistributionMin),                                                              ("Minimum semi major axis in AU to generate (default = " + std::to_string(semiMajorAxisDistributionMin) + ")").c_str())
 		    ("single-star-mass-max",                                        po::value<double>(&singleStarMassMax)->default_value(singleStarMassMax),                                                                                    ("Maximum mass (in Msol) for single star evolution (default = " + std::to_string(singleStarMassMax) + ")").c_str())
             ("single-star-mass-min",                                        po::value<double>(&singleStarMassMin)->default_value(singleStarMassMin),                                                                                    ("Minimum mass (in Msol) for single star evolution (default = " + std::to_string(singleStarMassMin) + ")").c_str())
-
+            ("timestep-multiplier",                                         po::value<double>(&timestepMultiplier)->default_value(timestepMultiplier),                                                                                        ("Timestep multiplier for SSE and BSE (default = " + std::to_string(timestepMultiplier) + ")").c_str())
 		    ("wolf-rayet-multiplier",                                       po::value<double>(&wolfRayetFactor)->default_value(wolfRayetFactor),                                                                                        ("Multiplicitive constant for WR winds (default = " + std::to_string(wolfRayetFactor) + ")").c_str())
 
 		    ("zeta-adiabatic-arbitrary",                                    po::value<double>(&zetaAdiabaticArbitrary)->default_value(zetaAdiabaticArbitrary),                                                                          ("Value of mass-radius exponent zeta adiabatic (default = " + std::to_string(zetaAdiabaticArbitrary) + ")").c_str())
@@ -1113,7 +1116,8 @@ PROGRAM_STATUS Options::CommandLineSorter(int argc, char* argv[]) {
             COMPLAIN_IF(singleStar && BSEswitchLog, "--BSEswitchLog does not apply to Single Star evolution");
             COMPLAIN_IF(!singleStar && SSEswitchLog, "--SSEswitchLog does not apply to Binary Star evolution");
 
-
+            COMPLAIN_IF(timestepMultiplier <= 0.0, "Timestep multiplier (--timestep-multiplier) <= 0");
+            
             m_OptionsDetails = ProgramOptionDetails(vm);                                                                                  // construct options details string for output
 
         }
