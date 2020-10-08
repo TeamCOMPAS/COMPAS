@@ -2017,7 +2017,7 @@ enum class PROGRAM_OPTION: int {
 
     MT_ACCRETION_EFFICIENCY_PRESCRIPTION,
     MT_ANG_MOM_LOSS_PRESCRIPTION,
-    MT_C_PARAMETER,
+    MT_THERMAL_LIMIT_C,
 
     // AVG
     /*
@@ -2198,7 +2198,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION,             "MT_ACCRETION_EFFICIENCY_PRESCRIPTION" },
     { PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION,                     "MT_ANG_MOM_LOSS_PRESCRIPTION" },
-    { PROGRAM_OPTION::MT_C_PARAMETER,                                   "MT_C_PARAMETER" },
+    { PROGRAM_OPTION::MT_THERMAL_LIMIT_C,                               "MT_THERMAL_LIMIT_C" },
 
     // AVG
     /*
@@ -2580,66 +2580,177 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
 // Records the details of PROGRAM_OPTION properties.
 const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
 
-    { PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE,             { TYPENAME::BOOL,           "Allow_MS_Survive_CE",  "State",             0, 0 }},
-    { PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH,                                  { TYPENAME::BOOL,           "Allow_RLOF@Birth",     "State",             0, 0 }},
-    { PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH,                              { TYPENAME::BOOL,           "Allow_Touching@Birth", "State",             0, 0 }},
-    { PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION,          { TYPENAME::BOOL,           "Conserve_AngMom@Circ", "State",             0, 0 }},
-
+    { PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE,             { TYPENAME::BOOL,           "Allow_MS_To_Survive_CE",       "Flag",              0, 0 }},
+    { PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH,                                  { TYPENAME::BOOL,           "Allow_RLOF@Birth",             "Flag",              0, 0 }},
+    { PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH,                              { TYPENAME::BOOL,           "Allow_Touching@Birth",         "Flag",              0, 0 }},
+    { PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION,          { TYPENAME::BOOL,           "Conserve_AngMom@Circ",         "Flag",              0, 0 }},
     // Serena
-    //{ PROGRAM_OPTION::BE_BINARIES,                                        { TYPENAME::BOOL,           "Be_Binaries",          "State",             0, 0 }},
-/*
-    { PROGRAM_OPTION::BLACK_HOLE_KICKS_OPTION,                          "BLACK_HOLE_KICKS_OPTION" },
+    //{ PROGRAM_OPTION::BE_BINARIES,                                        { TYPENAME::BOOL,           "Be_Binaries",                  "Flag",              0, 0 }},
 
-    { PROGRAM_OPTION::EVOLUTION_MODE,                                   "EVOLUTION_MODE" },
+    { PROGRAM_OPTION::BLACK_HOLE_KICKS_OPTION,                              { TYPENAME::INT,            "BH_Kicks_Option",              "-",                 4, 1 }},
     
-    { PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION,                   "CASE_BB_STABILITY_PRESCRIPTION" },
+    { PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION,                       { TYPENAME::INT,            "CE_Mass_Accr_Prscrp",          "-",                 4, 1 }},
     
-    { PROGRAM_OPTION::CHE_OPTION,                                       "CHE_OPTION" },
+    { PROGRAM_OPTION::CHE_OPTION,                                           { TYPENAME::INT,            "CHE_Option",                   "-",                 4, 1 }},
 
-    { PROGRAM_OPTION::CIRCULARISE_BINARY_DURING_MT,                     "CIRCULARISE_BINARY_DURING_MT" },
+    { PROGRAM_OPTION::CIRCULARISE_BINARY_DURING_MT,                         { TYPENAME::BOOL,           "Circularise@MT",               "Flag",              0, 0 }},
 
-    { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA,                            "COMMON_ENVELOPE_ALPHA" },
-    { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA_THERMAL,                    "COMMON_ENVELOPE_ALPHA_THERMAL" },
-    { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA,                           "COMMON_ENVELOPE_LAMBDA" },
-    { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_MULTIPLIER,                "COMMON_ENVELOPE_LAMBDA_MULTIPLIER" },
-    { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_PRESCRIPTION,              "COMMON_ENVELOPE_LAMBDA_PRESCRIPTION" },
-    { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_CONSTANT,          "COMMON_ENVELOPE_MASS_ACCRETION_CONSTANT" },
-    { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_MAX,               "COMMON_ENVELOPE_MASS_ACCRETION_MAX" },
-    { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_MIN,               "COMMON_ENVELOPE_MASS_ACCRETION_MIN" },
-    { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION,      "COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION" },
-    { PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY,     "COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY" },
-    { PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW,                    "COMMON_ENVELOPE_SLOPE_KRUCKOW" },
+    { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA,                                { TYPENAME::DOUBLE,         "CE_Alpha",                     "-",                14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA_THERMAL,                        { TYPENAME::DOUBLE,         "CE_Alpha_Thermal",             "-",                14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA,                               { TYPENAME::DOUBLE,         "CE_Lambda",                    "-",                14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_MULTIPLIER,                    { TYPENAME::DOUBLE,         "CE_Lambda_Multiplier",         "-",                14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_PRESCRIPTION,                  { TYPENAME::INT,            "CE_Lambda_Prscr",              "-",                 4, 1 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_CONSTANT,              { TYPENAME::DOUBLE,         "CE_Mass_Accr_Constant",        "-",                14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_MAX,                   { TYPENAME::DOUBLE,         "CE_Mass_Accr_Max",             "Msol",             14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_MIN,                   { TYPENAME::DOUBLE,         "CE_Mass_Accr_Min",             "Msol",             14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION,          { TYPENAME::INT,            "CE_Mass_Accr_Prscrptn",        "-",                 4, 1 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY,         { TYPENAME::DOUBLE,         "CE_Recomb_Enrgy_Dnsty",        "erg g^-1",         14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW,                        { TYPENAME::DOUBLE,         "CE_Slope_Kruckow",             "-",                14, 6 }},
 
-    { PROGRAM_OPTION::ECCENTRICITY,                                     "ECCENTRICITY" },
-    { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION,                        "ECCENTRICITY_DISTRIBUTION" },
-    { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MAX,                    "ECCENTRICITY_DISTRIBUTION_MAX" },
-    { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MIN,                    "ECCENTRICITY_DISTRIBUTION_MIN" },
-    { PROGRAM_OPTION::EDDINGTON_ACCRETION_FACTOR,                       "EDDINGTON_ACCRETION_FACTOR" },
-    { PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION,                      "ENVELOPE_STATE_PRESCRIPTION" },
+    { PROGRAM_OPTION::ECCENTRICITY,                                         { TYPENAME::DOUBLE,         "Eccentricity",                 "-",                14, 6 }},
+    { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION,                            { TYPENAME::INT,            "Eccentricity_Dstrbtn",         "-",                 4, 1 }},
+    { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MAX,                        { TYPENAME::DOUBLE,         "Eccentricity_Dstrbtn_Max",     "-",                14, 6 }},
+    { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MIN,                        { TYPENAME::DOUBLE,         "Eccentricity_Dstrbtn_Min",     "-",                14, 6 }},
+    { PROGRAM_OPTION::EDDINGTON_ACCRETION_FACTOR,                           { TYPENAME::DOUBLE,         "Eddington_Accr_Factor",        "-",                14, 6 }},
+    { PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION,                          { TYPENAME::INT,            "Envelope_State_Prscrptn",      "-",                 4, 1 }},
 
-    { PROGRAM_OPTION::FRYER_SUPERNOVA_ENGINE,                           "FRYER_SUPERNOVA_ENGINE" },
+    { PROGRAM_OPTION::FRYER_SUPERNOVA_ENGINE,                               { TYPENAME::INT,            "Fryer_SN_Engine",              "-",                 4, 1 }},
 
-    { PROGRAM_OPTION::INITIAL_MASS,                                     "INITIAL_MASS" },
-    { PROGRAM_OPTION::INITIAL_MASS_1,                                   "INITIAL_MASS_1" },
-    { PROGRAM_OPTION::INITIAL_MASS_2,                                   "INITIAL_MASS_2" },
+    { PROGRAM_OPTION::INITIAL_MASS,                                         { TYPENAME::DOUBLE,         "Initial_Mass",                 "Msol",             14, 6 }},
+    { PROGRAM_OPTION::INITIAL_MASS_1,                                       { TYPENAME::DOUBLE,         "Initial_Mass_1",               "Msol",             14, 6 }},
+    { PROGRAM_OPTION::INITIAL_MASS_2,                                       { TYPENAME::DOUBLE,         "Initial_Mass_2",               "Msol",             14, 6 }},
 
-    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION,                            "INITIAL_MASS_FUNCTION" },
-    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                        "INITIAL_MASS_FUNCTION_MAX" },
-    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                        "INITIAL_MASS_FUNCTION_MIN" },
-    { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                       "INITIAL_MASS_FUNCTIONPOWER" },
+    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION,                                { TYPENAME::INT,            "Initial_Mass_Function",        "-",                 4, 1 }},
+    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                            { TYPENAME::DOUBLE,         "Initial_Mass_Func_Max",        "Msol",             14, 6 }},
+    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                            { TYPENAME::DOUBLE,         "Initial_Mass_Func_Min",        "Msol",             14, 6 }},
+    { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                           { TYPENAME::DOUBLE,         "Initial_Mass_Func_Power",      "-",                14, 6 }},
 
-    { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                      "KICK_DIRECTION_DISTRIBUTION" },
-    { PROGRAM_OPTION::KICK_DIRECTION_POWER,                             "KICK_DIRECTION_POWER" },
-    { PROGRAM_OPTION::KICK_SCALING_FACTOR,                              "KICK_SCALING_FACTOR" },
-    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION,                      "KICK_MAGNITUDE_DISTRIBUTION" },
-    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_MAXIMUM,              "KICK_MAGNITUDE_DISTRIBUTION_MAXIMUM" },
-*/
+    { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                          { TYPENAME::INT,            "Kick_Direction_Dstrbtn",       "-",                 4, 1 }},
+    { PROGRAM_OPTION::KICK_DIRECTION_POWER,                                 { TYPENAME::DOUBLE,         "Kick_Direction_Power",         "-",                14, 6 }},
+    { PROGRAM_OPTION::KICK_SCALING_FACTOR,                                  { TYPENAME::DOUBLE,         "Kick_Scaling_Factor",          "-",                14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION,                          { TYPENAME::INT,            "Kick_Magnitude_Dstrbtn",       "-",                 4, 1 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_MAXIMUM,                  { TYPENAME::DOUBLE,         "Kick_Magnitude_Dstrbtn_Max",   "-",                14, 6 }},
 
-    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_BH,            { TYPENAME::DOUBLE,          "Sigma_Kick_CCSN_BH",   "kms^-1",           14, 6 }},
-    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_NS,            { TYPENAME::DOUBLE,          "Sigma_Kick_CCSN_NS",   "kms^-1",           14, 6 }},
-    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_ECSN,           { TYPENAME::DOUBLE,          "Sigma_Kick_ECSN",      "kms^-1",           14, 6 }},
-    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_USSN,           { TYPENAME::DOUBLE,          "Sigma_Kick_USSN",      "kms^-1",           14, 6 }},
-    { PROGRAM_OPTION::RANDOM_SEED,                                          { TYPENAME::ULONGINT,        "SEED (ProgramOption)", "-",                12, 1 }}
+    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_BH,            { TYPENAME::DOUBLE,         "Sigma_Kick_CCSN_BH",           "kms^-1",           14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_NS,            { TYPENAME::DOUBLE,         "Sigma_Kick_CCSN_NS",           "kms^-1",           14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_ECSN,           { TYPENAME::DOUBLE,         "Sigma_Kick_ECSN",              "kms^-1",           14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_USSN,           { TYPENAME::DOUBLE,         "Sigma_Kick_USSN",              "kms^-1",           14, 6 }},
+
+    { PROGRAM_OPTION::KICK_MAGNITUDE,                                       { TYPENAME::DOUBLE,         "Kick_Magnitude",               "kms^-1",           14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_1,                                     { TYPENAME::DOUBLE,         "Kick_Magnitude_1",             "kms^-1",           14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_2,                                     { TYPENAME::DOUBLE,         "Kick_Magnitude_2",             "kms^-1",           14, 6 }},
+
+    { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM,                                { TYPENAME::DOUBLE,         "Kick_Magnitude_Random",        "-",                14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM_1,                              { TYPENAME::DOUBLE,         "Kick_Magnitude_Random_1",      "-",                14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM_2,                              { TYPENAME::DOUBLE,         "Kick_Magnitude_Random_2",      "-",                14, 6 }},
+
+    { PROGRAM_OPTION::KICK_MEAN_ANOMALY_1,                                  { TYPENAME::DOUBLE,         "Kick_Mean_Anomaly_1",          "-",                14, 6 }},
+    { PROGRAM_OPTION::KICK_MEAN_ANOMALY_2,                                  { TYPENAME::DOUBLE,         "Kick_Mean_Anomaly_2",          "-",                14, 6 }},
+    { PROGRAM_OPTION::KICK_PHI_1,                                           { TYPENAME::DOUBLE,         "Kick_Phi_1",                   "-",                14, 6 }},
+    { PROGRAM_OPTION::KICK_PHI_2,                                           { TYPENAME::DOUBLE,         "Kick_Phi_2",                   "-",                14, 6 }},
+    { PROGRAM_OPTION::KICK_THETA_1,                                         { TYPENAME::DOUBLE,         "Kick_Theta_1",                 "-",                14, 6 }},
+    { PROGRAM_OPTION::KICK_THETA_2,                                         { TYPENAME::DOUBLE,         "Kick_Theta_2",                 "-",                14, 6 }},
+
+    { PROGRAM_OPTION::LBV_FACTOR,                                           { TYPENAME::DOUBLE,         "LBV_Factor",                   "-",                14, 6 }},
+
+    { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                               { TYPENAME::INT,            "Mass_Loss_Prscrptn",           "-",                 4, 1 }},
+
+    { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION,                              { TYPENAME::INT,            "Mass_Ratio_Dstrbtn",           "-",                 4, 1 }},
+    { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MAX,                          { TYPENAME::DOUBLE,         "Mass_Ratio_Dstrbtn_Max",       "-",                14, 6 }},
+    { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MIN,                          { TYPENAME::DOUBLE,         "Mass_Ratio_Dstrbtn_Min",       "-",                14, 6 }},
+
+    { PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION,                 { TYPENAME::INT,            "MT_Acc_Efficiency_Prscrptn",   "-",                 4, 1 }},
+    { PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION,                         { TYPENAME::INT,            "MT_AngMom_Loss_Prscrptn",      "-",                 4, 1 }},
+    { PROGRAM_OPTION::MT_THERMAL_LIMIT_C,                                   { TYPENAME::DOUBLE,         "MT_Thermal_Limit_C",           "-",                14, 6 }},
+
+    // AVG
+    /*
+    { PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS,                               { TYPENAME::BOOL,           "MT_Crit_MR_MS_Low_Mass",               "Flag",      0, 0 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS_DEGENERATE_ACCRETOR,           { TYPENAME::DOUBLE,         "MT_Crit_MR_MS_Low_Mass_Deg_Acc",       "-",        14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS_NON_DEGENERATE_ACCRETOR,       { TYPENAME::DOUBLE,         "MT_Crit_MR_MS_Low_Mass_NonDeg_Acc",    "-",        14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS,                              { TYPENAME::BOOL,           "MT_Crit_MR_MS_High_Mass",              "Flag",      0, 0 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS_DEGENERATE_ACCRETOR,          { TYPENAME::DOUBLE,         "MT_Crit_MR_MS_High_Mass_Deg_Acc",      "-",        14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS_NON_DEGENERATE_ACCRETOR,      { TYPENAME::DOUBLE,         "MT_Crit_MR_MS_High_Mass_NonDeg_Acc",   "-",        14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_GIANT,                                     { TYPENAME::BOOL,           "MT_Crit_MR_Giant",                     "Flag",      0, 0 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_GIANT_DEGENERATE_ACCRETOR,                 { TYPENAME::DOUBLE,         "MT_Crit_MR_Giant_Deg_Acc",             "-",        14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_GIANT_NON_DEGENERATE_ACCRETOR,             { TYPENAME::DOUBLE,         "MT_Crit_MR_Giant_NonDeg_Acc",          "-",        14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HG,                                        { TYPENAME::BOOL,           "MT_Crit_MR_HG",                        "Flag",      0, 0 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HG_DEGENERATE_ACCRETOR,                    { TYPENAME::DOUBLE,         "MT_Crit_MR_HG_Deg_Acc",                "-",        14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HG_NON_DEGENERATE_ACCRETOR,                { TYPENAME::DOUBLE,         "MT_Crit_MR_HG_NonDeg_Acc",             "-",        14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT,                                  { TYPENAME::BOOL,           "MT_Crit_MR_HE_Giant",                  "Flag",      0, 0 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT_DEGENERATE_ACCRETOR,              { TYPENAME::DOUBLE,         "MT_Crit_MR_HE_Giant_Deg_Acc",          "-",        14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT_NON_DEGENERATE_ACCRETOR,          { TYPENAME::DOUBLE,         "MT_Crit_MR_HE_Giant_NonDeg_Acc",       "-",        14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HE_HG,                                     { TYPENAME::BOOL,           "MT_Crit_MR_HE_HG",                     "Flag",      0, 0 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HE_HG_DEGENERATE_ACCRETOR,                 { TYPENAME::DOUBLE,         "MT_Crit_MR_HE_HG_Deg_Acc",             "-",        14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HE_HG_NON_DEGENERATE_ACCRETOR,             { TYPENAME::DOUBLE,         "MT_Crit_MR_HE_HG_NonDeg_Acc",          "-",        14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HE_MS,                                     { TYPENAME::BOOL,           "MT_Crit_MR_HE_MS",                     "Flag",      0, 0 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HE_MS_DEGENERATE_ACCRETOR,                 { TYPENAME::DOUBLE,         "MT_Crit_MR_HE_MS_Deg_Acc",             "-",        14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HE_MS_NON_DEGENERATE_ACCRETOR,             { TYPENAME::DOUBLE,         "MT_Crit_MR_HE_MS_NonDeg_Acc",          "-",        14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_WD,                                        { TYPENAME::BOOL,           "MT_Crit_MR_WD",                        "Flag",      0, 0 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_WD_DEGENERATE_ACCRETOR,                    { TYPENAME::DOUBLE,         "MT_Crit_MR_WD_Deg_Acc",                "-",        14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_WD_NONDEGENERATE_ACCRETOR,                 { TYPENAME::DOUBLE,         "MT_Crit_MR_WD_NonDeg_Acc",             "-",        14, 6 }},
+    */
+
+    { PROGRAM_OPTION::MT_FRACTION_ACCRETED,                                 { TYPENAME::DOUBLE,         "MT_faction_Accreted",          "-",                14, 6 }},
+    { PROGRAM_OPTION::MT_JLOSS,                                             { TYPENAME::DOUBLE,         "MT_JLoss",                     "-",                14, 6 }},
+    { PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION,                         { TYPENAME::INT,            "MT_Rejuvenation_Prscrptn",     "-",                 4, 1 }},
+    { PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION,                       { TYPENAME::INT,            "MT_Thermally_Lmtd_Variation",  "-",                 4, 1 }},
+
+    { PROGRAM_OPTION::MCBUR1,                                               { TYPENAME::DOUBLE,         "MCBUR1",                       "Msol",             14, 6 }},
+
+    { PROGRAM_OPTION::METALLICITY,                                          { TYPENAME::DOUBLE,         "Metallicity",                  "-",                14, 6 }},
+
+    { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                               { TYPENAME::DOUBLE,         "Max_Secondary_Mass",           "Msol",             14, 6 }},
+    { PROGRAM_OPTION::MAXIMUM_NEUTRON_STAR_MASS,                            { TYPENAME::DOUBLE,         "Max_NS_Mass",                  "Msol",             14, 6 }},
+
+    { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                     { TYPENAME::INT,            "Neutrino_Mass_Loss_Assmptn",   "-",                 4, 1 }},
+    { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                          { TYPENAME::DOUBLE,         "Neutrino_Mass_Loss_Value",     "-",                14, 6 }},
+
+    { PROGRAM_OPTION::NS_EOS,                                               { TYPENAME::INT,            "NS_EOS",                       "-",                 4, 1 }},
+
+    { PROGRAM_OPTION::PISN_LOWER_LIMIT,                                     { TYPENAME::DOUBLE,         "PISN_Lower_Limit",             "Msol",             14, 6 }},
+    { PROGRAM_OPTION::PISN_UPPER_LIMIT,                                     { TYPENAME::DOUBLE,         "PISN_Upper_Limit",             "Msol",             14, 6 }},
+
+    { PROGRAM_OPTION::PERIOD_DISTRIBUTION_MAX,                              { TYPENAME::DOUBLE,         "Oribital_Period_Max",          "days",             14, 6 }},
+    { PROGRAM_OPTION::PERIOD_DISTRIBUTION_MIN,                              { TYPENAME::DOUBLE,         "Oribital_Period_Min",          "days",             14, 6 }},
+
+    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION,                   { TYPENAME::INT,            "Pulsar_Mag_Field_Dstrbtn",     "-",                 4, 1 }},
+    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MAX,               { TYPENAME::DOUBLE,         "Pulsar_Mag_Field_Dstrbtn_Max", "AU",               14, 6 }},
+    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MIN,               { TYPENAME::DOUBLE,         "Pulsar_Mag_Field_Dstrbtn_Min", "AU",               14, 6 }},
+
+    { PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,                { TYPENAME::INT,            "Pulsar_Spin_Period_Dstrbtn",   "-",                 4, 1 }},
+    { PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_MAX,            { TYPENAME::DOUBLE,         "Pulsar_Spin_Period_Dstrbtn_Max","AU",              14, 6 }},
+    { PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_MIN,            { TYPENAME::DOUBLE,         "Pulsar_Spin_Period_Dstrbtn_Min","AU",              14, 6 }},
+
+    { PROGRAM_OPTION::PULSAR_LOG10_MINIMUM_MAGNETIC_FIELD,                  { TYPENAME::DOUBLE,         "Pulsar_Minimum_Mag_field",     "Gauss",            14, 6 }},
+
+    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_MASS_SCALE,               { TYPENAME::DOUBLE,         "Pulsar_Mag_Field_Decay_mScale","Msol",             14, 6 }},
+    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE,               { TYPENAME::DOUBLE,         "Pulsar_Mag_Field_Decay_tScale","Myr",              14, 6 }},
+
+    { PROGRAM_OPTION::PPI_PRESCRIPTION,                                     { TYPENAME::INT,            "PPI_Prscrptn",                 "-",                 4, 1 }},
+    { PROGRAM_OPTION::PPI_LOWER_LIMIT,                                      { TYPENAME::DOUBLE,         "PPI_Lower_Limit",              "Msol",             14, 6 }},
+    { PROGRAM_OPTION::PPI_UPPER_LIMIT,                                      { TYPENAME::DOUBLE,         "PPI_Upper_Limit",              "Msol",             14, 6 }},
+
+    { PROGRAM_OPTION::RANDOM_SEED,                                          { TYPENAME::DOUBLE,         "Random_Seed(OPTION)",          "Msol",             14, 6 }},
+    { PROGRAM_OPTION::RANDOM_SEED_CMDLINE,                                  { TYPENAME::DOUBLE,         "Random_Seed(CMDLINE)",         "Msol",             14, 6 }},
+
+    { PROGRAM_OPTION::REMNANT_MASS_PRESCRIPTION,                            { TYPENAME::INT,            "Remnant_Mass_Prscrptn",        "-",                 4, 1 }},
+
+    { PROGRAM_OPTION::ROTATIONAL_VELOCITY_DISTRIBUTION,                     { TYPENAME::INT,            "Rotational_Velocity_Dstrbtn",  "-",                 4, 1 }},
+   
+    { PROGRAM_OPTION::SEMI_MAJOR_AXIS,                                      { TYPENAME::DOUBLE,         "Semi-Major_Axis",              "AU",               14, 6 }},
+    { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION,                         { TYPENAME::INT,            "Semi-Major_Axis_Dstrbtn",      "-",                 4, 1 }},
+    { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MAX,                     { TYPENAME::DOUBLE,         "Semi-Major_Axis_Dstrbtn_Max",  "AU",               14, 6 }},
+    { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MIN,                     { TYPENAME::DOUBLE,         "Semi-Major_Axis_Dstrbtn_Min",  "AU",               14, 6 }},
+    { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_POWER,                   { TYPENAME::DOUBLE,         "Semi-Major_Axis_Dstrbtn_Power","-",                14, 6 }},
+
+    { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                            { TYPENAME::INT,            "Stellar_Zeta_Prscrptn",        "-",                 4, 1 }},
+
+    { PROGRAM_OPTION::WR_FACTOR,                                            { TYPENAME::DOUBLE,         "WR_Factor",                    "-",                14, 6 }},
+
+    { PROGRAM_OPTION::ZETA_RADIATIVE_ENVELOPE_GIANT,                        { TYPENAME::DOUBLE,         "Zeta_Radiative_Envelope_Giant","-",                14, 6 }},
+    { PROGRAM_OPTION::ZETA_MS,                                              { TYPENAME::DOUBLE,         "Zeta_Main_Sequence",           "-",                14, 6 }},
+    { PROGRAM_OPTION::ZETA_ADIABATIC_ARBITRARY,                             { TYPENAME::DOUBLE,         "Zeta_Adiabatic_Arbitrary",     "-",                14, 6 }}
 };
 
 
