@@ -459,7 +459,9 @@
 //                                      - Added eccentricity printing to RLOF logging
 //                                      - Adjusted pythonSubmitDefault.py to include PESSIMISTIC CHE
 //                                      - Updated documentation
+// 02.15.13     JR - Oct 8, 2020    - Defect repair:
+//                                      - Added checks for maximum time and timesteps to SSE code- issue #394
 
-const std::string VERSION_STRING = "02.15.12";
+const std::string VERSION_STRING = "02.15.13";
 
 # endif // __changelog_h__

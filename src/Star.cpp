@@ -468,17 +468,20 @@ double Star::EvolveOneTimestep(const double p_Dt) {
  * Evolve the star through its entire lifetime
  *
  *
- * void Evolve(const long int p_Id)
+ * EVOLUTION_STATUS Evolve(const long int p_Id)
  *
  * @param   [IN]    p_Id                        The mass id (e.g. step number) for this star - can be used to name logfiles for this star
+ * @return                                      Status.  One of {EVOLUTION_STATUS::DONE, EVOLUTION_STATUS::STEPS_UP, EVOLUTION_STATUS::TIMES_UP}
  */
-void Star::Evolve(const long int p_Id) {
+EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
 
-    m_Id = p_Id;                                    // store the id
+    EVOLUTION_STATUS status = EVOLUTION_STATUS::CONTINUE;
+
+    m_Id = p_Id;                                                                // store the id
 
     // evolve the star
 
-    m_Star->CalculateGBParams();                    // calculate giant branch parameters - in case for some reason star is initially not MS
+    m_Star->CalculateGBParams();                                                // calculate giant branch parameters - in case for some reason star is initially not MS
 
     double dt = 0.0;
 
@@ -486,15 +489,28 @@ void Star::Evolve(const long int p_Id) {
     // m_Error seems to be set ad hoc for SSE, and doesn't actually stop the evolution
     // we should be more rigorous in checking/setting error conditions, and stop the evolution for catastrophic errors
 
-    while (m_Star->IsOneOf({ STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07, STELLAR_TYPE::HERTZSPRUNG_GAP,
-                             STELLAR_TYPE::FIRST_GIANT_BRANCH, STELLAR_TYPE::CORE_HELIUM_BURNING, STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH, STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,
-                             STELLAR_TYPE::NAKED_HELIUM_STAR_MS, STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH })) {
+    int stepNum = 0;
+    while (status == EVOLUTION_STATUS::CONTINUE) {
+    
+        if (m_Star->Time() > OPTIONS->MaxEvolutionTime()) {
+            status = EVOLUTION_STATUS::TIMES_UP;                                // out of time...
+        }
+        else if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) {
+            status = EVOLUTION_STATUS::STEPS_UP;                                // out of steps...
+        }
+        else if (!m_Star->IsOneOf({ STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07, STELLAR_TYPE::HERTZSPRUNG_GAP,
+                                    STELLAR_TYPE::FIRST_GIANT_BRANCH, STELLAR_TYPE::CORE_HELIUM_BURNING, STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH, STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,
+                                    STELLAR_TYPE::NAKED_HELIUM_STAR_MS, STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH })) {
 
-        dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();           // calculate new timestep
-
-        EvolveOneTimestep(dt);                      // evolve for timestep
-
-        m_Star->PrintParameters(m_Id);              // log record  JR: this should probably be before the star switches type, but this way matches the original code
+            status = EVOLUTION_STATUS::DONE;                                    // we're done
+        }
+        else {
+            stepNum++;                                                          // increment step number                                                      
+            dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();   // calculate new timestep
+            EvolveOneTimestep(dt);                                              // evolve for timestep
+            m_Star->PrintParameters(m_Id);                                      // log record  JR: this should probably be before the star switches type, but this way matches the original code
+        }
     }
 
+    return status;
 }
