@@ -274,7 +274,7 @@ double HeHG::CalculateMassTransferRejuvenationFactor() {
  */
 double HeHG::CalculatePerturbationMu() {
     double McMax = CalculateMaximumCoreMass(m_Mass);
-    return 5.0 * ((McMax - m_CoreMass) / McMax);
+    return std::max(5.0 * ((McMax - m_CoreMass) / McMax), 0.0);         //return non-negative value to avoid round-off issues
 }
 
 
