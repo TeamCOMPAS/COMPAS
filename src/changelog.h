@@ -360,7 +360,7 @@
 //  									- Issue #229: Corrected fitting parameters in Muller 16 SN kick function
 // 02.13.07      IM - Aug 20, 2020  - Enhancements:
 //                                      - ONeWDs can now undergo ECSN if their mass rises above MECS=1.38 solar masses (previously, they could only undergo CCSN on rising above 1.38 solar masses).  ONeWD::CalculateInitialSupernovaMass now returns MCBUR1 rather than 5.0 to ensure this happens
-//                                      - BaseStar::CalculateMaximumCoreMassSN() has been removed — it’s superfluous since  GiantBranch::CalculateCoreMassAtSupernova_Static does the same thing
+//                                      - BaseStar::CalculateMaximumCoreMassSN() has been removed - it is superfluous since  GiantBranch::CalculateCoreMassAtSupernova_Static does the same thing
 //                                      - Some misleading comments in TPAGB dealing with SNe have been clarified
 //                                      - Option to set MCBUR1 [minimum core mass at base of the AGB to avoid fully degenerate CO core formation] to a value different from the Hurley default of 1.6 solar masses added, Issue #65 resolved
 //                                      - Removed unused Options::SetToFiducialValues()
@@ -463,7 +463,9 @@
 //                                      - Added checks for maximum time and timesteps to SSE code- issue #394
 // 02.15.14     IM - Oct 8, 2020    - Defect repair:
 //                                      - Added checks for dividing by zero when calculating fractional change in radius
+// 02.15.15     IM - Oct 8, 2020    - Defect repair:
+//                                      - Added safeguards for R<R_core in radius perturbation for small-envelope stars, complete addressing issue #394
 
-const std::string VERSION_STRING = "02.15.14";
+const std::string VERSION_STRING = "02.15.15";
 
 # endif // __changelog_h__
