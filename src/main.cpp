@@ -230,19 +230,19 @@ std::tuple<int, int> EvolveSingleStars() {
                 delete star;                                                                                            // so we don't leak...
                 star = new Star(randomSeed, initialMass, kickParameters);                                               // create star according to the user-specified options
 
-                // evolve the star
-                star->Evolve(index);
+                EVOLUTION_STATUS thisStatus = star->Evolve(index);                                                      // evolve the star
 
-                // announce results if required
                 if (!OPTIONS->Quiet()) {                                                                                // quiet mode?
-                    SAY(index               <<                                                                          // no - announce result of evolving the star
-                        ": RandomSeed = "   <<
-                        randomSeed          <<
-                        ", Initial Mass = " <<
-                        initialMass         <<
-                        ", Metallicity = "  <<
-                        star->Metallicity() <<
-                        ", "                <<
+                    SAY(index                                   <<                                                      // announce result of evolving the star
+                        ": "                                    <<
+                        EVOLUTION_STATUS_LABEL.at(thisStatus)   <<                  
+                        ": RandomSeed = "                       <<
+                        randomSeed                              <<
+                        ", Initial Mass = "                     <<
+                        initialMass                             <<
+                        ", Metallicity = "                      <<
+                        star->Metallicity()                     <<
+                        ", "                                    <<
                         STELLAR_TYPE_LABEL.at(star->StellarType()));
                 }
                 nStarsCreated++;                                                                                        // increment the number of stars created

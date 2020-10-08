@@ -626,8 +626,8 @@ const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL =
     { EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH,     "Stars merged at birth" },
     { EVOLUTION_STATUS::UNBOUND,                     "Unbound binary" },
     { EVOLUTION_STATUS::WD_WD,                       "Double White Dwarf" },
-    { EVOLUTION_STATUS::TIMES_UP,                    "Evolution stopped after 15 Gyr" },
-    { EVOLUTION_STATUS::STEPS_UP,                    "Timesteps exceeded" },
+    { EVOLUTION_STATUS::TIMES_UP,                    "Allowed time exceeded" },
+    { EVOLUTION_STATUS::STEPS_UP,                    "Allowed timesteps exceeded" },
     { EVOLUTION_STATUS::STOPPED,                     "Evolution stopped" },
     { EVOLUTION_STATUS::AIS_EXPLORATORY,             "AIS fraction exceeded" }
 };
