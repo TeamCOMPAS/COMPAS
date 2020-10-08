@@ -461,7 +461,9 @@
 //                                      - Updated documentation
 // 02.15.13     JR - Oct 8, 2020    - Defect repair:
 //                                      - Added checks for maximum time and timesteps to SSE code- issue #394
+// 02.15.14     IM - Oct 8, 2020    - Defect repair:
+//                                      - Added checks for dividing by zero when calculating fractional change in radius
 
-const std::string VERSION_STRING = "02.15.13";
+const std::string VERSION_STRING = "02.15.14";
 
 # endif // __changelog_h__
