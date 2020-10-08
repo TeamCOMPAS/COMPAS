@@ -1901,7 +1901,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     if (!m_Star1->IsRLOF() && !m_Star2->IsRLOF()) return;                                                                                                   // neither star is overflowing its Roche Lobe - no mass transfer - nothing to do
     
     if (OPTIONS->CHE_Option() != CHE_OPTION::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}) && HasStarsTouching()) {  // CHE enabled and both stars CH?
-        m_StellarMerger = true;                                                                                                 // just merge
+        m_StellarMerger = true;
         return;
     }
 
@@ -2324,8 +2324,9 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
     }
     else {
         ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
-        if(HasStarsTouching())                                                                                         // if stars emerged from mass transfer as touching, it's a merger
+        if(HasStarsTouching()){                                                                                         // if stars emerged from mass transfer as touching, it's a merger
             m_StellarMerger = true;
+        }
     }
 
     if (m_PrintExtraDetailedOutput == true && !StellarMerger()) { PrintDetailedOutput(m_Id); }                                              // print detailed output record if stellar type changed (except on merger, when detailed output is meaningless)

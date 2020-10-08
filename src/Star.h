@@ -181,7 +181,7 @@ public:
 
     MT_CASE         DetermineMassTransferCase()                                                                 { return m_Star->DetermineMassTransferCase(); }
 
-    void            Evolve(const long int p_Id);
+    EVOLUTION_STATUS Evolve(const long int p_Id);
 
     double          EvolveOneTimestep(const double p_Dt);
 
