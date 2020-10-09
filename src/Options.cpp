@@ -8,10 +8,10 @@ namespace cls = po::command_line_style;
 namespace fs  = boost::filesystem;
 
 
-// this is required to set default value for boost program options of type vector<string>
+// this is required to set default value for boost program options of type vector<std::string>
 namespace std
 {
-  std::ostream& operator<<(std::ostream &os, const std::vector<string> &vec) {    
+  std::ostream& operator<<(std::ostream &os, const std::vector<std::string> &vec) {    
     for (auto item : vec) os << item << " ";
     return os; 
   }
@@ -24,6 +24,11 @@ Options* Options::Instance() {
     }
     return m_Instance;
 }
+
+// for convenience
+
+#define COMPLAIN(complainStr)           { std::stringstream _ss; _ss << complainStr; throw _ss.str(); }
+#define COMPLAIN_IF(cond, complainStr)  { if (cond) COMPLAIN(complainStr) }
 
 
 /*
@@ -339,7 +344,6 @@ void Options::OptionValues::Initialise() {
 
     // Metallicity options
     m_Metallicity                                                   = ZSOL;
-    m_FixedMetallicity                                              = true;
 
 
     // Neutron star equation of state
@@ -429,6 +433,8 @@ void Options::OptionValues::Initialise() {
  *                                              If no error occurred the return string will be the empty string 
  */
 std::string Options::OptionValues::CheckAndSetOptions() {
+#define DEFAULTED(opt) m_VM[opt].defaulted()        // for convenience and readability - undefined at end of function
+
 
     std::string errStr = "";                                                                                // error string
 
@@ -438,79 +444,78 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         bool found;
 
-        m_FixedRandomSeed  = !m_VM["random-seed"].defaulted();                                              // use random seed if it is provided by the user
-//        m_FixedMetallicity = !m_VM["metallicity"].defaulted();                                              // determine if user supplied a metallicity value
-        m_UseFixedUK       = !m_VM["fix-dimensionless-kick-magnitude"].defaulted() && (m_FixedUK >= 0.0);   // determine if user supplied a valid kick magnitude
+        m_FixedRandomSeed  = !DEFAULTED("random-seed");                                                     // use random seed if it is provided by the user
+        m_UseFixedUK       = !DEFAULTED("fix-dimensionless-kick-magnitude") && (m_FixedUK >= 0.0);          // determine if user supplied a valid kick magnitude
 
 
         // Floor
         /*
-        if (!vmCmdLine["ais-dcotype"].defaulted()) {                                                        // Adaptive Importance Sampling DCO type
+        if (!DEFAULTED("ais-dcotype")) {                                                                    // Adaptive Importance Sampling DCO type
             std::tie(found, p_OptionValues->m_AISDCOtype) = utils::GetMapKey(p_OptionValues->m_AISDCOtypeString, AIS_DCO_LABEL, p_OptionValues->m_AISDCOtype);
             return "Unknown AIS DCO Type";
         }
         */
 
-        if (!m_VM["black-hole-kicks"].defaulted()) {                                                        // black hole kicks option
+        if (!DEFAULTED("black-hole-kicks")) {                                                               // black hole kicks option
             std::tie(found, m_BlackHoleKicksOption) = utils::GetMapKey(m_BlackHoleKicksOptionString, BLACK_HOLE_KICK_OPTION_LABEL, m_BlackHoleKicksOption);
-            if (!found) return "Unknown Black Hole Kicks Option";
+            COMPLAIN_IF(!found, "Unknown Black Hole Kicks Option");
         }
 
-        if (!m_VM["case-bb-stability-prescription"].defaulted()) {                                          //case BB/BC mass transfer stability prescription
+        if (!DEFAULTED("case-bb-stability-prescription")) {                                                 //case BB/BC mass transfer stability prescription
             std::tie(found, m_CaseBBStabilityPrescription) = utils::GetMapKey(m_CaseBBStabilityPrescriptionString, CASE_BB_STABILITY_PRESCRIPTION_LABEL, m_CaseBBStabilityPrescription);
-            if (!found) return "Unknown Case BB/BC Mass Transfer Stability Prescription";
+            COMPLAIN_IF(!found, "Unknown Case BB/BC Mass Transfer Stability Prescription");
         }
            
-        if (!m_VM["chemically-homogeneous-evolution"].defaulted()) {                                        // Chemically Homogeneous Evolution
+        if (!DEFAULTED("chemically-homogeneous-evolution")) {                                               // Chemically Homogeneous Evolution
             std::tie(found, m_CheOption) = utils::GetMapKey(m_CheString, CHE_OPTION_LABEL, m_CheOption);
-            if (!found) return "Unknown Chemically Homogeneous Evolution Option";
+            COMPLAIN_IF(!found, "Unknown Chemically Homogeneous Evolution Option");
         }
 
-        if (!m_VM["common-envelope-lambda-prescription"].defaulted()) {                                     // common envelope lambda prescription
+        if (!DEFAULTED("common-envelope-lambda-prescription")) {                                            // common envelope lambda prescription
             std::tie(found, m_CommonEnvelopeLambdaPrescription) = utils::GetMapKey(m_CommonEnvelopeLambdaPrescriptionString, CE_LAMBDA_PRESCRIPTION_LABEL, m_CommonEnvelopeLambdaPrescription);
-            if (!found) return "Unknown CE Lambda Prescription";
+            COMPLAIN_IF(!found, "Unknown CE Lambda Prescription");
         }
 
-        if (!m_VM["common-envelope-mass-accretion-prescription"].defaulted()) {                             // common envelope mass accretion prescription
+        if (!DEFAULTED("common-envelope-mass-accretion-prescription")) {                                    // common envelope mass accretion prescription
             std::tie(found, m_CommonEnvelopeMassAccretionPrescription) = utils::GetMapKey(m_CommonEnvelopeMassAccretionPrescriptionString, CE_ACCRETION_PRESCRIPTION_LABEL, m_CommonEnvelopeMassAccretionPrescription);
-            if (!found) return "Unknown CE Mass Accretion Prescription";
+            COMPLAIN_IF(!found, "Unknown CE Mass Accretion Prescription");
         }
             
-        if (!m_VM["envelope-state-prescription"].defaulted()) {                                             // envelope state prescription
+        if (!DEFAULTED("envelope-state-prescription")) {                                                    // envelope state prescription
             std::tie(found, m_EnvelopeStatePrescription) = utils::GetMapKey(m_EnvelopeStatePrescriptionString, ENVELOPE_STATE_PRESCRIPTION_LABEL, m_EnvelopeStatePrescription);
-            if (!found) return "Unknown Envelope State Prescription";
+            COMPLAIN_IF(!found, "Unknown Envelope State Prescription");
         }
 
-        if (!m_VM["eccentricity-distribution"].defaulted()) {                                               // eccentricity distribution
+        if (!DEFAULTED("eccentricity-distribution")) {                                                      // eccentricity distribution
             std::tie(found, m_EccentricityDistribution) = utils::GetMapKey(m_EccentricityDistributionString, ECCENTRICITY_DISTRIBUTION_LABEL, m_EccentricityDistribution);
-            if (!found) return "Unknown Eccentricity Distribution";
+            COMPLAIN_IF(!found, "Unknown Eccentricity Distribution");
         }
 
-        if (!m_VM["fryer-supernova-engine"].defaulted()) {                                                  // Fryer et al. 2012 supernova engine
+        if (!DEFAULTED("fryer-supernova-engine")) {                                                         // Fryer et al. 2012 supernova engine
             std::tie(found, m_FryerSupernovaEngine) = utils::GetMapKey(m_FryerSupernovaEngineString, SN_ENGINE_LABEL, m_FryerSupernovaEngine);
-            if (!found) return "Unknown Fryer et al. Supernova Engine";
+            COMPLAIN_IF(!found, "Unknown Fryer et al. Supernova Engine");
         }
 
-        if (!m_VM["initial-mass-function"].defaulted()) {                                                   // initial mass function
+        if (!DEFAULTED("initial-mass-function")) {                                                          // initial mass function
             std::tie(found, m_InitialMassFunction) = utils::GetMapKey(m_InitialMassFunctionString, INITIAL_MASS_FUNCTION_LABEL, m_InitialMassFunction);
-            if (!found) return "Unknown Initial Mass Function";
+            COMPLAIN_IF(!found, "Unknown Initial Mass Function");
         }
 
-        if (!m_VM["kick-direction"].defaulted()) {                                                          // kick direction
+        if (!DEFAULTED("kick-direction")) {                                                                 // kick direction
             std::tie(found, m_KickDirectionDistribution) = utils::GetMapKey(m_KickDirectionDistributionString, KICK_DIRECTION_DISTRIBUTION_LABEL, m_KickDirectionDistribution);
-            if (!found) return "Unknown Kick Direction Distribution";
+            COMPLAIN_IF(!found, "Unknown Kick Direction Distribution");
         }
 
-        if (!m_VM["kick-magnitude-distribution"].defaulted()) {                                             // kick magnitude
+        if (!DEFAULTED("kick-magnitude-distribution")) {                                                    // kick magnitude
             std::tie(found, m_KickMagnitudeDistribution) = utils::GetMapKey(m_KickMagnitudeDistributionString, KICK_MAGNITUDE_DISTRIBUTION_LABEL, m_KickMagnitudeDistribution);
-            if (!found) return "Unknown Kick Magnitude Distribution";
+            COMPLAIN_IF(!found, "Unknown Kick Magnitude Distribution");
         }
 
         // set values for m_KickPhi[1/2] and m_KickTheta[1/2] here
         // we now have the kick direction distribution and kick direction power (exponent) required by the user (either default or specified)
 
-        bool phi1Defaulted   = m_VM["kick-phi-1"].defaulted();
-        bool theta1Defaulted = m_VM["kick-theta-1"].defaulted();
+        bool phi1Defaulted   = DEFAULTED("kick-phi-1");
+        bool theta1Defaulted = DEFAULTED("kick-theta-1");
 
         if (phi1Defaulted || theta1Defaulted) {
             double phi1, theta1;
@@ -519,8 +524,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             if (theta1Defaulted) m_KickTheta1 = theta1;
         }
 
-        bool phi2Defaulted   = m_VM["kick-phi-2"].defaulted();
-        bool theta2Defaulted = m_VM["kick-theta-2"].defaulted();
+        bool phi2Defaulted   = DEFAULTED("kick-phi-2");
+        bool theta2Defaulted = DEFAULTED("kick-theta-2");
 
         if (phi2Defaulted || theta2Defaulted) {
             double phi2, theta2;
@@ -529,149 +534,149 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             if (theta2Defaulted) m_KickTheta2 = theta2;
         }
 
-        if (!m_VM["logfile-delimiter"].defaulted()) {                                                       // logfile field delimiter
+        if (!DEFAULTED("logfile-delimiter")) {                                                              // logfile field delimiter
             std::tie(found, m_LogfileDelimiter) = utils::GetMapKey(m_LogfileDelimiterString, DELIMITERLabel, m_LogfileDelimiter);
-            if (!found) return "Unknown Logfile Delimiter";
+            COMPLAIN_IF(!found, "Unknown Logfile Delimiter");
         }
 
-        if (!m_VM["mass-loss-prescription"].defaulted()) {                                                  // mass loss prescription
+        if (!DEFAULTED("mass-loss-prescription")) {                                                         // mass loss prescription
             std::tie(found, m_MassLossPrescription) = utils::GetMapKey(m_MassLossPrescriptionString, MASS_LOSS_PRESCRIPTION_LABEL, m_MassLossPrescription);
-            if (!found) return "Unknown Mass Loss Prescription";
+            COMPLAIN_IF(!found, "Unknown Mass Loss Prescription");
         }
 
-        if (!m_VM["mass-ratio-distribution"].defaulted()) {                                                 // mass ratio distribution
+        if (!DEFAULTED("mass-ratio-distribution")) {                                                        // mass ratio distribution
             std::tie(found, m_MassRatioDistribution) = utils::GetMapKey(m_MassRatioDistributionString, MASS_RATIO_DISTRIBUTION_LABEL, m_MassRatioDistribution);
-            if (!found) return "Unknown Mass Ratio Distribution";
+            COMPLAIN_IF(!found, "Unknown Mass Ratio Distribution");
         }
 
-        if (m_UseMassTransfer && !m_VM["mass-transfer-accretion-efficiency-prescription"].defaulted()) {    // mass transfer accretion efficiency prescription
+        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-accretion-efficiency-prescription")) {           // mass transfer accretion efficiency prescription
             std::tie(found, m_MassTransferAccretionEfficiencyPrescription) = utils::GetMapKey(m_MassTransferAccretionEfficiencyPrescriptionString, MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL, m_MassTransferAccretionEfficiencyPrescription);
-            if (!found) return "Unknown Mass Transfer Angular Momentum Loss Prescription";
+            COMPLAIN_IF(!found, "Unknown Mass Transfer Angular Momentum Loss Prescription");
         }
 
-        if (m_UseMassTransfer && !m_VM["mass-transfer-angular-momentum-loss-prescription"].defaulted()) {   // mass transfer angular momentum loss prescription
+        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-angular-momentum-loss-prescription")) {          // mass transfer angular momentum loss prescription
             std::tie(found, m_MassTransferAngularMomentumLossPrescription) = utils::GetMapKey(m_MassTransferAngularMomentumLossPrescriptionString, MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL, m_MassTransferAngularMomentumLossPrescription);
-            if (!found) return "Unknown Mass Transfer Angular Momentum Loss Prescription";
+            COMPLAIN_IF(!found, "Unknown Mass Transfer Angular Momentum Loss Prescription");
         }
 
-        if (m_UseMassTransfer && !m_VM["mass-transfer-rejuvenation-prescription"].defaulted()) {            // mass transfer rejuvenation prescription
+        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-rejuvenation-prescription")) {                   // mass transfer rejuvenation prescription
             std::tie(found, m_MassTransferRejuvenationPrescription) = utils::GetMapKey(m_MassTransferRejuvenationPrescriptionString, MT_REJUVENATION_PRESCRIPTION_LABEL, m_MassTransferRejuvenationPrescription);
-            if (!found) return "Unknown Mass Transfer Rejuvenation Prescription";
+            COMPLAIN_IF(!found, "Unknown Mass Transfer Rejuvenation Prescription");
         }
 
-        if (m_UseMassTransfer && !m_VM["mass-transfer-thermal-limit-accretor"].defaulted()) {               // mass transfer accretor thermal limit
+        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-thermal-limit-accretor")) {                      // mass transfer accretor thermal limit
             std::tie(found, m_MassTransferThermallyLimitedVariation) = utils::GetMapKey(m_MassTransferThermallyLimitedVariationString, MT_THERMALLY_LIMITED_VARIATION_LABEL, m_MassTransferThermallyLimitedVariation);
-            if (!found) return "Unknown Mass Transfer Accretor Thermal Limit";
+            COMPLAIN_IF(!found, "Unknown Mass Transfer Accretor Thermal Limit");
 
             if (m_MassTransferThermallyLimitedVariation == MT_THERMALLY_LIMITED_VARIATION::C_FACTOR) {
-                m_MassTransferCParameter = m_VM["mass-transfer-thermal-limit-C"].defaulted() ? 10.0 : m_MassTransferCParameter;
+                m_MassTransferCParameter = DEFAULTED("mass-transfer-thermal-limit-C") ? 10.0 : m_MassTransferCParameter;
             }
 
             if (m_MassTransferThermallyLimitedVariation == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE) {
-                m_MassTransferCParameter = m_VM["mass-transfer-thermal-limit-C"].defaulted() ? 1.0 : m_MassTransferCParameter;
+                m_MassTransferCParameter = DEFAULTED("mass-transfer-thermal-limit-C") ? 1.0 : m_MassTransferCParameter;
             }
         }
 
-        if (!m_VM["mode"].defaulted()) {                                                                    // mode
+        if (!DEFAULTED("mode")) {                                                                           // mode
             std::tie(found, m_EvolutionMode) = utils::GetMapKey(m_EvolutionModeString, EVOLUTION_MODE_LABEL, m_EvolutionMode);
-            if (!found) return "Unknown Mode";
+            COMPLAIN_IF(!found, "Unknown Mode");
         }
 
-        if (!m_VM["neutrino-mass-loss-bh-formation"].defaulted()) {                                         // neutrino mass loss assumption
+        if (!DEFAULTED("neutrino-mass-loss-bh-formation")) {                                                // neutrino mass loss assumption
             std::tie(found, m_NeutrinoMassLossAssumptionBH) = utils::GetMapKey(m_NeutrinoMassLossAssumptionBHString, NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL, m_NeutrinoMassLossAssumptionBH);
-            if (!found) return "Unknown Neutrino Mass Loss Assumption";
+            COMPLAIN_IF(!found, "Unknown Neutrino Mass Loss Assumption");
         }
 
-        if (!m_VM["neutron-star-equation-of-state"].defaulted()) {                                          // neutron star equation of state
+        if (!DEFAULTED("neutron-star-equation-of-state")) {                                                 // neutron star equation of state
             std::tie(found, m_NeutronStarEquationOfState) = utils::GetMapKey(m_NeutronStarEquationOfStateString, NS_EOSLabel, m_NeutronStarEquationOfState);
-            if (!found) return "Unknown Neutron Star Equation of State";
+            COMPLAIN_IF(!found, "Unknown Neutron Star Equation of State");
         }
 
-        if (!m_VM["pulsar-birth-magnetic-field-distribution"].defaulted()) {                                // pulsar birth magnetic field distribution
+        if (!DEFAULTED("pulsar-birth-magnetic-field-distribution")) {                                       // pulsar birth magnetic field distribution
             std::tie(found, m_PulsarBirthMagneticFieldDistribution) = utils::GetMapKey(m_PulsarBirthMagneticFieldDistributionString, PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL, m_PulsarBirthMagneticFieldDistribution);
-            if (!found) return "Unknown Pulsar Birth Magnetic Field Distribution";
+            COMPLAIN_IF(!found, "Unknown Pulsar Birth Magnetic Field Distribution");
         }
 
-        if (!m_VM["pulsar-birth-spin-period-distribution"].defaulted()) {                                   // pulsar birth spin period distribution
+        if (!DEFAULTED("pulsar-birth-spin-period-distribution")) {                                          // pulsar birth spin period distribution
             std::tie(found, m_PulsarBirthSpinPeriodDistribution) = utils::GetMapKey(m_PulsarBirthSpinPeriodDistributionString, PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL, m_PulsarBirthSpinPeriodDistribution);
-            if (!found) return "Unknown Pulsar Birth Spin Period Distribution";
+            COMPLAIN_IF(!found, "Unknown Pulsar Birth Spin Period Distribution");
         }
 
-        if (!m_VM["pulsational-pair-instability-prescription"].defaulted()) {                               // pulsational pair instability prescription
+        if (!DEFAULTED("pulsational-pair-instability-prescription")) {                                      // pulsational pair instability prescription
             std::tie(found, m_PulsationalPairInstabilityPrescription) = utils::GetMapKey(m_PulsationalPairInstabilityPrescriptionString, PPI_PRESCRIPTION_LABEL, m_PulsationalPairInstabilityPrescription);
-            if (!found) return "Unknown Pulsational Pair Instability Prescription";
+            COMPLAIN_IF(!found, "Unknown Pulsational Pair Instability Prescription");
         }
 
-        if (!m_VM["remnant-mass-prescription"].defaulted()) {                                               // remnant mass prescription
+        if (!DEFAULTED("remnant-mass-prescription")) {                                                      // remnant mass prescription
             std::tie(found, m_RemnantMassPrescription) = utils::GetMapKey(m_RemnantMassPrescriptionString, REMNANT_MASS_PRESCRIPTION_LABEL, m_RemnantMassPrescription);
-            if (!found) return "Unknown Remnant Mass Prescription";
+            COMPLAIN_IF(!found, "Unknown Remnant Mass Prescription");
         }
 
-        if (!m_VM["rotational-velocity-distribution"].defaulted()) {                                        // rotational velocity distribution
+        if (!DEFAULTED("rotational-velocity-distribution")) {                                               // rotational velocity distribution
             std::tie(found, m_RotationalVelocityDistribution) = utils::GetMapKey(m_RotationalVelocityDistributionString, ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL, m_RotationalVelocityDistribution);
-            if (!found) return "Unknown Rotational Velocity Distribution";
+            COMPLAIN_IF(!found, "Unknown Rotational Velocity Distribution");
         }
 
-        if (!m_VM["semi-major-axis-distribution"].defaulted()) {                                            // semi-major axis distribution
+        if (!DEFAULTED("semi-major-axis-distribution")) {                                                   // semi-major axis distribution
             std::tie(found, m_SemiMajorAxisDistribution) = utils::GetMapKey(m_SemiMajorAxisDistributionString, SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL, m_SemiMajorAxisDistribution);
-            if (!found) return "Unknown Semi-Major Axis Distribution";
+            COMPLAIN_IF(!found, "Unknown Semi-Major Axis Distribution");
         }
 
-        if (!m_VM["stellar-zeta-prescription"].defaulted()) {                                               // common envelope zeta prescription
+        if (!DEFAULTED("stellar-zeta-prescription")) {                                                      // common envelope zeta prescription
             std::tie(found, m_StellarZetaPrescription) = utils::GetMapKey(m_StellarZetaPrescriptionString, ZETA_PRESCRIPTION_LABEL, m_StellarZetaPrescription);
-            if (!found) return "Unknown stellar Zeta Prescription";
+            COMPLAIN_IF(!found, "Unknown stellar Zeta Prescription");
         }
 
         // constraint/value/range checks - alphabetically (where possible)
 
-        if (!m_VM["common-envelope-alpha"].defaulted() && m_CommonEnvelopeAlpha < 0.0) return "CE alpha (--common-envelope-alpha) < 0";
-        if (!m_VM["common-envelope-alpha-thermal"].defaulted() && (m_CommonEnvelopeAlphaThermal < 0.0 || m_CommonEnvelopeAlphaThermal > 1.0)) return "CE alpha thermal (--common-envelope-alpha-thermal) must be between 0 and 1";
-        if (!m_VM["common-envelope-lambda-multiplier"].defaulted() && m_CommonEnvelopeLambdaMultiplier < 0.0) return "CE lambda multiplie (--common-envelope-lambda-multiplier < 0";
-        if (!m_VM["common-envelope-mass-accretion-constant"].defaulted() && m_CommonEnvelopeMassAccretionConstant < 0.0) return "CE mass accretion constant (--common-envelope-mass-accretion-constant) < 0";
-        if (!m_VM["common-envelope-mass-accretion-max"].defaulted() && m_CommonEnvelopeMassAccretionMax < 0.0) return "Maximum accreted mass (--common-envelope-mass-accretion-max) < 0";
-        if (!m_VM["common-envelope-mass-accretion-min"].defaulted() && m_CommonEnvelopeMassAccretionMin < 0.0) return "Minimum accreted mass (--common-envelope-mass-accretion-min) < 0";
+        COMPLAIN_IF(!DEFAULTED("common-envelope-alpha") && m_CommonEnvelopeAlpha < 0.0, "CE alpha (--common-envelope-alpha) < 0");
+        COMPLAIN_IF(!DEFAULTED("common-envelope-alpha-thermal") && (m_CommonEnvelopeAlphaThermal < 0.0 || m_CommonEnvelopeAlphaThermal > 1.0), "CE alpha thermal (--common-envelope-alpha-thermal) must be between 0 and 1");
+        COMPLAIN_IF(!DEFAULTED("common-envelope-lambda-multiplier") && m_CommonEnvelopeLambdaMultiplier < 0.0, "CE lambda multiplie (--common-envelope-lambda-multiplier < 0");
+        COMPLAIN_IF(!DEFAULTED("common-envelope-mass-accretion-constant") && m_CommonEnvelopeMassAccretionConstant < 0.0, "CE mass accretion constant (--common-envelope-mass-accretion-constant) < 0");
+        COMPLAIN_IF(!DEFAULTED("common-envelope-mass-accretion-max") && m_CommonEnvelopeMassAccretionMax < 0.0, "Maximum accreted mass (--common-envelope-mass-accretion-max) < 0");
+        COMPLAIN_IF(!DEFAULTED("common-envelope-mass-accretion-min") && m_CommonEnvelopeMassAccretionMin < 0.0, "Minimum accreted mass (--common-envelope-mass-accretion-min) < 0");
 
-        if (m_DebugLevel < 0) return "Debug level (--debug-level) < 0";
+        COMPLAIN_IF(m_DebugLevel < 0, "Debug level (--debug-level) < 0");
 
-        if (m_Eccentricity < 0.0 || m_Eccentricity > 1.0) return "Eccentricity (--eccentricity) must be between 0 and 1";
-        if (m_EccentricityDistributionMin < 0.0 || m_EccentricityDistributionMin > 1.0) return "Minimum eccentricity (--eccentricity-min) must be between 0 and 1";
-        if (m_EccentricityDistributionMax < 0.0 || m_EccentricityDistributionMax > 1.0) return "Maximum eccentricity (--eccentricity-max) must be between 0 and 1";
-        if (m_EccentricityDistributionMax <= m_EccentricityDistributionMin) return "Maximum eccentricity (--eccentricity-max) must be > Minimum eccentricity (--eccentricity-min)";
+        COMPLAIN_IF(m_Eccentricity < 0.0 || m_Eccentricity > 1.0, "Eccentricity (--eccentricity) must be between 0 and 1");
+        COMPLAIN_IF(m_EccentricityDistributionMin < 0.0 || m_EccentricityDistributionMin > 1.0, "Minimum eccentricity (--eccentricity-min) must be between 0 and 1");
+        COMPLAIN_IF(m_EccentricityDistributionMax < 0.0 || m_EccentricityDistributionMax > 1.0, "Maximum eccentricity (--eccentricity-max) must be between 0 and 1");
+        COMPLAIN_IF(m_EccentricityDistributionMax <= m_EccentricityDistributionMin, "Maximum eccentricity (--eccentricity-max) must be > Minimum eccentricity (--eccentricity-min)");
 
-        if (m_InitialMassFunctionMin < 0.0) return "Minimum initial mass (--initial-mass-min) < 0";
-        if (m_InitialMassFunctionMax < 0.0) return "Maximum initial mass (--initial-mass-max) < 0";
-        if (m_InitialMassFunctionMax <= m_InitialMassFunctionMin) return "Maximum initial mass (--initial-mass-max) must be > Minimum initial mass (--initial-mass-min)";
+        COMPLAIN_IF(m_InitialMassFunctionMin < 0.0, "Minimum initial mass (--initial-mass-min) < 0");
+        COMPLAIN_IF(m_InitialMassFunctionMax < 0.0, "Maximum initial mass (--initial-mass-max) < 0");
+        COMPLAIN_IF(m_InitialMassFunctionMax <= m_InitialMassFunctionMin, "Maximum initial mass (--initial-mass-max) must be > Minimum initial mass (--initial-mass-min)");
 
         if (m_KickMagnitudeDistribution == KICK_MAGNITUDE_DISTRIBUTION::FLAT) {
-            if (m_KickMagnitudeDistributionMaximum <= 0.0) return "User specified --kick-magnitude-distribution = FLAT with Maximum kick magnitude (--kick-magnitude-max) <= 0.0";
+            COMPLAIN_IF(m_KickMagnitudeDistributionMaximum <= 0.0, "User specified --kick-magnitude-distribution = FLAT with Maximum kick magnitude (--kick-magnitude-max) <= 0.0");
         }
 
-        if (m_LogLevel < 0) return "Logging level (--log-level) < 0";
+        COMPLAIN_IF(m_LogLevel < 0, "Logging level (--log-level) < 0");
  
-        if (m_LuminousBlueVariableFactor < 0.0) return "LBV multiplier (--luminous-blue-variable-multiplier) < 0";
+        COMPLAIN_IF(m_LuminousBlueVariableFactor < 0.0, "LBV multiplier (--luminous-blue-variable-multiplier) < 0");
 
-        if (m_MassRatioDistributionMin < 0.0 || m_MassRatioDistributionMin > 1.0) return "Minimum mass ratio (--mass-ratio-min) must be between 0 and 1";
-        if (m_MassRatioDistributionMax < 0.0 || m_MassRatioDistributionMax > 1.0) return "Maximum mass ratio (--mass-ratio-max) must be between 0 and 1";
-        if (m_MassRatioDistributionMax <= m_MassRatioDistributionMin) return "Maximum mass ratio (--mass-ratio-max) must be > Minimum mass ratio (--mass-ratio-min)";
+        COMPLAIN_IF(m_MassRatioDistributionMin < 0.0 || m_MassRatioDistributionMin > 1.0, "Minimum mass ratio (--mass-ratio-min) must be between 0 and 1");
+        COMPLAIN_IF(m_MassRatioDistributionMax < 0.0 || m_MassRatioDistributionMax > 1.0, "Maximum mass ratio (--mass-ratio-max) must be between 0 and 1");
+        COMPLAIN_IF(m_MassRatioDistributionMax <= m_MassRatioDistributionMin, "Maximum mass ratio (--mass-ratio-max) must be > Minimum mass ratio (--mass-ratio-min)");
 
-        if (m_MaxEvolutionTime <= 0.0) return "Maximum evolution time in Myr (--maxEvolutionTime) must be > 0";
+        COMPLAIN_IF(m_MaxEvolutionTime <= 0.0, "Maximum evolution time in Myr (--maxEvolutionTime) must be > 0");
 
-        if (m_Metallicity < 0.0 || m_Metallicity > 1.0) return "Metallicity (--metallicity) should be absolute metallicity and must be between 0 and 1";
+        COMPLAIN_IF(m_Metallicity < 0.0 || m_Metallicity > 1.0, "Metallicity (--metallicity) should be absolute metallicity and must be between 0 and 1");
 
-        if (m_MinimumMassSecondary < 0.0) return "Seconday minimum mass (--minimum-secondary-mass) must be >= 0";
-        if (m_MinimumMassSecondary > m_InitialMassFunctionMax) return "Seconday minimum mass (--minimum-secondary-mass) must be <= Maximum initial mass (--initial-mass-max)";
+        COMPLAIN_IF(m_MinimumMassSecondary < 0.0, "Seconday minimum mass (--minimum-secondary-mass) must be >= 0");
+        COMPLAIN_IF(m_MinimumMassSecondary > m_InitialMassFunctionMax, "Seconday minimum mass (--minimum-secondary-mass) must be <= Maximum initial mass (--initial-mass-max)");
 
         if (m_NeutrinoMassLossAssumptionBH == NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS) {
-            if (m_NeutrinoMassLossValueBH < 0.0) return "Neutrino mass loss value < 0";
+            COMPLAIN_IF(m_NeutrinoMassLossValueBH < 0.0, "Neutrino mass loss value < 0");
         }
 
-        if (m_ObjectsToEvolve <= 0) return m_EvolutionMode == EVOLUTION_MODE::SSE ? "Number of stars requested <= 0" : "Number of binaries requested <= 0";
+        COMPLAIN_IF(m_ObjectsToEvolve <= 0, (m_EvolutionMode == EVOLUTION_MODE::SSE ? "Number of stars requested <= 0" : "Number of binaries requested <= 0"));
     
         if (m_NeutrinoMassLossAssumptionBH == NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_FRACTION) {
-            if (m_NeutrinoMassLossValueBH < 0.0 || m_NeutrinoMassLossValueBH > 1.0) return "Neutrino mass loss must be between 0 and 1";
+            COMPLAIN_IF(m_NeutrinoMassLossValueBH < 0.0 || m_NeutrinoMassLossValueBH > 1.0, "Neutrino mass loss must be between 0 and 1");
         }
 
-        if (!m_VM["outputPath"].defaulted()) {                                                              // user specified output path?
+        if (!DEFAULTED("outputPath")) {                                                                     // user specified output path?
                                                                                                             // yes
             fs::path userPath = m_OutputPathString;                                                         // user-specifed path
             if (fs::is_directory(userPath)) {                                                               // valid directory?
@@ -682,28 +687,32 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             }
         }
 
-        if (m_PeriodDistributionMin < 0.0) return "Minimum orbital period (--orbital-period-min) < 0";
-        if (m_PeriodDistributionMax < 0.0) return "Maximum orbital period (--orbital-period-max) < 0";
+        COMPLAIN_IF(m_PeriodDistributionMin < 0.0, "Minimum orbital period (--orbital-period-min) < 0");
+        COMPLAIN_IF(m_PeriodDistributionMax < 0.0, "Maximum orbital period (--orbital-period-max) < 0");
 
-        if (!m_VM["pulsar-magnetic-field-decay-timescale"].defaulted() && m_PulsarMagneticFieldDecayTimescale <= 0.0) return "Pulsar magnetic field decay timescale (--pulsar-magnetic-field-decay-timescale) <= 0";
-        if (!m_VM["pulsar-magnetic-field-decay-massscale"].defaulted() && m_PulsarMagneticFieldDecayMassscale <= 0.0) return "Pulsar Magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0";
+        COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale") && m_PulsarMagneticFieldDecayTimescale <= 0.0, "Pulsar magnetic field decay timescale (--pulsar-magnetic-field-decay-timescale) <= 0");
+        COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar Magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
 
-        if (m_SemiMajorAxisDistributionMin < 0.0) return "Minimum semi-major Axis (--semi-major-axis-min) < 0";
-        if (m_SemiMajorAxisDistributionMax < 0.0) return "Maximum semi-major Axis (--semi-major-axis-max) < 0";
+        COMPLAIN_IF(m_SemiMajorAxisDistributionMin < 0.0, "Minimum semi-major Axis (--semi-major-axis-min) < 0");
+        COMPLAIN_IF(m_SemiMajorAxisDistributionMax < 0.0, "Maximum semi-major Axis (--semi-major-axis-max) < 0");
 
-        if (m_TimestepMultiplier <= 0.0) return "Timestep multiplier (--timestep-multiplier) <= 0";
+        COMPLAIN_IF(m_TimestepMultiplier <= 0.0, "Timestep multiplier (--timestep-multiplier) <= 0");
 
-        if (m_WolfRayetFactor < 0.0) return "WR multiplier (--wolf-rayet-multiplier) < 0";
+        COMPLAIN_IF(m_WolfRayetFactor < 0.0, "WR multiplier (--wolf-rayet-multiplier) < 0");
 
     }
     catch (po::error& e) {                                                                                  // program options exception
-        errStr = e.what();
+        errStr = e.what();                                                                                  // set the error string
+    }
+    catch (const std::string eStr) {                                                                        // custom exception
+        errStr = eStr;                                                                                      // set the error string
     }
     catch (...) {                                                                                           // unhandled exception
-        errStr = "unhandled exception";
+        errStr = "unhandled exception";                                                                     // set the error string
     }
 
     return errStr;
+#undef DEFAULTED
 }
 
 
@@ -713,7 +722,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
  * 
  * int OptionSpecified(std::string p_OptionString) 
  * 
- * @param
+ * 
  * @param   [IN]    p_OptionString              String containing option name
  * @return                                      Int result:
  *                                                  -1: invalid/unknown option name
@@ -726,10 +735,10 @@ int Options::OptionSpecified(std::string p_OptionString) {
     
     try {
 
-        if (m_GridLine.optionValues.m_VM.count(p_OptionString) > 0) {                           // option exists at object level?
+        if (m_GridLine.optionValues.m_VM.count(p_OptionString) > 0) {                           // option exists at grid line (evolving object) level?
             result = m_GridLine.optionValues.m_VM[p_OptionString].defaulted() ? 0 : 1;          // yes - set result
         }
-        else {                                                                                  // option does not exist at object level
+        else {                                                                                  // option does not exist at grid line (evolving object) level
             if (m_CmdLine.optionValues.m_VM.count(p_OptionString) > 0) {                        // option exists at the commandline (program-level)
                 result = m_CmdLine.optionValues.m_VM[p_OptionString].defaulted() ? 0 : 1;       // yes - set result
             }
@@ -749,30 +758,45 @@ int Options::OptionSpecified(std::string p_OptionString) {
 }
 
 
-// JR: todo: For AddOptions(), one day we should construct the list of
-//           options shown in the help string from the maps in constants.h rather than have them
-//           here as literal strings - too much opportunity for then to get out of sync doing it
-//           this way (and more work to update the strings here every time something changes)
-
-// DOCUMENTATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+/*
+ * This function populates the Boost options_description onject with all defined
+ * options.  The options strings are asscoated with the variable to be populated
+ * for each option, and the default values are defined.
+ * 
+ * JR: todo: One day we should construct the list of options shown in the help
+ *           string from the maps in constants.h rather than have them here as 
+ *           literal strings - too much opportunity for then to get out of sync 
+ *           doing it this way (and more work to update the strings here every 
+ *           time something changes)
+ * 
+ * Note that both parameters are modified here.
+ * 
+ * 
+ * bool AddOptions(OptionValues *p_Options, po::options_description *p_OptionsDescription)
+ * 
+ * @param   [IN/OUT]    p_Options                   Object containing option values
+ * @param   [IN/OUT]    p_OptionsDescription        options_description onject
+ * @return                                          Boolean result:
+ *                                                      true  if options added ok
+ *                                                      false if an error occurred
+ */
 bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_OptionsDescription) {
 
     bool ok = true;                             // status - unless a problem occurs
 
-    // create default strings for vector<string> types (too hard to do inline)
+    // create default strings for vector<std::string> types (too hard to do inline)
 
     std::ostringstream ss;
 
     // debug classes
-    string defaultDebugClasses;
+    std::string defaultDebugClasses;
     ss << "";
     for (auto debugClass = p_Options->m_DebugClasses.begin(); debugClass != p_Options->m_DebugClasses.end(); ++debugClass) ss << *debugClass << ",";
     defaultDebugClasses = ss.str();
     if (defaultDebugClasses.size() > 0) defaultDebugClasses.erase(defaultDebugClasses.size() - 1);
 
     // log classes
-    string defaultLogClasses;
+    std::string defaultLogClasses;
     ss << "";
     for (auto logClass = p_Options->m_LogClasses.begin(); logClass != p_Options->m_LogClasses.end(); ++logClass) ss << *logClass << ",";
     defaultLogClasses = ss.str();
@@ -786,7 +810,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         p_OptionsDescription->add_options()     // begin the list of options to be added - boost syntactic sugar
 
         // there is no good way of formatting these - the boost syntax doesn't help that much
-        // there is just a boatload of options, so this function (and similar functions) are just going to be long...
+        // there is just a boatload of options, so this function is just going to be long...
 
 
         // switches
@@ -928,7 +952,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Suppress printing (default = " + std::string(p_Options->m_Quiet ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
-            "revised-energy-formalism-Nandez-Ivanova",                     
+            "revised-energy-formalism-nandez-ivanova",                     
             po::value<bool>(&p_Options->m_RevisedEnergyFormalismNandezIvanova)->default_value(p_Options->m_RevisedEnergyFormalismNandezIvanova)->implicit_value(true),                            
             ("Enable revised energy formalism (default = " + std::string(p_Options->m_RevisedEnergyFormalismNandezIvanova ? "TRUE" : "FALSE") + ")").c_str()
         )
@@ -1476,75 +1500,75 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         /*
         (
             "ais-dcotype",                                                 
-            po::value<string>(&p_Options->m_AISDCOtypeString)->default_value(p_Options->m_AISDCOtypeString),                                                                                      
+            po::value<std::string>(&p_Options->m_AISDCOtypeString)->default_value(p_Options->m_AISDCOtypeString),                                                                                      
             ("DCO type selection in exploratory phase of STROOPWAFEL, (options: [ALL, BBH, BNS, BHNS], default = " + p_Options->m_AISDCOtypeString + ")").c_str()
         )
         */
 
         (
             "black-hole-kicks",                                            
-            po::value<string>(&p_Options->m_BlackHoleKicksOptionString)->default_value(p_Options->m_BlackHoleKicksOptionString),                                                                              
+            po::value<std::string>(&p_Options->m_BlackHoleKicksOptionString)->default_value(p_Options->m_BlackHoleKicksOptionString),                                                                              
             ("Black hole kicks relative to NS kicks (options: [FULL, REDUCED, ZERO, FALLBACK], default = " + p_Options->m_BlackHoleKicksOptionString + ")").c_str()
         )
 
         (
             "case-bb-stability-prescription",                              
-            po::value<string>(&p_Options->m_CaseBBStabilityPrescriptionString)->default_value(p_Options->m_CaseBBStabilityPrescriptionString),                                                    
+            po::value<std::string>(&p_Options->m_CaseBBStabilityPrescriptionString)->default_value(p_Options->m_CaseBBStabilityPrescriptionString),                                                    
             ("Case BB/BC mass transfer stability prescription (options: [ALWAYS_STABLE, ALWAYS_STABLE_ONTO_NSBH, TREAT_AS_OTHER_MT, ALWAYS_UNSTABLE], default = " + p_Options->m_CaseBBStabilityPrescriptionString + ")").c_str()
         )
         (
             "chemically-homogeneous-evolution",                            
-            po::value<string>(&p_Options->m_CheString)->default_value(p_Options->m_CheString),                                                                                                    
+            po::value<std::string>(&p_Options->m_CheString)->default_value(p_Options->m_CheString),                                                                                                    
             ("Chemically Homogeneous Evolution (options: [NONE, OPTIMISTIC, PESSIMISTIC], default = " + p_Options->m_CheString + ")").c_str()
         )
         (
             "common-envelope-lambda-prescription",                         
-            po::value<string>(&p_Options->m_CommonEnvelopeLambdaPrescriptionString)->default_value(p_Options->m_CommonEnvelopeLambdaPrescriptionString),                                          
+            po::value<std::string>(&p_Options->m_CommonEnvelopeLambdaPrescriptionString)->default_value(p_Options->m_CommonEnvelopeLambdaPrescriptionString),                                          
             ("CE lambda prescription (options: [LAMBDA_FIXED, LAMBDA_LOVERIDGE, LAMBDA_NANJING, LAMBDA_KRUCKOW, LAMBDA_DEWI], default = " + p_Options->m_CommonEnvelopeLambdaPrescriptionString + ")").c_str()
         )
         (
             "common-envelope-mass-accretion-prescription",                 
-            po::value<string>(&p_Options->m_CommonEnvelopeMassAccretionPrescriptionString)->default_value(p_Options->m_CommonEnvelopeMassAccretionPrescriptionString),                            
+            po::value<std::string>(&p_Options->m_CommonEnvelopeMassAccretionPrescriptionString)->default_value(p_Options->m_CommonEnvelopeMassAccretionPrescriptionString),                            
             ("Assumption about whether NS/BHs can accrete mass during common envelope evolution (options: [ZERO, CONSTANT, UNIFORM, MACLEOD], default = " + p_Options->m_CommonEnvelopeMassAccretionPrescriptionString + ")").c_str()
         )
         
         (
             "eccentricity-distribution",                                 
-            po::value<string>(&p_Options->m_EccentricityDistributionString)->default_value(p_Options->m_EccentricityDistributionString),                                                          
+            po::value<std::string>(&p_Options->m_EccentricityDistributionString)->default_value(p_Options->m_EccentricityDistributionString),                                                          
             ("Initial eccentricity distribution (options: [ZERO, FIXED, FLAT, THERMALISED, GELLER+2013], default = " + p_Options->m_EccentricityDistributionString + ")").c_str()
         )
         (
             "envelope-state-prescription",                                 
-            po::value<string>(&p_Options->m_EnvelopeStatePrescriptionString)->default_value(p_Options->m_EnvelopeStatePrescriptionString),                                                        
+            po::value<std::string>(&p_Options->m_EnvelopeStatePrescriptionString)->default_value(p_Options->m_EnvelopeStatePrescriptionString),                                                        
             ("Prescription for whether the envelope is radiative or convective (options: [LEGACY, HURLEY, FIXED_TEMPERATURE], default = " + p_Options->m_EnvelopeStatePrescriptionString + ")").c_str()
         )
 
         (
             "fryer-supernova-engine",                                      
-            po::value<string>(&p_Options->m_FryerSupernovaEngineString)->default_value(p_Options->m_FryerSupernovaEngineString),                                                                  
+            po::value<std::string>(&p_Options->m_FryerSupernovaEngineString)->default_value(p_Options->m_FryerSupernovaEngineString),                                                                  
             ("If using Fryer et al 2012 fallback prescription, select between 'delayed' and 'rapid' engines (default = " + p_Options->m_FryerSupernovaEngineString + ")").c_str()
         )
 
         (
             "grid",                                                        
-            po::value<string>(&p_Options->m_GridFilename)->default_value(p_Options->m_GridFilename)->implicit_value(""),                                                                      
+            po::value<std::string>(&p_Options->m_GridFilename)->default_value(p_Options->m_GridFilename)->implicit_value(""),                                                                      
             ("Grid filename (default = " + p_Options->m_GridFilename + ")").c_str()
         )
 
         (
             "initial-mass-function,i",                                     
-            po::value<string>(&p_Options->m_InitialMassFunctionString)->default_value(p_Options->m_InitialMassFunctionString),                                                                    
+            po::value<std::string>(&p_Options->m_InitialMassFunctionString)->default_value(p_Options->m_InitialMassFunctionString),                                                                    
             ("Initial mass function (options: [SALPETER, POWERLAW, UNIFORM, KROUPA], default = " + p_Options->m_InitialMassFunctionString + ")").c_str()
         )
 
         (
             "kick-direction",                                              
-            po::value<string>(&p_Options->m_KickDirectionDistributionString)->default_value(p_Options->m_KickDirectionDistributionString),                                                        
+            po::value<std::string>(&p_Options->m_KickDirectionDistributionString)->default_value(p_Options->m_KickDirectionDistributionString),                                                        
             ("Natal kick direction distribution (options: [ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW, WEDGE, POLES], default = " + p_Options->m_KickDirectionDistributionString + ")").c_str()
         )
         (
             "kick-magnitude-distribution",                                 
-            po::value<string>(&p_Options->m_KickMagnitudeDistributionString)->default_value(p_Options->m_KickMagnitudeDistributionString),                                                        
+            po::value<std::string>(&p_Options->m_KickMagnitudeDistributionString)->default_value(p_Options->m_KickMagnitudeDistributionString),                                                        
             ("Natal kick magnitude distribution (options: [ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL], default = " + p_Options->m_KickMagnitudeDistributionString + ")").c_str()
         )
 
@@ -1552,161 +1576,161 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         /*
         (
             "logfile-be-binaries",                                     
-            po::value<string>(&p_Options->m_LogfileBeBinaries)->default_value(p_Options->m_LogfileBeBinaries),                                                                              
+            po::value<std::string>(&p_Options->m_LogfileBeBinaries)->default_value(p_Options->m_LogfileBeBinaries),                                                                              
             ("Filename for Be Binaries logfile (default = " + p_Options->m_LogfileBeBinaries + ")").c_str()
         )
         */
 
         (
             "logfile-rlof-parameters",                                 
-            po::value<string>(&p_Options->m_LogfileRLOFParameters)->default_value(p_Options->m_LogfileRLOFParameters),                                                                      
+            po::value<std::string>(&p_Options->m_LogfileRLOFParameters)->default_value(p_Options->m_LogfileRLOFParameters),                                                                      
             ("Filename for RLOF Parameters logfile ( default = " + p_Options->m_LogfileRLOFParameters + ")").c_str()
         )
         (
             "logfile-common-envelopes",                                
-            po::value<string>(&p_Options->m_LogfileCommonEnvelopes)->default_value(p_Options->m_LogfileCommonEnvelopes),                                                                    
+            po::value<std::string>(&p_Options->m_LogfileCommonEnvelopes)->default_value(p_Options->m_LogfileCommonEnvelopes),                                                                    
             ("Filename for Common Envelopes logfile (default = " + p_Options->m_LogfileCommonEnvelopes + ")").c_str()
         )
         (
             "logfile-detailed-output",                                 
-            po::value<string>(&p_Options->m_LogfileDetailedOutput)->default_value(p_Options->m_LogfileDetailedOutput),                                                                      
+            po::value<std::string>(&p_Options->m_LogfileDetailedOutput)->default_value(p_Options->m_LogfileDetailedOutput),                                                                      
             ("Filename for Detailed Output logfile (default = " + p_Options->m_LogfileDetailedOutput + ")").c_str()
         )
         (
             "logfile-double-compact-objects",                          
-            po::value<string>(&p_Options->m_LogfileDoubleCompactObjects)->default_value(p_Options->m_LogfileDoubleCompactObjects),                                                          
+            po::value<std::string>(&p_Options->m_LogfileDoubleCompactObjects)->default_value(p_Options->m_LogfileDoubleCompactObjects),                                                          
             ("Filename for Double Compact Objects logfile (default = " + p_Options->m_LogfileDoubleCompactObjects + ")").c_str()
         )
         (
             "logfile-pulsar-evolution",                                
-            po::value<string>(&p_Options->m_LogfilePulsarEvolution)->default_value(p_Options->m_LogfilePulsarEvolution),                                                                    
+            po::value<std::string>(&p_Options->m_LogfilePulsarEvolution)->default_value(p_Options->m_LogfilePulsarEvolution),                                                                    
             ("Filename for Pulsar Evolution logfile (default = " + p_Options->m_LogfilePulsarEvolution + ")").c_str()
         )
         (
             "logfile-supernovae",                                      
-            po::value<string>(&p_Options->m_LogfileSupernovae)->default_value(p_Options->m_LogfileSupernovae),                                                                              
+            po::value<std::string>(&p_Options->m_LogfileSupernovae)->default_value(p_Options->m_LogfileSupernovae),                                                                              
             ("Filename for Supernovae logfile (default = " + p_Options->m_LogfileSupernovae + ")").c_str()
         )
         (
             "logfile-system-parameters",                               
-            po::value<string>(&p_Options->m_LogfileSystemParameters)->default_value(p_Options->m_LogfileSystemParameters),                                                                  
+            po::value<std::string>(&p_Options->m_LogfileSystemParameters)->default_value(p_Options->m_LogfileSystemParameters),                                                                  
             ("Filename for System Parameters logfile (default = " + p_Options->m_LogfileSystemParameters + ")").c_str()
         )
         (
             "logfile-definitions",                                         
-            po::value<string>(&p_Options->m_LogfileDefinitionsFilename)->default_value(p_Options->m_LogfileDefinitionsFilename)->implicit_value(""),                                              
+            po::value<std::string>(&p_Options->m_LogfileDefinitionsFilename)->default_value(p_Options->m_LogfileDefinitionsFilename)->implicit_value(""),                                              
             ("Filename for logfile record definitions (default = " + p_Options->m_LogfileDefinitionsFilename + ")").c_str()
         )
         (
             "logfile-delimiter",                                           
-            po::value<string>(&p_Options->m_LogfileDelimiterString)->default_value(p_Options->m_LogfileDelimiterString),                                                                          
+            po::value<std::string>(&p_Options->m_LogfileDelimiterString)->default_value(p_Options->m_LogfileDelimiterString),                                                                          
             ("Field delimiter for logfile records (default = " + p_Options->m_LogfileDelimiterString + ")").c_str()
         )
         (
             "logfile-name-prefix",                                         
-            po::value<string>(&p_Options->m_LogfileNamePrefix)->default_value(p_Options->m_LogfileNamePrefix)->implicit_value(""),                                                                
+            po::value<std::string>(&p_Options->m_LogfileNamePrefix)->default_value(p_Options->m_LogfileNamePrefix)->implicit_value(""),                                                                
             ("Prefix for logfile names (default = " + p_Options->m_LogfileNamePrefix + ")").c_str()
         )
         (
             "logfile-switch-log",                                      
-            po::value<string>(&p_Options->m_LogfileSwitchLog)->default_value(p_Options->m_LogfileSwitchLog),                                                                                
+            po::value<std::string>(&p_Options->m_LogfileSwitchLog)->default_value(p_Options->m_LogfileSwitchLog),                                                                                
             ("Filename for Switch Log logfile (default = " + p_Options->m_LogfileSwitchLog + ")").c_str()
         )
 
         (
             "mass-loss-prescription",                                      
-            po::value<string>(&p_Options->m_MassLossPrescriptionString)->default_value(p_Options->m_MassLossPrescriptionString),                                                                  
+            po::value<std::string>(&p_Options->m_MassLossPrescriptionString)->default_value(p_Options->m_MassLossPrescriptionString),                                                                  
             ("Mass loss prescription (options: [NONE, HURLEY, VINK], default = " + p_Options->m_MassLossPrescriptionString + ")").c_str()
         )
         (
             "mass-ratio-distribution,q",                                   
-            po::value<string>(&p_Options->m_MassRatioDistributionString)->default_value(p_Options->m_MassRatioDistributionString),                                                                
+            po::value<std::string>(&p_Options->m_MassRatioDistributionString)->default_value(p_Options->m_MassRatioDistributionString),                                                                
             ("Initial mass ratio distribution for q=m2/m1 (options: [FLAT, DuquennoyMayor1991, SANA2012], default = " + p_Options->m_MassRatioDistributionString + ")").c_str()
         )
         (
             "mass-transfer-accretion-efficiency-prescription",             
-            po::value<string>(&p_Options->m_MassTransferAccretionEfficiencyPrescriptionString)->default_value(p_Options->m_MassTransferAccretionEfficiencyPrescriptionString),                    
+            po::value<std::string>(&p_Options->m_MassTransferAccretionEfficiencyPrescriptionString)->default_value(p_Options->m_MassTransferAccretionEfficiencyPrescriptionString),                    
             ("Mass Transfer Accretion Efficiency prescription (options: [THERMAL, FIXED], default = " + p_Options->m_MassTransferAccretionEfficiencyPrescriptionString + ")").c_str()
         )
         (
             "mass-transfer-angular-momentum-loss-prescription",            
-            po::value<string>(&p_Options->m_MassTransferAngularMomentumLossPrescriptionString)->default_value(p_Options->m_MassTransferAngularMomentumLossPrescriptionString),                    
+            po::value<std::string>(&p_Options->m_MassTransferAngularMomentumLossPrescriptionString)->default_value(p_Options->m_MassTransferAngularMomentumLossPrescriptionString),                    
             ("Mass Transfer Angular Momentum Loss prescription (options: [JEANS, ISOTROPIC, CIRCUMBINARY, ARBITRARY], default = " + p_Options->m_MassTransferAngularMomentumLossPrescriptionString + ")").c_str()
         )
         (
             "mass-transfer-rejuvenation-prescription",                     
-            po::value<string>(&p_Options->m_MassTransferRejuvenationPrescriptionString)->default_value(p_Options->m_MassTransferRejuvenationPrescriptionString),                                  
+            po::value<std::string>(&p_Options->m_MassTransferRejuvenationPrescriptionString)->default_value(p_Options->m_MassTransferRejuvenationPrescriptionString),                                  
             ("Mass Transfer Rejuvenation prescription (options: [NONE, STARTRACK], default = " + p_Options->m_MassTransferRejuvenationPrescriptionString + ")").c_str()
         )
         (
             "mass-transfer-thermal-limit-accretor",                        
-            po::value<string>(&p_Options->m_MassTransferThermallyLimitedVariationString)->default_value(p_Options->m_MassTransferThermallyLimitedVariationString),                                
+            po::value<std::string>(&p_Options->m_MassTransferThermallyLimitedVariationString)->default_value(p_Options->m_MassTransferThermallyLimitedVariationString),                                
             ("Mass Transfer Thermal Accretion limit (default = " + p_Options->m_MassTransferThermallyLimitedVariationString + ")").c_str()
         )
 
         (
             "mode",                                                 
-            po::value<string>(&p_Options->m_EvolutionModeString)->default_value(p_Options->m_EvolutionModeString),                                                                              
+            po::value<std::string>(&p_Options->m_EvolutionModeString)->default_value(p_Options->m_EvolutionModeString),                                                                              
             ("Evolution mode (options: [SSE, BSE], default = " + p_Options->m_EvolutionModeString + ")").c_str()
         )
 
         (
             "neutrino-mass-loss-bh-formation",                             
-            po::value<string>(&p_Options->m_NeutrinoMassLossAssumptionBHString)->default_value(p_Options->m_NeutrinoMassLossAssumptionBHString),                                                  
+            po::value<std::string>(&p_Options->m_NeutrinoMassLossAssumptionBHString)->default_value(p_Options->m_NeutrinoMassLossAssumptionBHString),                                                  
             ("Assumption about neutrino mass loss during BH formation (options: [FIXED_FRACTION, FIXED_MASS], default = " + p_Options->m_NeutrinoMassLossAssumptionBHString + ")").c_str()
         )
         (
             "neutron-star-equation-of-state",                              
-            po::value<string>(&p_Options->m_NeutronStarEquationOfStateString)->default_value(p_Options->m_NeutronStarEquationOfStateString),                                                      
+            po::value<std::string>(&p_Options->m_NeutronStarEquationOfStateString)->default_value(p_Options->m_NeutronStarEquationOfStateString),                                                      
             ("Neutron star equation of state to use (options: [SSE, ARP3], default = " + p_Options->m_NeutronStarEquationOfStateString + ")").c_str()
         )
 
         (
             "output-container,c",                                          
-            po::value<string>(&p_Options->m_OutputContainerName)->default_value(p_Options->m_OutputContainerName)->implicit_value(""),                                                            
+            po::value<std::string>(&p_Options->m_OutputContainerName)->default_value(p_Options->m_OutputContainerName)->implicit_value(""),                                                            
             ("Container (directory) name for output files (default = " + p_Options->m_OutputContainerName + ")").c_str()
         )
         (
             "outputPath,o",                                                
-            po::value<string>(&p_Options->m_OutputPathString)->default_value(p_Options->m_OutputPathString)->implicit_value(""),                                                                  
+            po::value<std::string>(&p_Options->m_OutputPathString)->default_value(p_Options->m_OutputPathString)->implicit_value(""),                                                                  
             ("Directory for output (default = " + p_Options->m_OutputPathString + ")").c_str()
         )
 
         (
             "pulsar-birth-magnetic-field-distribution",                    
-            po::value<string>(&p_Options->m_PulsarBirthMagneticFieldDistributionString)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionString),                                  
+            po::value<std::string>(&p_Options->m_PulsarBirthMagneticFieldDistributionString)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionString),                                  
             ("Pulsar Birth Magnetic Field distribution (options: [ZERO, FIXED, FLATINLOG, UNIFORM, LOGNORMAL], default = " + p_Options->m_PulsarBirthMagneticFieldDistributionString + ")").c_str()
         )
         (
             "pulsar-birth-spin-period-distribution",                       
-            po::value<string>(&p_Options->m_PulsarBirthSpinPeriodDistributionString)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionString),                                        
+            po::value<std::string>(&p_Options->m_PulsarBirthSpinPeriodDistributionString)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionString),                                        
             ("Pulsar Birth Spin Period distribution (options: [ZERO, FIXED, UNIFORM, NORMAL], default = " + p_Options->m_PulsarBirthSpinPeriodDistributionString + ")").c_str()
         )
         (
             "pulsational-pair-instability-prescription",                   
-            po::value<string>(&p_Options->m_PulsationalPairInstabilityPrescriptionString)->default_value(p_Options->m_PulsationalPairInstabilityPrescriptionString),                              
+            po::value<std::string>(&p_Options->m_PulsationalPairInstabilityPrescriptionString)->default_value(p_Options->m_PulsationalPairInstabilityPrescriptionString),                              
             ("Pulsational Pair Instability prescription (options: [COMPAS, STARTRACK, MARCHANT], default = " + p_Options->m_PulsationalPairInstabilityPrescriptionString + ")").c_str()
         )
 
         (
             "remnant-mass-prescription",                                   
-            po::value<string>(&p_Options->m_RemnantMassPrescriptionString)->default_value(p_Options->m_RemnantMassPrescriptionString),                                                            
+            po::value<std::string>(&p_Options->m_RemnantMassPrescriptionString)->default_value(p_Options->m_RemnantMassPrescriptionString),                                                            
             ("Choose remnant mass prescription (options: [HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL], default = " + p_Options->m_RemnantMassPrescriptionString + ")").c_str()
         )
         (
             "rotational-velocity-distribution",                            
-            po::value<string>(&p_Options->m_RotationalVelocityDistributionString)->default_value(p_Options->m_RotationalVelocityDistributionString),                                              
+            po::value<std::string>(&p_Options->m_RotationalVelocityDistributionString)->default_value(p_Options->m_RotationalVelocityDistributionString),                                              
             ("Initial rotational velocity distribution (options: [ZERO, HURLEY, VLTFLAMES], default = " + p_Options->m_RotationalVelocityDistributionString + ")").c_str()
         )
 
         (
             "semi-major-axis-distribution",                              
-            po::value<string>(&p_Options->m_SemiMajorAxisDistributionString)->default_value(p_Options->m_SemiMajorAxisDistributionString),                                                        
+            po::value<std::string>(&p_Options->m_SemiMajorAxisDistributionString)->default_value(p_Options->m_SemiMajorAxisDistributionString),                                                        
             ("Initial semi-major axis distribution (options: [FLATINLOG, CUSTOM, DuquennoyMayor1991, SANA2012], default = " + p_Options->m_SemiMajorAxisDistributionString + ")").c_str()
         )        
         (
             "stellar-zeta-prescription",                                   
-            po::value<string>(&p_Options->m_StellarZetaPrescriptionString)->default_value(p_Options->m_StellarZetaPrescriptionString),                                                            
+            po::value<std::string>(&p_Options->m_StellarZetaPrescriptionString)->default_value(p_Options->m_StellarZetaPrescriptionString),                                                            
             ("Prescription for stellar zeta (default = " + p_Options->m_StellarZetaPrescriptionString + ")").c_str()
         )
 
@@ -1715,12 +1739,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         (
             "debug-classes",                                               
-            po::value<vector<string>>(&p_Options->m_DebugClasses)->multitoken()->default_value(p_Options->m_DebugClasses),                                                                        
+            po::value<vector<std::string>>(&p_Options->m_DebugClasses)->multitoken()->default_value(p_Options->m_DebugClasses),                                                                        
             ("Debug classes enabled (default = " + defaultDebugClasses + ")").c_str()
         )
         (
             "log-classes",                                                 
-            po::value<vector<string>>(&p_Options->m_LogClasses)->multitoken()->default_value(p_Options->m_LogClasses),                                                                            
+            po::value<vector<std::string>>(&p_Options->m_LogClasses)->multitoken()->default_value(p_Options->m_LogClasses),                                                                            
             ("Logging classes enabled (default = " + defaultLogClasses + ")").c_str()
         )
     
@@ -1738,12 +1762,26 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 }
 
 
-/* DOCUMENTATION!!!!!!!!!!!!!!!!
+/*
+ * Retrieve the attributes of an option
+ * The option for which the attributes are to be retreived is passed as an iterator
+ * pointing at the option in the boost variables map
+ * 
+ * The attributes are returned as a tuple, described by typedef ATTR, containing
+ * 
+ *     - dataType       TYPENAME (high-level) data type of the attribute.  Will be one of {NONE, BOOL, INT, FLOAT, STRING}
+ *     - defaulted      BOOL     flag to indicate if the option was specified by the user or defaulted to the defaulty value
+ *     - typeStr        STRING   detailed data type returned as a string (e.g. "UNSIGNED LONG INT" etc.)
+ *     - valueStr       STRING   the value of the option returned as a string (e.g. "2.3", "BSE" etc.)
+ * 
+ * 
+ * Options::ATTR OptionAttributes(const po::variables_map p_VM, const po::variables_map::const_iterator p_IT)
+ * 
  *
- * 
- * 
- * dataType is overall type (INT, FLOAT, STRING)
- * typeStr is detailed data type ("UNSIGNED LONG INT" etc)
+ * @param   [IN]    p_VM                        The boost variables map
+ * @param   [IN]    p_IT                        Iterator for the boost variables map pointing to the option
+ *                                              for which the attributed are required to be retrieved
+ * @return                                      Tuple (type ATTR) containing the option attributes
  */
 Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::variables_map::const_iterator p_IT) {
             
@@ -1850,11 +1888,11 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
         try {
             std::ostringstream elemsSS;
             elemsSS << "{ ";
-            vector<string> tmp = p_VM[p_IT->first].as<vector<string>>();
-            for (std::vector<string>::iterator elem=tmp.begin(); elem != tmp.end(); elem++) {
+            vector<std::string> tmp = p_VM[p_IT->first].as<vector<std::string>>();
+            for (std::vector<std::string>::iterator elem=tmp.begin(); elem != tmp.end(); elem++) {
                 elemsSS << "'" << (*elem) << "', ";
             }
-            string elems = elemsSS.str();
+            std::string elems = elemsSS.str();
             if (elems.size() > 2) elems.erase(elems.size() - 2);
             else if (elems.size() == 2) elems.erase(elems.size() - 1);
             elems += " }";
@@ -1875,10 +1913,20 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
 
 
 /*
- * DOCUMENTATION HERE!
+ * Build the output string for the Run_Details file
+ * The parameter passed is the opstions descriptor - the grid line options, or
+ * the commandline options.  Ordinarily we would build the Run_Details contents
+ * from the commandline options, but the flexibility exists to use a set of
+ * grid line options (maybe one day we will want to (optionally) produce a
+ * per star/binary Run_Details file)
  * 
+ * 
+ * std::string OptionDetails(const OptionsDescriptorT &p_Options)
+ * 
+ * @param   [IN]    p_Options                   The options descriptor to use to build the output string
+ * @return                                      String containing the Run_Details file contents
  */
-string Options::OptionDetails(const OptionsDescriptorT &p_Options) {
+std::string Options::OptionDetails(const OptionsDescriptorT &p_Options) {
             
     TYPENAME    dataType  = TYPENAME::NONE;
     std::string typeStr   = "";
@@ -1903,8 +1951,6 @@ string Options::OptionDetails(const OptionsDescriptorT &p_Options) {
   
     ss << "\n\nOTHER PARAMETERS\n----------------\n\n";
 
-// JRFIX <<<<<<<<<<<<<<<<<<<<<<<<<<<< fix these!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ss << "fixedMetallicity   = " << (p_Options.optionValues.m_FixedMetallicity ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";          // fixedMetallicity
     ss << "useFixedUK         = " << (p_Options.optionValues.m_UseFixedUK ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";                // useFixedUK
     ss << "outputPath         = " <<  p_Options.optionValues.m_OutputPath.string() << ", CALCULATED, STRING\n";                         // outputPath (fully qualified)
     ss << "fixedRandomSeed    = " << (p_Options.optionValues.m_FixedRandomSeed ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";           // fixedRandomSeed
@@ -1914,26 +1960,42 @@ string Options::OptionDetails(const OptionsDescriptorT &p_Options) {
 
 
 
-            // before we give the options to boost we need to determine if the user passed
-            // any ranges or sets and, if they did, handle those - boost doesn't know anything
-            // about them
-            //
-            // a range is allowed only for numeric options (i.e. INT or FLOAT types),
-            // but is not allowed for all numeric options (e.g. --log-level)
-            // a set is allowed for numeric, string, and bool options - but not all
-            // of them (e.g. --quiet)
-            //
-            // we define a vector of options excluded from the range and set constructs
-            // (one vector each).  We don't need to exclude non-numeric options from range
-            // here - that is done later - here we just exclude options for which range/set
-            // makes no sense
-
+/*
+ * Parse the options provided by the user
+ * 
+ * Before we give the options to boost we need to determine if the user passed
+ * any ranges or sets and, if they did, handle those - boost doesn't know anything
+ * about them.
+ *
+ * A range is allowed only for numeric options (i.e. INT or FLOAT types), but is not 
+ * allowed for all numeric options (e.g. --log-level)
+ * A set is allowed for numeric, string, and bool options - but not all of them (e.g. --quiet)
+ * 
+ * We define a vector of options excluded from the range and set constructs (one vector each).
+ * We don't need to exclude non-numeric options from range here - that is done later - here we 
+ * just exclude options for which range/set makes no sense.  We have defined vectors of
+ * option names that are excluded from ranges (m_RangeExluded) and sets (m_SetExcluded).
+ * 
+ * 
+ * std::string ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], OptionsDescriptorT &p_OptionsDescriptor)
+ * 
+ * 
+ * @param   [IN]    p_ArgCount                  The number of argument strings. (note below for p_ArgStrings)
+ * @param   [IN]    p_ArgStrings                The argument strings.   The first argument string is expected
+ *                                              (by boost) to be the executable name (boost expects the arguments
+ *                                              to be commandline arguments passed to main())
+ * @param   [IN]    p_OptionsDescriptor         Struct containing options descriptions.  This struct holds the
+ *                                              boost options_description object, the option valued, and a struct
+ *                                              containing the complex option values (the ranges and sets)
+ * @return                                      String containing an error string
+ *                                              If no error occurred the return string will be the empty string 
+ */
 std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], OptionsDescriptorT &p_OptionsDescriptor) {
 
     bool error         = false;                                                                                     // for now...
     std::string errStr = "";                                                                                        // also for now...
     
-    // JRFIX: we should use ERROR:: in constants.h for error strings here...!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // JRFIX: we should use ERROR:: in constants.h for error strings here...!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     try {
 
@@ -2016,7 +2078,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
                         size_t start = 0;                                                                           // start position
                         size_t pos   = 0;                                                                           // current position
-                        while (!error && start < str.length() && pos != string::npos) {                             // comma found before the end of the string?
+                        while (!error && start < str.length() && pos != std::string::npos) {                        // comma found before the end of the string?
 
                             std::string value = "";                                                                 // value
 
@@ -2211,11 +2273,22 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
 
 /*
- * DOCUMENTATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ * Advances the command line options to the next variation.  A "variation" is
+ * a combination of options defined by the option values, ranges, and sets
+ * the user specified (in this case) on the command line.
+ * 
+ * When the command line is parsed initially (in Initialise()), the option values 
+ * are set to the initial variation of range and set values, then once that is 
+ * processed this function is called to advance to the next variation - the ranges 
+ * and sets are played out in order.
  * 
  * 
+ * int AdvanceCmdLineOptionValues()
  * 
- * return 0 if all done, 1 if new options applied, -1 if problem
+ * @return                                      Int result:
+ *                                                  -1: en error occurred
+ *                                                   0: no more variations - all done
+ *                                                   1: new variation applied - option values are set 
  */
 int Options::AdvanceCmdLineOptionValues() {
 
@@ -2418,8 +2491,8 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
                     // been set).
                     //
                     // Note that there are analogous functions for object (star/binary) initialisation and retrievel
-                    // option values: InitialiseObject() and AdvanceGridLineOptionValues().  These functions intitialise
-                    // and retrieve options specified in grid file records.
+                    // option values: InitialiseEvolvingObject() and AdvanceGridLineOptionValues().  These functions 
+                    // intitialise and retrieve options specified in grid file records.
                 }
             }
         }  
@@ -2445,11 +2518,22 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
 
 
 /*
- * DOCUMENTATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ * Advances the grid line options to the next variation.  A "variation" is
+ * a combination of options defined by the option values, ranges, and sets
+ * the user specified (in this case) on the grid file line.
+ * 
+ * When the grid file line is read and parsed, the option values are set to
+ * the initial variation of range and set values, then once that is processed
+ * this function is called to advance to the next variation - the ranges and
+ * sets are played out in order.
  * 
  * 
+ * int AdvanceGridLineOptionValues()
  * 
- * return 0 if all done, 1 if new options applied, -1 if problem
+ * @return                                      Int result:
+ *                                                  -1: en error occurred
+ *                                                   0: no more variations - all done
+ *                                                   1: new variation applied - option values are set
  */
 int Options::AdvanceGridLineOptionValues() {
 
@@ -2576,18 +2660,18 @@ int Options::AdvanceGridLineOptionValues() {
 /*
  * Initialise grid file options
  * 
- * Intitialises the grid file options (options that can be specified in a grid file on a 
- * per object (star/binary) basis).  Populates the object options object (created by
- * Initialise()) from the arguments specified in the grid file - this object is updated
- * for each grid file record.
+ * Initialises and populates the grid line (evolving object-level) options object, using the
+ * options the user specified in the grid file record - this object is updated for each grid
+ * line read.
+ *
  * 
- * bool Options::InitialiseObject(int p_ArgCount, char *p_ArgStrings[])
+ * bool Options::InitialiseEvolvingObject(int p_ArgCount, char *p_ArgStrings[])
  * 
- * @param   [IN]    p_OptionsString             String containg all options - the grid file record
+ * @param   [IN]    p_OptionsString             String containing all options - the grid file record
  * @return                                      String containing an error string
  *                                              If no error occurred the return string will be the empty string 
  */
-bool Options::InitialiseObject(const std::string p_OptionsString) {
+bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
 
     bool ok = true;                                                                                                 // status - unless something changes
 
@@ -2600,7 +2684,7 @@ bool Options::InitialiseObject(const std::string p_OptionsString) {
         size_t start      = 0;                                                                                      // start position of parsed option string
         size_t end        = 0;                                                                                      // end position of parsed option strinf
         std::string delim = " ";                                                                                    // delimiter
-        while (end != string::npos) {                                                                               // iterate over input string
+        while (end != std::string::npos) {                                                                          // iterate over input string
             end = p_OptionsString.find(delim, start);                                                               // find delimiter
             std::string s = p_OptionsString.substr(start, end - start);                                             // grab option/argument string
             parsedStrings.push_back(utils::trim(s));                                                                // trim whitespace and store
@@ -2650,21 +2734,20 @@ bool Options::InitialiseObject(const std::string p_OptionsString) {
 /*
  * Read and apply the next record in the grid file
  * 
- * The record from the grid file is read as one string, then passed
- * to InitialiseObject() for processing.
+ * The record from the grid file is read as one string, then passed to
+ * InitialiseEvolvingObject() for processing.
  * 
- * In InitialiseObject() the record is parsed into separate tokens ready 
- * to be passed to the boost program option parser.  Once that is done
- * the options are handed over to the boost functions for parsing and
+ * In InitialiseEvolvingObject() the record is parsed into separate tokens
+ * ready to be passed to the boost program option parser.  Once that is 
+ * done the options are handed over to the boost functions for parsing and
  * detting of values.
  * 
- * pon return from this function the option values will be set to the
- * values specified by the user, or their default values - either way
- * ready for the star/binary to be evolved.
+ * pon return from this function the option values will be set to the values 
+ * specified by the user, or their default values - either way ready for the 
+ * star/binary to be evolved.
  * 
- * The grid file struct (m_Gridfile) will be used and updated by this
- * function.  The grid file name, error status, and file handle are
- * stored in the struct.  
+ * The grid file struct (m_Gridfile) will be used and updated by this function.
+ * The grid file name, error status, and file handle are stored in the struct.  
  * 
  * 
  * int ApplyNextGridLine()
@@ -2676,21 +2759,21 @@ bool Options::InitialiseObject(const std::string p_OptionsString) {
  */
 int Options::ApplyNextGridLine() {
 
-    int status = -1;                                        // default status is failure
+    int status = -1;                                                // default status is failure
 
-    if (m_Gridfile.handle.is_open()) {                      // file open?
-                                                            // yes
-        std::string record;                                 // the record read
-        std::getline(m_Gridfile.handle, record);            // read the next record
-        if (m_Gridfile.handle.fail()) {                     // read ok?
-            if (m_Gridfile.handle.eof()) status = 0;        // eof?
-            else {                                          // no
-                m_Gridfile.error = ERROR::FILE_READ_ERROR;  // record error
-                status = -1;                                // set status
+    if (m_Gridfile.handle.is_open()) {                              // file open?
+                                                                    // yes
+        std::string record;                                         // the record read
+        std::getline(m_Gridfile.handle, record);                    // read the next record
+        if (m_Gridfile.handle.fail()) {                             // read ok?
+            if (m_Gridfile.handle.eof()) status = 0;                // eof?
+            else {                                                  // no
+                m_Gridfile.error = ERROR::FILE_READ_ERROR;          // record error
+                status = -1;                                        // set status
             }
         }
-        else {                                              // read ok
-            status = InitialiseObject(record) ? 1 : -1;     // apply record and set status
+        else {                                                      // read ok
+            status = InitialiseEvolvingObject(record) ? 1 : -1;     // apply record and set status
         }
     }
 
