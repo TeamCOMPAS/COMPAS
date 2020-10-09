@@ -184,7 +184,7 @@ private:
         "evolve-pulsars",
         "evolve-unbound-systems",
 
-        "mass-transfer",
+        "enable-mass-transfer",
 
         "rlof-printing",
 
@@ -224,7 +224,7 @@ private:
         "evolve-pulsars",
         "evolve-unbound-systems",
 
-        "mass-transfer",
+        "enable-mass-transfer",
 
         "pair-instability-supernovae",
         "pulsational-pair-instability",
@@ -1077,7 +1077,7 @@ public:
 
     bool                                        UseFixedUK() const                                                      { return (m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_UseFixedUK); }
     bool                                        UseMassLoss() const                                                     { return OPT_VALUE("use-mass-loss", m_UseMassLoss); }
-    bool                                        UseMassTransfer() const                                                 { return OPT_VALUE("mass-transfer", m_UseMassTransfer); }
+    bool                                        UseMassTransfer() const                                                 { return OPT_VALUE("enable-mass-transfer", m_UseMassTransfer); }
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability); }
 
