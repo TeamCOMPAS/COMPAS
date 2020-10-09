@@ -24,12 +24,6 @@ using std::get;
 
 namespace po = boost::program_options;
 
-// for convenience
-
-// JRFIX - these will be global!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-#define COMPLAIN(complainStr)           { std::stringstream _ss; _ss << complainStr; throw _ss.str(); }
-#define COMPLAIN_IF(cond, complainStr)  { if (cond) COMPLAIN(complainStr) }
 
 #define OPT_VALUE(optName, optValue)    m_GridLine.optionValues.m_VM[optName].defaulted() ? m_CmdLine.optionValues.optValue : m_GridLine.optionValues.optValue
 
@@ -47,27 +41,324 @@ class Options {
 
 private:
 
+    // The m_SSEOnly vector records option strings that apply to SSE only
+    // The m_BSEOnly vector records option strings that apply to BSE only
+    //
+    // These vectors are checked when the commandline or grid line are parsed for
+    // ranges and sets.  Ranges and sets are played out, and stars/binaries evolved
+    // based on the grid of options defined by any ranges and sets specified by the
+    // user.
+    //
+    // A problem arises when a user is (say) evolving single stars (in SSE mode)
+    // and (perhaps inadvertently) specifies a range or set for an option that
+    // applies only to BSE.  Before ranges and sets were implemented, this was not
+    // a problem - the SSE code just ignores any BSE-only options (and vice-versa).
+    // But with ranges and sets implemented, we need to know whether we should play
+    // out the range or set.  If a range for BSE-only only option is specified the
+    // SSE code will happily ignore the option, but unless we know not to, we will
+    // still play out the range of values (only for them to be ignored) - so we will
+    // evolve as many stars as there are values in the range, and they will all be
+    // the same (because the SSE code will ignore the BSE-only option each time 
+    // through the loop while the range is playing out).
+    //
+    // To get around this we specify in the following vectors the names of any
+    // options that are SSE only or BSE only - that way we can choose not to play
+    // them out as required.
+    //
+    // It's not the end of the world if we forget to put some entries in these
+    // vectors - the worst thing that will happen is that duplicate stars/binaries
+    // will be evolved as ranges/sets of options that will be ignored are played out.
+    // In that case the user has a simple remedy: don't specify ranges for BSE options
+    // when evolving in SSE mode (and vice-versa).  All we're doing here with these
+    // vectors is helping the user avoid duplicating stars/binaries if they specify
+    // inconsistent options.
+
+
+// JR NEED TO IMPLEMENT CODE FOR THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     std::vector<std::string> m_SSEOnly = {
-    }; // add others...
+        "initial-mass",
+        "kick-magnitude",
+        "kick-magnitude-random",
+    };
 
     std::vector<std::string> m_BSEOnly = {
-    }; // add others...
+        "initial-mass-1",
+        "initial-mass-2",
+        "semi-major-axis", "a",
+
+        // Floor
+        /*
+        "ais-dcotype",
+        "ais-exploratory-phase",
+        "ais-hubble",
+        "ais-pessimistic",
+        "ais-refinement-phase",
+        "ais-rlof",
+        "kappa-gaussians",
+        "nbatches-used",
+        */
+
+        "allow-rlof-at-birth",
+        "allow-touching-at-birth",
+        "angular-momentum-conservation-during-circularisation", 
+
+        // Serena
+        //"be-binaries",
+
+        "circularise-binary-during-mass-transfer",
+        "common-envelope-allow-main-sequence-survive",
+
+        "common-envelope-alpha", 
+        "common-envelope-alpha-thermal",
+        "common-envelope-lambda",
+        "common-envelope-lambda-multiplier",
+        "common-envelope-mass-accretion-constant",
+        "common-envelope-mass-accretion-max",
+        "common-envelope-mass-accretion-min",
+        "common-envelope-recombination-energy-density",
+        "common-envelope-slope-kruckow",
+
+        // AVG
+        /*
+        "critical-mass-ratio-giant-degenerate-accretor",
+        "critical-mass-ratio-giant-non-degenerate-accretor",
+        "critical-mass-ratio-helium-giant-degenerate-accretor",
+        "critical-mass-ratio-helium-giant-non-degenerate-accretor",
+        "critical-mass-ratio-helium-hg-degenerate-accretor",
+        "critical-mass-ratio-helium-hg-non-degenerate-accretor",
+        "critical-mass-ratio-helium-ms-degenerate-accretor",
+        "critical-mass-ratio-helium-ms-non-degenerate-accretor",
+        "critical-mass-ratio-hg-degenerate-accretor",
+        "critical-mass-ratio-hg-non-degenerate-accretor",
+        "critical-mass-ratio-ms-high-mass-degenerate-accretor",
+        "critical-mass-ratio-ms-high-mass-non-degenerate-accretor",
+        "critical-mass-ratio-ms-low-mass-degenerate-accretor",
+        "critical-mass-ratio-ms-low-mass-non-degenerate-accretor",
+        "critical-mass-ratio-white-dwarf-degenerate-accretor",
+        "critical-mass-ratio-white-dwarf-non-degenerate-accretor",
+        */
+
+        "kick-magnitude-1",
+        "kick-magnitude-2",
+        "kick-magnitude-random-1",
+        "kick-magnitude-random-2",
+        "kick-mean-anomaly-1",
+        "kick-mean-anomaly-2",
+        "kick-phi-1",
+        "kick-phi-2",
+        "kick-theta-1",
+        "kick-theta-2",
+
+        "mass-ratio-max",
+        "mass-ratio-min",
+
+        "mass-transfer-fa",
+        "mass-transfer-jloss",
+        "mass-transfer-thermal-limit-c",
+        "maximum-mass-donor-nandez-ivanova",
+
+        "minimum-secondary-mass",
+
+        "orbital-period-max",
+        "orbital-period-min",
+
+        "semi-major-axis", "a",
+        "semi-major-axis-max",
+        "semi-major-axis-min",
+
+        "case-bb-stability-prescription",
+
+        "common-envelope-lambda-prescription",
+        "common-envelope-mass-accretion-prescription",
+
+        "eccentricity-distribution",
+
+        "mass-ratio-distribution", "q",
+
+        "mass-transfer-accretion-efficiency-prescription",
+        "mass-transfer-angular-momentum-loss-prescription",
+        "mass-transfer-rejuvenation-prescription",
+        "mass-transfer-thermal-limit-accretor",
+
+        "evolve-pulsars",
+        "evolve-unbound-systems",
+
+        "mass-transfer",
+
+        "rlof-printing",
+
+        "logfile-rlof-parameters",
+        "logfile-common-envelopes",
+        "logfile-double-compact-objects",
+        "logfile-pulsar-evolution",
+        "logfile-system-parameters",
+    };
 
     std::vector<std::string> m_RangeExcluded = {
+        "help", "h",
+        "version", "v",
+
+        // Floor
+        /*
+        "ais-dcotype",
+        "ais-exploratory-phase",
+        "ais-hubble",
+        "ais-pessimistic",
+        "ais-refinement-phase",
+        "ais-rlof",
+        "kappa-gaussians",
+        "nbatches-used",
+        */
+
+        "allow-rlof-at-birth",
+        "allow-touching-at-birth",
+        "angular-momentum-conservation-during-circularisation",
+
+        // Serena
+        //"be-binaries",
+
+        "circularise-binary-during-mass-transfer",
+        "common-envelope-allow-main-sequence-survive",
+
+        "evolve-pulsars",
+        "evolve-unbound-systems",
+
+        "mass-transfer",
+
+        "pair-instability-supernovae",
+        "pulsational-pair-instability",
+
+        "revised-energy-formalism-nandez-ivanova",
+
+        "use-mass-loss",
+
+        "black-hole-kicks",
+
+        "case-bb-stability-prescription",
+        "chemically-homogeneous-evolution",
+        "common-envelope-lambda-prescription",
+        "common-envelope-mass-accretion-prescription",
+
+        "eccentricity-distribution",
+        "envelope-state-prescription",
+
+        "fryer-supernova-engine",
+
+        "initial-mass-function", "i",
+
+        "kick-direction",
+        "kick-magnitude-distribution", 
+
+        "mass-loss-prescription",
+        "mass-ratio-distribution", "q",
+
+        "mass-transfer-accretion-efficiency-prescription",
+        "mass-transfer-angular-momentum-loss-prescription",
+        "mass-transfer-rejuvenation-prescription",
+        "mass-transfer-thermal-limit-accretor",
+
+        "neutrino-mass-loss-bh-formation",
+        "neutron-star-equation-of-state",
+
+        "pulsar-birth-magnetic-field-distribution",
+        "pulsar-birth-spin-period-distribution",
+        "pulsational-pair-instability-prescription",
+        "remnant-mass-prescription",
+        "rotational-velocity-distribution",
+        "semi-major-axis-distribution",
+        "stellar-zeta-prescription",
+        
         "quiet", 
         "log-level", 
-        "debug-level"
-    }; // add others...
+        "log-classes",
+        "debug-level",
+        "debug_classes",
+        "debug-to-file",
+        "detailedOutput",
+        "enable-warnings",
+        "errors-to-file",
+        "populationDataPrinting",
+        "print-bool-as-string",
+        "rlof-printing",
+        "switchlog",
+        "grid",
+        "mode",
+
+        // Serena
+        //"logfile-be-binaries",
+
+        "logfile-rlof-parameters",
+        "logfile-common-envelopes",
+        "logfile-detailed-output",
+        "logfile-double-compact-objects",
+        "logfile-pulsar-evolution",
+        "logfile-supernovae",
+        "logfile-system-parameters",
+        "logfile-switch-log",
+
+        "logfile-definitions",
+        "logfile-delimiter",
+        "logfile-name-prefix",
+
+        "output-container", "c",
+        "outputPath", "o"
+    };
     
     std::vector<std::string> m_SetExcluded = {
+        "help", "h",
+        "version", "v",
+
+        // Floor
+        /*
+        "ais-dcotype",
+        "ais-exploratory-phase",
+        "ais-hubble",
+        "ais-pessimistic",
+        "ais-refinement-phase",
+        "ais-rlof",
+        "kappa-gaussians",
+        "nbatches-used",
+        */
+
         "quiet",
         "log-level", 
-        "debug-level"
-    }; // add log file names etc... debug class, log classes
+        "log-classes",
+        "debug-level",
+        "debug_classes",
+        "debug-to-file",
+        "detailedOutput",
+        "enable-warnings",
+        "errors-to-file",
+        "populationDataPrinting",
+        "print-bool-as-string",
+        "rlof-printing",
+        "switchlog",
+        "grid",
+        "mode",
+
+        // Serena
+        //"logfile-be-binaries",
+
+        "logfile-rlof-parameters",
+        "logfile-common-envelopes",
+        "logfile-detailed-output",
+        "logfile-double-compact-objects",
+        "logfile-pulsar-evolution",
+        "logfile-supernovae",
+        "logfile-system-parameters",
+        "logfile-switch-log",
+
+        "logfile-definitions",
+        "logfile-delimiter",
+        "logfile-name-prefix",
+
+        "output-container", "c",
+        "outputPath", "o"
+    };
 
 
 public:
-    
     
     // The OptionsValues class holds the values for the options.  This allows the Options class
     // to hold values for both the commandline options (the options specified by the user on the
@@ -353,7 +644,6 @@ public:
 
 
             // Metallicity options
-            bool                                        m_FixedMetallicity;                                             // Whether user has specified a metallicity to use
             double                                      m_Metallicity;                                                  // Metallicity
 
             double                                      m_mCBUR1;                                                       // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation
@@ -462,8 +752,8 @@ public:
     enum class COMPLEX_TYPE: int {NONE, RANGE, SET};
 
     typedef union RangeParameter {
-        double fVal;        // FLOAT
-        int    iVal;        // INT
+        double fVal;                                // FLOAT
+        int    iVal;                                // INT
     } RangeParameterT; 
 
     typedef struct RangeOrSetDescriptor {
@@ -535,13 +825,12 @@ public:
 
     int             AdvanceGridLineOptionValues();
     int             AdvanceCmdLineOptionValues();
-//    int             ApplyCmdLineOptions(int p_ArgCount = 0, char *p_ArgStrings[] = NULL);
     int             ApplyNextGridLine();
 
     void            CloseGridFile() { m_Gridfile.handle.close(); m_Gridfile.filename = ""; m_Gridfile.error = ERROR::EMPTY_FILENAME; }
  
     bool            Initialise(int p_OptionCount, char *p_OptionStrings[]);
-    bool            InitialiseObject(const std::string p_OptionsString);
+    bool            InitialiseEvolvingObject(const std::string p_OptionsString);
 
 
     ERROR           OpenGridFile(const std::string p_GridFilename);
@@ -610,7 +899,7 @@ public:
 
     bool                                        FixedRandomSeedCmdLine() const                                          { return m_CmdLine.optionValues.m_FixedRandomSeed; }
     bool                                        FixedRandomSeedGridLine() const                                         { return m_GridLine.optionValues.m_FixedRandomSeed; }
-    double                                      FixedUK() const                                                         { return m_GridLine.optionValues.m_UseFixedUK ? m_GridLine.optionValues.m_FixedUK : m_CmdLine.optionValues.m_FixedUK; }
+    double                                      FixedUK() const                                                         { return m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_FixedUK; }
     SN_ENGINE                                   FryerSupernovaEngine() const                                            { return OPT_VALUE("fryer-supernova-engine", m_FryerSupernovaEngine); }
 
     string                                      GridFilename() const                                                    { return m_CmdLine.optionValues.m_GridFilename; }
@@ -799,6 +1088,5 @@ public:
     double                                      ZetaAdiabaticArbitrary() const                                          { return OPT_VALUE("zeta-adiabatic-arbitrary", m_ZetaAdiabaticArbitrary); }
 
 };
-
 
 #endif // __Options_H__

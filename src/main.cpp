@@ -199,8 +199,8 @@ std::tuple<int, int> EvolveSingleStars() {
                 if (OPTIONS->FixedRandomSeedGridLine()) {                                                               // user specified a random seed in the grid file for this star?
                     randomSeed = OPTIONS->RandomSeedGridLine();                                                         // yes - use it as is
                 }
-                else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                           // no - user supplied seed for the random number generator?
-                    randomSeed = RAND->Seed(OPTIONS->RandomSeedCmdLine() + (long int)index);                            // yes - this allows the user to reproduce results for each star
+                else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                           // no - user specified a random seed on the commandline?
+                    randomSeed = RAND->Seed(OPTIONS->RandomSeedCmdLine() + (long int)index);                            // yes - use it as is
                 }
                 else {                                                                                                  // no
                     randomSeed = RAND->Seed(RAND->DefaultSeed() + (long int)index);                                     // use default seed (based on system time) + id (index)
