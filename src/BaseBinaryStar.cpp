@@ -144,7 +144,7 @@ BaseBinaryStar::BaseBinaryStar(const AIS           &p_AIS,
     double metallicity1 = std::min(std::max(p_Metallicity1, 0.0), 1.0);                                                                         // specified metallicity of the primary
     double metallicity2 = std::min(std::max(p_Metallicity2, 0.0), 1.0);                                                                         // specified metallicity of the secondary
 
-    m_SemiMajorAxis = p_SemiMajorAxis;                                                                                                          // specified separation
+    m_SemiMajorAxis = p_SemiMajorAxis;                                                                                                          // specified semi-major axis
     m_Eccentricity  = p_Eccentricity;                                                                                                           // specified eccentricity
 
     m_CEDetails.alpha = OPTIONS->CommonEnvelopeAlpha();
@@ -2788,7 +2788,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
     if (OPTIONS->PopulationDataPrinting()) {
         SAY("\nGenerating a new binary - " << m_Id);
         SAY("Binary has masses " << m_Star1->Mass() << " & " << m_Star2->Mass());
-        SAY("Binary has initial separation " << m_SemiMajorAxis);
+        SAY("Binary has initial semiMajorAxis" << m_SemiMajorAxis);
         SAY("RandomSeed " << m_RandomSeed);
     }
 
