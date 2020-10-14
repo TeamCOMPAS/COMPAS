@@ -422,7 +422,7 @@
 //                                       - added profiling option to keep track of repeated pow() calls
 // 02.15.02     IM - Sep 11, 2020   - Defect repair
 //                                       - changed ultra-stripped HeHG and HeGB stars to immediately check for supernovae before collapsing into WDs; this resolves issue #367
-// 02.15.03     RW - Sep 11, 2020   - Code cleanup:
+// 02.15.03     RTW - Sep 11, 2020   - Code cleanup:
 //                                      - Set all references to kick "velocity" to magnitude. This is more correct, and will help distinguish from system and component vector velocities later
 // 02.15.04     JR - Sep 11, 2020   - Enhancement
 //                                       - refactored profiling code
@@ -435,7 +435,7 @@
 // 02.15.06     IM - Sep 12, 2020   - Defect repair
 //                                       - Changed BaseBinaryStar::ResolveSupernova to account only for mass lost by the exploding binary during the SN when correcting the orbit
 //                                       - Delayed supernova of ultra-stripped stars so that the orbit is adjusted in response to mass transfer first, before the SN happens
-// 02.15.07     RW - Sep 13, 2020   - Enhancement:
+// 02.15.07     RTW - Sep 13, 2020   - Enhancement:
 //                                      - Issue #12 - Move enhancement STROOPWAFEL from Legacy COMPAS to new COMPAS
 //                                      - Issue #18 - double check STROOPWAFEL works in newCOMPAS
 //                                      - Issue #154 - Test compatibility of CompasHPC and BSE_Grid.txt
@@ -465,7 +465,9 @@
 //                                      - Added checks for dividing by zero when calculating fractional change in radius
 // 02.15.15     IM - Oct 8, 2020    - Defect repair:
 //                                      - Added safeguards for R<R_core in radius perturbation for small-envelope stars, complete addressing issue #394
+// 02.15.16     RTW - Oct 14, 2020  - Code cleanup
+//                                      - Changed separation to semiMajorAxis in RLOF and BeBinary properties
 
-const std::string VERSION_STRING = "02.15.15";
+const std::string VERSION_STRING = "02.15.16";
 
 # endif // __changelog_h__
