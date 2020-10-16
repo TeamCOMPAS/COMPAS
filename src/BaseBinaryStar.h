@@ -99,7 +99,6 @@ public:
 
         m_MassTransferTrackerHistory       = p_Star.m_MassTransferTrackerHistory;
 
-        m_Merged                           = p_Star.m_Merged;
         m_MergesInHubbleTime               = p_Star.m_MergesInHubbleTime;
 
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
@@ -374,7 +373,6 @@ private:
     double              m_TotalMassPrev;
     double              m_TotalMass;
 
-    bool                m_Merged;                                                           // Indicates if the stars merged
     bool                m_MergesInHubbleTime;                                               // Indicates if the stars merge in Hubble Time
 
     double              m_OrbitalVelocityPreSN;
@@ -524,7 +522,7 @@ private:
 
     void    EvaluateBinary(const double p_Dt);
 
-    void    EvaluateSupernovae(const bool p_Resolve2ndSN);
+    void    EvaluateSupernovae();
 
     void    EvolveOneTimestep(const double p_Dt);
     void    EvolveOneTimestepPreamble(const double p_Dt);
