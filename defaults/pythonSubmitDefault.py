@@ -65,7 +65,7 @@ class pythonProgramOptions:
     grid_filename = None
 
     use_mass_loss = True
-    mass_transfer = True
+    enable_mass_transfer = True
     detailed_output = False                             # WARNING: this creates a data heavy file
     RLOFPrinting = True
     evolve_unbound_systems = False
@@ -224,7 +224,7 @@ class pythonProgramOptions:
         booleanChoices = [
             self.enable_warnings,
             self.use_mass_loss,
-            self.mass_transfer,
+            self.enable_mass_transfer,
             self.detailed_output,
             self.evolve_unbound_systems,
             self.populationPrinting,
@@ -249,7 +249,7 @@ class pythonProgramOptions:
         booleanCommands = [
             '--enable-warnings',
             '--use-mass-loss',
-            '--mass-transfer',
+            '--enable-mass-transfer',
             '--detailedOutput',
             '--evolve-unbound-systems',
             '--population-data-printing',
