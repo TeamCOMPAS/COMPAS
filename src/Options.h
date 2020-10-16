@@ -25,7 +25,7 @@ using std::get;
 namespace po = boost::program_options;
 
 
-#define OPT_VALUE(optName, optValue)    m_GridLine.optionValues.m_VM[optName].defaulted() ? m_CmdLine.optionValues.optValue : m_GridLine.optionValues.optValue
+#define OPT_VALUE(optName, optValue)    (m_GridLine.optionValues.m_Populated && !m_GridLine.optionValues.m_VM[optName].defaulted()) ? m_GridLine.optionValues.optValue : m_CmdLine.optionValues.optValue
 
 /*
  * Options Singleton
@@ -41,8 +41,84 @@ class Options {
 
 private:
 
-    // The m_SSEOnly vector records option strings that apply to SSE only
-    // The m_BSEOnly vector records option strings that apply to BSE only
+    // The following vectors are used to constrain which options can be specified
+    // when.  There are three groups of two vectors:
+    //
+    // m_GridLineExcluded records option strings that may not be specified on a grid line
+    //
+    // m_SSEOnly records option strings that apply to SSE only
+    // m_BSEOnly records option strings that apply to BSE only
+    //
+    // m_RangeExcluded vector records option strings for which a range may not be specified
+    // m_SetExcluded vector records option strings for which a set may not be specified
+    //
+    // Each of these is described in more detail below
+
+
+    // m_GridLineExcluded records option strings that may not be specified on a grid line
+    //
+    // This vector is checked when the grid line is parsed - if any option strings are 
+    // specified but excluded from the grid line, a warning will be issued and the option
+    // ignored (processing will continue). The reasons we might exclude options from the 
+    // grid file should be obvious upon reading the list of excluded options.  I can't 
+    // think of a good reason to exclude options from the commandline, so I haven't 
+    // implemented that functionality (though it wouldn't be too difficult to add it).
+
+    std::vector<std::string> m_GridLineExcluded = {
+        "help", "h",
+        "version", "v",
+
+        // Floor
+        /*
+        "ais-dcotype",
+        "ais-exploratory-phase",
+        "ais-hubble",
+        "ais-pessimistic",
+        "ais-refinement-phase",
+        "ais-rlof",
+        "kappa-gaussians",
+        "nbatches-used",
+        */
+
+        "quiet", 
+        "log-level", 
+        "log-classes",
+        "debug-level",
+        "debug_classes",
+        "debug-to-file",
+        "detailed-output",
+        "enable-warnings",
+        "errors-to-file",
+        "population-data-printing",
+        "print-bool-as-string",
+        "rlof-printing",                    // maybe this could be allowed
+        "switchlog",                        // maybe this could be allowed
+        "grid",
+        "mode",
+
+        // Serena
+        //"logfile-be-binaries",
+
+        "logfile-rlof-parameters",
+        "logfile-common-envelopes",
+        "logfile-detailed-output",
+        "logfile-double-compact-objects",
+        "logfile-pulsar-evolution",
+        "logfile-supernovae",
+        "logfile-system-parameters",
+        "logfile-switch-log",
+
+        "logfile-definitions",
+        "logfile-delimiter",
+        "logfile-name-prefix",
+
+        "output-container", "c",
+        "outputPath", "o"
+    };
+
+    
+    // m_SSEOnly records option strings that apply to SSE only
+    // m_BSEOnly records option strings that apply to BSE only
     //
     // These vectors are checked when the commandline or grid line are parsed for
     // ranges and sets.  Ranges and sets are played out, and stars/binaries evolved
@@ -73,19 +149,16 @@ private:
     // vectors is helping the user avoid duplicating stars/binaries if they specify
     // inconsistent options.
 
-
-// JR NEED TO IMPLEMENT CODE FOR THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
     std::vector<std::string> m_SSEOnly = {
         "initial-mass",
         "kick-magnitude",
-        "kick-magnitude-random",
+        "kick-magnitude-random"
     };
 
     std::vector<std::string> m_BSEOnly = {
         "initial-mass-1",
         "initial-mass-2",
-        "semi-major-axis", "a",
+        "separation", "a",
 
         // Floor
         /*
@@ -163,7 +236,7 @@ private:
         "orbital-period-max",
         "orbital-period-min",
 
-        "semi-major-axis", "a",
+        "separation", "a",
         "semi-major-axis-max",
         "semi-major-axis-min",
 
@@ -184,7 +257,7 @@ private:
         "evolve-pulsars",
         "evolve-unbound-systems",
 
-        "enable-mass-transfer",
+        "mass-transfer",
 
         "rlof-printing",
 
@@ -194,6 +267,18 @@ private:
         "logfile-pulsar-evolution",
         "logfile-system-parameters",
     };
+
+    
+    // m_RangeExcluded records option strings that apply to SSE only
+    // m_SetExcluded records option strings that apply to BSE only
+    //
+    // These vectors are checked when the commandline or grid line are parsed for
+    // ranges and sets.  Ranges can only be specified for numerical options - other
+    // data types are not ordered, so ranges don't make sense (what would the
+    // increment be...).  Sets can be specified for options of all data types,
+    // but sets (and ranges) don't make sense for some options (things like "help",
+    // "quiet", logfile names etc....)
+  
 
     std::vector<std::string> m_RangeExcluded = {
         "help", "h",
@@ -224,7 +309,7 @@ private:
         "evolve-pulsars",
         "evolve-unbound-systems",
 
-        "enable-mass-transfer",
+        "mass-transfer",
 
         "pair-instability-supernovae",
         "pulsational-pair-instability",
@@ -275,10 +360,10 @@ private:
         "debug-level",
         "debug_classes",
         "debug-to-file",
-        "detailedOutput",
+        "detailed-output",
         "enable-warnings",
         "errors-to-file",
-        "populationDataPrinting",
+        "population-data-printing",
         "print-bool-as-string",
         "rlof-printing",
         "switchlog",
@@ -327,10 +412,10 @@ private:
         "debug-level",
         "debug_classes",
         "debug-to-file",
-        "detailedOutput",
+        "detailed-output",
         "enable-warnings",
         "errors-to-file",
-        "populationDataPrinting",
+        "population-data-printing",
         "print-bool-as-string",
         "rlof-printing",
         "switchlog",
@@ -712,10 +797,12 @@ public:
 
             po::variables_map m_VM;
 
+            bool m_Populated;       // flag to indicate whether we're using a grid line
+
 
             // member functions
 
-            std::string CheckAndSetOptions(/*const po::variables_map p_VM*/);
+            std::string CheckAndSetOptions();
 
             void        Initialise();
 
@@ -1060,11 +1147,13 @@ public:
 
     ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return OPT_VALUE("rotational-velocity-distribution", m_RotationalVelocityDistribution); }
    
-    double                                      SemiMajorAxis() const                                                   { return OPT_VALUE("semi-major-axis", m_SemiMajorAxis); }
+    double                                      SemiMajorAxis() const                                                   { return OPT_VALUE("separation", m_SemiMajorAxis); }
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return OPT_VALUE("semi-major-axis-distribution", m_SemiMajorAxisDistribution); }
     double                                      SemiMajorAxisDistributionMax() const                                    { return OPT_VALUE("semi-major-axis-max", m_SemiMajorAxisDistributionMax); }
     double                                      SemiMajorAxisDistributionMin() const                                    { return OPT_VALUE("semi-major-axis-min", m_SemiMajorAxisDistributionMin); }
     double                                      SemiMajorAxisDistributionPower() const                                  { return m_CmdLine.optionValues.m_SemiMajorAxisDistributionPower; }     // JR: no option implemented - always -1.0
+
+    void                                        ShowHelp() const                                                        { std::cout << m_CmdLine.optionDescriptions << std::endl; }
 
     bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
     bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }
@@ -1077,7 +1166,7 @@ public:
 
     bool                                        UseFixedUK() const                                                      { return (m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_UseFixedUK); }
     bool                                        UseMassLoss() const                                                     { return OPT_VALUE("use-mass-loss", m_UseMassLoss); }
-    bool                                        UseMassTransfer() const                                                 { return OPT_VALUE("enable-mass-transfer", m_UseMassTransfer); }
+    bool                                        UseMassTransfer() const                                                 { return OPT_VALUE("mass-transfer", m_UseMassTransfer); }
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability); }
 

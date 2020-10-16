@@ -369,9 +369,20 @@ enum class PROGRAM_STATUS: int { SUCCESS, CONTINUE, STOPPED, ERROR_IN_COMMAND_LI
 enum class ERROR: int {
     NONE,                                                           // no error
     AGE_NEGATIVE_ONCE,                                              // age is < 0.0 - invalid
+    ARGUMENT_RANGE_COUNT_EXPECTED_INT,                              // expected an integer for range count for option
+    ARGUMENT_RANGE_NOT_SUPPORTED,                                   // argument range not supported for option 
+    ARGUMENT_RANGE_NUM_PARMS,                                       // argument range requires exactly three parameters
+    ARGUMENT_RANGE_PARMS_EXPECTED_FP,                               // expected a floating point number for range start and increment for option
+    ARGUMENT_RANGE_PARMS_EXPECTED_INT,                              // expected an integer for range parameters for option
+    ARGUMENT_SET_EXPECTED_BOOL,                                     // all parameters of argument set must be boolean for option
+    ARGUMENT_SET_EXPECTED_NUMERIC,                                  // all parameters of argument set must be numeric for option
+    ARGUMENT_SET_NOT_SUPPORTED,                                     // argument set not supported for option
     BAD_LOGFILE_RECORD_SPECIFICATIONS,                              // error in logfile record specifications
     BINARY_EVOLUTION_STOPPED,                                       // evolution of current binary stopped
     BINARY_SIMULATION_STOPPED,                                      // binary simulation stopped
+    BOOST_OPTION_CMDLINE,                                           // failed to initialise Boost options descriptions for commandline options
+    BOOST_OPTION_GRIDLINE,                                          // failed to initialise Boost options descriptions for grid line options
+    BOOST_OPTION_INTERNAL_ERROR,                                    // Boost option internal error
     ERROR,                                                          // unspecified error
     ERROR_PROCESSING_CMDLINE_OPTIONS,                               // an error occurred while processing commandline options
     ERROR_PROCESSING_GRIDLINE_OPTIONS,                              // an error occurred while processing grid file options
@@ -403,6 +414,7 @@ enum class ERROR: int {
     HAVE_SEPARATION_AND_PERIOD,                                     // user specified both separation and period
     HIGH_TEFF_WINDS,                                                // winds being used at high temperature
     INVALID_AIS_DCO_TYPE,                                           // invalid AIS DCO type specified in program options
+    INVALID_DATA_TYPE,                                              // invalid data type
     INVALID_EDDINGTION_FACTOR,                                      // invalid OPTION value: Eddington Accretion Factor eddingtonAccretionFactor < 0.0
     INVALID_ENVELOPE_TYPE,                                          // invalid envelope type
     INVALID_MASS_TRANSFER_DONOR,                                    // mass transfer from NS, BH or Massless Remnant
@@ -411,6 +423,7 @@ enum class ERROR: int {
     INVALID_TYPE_MT_MASS_RATIO,                                     // invalid stellar type for mass ratio calculation
     INVALID_TYPE_MT_THERMAL_TIMESCALE,                              // invalid stellar type for thermal timescale calculation
     INVALID_TYPE_ZETA_CALCULATION,                                  // invalid stellar type for Zeta calculation
+    INVALID_VALUE_FOR_BOOLEAN_OPTION,                               // invalid valuse specified for boolean option
     LAMBDA_NOT_POSITIVE,                                            // lambda is <= 0.0 - invalid
     LOW_TEFF_WINDS,                                                 // winds being used at low temperature
     MASS_NOT_POSITIVE_ONCE,                                         // mass is <= 0.0 - invalid
@@ -420,7 +433,9 @@ enum class ERROR: int {
     NO_LAMBDA_NANJING,                                              // Nanjing lambda calculation not supported for stellar type
     NO_REAL_ROOTS,                                                  // equation has no real roots
     NOT_INITIALISED,                                                // object not initialised
+    OPTION_NOT_SUPPORTED_IN_GRID_FILE,                              // option not suppoted in grid file
     OUT_OF_BOUNDS,                                                  // value out of bounds
+    PROGRAM_OPTIONS_ERROR,                                          // program options error
     RADIUS_NOT_POSITIVE,                                            // radius is <= 0.0 - invalid
     RADIUS_NOT_POSITIVE_ONCE,                                       // radius is <= 0.0 - invalid
     RESOLVE_SUPERNOVA_IMPROPERLY_CALLED,                            // ResolveSupernova() called, but m_Supernova->IsSNevent() is false
@@ -429,14 +444,14 @@ enum class ERROR: int {
     TOO_MANY_RLOF_ITERATIONS,                                       // too many iterations in RLOF root finder
     UNEXPECTED_END_OF_FILE,                                         // unexpected end of file
     UNEXPECTED_SN_EVENT,                                            // unexpected supernova event in this context
+    UNHANDLED_EXCEPTION,                                            // unhandled exception
     UNKNOWN_A_DISTRIBUTION,                                         // unknown a-distribution
     UNKNOWN_BH_KICK_OPTION,                                         // unknown black hole kick option (in program options)
     UNKNOWN_BINARY_PROPERTY,                                        // unknown binary property
     UNKNOWN_CASE_BB_STABILITY_PRESCRIPTION,                         // unknown case BB/BC mass transfer stability prescription
     UNKNOWN_CE_ACCRETION_PRESCRIPTION,                              // unknown common envelope accretion prescription
-    UNKNOWN_ENVELOPE_STATE_PRESCRIPTION,                            // unknown envelope state prescription
     UNKNOWN_CE_LAMBDA_PRESCRIPTION,                                 // unknown common envelope Lambda Prescription
-    UNKNOWN_ZETA_PRESCRIPTION,                                      // unknown stellar Zeta prescription
+    UNKNOWN_ENVELOPE_STATE_PRESCRIPTION,                            // unknown envelope state prescription
     UNKNOWN_ECCENTRICITY_DISTRIBUTION,                              // unknown eccentricity distribution
     UNKNOWN_INITIAL_MASS_FUNCTION,                                  // unknown initial mass function
     UNKNOWN_KICK_DIRECTION_DISTRIBUTION,                            // unknown kick direction distribution
@@ -463,6 +478,7 @@ enum class ERROR: int {
     UNKNOWN_STELLAR_PROPERTY,                                       // unknown stellar property
     UNKNOWN_STELLAR_TYPE,                                           // unknown stellar type
     UNKNOWN_VROT_PRESCRIPTION,                                      // unknown rorational velocity prescription
+    UNKNOWN_ZETA_PRESCRIPTION,                                      // unknown stellar Zeta prescription
     UNSUPPORTED_ZETA_PRESCRIPTION,                                  // unsupported common envelope Zeta prescription
     UNSUPPORTED_ECCENTRICITY_DISTRIBUTION,                          // unsupported eccentricity distribution
     UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,           // unsupported pulsar birth magnetic field distribution
@@ -488,9 +504,20 @@ enum class ERROR_SCOPE: int { NEVER, ALWAYS, FIRST, FIRST_IN_OBJECT_TYPE, FIRST_
 
 const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATALOG = {
     { ERROR::AGE_NEGATIVE_ONCE,                                     { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Age < 0.0" }},
+    { ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP,                      { ERROR_SCOPE::ALWAYS,              "Expected a floating point number for range start and increment for option" }},
+    { ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_INT,                     { ERROR_SCOPE::ALWAYS,              "Expected an integer for range count for option" }},
+    { ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_INT,                     { ERROR_SCOPE::ALWAYS,              "Expected an integer for range parameters for option" }},
+    { ERROR::ARGUMENT_RANGE_NOT_SUPPORTED,                          { ERROR_SCOPE::ALWAYS,              "Argument range not supported for option" }},
+    { ERROR::ARGUMENT_RANGE_NUM_PARMS,                              { ERROR_SCOPE::ALWAYS,              "Argument range requires exactly three parameters" }},
+    { ERROR::ARGUMENT_SET_EXPECTED_BOOL,                            { ERROR_SCOPE::ALWAYS,              "All parameters of argument set must be boolean for option" }},
+    { ERROR::ARGUMENT_SET_EXPECTED_NUMERIC,                         { ERROR_SCOPE::ALWAYS,              "All parameters of argument set must be numeric for option" }},
+    { ERROR::ARGUMENT_SET_NOT_SUPPORTED,                            { ERROR_SCOPE::ALWAYS,              "Argument set not supported for option" }},
     { ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS,                     { ERROR_SCOPE::ALWAYS,              "Logfile record specifications error" }},
     { ERROR::BINARY_EVOLUTION_STOPPED,                              { ERROR_SCOPE::ALWAYS,              "Evolution of current binary stopped" }},
     { ERROR::BINARY_SIMULATION_STOPPED,                             { ERROR_SCOPE::ALWAYS,              "Binaries simulation stopped" }},
+    { ERROR::BOOST_OPTION_CMDLINE,                                  { ERROR_SCOPE::ALWAYS,              "Failed to initialise Boost options descriptions for commandline options" }},
+    { ERROR::BOOST_OPTION_GRIDLINE,                                 { ERROR_SCOPE::ALWAYS,              "Failed to initialise Boost options descriptions for grid line options" }},
+    { ERROR::BOOST_OPTION_INTERNAL_ERROR,                           { ERROR_SCOPE::ALWAYS,              "Internal error: Boost vm, option" }},
     { ERROR::ERROR,                                                 { ERROR_SCOPE::ALWAYS,              "Error!" }},
     { ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS,                      { ERROR_SCOPE::ALWAYS,              "An error occurred while processing commandline options" }},
     { ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS,                     { ERROR_SCOPE::ALWAYS,              "An error occurred while processing grid file options" }},
@@ -522,6 +549,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::HAVE_SEPARATION_AND_PERIOD,                            { ERROR_SCOPE::ALWAYS,              "Both separation and period specified - need just one" }},
     { ERROR::HIGH_TEFF_WINDS,                                       { ERROR_SCOPE::ALWAYS,              "Winds being used at high temperature" }},
     { ERROR::INVALID_AIS_DCO_TYPE,                                  { ERROR_SCOPE::ALWAYS,              "Invalid AIS DCO type" }},
+    { ERROR::INVALID_DATA_TYPE,                                     { ERROR_SCOPE::ALWAYS,              "Invalid data type" }},
     { ERROR::INVALID_EDDINGTION_FACTOR,                             { ERROR_SCOPE::ALWAYS,              "Invalid OPTION value: Eddington Accretion Factor eddingtonAccretionFactor < 0.0" }},
     { ERROR::INVALID_ENVELOPE_TYPE,                                 { ERROR_SCOPE::ALWAYS,              "Invalid envelope type" }},
     { ERROR::INVALID_MASS_TRANSFER_DONOR,                           { ERROR_SCOPE::ALWAYS,              "Mass transfer from NS, BH, or Massless Remnant" }},
@@ -530,6 +558,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::INVALID_TYPE_MT_MASS_RATIO,                            { ERROR_SCOPE::ALWAYS,              "Invalid stellar type for mass ratio calculation" }},
     { ERROR::INVALID_TYPE_MT_THERMAL_TIMESCALE,                     { ERROR_SCOPE::ALWAYS,              "Invalid stellar type for thermal timescale calculation" }},
     { ERROR::INVALID_TYPE_ZETA_CALCULATION,                         { ERROR_SCOPE::ALWAYS,              "Invalid stellar tyoe for Zeta calculation" }},
+    { ERROR::INVALID_VALUE_FOR_BOOLEAN_OPTION,                      { ERROR_SCOPE::ALWAYS,              "Invalid value specified for BOOLEAN option" }},
     { ERROR::LAMBDA_NOT_POSITIVE,                                   { ERROR_SCOPE::ALWAYS,              "Lambda <= 0.0" }},
     { ERROR::LOW_TEFF_WINDS,                                        { ERROR_SCOPE::ALWAYS,              "Winds being used at low temperature" }},
     { ERROR::MASS_NOT_POSITIVE_ONCE,                                { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Mass <= 0.0" }},
@@ -540,7 +569,9 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::NO_REAL_ROOTS,                                         { ERROR_SCOPE::ALWAYS,              "No real roots" }},
     { ERROR::NONE,                                                  { ERROR_SCOPE::NEVER,               "No error" }},
     { ERROR::NOT_INITIALISED,                                       { ERROR_SCOPE::ALWAYS,              "Object not initialised" }},
+    { ERROR::OPTION_NOT_SUPPORTED_IN_GRID_FILE,                     { ERROR_SCOPE::ALWAYS,              "Option not supported in grid file" }},
     { ERROR::OUT_OF_BOUNDS,                                         { ERROR_SCOPE::ALWAYS,              "Value out of bounds" }},
+    { ERROR::PROGRAM_OPTIONS_ERROR,                                 { ERROR_SCOPE::ALWAYS,              "Program Options error" }},
     { ERROR::RADIUS_NOT_POSITIVE,                                   { ERROR_SCOPE::ALWAYS,              "Radius <= 0.0" }},
     { ERROR::RADIUS_NOT_POSITIVE_ONCE,                              { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Radius <= 0.0" }},
     { ERROR::RESOLVE_SUPERNOVA_IMPROPERLY_CALLED,                   { ERROR_SCOPE::ALWAYS,              "ResolveSupernova() called, but m_Supernova->IsSNevent() is false" }},
@@ -549,6 +580,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::TOO_MANY_RLOF_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when fitting star inside Roche Lobe in RLOF" }},
     { ERROR::UNEXPECTED_END_OF_FILE,                                { ERROR_SCOPE::ALWAYS,              "Unexpected end of file" }},
     { ERROR::UNEXPECTED_SN_EVENT,                                   { ERROR_SCOPE::ALWAYS,              "Unexpected supernova event in this context" }},
+    { ERROR::UNHANDLED_EXCEPTION,                                   { ERROR_SCOPE::ALWAYS,              "Unhandled exception" }},
     { ERROR::UNKNOWN_A_DISTRIBUTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown semi-major-axis (a) distribution" }},
     { ERROR::UNKNOWN_BH_KICK_OPTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown black hole kick option" }},
     { ERROR::UNKNOWN_BINARY_PROPERTY,                               { ERROR_SCOPE::ALWAYS,              "Unknown binary property - property details not found" }},

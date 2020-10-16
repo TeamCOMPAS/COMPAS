@@ -421,13 +421,21 @@ namespace utils {
      *     - 0|1        ("0" or "1")
      *     - t|f        ("t" or "f" - case insensitive)
      *     - true|false ("true" or "false" - case insensitive)
+     *     - y|n        ("y" or "n" - case insensitive))
+     *     - yes|no     ("yes" or "no" - case insensitive)
+     *     - on|off     ("on" or "off" - case insensitive)
      *
-     * The function will retiurn one of {0, 1, 2, 3} to indicate the result:
+     * The function will retiurn one of {0, 1, 2, 3, 4, 5, 6, -1, -2, -3, -4, -5, -6} to indicate the result:
      * 
-     *     - 0 = not a valid boolean
-     *     - 1 = valid: 0|1
-     *     - 2 = valid: t|f
-     *     - 3 = valid: true|false
+     *     0 = not a valid boolean
+     *     1 = valid: 0|1
+     *     2 = valid: t|f
+     *     3 = valid: true|false
+     *     4 = valid: y|n
+     *     5 = valid: yes|no
+     *     6 = valid: on|off
+     * 
+     *     A positive return value indicates the boolean value is TRUE; a negative, FALSE
      * 
      * 
      * int IsBOOL(const std::string p_Str)
@@ -437,13 +445,22 @@ namespace utils {
      */
     int IsBOOL(const std::string p_Str) {
 
-        if (p_Str.empty()) return 0;                                                    // not valid: empty string
+        if (p_Str.empty()) return 0;                    // not valid: empty string
 
-        if (p_Str == "0"                 || p_Str == "1"                 ) return 1;    // valid: 0|1
-        if (utils::Equals(p_Str, "t")    || utils::Equals(p_Str, "f")    ) return 2;    // valid: t|f
-        if (utils::Equals(p_Str, "true") || utils::Equals(p_Str, "false")) return 3;    // valid: true|false
+        if (utils::Equals(p_Str, "0")    ) return  1;   // valid: 0|1       : TRUE
+        if (utils::Equals(p_Str, "1")    ) return -1;   // valid: 0|1       : FALSE
+        if (utils::Equals(p_Str, "t")    ) return  2;   // valid: t|f       : TRUE  
+        if (utils::Equals(p_Str, "f")    ) return -2;   // valid: t|f       : FALSE
+        if (utils::Equals(p_Str, "true") ) return  3;   // valid: true|false: TRUE
+        if (utils::Equals(p_Str, "false")) return -3;   // valid: true|false: FALSE
+        if (utils::Equals(p_Str, "y")    ) return  4;   // valid: y|n       : TRUE
+        if (utils::Equals(p_Str, "n")    ) return -4;   // valid: y|n       : FALSE
+        if (utils::Equals(p_Str, "yes")  ) return  5;   // valid: yes|no    : TRUE
+        if (utils::Equals(p_Str, "no")   ) return -5;   // valid: yes|no    : FALSE
+        if (utils::Equals(p_Str, "on")   ) return  6;   // valid: on|off    : TRUE
+        if (utils::Equals(p_Str, "off")  ) return -6;   // valid: on|off    : FALSE
 
-        return 0;                                                                       // not valid
+        return 0;                                       // not valid
     }
 
 

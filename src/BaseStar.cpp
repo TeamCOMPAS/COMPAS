@@ -181,8 +181,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     m_SupernovaDetails.initialKickParameters   = p_KickParameters;
 
-    m_SupernovaDetails.kickMagnitudeRandom     = p_KickParameters.magnitudeRandom;
-
     m_SupernovaDetails.events.current          = SN_EVENT::NONE;
     m_SupernovaDetails.events.past             = SN_EVENT::NONE;
 
@@ -202,6 +200,10 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     m_SupernovaDetails.supernovaState          = SN_STATE::NONE;
 
+    m_SupernovaDetails.kickMagnitudeRandom     = p_KickParameters.magnitudeRandom;
+    m_SupernovaDetails.theta                   = p_KickParameters.theta;
+    m_SupernovaDetails.phi                     = p_KickParameters.phi;
+    m_SupernovaDetails.meanAnomaly             = p_KickParameters.meanAnomaly;
 
     // Calculates the Baryonic mass for which the GravitationalRemnantMass will be equal to the maximumNeutronStarMass (inverse of SolveQuadratic())
     // needed to decide whether to calculate Fryer+2012 for Neutron Star or Black Hole in GiantBranch::CalculateGravitationalRemnantMass()
@@ -2599,7 +2601,6 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
     else {                                                                                          // user supplied kick parameters and wants to use supplied kick magnitude, so ...
         vK = m_SupernovaDetails.initialKickParameters.magnitude;                                    // ... use it 
     }
-
 
 	if (error == ERROR::NONE) {                                                                     // check for errors
 
