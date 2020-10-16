@@ -1883,7 +1883,7 @@ void BaseBinaryStar::EvaluateSupernovae() {
         (void)ResolveSupernova();                                                                                       // resolve supernova
     }
 
-    if (m_Star2->IsSNevent()) {                                                                                         // star2 supernova                                                                                                        // star2 supernova
+    if (m_Star2->IsSNevent()) {                                                                                         // star2 supernova                                                                                                        
         m_SupernovaState = m_SupernovaState == SN_STATE::NONE                                                           // star1 not supernova?
                             ? SN_STATE::STAR2                                                                           // yes - just star2
                             : SN_STATE::BOTH;                                                                           // no - both 
