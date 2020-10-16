@@ -194,7 +194,7 @@ private:
     //
     // For now, only delayed writes to the SSE Supernova file is implemented, and only a single record can be delayed.
     // This functionality was introduced specifically to allow queueing a delayed write the to SSE Supernova file - see
-    // the discusiion in the description of Log::GetStandardLogFileRecordDetails() in Log.cpp.
+    // the discussion in the description of Log::GetStandardLogFileRecordDetails() in Log.cpp.
     // This functionality probably shouldn't be extended to allow queueing/delaying multiple records for later writing
     // (I don't think we need it, it would probably soak up too much memory if over-used, and it might just cause confusion)
     
@@ -377,11 +377,11 @@ private:
 
     /*
      * This variant of GetLogStandardRecord() is here because I can't readily figure out how to 
-     * have an optional parameter in a template function if not providing that oprtional parameter 
+     * have an optional parameter in a template function if not providing that optional parameter 
      * doesn't give the compiler enough context to deduce the type of the template type.
      * 
      * Clear as mud?  Well, for the declaration of GetLogStandardRecord() above, template type T2
-     * can't be decduced if the parameter p_SpecifiedPropertyValue is not supplied - even if it
+     * can't be deduced if the parameter p_SpecifiedPropertyValue is not supplied - even if it
      * is given a default value in the parameter list.  There must be a way of making it work, but
      * I can't see it - and I don't want to spend any more time trying to figure it out.  Maybe 
      * later.  In the meantime, this method works.
