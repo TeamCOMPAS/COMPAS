@@ -467,7 +467,10 @@
 //                                      - Added safeguards for R<R_core in radius perturbation for small-envelope stars, complete addressing issue #394
 // 02.15.16     RTW - Oct 14, 2020  - Code cleanup
 //                                      - Changed separation to semiMajorAxis in RLOF and BeBinary properties
+// 02.15.17     IM - Oct 16, 2020   - Defect repair and code cleanup:
+//                                      - Issue 236 fixed: SN printing correctly enabled for all SNe
+//                                      - Minor code cleaning: Cleaned up EvaluateSupernovae(), removed unnecessary m_Merged variable
 
-const std::string VERSION_STRING = "02.15.16";
+const std::string VERSION_STRING = "02.15.17";
 
 # endif // __changelog_h__
