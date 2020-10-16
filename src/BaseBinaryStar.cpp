@@ -421,7 +421,7 @@ void BaseBinaryStar::SetRemainingValues() {
 
     m_RLOFDetails.props1.radius1           = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props1.radius2           = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_RLOFDetails.props1.separation        = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.semiMajorAxis     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props1.eccentricity      = DEFAULT_INITIAL_DOUBLE_VALUE;
     
     m_RLOFDetails.props1.eventCounter      = DEFAULT_INITIAL_ULONGINT_VALUE;
@@ -445,7 +445,7 @@ void BaseBinaryStar::SetRemainingValues() {
 
     m_RLOFDetails.props2.radius1          = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props2.radius2          = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_RLOFDetails.props2.separation       = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.semiMajorAxis    = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props2.eccentricity     = DEFAULT_INITIAL_DOUBLE_VALUE;
     
     m_RLOFDetails.props2.eventCounter     = DEFAULT_INITIAL_ULONGINT_VALUE;
@@ -476,7 +476,7 @@ void BaseBinaryStar::SetRemainingValues() {
     m_BeBinaryDetails.props1.companionTeff       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_BeBinaryDetails.props1.companionRadius     = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_BeBinaryDetails.props1.separation          = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_BeBinaryDetails.props1.semiMajorAxis       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_BeBinaryDetails.props1.eccentricity        = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // BeBinary details - properties 2
@@ -493,7 +493,7 @@ void BaseBinaryStar::SetRemainingValues() {
     m_BeBinaryDetails.props2.companionTeff       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_BeBinaryDetails.props2.companionRadius     = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_BeBinaryDetails.props2.separation          = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_BeBinaryDetails.props2.semiMajorAxis       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_BeBinaryDetails.props2.eccentricity        = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // BeBinary details - current/prev props pointers
@@ -562,13 +562,13 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::BE_BINARY_CURRENT_ID:                                 value = BeBinaryDetails().currentProps->id;                                 break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_NS_MASS:                            value = BeBinaryDetails().currentProps->massNS;                             break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_RANDOM_SEED:                        value = BeBinaryDetails().currentProps->randomSeed;                         break;
-        case BINARY_PROPERTY::BE_BINARY_CURRENT_SEPARATION:                         value = BeBinaryDetails().currentProps->separation;                         break;
+        case BINARY_PROPERTY::BE_BINARY_CURRENT_SEMI_MAJOR_AXIS:                    value = BeBinaryDetails().currentProps->semiMajorAxis;                      break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_TOTAL_TIME:                         value = BeBinaryDetails().currentProps->totalTime;                          break;
         case BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE:                            value = CircularizationTimescale();                                         break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_ALPHA:                                value = CEAlpha();                                                          break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE:                        value = CEAtLeastOnce();                                                    break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT:                          value = CommonEnvelopeEventCount();                                         break;
-        case BINARY_PROPERTY::DIMENSIONLESS_KICK_MAGNITUDE:                          value = UK();                                                               break;
+        case BINARY_PROPERTY::DIMENSIONLESS_KICK_MAGNITUDE:                         value = UK();                                                               break;
         case BINARY_PROPERTY::UNBOUND:                                              value = Unbound();                                                          break;
         case BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE:                          value = DoubleCoreCE();                                                     break;
         case BINARY_PROPERTY::DT:                                                   value = Dt();                                                               break;
@@ -607,7 +607,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_CURRENT_EVENT_COUNTER:                           value = RLOFDetails().currentProps->eventCounter;                           break;
         case BINARY_PROPERTY::RLOF_CURRENT_ID:                                      value = RLOFDetails().currentProps->id;                                     break;
         case BINARY_PROPERTY::RLOF_CURRENT_RANDOM_SEED:                             value = RLOFDetails().currentProps->randomSeed;                             break;
-        case BINARY_PROPERTY::RLOF_CURRENT_SEPARATION:                              value = RLOFDetails().currentProps->separation;                             break;
+        case BINARY_PROPERTY::RLOF_CURRENT_SEMI_MAJOR_AXIS:                         value = RLOFDetails().currentProps->semiMajorAxis;                          break;
         case BINARY_PROPERTY::RLOF_CURRENT_STAR1_MASS:                              value = RLOFDetails().currentProps->mass1;                                  break;
         case BINARY_PROPERTY::RLOF_CURRENT_STAR2_MASS:                              value = RLOFDetails().currentProps->mass2;                                  break;
         case BINARY_PROPERTY::RLOF_CURRENT_STAR1_RADIUS:                            value = RLOFDetails().currentProps->radius1;                                break;
@@ -619,9 +619,9 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_CURRENT_STAR2_STELLAR_TYPE:                      value = RLOFDetails().currentProps->stellarType2;                           break;
         case BINARY_PROPERTY::RLOF_CURRENT_STAR2_STELLAR_TYPE_NAME:                 value = STELLAR_TYPE_LABEL.at(RLOFDetails().currentProps->stellarType2);    break;
         case BINARY_PROPERTY::RLOF_CURRENT_TIME:                                    value = RLOFDetails().currentProps->time;                                   break;
-        case BINARY_PROPERTY::RLOF_PREVIOUS_ECCENTRICITY:                           value = RLOFDetails().previousProps->eccentricity;                           break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_ECCENTRICITY:                           value = RLOFDetails().previousProps->eccentricity;                          break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_EVENT_COUNTER:                          value = RLOFDetails().previousProps->eventCounter;                          break;
-        case BINARY_PROPERTY::RLOF_PREVIOUS_SEPARATION:                             value = RLOFDetails().previousProps->separation;                            break;
+        case BINARY_PROPERTY::RLOF_PREVIOUS_SEMI_MAJOR_AXIS:                        value = RLOFDetails().previousProps->semiMajorAxis;                         break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_STAR1_MASS:                             value = RLOFDetails().previousProps->mass1;                                 break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_STAR2_MASS:                             value = RLOFDetails().previousProps->mass2;                                 break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_STAR1_RADIUS:                           value = RLOFDetails().previousProps->radius1;                               break;
@@ -864,7 +864,7 @@ void BaseBinaryStar::StashRLOFProperties() {
     m_RLOFDetails.currentProps->stellarType1    = m_Star1->StellarType();
     m_RLOFDetails.currentProps->stellarType2    = m_Star2->StellarType();
     m_RLOFDetails.currentProps->eccentricity    = m_Eccentricity;
-    m_RLOFDetails.currentProps->separation      = m_SemiMajorAxis * AU_TO_RSOL;                                    // semi-major axis - change units to Rsol
+    m_RLOFDetails.currentProps->semiMajorAxis   = m_SemiMajorAxis * AU_TO_RSOL;                                    // semi-major axis - change units to Rsol
     m_RLOFDetails.currentProps->eventCounter    = m_RLOFDetails.previousProps->eventCounter;
     m_RLOFDetails.currentProps->time            = m_Time;
     m_RLOFDetails.currentProps->isRLOF1         = m_Star1->IsRLOF();
@@ -894,12 +894,12 @@ void BaseBinaryStar::StashBeBinaryProperties() {
     m_BeBinaryDetails.currentProps  = tmp;                                                                          // new current props points at existing prevous (values will be replaced)
 
     // now save (new) current
-    m_BeBinaryDetails.currentProps->id           = m_ObjectId;                                                      // object id
-    m_BeBinaryDetails.currentProps->randomSeed   = m_RandomSeed;                                                    // random seed
-    m_BeBinaryDetails.currentProps->dt           = m_Dt;                                                            // timestep
-    m_BeBinaryDetails.currentProps->totalTime    = m_BeBinaryDetails.previousProps->dt + m_Dt;                      // total time - accumulate, don't just replace
-    m_BeBinaryDetails.currentProps->separation   = m_SemiMajorAxis * AU_TO_RSOL;                                    // semi-major axis - change units to Rsol
-    m_BeBinaryDetails.currentProps->eccentricity = m_Eccentricity;                                                  // eccentricity
+    m_BeBinaryDetails.currentProps->id            = m_ObjectId;                                                      // object id
+    m_BeBinaryDetails.currentProps->randomSeed    = m_RandomSeed;                                                    // random seed
+    m_BeBinaryDetails.currentProps->dt            = m_Dt;                                                            // timestep
+    m_BeBinaryDetails.currentProps->totalTime     = m_BeBinaryDetails.previousProps->dt + m_Dt;                      // total time - accumulate, don't just replace
+    m_BeBinaryDetails.currentProps->semiMajorAxis = m_SemiMajorAxis * AU_TO_RSOL;                                    // semi-major axis - change units to Rsol
+    m_BeBinaryDetails.currentProps->eccentricity  = m_Eccentricity;                                                  // eccentricity
 
     BinaryConstituentStar* neutronStar   = m_Star1->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR }) ? m_Star1 : m_Star2;    // pointer to neutron star
     BinaryConstituentStar* companionStar = m_Star1->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR }) ? m_Star2 : m_Star1;    // pointer to companion
@@ -2344,7 +2344,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
     if (OPTIONS->PopulationDataPrinting()) {
         SAY("\nGenerating a new binary - " << m_Id);
         SAY("Binary has masses " << m_Star1->Mass() << " & " << m_Star2->Mass());
-        SAY("Binary has initial separation " << m_SemiMajorAxis);
+        SAY("Binary has initial semiMajorAxis" << m_SemiMajorAxis);
         SAY("RandomSeed " << m_RandomSeed);
     }
 

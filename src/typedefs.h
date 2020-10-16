@@ -156,7 +156,7 @@ typedef struct RLOFProperties {
     double        radius2;
 
     double        eccentricity;
-    double        separation;
+    double        semiMajorAxis;
 
     unsigned int  eventCounter;
 
@@ -204,7 +204,7 @@ typedef struct BeBinaryProperties {
     double        companionTeff;
     double        companionRadius;
 
-    double        separation;
+    double        semiMajorAxis;
     double        eccentricity;
 } BeBinaryPropertiesT;
 
