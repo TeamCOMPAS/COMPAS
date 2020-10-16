@@ -1,3 +1,63 @@
+/******************************************************************************************/
+/*                                                                                        */
+/* Instructions for adding a new option:                                                  */
+/*                                                                                        */
+/* 1. Decide on a string for the option - this is the string the user will use on the     */
+/*    commandline or in the grid file (e.g. "random-seed")                                */
+/*    The convention I've settle on is hyphenated lower case - I don't mind what          */
+/*    convention we settle on, as long as it's just one.                                  */
+/*                                                                                        */
+/* 2. Decide on a class member variable name for the option (e.g. m_RandomSeed).          */
+/*                                                                                        */
+/* 3. Decide on a default value for the option.                                           */
+/*                                                                                        */
+/* 4. Add the class member variable to the PRIVATE area of the OptionValues class in      */
+/*    Options.h.                                                                          */
+/*                                                                                        */
+/* 5. Add a getter for the class member variable to the PUBLIC area of the Options class  */
+/*    in Options.h.                                                                       */
+/*                                                                                        */
+/*    Decide if the getter should always retrieve the value specified on the commandline, */
+/*    or whether it should retrieve the grid line value if one was specified by the user, */
+/*    and only retrieve the commandline value if the user did not specify a grid line     */
+/*    value - see the OPT_VALUE macro defined in Options.h.                               */
+/*                                                                                        */
+/* 6. Add the class member variable initialisation (to the default value) to the          */
+/*    Options::OptionValues::Initialise() function in Options.cpp.                        */
+/*                                                                                        */
+/* 7. Add the option to the Options::AddOptions() function in Options.cpp.                */
+/*    This is where we tell Boost about the option - the option string, the variable in   */
+/*    which the user-specified value should be stored, the default value to use if the    */
+/*    user does not specify a value, and the (text) description of the option.            */
+/*                                                                                        */
+/*    Options::AddOptions() is a bit of a beast - there's no easy, short way to specify   */
+/*    the details of as many options as we have.  I have tried to make it semi-readable,  */
+/*    but it is, and always will be, just long...  The best we can do is keep it neat so  */
+/*    it doesn't become too hard to read.                                                 */
+/*                                                                                        */
+/* 8. Add any sanity checks: constraint/range/dependency checks etc. for the new option,  */
+/*    and any affected existing options, to Options::OptionValues::CheckAndSetOptions()   */
+/*    in Options.cpp.  It is also here you can set any final values that, perhaps due to  */
+/*    dependencies on options that had not yet been parsed, could not be set directly by  */
+/*    Boost when the options were parsed (viz. m_KickPhi1 etc.).                          */
+/*                                                                                        */
+/* 9. Add the new option to one or more of the following vectors in Options.h, as         */
+/*    required:                                                                           */
+/*                                                                                        */
+/*        m_GridLineExcluded: option strings that may not be specified on a grid line     */
+/*                                                                                        */
+/*        m_SSEOnly         : option strings that apply to SSE only                       */
+/*        m_BSEOnly         : option strings that apply to BSE only                       */
+/*                                                                                        */
+/*        m_RangeExcluded   : option strings for which a range may not be specified       */
+/*        m_SetExcluded     : option strings for which a set may not be specified         */
+/*                                                                                        */
+/*    Read the explanations for each of the vectors in Options.h to get a better idea of  */
+/*    what they are for and where the new option should go.                               */
+/*                                                                                        */
+/******************************************************************************************/
+
+
 #include "Options.h"
 #include "changelog.h"
 
@@ -159,12 +219,12 @@ void Options::OptionValues::Initialise() {
     m_KickMeanAnomaly2                                              = RAND->Random(0.0, _2_PI);
 
     // Phi
-    m_KickPhi1                                                      = 0.0;                                              // actual value set later
-    m_KickPhi2                                                      = 0.0;                                              // actual value set later
+    m_KickPhi1                                                      = 0.0;                                                  // actual value set later
+    m_KickPhi2                                                      = 0.0;                                                  // actual value set later
 
     // Theta
-    m_KickTheta1                                                    = 0.0;                                              // actual value set later 
-    m_KickTheta2                                                    = 0.0;                                              // actual value set later
+    m_KickTheta1                                                    = 0.0;                                                  // actual value set later 
+    m_KickTheta2                                                    = 0.0;                                                  // actual value set later
 
     // Black hole kicks
     m_BlackHoleKicksOption                                          = BLACK_HOLE_KICK_OPTION::FALLBACK;
@@ -407,356 +467,6 @@ void Options::OptionValues::Initialise() {
     m_LogfileSwitchLog                                              = (m_EvolutionMode == EVOLUTION_MODE::SSE) ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)) : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));
     
 }
-    
-
-/*
- * Sanity check options and option values
- * 
- * We can currently sample mass, metallicity, separation, eccentricity etc. within COMPAS,
- * so those options don't need to be mandatory - but when we move all sampling out of 
- * COMPAS we will need to enforce those as mandatory options - unless we decide to leave
- * some minimal sampling inside COMPAS to allow for missing options.  We would only need
- * to leave a single distribution for each - we wouldn't want to give the user the option
- * of choosing a distribution - the functionality would only be for convenience if an
- * option was missing.
- * 
- * The boost variable map from the parsed options should already have been set before calling
- * this function.  This records, for each option, whether the user specified a value and, if 
- * so, the value specified by the user.  This function sanity checks the user specified values, 
- * sets the values if all pass the sanity checks, then sets the values of the options not 
- * specified by the user the the defaults specifed here.
- * 
- * Note this is a class OptionValues function.
- * 
- * 
- * std::string Options::OptionValues::CheckAndSetOptions(const po::variables_map p_VM)
- * 
- * @return                                      String containing an error string
- *                                              If no error occurred the return string will be the empty string 
- */
-std::string Options::OptionValues::CheckAndSetOptions() {
-#define DEFAULTED(opt) m_VM[opt].defaulted()    // for convenience and readability - undefined at end of function
-
-    std::string errStr = "";                                                                                // error string
-
-    // check & set prescriptions, distributions, assumptions etc. options - alphabetically
-
-    try {
-
-        bool found;
-
-        m_FixedRandomSeed  = !DEFAULTED("random-seed");                                                     // use random seed if it is provided by the user
-        m_UseFixedUK       = !DEFAULTED("fix-dimensionless-kick-magnitude") && (m_FixedUK >= 0.0);          // determine if user supplied a valid kick magnitude
-
-
-        // Floor
-        /*
-        if (!DEFAULTED("ais-dcotype")) {                                                                    // Adaptive Importance Sampling DCO type
-            std::tie(found, p_OptionValues->m_AISDCOtype) = utils::GetMapKey(p_OptionValues->m_AISDCOtypeString, AIS_DCO_LABEL, p_OptionValues->m_AISDCOtype);
-            return "Unknown AIS DCO Type";
-        }
-        */
-
-        if (!DEFAULTED("black-hole-kicks")) {                                                               // black hole kicks option
-            std::tie(found, m_BlackHoleKicksOption) = utils::GetMapKey(m_BlackHoleKicksOptionString, BLACK_HOLE_KICK_OPTION_LABEL, m_BlackHoleKicksOption);
-            COMPLAIN_IF(!found, "Unknown Black Hole Kicks Option");
-        }
-
-        if (!DEFAULTED("case-bb-stability-prescription")) {                                                 //case BB/BC mass transfer stability prescription
-            std::tie(found, m_CaseBBStabilityPrescription) = utils::GetMapKey(m_CaseBBStabilityPrescriptionString, CASE_BB_STABILITY_PRESCRIPTION_LABEL, m_CaseBBStabilityPrescription);
-            COMPLAIN_IF(!found, "Unknown Case BB/BC Mass Transfer Stability Prescription");
-        }
-           
-        if (!DEFAULTED("chemically-homogeneous-evolution")) {                                               // Chemically Homogeneous Evolution
-            std::tie(found, m_CheOption) = utils::GetMapKey(m_CheString, CHE_OPTION_LABEL, m_CheOption);
-            COMPLAIN_IF(!found, "Unknown Chemically Homogeneous Evolution Option");
-        }
-
-        if (!DEFAULTED("common-envelope-lambda-prescription")) {                                            // common envelope lambda prescription
-            std::tie(found, m_CommonEnvelopeLambdaPrescription) = utils::GetMapKey(m_CommonEnvelopeLambdaPrescriptionString, CE_LAMBDA_PRESCRIPTION_LABEL, m_CommonEnvelopeLambdaPrescription);
-            COMPLAIN_IF(!found, "Unknown CE Lambda Prescription");
-        }
-
-        if (!DEFAULTED("common-envelope-mass-accretion-prescription")) {                                    // common envelope mass accretion prescription
-            std::tie(found, m_CommonEnvelopeMassAccretionPrescription) = utils::GetMapKey(m_CommonEnvelopeMassAccretionPrescriptionString, CE_ACCRETION_PRESCRIPTION_LABEL, m_CommonEnvelopeMassAccretionPrescription);
-            COMPLAIN_IF(!found, "Unknown CE Mass Accretion Prescription");
-        }
-            
-        if (!DEFAULTED("envelope-state-prescription")) {                                                    // envelope state prescription
-            std::tie(found, m_EnvelopeStatePrescription) = utils::GetMapKey(m_EnvelopeStatePrescriptionString, ENVELOPE_STATE_PRESCRIPTION_LABEL, m_EnvelopeStatePrescription);
-            COMPLAIN_IF(!found, "Unknown Envelope State Prescription");
-        }
-
-        if (!DEFAULTED("eccentricity-distribution")) {                                                      // eccentricity distribution
-            std::tie(found, m_EccentricityDistribution) = utils::GetMapKey(m_EccentricityDistributionString, ECCENTRICITY_DISTRIBUTION_LABEL, m_EccentricityDistribution);
-            COMPLAIN_IF(!found, "Unknown Eccentricity Distribution");
-        }
-
-        if (!DEFAULTED("fryer-supernova-engine")) {                                                         // Fryer et al. 2012 supernova engine
-            std::tie(found, m_FryerSupernovaEngine) = utils::GetMapKey(m_FryerSupernovaEngineString, SN_ENGINE_LABEL, m_FryerSupernovaEngine);
-            COMPLAIN_IF(!found, "Unknown Fryer et al. Supernova Engine");
-        }
-
-        if (!DEFAULTED("initial-mass-function")) {                                                          // initial mass function
-            std::tie(found, m_InitialMassFunction) = utils::GetMapKey(m_InitialMassFunctionString, INITIAL_MASS_FUNCTION_LABEL, m_InitialMassFunction);
-            COMPLAIN_IF(!found, "Unknown Initial Mass Function");
-        }
-
-        if (!DEFAULTED("kick-direction")) {                                                                 // kick direction
-            std::tie(found, m_KickDirectionDistribution) = utils::GetMapKey(m_KickDirectionDistributionString, KICK_DIRECTION_DISTRIBUTION_LABEL, m_KickDirectionDistribution);
-            COMPLAIN_IF(!found, "Unknown Kick Direction Distribution");
-        }
-
-        if (!DEFAULTED("kick-magnitude-distribution")) {                                                    // kick magnitude
-            std::tie(found, m_KickMagnitudeDistribution) = utils::GetMapKey(m_KickMagnitudeDistributionString, KICK_MAGNITUDE_DISTRIBUTION_LABEL, m_KickMagnitudeDistribution);
-            COMPLAIN_IF(!found, "Unknown Kick Magnitude Distribution");
-        }
-
-        // set values for m_KickPhi[1/2] and m_KickTheta[1/2] here
-        // we now have the kick direction distribution and kick direction power (exponent) required by the user (either default or specified)
-
-        bool phi1Defaulted   = DEFAULTED("kick-phi-1");
-        bool theta1Defaulted = DEFAULTED("kick-theta-1");
-
-        if (phi1Defaulted || theta1Defaulted) {
-            double phi1, theta1;
-            std::tie(phi1, theta1) = utils::DrawKickDirection(m_KickDirectionDistribution, m_KickDirectionPower);
-            if (phi1Defaulted  ) m_KickPhi1   = phi1;
-            if (theta1Defaulted) m_KickTheta1 = theta1;
-        }
-
-        bool phi2Defaulted   = DEFAULTED("kick-phi-2");
-        bool theta2Defaulted = DEFAULTED("kick-theta-2");
-
-        if (phi2Defaulted || theta2Defaulted) {
-            double phi2, theta2;
-            std::tie(phi2, theta2) = utils::DrawKickDirection(m_KickDirectionDistribution, m_KickDirectionPower);
-            if (phi2Defaulted  ) m_KickPhi2   = phi2;
-            if (theta2Defaulted) m_KickTheta2 = theta2;
-        }
-
-        if (!DEFAULTED("logfile-delimiter")) {                                                              // logfile field delimiter
-            std::tie(found, m_LogfileDelimiter) = utils::GetMapKey(m_LogfileDelimiterString, DELIMITERLabel, m_LogfileDelimiter);
-            COMPLAIN_IF(!found, "Unknown Logfile Delimiter");
-        }
-
-        if (!DEFAULTED("mass-loss-prescription")) {                                                         // mass loss prescription
-            std::tie(found, m_MassLossPrescription) = utils::GetMapKey(m_MassLossPrescriptionString, MASS_LOSS_PRESCRIPTION_LABEL, m_MassLossPrescription);
-            COMPLAIN_IF(!found, "Unknown Mass Loss Prescription");
-        }
-
-        if (!DEFAULTED("mass-ratio-distribution")) {                                                        // mass ratio distribution
-            std::tie(found, m_MassRatioDistribution) = utils::GetMapKey(m_MassRatioDistributionString, MASS_RATIO_DISTRIBUTION_LABEL, m_MassRatioDistribution);
-            COMPLAIN_IF(!found, "Unknown Mass Ratio Distribution");
-        }
-
-        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-accretion-efficiency-prescription")) {           // mass transfer accretion efficiency prescription
-            std::tie(found, m_MassTransferAccretionEfficiencyPrescription) = utils::GetMapKey(m_MassTransferAccretionEfficiencyPrescriptionString, MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL, m_MassTransferAccretionEfficiencyPrescription);
-            COMPLAIN_IF(!found, "Unknown Mass Transfer Angular Momentum Loss Prescription");
-        }
-
-        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-angular-momentum-loss-prescription")) {          // mass transfer angular momentum loss prescription
-            std::tie(found, m_MassTransferAngularMomentumLossPrescription) = utils::GetMapKey(m_MassTransferAngularMomentumLossPrescriptionString, MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL, m_MassTransferAngularMomentumLossPrescription);
-            COMPLAIN_IF(!found, "Unknown Mass Transfer Angular Momentum Loss Prescription");
-        }
-
-        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-rejuvenation-prescription")) {                   // mass transfer rejuvenation prescription
-            std::tie(found, m_MassTransferRejuvenationPrescription) = utils::GetMapKey(m_MassTransferRejuvenationPrescriptionString, MT_REJUVENATION_PRESCRIPTION_LABEL, m_MassTransferRejuvenationPrescription);
-            COMPLAIN_IF(!found, "Unknown Mass Transfer Rejuvenation Prescription");
-        }
-
-        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-thermal-limit-accretor")) {                      // mass transfer accretor thermal limit
-            std::tie(found, m_MassTransferThermallyLimitedVariation) = utils::GetMapKey(m_MassTransferThermallyLimitedVariationString, MT_THERMALLY_LIMITED_VARIATION_LABEL, m_MassTransferThermallyLimitedVariation);
-            COMPLAIN_IF(!found, "Unknown Mass Transfer Accretor Thermal Limit");
-
-            if (m_MassTransferThermallyLimitedVariation == MT_THERMALLY_LIMITED_VARIATION::C_FACTOR) {
-                m_MassTransferCParameter = DEFAULTED("mass-transfer-thermal-limit-C") ? 10.0 : m_MassTransferCParameter;
-            }
-
-            if (m_MassTransferThermallyLimitedVariation == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE) {
-                m_MassTransferCParameter = DEFAULTED("mass-transfer-thermal-limit-C") ? 1.0 : m_MassTransferCParameter;
-            }
-        }
-
-        if (!DEFAULTED("mode")) {                                                                           // mode
-            std::tie(found, m_EvolutionMode) = utils::GetMapKey(m_EvolutionModeString, EVOLUTION_MODE_LABEL, m_EvolutionMode);
-            COMPLAIN_IF(!found, "Unknown Mode");
-        }
-
-        if (!DEFAULTED("neutrino-mass-loss-bh-formation")) {                                                // neutrino mass loss assumption
-            std::tie(found, m_NeutrinoMassLossAssumptionBH) = utils::GetMapKey(m_NeutrinoMassLossAssumptionBHString, NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL, m_NeutrinoMassLossAssumptionBH);
-            COMPLAIN_IF(!found, "Unknown Neutrino Mass Loss Assumption");
-        }
-
-        if (!DEFAULTED("neutron-star-equation-of-state")) {                                                 // neutron star equation of state
-            std::tie(found, m_NeutronStarEquationOfState) = utils::GetMapKey(m_NeutronStarEquationOfStateString, NS_EOSLabel, m_NeutronStarEquationOfState);
-            COMPLAIN_IF(!found, "Unknown Neutron Star Equation of State");
-        }
-
-        if (!DEFAULTED("pulsar-birth-magnetic-field-distribution")) {                                       // pulsar birth magnetic field distribution
-            std::tie(found, m_PulsarBirthMagneticFieldDistribution) = utils::GetMapKey(m_PulsarBirthMagneticFieldDistributionString, PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL, m_PulsarBirthMagneticFieldDistribution);
-            COMPLAIN_IF(!found, "Unknown Pulsar Birth Magnetic Field Distribution");
-        }
-
-        if (!DEFAULTED("pulsar-birth-spin-period-distribution")) {                                          // pulsar birth spin period distribution
-            std::tie(found, m_PulsarBirthSpinPeriodDistribution) = utils::GetMapKey(m_PulsarBirthSpinPeriodDistributionString, PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL, m_PulsarBirthSpinPeriodDistribution);
-            COMPLAIN_IF(!found, "Unknown Pulsar Birth Spin Period Distribution");
-        }
-
-        if (!DEFAULTED("pulsational-pair-instability-prescription")) {                                      // pulsational pair instability prescription
-            std::tie(found, m_PulsationalPairInstabilityPrescription) = utils::GetMapKey(m_PulsationalPairInstabilityPrescriptionString, PPI_PRESCRIPTION_LABEL, m_PulsationalPairInstabilityPrescription);
-            COMPLAIN_IF(!found, "Unknown Pulsational Pair Instability Prescription");
-        }
-
-        if (!DEFAULTED("remnant-mass-prescription")) {                                                      // remnant mass prescription
-            std::tie(found, m_RemnantMassPrescription) = utils::GetMapKey(m_RemnantMassPrescriptionString, REMNANT_MASS_PRESCRIPTION_LABEL, m_RemnantMassPrescription);
-            COMPLAIN_IF(!found, "Unknown Remnant Mass Prescription");
-        }
-
-        if (!DEFAULTED("rotational-velocity-distribution")) {                                               // rotational velocity distribution
-            std::tie(found, m_RotationalVelocityDistribution) = utils::GetMapKey(m_RotationalVelocityDistributionString, ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL, m_RotationalVelocityDistribution);
-            COMPLAIN_IF(!found, "Unknown Rotational Velocity Distribution");
-        }
-
-        if (!DEFAULTED("semi-major-axis-distribution")) {                                                   // semi-major axis distribution
-            std::tie(found, m_SemiMajorAxisDistribution) = utils::GetMapKey(m_SemiMajorAxisDistributionString, SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL, m_SemiMajorAxisDistribution);
-            COMPLAIN_IF(!found, "Unknown Semi-Major Axis Distribution");
-        }
-
-        if (!DEFAULTED("stellar-zeta-prescription")) {                                                      // common envelope zeta prescription
-            std::tie(found, m_StellarZetaPrescription) = utils::GetMapKey(m_StellarZetaPrescriptionString, ZETA_PRESCRIPTION_LABEL, m_StellarZetaPrescription);
-            COMPLAIN_IF(!found, "Unknown stellar Zeta Prescription");
-        }
-
-        // constraint/value/range checks - alphabetically (where possible)
-
-        COMPLAIN_IF(!DEFAULTED("common-envelope-alpha") && m_CommonEnvelopeAlpha < 0.0, "CE alpha (--common-envelope-alpha) < 0");
-        COMPLAIN_IF(!DEFAULTED("common-envelope-alpha-thermal") && (m_CommonEnvelopeAlphaThermal < 0.0 || m_CommonEnvelopeAlphaThermal > 1.0), "CE alpha thermal (--common-envelope-alpha-thermal) must be between 0 and 1");
-        COMPLAIN_IF(!DEFAULTED("common-envelope-lambda-multiplier") && m_CommonEnvelopeLambdaMultiplier < 0.0, "CE lambda multiplie (--common-envelope-lambda-multiplier < 0");
-        COMPLAIN_IF(!DEFAULTED("common-envelope-mass-accretion-constant") && m_CommonEnvelopeMassAccretionConstant < 0.0, "CE mass accretion constant (--common-envelope-mass-accretion-constant) < 0");
-        COMPLAIN_IF(!DEFAULTED("common-envelope-mass-accretion-max") && m_CommonEnvelopeMassAccretionMax < 0.0, "Maximum accreted mass (--common-envelope-mass-accretion-max) < 0");
-        COMPLAIN_IF(!DEFAULTED("common-envelope-mass-accretion-min") && m_CommonEnvelopeMassAccretionMin < 0.0, "Minimum accreted mass (--common-envelope-mass-accretion-min) < 0");
-
-        COMPLAIN_IF(m_DebugLevel < 0, "Debug level (--debug-level) < 0");
-
-        COMPLAIN_IF(m_Eccentricity < 0.0 || m_Eccentricity > 1.0, "Eccentricity (--eccentricity) must be between 0 and 1");
-        COMPLAIN_IF(m_EccentricityDistributionMin < 0.0 || m_EccentricityDistributionMin > 1.0, "Minimum eccentricity (--eccentricity-min) must be between 0 and 1");
-        COMPLAIN_IF(m_EccentricityDistributionMax < 0.0 || m_EccentricityDistributionMax > 1.0, "Maximum eccentricity (--eccentricity-max) must be between 0 and 1");
-        COMPLAIN_IF(m_EccentricityDistributionMax <= m_EccentricityDistributionMin, "Maximum eccentricity (--eccentricity-max) must be > Minimum eccentricity (--eccentricity-min)");
-
-        COMPLAIN_IF(m_InitialMassFunctionMin < 0.0, "Minimum initial mass (--initial-mass-min) < 0");
-        COMPLAIN_IF(m_InitialMassFunctionMax < 0.0, "Maximum initial mass (--initial-mass-max) < 0");
-        COMPLAIN_IF(m_InitialMassFunctionMax <= m_InitialMassFunctionMin, "Maximum initial mass (--initial-mass-max) must be > Minimum initial mass (--initial-mass-min)");
-
-        if (m_KickMagnitudeDistribution == KICK_MAGNITUDE_DISTRIBUTION::FLAT) {
-            COMPLAIN_IF(m_KickMagnitudeDistributionMaximum <= 0.0, "User specified --kick-magnitude-distribution = FLAT with Maximum kick magnitude (--kick-magnitude-max) <= 0.0");
-        }
-
-        COMPLAIN_IF(m_LogLevel < 0, "Logging level (--log-level) < 0");
- 
-        COMPLAIN_IF(m_LuminousBlueVariableFactor < 0.0, "LBV multiplier (--luminous-blue-variable-multiplier) < 0");
-
-        COMPLAIN_IF(m_MassRatioDistributionMin < 0.0 || m_MassRatioDistributionMin > 1.0, "Minimum mass ratio (--mass-ratio-min) must be between 0 and 1");
-        COMPLAIN_IF(m_MassRatioDistributionMax < 0.0 || m_MassRatioDistributionMax > 1.0, "Maximum mass ratio (--mass-ratio-max) must be between 0 and 1");
-        COMPLAIN_IF(m_MassRatioDistributionMax <= m_MassRatioDistributionMin, "Maximum mass ratio (--mass-ratio-max) must be > Minimum mass ratio (--mass-ratio-min)");
-
-        COMPLAIN_IF(m_MaxEvolutionTime <= 0.0, "Maximum evolution time in Myr (--maxEvolutionTime) must be > 0");
-
-        COMPLAIN_IF(m_Metallicity < 0.0 || m_Metallicity > 1.0, "Metallicity (--metallicity) should be absolute metallicity and must be between 0 and 1");
-
-        COMPLAIN_IF(m_MinimumMassSecondary < 0.0, "Seconday minimum mass (--minimum-secondary-mass) must be >= 0");
-        COMPLAIN_IF(m_MinimumMassSecondary > m_InitialMassFunctionMax, "Seconday minimum mass (--minimum-secondary-mass) must be <= Maximum initial mass (--initial-mass-max)");
-
-        if (m_NeutrinoMassLossAssumptionBH == NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS) {
-            COMPLAIN_IF(m_NeutrinoMassLossValueBH < 0.0, "Neutrino mass loss value < 0");
-        }
-
-        COMPLAIN_IF(m_ObjectsToEvolve <= 0, (m_EvolutionMode == EVOLUTION_MODE::SSE ? "Number of stars requested <= 0" : "Number of binaries requested <= 0"));
-    
-        if (m_NeutrinoMassLossAssumptionBH == NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_FRACTION) {
-            COMPLAIN_IF(m_NeutrinoMassLossValueBH < 0.0 || m_NeutrinoMassLossValueBH > 1.0, "Neutrino mass loss must be between 0 and 1");
-        }
-
-        if (!DEFAULTED("outputPath")) {                                                                     // user specified output path?
-                                                                                                            // yes
-            fs::path userPath = m_OutputPathString;                                                         // user-specifed path
-            if (fs::is_directory(userPath)) {                                                               // valid directory?
-                m_OutputPath = userPath;                                                                    // yes - set outputPath to user-specified path
-            }
-            else {                                                                                          // not a valid directory
-                m_OutputPath = m_DefaultOutputPath;                                                         // use default path = CWD
-            }
-        }
-
-        COMPLAIN_IF(m_PeriodDistributionMin < 0.0, "Minimum orbital period (--orbital-period-min) < 0");
-        COMPLAIN_IF(m_PeriodDistributionMax < 0.0, "Maximum orbital period (--orbital-period-max) < 0");
-
-        COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale") && m_PulsarMagneticFieldDecayTimescale <= 0.0, "Pulsar magnetic field decay timescale (--pulsar-magnetic-field-decay-timescale) <= 0");
-        COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar Magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
-
-        COMPLAIN_IF(m_SemiMajorAxisDistributionMin < 0.0, "Minimum semi-major Axis (--semi-major-axis-min) < 0");
-        COMPLAIN_IF(m_SemiMajorAxisDistributionMax < 0.0, "Maximum semi-major Axis (--semi-major-axis-max) < 0");
-
-        COMPLAIN_IF(m_TimestepMultiplier <= 0.0, "Timestep multiplier (--timestep-multiplier) <= 0");
-
-        COMPLAIN_IF(m_WolfRayetFactor < 0.0, "WR multiplier (--wolf-rayet-multiplier) < 0");
-
-    }
-    catch (po::error& e) {                                                                                  // program options exception
-        errStr = e.what();                                                                                  // set the error string
-    }
-    catch (const std::string eStr) {                                                                        // custom exception
-        errStr = eStr;                                                                                      // set the error string
-    }
-    catch (...) {                                                                                           // unhandled exception
-        errStr = ERR_MSG(ERROR::UNHANDLED_EXCEPTION);                                                       // set the error string
-    }
-
-    return errStr;
-#undef DEFAULTED
-}
-
-
-/*
- * Determine if the user specified a value for the option
- * 
- * 
- * int OptionSpecified(std::string p_OptionString) 
- * 
- * 
- * @param   [IN]    p_OptionString              String containing option name
- * @return                                      Int result:
- *                                                  -1: invalid/unknown option name
- *                                                   0: option was not specified by user - default value used
- *                                                   1: option specified by user - user specified value used
- */
-int Options::OptionSpecified(std::string p_OptionString) {
-
-    int  result = -1;                                                                                                               // default = invalid/unknown option
-    
-    try {
-        if (m_GridLine.optionValues.m_VM.count(p_OptionString) > 0) {                                                               // option exists at grid line (evolving object) level?
-            result = (!m_GridLine.optionValues.m_Populated || m_GridLine.optionValues.m_VM[p_OptionString].defaulted()) ? 0 : 1;    // yes - set result
-        }
-
-        if (result == 0) {                                                                                                          // do we already have a result?
-            if (m_CmdLine.optionValues.m_VM.count(p_OptionString) > 0) {                                                            // no - option exists at the commandline (program) level?
-                result = (!m_CmdLine.optionValues.m_Populated || m_CmdLine.optionValues.m_VM[p_OptionString].defaulted()) ? 0 : 1;  // yes - set result
-            }
-            else {                                                                                                                  // option does not exist at the commandline (program-level)
-                result = -1;                                                                                                        // set result
-            }
-        }    
-    }
-    catch (po::error& e) {                                                                                                          // program options exception
-        result = -1;
-    }
-    catch (...) {                                                                                                                   // unhandled exception
-        result = -1;                                                                                                                // set return value - invalid/unknown option
-    }
-    
-    return result;
-}
 
 
 /*
@@ -812,6 +522,9 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         // there is no good way of formatting these - the boost syntax doesn't help that much
         // there is just a boatload of options, so this function is just going to be long...
+        // the options are (kind-of) ordered by data type (i.e. bool, int, double etc.) and
+        // mostly alphabetic in the data types (but might be grouped by functionality in the
+        // data types if it makes more sense)
 
 
         // switches
@@ -1760,6 +1473,356 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
     }
 
     return ok;
+}
+
+
+/*
+ * Sanity check options and option values
+ * 
+ * We can currently sample mass, metallicity, separation, eccentricity etc. within COMPAS,
+ * so those options don't need to be mandatory - but when we move all sampling out of 
+ * COMPAS we will need to enforce those as mandatory options - unless we decide to leave
+ * some minimal sampling inside COMPAS to allow for missing options.  We would only need
+ * to leave a single distribution for each - we wouldn't want to give the user the option
+ * of choosing a distribution - the functionality would only be for convenience if an
+ * option was missing.
+ * 
+ * The boost variable map from the parsed options should already have been set before calling
+ * this function.  This records, for each option, whether the user specified a value and, if 
+ * so, the value specified by the user.  This function sanity checks the user specified values, 
+ * sets the values if all pass the sanity checks, then sets the values of the options not 
+ * specified by the user the the defaults specifed here.
+ * 
+ * Note this is a class OptionValues function.
+ * 
+ * 
+ * std::string Options::OptionValues::CheckAndSetOptions(const po::variables_map p_VM)
+ * 
+ * @return                                      String containing an error string
+ *                                              If no error occurred the return string will be the empty string 
+ */
+std::string Options::OptionValues::CheckAndSetOptions() {
+#define DEFAULTED(opt) m_VM[opt].defaulted()    // for convenience and readability - undefined at end of function
+
+    std::string errStr = "";                                                                                // error string
+
+    // check & set prescriptions, distributions, assumptions etc. options - alphabetically
+
+    try {
+
+        bool found;
+
+        m_FixedRandomSeed  = !DEFAULTED("random-seed");                                                     // use random seed if it is provided by the user
+        m_UseFixedUK       = !DEFAULTED("fix-dimensionless-kick-magnitude") && (m_FixedUK >= 0.0);          // determine if user supplied a valid kick magnitude
+
+
+        // Floor
+        /*
+        if (!DEFAULTED("ais-dcotype")) {                                                                    // Adaptive Importance Sampling DCO type
+            std::tie(found, p_OptionValues->m_AISDCOtype) = utils::GetMapKey(p_OptionValues->m_AISDCOtypeString, AIS_DCO_LABEL, p_OptionValues->m_AISDCOtype);
+            return "Unknown AIS DCO Type";
+        }
+        */
+
+        if (!DEFAULTED("black-hole-kicks")) {                                                               // black hole kicks option
+            std::tie(found, m_BlackHoleKicksOption) = utils::GetMapKey(m_BlackHoleKicksOptionString, BLACK_HOLE_KICK_OPTION_LABEL, m_BlackHoleKicksOption);
+            COMPLAIN_IF(!found, "Unknown Black Hole Kicks Option");
+        }
+
+        if (!DEFAULTED("case-bb-stability-prescription")) {                                                 //case BB/BC mass transfer stability prescription
+            std::tie(found, m_CaseBBStabilityPrescription) = utils::GetMapKey(m_CaseBBStabilityPrescriptionString, CASE_BB_STABILITY_PRESCRIPTION_LABEL, m_CaseBBStabilityPrescription);
+            COMPLAIN_IF(!found, "Unknown Case BB/BC Mass Transfer Stability Prescription");
+        }
+           
+        if (!DEFAULTED("chemically-homogeneous-evolution")) {                                               // Chemically Homogeneous Evolution
+            std::tie(found, m_CheOption) = utils::GetMapKey(m_CheString, CHE_OPTION_LABEL, m_CheOption);
+            COMPLAIN_IF(!found, "Unknown Chemically Homogeneous Evolution Option");
+        }
+
+        if (!DEFAULTED("common-envelope-lambda-prescription")) {                                            // common envelope lambda prescription
+            std::tie(found, m_CommonEnvelopeLambdaPrescription) = utils::GetMapKey(m_CommonEnvelopeLambdaPrescriptionString, CE_LAMBDA_PRESCRIPTION_LABEL, m_CommonEnvelopeLambdaPrescription);
+            COMPLAIN_IF(!found, "Unknown CE Lambda Prescription");
+        }
+
+        if (!DEFAULTED("common-envelope-mass-accretion-prescription")) {                                    // common envelope mass accretion prescription
+            std::tie(found, m_CommonEnvelopeMassAccretionPrescription) = utils::GetMapKey(m_CommonEnvelopeMassAccretionPrescriptionString, CE_ACCRETION_PRESCRIPTION_LABEL, m_CommonEnvelopeMassAccretionPrescription);
+            COMPLAIN_IF(!found, "Unknown CE Mass Accretion Prescription");
+        }
+            
+        if (!DEFAULTED("envelope-state-prescription")) {                                                    // envelope state prescription
+            std::tie(found, m_EnvelopeStatePrescription) = utils::GetMapKey(m_EnvelopeStatePrescriptionString, ENVELOPE_STATE_PRESCRIPTION_LABEL, m_EnvelopeStatePrescription);
+            COMPLAIN_IF(!found, "Unknown Envelope State Prescription");
+        }
+
+        if (!DEFAULTED("eccentricity-distribution")) {                                                      // eccentricity distribution
+            std::tie(found, m_EccentricityDistribution) = utils::GetMapKey(m_EccentricityDistributionString, ECCENTRICITY_DISTRIBUTION_LABEL, m_EccentricityDistribution);
+            COMPLAIN_IF(!found, "Unknown Eccentricity Distribution");
+        }
+
+        if (!DEFAULTED("fryer-supernova-engine")) {                                                         // Fryer et al. 2012 supernova engine
+            std::tie(found, m_FryerSupernovaEngine) = utils::GetMapKey(m_FryerSupernovaEngineString, SN_ENGINE_LABEL, m_FryerSupernovaEngine);
+            COMPLAIN_IF(!found, "Unknown Fryer et al. Supernova Engine");
+        }
+
+        if (!DEFAULTED("initial-mass-function")) {                                                          // initial mass function
+            std::tie(found, m_InitialMassFunction) = utils::GetMapKey(m_InitialMassFunctionString, INITIAL_MASS_FUNCTION_LABEL, m_InitialMassFunction);
+            COMPLAIN_IF(!found, "Unknown Initial Mass Function");
+        }
+
+        if (!DEFAULTED("kick-direction")) {                                                                 // kick direction
+            std::tie(found, m_KickDirectionDistribution) = utils::GetMapKey(m_KickDirectionDistributionString, KICK_DIRECTION_DISTRIBUTION_LABEL, m_KickDirectionDistribution);
+            COMPLAIN_IF(!found, "Unknown Kick Direction Distribution");
+        }
+
+        if (!DEFAULTED("kick-magnitude-distribution")) {                                                    // kick magnitude
+            std::tie(found, m_KickMagnitudeDistribution) = utils::GetMapKey(m_KickMagnitudeDistributionString, KICK_MAGNITUDE_DISTRIBUTION_LABEL, m_KickMagnitudeDistribution);
+            COMPLAIN_IF(!found, "Unknown Kick Magnitude Distribution");
+        }
+
+        // set values for m_KickPhi[1/2] and m_KickTheta[1/2] here
+        // we now have the kick direction distribution and kick direction power (exponent) required by the user (either default or specified)
+
+        bool phi1Defaulted   = DEFAULTED("kick-phi-1");
+        bool theta1Defaulted = DEFAULTED("kick-theta-1");
+
+        if (phi1Defaulted || theta1Defaulted) {
+            double phi1, theta1;
+            std::tie(phi1, theta1) = utils::DrawKickDirection(m_KickDirectionDistribution, m_KickDirectionPower);
+            if (phi1Defaulted  ) m_KickPhi1   = phi1;
+            if (theta1Defaulted) m_KickTheta1 = theta1;
+        }
+
+        bool phi2Defaulted   = DEFAULTED("kick-phi-2");
+        bool theta2Defaulted = DEFAULTED("kick-theta-2");
+
+        if (phi2Defaulted || theta2Defaulted) {
+            double phi2, theta2;
+            std::tie(phi2, theta2) = utils::DrawKickDirection(m_KickDirectionDistribution, m_KickDirectionPower);
+            if (phi2Defaulted  ) m_KickPhi2   = phi2;
+            if (theta2Defaulted) m_KickTheta2 = theta2;
+        }
+
+        if (!DEFAULTED("logfile-delimiter")) {                                                              // logfile field delimiter
+            std::tie(found, m_LogfileDelimiter) = utils::GetMapKey(m_LogfileDelimiterString, DELIMITERLabel, m_LogfileDelimiter);
+            COMPLAIN_IF(!found, "Unknown Logfile Delimiter");
+        }
+
+        if (!DEFAULTED("mass-loss-prescription")) {                                                         // mass loss prescription
+            std::tie(found, m_MassLossPrescription) = utils::GetMapKey(m_MassLossPrescriptionString, MASS_LOSS_PRESCRIPTION_LABEL, m_MassLossPrescription);
+            COMPLAIN_IF(!found, "Unknown Mass Loss Prescription");
+        }
+
+        if (!DEFAULTED("mass-ratio-distribution")) {                                                        // mass ratio distribution
+            std::tie(found, m_MassRatioDistribution) = utils::GetMapKey(m_MassRatioDistributionString, MASS_RATIO_DISTRIBUTION_LABEL, m_MassRatioDistribution);
+            COMPLAIN_IF(!found, "Unknown Mass Ratio Distribution");
+        }
+
+        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-accretion-efficiency-prescription")) {           // mass transfer accretion efficiency prescription
+            std::tie(found, m_MassTransferAccretionEfficiencyPrescription) = utils::GetMapKey(m_MassTransferAccretionEfficiencyPrescriptionString, MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL, m_MassTransferAccretionEfficiencyPrescription);
+            COMPLAIN_IF(!found, "Unknown Mass Transfer Angular Momentum Loss Prescription");
+        }
+
+        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-angular-momentum-loss-prescription")) {          // mass transfer angular momentum loss prescription
+            std::tie(found, m_MassTransferAngularMomentumLossPrescription) = utils::GetMapKey(m_MassTransferAngularMomentumLossPrescriptionString, MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL, m_MassTransferAngularMomentumLossPrescription);
+            COMPLAIN_IF(!found, "Unknown Mass Transfer Angular Momentum Loss Prescription");
+        }
+
+        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-rejuvenation-prescription")) {                   // mass transfer rejuvenation prescription
+            std::tie(found, m_MassTransferRejuvenationPrescription) = utils::GetMapKey(m_MassTransferRejuvenationPrescriptionString, MT_REJUVENATION_PRESCRIPTION_LABEL, m_MassTransferRejuvenationPrescription);
+            COMPLAIN_IF(!found, "Unknown Mass Transfer Rejuvenation Prescription");
+        }
+
+        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-thermal-limit-accretor")) {                      // mass transfer accretor thermal limit
+            std::tie(found, m_MassTransferThermallyLimitedVariation) = utils::GetMapKey(m_MassTransferThermallyLimitedVariationString, MT_THERMALLY_LIMITED_VARIATION_LABEL, m_MassTransferThermallyLimitedVariation);
+            COMPLAIN_IF(!found, "Unknown Mass Transfer Accretor Thermal Limit");
+
+            if (m_MassTransferThermallyLimitedVariation == MT_THERMALLY_LIMITED_VARIATION::C_FACTOR) {
+                m_MassTransferCParameter = DEFAULTED("mass-transfer-thermal-limit-C") ? 10.0 : m_MassTransferCParameter;
+            }
+
+            if (m_MassTransferThermallyLimitedVariation == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE) {
+                m_MassTransferCParameter = DEFAULTED("mass-transfer-thermal-limit-C") ? 1.0 : m_MassTransferCParameter;
+            }
+        }
+
+        if (!DEFAULTED("mode")) {                                                                           // mode
+            std::tie(found, m_EvolutionMode) = utils::GetMapKey(m_EvolutionModeString, EVOLUTION_MODE_LABEL, m_EvolutionMode);
+            COMPLAIN_IF(!found, "Unknown Mode");
+        }
+
+        if (!DEFAULTED("neutrino-mass-loss-bh-formation")) {                                                // neutrino mass loss assumption
+            std::tie(found, m_NeutrinoMassLossAssumptionBH) = utils::GetMapKey(m_NeutrinoMassLossAssumptionBHString, NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL, m_NeutrinoMassLossAssumptionBH);
+            COMPLAIN_IF(!found, "Unknown Neutrino Mass Loss Assumption");
+        }
+
+        if (!DEFAULTED("neutron-star-equation-of-state")) {                                                 // neutron star equation of state
+            std::tie(found, m_NeutronStarEquationOfState) = utils::GetMapKey(m_NeutronStarEquationOfStateString, NS_EOSLabel, m_NeutronStarEquationOfState);
+            COMPLAIN_IF(!found, "Unknown Neutron Star Equation of State");
+        }
+
+        if (!DEFAULTED("pulsar-birth-magnetic-field-distribution")) {                                       // pulsar birth magnetic field distribution
+            std::tie(found, m_PulsarBirthMagneticFieldDistribution) = utils::GetMapKey(m_PulsarBirthMagneticFieldDistributionString, PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL, m_PulsarBirthMagneticFieldDistribution);
+            COMPLAIN_IF(!found, "Unknown Pulsar Birth Magnetic Field Distribution");
+        }
+
+        if (!DEFAULTED("pulsar-birth-spin-period-distribution")) {                                          // pulsar birth spin period distribution
+            std::tie(found, m_PulsarBirthSpinPeriodDistribution) = utils::GetMapKey(m_PulsarBirthSpinPeriodDistributionString, PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL, m_PulsarBirthSpinPeriodDistribution);
+            COMPLAIN_IF(!found, "Unknown Pulsar Birth Spin Period Distribution");
+        }
+
+        if (!DEFAULTED("pulsational-pair-instability-prescription")) {                                      // pulsational pair instability prescription
+            std::tie(found, m_PulsationalPairInstabilityPrescription) = utils::GetMapKey(m_PulsationalPairInstabilityPrescriptionString, PPI_PRESCRIPTION_LABEL, m_PulsationalPairInstabilityPrescription);
+            COMPLAIN_IF(!found, "Unknown Pulsational Pair Instability Prescription");
+        }
+
+        if (!DEFAULTED("remnant-mass-prescription")) {                                                      // remnant mass prescription
+            std::tie(found, m_RemnantMassPrescription) = utils::GetMapKey(m_RemnantMassPrescriptionString, REMNANT_MASS_PRESCRIPTION_LABEL, m_RemnantMassPrescription);
+            COMPLAIN_IF(!found, "Unknown Remnant Mass Prescription");
+        }
+
+        if (!DEFAULTED("rotational-velocity-distribution")) {                                               // rotational velocity distribution
+            std::tie(found, m_RotationalVelocityDistribution) = utils::GetMapKey(m_RotationalVelocityDistributionString, ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL, m_RotationalVelocityDistribution);
+            COMPLAIN_IF(!found, "Unknown Rotational Velocity Distribution");
+        }
+
+        if (!DEFAULTED("semi-major-axis-distribution")) {                                                   // semi-major axis distribution
+            std::tie(found, m_SemiMajorAxisDistribution) = utils::GetMapKey(m_SemiMajorAxisDistributionString, SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL, m_SemiMajorAxisDistribution);
+            COMPLAIN_IF(!found, "Unknown Semi-Major Axis Distribution");
+        }
+
+        if (!DEFAULTED("stellar-zeta-prescription")) {                                                      // common envelope zeta prescription
+            std::tie(found, m_StellarZetaPrescription) = utils::GetMapKey(m_StellarZetaPrescriptionString, ZETA_PRESCRIPTION_LABEL, m_StellarZetaPrescription);
+            COMPLAIN_IF(!found, "Unknown stellar Zeta Prescription");
+        }
+
+        // constraint/value/range checks - alphabetically (where possible)
+
+        COMPLAIN_IF(!DEFAULTED("common-envelope-alpha") && m_CommonEnvelopeAlpha < 0.0, "CE alpha (--common-envelope-alpha) < 0");
+        COMPLAIN_IF(!DEFAULTED("common-envelope-alpha-thermal") && (m_CommonEnvelopeAlphaThermal < 0.0 || m_CommonEnvelopeAlphaThermal > 1.0), "CE alpha thermal (--common-envelope-alpha-thermal) must be between 0 and 1");
+        COMPLAIN_IF(!DEFAULTED("common-envelope-lambda-multiplier") && m_CommonEnvelopeLambdaMultiplier < 0.0, "CE lambda multiplie (--common-envelope-lambda-multiplier < 0");
+        COMPLAIN_IF(!DEFAULTED("common-envelope-mass-accretion-constant") && m_CommonEnvelopeMassAccretionConstant < 0.0, "CE mass accretion constant (--common-envelope-mass-accretion-constant) < 0");
+        COMPLAIN_IF(!DEFAULTED("common-envelope-mass-accretion-max") && m_CommonEnvelopeMassAccretionMax < 0.0, "Maximum accreted mass (--common-envelope-mass-accretion-max) < 0");
+        COMPLAIN_IF(!DEFAULTED("common-envelope-mass-accretion-min") && m_CommonEnvelopeMassAccretionMin < 0.0, "Minimum accreted mass (--common-envelope-mass-accretion-min) < 0");
+
+        COMPLAIN_IF(m_DebugLevel < 0, "Debug level (--debug-level) < 0");
+
+        COMPLAIN_IF(m_Eccentricity < 0.0 || m_Eccentricity > 1.0, "Eccentricity (--eccentricity) must be between 0 and 1");
+        COMPLAIN_IF(m_EccentricityDistributionMin < 0.0 || m_EccentricityDistributionMin > 1.0, "Minimum eccentricity (--eccentricity-min) must be between 0 and 1");
+        COMPLAIN_IF(m_EccentricityDistributionMax < 0.0 || m_EccentricityDistributionMax > 1.0, "Maximum eccentricity (--eccentricity-max) must be between 0 and 1");
+        COMPLAIN_IF(m_EccentricityDistributionMax <= m_EccentricityDistributionMin, "Maximum eccentricity (--eccentricity-max) must be > Minimum eccentricity (--eccentricity-min)");
+
+        COMPLAIN_IF(m_InitialMassFunctionMin < 0.0, "Minimum initial mass (--initial-mass-min) < 0");
+        COMPLAIN_IF(m_InitialMassFunctionMax < 0.0, "Maximum initial mass (--initial-mass-max) < 0");
+        COMPLAIN_IF(m_InitialMassFunctionMax <= m_InitialMassFunctionMin, "Maximum initial mass (--initial-mass-max) must be > Minimum initial mass (--initial-mass-min)");
+
+        if (m_KickMagnitudeDistribution == KICK_MAGNITUDE_DISTRIBUTION::FLAT) {
+            COMPLAIN_IF(m_KickMagnitudeDistributionMaximum <= 0.0, "User specified --kick-magnitude-distribution = FLAT with Maximum kick magnitude (--kick-magnitude-max) <= 0.0");
+        }
+
+        COMPLAIN_IF(m_LogLevel < 0, "Logging level (--log-level) < 0");
+ 
+        COMPLAIN_IF(m_LuminousBlueVariableFactor < 0.0, "LBV multiplier (--luminous-blue-variable-multiplier) < 0");
+
+        COMPLAIN_IF(m_MassRatioDistributionMin < 0.0 || m_MassRatioDistributionMin > 1.0, "Minimum mass ratio (--mass-ratio-min) must be between 0 and 1");
+        COMPLAIN_IF(m_MassRatioDistributionMax < 0.0 || m_MassRatioDistributionMax > 1.0, "Maximum mass ratio (--mass-ratio-max) must be between 0 and 1");
+        COMPLAIN_IF(m_MassRatioDistributionMax <= m_MassRatioDistributionMin, "Maximum mass ratio (--mass-ratio-max) must be > Minimum mass ratio (--mass-ratio-min)");
+
+        COMPLAIN_IF(m_MaxEvolutionTime <= 0.0, "Maximum evolution time in Myr (--maxEvolutionTime) must be > 0");
+
+        COMPLAIN_IF(m_Metallicity < 0.0 || m_Metallicity > 1.0, "Metallicity (--metallicity) should be absolute metallicity and must be between 0 and 1");
+
+        COMPLAIN_IF(m_MinimumMassSecondary < 0.0, "Seconday minimum mass (--minimum-secondary-mass) must be >= 0");
+        COMPLAIN_IF(m_MinimumMassSecondary > m_InitialMassFunctionMax, "Seconday minimum mass (--minimum-secondary-mass) must be <= Maximum initial mass (--initial-mass-max)");
+
+        if (m_NeutrinoMassLossAssumptionBH == NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS) {
+            COMPLAIN_IF(m_NeutrinoMassLossValueBH < 0.0, "Neutrino mass loss value < 0");
+        }
+
+        COMPLAIN_IF(m_ObjectsToEvolve <= 0, (m_EvolutionMode == EVOLUTION_MODE::SSE ? "Number of stars requested <= 0" : "Number of binaries requested <= 0"));
+    
+        if (m_NeutrinoMassLossAssumptionBH == NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_FRACTION) {
+            COMPLAIN_IF(m_NeutrinoMassLossValueBH < 0.0 || m_NeutrinoMassLossValueBH > 1.0, "Neutrino mass loss must be between 0 and 1");
+        }
+
+        if (!DEFAULTED("outputPath")) {                                                                     // user specified output path?
+                                                                                                            // yes
+            fs::path userPath = m_OutputPathString;                                                         // user-specifed path
+            if (fs::is_directory(userPath)) {                                                               // valid directory?
+                m_OutputPath = userPath;                                                                    // yes - set outputPath to user-specified path
+            }
+            else {                                                                                          // not a valid directory
+                m_OutputPath = m_DefaultOutputPath;                                                         // use default path = CWD
+            }
+        }
+
+        COMPLAIN_IF(m_PeriodDistributionMin < 0.0, "Minimum orbital period (--orbital-period-min) < 0");
+        COMPLAIN_IF(m_PeriodDistributionMax < 0.0, "Maximum orbital period (--orbital-period-max) < 0");
+
+        COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale") && m_PulsarMagneticFieldDecayTimescale <= 0.0, "Pulsar magnetic field decay timescale (--pulsar-magnetic-field-decay-timescale) <= 0");
+        COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar Magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
+
+        COMPLAIN_IF(m_SemiMajorAxisDistributionMin < 0.0, "Minimum semi-major Axis (--semi-major-axis-min) < 0");
+        COMPLAIN_IF(m_SemiMajorAxisDistributionMax < 0.0, "Maximum semi-major Axis (--semi-major-axis-max) < 0");
+
+        COMPLAIN_IF(m_TimestepMultiplier <= 0.0, "Timestep multiplier (--timestep-multiplier) <= 0");
+
+        COMPLAIN_IF(m_WolfRayetFactor < 0.0, "WR multiplier (--wolf-rayet-multiplier) < 0");
+
+    }
+    catch (po::error& e) {                                                                                  // program options exception
+        errStr = e.what();                                                                                  // set the error string
+    }
+    catch (const std::string eStr) {                                                                        // custom exception
+        errStr = eStr;                                                                                      // set the error string
+    }
+    catch (...) {                                                                                           // unhandled exception
+        errStr = ERR_MSG(ERROR::UNHANDLED_EXCEPTION);                                                       // set the error string
+    }
+
+    return errStr;
+#undef DEFAULTED
+}
+
+
+/*
+ * Determine if the user specified a value for the option
+ * 
+ * 
+ * int OptionSpecified(std::string p_OptionString) 
+ * 
+ * 
+ * @param   [IN]    p_OptionString              String containing option name
+ * @return                                      Int result:
+ *                                                  -1: invalid/unknown option name
+ *                                                   0: option was not specified by user - default value used
+ *                                                   1: option specified by user - user specified value used
+ */
+int Options::OptionSpecified(std::string p_OptionString) {
+
+    int  result = -1;                                                                                                               // default = invalid/unknown option
+    
+    try {
+        if (m_GridLine.optionValues.m_VM.count(p_OptionString) > 0) {                                                               // option exists at grid line (evolving object) level?
+            result = (!m_GridLine.optionValues.m_Populated || m_GridLine.optionValues.m_VM[p_OptionString].defaulted()) ? 0 : 1;    // yes - set result
+        }
+
+        if (result == 0) {                                                                                                          // do we already have a result?
+            if (m_CmdLine.optionValues.m_VM.count(p_OptionString) > 0) {                                                            // no - option exists at the commandline (program) level?
+                result = (!m_CmdLine.optionValues.m_Populated || m_CmdLine.optionValues.m_VM[p_OptionString].defaulted()) ? 0 : 1;  // yes - set result
+            }
+            else {                                                                                                                  // option does not exist at the commandline (program-level)
+                result = -1;                                                                                                        // set result
+            }
+        }    
+    }
+    catch (po::error& e) {                                                                                                          // program options exception
+        result = -1;
+    }
+    catch (...) {                                                                                                                   // unhandled exception
+        result = -1;                                                                                                                // set return value - invalid/unknown option
+    }
+    
+    return result;
 }
 
 
@@ -2852,57 +2915,57 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
         // option names and what are option values - if it doesn't pan out
         // then we may need to move it to after Boost has parsed the options
 
-        if (args.size() > 1) {                                                                                                  // args present (other than the executable/placeholder)
-            std::vector<int> removeArgs = {};                                                                                   // vector of argument indices to be removed
-            size_t iArg = 1;                                                                                                       // start after the executable name/placeholder
-            while (iArg < args.size()) {                                                                   // for each arg string (except the executable/placeholder)
+        if (args.size() > 1) {                                                                                      // args present (other than the executable/placeholder)
+            std::vector<int> removeArgs = {};                                                                       // vector of argument indices to be removed
+            size_t iArg = 1;                                                                                        // start after the executable name/placeholder
+            while (iArg < args.size()) {                                                                            // for each arg string (except the executable/placeholder)
 
-                std::string optionName(args[iArg]);                                                                             // get the string (we'll call it the option name for now)
+                std::string optionName(args[iArg]);                                                                 // get the string (we'll call it the option name for now)
 
                 // check whether the string really is an option name
                 // we assume any string starting with "--" is an option name, and
                 // any string starting with "-*", where '*' is an alphabetic
                 // character, is an option name
-                bool haveOptionName = false;                                                              // is the string really an option name - default false
-                if (optionName.length() > 1 && optionName[0] == '-') {                            // check for '--' or '-*' (* is alpha character)
-                    if (optionName[1] == '-') haveOptionName = true;                                   // '--' - option name
-                    else if (isalpha(optionName[1])) haveOptionName = true;                            // '-*', where * is alpha character - option name
+                bool haveOptionName = false;                                                                        // is the string really an option name - default false
+                if (optionName.length() > 1 && optionName[0] == '-') {                                              // check for '--' or '-*' (* is alpha character)
+                    if (optionName[1] == '-') haveOptionName = true;                                                // '--' - option name
+                    else if (isalpha(optionName[1])) haveOptionName = true;                                         // '-*', where * is alpha character - option name
                 }
-                iArg++;                                                                                 // next argument string
+                iArg++;                                                                                             // next argument string
 
-                if (haveOptionName) {                                                                   // do we think we have an option name?
-                                                                                                        // yes
-                    if (optionName[0] == '-') optionName.erase(0, optionName.find_first_not_of("-"));                               // remove the "-" or "--"
+                if (haveOptionName) {                                                                               // do we think we have an option name?
+                                                                                                                    // yes
+                    if (optionName[0] == '-') optionName.erase(0, optionName.find_first_not_of("-"));               // remove the "-" or "--"
 
                     if (std::find(m_GridLineExcluded.begin(), m_GridLineExcluded.end(), optionName) != m_GridLineExcluded.end()) {  // on excluded list?
                         
-                        removeArgs.push_back(iArg - 1);                                                                                 // yes - we need to remove it and any associated value
+                        removeArgs.push_back(iArg - 1);                                                             // yes - we need to remove it and any associated value
 
-                        std::cerr << "WARNING: " << ERR_MSG(ERROR::OPTION_NOT_SUPPORTED_IN_GRID_FILE) << ": '" << optionName << "'\n";   // show warning
+                        std::cerr << "WARNING: " << ERR_MSG(ERROR::OPTION_NOT_SUPPORTED_IN_GRID_FILE) << ": '" << optionName << "'\n";  // show warning
 
                         // we need to determine if the next argument string is a value for the
                         // option name we have, or whether it is the next option name - not all
                         // options need to specify a value (e.g. boolean switches)
 
                         std::string optionValue = "";
-                        if (iArg < args.size()) optionValue = std::string(args[iArg]);                   // get the (potential) option value string
+                        if (iArg < args.size()) optionValue = std::string(args[iArg]);                              // get the (potential) option value string
 
                         // check whether the string really is an option value
                         // as noted above, we assume any string starting with "--" is an option name,
                         // and any string starting with "-*", where '*' is an alphabetic character, 
                         // is an option name
-                        bool haveOptionValue = false;                                                              // is the string really an option value - default false
-                        if (!optionValue.empty()) {                                                             // empty string?
-                            haveOptionValue = true;                                                              // no - we'll assume an option value, unless...
-                            if (optionValue.length() > 1 && optionValue[0] == '-') {                            // check for '--' or '-*' (* is alpha character)
-                                if (optionValue[1] == '-') haveOptionValue = false;                                   // '--' - option name, not value
-                                else if (isalpha(optionValue[1])) haveOptionValue = false;                            // '-*', where * is alpha character - option name, not value
+                        bool haveOptionValue = false;                                                               // is the string really an option value - default false
+                        if (!optionValue.empty()) {                                                                 // empty string?
+                            haveOptionValue = true;                                                                 // no - we'll assume an option value, unless...
+                            if (optionValue.length() > 1 && optionValue[0] == '-') {                                // check for '--' or '-*' (* is alpha character)
+                                if (optionValue[1] == '-') haveOptionValue = false;                                 // '--' - option name, not value
+                                else if (isalpha(optionValue[1])) haveOptionValue = false;                          // '-*', where * is alpha character - option name, not value
                             }
                         }
 
-                        if (haveOptionValue) {                                                                   // do we think we have an option value?
-                            removeArgs.push_back(iArg);                                                               // yes - we need to remove it
-                            iArg++;                                                                                // next argument string
+                        if (haveOptionValue) {                                                                      // do we think we have an option value?
+                            removeArgs.push_back(iArg);                                                             // yes - we need to remove it
+                            iArg++;                                                                                 // next argument string
                         }
                     }
                 }
@@ -2916,9 +2979,9 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
             // would change from under me as I was deleting them)
 
             int removeCount(removeArgs.size());
-            if (removeCount > 0) {                                                            // anything to remove?
-                for (int iArg = removeCount - 1; iArg >= 0; iArg--) {                           // loop through all args identified to be removed
-                    args.erase(args.begin() + removeArgs[iArg]);                                                // erase it
+            if (removeCount > 0) {                                                                                  // anything to remove?
+                for (int iArg = removeCount - 1; iArg >= 0; iArg--) {                                               // loop through all args identified to be removed
+                    args.erase(args.begin() + removeArgs[iArg]);                                                    // erase it
                 }
             }
         }

@@ -1,3 +1,10 @@
+/******************************************************************************************/
+/*                                                                                        */
+/*                See Options.cpp for instructions for adding a new option                */
+/*                                                                                        */
+/******************************************************************************************/
+
+
 #ifndef __Options_H__
 #define __Options_H__
 
@@ -24,8 +31,50 @@ using std::get;
 
 namespace po = boost::program_options;
 
+// OPT_VALUE macro
+//
+// getter functions return the value of the class member variable - the class
+// member variable is set to a value depending upon the value of the corresponding
+// option enetered by the user.
+// 
+// Since users now specify grid line values using options, getter functions need to
+// know which option value to return - the one specified on the commandline (if in
+// fact the option was specified on the commandline), or the one specified on the
+// grid line (if in fact the option was sepcified on the grid line).
+//
+// The general idea is to use the value specified by the user on the grid line (if
+// the use actually specified the option on the grid line) in preference to the
+// value specified by the the use on the commandline (if the use actually specified
+// the option on the commandline).  That's what the OPT_VALUE macro defined below
+// does - it will check whether the user specified the option on the grid line, and
+// if they did return that value, and if the option was not specified on the grid
+// line it will return the commandline value.  Not that the commandline value for
+// an option will be the value specified by the user on the commandline if in fact
+// the option was specified on the commandline, and it will be thedefault value for
+// the option if the option was not specified on the commandline.
+//
+// To reiterate: by using the OPT_VALUE macro, the value of the option returned
+// will be (in order of priority):
+//
+//    the value specified on the grid line   IFF the user specified the option on the grid line
+//    the value specified on the commandline IFF the user did not specify the option on the grid line
+//                                               but did specify the option on the commandline
+//    the default value for the option
+//
+// There are some options that we may always want to return the value specified on 
+// the commandline.  For those options, the getter should return
+//
+//     m_CmdLine.optionValues.m_ClassMemberVariable
+//
+// In that case the value entered by the user on the commandline will be returned IFF
+// the user specified the option on the commandline, otherwise the default value for
+// the option will be returned.
 
-#define OPT_VALUE(optName, optValue)    (m_GridLine.optionValues.m_Populated && !m_GridLine.optionValues.m_VM[optName].defaulted()) ? m_GridLine.optionValues.optValue : m_CmdLine.optionValues.optValue
+
+#define OPT_VALUE(optName, optValue)    (m_GridLine.optionValues.m_Populated && \
+                                        !m_GridLine.optionValues.m_VM[optName].defaulted()) \
+                                            ? m_GridLine.optionValues.optValue \
+                                            : m_CmdLine.optionValues.optValue
 
 /*
  * Options Singleton
@@ -49,8 +98,8 @@ private:
     // m_SSEOnly records option strings that apply to SSE only
     // m_BSEOnly records option strings that apply to BSE only
     //
-    // m_RangeExcluded vector records option strings for which a range may not be specified
-    // m_SetExcluded vector records option strings for which a set may not be specified
+    // m_RangeExcluded records option strings for which a range may not be specified
+    // m_SetExcluded records option strings for which a set may not be specified
     //
     // Each of these is described in more detail below
 
@@ -63,6 +112,10 @@ private:
     // grid file should be obvious upon reading the list of excluded options.  I can't 
     // think of a good reason to exclude options from the commandline, so I haven't 
     // implemented that functionality (though it wouldn't be too difficult to add it).
+    //
+    // I coupld probably have done this using a different set of options in Boost for
+    // the commandline and gridfile, but in the end I decided this way was actually
+    // easier, cleaner, and gives us a bit more control.
 
     std::vector<std::string> m_GridLineExcluded = {
         "help", "h",
@@ -1170,7 +1223,15 @@ public:
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability); }
 
-    double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor); }
+    double                                      WolfRayetFactor() const                                                 { 
+        
+        
+//std::cout << "JRPRINT m_GridLine.optionValues.m_Populated = " << m_GridLine.optionValues.m_Populated << "\n";
+//std::cout << "JRPRINT m_GridLine.optionValues.m_VM[wolf-rayet-multiplier].defaulted() = " << m_GridLine.optionValues.m_VM["wolf-rayet-multiplier"].defaulted() << "\n"; 
+//std::cout << "JRPRINT m_GridLine.optionValues.m_WolfRayetFactor = " << m_GridLine.optionValues.m_WolfRayetFactor << "\n";
+//std::cout << "JRPRINT m_CmdLine.optionValues.m_WolfRayetFactor = " << m_CmdLine.optionValues.m_WolfRayetFactor << "\n";
+        
+        return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor); }
 
     double                                      ZetaRadiativeEnvelopeGiant() const                                      { return OPT_VALUE("zeta-radiative-envelope-giant", m_ZetaRadiativeEnvelopeGiant); }
     double                                      ZetaMainSequence() const                                                { return OPT_VALUE("zeta-main-sequence", m_ZetaMainSequence); }
