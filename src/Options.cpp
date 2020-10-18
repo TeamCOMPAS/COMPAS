@@ -210,13 +210,13 @@ void Options::OptionValues::Initialise() {
     m_KickMagnitude2                                                = 0.0;                               
 
     // Kick magnitude random number (used to draw kick magnitude if necessary)
-    m_KickMagnitudeRandom                                           = RAND->Random();
-    m_KickMagnitudeRandom1                                          = RAND->Random();
-    m_KickMagnitudeRandom2                                          = RAND->Random();
+    m_KickMagnitudeRandom                                           = 0.0;                                                  // actual value set later
+    m_KickMagnitudeRandom1                                          = 0.0;                                                  // actual value set later
+    m_KickMagnitudeRandom2                                          = 0.0;                                                  // actual value set later
 
     // Mean anomaly
-    m_KickMeanAnomaly1                                              = RAND->Random(0.0, _2_PI);
-    m_KickMeanAnomaly2                                              = RAND->Random(0.0, _2_PI);
+    m_KickMeanAnomaly1                                              = 0.0;                                                  // actual value set later
+    m_KickMeanAnomaly2                                              = 0.0;                                                  // actual value set later
 
     // Phi
     m_KickPhi1                                                      = 0.0;                                                  // actual value set later
@@ -466,12 +466,15 @@ void Options::OptionValues::Initialise() {
     m_LogfilePulsarEvolution                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)); // only BSE for now
     m_LogfileSwitchLog                                              = (m_EvolutionMode == EVOLUTION_MODE::SSE) ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)) : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));
     
+
+    po::variables_map vm;
+    m_VM = vm;
 }
 
 
 /*
- * This function populates the Boost options_description onject with all defined
- * options.  The options strings are asscoated with the variable to be populated
+ * This function populates the Boost options_description object with all defined
+ * options.  The options strings are associated with the variable to be populated
  * for each option, and the default values are defined.
  * 
  * JR: todo: One day we should construct the list of options shown in the help
@@ -1477,6 +1480,134 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
 
 /*
+ *
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
+std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_ModifyMap) {
+#define DEFAULTED(opt) m_VM[opt].defaulted()    // for convenience and readability - undefined at end of function
+
+    std::string errStr = "";                                        // error string
+
+    try {
+
+        // set "default" values for kick magnitude random number
+        // (used to draw kick magnitude if necessary)
+        // only set if the user did not specify a value
+    
+        if (DEFAULTED("kick-magnitude-random")) {
+            m_KickMagnitudeRandom  = RAND->Random();
+            if (p_ModifyMap) {
+                ModifyVariableMap(m_VM, "kick-magnitude-random", m_KickMagnitudeRandom);
+                po::notify(m_VM);
+            }
+        }
+
+        if (DEFAULTED("kick-magnitude-random-1")) {
+            m_KickMagnitudeRandom1 = RAND->Random();
+            if (p_ModifyMap) {
+                ModifyVariableMap(m_VM, "kick-magnitude-random-1", m_KickMagnitudeRandom1);
+                po::notify(m_VM);
+            }
+        }
+
+        if (DEFAULTED("kick-magnitude-random-2")) {
+            m_KickMagnitudeRandom2 = RAND->Random();
+            if (p_ModifyMap) {
+                ModifyVariableMap(m_VM, "kick-magnitude-random-2", m_KickMagnitudeRandom2);
+                po::notify(m_VM);
+            }
+        }
+
+        // set "default" values for mean anomaly
+        // only set if the user did not specify a value
+    
+        if (DEFAULTED("kick-mean-anomaly-1")) {
+            m_KickMeanAnomaly1 = RAND->Random(0.0, _2_PI);
+            if (p_ModifyMap) {
+                ModifyVariableMap(m_VM, "kick-mean-anomaly-1", m_KickMeanAnomaly1);
+                po::notify(m_VM);
+            }
+        }
+
+        if (DEFAULTED("kick-mean-anomaly-2")) {
+            m_KickMeanAnomaly2 = RAND->Random(0.0, _2_PI);
+            if (p_ModifyMap) {
+                ModifyVariableMap(m_VM, "kick-mean-anomaly-2", m_KickMeanAnomaly2);
+                po::notify(m_VM);
+            }
+        }
+
+        // set "default" values for m_KickPhi[1/2] and m_KickTheta[1/2]
+        // we now have the kick direction distribution and kick direction 
+        // power (exponent) required by the user (either default or specified)
+        // only set if the user did not specify a value
+
+        bool phi1Defaulted   = DEFAULTED("kick-phi-1");
+        bool theta1Defaulted = DEFAULTED("kick-theta-1");
+
+        if (phi1Defaulted || theta1Defaulted) {
+            double phi1, theta1;
+            std::tie(phi1, theta1) = utils::DrawKickDirection(m_KickDirectionDistribution, m_KickDirectionPower);
+            if (phi1Defaulted) {
+                m_KickPhi1 = phi1;
+                if (p_ModifyMap) {
+                    ModifyVariableMap(m_VM, "kick-phi-1", m_KickPhi1);
+                    po::notify(m_VM);
+                }
+            }
+
+            if (theta1Defaulted) {
+                m_KickTheta1 = theta1;
+                if (p_ModifyMap) {
+                    ModifyVariableMap(m_VM, "kick-theta-1", m_KickTheta1);
+                    po::notify(m_VM);
+                }
+            }
+        }
+
+        bool phi2Defaulted   = DEFAULTED("kick-phi-2");
+        bool theta2Defaulted = DEFAULTED("kick-theta-2");
+
+        if (phi2Defaulted || theta2Defaulted) {
+            double phi2, theta2;
+            std::tie(phi2, theta2) = utils::DrawKickDirection(m_KickDirectionDistribution, m_KickDirectionPower);
+            if (phi2Defaulted) {
+                m_KickPhi2 = phi2;
+                if (p_ModifyMap) {
+                    ModifyVariableMap(m_VM, "kick-phi-2", m_KickPhi2);
+                    po::notify(m_VM);
+                }
+            }
+
+            if (theta2Defaulted) {
+                m_KickTheta2 = theta2;
+                if (p_ModifyMap) {
+                    ModifyVariableMap(m_VM, "kick-theta-2", m_KickTheta2);
+                    po::notify(m_VM);
+                }
+            }
+        }
+    }
+    catch (po::error& e) {                                          // program options exception
+        errStr = e.what();                                          // set the error string
+    }
+    catch (const std::string eStr) {                                // custom exception
+        errStr = eStr;                                              // set the error string
+    }
+    catch (...) {                                                   // unhandled exception
+        errStr = ERR_MSG(ERROR::UNHANDLED_EXCEPTION);               // set the error string
+    }
+
+    return errStr;
+#undef DEFAULTED
+}
+
+
+/*
  * Sanity check options and option values
  * 
  * We can currently sample mass, metallicity, separation, eccentricity etc. within COMPAS,
@@ -1577,29 +1708,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         if (!DEFAULTED("kick-magnitude-distribution")) {                                                    // kick magnitude
             std::tie(found, m_KickMagnitudeDistribution) = utils::GetMapKey(m_KickMagnitudeDistributionString, KICK_MAGNITUDE_DISTRIBUTION_LABEL, m_KickMagnitudeDistribution);
             COMPLAIN_IF(!found, "Unknown Kick Magnitude Distribution");
-        }
-
-        // set values for m_KickPhi[1/2] and m_KickTheta[1/2] here
-        // we now have the kick direction distribution and kick direction power (exponent) required by the user (either default or specified)
-
-        bool phi1Defaulted   = DEFAULTED("kick-phi-1");
-        bool theta1Defaulted = DEFAULTED("kick-theta-1");
-
-        if (phi1Defaulted || theta1Defaulted) {
-            double phi1, theta1;
-            std::tie(phi1, theta1) = utils::DrawKickDirection(m_KickDirectionDistribution, m_KickDirectionPower);
-            if (phi1Defaulted  ) m_KickPhi1   = phi1;
-            if (theta1Defaulted) m_KickTheta1 = theta1;
-        }
-
-        bool phi2Defaulted   = DEFAULTED("kick-phi-2");
-        bool theta2Defaulted = DEFAULTED("kick-theta-2");
-
-        if (phi2Defaulted || theta2Defaulted) {
-            double phi2, theta2;
-            std::tie(phi2, theta2) = utils::DrawKickDirection(m_KickDirectionDistribution, m_KickDirectionPower);
-            if (phi2Defaulted  ) m_KickPhi2   = phi2;
-            if (theta2Defaulted) m_KickTheta2 = theta2;
         }
 
         if (!DEFAULTED("logfile-delimiter")) {                                                              // logfile field delimiter
@@ -1768,6 +1876,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         COMPLAIN_IF(m_WolfRayetFactor < 0.0, "WR multiplier (--wolf-rayet-multiplier) < 0");
 
+        errStr = SetCalculatedOptionDefaults(false);                                                        // set calculated option values
     }
     catch (po::error& e) {                                                                                  // program options exception
         errStr = e.what();                                                                                  // set the error string
@@ -1903,44 +2012,44 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
         else            valueStr = "''";
     }
 
-    else if (((boost::any)p_IT->second.value()).type() == typeid(signed                )) { dataType = TYPENAME::INT;   typeStr = "SIGNED";                 valueStr = std::to_string(p_VM[p_IT->first].as<signed                >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned              )) { dataType = TYPENAME::INT;   typeStr = "UNSIGNED";               valueStr = std::to_string(p_VM[p_IT->first].as<unsigned              >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(signed                )) { dataType = TYPENAME::INT;          typeStr = "SIGNED";                 valueStr = std::to_string(p_VM[p_IT->first].as<signed                >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned              )) { dataType = TYPENAME::INT;          typeStr = "UNSIGNED";               valueStr = std::to_string(p_VM[p_IT->first].as<unsigned              >()); }
 
-    else if (((boost::any)p_IT->second.value()).type() == typeid(short                 )) { dataType = TYPENAME::INT;   typeStr = "SHORT";                  valueStr = std::to_string(p_VM[p_IT->first].as<short                 >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(signed short          )) { dataType = TYPENAME::INT;   typeStr = "SIGNED_SHORT";           valueStr = std::to_string(p_VM[p_IT->first].as<signed short          >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned short        )) { dataType = TYPENAME::INT;   typeStr = "UNSIGNED_SHORT";         valueStr = std::to_string(p_VM[p_IT->first].as<unsigned short        >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(short                 )) { dataType = TYPENAME::INT;          typeStr = "SHORT";                  valueStr = std::to_string(p_VM[p_IT->first].as<short                 >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(signed short          )) { dataType = TYPENAME::INT;          typeStr = "SIGNED_SHORT";           valueStr = std::to_string(p_VM[p_IT->first].as<signed short          >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned short        )) { dataType = TYPENAME::INT;          typeStr = "UNSIGNED_SHORT";         valueStr = std::to_string(p_VM[p_IT->first].as<unsigned short        >()); }
 
-    else if (((boost::any)p_IT->second.value()).type() == typeid(short int             )) { dataType = TYPENAME::INT;   typeStr = "SHORT_INT";              valueStr = std::to_string(p_VM[p_IT->first].as<short int             >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(signed short int      )) { dataType = TYPENAME::INT;   typeStr = "SIGNED_SHORT_INT";       valueStr = std::to_string(p_VM[p_IT->first].as<signed short int      >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned short int    )) { dataType = TYPENAME::INT;   typeStr = "UNSIGNED_SHORT_INT";     valueStr = std::to_string(p_VM[p_IT->first].as<unsigned short int    >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(short int             )) { dataType = TYPENAME::INT;          typeStr = "SHORT_INT";              valueStr = std::to_string(p_VM[p_IT->first].as<short int             >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(signed short int      )) { dataType = TYPENAME::INT;          typeStr = "SIGNED_SHORT_INT";       valueStr = std::to_string(p_VM[p_IT->first].as<signed short int      >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned short int    )) { dataType = TYPENAME::INT;          typeStr = "UNSIGNED_SHORT_INT";     valueStr = std::to_string(p_VM[p_IT->first].as<unsigned short int    >()); }
 
-    else if (((boost::any)p_IT->second.value()).type() == typeid(int                   )) { dataType = TYPENAME::INT;   typeStr = "INT";                    valueStr = std::to_string(p_VM[p_IT->first].as<int                   >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(signed int            )) { dataType = TYPENAME::INT;   typeStr = "SIGNED_INT";             valueStr = std::to_string(p_VM[p_IT->first].as<signed int            >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned int          )) { dataType = TYPENAME::INT;   typeStr = "UNSIGNED_INT";           valueStr = std::to_string(p_VM[p_IT->first].as<unsigned int          >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(int                   )) { dataType = TYPENAME::INT;          typeStr = "INT";                    valueStr = std::to_string(p_VM[p_IT->first].as<int                   >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(signed int            )) { dataType = TYPENAME::INT;          typeStr = "SIGNED_INT";             valueStr = std::to_string(p_VM[p_IT->first].as<signed int            >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned int          )) { dataType = TYPENAME::INT;          typeStr = "UNSIGNED_INT";           valueStr = std::to_string(p_VM[p_IT->first].as<unsigned int          >()); }
 
-    else if (((boost::any)p_IT->second.value()).type() == typeid(long                  )) { dataType = TYPENAME::INT;   typeStr = "LONG";                   valueStr = std::to_string(p_VM[p_IT->first].as<long                  >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(signed long           )) { dataType = TYPENAME::INT;   typeStr = "SIGNED_LONG";            valueStr = std::to_string(p_VM[p_IT->first].as<signed long           >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned long         )) { dataType = TYPENAME::INT;   typeStr = "UNSIGNED_LONG";          valueStr = std::to_string(p_VM[p_IT->first].as<unsigned long         >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(long                  )) { dataType = TYPENAME::LONGINT;      typeStr = "LONG";                   valueStr = std::to_string(p_VM[p_IT->first].as<long                  >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(signed long           )) { dataType = TYPENAME::LONGINT;      typeStr = "SIGNED_LONG";            valueStr = std::to_string(p_VM[p_IT->first].as<signed long           >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned long         )) { dataType = TYPENAME::ULONGINT;     typeStr = "UNSIGNED_LONG";          valueStr = std::to_string(p_VM[p_IT->first].as<unsigned long         >()); }
 
-    else if (((boost::any)p_IT->second.value()).type() == typeid(long int              )) { dataType = TYPENAME::INT;   typeStr = "LONG_INT";               valueStr = std::to_string(p_VM[p_IT->first].as<long int              >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(signed long int       )) { dataType = TYPENAME::INT;   typeStr = "SIGNED_LONG_INT";        valueStr = std::to_string(p_VM[p_IT->first].as<signed long int       >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned long int     )) { dataType = TYPENAME::INT;   typeStr = "UNSIGNED_LONG_INT";      valueStr = std::to_string(p_VM[p_IT->first].as<unsigned long int     >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(long int              )) { dataType = TYPENAME::LONGINT;      typeStr = "LONG_INT";               valueStr = std::to_string(p_VM[p_IT->first].as<long int              >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(signed long int       )) { dataType = TYPENAME::LONGINT;      typeStr = "SIGNED_LONG_INT";        valueStr = std::to_string(p_VM[p_IT->first].as<signed long int       >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned long int     )) { dataType = TYPENAME::ULONGINT;     typeStr = "UNSIGNED_LONG_INT";      valueStr = std::to_string(p_VM[p_IT->first].as<unsigned long int     >()); }
 
-    else if (((boost::any)p_IT->second.value()).type() == typeid(long long             )) { dataType = TYPENAME::INT;   typeStr = "LONG_LONG";              valueStr = std::to_string(p_VM[p_IT->first].as<long long             >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(signed long long      )) { dataType = TYPENAME::INT;   typeStr = "SIGNED_LONG_LONG";       valueStr = std::to_string(p_VM[p_IT->first].as<signed long long      >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned long long    )) { dataType = TYPENAME::INT;   typeStr = "UNSIGNED_LONG_LONG";     valueStr = std::to_string(p_VM[p_IT->first].as<unsigned long long    >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(long long             )) { dataType = TYPENAME::LONGLONGINT;  typeStr = "LONG_LONG";              valueStr = std::to_string(p_VM[p_IT->first].as<long long             >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(signed long long      )) { dataType = TYPENAME::LONGLONGINT;  typeStr = "SIGNED_LONG_LONG";       valueStr = std::to_string(p_VM[p_IT->first].as<signed long long      >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned long long    )) { dataType = TYPENAME::LONGLONGINT;  typeStr = "UNSIGNED_LONG_LONG";     valueStr = std::to_string(p_VM[p_IT->first].as<unsigned long long    >()); }
 
-    else if (((boost::any)p_IT->second.value()).type() == typeid(long long int         )) { dataType = TYPENAME::INT;   typeStr = "LONG_LONG_INT";          valueStr = std::to_string(p_VM[p_IT->first].as<long long int         >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(signed long long int  )) { dataType = TYPENAME::INT;   typeStr = "SIGNED_LONG_LONG_INT";   valueStr = std::to_string(p_VM[p_IT->first].as<signed long long int  >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned long long int)) { dataType = TYPENAME::INT;   typeStr = "UNSIGNED_LONG_LONG_INT"; valueStr = std::to_string(p_VM[p_IT->first].as<unsigned long long int>()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(long long int         )) { dataType = TYPENAME::LONGLONGINT;  typeStr = "LONG_LONG_INT";          valueStr = std::to_string(p_VM[p_IT->first].as<long long int         >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(signed long long int  )) { dataType = TYPENAME::LONGLONGINT;  typeStr = "SIGNED_LONG_LONG_INT";   valueStr = std::to_string(p_VM[p_IT->first].as<signed long long int  >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned long long int)) { dataType = TYPENAME::ULONGLONGINT; typeStr = "UNSIGNED_LONG_LONG_INT"; valueStr = std::to_string(p_VM[p_IT->first].as<unsigned long long int>()); }
 
-    else if (((boost::any)p_IT->second.value()).type() == typeid(float                 )) { dataType = TYPENAME::FLOAT; typeStr = "FLOAT";                  valueStr = std::to_string(p_VM[p_IT->first].as<float                 >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(double                )) { dataType = TYPENAME::FLOAT; typeStr = "DOUBLE";                 valueStr = std::to_string(p_VM[p_IT->first].as<double                >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(long double           )) { dataType = TYPENAME::FLOAT; typeStr = "LONG_DOUBLE";            valueStr = std::to_string(p_VM[p_IT->first].as<long double           >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(float                 )) { dataType = TYPENAME::FLOAT;        typeStr = "FLOAT";                  valueStr = std::to_string(p_VM[p_IT->first].as<float                 >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(double                )) { dataType = TYPENAME::FLOAT;        typeStr = "DOUBLE";                 valueStr = std::to_string(p_VM[p_IT->first].as<double                >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(long double           )) { dataType = TYPENAME::LONGDOUBLE;   typeStr = "LONG_DOUBLE";            valueStr = std::to_string(p_VM[p_IT->first].as<long double           >()); }
 
-    else if (((boost::any)p_IT->second.value()).type() == typeid(char                  )) { dataType = TYPENAME::INT;   typeStr = "CHAR";                   valueStr = std::to_string(p_VM[p_IT->first].as<char                  >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(signed char           )) { dataType = TYPENAME::INT;   typeStr = "SIGNED_CHAR";            valueStr = std::to_string(p_VM[p_IT->first].as<signed char           >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned char         )) { dataType = TYPENAME::INT;   typeStr = "UNSIGNED_CHAR";          valueStr = std::to_string(p_VM[p_IT->first].as<unsigned char         >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(char                  )) { dataType = TYPENAME::INT;          typeStr = "CHAR";                   valueStr = std::to_string(p_VM[p_IT->first].as<char                  >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(signed char           )) { dataType = TYPENAME::INT;          typeStr = "SIGNED_CHAR";            valueStr = std::to_string(p_VM[p_IT->first].as<signed char           >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned char         )) { dataType = TYPENAME::INT;          typeStr = "UNSIGNED_CHAR";          valueStr = std::to_string(p_VM[p_IT->first].as<unsigned char         >()); }
 
     else if (((boost::any)p_IT->second.value()).type() == typeid(bool)) {
         dataType = TYPENAME::BOOL;
@@ -2272,48 +2381,85 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                     if (idx == (count - 1)) details.currPos = 0;                                                            // initial position for inner iterator
 
                     if (type == COMPLEX_TYPE::RANGE) {                                                                      // RANGE?
-                        if (dataType != TYPENAME::INT && dataType != TYPENAME::FLOAT) {                                     // yes - numeric?
+                        if (dataType != TYPENAME::INT && dataType != TYPENAME::LONGINT && dataType != TYPENAME::LONGLONGINT && 
+                            dataType != TYPENAME::FLOAT && dataType != TYPENAME::LONGDOUBLE) {                              // yes - numeric?
+                            
                             error  = true;                                                                                  // no - that's not ok
                             errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_NOT_SUPPORTED) + std::string("'") + optionName + std::string("'");
                         }
                         else {                                                                                              // yes - numeric
                                                                                                                             // yes - determine numerical range parameters
-                            if (dataType == TYPENAME::INT) {                                                                // option data type is INT?
-                                                                                                                            // yes - expecting integer values for start, count, and inc
-                                try {
-                                    RangeParameterT tmp = {0.0};                                                            // dummy value
-                                    details.rangeParms = {tmp, tmp, tmp};                                                   // create the vector
+                            switch (dataType) {                                                                             // which data type?
+                                // these should cover our options for now - but we might have to refine them over time
 
-                                    details.rangeParms[0].iVal = std::stoi(details.parameters[0]);                          // integer start
-                                    details.rangeParms[1].iVal = std::stoi(details.parameters[1]);                          // integer count
-                                    details.rangeParms[2].iVal = std::stoi(details.parameters[2]);                          // integer inc
-
-                                    p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
-                                }
-                                catch (const std::out_of_range& e) {
-                                    errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_INT) + std::string("'") + optionName  + std::string("'");
-                                }
-                            }
-                            else {                                                                                          // no - expecting fp values for start and inc, and integer for count
-                                try {
-                                    RangeParameterT tmp = {0.0};                                                            // dummy value
-                                    details.rangeParms = {tmp, tmp, tmp};                                                   // create the vector
-
-                                    details.rangeParms[0].fVal = std::stod(details.parameters[0]);                          // floating point start
-                                    details.rangeParms[2].fVal = std::stod(details.parameters[2]);                          // floating point inc
-
+                                case TYPENAME::INT: {                                                                       // INT
                                     try {
-                                        details.rangeParms[1].iVal = std::stoi(details.parameters[1]);                      // integer count
+                                        RangeParameterT tmp = {0.0};                                                        // dummy value
+                                        details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
 
-                                        p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
+                                        details.rangeParms[0].iVal   = std::stoi(details.parameters[0]);                    // integer start
+                                        details.rangeParms[2].iVal   = std::stoi(details.parameters[2]);                    // integer inc
+
+                                        try {
+                                            details.rangeParms[1].uliVal = std::stoul(details.parameters[1]);               // unsigned long int count
+
+                                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
+                                        }
+                                        catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
+                                            errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string("'") + optionName  + std::string("'");
+                                        }
                                     }
-                                    catch (const std::out_of_range& e) {                                                    // not a valid integer
-                                        errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_INT) + std::string("'") + optionName  + std::string("'");
+                                    catch (const std::out_of_range& e) {
+                                        errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_INT) + std::string("'") + optionName  + std::string("'");
                                     }
-                                }
-                                catch (const std::out_of_range& e) {                                                        // not a valid floating point number
-                                    errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP) + std::string("'") + optionName  + std::string("'");
-                                }
+                                } break;
+
+                                case TYPENAME::ULONGINT: {                                                                  // UNSIGNED LONG INT
+                                    try {
+                                        RangeParameterT tmp = {0.0};                                                        // dummy value
+                                        details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
+
+                                        details.rangeParms[0].uliVal = std::stoul(details.parameters[0]);                   // unsigned long int start
+                                        details.rangeParms[2].uliVal = std::stoul(details.parameters[2]);                   // unsigned long int inc
+
+                                        try {
+                                            details.rangeParms[1].uliVal = std::stoul(details.parameters[1]);                // unsigned long int count
+
+                                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
+                                        }
+                                        catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
+                                            errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string("'") + optionName  + std::string("'");
+                                        }
+                                    }
+                                    catch (const std::out_of_range& e) {
+                                        errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_ULINT) + std::string("'") + optionName  + std::string("'");
+                                    }
+                                } break;
+
+                                case TYPENAME::FLOAT: {                                                                     // FLOAT
+                                    try {
+                                        RangeParameterT tmp = {0.0};                                                        // dummy value
+                                        details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
+
+                                        details.rangeParms[0].fVal = std::stod(details.parameters[0]);                      // floating point start
+                                        details.rangeParms[2].fVal = std::stod(details.parameters[2]);                      // floating point inc
+
+                                        try {
+                                            details.rangeParms[1].uliVal = std::stoi(details.parameters[1]);                // unsigned long int count
+
+                                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
+                                        }
+                                        catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
+                                            errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string("'") + optionName  + std::string("'");
+                                        }
+                                    }
+                                    catch (const std::out_of_range& e) {                                                    // not a valid floating point number
+                                        errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP) + std::string("'") + optionName  + std::string("'");
+                                    }
+                                } break;
+                                
+                                default:                                                                                    // that's a problem...
+                                    COMPLAIN(ERR_MSG(ERROR::INVALID_DATA_TYPE));                                            // complain
                             }
                         }
                     }
@@ -2403,6 +2549,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
                                 // don't need to wrap the conversions in try/catch here - already validated
                                 switch (dataType) {                                                                         // which data type?
+                                    // these should cover our options for now - but we might have to refine them over time
 
                                     case TYPENAME::INT: {                                                                   // INT
                                         int thisVal = std::stoi(optionValue);                                               // convert to int
@@ -2410,8 +2557,26 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                         po::notify(p_OptionsDescriptor.optionValues.m_VM);                                  // propagate the change
                                     } break;
 
+                                    case TYPENAME::LONGINT: {                                                               // LONG INT
+                                        long int thisVal = std::stol(optionValue);                                          // convert to long int
+                                        p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal); // update Boost variable map
+                                        po::notify(p_OptionsDescriptor.optionValues.m_VM);                                  // propagate the change
+                                    } break;
+
+                                    case TYPENAME::ULONGINT: {                                                              // UNSIGNED LONG INT
+                                        unsigned long int thisVal = std::stoul(optionValue);                                // convert to unsigned long int
+                                        p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal); // update Boost variable map
+                                        po::notify(p_OptionsDescriptor.optionValues.m_VM);                                  // propagate the change
+                                    } break;
+
                                     case TYPENAME::FLOAT: {                                                                 // FLOAT
                                         double thisVal = std::stod(optionValue);                                            // convert to double                   
+                                        p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal); // update Boost variable map
+                                        po::notify(p_OptionsDescriptor.optionValues.m_VM);                                  // propagate the change
+                                    } break;
+
+                                    case TYPENAME::LONGDOUBLE: {                                                            // LONG DOUBLE
+                                        long double thisVal = std::stold(optionValue);                                      // convert to lomg double                   
                                         p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal); // update Boost variable map
                                         po::notify(p_OptionsDescriptor.optionValues.m_VM);                                  // propagate the change
                                     } break;
@@ -2493,6 +2658,8 @@ int Options::AdvanceCmdLineOptionValues() {
     int retVal = 0;
 
     if (m_CmdLine.complexOptionValues.size() == 0) return retVal;
+
+    m_CmdLine.optionValues.SetCalculatedOptionDefaults(true);
 
     // upon entry iterators for ranges and sets need to be advanced in order
     // to pick up the correct values to be loaded into the options.  Really
@@ -2755,6 +2922,8 @@ int Options::AdvanceGridLineOptionValues() {
 
     if (m_GridLine.complexOptionValues.size() == 0) return retVal;
 
+    m_GridLine.optionValues.SetCalculatedOptionDefaults(true);
+
     // upon entry iterators for ranges and sets need to be advanced in order
     // to pick up the correct values to be loaded into the options.  Really
     // all we need to do is pick up the inner (fastest-counting) iterator (the
@@ -2890,6 +3059,8 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
 
     try {
 
+        m_GridLine.optionValues.Initialise();                                                                       // initialise option variables for evolving object-level options
+
         // parse the option string (just as the OS/shell would do)
 
         std::vector<std::string> parsedStrings;                                                                     // parsed option strings
@@ -3000,7 +3171,7 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
             if (!errStr.empty()) {                                                                                  // check ok?
                 COMPLAIN(errStr);                                                                                   // no, complain - this throws an exception
             }
-        }
+       }
     }
     catch (po::error& e) {                                                                                          // program options exception
         std::cerr << ERR_MSG(ERROR::PROGRAM_OPTIONS_ERROR) << ": " << e.what() << std::endl;                        // show the problem

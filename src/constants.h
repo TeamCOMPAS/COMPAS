@@ -369,11 +369,12 @@ enum class PROGRAM_STATUS: int { SUCCESS, CONTINUE, STOPPED, ERROR_IN_COMMAND_LI
 enum class ERROR: int {
     NONE,                                                           // no error
     AGE_NEGATIVE_ONCE,                                              // age is < 0.0 - invalid
-    ARGUMENT_RANGE_COUNT_EXPECTED_INT,                              // expected an integer for range count for option
+    ARGUMENT_RANGE_COUNT_EXPECTED_ULINT,                            // expected an unsigned long integer for range count for option
     ARGUMENT_RANGE_NOT_SUPPORTED,                                   // argument range not supported for option 
     ARGUMENT_RANGE_NUM_PARMS,                                       // argument range requires exactly three parameters
     ARGUMENT_RANGE_PARMS_EXPECTED_FP,                               // expected a floating point number for range start and increment for option
     ARGUMENT_RANGE_PARMS_EXPECTED_INT,                              // expected an integer for range parameters for option
+    ARGUMENT_RANGE_PARMS_EXPECTED_ULINT,                            // expected an unsigned long integer for range parameters for option
     ARGUMENT_SET_EXPECTED_BOOL,                                     // all parameters of argument set must be boolean for option
     ARGUMENT_SET_EXPECTED_NUMERIC,                                  // all parameters of argument set must be numeric for option
     ARGUMENT_SET_NOT_SUPPORTED,                                     // argument set not supported for option
@@ -505,8 +506,9 @@ enum class ERROR_SCOPE: int { NEVER, ALWAYS, FIRST, FIRST_IN_OBJECT_TYPE, FIRST_
 const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATALOG = {
     { ERROR::AGE_NEGATIVE_ONCE,                                     { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Age < 0.0" }},
     { ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP,                      { ERROR_SCOPE::ALWAYS,              "Expected a floating point number for range start and increment for option" }},
-    { ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_INT,                     { ERROR_SCOPE::ALWAYS,              "Expected an integer for range count for option" }},
+    { ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT,                   { ERROR_SCOPE::ALWAYS,              "Expected an unsigned long integer for range count for option" }},
     { ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_INT,                     { ERROR_SCOPE::ALWAYS,              "Expected an integer for range parameters for option" }},
+    { ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_ULINT,                   { ERROR_SCOPE::ALWAYS,              "Expected an unsigned integer for range parameters for option" }},
     { ERROR::ARGUMENT_RANGE_NOT_SUPPORTED,                          { ERROR_SCOPE::ALWAYS,              "Argument range not supported for option" }},
     { ERROR::ARGUMENT_RANGE_NUM_PARMS,                              { ERROR_SCOPE::ALWAYS,              "Argument range requires exactly three parameters" }},
     { ERROR::ARGUMENT_SET_EXPECTED_BOOL,                            { ERROR_SCOPE::ALWAYS,              "All parameters of argument set must be boolean for option" }},
@@ -1311,9 +1313,11 @@ enum class TYPENAME: int {
     SHORTINT,
     INT,
     LONGINT,
+    LONGLONGINT,
     USHORTINT,
     UINT,
     ULONGINT,
+    ULONGLONGINT,
     FLOAT,
     DOUBLE,
     LONGDOUBLE,

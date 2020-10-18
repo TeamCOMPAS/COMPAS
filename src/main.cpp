@@ -399,14 +399,6 @@ std::tuple<int, int> EvolveBinaryStars() {
                 delete binary;                                                                                  // so we don't leak
                 binary = new BinaryStar(ais, (long int)index);                                                  // generate binary according to the user options
 
-
-std::cout << "JRPRINT EVOLVING BINARY, metallicity = " << OPTIONS->Metallicity() << 
-                                      ", WR factor = " << OPTIONS->WolfRayetFactor() << 
-                                      ", LBV factor = " << OPTIONS->LuminousBlueVariableFactor() << 
-                                      ", Common envelpe alpha = " << OPTIONS->CommonEnvelopeAlpha() << 
-                                      ", Mass1 = " << OPTIONS->InitialMass1() << 
-                                      ", Mass2 = " << OPTIONS->InitialMass2() << "\n";
-
                 evolvingBinaryStar      = binary;                                                               // set global pointer to evolving binary (for BSE Switch Log)
                 evolvingBinaryStarValid = true;                                                                 // indicate that the global pointer is now valid (for BSE Switch Log)
 
@@ -545,12 +537,15 @@ int main(int argc, char * argv[]) {
     RAND->Initialise();                                                                             // initialise the random number service
 
     bool ok = OPTIONS->Initialise(argc, argv);                                                      // get the program options from the commandline
+std::cout << "JRPRINT OPTIONS initialised\n";
     if (!ok) {                                                                                      // have commandline options ok?
+std::cout << "JRPRINT OPTIONS initialise failed!\n";
                                                                                                     // no - commandline options not ok
         OPTIONS->ShowHelp();                                                                        // show help
         programStatus = PROGRAM_STATUS::ERROR_IN_COMMAND_LINE;                                      // set status
     }
     else {                                                                                          // yes - have commandline options
+std::cout << "JRPRINT OPTIONS initialise succeeded!\n";
         if (OPTIONS->RequestedHelp()) {                                                             // user requested help?
             utils::SplashScreen();                                                                  // yes - show splash screen
             OPTIONS->ShowHelp();                                                                    // show help
