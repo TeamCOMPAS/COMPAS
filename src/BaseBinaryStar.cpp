@@ -28,18 +28,6 @@
 BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
 
     SetInitialValues(p_AIS, p_Id);                                                                                                      // start construction of the binary
-
-    m_CEDetails.alpha = OPTIONS->SampleCommonEnvelopeAlpha()
-                        ? RAND->Random(OPTIONS->SampleCommonEnvelopeAlphaMin(), OPTIONS->SampleCommonEnvelopeAlphaMax())
-                        : OPTIONS->CommonEnvelopeAlpha();
-
-    m_LBVfactor       = OPTIONS->SampleLuminousBlueVariableMultiplier()
-                        ? RAND->Random(OPTIONS->SampleLuminousBlueVariableMultiplierMin(), OPTIONS->SampleLuminousBlueVariableMultiplierMax())
-                        : OPTIONS->LuminousBlueVariableFactor();
-
-    m_WolfRayetFactor = OPTIONS->SampleWolfRayetMultiplier()
-                        ? RAND->Random(OPTIONS->SampleWolfRayetMultiplierMin(), OPTIONS->SampleWolfRayetMultiplierMax())
-                        : OPTIONS->WolfRayetFactor();
                         
     // generate initial properties of binary
     // check that the constituent stars are not touching
@@ -249,8 +237,9 @@ void BaseBinaryStar::SetInitialValues(const AIS &p_AIS, const long int p_Id) {
 
     // apply option values for initial values
 
-    m_CEDetails.alpha = OPTIONS->CommonEnvelopeAlpha(); // JR: we can probably remove this variable now and just use the option value directly in the code
-
+    m_CEDetails.alpha = OPTIONS->CommonEnvelopeAlpha();         // JR: we can probably remove this variable now and just use the option value directly in the code
+    m_LBVfactor       = OPTIONS->LuminousBlueVariableFactor();  // ditto
+    m_WolfRayetFactor = OPTIONS->WolfRayetFactor();             // ditto
 }
 
 
