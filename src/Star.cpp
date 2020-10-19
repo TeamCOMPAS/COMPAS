@@ -15,17 +15,18 @@ Star::Star() : m_Star(new BaseStar()) {
 // Regular constructor - with parameters for RandomSeed, MZAMS, Metallicity, LBVFactor and WolfRayetFactor
 Star::Star(const unsigned long int p_RandomSeed,
            const double            p_MZAMS,
+           const double            p_Metallicity, 
            const KickParameters    p_KickParameters) {
 
     m_ObjectId   = globalObjectId++;                                                                                // set object id
     m_ObjectType = OBJECT_TYPE::STAR;                                                                               // set object type
 
-    m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_KickParameters);                                                 // create underlying BaseStar object
+    m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_Metallicity, p_KickParameters);                                  // create underlying BaseStar object
 
     // star begins life as a main sequence star, unless it is
     // spinning fast enough for it to be chemically homogeneous
 
-    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE && utils::Compare(m_Star->Omega(), m_Star->OmegaCHE()) >= 0) {    // CHE?
+    if (OPTIONS->CHEMode() != CHE_MODE::NONE && utils::Compare(m_Star->Omega(), m_Star->OmegaCHE()) >= 0) {         // CHE?
         (void)SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                 // yes
     }
     else if (p_MZAMS <= 0.7) {                                                                                      // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here

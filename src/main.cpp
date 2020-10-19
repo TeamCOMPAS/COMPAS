@@ -191,12 +191,27 @@ std::tuple<int, int> EvolveSingleStars() {
                     randomSeed = RAND->Seed(RAND->DefaultSeed() + (long int)index);                                 // use default seed (based on system time) + id (index)
                 }
 
+                // the initial mass of the star is supplied - this is to allow binary stars to initialise
+                // the masses of their constituent stars (rather than have the constituent stars sample 
+                // their own mass).  Here we use the mass supplied by the user via the program options or, 
+                // if no mass was supplied by the user, sample the mass from the IMF.
+
                 double initialMass = OPTIONS->OptionSpecified("initial-mass") == 1                                  // user specified mass?
                                         ? OPTIONS->InitialMass()                                                    // yes, use it
                                         : utils::SampleInitialMassDistribution(OPTIONS->InitialMassFunction(),      // no, sample it
                                                                                OPTIONS->InitialMassFunctionMax(), 
                                                                                OPTIONS->InitialMassFunctionMin(), 
                                                                                OPTIONS->InitialMassFunctionPower());
+
+                // the metallicity of the star is supplied - this is to allow binary stars to initialise
+                // the metallicity of their constituent stars (rather than have the constituent stars sample 
+                // their own metallicity).  Here we use the mmetallicityass supplied by the user via the program
+                // options or, if no metallicity was supplied by the user, sample the metallicity.
+
+                double metallicity = OPTIONS->OptionSpecified("metallicity") == 1                                   // user specified metallicity?
+                                        ? OPTIONS->Metallicity()                                                    // yes, use it
+                                        : utils::SampleMetallicity();                                               // no, sample it
+
 
                 // Single stars (in SSE) are provided with a kick structure that specifies the 
                 // values of the random number to be used to generate to kick magnitude, and the
@@ -219,8 +234,8 @@ std::tuple<int, int> EvolveSingleStars() {
                 kickParameters.magnitude                = OPTIONS->KickMagnitude();
                        
                 // create the star
-                delete star;                                                                                        // so we don't leak...
-                star = new Star(randomSeed, initialMass, kickParameters);                                           // create star according to the user-specified options
+                delete star; star = nullptr;                                                                        // so we don't leak...
+                star = new Star(randomSeed, initialMass, metallicity, kickParameters);                              // create star according to the user-specified options
 
                 EVOLUTION_STATUS thisStatus = star->Evolve(index);                                                  // evolve the star
 
@@ -264,7 +279,7 @@ std::tuple<int, int> EvolveSingleStars() {
                 else doneGridLine = true;                                                                           // not using grid file - done    
             }
         }
-        delete star;
+        delete star; star = nullptr;
     
         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                        // ok?
             int optionsStatus = OPTIONS->AdvanceCmdLineOptionValues();                                              // yes - apply next commandline options (ranges/sets)
@@ -280,7 +295,7 @@ std::tuple<int, int> EvolveSingleStars() {
         }
     }
 
-    int nStarsRequested = !usingGrid ? OPTIONS->nObjectsToEvolve() : (evolutionStatus == EVOLUTION_STATUS::DONE ? index : -1);
+    int nStarsRequested = evolutionStatus == EVOLUTION_STATUS::DONE ? index : -1;
 
     SAY("\nGenerated " << std::to_string(index) << " of " << (nStarsRequested < 0 ? "<INCOMPLETE GRID>" : std::to_string(nStarsRequested)) << " stars requested");
 
@@ -396,7 +411,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                 // Note: the AIS structure will probably go away when Stroopwafel is completeley moved to  outside COMPAS.
 
                 // create the binary
-                delete binary;                                                                                  // so we don't leak
+                delete binary; binary = nullptr;                                                                // so we don't leak
                 binary = new BinaryStar(ais, (long int)index);                                                  // generate binary according to the user options
 
                 evolvingBinaryStar      = binary;                                                               // set global pointer to evolving binary (for BSE Switch Log)
@@ -407,7 +422,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                 // announce result of evolving the binary
                 if (!OPTIONS->Quiet()) {                                                                        // quiet mode?
                                                                                                                 // no - announce result of evolving the binary
-                    if (OPTIONS->CHE_Option() == CHE_OPTION::NONE) {                                            // CHE enabled?
+                    if (OPTIONS->CHEMode() == CHE_MODE::NONE) {                                                 // CHE enabled?
                         SAY(index                                      << ": "  <<                              // no - CHE not enabled - don't need initial stellar type
                             EVOLUTION_STATUS_LABEL.at(binaryStatus)    << ": "  <<
                             STELLAR_TYPE_LABEL.at(binary->Star1Type()) << " + " <<
@@ -456,7 +471,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                 else doneGridLine = true;                                                                       // not using grid file - done    
             }
         }
-        delete binary;
+        delete binary; binary = nullptr;
 
         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                    // ok?
             int optionsStatus = OPTIONS->AdvanceCmdLineOptionValues();                                          // apply next commandline options (ranges/sets)
@@ -472,7 +487,7 @@ std::tuple<int, int> EvolveBinaryStars() {
         }
     }
     
-    int nBinariesRequested = usingGrid ? (evolutionStatus == EVOLUTION_STATUS::DONE ? index : -1) : OPTIONS->nObjectsToEvolve();
+    int nBinariesRequested = evolutionStatus == EVOLUTION_STATUS::DONE ? index : -1;
 
     SAY("\nGenerated " << std::to_string(index) << " of " << (nBinariesRequested < 0 ? "<INCOMPLETE GRID>" : std::to_string(nBinariesRequested)) << " binaries requested");
 

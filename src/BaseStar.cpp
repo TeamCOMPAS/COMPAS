@@ -27,7 +27,8 @@ BaseStar::BaseStar() {
 
 
 BaseStar::BaseStar(const unsigned long int p_RandomSeed, 
-                   const double            p_MZAMS, 
+                   const double            p_MZAMS,
+                   const double            p_Metallicity, 
                    const KickParameters    p_KickParameters) {
 
     // initialise member variables
@@ -45,14 +46,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     // (kick parameters initialised below - see m_SupernovaDetails)
     m_RandomSeed          = p_RandomSeed;
     m_MZAMS               = p_MZAMS;
-
-
-    // Initialise metallicity
-
-    m_Metallicity         = OPTIONS->OptionSpecified("metallicity") == 1                            // user specified metallicity?
-                                ? OPTIONS->Metallicity()                                            // yes, use it
-                                : utils::SampleMetallicity();                                       // no, sample it
-
+    m_Metallicity         = p_Metallicity;
 
     // Initialise metallicity dependent values
     m_LogMetallicityXi    = log10(m_Metallicity / ZSOL);
@@ -2310,21 +2304,21 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
 
     double vK;
 
-    switch (OPTIONS->BlackHoleKicksOption()) {                      // which BH kicks option specified?
+    switch (OPTIONS->BlackHoleKicks()) {                            // which BH kicks option specified?
 
-        case BLACK_HOLE_KICK_OPTION::FULL:                          // BH receives full kick - no adjustment necessary
+        case BLACK_HOLE_KICKS::FULL:                                // BH receives full kick - no adjustment necessary
             vK = p_vK;
             break;
 
-        case BLACK_HOLE_KICK_OPTION::REDUCED:                       // Kick is reduced by the ratio of the black hole mass to neutron star mass i.e. v_bh = ns/bh  *v_ns
+        case BLACK_HOLE_KICKS::REDUCED:                             // Kick is reduced by the ratio of the black hole mass to neutron star mass i.e. v_bh = ns/bh  *v_ns
             vK = p_vK * NEUTRON_STAR_MASS / p_BlackHoleMass;
             break;
 
-        case BLACK_HOLE_KICK_OPTION::ZERO:
+        case BLACK_HOLE_KICKS::ZERO:
             vK = 0.0;                                               // BH Kicks are set to zero regardless of BH mass or kick magnitude drawn.
             break;
 
-        case BLACK_HOLE_KICK_OPTION::FALLBACK:                      // Using the so-called 'fallback' prescription for BH kicks
+        case BLACK_HOLE_KICKS::FALLBACK:                            // Using the so-called 'fallback' prescription for BH kicks
             vK = p_vK * (1.0 - p_FallbackFraction);
             break;
 

@@ -1,0 +1,6 @@
+
+sysparms_rec += {
+    Program_option::black_hole_kicks,
+    program_option::allow_rlof_at_birth
+}
+

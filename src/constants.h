@@ -374,6 +374,8 @@ enum class ERROR: int {
     ARGUMENT_RANGE_NUM_PARMS,                                       // argument range requires exactly three parameters
     ARGUMENT_RANGE_PARMS_EXPECTED_FP,                               // expected a floating point number for range start and increment for option
     ARGUMENT_RANGE_PARMS_EXPECTED_INT,                              // expected an integer for range parameters for option
+    ARGUMENT_RANGE_PARMS_EXPECTED_LFP,                              // expected a long double number for range start and increment for option
+    ARGUMENT_RANGE_PARMS_EXPECTED_LINT,                             // expected an long integer for range parameters for option
     ARGUMENT_RANGE_PARMS_EXPECTED_ULINT,                            // expected an unsigned long integer for range parameters for option
     ARGUMENT_SET_EXPECTED_BOOL,                                     // all parameters of argument set must be boolean for option
     ARGUMENT_SET_EXPECTED_NUMERIC,                                  // all parameters of argument set must be numeric for option
@@ -508,7 +510,9 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP,                      { ERROR_SCOPE::ALWAYS,              "Expected a floating point number for range start and increment for option" }},
     { ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT,                   { ERROR_SCOPE::ALWAYS,              "Expected an unsigned long integer for range count for option" }},
     { ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_INT,                     { ERROR_SCOPE::ALWAYS,              "Expected an integer for range parameters for option" }},
-    { ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_ULINT,                   { ERROR_SCOPE::ALWAYS,              "Expected an unsigned integer for range parameters for option" }},
+    { ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_LFP,                     { ERROR_SCOPE::ALWAYS,              "Expected a long double number for range start and increment for option" }},
+    { ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_LINT,                    { ERROR_SCOPE::ALWAYS,              "Expected an long integer for range parameters for option" }},
+    { ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_ULINT,                   { ERROR_SCOPE::ALWAYS,              "Expected an unsigned long integer for range parameters for option" }},
     { ERROR::ARGUMENT_RANGE_NOT_SUPPORTED,                          { ERROR_SCOPE::ALWAYS,              "Argument range not supported for option" }},
     { ERROR::ARGUMENT_RANGE_NUM_PARMS,                              { ERROR_SCOPE::ALWAYS,              "Argument range requires exactly three parameters" }},
     { ERROR::ARGUMENT_SET_EXPECTED_BOOL,                            { ERROR_SCOPE::ALWAYS,              "All parameters of argument set must be boolean for option" }},
@@ -692,12 +696,12 @@ const COMPASUnorderedMap<AIS_DCO, std::string> AIS_DCO_LABEL = {
 
 
 // Black Hole Kick Options
-enum class BLACK_HOLE_KICK_OPTION: int { FULL, REDUCED, ZERO, FALLBACK };
-const COMPASUnorderedMap<BLACK_HOLE_KICK_OPTION, std::string> BLACK_HOLE_KICK_OPTION_LABEL = {
-    { BLACK_HOLE_KICK_OPTION::FULL,     "FULL" },     // FULL kicks option
-    { BLACK_HOLE_KICK_OPTION::REDUCED,  "REDUCED" },  // REDUCED kicks option
-    { BLACK_HOLE_KICK_OPTION::ZERO,     "ZERO" },     // ZERO kicks option
-    { BLACK_HOLE_KICK_OPTION::FALLBACK, "FALLBACK" }  // FALLBACK kicks option
+enum class BLACK_HOLE_KICKS: int { FULL, REDUCED, ZERO, FALLBACK };
+const COMPASUnorderedMap<BLACK_HOLE_KICKS, std::string> BLACK_HOLE_KICKS_LABEL = {
+    { BLACK_HOLE_KICKS::FULL,     "FULL" },     // FULL kicks
+    { BLACK_HOLE_KICKS::REDUCED,  "REDUCED" },  // REDUCED kicks
+    { BLACK_HOLE_KICKS::ZERO,     "ZERO" },     // ZERO kicks
+    { BLACK_HOLE_KICKS::FALLBACK, "FALLBACK" }  // FALLBACK kicks
 };
 
 
@@ -756,11 +760,11 @@ const COMPASUnorderedMap<ZETA_PRESCRIPTION, std::string> ZETA_PRESCRIPTION_LABEL
 
 
 // CHE (Chemically Homogeneous Evolution) Options
-enum class CHE_OPTION: int { NONE, OPTIMISTIC, PESSIMISTIC };
-const COMPASUnorderedMap<CHE_OPTION, std::string> CHE_OPTION_LABEL = {
-    { CHE_OPTION::NONE,        "NONE" },
-    { CHE_OPTION::OPTIMISTIC,  "OPTIMISTIC" },
-    { CHE_OPTION::PESSIMISTIC, "PESSIMISTIC" }
+enum class CHE_MODE: int { NONE, OPTIMISTIC, PESSIMISTIC };
+const COMPASUnorderedMap<CHE_MODE, std::string> CHE_MODE_LABEL = {
+    { CHE_MODE::NONE,        "NONE" },
+    { CHE_MODE::OPTIMISTIC,  "OPTIMISTIC" },
+    { CHE_MODE::PESSIMISTIC, "PESSIMISTIC" }
 };
 
 
@@ -1977,13 +1981,13 @@ enum class PROGRAM_OPTION: int {
     // Serena
     //BE_BINARIES,
 
-    BLACK_HOLE_KICKS_OPTION,
+    BLACK_HOLE_KICKS,
 
     EVOLUTION_MODE,
     
     CASE_BB_STABILITY_PRESCRIPTION,
     
-    CHE_OPTION,
+    CHE_MODE,
 
     CIRCULARISE_BINARY_DURING_MT,
 
@@ -2158,13 +2162,13 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     // Serena
     //{ PROGRAM_OPTION::BE_BINARIES,                                    "BE_BINARIES" },
 
-    { PROGRAM_OPTION::BLACK_HOLE_KICKS_OPTION,                          "BLACK_HOLE_KICKS_OPTION" },
+    { PROGRAM_OPTION::BLACK_HOLE_KICKS,                                 "BLACK_HOLE_KICKS" },
 
     { PROGRAM_OPTION::EVOLUTION_MODE,                                   "EVOLUTION_MODE" },
     
     { PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION,                   "CASE_BB_STABILITY_PRESCRIPTION" },
     
-    { PROGRAM_OPTION::CHE_OPTION,                                       "CHE_OPTION" },
+    { PROGRAM_OPTION::CHE_MODE,                                         "CHE_MODE" },
 
     { PROGRAM_OPTION::CIRCULARISE_BINARY_DURING_MT,                     "CIRCULARISE_BINARY_DURING_MT" },
 
@@ -2623,11 +2627,11 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     // Serena
     //{ PROGRAM_OPTION::BE_BINARIES,                                        { TYPENAME::BOOL,           "Be_Binaries",                  "Flag",              0, 0 }},
 
-    { PROGRAM_OPTION::BLACK_HOLE_KICKS_OPTION,                              { TYPENAME::INT,            "BH_Kicks_Option",              "-",                 4, 1 }},
+    { PROGRAM_OPTION::BLACK_HOLE_KICKS,                                     { TYPENAME::INT,            "BH_Kicks",                     "-",                 4, 1 }},
     
     { PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION,                       { TYPENAME::INT,            "CE_Mass_Accr_Prscrp",          "-",                 4, 1 }},
     
-    { PROGRAM_OPTION::CHE_OPTION,                                           { TYPENAME::INT,            "CHE_Option",                   "-",                 4, 1 }},
+    { PROGRAM_OPTION::CHE_MODE,                                             { TYPENAME::INT,            "CHE_Mode",                     "-",                 4, 1 }},
 
     { PROGRAM_OPTION::CIRCULARISE_BINARY_DURING_MT,                         { TYPENAME::BOOL,           "Circularise@MT",               "Flag",              0, 0 }},
 
