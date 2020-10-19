@@ -96,6 +96,9 @@ namespace utils {
     int                                 IsBOOL(const std::string p_Str);
     bool                                IsFLOAT(const std::string p_Str);
     bool                                IsINT(const std::string p_Str);
+    bool                                IsLONGDOUBLE(const std::string p_Str);
+    bool                                IsLONGINT(const std::string p_Str);
+    bool                                IsULONGINT(const std::string p_Str);
 
     bool                                IsOneOf(const STELLAR_TYPE p_StellarType, const STELLAR_TYPE_LIST p_List);
 

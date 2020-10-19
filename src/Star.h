@@ -54,6 +54,7 @@ public:
     Star();
     Star(const unsigned long int p_RandomSeed, 
          const double            p_MZAMS, 
+         const double            p_Metallicity, 
          const KickParameters    p_KickParameters = {});
     Star(const Star& p_Star);
     Star& operator = (const Star& p_Star);

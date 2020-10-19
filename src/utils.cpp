@@ -415,25 +415,22 @@ namespace utils {
 
     /*
      * Determines if the string passed as p_Str is a valid BOOL
+     * (as defined by Boost)
      *
-     * In this context, a valid boolean is one of:
+     * In this context (the Boost context), a valid boolean is one of:
      * 
      *     - 0|1        ("0" or "1")
-     *     - t|f        ("t" or "f" - case insensitive)
      *     - true|false ("true" or "false" - case insensitive)
-     *     - y|n        ("y" or "n" - case insensitive))
      *     - yes|no     ("yes" or "no" - case insensitive)
      *     - on|off     ("on" or "off" - case insensitive)
      *
-     * The function will retiurn one of {0, 1, 2, 3, 4, 5, 6, -1, -2, -3, -4, -5, -6} to indicate the result:
+     * The function will retiurn one of {0, 1, 2, 3, 4, -1, -2, -3, -4} to indicate the result:
      * 
      *     0 = not a valid boolean
      *     1 = valid: 0|1
-     *     2 = valid: t|f
-     *     3 = valid: true|false
-     *     4 = valid: y|n
-     *     5 = valid: yes|no
-     *     6 = valid: on|off
+     *     2 = valid: true|false
+     *     3 = valid: yes|no
+     *     4 = valid: on|off
      * 
      *     A positive return value indicates the boolean value is TRUE; a negative, FALSE
      * 
@@ -449,16 +446,12 @@ namespace utils {
 
         if (utils::Equals(p_Str, "0")    ) return  1;   // valid: 0|1       : TRUE
         if (utils::Equals(p_Str, "1")    ) return -1;   // valid: 0|1       : FALSE
-        if (utils::Equals(p_Str, "t")    ) return  2;   // valid: t|f       : TRUE  
-        if (utils::Equals(p_Str, "f")    ) return -2;   // valid: t|f       : FALSE
-        if (utils::Equals(p_Str, "true") ) return  3;   // valid: true|false: TRUE
-        if (utils::Equals(p_Str, "false")) return -3;   // valid: true|false: FALSE
-        if (utils::Equals(p_Str, "y")    ) return  4;   // valid: y|n       : TRUE
-        if (utils::Equals(p_Str, "n")    ) return -4;   // valid: y|n       : FALSE
-        if (utils::Equals(p_Str, "yes")  ) return  5;   // valid: yes|no    : TRUE
-        if (utils::Equals(p_Str, "no")   ) return -5;   // valid: yes|no    : FALSE
-        if (utils::Equals(p_Str, "on")   ) return  6;   // valid: on|off    : TRUE
-        if (utils::Equals(p_Str, "off")  ) return -6;   // valid: on|off    : FALSE
+        if (utils::Equals(p_Str, "true") ) return  2;   // valid: true|false: TRUE
+        if (utils::Equals(p_Str, "false")) return -2;   // valid: true|false: FALSE
+        if (utils::Equals(p_Str, "yes")  ) return  3;   // valid: yes|no    : TRUE
+        if (utils::Equals(p_Str, "no")   ) return -3;   // valid: yes|no    : FALSE
+        if (utils::Equals(p_Str, "on")   ) return  4;   // valid: on|off    : TRUE
+        if (utils::Equals(p_Str, "off")  ) return -4;   // valid: on|off    : FALSE
 
         return 0;                                       // not valid
     }
@@ -467,7 +460,7 @@ namespace utils {
     /*
      * Determines if the string passed as p_Str is a valid FLOAT
      *
-     * In this context, to be a valid INT the string must convert to a
+     * In this context, to be a valid FLOAT the string must convert to a
      * double succussfully via the std::stod() function
      * 
      * 
@@ -517,6 +510,86 @@ namespace utils {
         return result;
     }
 
+
+    /*
+     * Determines if the string passed as p_Str is a valid LONG DOUBLE
+     *
+     * In this context, to be a valid LONG DOUBLE the string must convert to a
+     * long double succussfully via the std::stold() function
+     * 
+     * 
+     * int IsLONGDOUBLE(const std::string p_Str)
+     *
+     * @param   [IN]    p_Str                       String to check
+     * @return                                      Result - TRUE if string is a valid LONG DOUBLE, else FALSE
+     */
+    bool IsLONGDOUBLE(const std::string p_Str) {
+
+        bool result = false;                        // default result
+
+        try {
+            (void)std::stold(p_Str);                // try conversion
+            result = true;                          // valid LONG DOUBLE
+        }
+        catch (const std::out_of_range& e) {        // conversion failed
+            result = false;                         // not a valid LONG DOUBLE
+        }
+        return result;
+    }
+
+
+    /*
+     * Determines if the string passed as p_Str is a valid LONG INT
+     *
+     * In this context, to be a valid LONG INT the string must convert to a
+     * long integer succussfully via the std::stol() function
+     * 
+     * 
+     * int IsLONGINT(const std::string p_Str)
+     *
+     * @param   [IN]    p_Str                       String to check
+     * @return                                      Result - TRUE if string is a valid LONGINT, else FALSE
+     */
+    bool IsLONGINT(const std::string p_Str) {
+
+        bool result = false;                        // default result
+
+        try {
+            (void)std::stol(p_Str);                 // try conversion
+            result = true;                          // valid LONG INT
+        }
+        catch (const std::out_of_range& e) {        // conversion failed
+            result = false;                         // not a valid LONG INT
+        }
+        return result;
+    }
+
+
+    /*
+     * Determines if the string passed as p_Str is a valid UNSIGNED LONG INT
+     *
+     * In this context, to be a valid UNSIGNED LONG INT the string must convert to a
+     * unsigned long integer succussfully via the std::stoul() function
+     * 
+     * 
+     * int IsULONGINT(const std::string p_Str)
+     *
+     * @param   [IN]    p_Str                       String to check
+     * @return                                      Result - TRUE if string is a valid UNSIGNED LONGINT, else FALSE
+     */
+    bool IsULONGINT(const std::string p_Str) {
+
+        bool result = false;                        // default result
+
+        try {
+            (void)std::stoul(p_Str);                // try conversion
+            result = true;                          // valid UNSIGNED LONG INT
+        }
+        catch (const std::out_of_range& e) {        // conversion failed
+            result = false;                         // not a valid UNSIGNED LONG INT
+        }
+        return result;
+    }
 
     /*
      * Determines if the stellar type passed is one of a list of stellar types passed
