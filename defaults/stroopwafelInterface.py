@@ -29,7 +29,7 @@ output_folder = 'output/'           # Location of output folder (relative to cwd
 random_seed_base = 0                # The initial random seed to increment from                                       # Note: overrides pythonSubmit value
 
 num_cores = 4                       # Number of cores to parallelize over 
-num_per_core = 76                   # Number of binaries per batch
+num_per_core = 250                  # Number of binaries per batch
 mc_only = True                      # Exclude adaptive importance sampling (currently not implemented, leave set to True)
 run_on_hpc = False                  # Run on slurm based cluster HPC
 
@@ -45,9 +45,9 @@ def create_dimensions():
     OUT:
         As Output, this should return a list containing all the instances of Dimension class.
     """
-    m1 = classes.Dimension('Mass_1', 40, 50, sampler.kroupa, prior.kroupa)
-    q = classes.Dimension('q', 0.2, 1, sampler.uniform, prior.uniform, should_print = False)
-    a = classes.Dimension('Separation', .01, 100, sampler.flat_in_log, prior.flat_in_log)
+    m1 = classes.Dimension('Mass_1', 5, 50, sampler.kroupa, prior.kroupa)
+    q = classes.Dimension('q', 0.1, 1, sampler.uniform, prior.uniform, should_print = False)
+    a = classes.Dimension('Separation', .01, 1000, sampler.flat_in_log, prior.flat_in_log)
     #kick_velocity_random_1 = classes.Dimension('Kick_Velocity_Random_1', 0, 1, sampler.uniform, prior.uniform)
     #kick_theta_1 = classes.Dimension('Kick_Theta_1', -np.pi / 2, np.pi / 2, sampler.uniform_in_cosine, prior.uniform_in_cosine)
     #kick_phi_1 = classes.Dimension('Kick_Phi_1', 0, 2 * np.pi, sampler.uniform, prior.uniform)
