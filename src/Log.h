@@ -6,6 +6,8 @@
 #include <fstream>
 #include <ctime>
 #include <chrono>
+#include <iostream>
+#include <iomanip>
 
 #include <boost/filesystem.hpp>
 #include <boost/variant.hpp>

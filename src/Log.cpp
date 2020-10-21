@@ -236,7 +236,10 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
             int wallMM = (int)((wallSeconds.count() - ((double)wallHH * 3600.0)) / 60.0);                       // minutes
             int wallSS = (int)(wallSeconds.count() - ((double)wallHH * 3600.0) - ((double)wallMM * 60.0));      // seconds
 
-            m_RunDetailsFile << "Wall time  = " << wallHH << ":" << wallMM << ":" << wallSS << " (hh:mm:ss)" << std::endl; 
+            m_RunDetailsFile << "Wall time  = " << 
+                                std::setfill('0') << std::setw(2) << wallHH << ":" << 
+                                std::setfill('0') << std::setw(2) << wallMM << ":" << 
+                                std::setfill('0') << std::setw(2) << wallSS << " (hh:mm:ss)" << std::endl;      // Include 0 buffer 
 
             m_RunDetailsFile << "\n\n" << OPTIONS->OptionsDetails();                                            // record the options details string
             m_RunDetailsFile << "Actual random seed = " << (OPTIONS->FixedRandomSeed() ? OPTIONS->RandomSeed() : RAND->DefaultSeed()) << ", CALCULATED, UNSIGNED_LONG" << std::endl;    // actual random seed
