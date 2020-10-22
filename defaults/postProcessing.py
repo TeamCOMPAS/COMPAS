@@ -466,7 +466,7 @@ def printH5Columns(dataRootDir='./', h5Name="COMPAS_output.h5"):
     if not os.path.isfile(h5data):
         raise ValueError("h5 file not found. Wrong path given?")
     else:
-        Data = h5.File(h5data)
+        Data = h5.File(h5data, 'r')
 
     Files = Data.keys()
 
