@@ -470,7 +470,9 @@
 // 02.15.17     IM - Oct 16, 2020   - Defect repair and code cleanup:
 //                                      - Issue 236 fixed: SN printing correctly enabled for all SNe
 //                                      - Minor code cleaning: Cleaned up EvaluateSupernovae(), removed unnecessary m_Merged variable
+// 02.15.18     RTW - Oct 22, 2020  - Code cleanup
+//                                      - Added in '0' buffers to the Wall Times output to match the HH:MM:SS format
 
-const std::string VERSION_STRING = "02.15.17";
+const std::string VERSION_STRING = "02.15.18";
 
 # endif // __changelog_h__
