@@ -66,7 +66,7 @@ def reduceH5(pathToOld = None, pathToNew = None, dictFiles=None, dictColumns=Non
            (len(dictFiles) != len(dictSeeds))):									# RTW 3/25/20 - do we need the third statement?
             raise ValueError("The 3 dictionaries are not of same length!")
 
-        h_old = h5.File(pathToOld)
+        h_old = h5.File(pathToOld, 'r')
         h_new = h5.File(pathToNew, 'w')
 
 
@@ -94,7 +94,7 @@ def printAllColumnsInH5(pathToData):
     if not  os.path.isfile(pathToData):
         raise ValueError("h5 file not found. Wrong path given?")
     elif os.path.isfile(pathToData):
-        Data  = h5.File(pathToData)
+        Data  = h5.File(pathToData, 'r')
 
 
     Files  = Data.keys()
