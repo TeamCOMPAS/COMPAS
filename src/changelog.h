@@ -471,6 +471,7 @@
 //                                      - Issue 236 fixed: SN printing correctly enabled for all SNe
 //                                      - Minor code cleaning: Cleaned up EvaluateSupernovae(), removed unnecessary m_Merged variable
 // 02.15.18     RTW - Oct 22, 2020  - Code cleanup
+//                                      - Removed redundant 'default' extension from files in the "defaults/" folder, and fixed references in the documentation.
 //                                      - Added in '0' buffers to the Wall Times output to match the HH:MM:SS format
 
 const std::string VERSION_STRING = "02.15.18";

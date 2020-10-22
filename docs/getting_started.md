@@ -120,9 +120,9 @@ If you do not have python3 installed, install it by following the instructions b
 ## 2. Evolving your first binary
 The python script pythonSubmit.py specifies all the program options (physics assumptions, output types) and runs COMPAS in the terminal. Although the primary functionality of COMPAS is to evolve a whole population of binary stars rapidly, for now, let's focus on evolving a single stellar system and examining the detailed output.
 
-To start, clone the default file, pythonSubmitDefault.py in the `defaults` directory, into the `demo` directory. Then change to the `demo` directory:
+To start, clone the default file, pythonSubmit.py in the `defaults` directory, into the `demo` directory. Then change to the `demo` directory:
 
-    cp $COMPAS_ROOT_DIR/defaults/pythonSubmitDefault.py $COMPAS_ROOT_DIR/docs/demo/pythonSubmit.py
+    cp $COMPAS_ROOT_DIR/defaults/pythonSubmit.py $COMPAS_ROOT_DIR/docs/demo/
     cd $COMPAS_ROOT_DIR/docs/demo
 
 ### 2.1 Running COMPAS from a grid file
