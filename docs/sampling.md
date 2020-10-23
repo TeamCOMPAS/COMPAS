@@ -17,7 +17,7 @@ If you have not already, you will need to install Stroopwafel. If you have admin
 
 ---------------
 
-To use Stroopwafel sampling, copy `defaults/stroopwafel_interface_default.py` into your working directory. 
+To use Stroopwafel sampling, copy `defaults/stroopwafelInterface.py` into your working directory. 
 
 
 ### Settings
@@ -26,20 +26,20 @@ To use Stroopwafel sampling, copy `defaults/stroopwafel_interface_default.py` in
 
 If you are running COMPAS on default settings, skip this section. 
 
-If you have many non-default COMPAS arguments, you may want to set them in a 
-`pythonSubmit.py` file in the same directory. The file must be named this way and placed
-in the same directory as the `stroopwafel_interface.py` file. 
+If you have many non-default COMPAS arguments, you may want to set them in the
+`pythonSubmit.py` file in the same directory. For now, the file must be named this way 
+and placed in the same directory as the `stroopwafelInterface.py` file. 
 
-You can achieve this with `cp $COMPAS_ROOT_DIR/defaults/pythonSubmitDefault.py ./pythonSubmit.py`, 
-and setting your desired options.
+A configurable pythonSubmit file can be found in the `defaults/` directory.
 
-Then set the `usePythonSubmit` parameter to `True` in the `stroopwafel_interface.py`.
+Set your desired options, then set the `usePythonSubmit` parameter to `True` 
+in the `stroopwafelInterface.py`.
 
 #### 2. Stroopwafel inputs
 
 The lines below `usePythonSubmit` represent stroopwafel inputs. These are treated as
 defaults, but can be overriden by command-line arguments to stroopwafel. 
-See `python3 stroopwafel_interface.py --help`.
+See `python3 stroopwafelInterface.py --help`.
 
 `num_systems` is the total number of binaries you would like to evolve. 
 This value overrides the value set in the pythonSubmit.
@@ -72,6 +72,6 @@ See [Stroopwafel Documentation](https://github.com/lokiysh/stroopwafel) for deta
 
 #### 4. Run Stroopwafel
 
-When your satisfied with your settings, simply run with `python3 stroopwafel_interface.py`. The output will be collected into batch containers in your output folder. 
+When your satisfied with your settings, simply run with `python3 stroopwafelInterface.py`. The output will be collected into batch containers in your output folder. 
 To postprocess the output, see [getting_started.md](getting_started.md)
 

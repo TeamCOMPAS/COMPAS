@@ -617,7 +617,6 @@ enum class EVOLUTION_STATUS: int {
     ERROR,
     SSE_ERROR,
     BINARY_ERROR,
-    SECONDARY_TOO_SMALL_FOR_DCO,
     MASSLESS_REMNANT,
     STARS_TOUCHING,
     STELLAR_MERGER,
@@ -637,7 +636,6 @@ const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL =
     { EVOLUTION_STATUS::ERROR,                       "An error occurred" },
     { EVOLUTION_STATUS::SSE_ERROR,                   "SSE error for one of the constituent stars" },
     { EVOLUTION_STATUS::BINARY_ERROR,                "Error evolving binary" },
-    { EVOLUTION_STATUS::SECONDARY_TOO_SMALL_FOR_DCO, "Secondary too small for DCO" },
     { EVOLUTION_STATUS::MASSLESS_REMNANT,            "Massless Remnant formed" },
     { EVOLUTION_STATUS::STARS_TOUCHING,              "Stars touching" },
     { EVOLUTION_STATUS::STELLAR_MERGER,              "Stars merged" },
@@ -1779,7 +1777,6 @@ enum class BINARY_PROPERTY: int {
     ROCHE_LOBE_RADIUS_2_PRE_COMMON_ENVELOPE,
     ROCHE_LOBE_TRACKER_1,
     ROCHE_LOBE_TRACKER_2,
-    SECONDARY_TOO_SMALL_FOR_DCO,
     SEMI_MAJOR_AXIS_AT_DCO_FORMATION,
     SEMI_MAJOR_AXIS_INITIAL,
     SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,
@@ -1905,7 +1902,6 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2_PRE_COMMON_ENVELOPE,            "ROCHE_LOBE_RADIUS_2_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::ROCHE_LOBE_TRACKER_1,                               "ROCHE_LOBE_TRACKER_1" },
     { BINARY_PROPERTY::ROCHE_LOBE_TRACKER_2,                               "ROCHE_LOBE_TRACKER_2" },
-    { BINARY_PROPERTY::SECONDARY_TOO_SMALL_FOR_DCO,                        "SECONDARY_TOO_SMALL_FOR_DCO"},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION,                   "SEMI_MAJOR_AXIS_AT_DCO_FORMATION" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,                            "SEMI_MAJOR_AXIS_INITIAL" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,               "SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE" },
@@ -2035,6 +2031,14 @@ enum class PROGRAM_OPTION: int {
     MASS_RATIO_DISTRIBUTION_MAX,
     MASS_RATIO_DISTRIBUTION_MIN,
 
+    MAXIMUM_NEUTRON_STAR_MASS,
+
+    MCBUR1,
+
+    METALLICITY,
+
+    MINIMUM_MASS_SECONDARY,
+
     MT_ACCRETION_EFFICIENCY_PRESCRIPTION,
     MT_ANG_MOM_LOSS_PRESCRIPTION,
     MT_THERMAL_LIMIT_C,
@@ -2072,12 +2076,8 @@ enum class PROGRAM_OPTION: int {
     MT_REJUVENATION_PRESCRIPTION,
     MT_THERMALLY_LIMITED_VARIATION,
 
-    MCBUR1,
-
-    METALLICITY,
-
-    MINIMUM_MASS_SECONDARY,
-    MAXIMUM_NEUTRON_STAR_MASS,
+    MULLER_MANDEL_KICK_MULTIPLIER_BH,
+    MULLER_MANDEL_KICK_MULTIPLIER_NS,
 
     NEUTRINO_MASS_LOSS_ASSUMPTION_BH,
     NEUTRINO_MASS_LOSS_VALUE_BH,
@@ -2216,6 +2216,14 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MAX,                      "MASS_RATIO_DISTRIBUTION_MAX" },
     { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MIN,                      "MASS_RATIO_DISTRIBUTION_MIN" },
 
+    { PROGRAM_OPTION::MAXIMUM_NEUTRON_STAR_MASS,                        "MAXIMUM_NEUTRON_STAR_MASS" },
+
+    { PROGRAM_OPTION::MCBUR1,                                           "MCBUR1" },
+
+    { PROGRAM_OPTION::METALLICITY,                                      "METALLICITY" },
+
+    { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                           "MINIMUM_MASS_SECONDARY" },
+
     { PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION,             "MT_ACCRETION_EFFICIENCY_PRESCRIPTION" },
     { PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION,                     "MT_ANG_MOM_LOSS_PRESCRIPTION" },
     { PROGRAM_OPTION::MT_THERMAL_LIMIT_C,                               "MT_THERMAL_LIMIT_C" },
@@ -2253,12 +2261,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION,                     "MT_REJUVENATION_PRESCRIPTION" },
     { PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION,                   "MT_THERMALLY_LIMITED_VARIATION" },
 
-    { PROGRAM_OPTION::MCBUR1,                                           "MCBUR1" },
-
-    { PROGRAM_OPTION::METALLICITY,                                      "METALLICITY" },
-
-    { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                           "MINIMUM_MASS_SECONDARY" },
-    { PROGRAM_OPTION::MAXIMUM_NEUTRON_STAR_MASS,                        "MAXIMUM_NEUTRON_STAR_MASS" },
+    { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH,                 "MULLER_MANDEL_KICK_MULTIPLIER_BH" },
+    { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS,                 "MULLER_MANDEL_KICK_MULTIPLIER_NS" },
 
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                 "NEUTRINO_MASS_LOSS_ASSUMPTION_BH" },
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                      "NEUTRINO_MASS_LOSS_VALUE_BH" },
@@ -2563,7 +2567,6 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2_PRE_COMMON_ENVELOPE,             { TYPENAME::DOUBLE,         "RocheLobe_2<CE",       "Rsol",             14, 6 }},
     { BINARY_PROPERTY::ROCHE_LOBE_TRACKER_1,                                { TYPENAME::DOUBLE,         "Radius_1/RL",          "-",                14, 6 }},
     { BINARY_PROPERTY::ROCHE_LOBE_TRACKER_2,                                { TYPENAME::DOUBLE,         "Radius_2/RL",          "-",                14, 6 }},
-    { BINARY_PROPERTY::SECONDARY_TOO_SMALL_FOR_DCO,                         { TYPENAME::BOOL,           "Secondary<<DCO",       "State",             0, 0 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION,                    { TYPENAME::DOUBLE,         "SemiMajorAxis@DCO",    "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,                             { TYPENAME::DOUBLE,         "SemiMajorAxis@ZAMS",   "AU",               14, 6 }},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,         "SemiMajorAxis>CE",     "Rsol",             14, 6 }},
@@ -2679,6 +2682,14 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MAX,                          { TYPENAME::DOUBLE,         "Mass_Ratio_Dstrbtn_Max",       "-",                14, 6 }},
     { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MIN,                          { TYPENAME::DOUBLE,         "Mass_Ratio_Dstrbtn_Min",       "-",                14, 6 }},
 
+    { PROGRAM_OPTION::MAXIMUM_NEUTRON_STAR_MASS,                            { TYPENAME::DOUBLE,         "Max_NS_Mass",                  "Msol",             14, 6 }},
+
+    { PROGRAM_OPTION::MCBUR1,                                               { TYPENAME::DOUBLE,         "MCBUR1",                       "Msol",             14, 6 }},
+
+    { PROGRAM_OPTION::METALLICITY,                                          { TYPENAME::DOUBLE,         "Metallicity",                  "-",                14, 6 }},
+
+    { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                               { TYPENAME::DOUBLE,         "Max_Secondary_Mass",           "Msol",             14, 6 }},
+
     { PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION,                 { TYPENAME::INT,            "MT_Acc_Efficiency_Prscrptn",   "-",                 4, 1 }},
     { PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION,                         { TYPENAME::INT,            "MT_AngMom_Loss_Prscrptn",      "-",                 4, 1 }},
     { PROGRAM_OPTION::MT_THERMAL_LIMIT_C,                                   { TYPENAME::DOUBLE,         "MT_Thermal_Limit_C",           "-",                14, 6 }},
@@ -2716,12 +2727,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION,                         { TYPENAME::INT,            "MT_Rejuvenation_Prscrptn",     "-",                 4, 1 }},
     { PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION,                       { TYPENAME::INT,            "MT_Thermally_Lmtd_Variation",  "-",                 4, 1 }},
 
-    { PROGRAM_OPTION::MCBUR1,                                               { TYPENAME::DOUBLE,         "MCBUR1",                       "Msol",             14, 6 }},
-
-    { PROGRAM_OPTION::METALLICITY,                                          { TYPENAME::DOUBLE,         "Metallicity",                  "-",                14, 6 }},
-
-    { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                               { TYPENAME::DOUBLE,         "Max_Secondary_Mass",           "Msol",             14, 6 }},
-    { PROGRAM_OPTION::MAXIMUM_NEUTRON_STAR_MASS,                            { TYPENAME::DOUBLE,         "Max_NS_Mass",                  "Msol",             14, 6 }},
+    { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH,                     { TYPENAME::DOUBLE,         "MM_Kick_Multiplier_BH",        "-",                14, 6 }},
+    { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS,                     { TYPENAME::DOUBLE,         "MM_Kick_Multiplier_NS",        "-",                14, 6 }},
 
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                     { TYPENAME::INT,            "Neutrino_Mass_Loss_Assmptn",   "-",                 4, 1 }},
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                          { TYPENAME::DOUBLE,         "Neutrino_Mass_Loss_Value",     "-",                14, 6 }},
@@ -2833,11 +2840,11 @@ const ANY_PROPERTY_VECTOR SSE_SUPERNOVAE_REC = {
 };
 
 
-// SYSTEM_PARAMETERS_REC
+// BSE_SYSTEM_PARAMETERS_REC
 //
 // Default record definition for the System Parameters logfile
 //
-const ANY_PROPERTY_VECTOR SYSTEM_PARAMETERS_REC = {
+const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
     STAR_1_PROPERTY::MZAMS,
     STAR_2_PROPERTY::MZAMS,
@@ -2865,6 +2872,7 @@ const ANY_PROPERTY_VECTOR SYSTEM_PARAMETERS_REC = {
     BINARY_PROPERTY::UNBOUND,
     BINARY_PROPERTY::STELLAR_MERGER,
     BINARY_PROPERTY::STELLAR_MERGER_AT_BIRTH,
+    BINARY_PROPERTY::MASSES_EQUILIBRATED_AT_BIRTH,
     STAR_1_PROPERTY::INITIAL_STELLAR_TYPE,
     STAR_1_PROPERTY::STELLAR_TYPE,
     STAR_2_PROPERTY::INITIAL_STELLAR_TYPE,
@@ -2873,11 +2881,11 @@ const ANY_PROPERTY_VECTOR SYSTEM_PARAMETERS_REC = {
 };
 
 
-// RLOF_PARAMETERS_REC
+// BSE_RLOF_PARAMETERS_REC
 //
 // Default record definition for the RLOF Parameters logfile
 //
-const ANY_PROPERTY_VECTOR RLOF_PARAMETERS_REC = {
+const ANY_PROPERTY_VECTOR BSE_RLOF_PARAMETERS_REC = {
     BINARY_PROPERTY::RLOF_CURRENT_RANDOM_SEED,
     BINARY_PROPERTY::RLOF_CURRENT_STAR1_MASS,
     BINARY_PROPERTY::RLOF_CURRENT_STAR2_MASS,
@@ -2915,11 +2923,11 @@ const ANY_PROPERTY_VECTOR RLOF_PARAMETERS_REC = {
 };
 
 
-// DOUBLE_COMPACT_OBJECT_REC
+// BSE_DOUBLE_COMPACT_OBJECT_REC
 //
 // Default record definition for the Double Compact Objects logfile
 //
-const ANY_PROPERTY_VECTOR DOUBLE_COMPACT_OBJECTS_REC = {
+const ANY_PROPERTY_VECTOR BSE_DOUBLE_COMPACT_OBJECTS_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION, 
     BINARY_PROPERTY::ECCENTRICITY_AT_DCO_FORMATION,
@@ -2937,11 +2945,11 @@ const ANY_PROPERTY_VECTOR DOUBLE_COMPACT_OBJECTS_REC = {
 };
 
 
-// BE_BINARY_REC
+// BSE_BE_BINARY_REC
 //
 // Default record definition for the BeBinaries logfile
 //
-const ANY_PROPERTY_VECTOR BE_BINARIES_REC = {
+const ANY_PROPERTY_VECTOR BSE_BE_BINARIES_REC = {
     BINARY_PROPERTY::BE_BINARY_CURRENT_ID,
     BINARY_PROPERTY::BE_BINARY_CURRENT_RANDOM_SEED,
     BINARY_PROPERTY::BE_BINARY_CURRENT_DT,
@@ -3099,11 +3107,11 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
 };
 
 
-// COMMON_ENVELOPES_REC
+// BSE_COMMON_ENVELOPES_REC
 //
 // Default record definition for the Common Envelopes logfile
 //
-const ANY_PROPERTY_VECTOR COMMON_ENVELOPES_REC = {
+const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
     BINARY_PROPERTY::TIME,
     STAR_1_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,
@@ -3199,12 +3207,12 @@ enum class LOGFILE: int {
     SSE_DETAILED_OUTPUT,
     SSE_SWITCH_LOG,
     SSE_SUPERNOVAE,
-    SYSTEM_PARAMETERS,
-    DOUBLE_COMPACT_OBJECTS,
+    BSE_SYSTEM_PARAMETERS,
+    BSE_DOUBLE_COMPACT_OBJECTS,
     BSE_SUPERNOVAE,
-    COMMON_ENVELOPES,
-    RLOF_PARAMETERS,
-    BE_BINARIES,
+    BSE_COMMON_ENVELOPES,
+    BSE_RLOF_PARAMETERS,
+    BSE_BE_BINARIES,
     BSE_PULSAR_EVOLUTION,
     BSE_DETAILED_OUTPUT,
     BSE_SWITCH_LOG
@@ -3223,21 +3231,21 @@ typedef std::tuple<std::string, ANY_PROPERTY_VECTOR, std::string, std::string, L
 // fields are: {default filename, record descriptor, short file name, short record name, type}
 // (the short names are for logfile definitions file parsing)
 const std::map<LOGFILE, LOGFILE_DESCRIPTOR_T> LOGFILE_DESCRIPTOR = {
-    { LOGFILE::NONE,                       { "" ,                          {},                             "",                "",                    LOGFILE_TYPE::NONE}},
-    { LOGFILE::DEBUG_LOG,                  { "Debug_Log",                  {},                             "",                "",                    LOGFILE_TYPE::NONE }},
-    { LOGFILE::ERROR_LOG,                  { "Error_Log",                  {},                             "",                "",                    LOGFILE_TYPE::NONE }},
-    { LOGFILE::SSE_DETAILED_OUTPUT,        { "Detailed_Output",            SSE_DETAILED_OUTPUT_REC,        "SSE_DETAILED",    "SSE_PARMS_REC",       LOGFILE_TYPE::STELLAR }},
-    { LOGFILE::SSE_SWITCH_LOG,             { "Switch_Log",                 SSE_SWITCH_LOG_REC,             "SSE_SWITCH_LOG",  "SSE_SWITCH_REC",      LOGFILE_TYPE::STELLAR }},
-    { LOGFILE::SSE_SUPERNOVAE,             { "Supernovae",                 SSE_SUPERNOVAE_REC,             "SSE_SNE",         "SSE_SNE_REC",         LOGFILE_TYPE::STELLAR }},
-    { LOGFILE::SYSTEM_PARAMETERS,          { "System_Parameters",          SYSTEM_PARAMETERS_REC,          "SYSPARMS",        "SYSPARMS_REC",        LOGFILE_TYPE::BINARY }},
-    { LOGFILE::DOUBLE_COMPACT_OBJECTS,     { "Double_Compact_Objects",     DOUBLE_COMPACT_OBJECTS_REC,     "DCO",             "DCO_REC",             LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_SUPERNOVAE,             { "Supernovae",                 BSE_SUPERNOVAE_REC,             "BSE_SNE",         "BSE_SNE_REC",         LOGFILE_TYPE::BINARY }},
-    { LOGFILE::COMMON_ENVELOPES,           { "Common_Envelopes",           COMMON_ENVELOPES_REC,           "CEE",             "CEE_REC",             LOGFILE_TYPE::BINARY }},
-    { LOGFILE::RLOF_PARAMETERS,            { "RLOF",                       RLOF_PARAMETERS_REC,            "RLOF",            "RLOF_REC",            LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BE_BINARIES,                { "BE_Binaries",                BE_BINARIES_REC,                "BE_BINARIES",     "BE_BINARIES_REC",     LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_PULSAR_EVOLUTION,       { "Pulsar_Evolution",           BSE_PULSAR_EVOLUTION_REC,       "BSE_PULSARS",     "BSE_PULSARS_REC",     LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_DETAILED_OUTPUT,        { "Detailed_Output",            BSE_DETAILED_OUTPUT_REC,        "BSE_DETAILED",    "BSE_DETAILED_REC",    LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_SWITCH_LOG,             { "Switch_Log",                 BSE_SWITCH_LOG_REC,             "BSE_SWITCH_LOG",  "BSE_SWITCH_REC",      LOGFILE_TYPE::BINARY }}
+    { LOGFILE::NONE,                       { "" ,                          {},                             "",                "",                        LOGFILE_TYPE::NONE}},
+    { LOGFILE::DEBUG_LOG,                  { "Debug_Log",                  {},                             "",                "",                        LOGFILE_TYPE::NONE }},
+    { LOGFILE::ERROR_LOG,                  { "Error_Log",                  {},                             "",                "",                        LOGFILE_TYPE::NONE }},
+    { LOGFILE::SSE_DETAILED_OUTPUT,        { "SSE_Detailed_Output",            SSE_DETAILED_OUTPUT_REC,        "SSE_DETAILED",    "SSE_DETAILED_REC",    LOGFILE_TYPE::STELLAR }},
+    { LOGFILE::SSE_SWITCH_LOG,             { "SSE_Switch_Log",                 SSE_SWITCH_LOG_REC,             "SSE_SWITCH_LOG",  "SSE_SWITCH_REC",      LOGFILE_TYPE::STELLAR }},
+    { LOGFILE::SSE_SUPERNOVAE,             { "SSE_Supernovae",                 SSE_SUPERNOVAE_REC,             "SSE_SNE",         "SSE_SNE_REC",         LOGFILE_TYPE::STELLAR }},
+    { LOGFILE::BSE_SYSTEM_PARAMETERS,      { "BSE_System_Parameters",          BSE_SYSTEM_PARAMETERS_REC,      "BSE_SYSPARMS",    "BSE_SYSPARMS_REC",    LOGFILE_TYPE::BINARY }},
+    { LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, { "BSE_Double_Compact_Objects",     BSE_DOUBLE_COMPACT_OBJECTS_REC, "BSE_DCO",         "BSE_DCO_REC",         LOGFILE_TYPE::BINARY }},
+    { LOGFILE::BSE_SUPERNOVAE,             { "BSE_Supernovae",                 BSE_SUPERNOVAE_REC,             "BSE_SNE",         "BSE_SNE_REC",         LOGFILE_TYPE::BINARY }},
+    { LOGFILE::BSE_COMMON_ENVELOPES,       { "BSE_Common_Envelopes",           BSE_COMMON_ENVELOPES_REC,       "BSE_CEE",         "BSE_CEE_REC",         LOGFILE_TYPE::BINARY }},
+    { LOGFILE::BSE_RLOF_PARAMETERS,        { "BSE_RLOF",                       BSE_RLOF_PARAMETERS_REC,        "BSE_RLOF",        "BSE_RLOF_REC",        LOGFILE_TYPE::BINARY }},
+    { LOGFILE::BSE_BE_BINARIES,            { "BSE_BE_Binaries",                BSE_BE_BINARIES_REC,            "BSE_BE_BINARIES", "BSE_BE_BINARIES_REC", LOGFILE_TYPE::BINARY }},
+    { LOGFILE::BSE_PULSAR_EVOLUTION,       { "BSE_Pulsar_Evolution",           BSE_PULSAR_EVOLUTION_REC,       "BSE_PULSARS",     "BSE_PULSARS_REC",     LOGFILE_TYPE::BINARY }},
+    { LOGFILE::BSE_DETAILED_OUTPUT,        { "BSE_Detailed_Output",            BSE_DETAILED_OUTPUT_REC,        "BSE_DETAILED",    "BSE_DETAILED_REC",    LOGFILE_TYPE::BINARY }},
+    { LOGFILE::BSE_SWITCH_LOG,             { "BSE_Switch_Log",                 BSE_SWITCH_LOG_REC,             "BSE_SWITCH_LOG",  "BSE_SWITCH_REC",      LOGFILE_TYPE::BINARY }}
 };
 
 

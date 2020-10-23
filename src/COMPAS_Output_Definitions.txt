@@ -1,13 +1,15 @@
 
-sysparms_rec += {
+bse_sysparms_rec += {
     Program_option::black_hole_kicks,
     program_option::allow_rlof_at_birth,
-    program_option::allow_touching_at_birth
+    program_option::allow_touching_at_birth,
+    program_option::muller_mandel_kick_multiplier_bh,
+    program_option::muller_mandel_kick_multiplier_ns
 }
 
-sse_parms_rec += {
-    Program_option::black_hole_kicks,
-    program_option::allow_rlof_at_birth,
-    program_option::allow_touching_at_birth
-}
+#sse_detailed_rec += {
+#    Program_option::black_hole_kicks,
+#    program_option::allow_rlof_at_birth,
+#    program_option::allow_touching_at_birth
+#}
 

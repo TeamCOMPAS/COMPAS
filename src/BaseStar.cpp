@@ -2423,7 +2423,9 @@ double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
 /*
  * Draw kick magnitude per Mandel and Mueller, 2020
  *
- * double DrawRemnantKickMuller(const double p_COCoreMass)
+ * double DrawRemnantKickMullerMandel(const double p_COCoreMass, 
+ *                                    const double p_Rand,
+ *                                    const double p_RemnantMass)
  * 
  * @param   [IN]    p_COCoreMass                Carbon Oxygen core mass of exploding star (Msol)
  * @param   [IN]    p_Rand                      Random number between 0 and 1 used for drawing from the distribution
@@ -2431,22 +2433,24 @@ double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
  * @return                                      Drawn kick magnitude (km s^-1)
  */
 double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass, 
-                                    const double p_Rand,
-                                    const double p_RemnantMass) {					
-	double remnantKick=-1.0;
-	double muKick=0.0;
-    double rand=p_Rand;		//makes it possible to adjust if p_Rand is too low, to avoid getting stuck
+                                             const double p_Rand,
+                                             const double p_RemnantMass) {					
+	double remnantKick = -1.0;
+	double muKick      = 0.0;
+    double rand        = p_Rand;    //makes it possible to adjust if p_Rand is too low, to avoid getting stuck
 
 	if (utils::Compare(p_RemnantMass, MULLERMANDEL_MAXNS) <  0) {
-		muKick=max(MULLERMANDEL_KICKNS*(p_COCoreMass-p_RemnantMass)/p_RemnantMass,0.0);
+		muKick = max(OPTIONS->MullerMandelKickMultiplierNS() * (p_COCoreMass - p_RemnantMass) / p_RemnantMass, 0.0);
 	}
 	else {
-		muKick=max(MULLERMANDEL_KICKBH*(p_COCoreMass-p_RemnantMass)/p_RemnantMass,0.0);
+		muKick = max(OPTIONS->MullerMandelKickMultiplierBH() * (p_COCoreMass - p_RemnantMass) / p_RemnantMass, 0.0);
 	}
-	while(remnantKick<0) {
-		remnantKick=muKick*(1.0+gsl_cdf_gaussian_Pinv(rand, MULLERMANDEL_SIGMAKICK));
-		rand=std::min(rand+p_Rand+0.0001,1.0);
+
+	while (remnantKick < 0.0) {
+		remnantKick = muKick * (1.0 + gsl_cdf_gaussian_Pinv(rand, MULLERMANDEL_SIGMAKICK));
+		rand        = min(rand + p_Rand + 0.0001, 1.0);
 	}
+
 	return remnantKick;
 }
 
