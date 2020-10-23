@@ -165,10 +165,11 @@ private:
         "errors-to-file",
         "population-data-printing",
         "print-bool-as-string",
-        "rlof-printing",                    // maybe this could be allowed
-        "switchlog",                        // maybe this could be allowed
+        "rlof-printing",
+        "switchlog",
         "grid",
         "mode",
+        "number-of-stars",
 
         // Serena
         //"logfile-be-binaries",
@@ -232,7 +233,8 @@ private:
     std::vector<std::string> m_BSEOnly = {
         "initial-mass-1",
         "initial-mass-2",
-        "separation", "a",
+        "semi-major-axis", "a",
+        "orbital-period",
 
         // Floor
         /*
@@ -310,7 +312,7 @@ private:
         "orbital-period-max",
         "orbital-period-min",
 
-        "separation", "a",
+        "semi-major-axis", "a",
         "semi-major-axis-max",
         "semi-major-axis-min",
 
@@ -564,6 +566,9 @@ public:
             bool                                                m_PrintBoolAsString;                                            // flag used to indicate that boolean properties should be printed as "TRUE" or "FALSE" (default is 1 or 0)
             bool                                                m_Quiet;                                                        // suppress some output
             bool                                                m_RlofPrinting;                                                 // RLOF printing
+
+            bool                                                m_ShortHelp;                                                    // Flag to indicate whether user wants short help ('-h', just option names) or long help ('--help', plus descriptions)
+
             bool                                                m_SwitchLog;                                                    // Print switch log details to file (default = false)
 
             int                                                 m_nBatchesUsed;                                                 // Number of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
@@ -605,7 +610,9 @@ public:
             double                                              m_SemiMajorAxisDistributionMin;                                 // Minimum a in AU
             double                                              m_SemiMajorAxisDistributionMax;                                 // Maximum a in AU
             double                                              m_SemiMajorAxisDistributionPower;                               // Set semi-major axis distribution power law slope by hand     ** JR: there is no option for this....
+
             // Period
+            double                                              m_OrbitalPeriod;                                                // Orbital period in days
             double                                              m_PeriodDistributionMin;                                        // Minimum initial period in days
             double                                              m_PeriodDistributionMax;                                        // Maximum initial period in days
 
@@ -928,6 +935,7 @@ public:
     // each struct contains:
     //
     //    an OptionValues object - holds the values of the options 
+    //    a  Boost options_decsriptions object
     //    a  COMPLEX_OPTION_VALUES object - holds the complex option values (ranges, sets)
 
     typedef struct OptionsDescriptor {
@@ -935,6 +943,9 @@ public:
         po::options_description optionDescriptions;
         COMPLEX_OPTION_VALUES   complexOptionValues;
     } OptionsDescriptorT;
+
+
+//    typedef std::map<std::string, std::string> OptionAlias;              // for otion aliasing 
 
 
 // class Options
@@ -969,6 +980,8 @@ private:
     PROGRAM_STATUS  ParseCommandLineOptions(int argc, char * argv[]);
     std::string     ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], OptionsDescriptorT &p_OptionsDescriptor);
 
+//std::pair<std::string, std::string> mapOptions(const std::string &token, const OptionAlias &alias);
+//boost::program_options::ext_parser optionAlias(OptionAlias &&aliases); 
 
 public:
 
@@ -990,6 +1003,8 @@ public:
     int             OptionSpecified(const std::string p_OptionString);
 
     COMPAS_VARIABLE OptionValue(const T_ANY_PROPERTY p_Property) const;
+
+    void            PrintOptionHelp(const bool p_Verbose);
 
     void            RewindGridFile() { m_Gridfile.handle.clear(); m_Gridfile.handle.seekg(0); }
 
@@ -1022,6 +1037,8 @@ public:
 
     bool                                        CirculariseBinaryDuringMassTransfer() const                             { return OPT_VALUE("circularise-binary-during-mass-transfer", m_CirculariseBinaryDuringMassTransfer, true); }
 
+    bool                                        CommandLineGrid() const                                                 { return m_CmdLine.complexOptionValues.size() != 0; }
+    
     double                                      CommonEnvelopeAlpha() const                                             { return OPT_VALUE("common-envelope-alpha", m_CommonEnvelopeAlpha, true); }
     double                                      CommonEnvelopeAlphaThermal() const                                      { return OPT_VALUE("common-envelope-alpha-thermal", m_CommonEnvelopeAlphaThermal, true); }
     double                                      CommonEnvelopeLambda() const                                            { return OPT_VALUE("common-envelope-lambda", m_CommonEnvelopeLambda, true); }
@@ -1173,6 +1190,8 @@ public:
 
     string                                      CmdLineOptionsDetails() const                                           { return m_CmdLineOptionsDetails; }
 
+    double                                      OrbitalPeriod() const                                                   { return OPT_VALUE("orbital-period", m_OrbitalPeriod, true); }
+
     string                                      OutputContainerName() const                                             { return m_CmdLine.optionValues.m_OutputContainerName; }
     string                                      OutputPathString() const                                                { return m_CmdLine.optionValues.m_OutputPath.string(); }
 
@@ -1213,13 +1232,13 @@ public:
 
     ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return OPT_VALUE("rotational-velocity-distribution", m_RotationalVelocityDistribution.type, true); }
    
-    double                                      SemiMajorAxis() const                                                   { return OPT_VALUE("separation", m_SemiMajorAxis, true); }
+    double                                      SemiMajorAxis() const                                                   { return OPT_VALUE("semi-major-axis", m_SemiMajorAxis, true); }
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return OPT_VALUE("semi-major-axis-distribution", m_SemiMajorAxisDistribution.type, true); }
     double                                      SemiMajorAxisDistributionMax() const                                    { return OPT_VALUE("semi-major-axis-max", m_SemiMajorAxisDistributionMax, true); }
     double                                      SemiMajorAxisDistributionMin() const                                    { return OPT_VALUE("semi-major-axis-min", m_SemiMajorAxisDistributionMin, true); }
     double                                      SemiMajorAxisDistributionPower() const                                  { return m_CmdLine.optionValues.m_SemiMajorAxisDistributionPower; }     // JR: no option implemented - always -1.0
 
-    void                                        ShowHelp() const                                                        { std::cout << m_CmdLine.optionDescriptions << std::endl; }
+    void                                        ShowHelp()                                                              { PrintOptionHelp(!m_CmdLine.optionValues.m_ShortHelp); }
 
     bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
     bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }

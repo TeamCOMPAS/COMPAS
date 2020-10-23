@@ -288,7 +288,7 @@ std::tuple<int, int> EvolveSingleStars() {
                 SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                                // show error
             }
             else if (optionsStatus == 0) {                                                                          // end of options variations?
-                if (usingGrid || (!usingGrid && index >= OPTIONS->nObjectsToEvolve())) {                            // created required number of stars?
+                if (usingGrid || OPTIONS->CommandLineGrid() || (!usingGrid && index >= OPTIONS->nObjectsToEvolve())) { // created required number of stars?
                     evolutionStatus = EVOLUTION_STATUS::DONE;                                                       // yes - we're done
                 }
             }
@@ -480,7 +480,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                 SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                            // show error
             }
             else if (optionsStatus == 0) {                                                                      // end of options variations?
-                if (usingGrid || (!usingGrid && index >= OPTIONS->nObjectsToEvolve())) {                        // created required number of stars?
+                if (usingGrid || OPTIONS->CommandLineGrid() || (!usingGrid && index >= OPTIONS->nObjectsToEvolve())) { // created required number of stars?
                     evolutionStatus = EVOLUTION_STATUS::DONE;                                                   // yes - we're done
                 }
             }
@@ -553,18 +553,16 @@ int main(int argc, char * argv[]) {
 
     bool ok = OPTIONS->Initialise(argc, argv);                                                      // get the program options from the commandline
     if (!ok) {                                                                                      // have commandline options ok?
-                                                                                                    // no - commandline options not ok
-        OPTIONS->ShowHelp();                                                                        // show help
-        programStatus = PROGRAM_STATUS::ERROR_IN_COMMAND_LINE;                                      // set status
+        programStatus = PROGRAM_STATUS::ERROR_IN_COMMAND_LINE;                                      // no - set status
     }
     else {                                                                                          // yes - have commandline options
         if (OPTIONS->RequestedHelp()) {                                                             // user requested help?
-            utils::SplashScreen();                                                                  // yes - show splash screen
+            (void)utils::SplashScreen();                                                            // yes - show splash screen
             OPTIONS->ShowHelp();                                                                    // show help
             programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
         }
         else if (OPTIONS->RequestedVersion()) {                                                     // user requested version?
-            SAY("COMPAS v" << VERSION_STRING);                                                      // yes, show version string
+            (void)utils::SplashScreen();                                                            // yes - show splash screen
             programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
         }
     

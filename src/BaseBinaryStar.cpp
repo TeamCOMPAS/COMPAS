@@ -854,26 +854,26 @@ void BaseBinaryStar::StashRLOFProperties() {
 
     // switch previous<->current (preserves existing current as (new) previous)
     RLOFPropertiesT* tmp;
-    tmp                             = m_RLOFDetails.previousProps;                                              // save pointer to existing previous props
-    m_RLOFDetails.previousProps     = m_RLOFDetails.currentProps;                                               // existing current props become new previous props (values will be preserved)
-    m_RLOFDetails.currentProps      = tmp;                                                                          // new current props points at existing prevous (values will be replaced)
+    tmp                                       = m_RLOFDetails.previousProps;                                        // save pointer to existing previous props
+    m_RLOFDetails.previousProps               = m_RLOFDetails.currentProps;                                         // existing current props become new previous props (values will be preserved)
+    m_RLOFDetails.currentProps                = tmp;                                                                // new current props points at existing prevous (values will be replaced)
 
     // now save (new) current
-    m_RLOFDetails.currentProps->id              = m_ObjectId;
-    m_RLOFDetails.currentProps->randomSeed      = m_RandomSeed;
-    m_RLOFDetails.currentProps->mass1           = m_Star1->Mass();
-    m_RLOFDetails.currentProps->mass2           = m_Star2->Mass();
-    m_RLOFDetails.currentProps->radius1         = m_Star1->Radius();
-    m_RLOFDetails.currentProps->radius2         = m_Star2->Radius();
-    m_RLOFDetails.currentProps->stellarType1    = m_Star1->StellarType();
-    m_RLOFDetails.currentProps->stellarType2    = m_Star2->StellarType();
-    m_RLOFDetails.currentProps->eccentricity    = m_Eccentricity;
-    m_RLOFDetails.currentProps->semiMajorAxis   = m_SemiMajorAxis * AU_TO_RSOL;                                    // semi-major axis - change units to Rsol
-    m_RLOFDetails.currentProps->eventCounter    = m_RLOFDetails.previousProps->eventCounter;
-    m_RLOFDetails.currentProps->time            = m_Time;
-    m_RLOFDetails.currentProps->isRLOF1         = m_Star1->IsRLOF();
-    m_RLOFDetails.currentProps->isRLOF2         = m_Star2->IsRLOF();
-    m_RLOFDetails.currentProps->isCE            = m_CEDetails.CEEnow;
+    m_RLOFDetails.currentProps->id            = m_ObjectId;
+    m_RLOFDetails.currentProps->randomSeed    = m_RandomSeed;
+    m_RLOFDetails.currentProps->mass1         = m_Star1->Mass();
+    m_RLOFDetails.currentProps->mass2         = m_Star2->Mass();
+    m_RLOFDetails.currentProps->radius1       = m_Star1->Radius();
+    m_RLOFDetails.currentProps->radius2       = m_Star2->Radius();
+    m_RLOFDetails.currentProps->stellarType1  = m_Star1->StellarType();
+    m_RLOFDetails.currentProps->stellarType2  = m_Star2->StellarType();
+    m_RLOFDetails.currentProps->eccentricity  = m_Eccentricity;
+    m_RLOFDetails.currentProps->semiMajorAxis = m_SemiMajorAxis * AU_TO_RSOL;                                       // semi-major axis - change units to Rsol
+    m_RLOFDetails.currentProps->eventCounter  = m_RLOFDetails.previousProps->eventCounter;
+    m_RLOFDetails.currentProps->time          = m_Time;
+    m_RLOFDetails.currentProps->isRLOF1       = m_Star1->IsRLOF();
+    m_RLOFDetails.currentProps->isRLOF2       = m_Star2->IsRLOF();
+    m_RLOFDetails.currentProps->isCE          = m_CEDetails.CEEnow;
 }
 
 
@@ -1175,9 +1175,9 @@ bool BaseBinaryStar::ResolveSupernova() {
         #define hat                 UnitVector()
 
         // Pre-SN parameters
-        double semiMajorAxisPrev_km = m_SemiMajorAxis*AU_TO_KM;                                                         // km  - Semi-Major axis
+        double semiMajorAxisPrev_km = m_SemiMajorAxis * AU_TO_KM;                                                       // km  - Semi-Major axis
         double eccentricityPrev = m_Eccentricity;                                                                       // --  - Eccentricity, written with a prev to distinguish from later use
-        double sqrt1MinusEccPrevSquared = sqrt(1-eccentricityPrev*eccentricityPrev);                                    // useful function of eccentricity
+        double sqrt1MinusEccPrevSquared = sqrt(1 - eccentricityPrev * eccentricityPrev);                                // useful function of eccentricity
 
         double m1Prev = m_Supernova->SN_TotalMassAtCOFormation();                                                       // Mo  - SN star pre-SN mass
         double m2Prev = m_Companion->Mass();                                                                            // Mo  - CP star pre-SN mass
@@ -1189,21 +1189,20 @@ bool BaseBinaryStar::ResolveSupernova() {
         double sinEccAnomaly = sin(m_Supernova->SN_EccentricAnomaly());
 
         // Derived quantities
-        double omega = sqrt(G_SN*totalMassPrev / (semiMajorAxisPrev_km*semiMajorAxisPrev_km*semiMajorAxisPrev_km));     // rad/s  - Keplerian orbital frequency
+        double omega = sqrt(G_SN*totalMassPrev / (semiMajorAxisPrev_km * semiMajorAxisPrev_km*semiMajorAxisPrev_km));   // rad/s  - Keplerian orbital frequency
 
-        Vector3d separationVectorPrev = Vector3d( semiMajorAxisPrev_km* (cosEccAnomaly-eccentricityPrev),            
-                                                  semiMajorAxisPrev_km* (sinEccAnomaly)*sqrt1MinusEccPrevSquared,
+        Vector3d separationVectorPrev = Vector3d( semiMajorAxisPrev_km * (cosEccAnomaly - eccentricityPrev),            
+                                                  semiMajorAxisPrev_km * (sinEccAnomaly) * sqrt1MinusEccPrevSquared,
                                                   0.0                    );                                             // km        - Relative position vector, from m1Prev to m2Prev
         double   separationPrev = separationVectorPrev.mag;                                                             // km        - Instantaneous Separation
 
-        Vector3d relativeVelocityVectorPrev = Vector3d(-((semiMajorAxisPrev_km*semiMajorAxisPrev_km) *omega/separationPrev)*sinEccAnomaly,   
-                                                        ((semiMajorAxisPrev_km*semiMajorAxisPrev_km) *omega/separationPrev)*cosEccAnomaly*sqrt1MinusEccPrevSquared,  
+        Vector3d relativeVelocityVectorPrev = Vector3d(-((semiMajorAxisPrev_km * semiMajorAxisPrev_km) * omega / separationPrev) * sinEccAnomaly,   
+                                                        ((semiMajorAxisPrev_km * semiMajorAxisPrev_km) * omega / separationPrev) * cosEccAnomaly * sqrt1MinusEccPrevSquared,  
                                                         0.0                                        );                   // km/s      - Relative velocity vector, in the m1Prev rest frame
 
         Vector3d orbitalAngularMomentumVectorPrev = cross(separationVectorPrev, relativeVelocityVectorPrev);            // km^2 s^-1 - Specific orbital angular momentum vector 
 
-        Vector3d eccentricityVectorPrev = cross(relativeVelocityVectorPrev, orbitalAngularMomentumVectorPrev) / (G_SN*totalMassPrev) 
-                                            - separationVectorPrev.hat;                                                 // --        - Laplace-Runge-Lenz vector (magnitude = eccentricity)
+        Vector3d eccentricityVectorPrev = cross(relativeVelocityVectorPrev, orbitalAngularMomentumVectorPrev) / (G_SN * totalMassPrev) - separationVectorPrev.hat;                                                 // --        - Laplace-Runge-Lenz vector (magnitude = eccentricity)
 
         m_OrbitalVelocityPreSN = relativeVelocityVectorPrev.mag;                                                        // km/s      - Set the Pre-SN orbital velocity and 
         m_uK = m_Supernova->SN_KickMagnitude() / m_OrbitalVelocityPreSN;                                                // --        - Dimensionless kick magnitude
@@ -1232,9 +1231,7 @@ bool BaseBinaryStar::ResolveSupernova() {
             psi = m_Supernova->SN_TrueAnomaly();
             beta = M_PI - angleBetween(separationVectorPrev,relativeVelocityVectorPrev); 
             newPhi   = m_Supernova->SN_Phi() + psi + M_PI - beta;                                                       // Angle in the binary plane
-            natalKickVector = m_Supernova->SN_KickMagnitude() * Vector3d(cos(theta)*cos(newPhi), 
-                                                                         cos(theta)*sin(newPhi),
-                                                                         sin(theta));
+            natalKickVector = m_Supernova->SN_KickMagnitude() * Vector3d(cos(theta) * cos(newPhi), cos(theta) * sin(newPhi), sin(theta));
         }
 
         Vector3d companionRecoilVector = Vector3d(0.0, 0.0, 0.0);                                                       // km/s - The recoil of the companion due to ablation
@@ -1245,21 +1242,20 @@ bool BaseBinaryStar::ResolveSupernova() {
         double dm1 = (m1Prev - m1);                                                                                     // Mo   - Mass difference of supernova star
         double dm2 = (m2Prev - m2);                                                                                     // Mo   - Mass difference of companion star
 
-        Vector3d centerOfMassVelocity = (-m2Prev*dm1/(totalMassPrev*totalMass) + m1Prev*dm2/(totalMassPrev*totalMass)) *relativeVelocityVectorPrev 
-                                         + (m1/totalMass) *natalKickVector 
-                                         + (m2/totalMass) *companionRecoilVector;                                       // km/s       - PostSN center of mass velocity vector
+        Vector3d centerOfMassVelocity = (-m2Prev * dm1 / (totalMassPrev*totalMass) + m1Prev * dm2 / (totalMassPrev * totalMass)) * relativeVelocityVectorPrev 
+                                         + (m1 / totalMass) * natalKickVector 
+                                         + (m2 / totalMass) * companionRecoilVector;                                    // km/s       - PostSN center of mass velocity vector
 
         Vector3d relativeVelocityVector = relativeVelocityVectorPrev + (natalKickVector - companionRecoilVector);       // km/s       - PostSN relative velocity vector
 
         Vector3d orbitalAngularMomentumVector = cross(separationVectorPrev, relativeVelocityVector);                    // km^2 s^-1  - PostSN specific orbital angular momentum vector
         double   orbitalAngularMomentum = orbitalAngularMomentumVector.mag;                                             // km^2 s^-1  - PostSN specific orbital angular momentum 
 
-        Vector3d eccentricityVector = cross(relativeVelocityVector, orbitalAngularMomentumVector)/(G_SN*totalMass) 
-                                      - separationVectorPrev/separationPrev;                                            // --         - PostSN Laplace-Runge-Lenz vector
+        Vector3d eccentricityVector = cross(relativeVelocityVector, orbitalAngularMomentumVector) / (G_SN * totalMass) - separationVectorPrev / separationPrev;                                            // --         - PostSN Laplace-Runge-Lenz vector
         m_Eccentricity = eccentricityVector.mag;                                                                        // --         - PostSN eccentricity
-        double eccSquared = m_Eccentricity*m_Eccentricity;                                                              // useful function of eccentricity
+        double eccSquared = m_Eccentricity * m_Eccentricity;                                                            // useful function of eccentricity
 
-        double semiMajorAxis_km = (orbitalAngularMomentum*orbitalAngularMomentum) / (G_SN*totalMass * (1-eccSquared));  // km         - PostSN semi-major axis
+        double semiMajorAxis_km = (orbitalAngularMomentum*orbitalAngularMomentum) / (G_SN * totalMass * (1 - eccSquared));  // km         - PostSN semi-major axis
         m_SemiMajorAxis = semiMajorAxis_km * KM_TO_AU;                                                                  // AU         - PostSN semi-major axis 
 
 
@@ -1270,7 +1266,7 @@ bool BaseBinaryStar::ResolveSupernova() {
         // (orbitalAngularMomentumVector x eccentricityVector) defines the Y'-axis
         /////////////////////////////////////////////////////////////////////////////////////////
          
-        UpdateSystemicVelocity( centerOfMassVelocity.RotateVector(m_ThetaE, m_PhiE, m_PsiE) );                          // Update the system velocity with the new center of mass velocity
+        UpdateSystemicVelocity(centerOfMassVelocity.RotateVector(m_ThetaE, m_PhiE, m_PsiE));                            // Update the system velocity with the new center of mass velocity
 
 
         /////////////////////////////////////////////////////////////////////////////////////////
@@ -1286,21 +1282,21 @@ bool BaseBinaryStar::ResolveSupernova() {
             m_Unbound = true;
 
             // Calculate the asymptotic Center of Mass velocity 
-            double   relativeVelocityAtInfinity = (G_SN*totalMass/orbitalAngularMomentum)*sqrt(eccSquared - 1);
+            double   relativeVelocityAtInfinity = (G_SN*totalMass/orbitalAngularMomentum) * sqrt(eccSquared - 1);
             Vector3d relativeVelocityVectorAtInfinity = relativeVelocityAtInfinity 
-                                                        * (-1*(eccentricityVector.hat /m_Eccentricity) 
-                                                        + sqrt(1-1.0/eccSquared) *cross(orbitalAngularMomentumVector.hat, eccentricityVector.hat));
+                                                        * (-1 * (eccentricityVector.hat / m_Eccentricity) 
+                                                        + sqrt(1 - 1.0 / eccSquared) * cross(orbitalAngularMomentumVector.hat, eccentricityVector.hat));
 
             // Calculate the asymptotic velocities of Star1 (SN) and Star2 (CP)
-            Vector3d component1VelocityVectorAtInfinity =  (m2/totalMass)*relativeVelocityVectorAtInfinity + centerOfMassVelocity;
-            Vector3d component2VelocityVectorAtInfinity = -(m1/totalMass)*relativeVelocityVectorAtInfinity + centerOfMassVelocity;
+            Vector3d component1VelocityVectorAtInfinity =  (m2 / totalMass) * relativeVelocityVectorAtInfinity + centerOfMassVelocity;
+            Vector3d component2VelocityVectorAtInfinity = -(m1 / totalMass) * relativeVelocityVectorAtInfinity + centerOfMassVelocity;
 
             // Update the component velocities 
-            m_Supernova->UpdateComponentVelocity( component1VelocityVectorAtInfinity.RotateVector(m_ThetaE, m_PhiE, m_PsiE) );
-            m_Companion->UpdateComponentVelocity( component2VelocityVectorAtInfinity.RotateVector(m_ThetaE, m_PhiE, m_PsiE) );
+            m_Supernova->UpdateComponentVelocity(component1VelocityVectorAtInfinity.RotateVector(m_ThetaE, m_PhiE, m_PsiE));
+            m_Companion->UpdateComponentVelocity(component2VelocityVectorAtInfinity.RotateVector(m_ThetaE, m_PhiE, m_PsiE));
 
             // Set Euler Angles 
-            m_ThetaE = angleBetween( orbitalAngularMomentumVectorPrev, orbitalAngularMomentumVector);                   // Angle between the angular momentum unit vectors, always well defined
+            m_ThetaE = angleBetween(orbitalAngularMomentumVectorPrev, orbitalAngularMomentumVector);                   // Angle between the angular momentum unit vectors, always well defined
             m_PhiE   = _2_PI * RAND->Random(); 
             m_PsiE   = _2_PI * RAND->Random(); 
         }
@@ -1314,8 +1310,8 @@ bool BaseBinaryStar::ResolveSupernova() {
 
             // Set the component velocites to the system velocity. System velocity was already correctly set above.
              
-            m_Supernova->UpdateComponentVelocity( centerOfMassVelocity.RotateVector(m_ThetaE, m_PhiE, m_PsiE) );
-            m_Companion->UpdateComponentVelocity( centerOfMassVelocity.RotateVector(m_ThetaE, m_PhiE, m_PsiE) );
+            m_Supernova->UpdateComponentVelocity(centerOfMassVelocity.RotateVector(m_ThetaE, m_PhiE, m_PsiE));
+            m_Companion->UpdateComponentVelocity(centerOfMassVelocity.RotateVector(m_ThetaE, m_PhiE, m_PsiE));
 
             ////////////////////////////////////////////////////////////////////////////////////
             // Calculate Euler angles - see RotateVector() in vector.cpp for details
@@ -1353,8 +1349,8 @@ bool BaseBinaryStar::ResolveSupernova() {
                 else {                                                                                                  // yes - phi is +/- angle between eccentricityVectorPrev and orbitalPivotAxis
                     
                     m_PhiE = utils::Compare( dot(eccentricityVectorPrev, orbitalAngularMomentumVector), 0.0) >= 0 ?     // Are eccentricityVectorPrev and orbitalAngularMomentumVector in the same hemisphere?
-                         angleBetween( eccentricityVectorPrev, orbitalPivotAxis):                                       // yes - phi in [0,pi)
-                        -angleBetween( eccentricityVectorPrev, orbitalPivotAxis);                                       // no  - phi in [-pi,0)
+                         angleBetween(eccentricityVectorPrev, orbitalPivotAxis):                                        // yes - phi in [0,pi)
+                        -angleBetween(eccentricityVectorPrev, orbitalPivotAxis);                                        // no  - phi in [-pi,0)
                 }
 
                 if ( utils::Compare(m_Eccentricity, 0.0) == 0 ) {                                                       // Is eccentricityVector well-defined?
@@ -1363,8 +1359,8 @@ bool BaseBinaryStar::ResolveSupernova() {
                 else {                                                                                                  // yes - psi is +/- angle between eccentricityVector and orbitalPivotAxis
 
                     m_PsiE = utils::Compare( dot(eccentricityVector, orbitalAngularMomentumVectorPrev), 0.0) >= 0 ?     // Are eccentricityVector and orbitalAngularMomentumVectorPrev in the same hemisphere?
-                         angleBetween( eccentricityVector, orbitalPivotAxis):                                           // yes - psi in [0,pi)
-                        -angleBetween( eccentricityVector, orbitalPivotAxis);                                           // no  - psi in [-pi,0)
+                         angleBetween(eccentricityVector, orbitalPivotAxis):                                            // yes - psi in [0,pi)
+                        -angleBetween(eccentricityVector, orbitalPivotAxis);                                            // no  - psi in [-pi,0)
                 }
             }
 

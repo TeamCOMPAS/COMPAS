@@ -1585,7 +1585,7 @@ STELLAR_TYPE GiantBranch::ResolvePairInstabilitySN() {
 
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;
-    m_SupernovaDetails.fallbackFraction  = 0.0;
+    m_SupernovaDetails.fallbackFraction   = 0.0;
 
     SetSNCurrentEvent(SN_EVENT::PISN);                                                                  // pair instability SN happening now
     SetSNPastEvent(SN_EVENT::PISN);                                                                     // ... and will be a past event

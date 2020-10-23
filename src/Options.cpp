@@ -129,6 +129,9 @@ void Options::OptionValues::Initialise() {
     m_PrintBoolAsString                                             = false;
     m_Quiet                                                         = false;
     m_RlofPrinting                                                  = false;
+
+    m_ShortHelp                                                     = true;
+
     m_SwitchLog                                                     = false;
 
     m_nBatchesUsed                                                  = -1;
@@ -180,6 +183,7 @@ void Options::OptionValues::Initialise() {
     m_SemiMajorAxisDistributionPower                                = -1.0;
 
     // Initial orbital period
+    m_OrbitalPeriod                                                 = 0.1;                                                  // Only used if user specified and semi-major axis not specified
     m_PeriodDistributionMin                                         = 1.1;
     m_PeriodDistributionMax                                         = 1000.0;
 
@@ -211,9 +215,9 @@ void Options::OptionValues::Initialise() {
     m_KickMagnitude2                                                = 0.0;                               
 
     // Kick magnitude random number (used to draw kick magnitude if necessary)
-    m_KickMagnitudeRandom                                           = 0.0;                                                  // actual value set later
-    m_KickMagnitudeRandom1                                          = 0.0;                                                  // actual value set later
-    m_KickMagnitudeRandom2                                          = 0.0;                                                  // actual value set later
+    m_KickMagnitudeRandom                                           = 0.0;
+    m_KickMagnitudeRandom1                                          = 0.0;
+    m_KickMagnitudeRandom2                                          = 0.0;
 
     // Mean anomaly
     m_KickMeanAnomaly1                                              = 0.0;                                                  // actual value set later
@@ -228,8 +232,8 @@ void Options::OptionValues::Initialise() {
     m_KickTheta2                                                    = 0.0;                                                  // actual value set later
 
     // Black hole kicks
-    m_BlackHoleKicks.type                                                = BLACK_HOLE_KICKS::FALLBACK;
-    m_BlackHoleKicks.typeString                                          = BLACK_HOLE_KICKS_LABEL.at(m_BlackHoleKicks.type);
+    m_BlackHoleKicks.type                                           = BLACK_HOLE_KICKS::FALLBACK;
+    m_BlackHoleKicks.typeString                                     = BLACK_HOLE_KICKS_LABEL.at(m_BlackHoleKicks.type);
 
 
     // Chemically Homogeneous Evolution
@@ -1102,6 +1106,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
+            "orbital-period",                                          
+            po::value<double>(&p_Options->m_OrbitalPeriod)->default_value(p_Options->m_OrbitalPeriod),                                                                            
+            ("Initial orbital period in days (default = " + std::to_string(p_Options->m_OrbitalPeriod) + ")").c_str()
+        )
+        (
             "orbital-period-max",                                          
             po::value<double>(&p_Options->m_PeriodDistributionMax)->default_value(p_Options->m_PeriodDistributionMax),                                                                            
             ("Maximum period in days to generate (default = " + std::to_string(p_Options->m_PeriodDistributionMax) + ")").c_str()
@@ -1169,7 +1178,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
-            "separation,a",                              
+            "semi-major-axis,a",                              
             po::value<double>(&p_Options->m_SemiMajorAxis)->default_value(p_Options->m_SemiMajorAxis),                                                        
             ("Initial semi-major axis, a (default = " + std::to_string(p_Options->m_SemiMajorAxis) + ")").c_str()
         )        
@@ -1265,7 +1274,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "fryer-supernova-engine",                                      
             po::value<std::string>(&p_Options->m_FryerSupernovaEngine.typeString)->default_value(p_Options->m_FryerSupernovaEngine.typeString),                                                                  
-            ("If using Fryer et al 2012 fallback prescription, select between 'delayed' and 'rapid' engines (default = " + p_Options->m_FryerSupernovaEngine.typeString + ")").c_str()
+            ("If using Fryer et al 2012 fallback prescription. (options: [DELAYED, RAPID], default = " + p_Options->m_FryerSupernovaEngine.typeString + ")").c_str()
         )
 
         (
@@ -1343,7 +1352,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "logfile-delimiter",                                           
             po::value<std::string>(&p_Options->m_LogfileDelimiter.typeString)->default_value(p_Options->m_LogfileDelimiter.typeString),                                                                          
-            ("Field delimiter for logfile records (default = " + p_Options->m_LogfileDelimiter.typeString + ")").c_str()
+            ("Field delimiter for logfile records (options: [TAB, SPACE, COMMA], default = " + p_Options->m_LogfileDelimiter.typeString + ")").c_str()
         )
         (
             "logfile-name-prefix",                                         
@@ -1384,7 +1393,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "mass-transfer-thermal-limit-accretor",                        
             po::value<std::string>(&p_Options->m_MassTransferThermallyLimitedVariation.typeString)->default_value(p_Options->m_MassTransferThermallyLimitedVariation.typeString),                                
-            ("Mass Transfer Thermal Accretion limit (default = " + p_Options->m_MassTransferThermallyLimitedVariation.typeString + ")").c_str()
+            ("Mass Transfer Thermal Accretion limit (options: [CFACTOR, ROCHELOBE], default = " + p_Options->m_MassTransferThermallyLimitedVariation.typeString + ")").c_str()
         )
 
         (
@@ -1410,7 +1419,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Container (directory) name for output files (default = " + p_Options->m_OutputContainerName + ")").c_str()
         )
         (
-            "outputPath,o",                                                
+            "output-path,o",                                                
             po::value<std::string>(&p_Options->m_OutputPathString)->default_value(p_Options->m_OutputPathString)->implicit_value(""),                                                                  
             ("Directory for output (default = " + p_Options->m_OutputPathString + ")").c_str()
         )
@@ -1482,12 +1491,18 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
 
 /*
- *
+ * Sets new values for options that are calculated or drawn from distributions
+ * This is broken out into this function so that that it can be called each time
+ * an options "variation" is advanced
  * 
- * DOCUMENTATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ * Note this is a class OptionValues function.
  * 
  * 
+ * std::string SetCalculatedOptionDefaults(const bool p_ModifyMap)
  * 
+ * @param   [IN]    p_ModifyMap                 Flag indicating whether the Boost variables map should be updated
+ * @return                                      String containing an error string
+ *                                              If no error occurred the return string will be the empty string 
  */
 std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_ModifyMap) {
 #define DEFAULTED(opt) m_VM[opt].defaulted()    // for convenience and readability - undefined at end of function
@@ -1495,34 +1510,6 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
     std::string errStr = "";                                        // error string
 
     try {
-
-        // set "default" values for kick magnitude random number
-        // (used to draw kick magnitude if necessary)
-        // only set if the user did not specify a value
-    
-        if (DEFAULTED("kick-magnitude-random")) {
-            m_KickMagnitudeRandom  = RAND->Random();
-            if (p_ModifyMap) {
-                ModifyVariableMap(m_VM, "kick-magnitude-random", m_KickMagnitudeRandom);
-                po::notify(m_VM);
-            }
-        }
-
-        if (DEFAULTED("kick-magnitude-random-1")) {
-            m_KickMagnitudeRandom1 = RAND->Random();
-            if (p_ModifyMap) {
-                ModifyVariableMap(m_VM, "kick-magnitude-random-1", m_KickMagnitudeRandom1);
-                po::notify(m_VM);
-            }
-        }
-
-        if (DEFAULTED("kick-magnitude-random-2")) {
-            m_KickMagnitudeRandom2 = RAND->Random();
-            if (p_ModifyMap) {
-                ModifyVariableMap(m_VM, "kick-magnitude-random-2", m_KickMagnitudeRandom2);
-                po::notify(m_VM);
-            }
-        }
 
         // set "default" values for mean anomaly
         // only set if the user did not specify a value
@@ -1637,7 +1624,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
 std::string Options::OptionValues::CheckAndSetOptions() {
 #define DEFAULTED(opt) m_VM[opt].defaulted()    // for convenience and readability - undefined at end of function
 
-    std::string errStr = "";                                                                                // error string
+    std::string errStr = "";                                                                                                        // error string
 
     // check & set prescriptions, distributions, assumptions etc. options - alphabetically
 
@@ -1645,104 +1632,104 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         bool found;
 
-        m_FixedRandomSeed  = !DEFAULTED("random-seed");                                                     // use random seed if it is provided by the user
-        m_UseFixedUK       = !DEFAULTED("fix-dimensionless-kick-magnitude") && (m_FixedUK >= 0.0);          // determine if user supplied a valid kick magnitude
+        m_FixedRandomSeed  = !DEFAULTED("random-seed");                                                                             // use random seed if it is provided by the user
+        m_UseFixedUK       = !DEFAULTED("fix-dimensionless-kick-magnitude") && (m_FixedUK >= 0.0);                                  // determine if user supplied a valid kick magnitude
 
 
         // Floor
         /*
-        if (!DEFAULTED("ais-dcotype")) {                                                                    // Adaptive Importance Sampling DCO type
+        if (!DEFAULTED("ais-dcotype")) {                                                                                            // Adaptive Importance Sampling DCO type
             std::tie(found, p_OptionValues->m_AISDCOtype.type) = utils::GetMapKey(p_OptionValues->m_AISDCOtype.typeString, AIS_DCO_LABEL, p_OptionValues->m_AISDCOtype.type);
             return "Unknown AIS DCO Type";
         }
         */
 
-        if (!DEFAULTED("black-hole-kicks")) {                                                               // black hole kicks
+        if (!DEFAULTED("black-hole-kicks")) {                                                                                       // black hole kicks
             std::tie(found, m_BlackHoleKicks.type) = utils::GetMapKey(m_BlackHoleKicks.typeString, BLACK_HOLE_KICKS_LABEL, m_BlackHoleKicks.type);
             COMPLAIN_IF(!found, "Unknown Black Hole Kicks Option");
         }
 
-        if (!DEFAULTED("case-bb-stability-prescription")) {                                                 //case BB/BC mass transfer stability prescription
+        if (!DEFAULTED("case-bb-stability-prescription")) {                                                                         //case BB/BC mass transfer stability prescription
             std::tie(found, m_CaseBBStabilityPrescription.type) = utils::GetMapKey(m_CaseBBStabilityPrescription.typeString, CASE_BB_STABILITY_PRESCRIPTION_LABEL, m_CaseBBStabilityPrescription.type);
             COMPLAIN_IF(!found, "Unknown Case BB/BC Mass Transfer Stability Prescription");
         }
            
-        if (!DEFAULTED("chemically-homogeneous-evolution")) {                                               // Chemically Homogeneous Evolution
+        if (!DEFAULTED("chemically-homogeneous-evolution")) {                                                                       // Chemically Homogeneous Evolution
             std::tie(found, m_CheMode.type) = utils::GetMapKey(m_CheMode.typeString, CHE_MODE_LABEL, m_CheMode.type);
             COMPLAIN_IF(!found, "Unknown Chemically Homogeneous Evolution Option");
         }
 
-        if (!DEFAULTED("common-envelope-lambda-prescription")) {                                            // common envelope lambda prescription
+        if (!DEFAULTED("common-envelope-lambda-prescription")) {                                                                    // common envelope lambda prescription
             std::tie(found, m_CommonEnvelopeLambdaPrescription.type) = utils::GetMapKey(m_CommonEnvelopeLambdaPrescription.typeString, CE_LAMBDA_PRESCRIPTION_LABEL, m_CommonEnvelopeLambdaPrescription.type);
             COMPLAIN_IF(!found, "Unknown CE Lambda Prescription");
         }
 
-        if (!DEFAULTED("common-envelope-mass-accretion-prescription")) {                                    // common envelope mass accretion prescription
+        if (!DEFAULTED("common-envelope-mass-accretion-prescription")) {                                                            // common envelope mass accretion prescription
             std::tie(found, m_CommonEnvelopeMassAccretionPrescription.type) = utils::GetMapKey(m_CommonEnvelopeMassAccretionPrescription.typeString, CE_ACCRETION_PRESCRIPTION_LABEL, m_CommonEnvelopeMassAccretionPrescription.type);
             COMPLAIN_IF(!found, "Unknown CE Mass Accretion Prescription");
         }
             
-        if (!DEFAULTED("envelope-state-prescription")) {                                                    // envelope state prescription
+        if (!DEFAULTED("envelope-state-prescription")) {                                                                            // envelope state prescription
             std::tie(found, m_EnvelopeStatePrescription.type) = utils::GetMapKey(m_EnvelopeStatePrescription.typeString, ENVELOPE_STATE_PRESCRIPTION_LABEL, m_EnvelopeStatePrescription.type);
             COMPLAIN_IF(!found, "Unknown Envelope State Prescription");
         }
 
-        if (!DEFAULTED("eccentricity-distribution")) {                                                      // eccentricity distribution
+        if (!DEFAULTED("eccentricity-distribution")) {                                                                              // eccentricity distribution
             std::tie(found, m_EccentricityDistribution.type) = utils::GetMapKey(m_EccentricityDistribution.typeString, ECCENTRICITY_DISTRIBUTION_LABEL, m_EccentricityDistribution.type);
             COMPLAIN_IF(!found, "Unknown Eccentricity Distribution");
         }
 
-        if (!DEFAULTED("fryer-supernova-engine")) {                                                         // Fryer et al. 2012 supernova engine
+        if (!DEFAULTED("fryer-supernova-engine")) {                                                                                 // Fryer et al. 2012 supernova engine
             std::tie(found, m_FryerSupernovaEngine.type) = utils::GetMapKey(m_FryerSupernovaEngine.typeString, SN_ENGINE_LABEL, m_FryerSupernovaEngine.type);
             COMPLAIN_IF(!found, "Unknown Fryer et al. Supernova Engine");
         }
 
-        if (!DEFAULTED("initial-mass-function")) {                                                          // initial mass function
+        if (!DEFAULTED("initial-mass-function")) {                                                                                  // initial mass function
             std::tie(found, m_InitialMassFunction.type) = utils::GetMapKey(m_InitialMassFunction.typeString, INITIAL_MASS_FUNCTION_LABEL, m_InitialMassFunction.type);
             COMPLAIN_IF(!found, "Unknown Initial Mass Function");
         }
 
-        if (!DEFAULTED("kick-direction")) {                                                                 // kick direction
+        if (!DEFAULTED("kick-direction")) {                                                                                         // kick direction
             std::tie(found, m_KickDirectionDistribution.type) = utils::GetMapKey(m_KickDirectionDistribution.typeString, KICK_DIRECTION_DISTRIBUTION_LABEL, m_KickDirectionDistribution.type);
             COMPLAIN_IF(!found, "Unknown Kick Direction Distribution");
         }
 
-        if (!DEFAULTED("kick-magnitude-distribution")) {                                                    // kick magnitude
+        if (!DEFAULTED("kick-magnitude-distribution")) {                                                                            // kick magnitude
             std::tie(found, m_KickMagnitudeDistribution.type) = utils::GetMapKey(m_KickMagnitudeDistribution.typeString, KICK_MAGNITUDE_DISTRIBUTION_LABEL, m_KickMagnitudeDistribution.type);
             COMPLAIN_IF(!found, "Unknown Kick Magnitude Distribution");
         }
 
-        if (!DEFAULTED("logfile-delimiter")) {                                                              // logfile field delimiter
+        if (!DEFAULTED("logfile-delimiter")) {                                                                                      // logfile field delimiter
             std::tie(found, m_LogfileDelimiter.type) = utils::GetMapKey(m_LogfileDelimiter.typeString, DELIMITERLabel, m_LogfileDelimiter.type);
             COMPLAIN_IF(!found, "Unknown Logfile Delimiter");
         }
 
-        if (!DEFAULTED("mass-loss-prescription")) {                                                         // mass loss prescription
+        if (!DEFAULTED("mass-loss-prescription")) {                                                                                 // mass loss prescription
             std::tie(found, m_MassLossPrescription.type) = utils::GetMapKey(m_MassLossPrescription.typeString, MASS_LOSS_PRESCRIPTION_LABEL, m_MassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown Mass Loss Prescription");
         }
 
-        if (!DEFAULTED("mass-ratio-distribution")) {                                                        // mass ratio distribution
+        if (!DEFAULTED("mass-ratio-distribution")) {                                                                                // mass ratio distribution
             std::tie(found, m_MassRatioDistribution.type) = utils::GetMapKey(m_MassRatioDistribution.typeString, MASS_RATIO_DISTRIBUTION_LABEL, m_MassRatioDistribution.type);
             COMPLAIN_IF(!found, "Unknown Mass Ratio Distribution");
         }
 
-        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-accretion-efficiency-prescription")) {           // mass transfer accretion efficiency prescription
+        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-accretion-efficiency-prescription")) {                                   // mass transfer accretion efficiency prescription
             std::tie(found, m_MassTransferAccretionEfficiencyPrescription.type) = utils::GetMapKey(m_MassTransferAccretionEfficiencyPrescription.typeString, MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL, m_MassTransferAccretionEfficiencyPrescription.type);
             COMPLAIN_IF(!found, "Unknown Mass Transfer Angular Momentum Loss Prescription");
         }
 
-        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-angular-momentum-loss-prescription")) {          // mass transfer angular momentum loss prescription
+        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-angular-momentum-loss-prescription")) {                                  // mass transfer angular momentum loss prescription
             std::tie(found, m_MassTransferAngularMomentumLossPrescription.type) = utils::GetMapKey(m_MassTransferAngularMomentumLossPrescription.typeString, MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL, m_MassTransferAngularMomentumLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown Mass Transfer Angular Momentum Loss Prescription");
         }
 
-        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-rejuvenation-prescription")) {                   // mass transfer rejuvenation prescription
+        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-rejuvenation-prescription")) {                                           // mass transfer rejuvenation prescription
             std::tie(found, m_MassTransferRejuvenationPrescription.type) = utils::GetMapKey(m_MassTransferRejuvenationPrescription.typeString, MT_REJUVENATION_PRESCRIPTION_LABEL, m_MassTransferRejuvenationPrescription.type);
             COMPLAIN_IF(!found, "Unknown Mass Transfer Rejuvenation Prescription");
         }
 
-        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-thermal-limit-accretor")) {                      // mass transfer accretor thermal limit
+        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-thermal-limit-accretor")) {                                              // mass transfer accretor thermal limit
             std::tie(found, m_MassTransferThermallyLimitedVariation.type) = utils::GetMapKey(m_MassTransferThermallyLimitedVariation.typeString, MT_THERMALLY_LIMITED_VARIATION_LABEL, m_MassTransferThermallyLimitedVariation.type);
             COMPLAIN_IF(!found, "Unknown Mass Transfer Accretor Thermal Limit");
 
@@ -1755,52 +1742,52 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             }
         }
 
-        if (!DEFAULTED("mode")) {                                                                           // mode
+        if (!DEFAULTED("mode")) {                                                                                                   // mode
             std::tie(found, m_EvolutionMode.type) = utils::GetMapKey(m_EvolutionMode.typeString, EVOLUTION_MODE_LABEL, m_EvolutionMode.type);
             COMPLAIN_IF(!found, "Unknown Mode");
         }
 
-        if (!DEFAULTED("neutrino-mass-loss-bh-formation")) {                                                // neutrino mass loss assumption
+        if (!DEFAULTED("neutrino-mass-loss-bh-formation")) {                                                                        // neutrino mass loss assumption
             std::tie(found, m_NeutrinoMassLossAssumptionBH.type) = utils::GetMapKey(m_NeutrinoMassLossAssumptionBH.typeString, NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL, m_NeutrinoMassLossAssumptionBH.type);
             COMPLAIN_IF(!found, "Unknown Neutrino Mass Loss Assumption");
         }
 
-        if (!DEFAULTED("neutron-star-equation-of-state")) {                                                 // neutron star equation of state
+        if (!DEFAULTED("neutron-star-equation-of-state")) {                                                                         // neutron star equation of state
             std::tie(found, m_NeutronStarEquationOfState.type) = utils::GetMapKey(m_NeutronStarEquationOfState.typeString, NS_EOSLabel, m_NeutronStarEquationOfState.type);
             COMPLAIN_IF(!found, "Unknown Neutron Star Equation of State");
         }
 
-        if (!DEFAULTED("pulsar-birth-magnetic-field-distribution")) {                                       // pulsar birth magnetic field distribution
+        if (!DEFAULTED("pulsar-birth-magnetic-field-distribution")) {                                                               // pulsar birth magnetic field distribution
             std::tie(found, m_PulsarBirthMagneticFieldDistribution.type) = utils::GetMapKey(m_PulsarBirthMagneticFieldDistribution.typeString, PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL, m_PulsarBirthMagneticFieldDistribution.type);
             COMPLAIN_IF(!found, "Unknown Pulsar Birth Magnetic Field Distribution");
         }
 
-        if (!DEFAULTED("pulsar-birth-spin-period-distribution")) {                                          // pulsar birth spin period distribution
+        if (!DEFAULTED("pulsar-birth-spin-period-distribution")) {                                                                  // pulsar birth spin period distribution
             std::tie(found, m_PulsarBirthSpinPeriodDistribution.type) = utils::GetMapKey(m_PulsarBirthSpinPeriodDistribution.typeString, PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL, m_PulsarBirthSpinPeriodDistribution.type);
             COMPLAIN_IF(!found, "Unknown Pulsar Birth Spin Period Distribution");
         }
 
-        if (!DEFAULTED("pulsational-pair-instability-prescription")) {                                      // pulsational pair instability prescription
+        if (!DEFAULTED("pulsational-pair-instability-prescription")) {                                                              // pulsational pair instability prescription
             std::tie(found, m_PulsationalPairInstabilityPrescription.type) = utils::GetMapKey(m_PulsationalPairInstabilityPrescription.typeString, PPI_PRESCRIPTION_LABEL, m_PulsationalPairInstabilityPrescription.type);
             COMPLAIN_IF(!found, "Unknown Pulsational Pair Instability Prescription");
         }
 
-        if (!DEFAULTED("remnant-mass-prescription")) {                                                      // remnant mass prescription
+        if (!DEFAULTED("remnant-mass-prescription")) {                                                                              // remnant mass prescription
             std::tie(found, m_RemnantMassPrescription.type) = utils::GetMapKey(m_RemnantMassPrescription.typeString, REMNANT_MASS_PRESCRIPTION_LABEL, m_RemnantMassPrescription.type);
             COMPLAIN_IF(!found, "Unknown Remnant Mass Prescription");
         }
 
-        if (!DEFAULTED("rotational-velocity-distribution")) {                                               // rotational velocity distribution
+        if (!DEFAULTED("rotational-velocity-distribution")) {                                                                       // rotational velocity distribution
             std::tie(found, m_RotationalVelocityDistribution.type) = utils::GetMapKey(m_RotationalVelocityDistribution.typeString, ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL, m_RotationalVelocityDistribution.type);
             COMPLAIN_IF(!found, "Unknown Rotational Velocity Distribution");
         }
 
-        if (!DEFAULTED("semi-major-axis-distribution")) {                                                   // semi-major axis distribution
+        if (!DEFAULTED("semi-major-axis-distribution")) {                                                                           // semi-major axis distribution
             std::tie(found, m_SemiMajorAxisDistribution.type) = utils::GetMapKey(m_SemiMajorAxisDistribution.typeString, SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL, m_SemiMajorAxisDistribution.type);
             COMPLAIN_IF(!found, "Unknown Semi-Major Axis Distribution");
         }
 
-        if (!DEFAULTED("stellar-zeta-prescription")) {                                                      // common envelope zeta prescription
+        if (!DEFAULTED("stellar-zeta-prescription")) {                                                                              // common envelope zeta prescription
             std::tie(found, m_StellarZetaPrescription.type) = utils::GetMapKey(m_StellarZetaPrescription.typeString, ZETA_PRESCRIPTION_LABEL, m_StellarZetaPrescription.type);
             COMPLAIN_IF(!found, "Unknown stellar Zeta Prescription");
         }
@@ -1854,14 +1841,14 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(m_NeutrinoMassLossValueBH < 0.0 || m_NeutrinoMassLossValueBH > 1.0, "Neutrino mass loss must be between 0 and 1");
         }
 
-        if (!DEFAULTED("outputPath")) {                                                                     // user specified output path?
-                                                                                                            // yes
-            fs::path userPath = m_OutputPathString;                                                         // user-specifed path
-            if (fs::is_directory(userPath)) {                                                               // valid directory?
-                m_OutputPath = userPath;                                                                    // yes - set outputPath to user-specified path
+        if (!DEFAULTED("output-path")) {                                                                                            // user specified output path?
+                                                                                                                                    // yes
+            fs::path userPath = m_OutputPathString;                                                                                 // user-specifed path
+            if (fs::is_directory(userPath)) {                                                                                       // valid directory?
+                m_OutputPath = userPath;                                                                                            // yes - set outputPath to user-specified path
             }
-            else {                                                                                          // not a valid directory
-                m_OutputPath = m_DefaultOutputPath;                                                         // use default path = CWD
+            else {                                                                                                                  // not a valid directory
+                m_OutputPath = m_DefaultOutputPath;                                                                                 // use default path = CWD
             }
         }
 
@@ -1878,16 +1865,30 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         COMPLAIN_IF(m_WolfRayetFactor < 0.0, "WR multiplier (--wolf-rayet-multiplier) < 0");
 
-        errStr = SetCalculatedOptionDefaults(false);                                                        // set calculated option values
+        COMPLAIN_IF(!DEFAULTED("initial-mass")   && m_InitialMass  <= 0.0, "Initial mass (--initial-mass) <= 0");                   // initial mass must be > 0.0
+        COMPLAIN_IF(!DEFAULTED("initial-mass-1") && m_InitialMass1 <= 0.0, "Primary initial mass (--initial-mass-1) <= 0");         // primary initial mass must be > 0.0
+        COMPLAIN_IF(!DEFAULTED("initial-mass-2") && m_InitialMass2 <= 0.0, "Secondary initial mass (--initial-mass-2) <= 0");       // secondary initial mass must be > 0.0
+
+        COMPLAIN_IF(!DEFAULTED("semi-major-axis") && m_SemiMajorAxis <= 0.0, "Semi-major axis (--semi-major-axis) <= 0");           // semi-major axis must be > 0.0
+        COMPLAIN_IF(!DEFAULTED("orbital-period")  && m_OrbitalPeriod <= 0.0, "Orbital period (--orbital-period) <= 0");             // orbital period must be > 0.0
+
+        // calculate semi-major axis from orbital period if necessary
+        if (DEFAULTED("semi-major-axis")) {                                                                                         // user specified semi-major axis?
+            if (!DEFAULTED("orbital-period")) {                                                                                     // user specified orbital period?
+                m_SemiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(m_InitialMass1, m_InitialMass2, m_OrbitalPeriod);   // yes - calculate separation from period
+            }
+        }
+
+        errStr = SetCalculatedOptionDefaults(false);                                                                                // set calculated option values
     }
-    catch (po::error& e) {                                                                                  // program options exception
-        errStr = e.what();                                                                                  // set the error string
+    catch (po::error& e) {                                                                                                          // program options exception
+        errStr = e.what();                                                                                                          // set the error string
     }
-    catch (const std::string eStr) {                                                                        // custom exception
-        errStr = eStr;                                                                                      // set the error string
+    catch (const std::string eStr) {                                                                                                // custom exception
+        errStr = eStr;                                                                                                              // set the error string
     }
-    catch (...) {                                                                                           // unhandled exception
-        errStr = ERR_MSG(ERROR::UNHANDLED_EXCEPTION);                                                       // set the error string
+    catch (...) {                                                                                                                   // unhandled exception
+        errStr = ERR_MSG(ERROR::UNHANDLED_EXCEPTION);                                                                               // set the error string
     }
 
     return errStr;
@@ -2127,10 +2128,47 @@ std::string Options::OptionDetails(const OptionsDescriptorT &p_Options) {
     ss << "\n\nOTHER PARAMETERS\n----------------\n\n";
 
     ss << "useFixedUK         = " << (p_Options.optionValues.m_UseFixedUK ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";                // useFixedUK
-    ss << "outputPath         = " <<  p_Options.optionValues.m_OutputPath.string() << ", CALCULATED, STRING\n";                         // outputPath (fully qualified)
+    ss << "output-path        = " <<  p_Options.optionValues.m_OutputPath.string() << ", CALCULATED, STRING\n";                         // outputPath (fully qualified)
     ss << "fixedRandomSeed    = " << (p_Options.optionValues.m_FixedRandomSeed ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";           // fixedRandomSeed
 
     return ss.str();
+}
+
+
+/*
+ * Show available options
+ * 
+ * If the p_Verbose parameter is false, just print option names
+ * If the p_Verbose parameter is true, print option names and descriptions
+ * 
+ * 
+ * void PrintOptionHelp(const bool p_Verbose)
+ * 
+ * @param   [IN]    p_Verbose                   Boolean to indicate whether the option descriptions should
+ *                                              be printed (true), or just option names (false)
+ */
+void Options::PrintOptionHelp(const bool p_Verbose) {
+
+    std::cerr << "Options:" << std::endl;
+
+    for (po::variables_map::const_iterator it = m_CmdLine.optionValues.m_VM.begin(); it != m_CmdLine.optionValues.m_VM.end(); it++) {
+  
+        po::option_description const& opt = m_CmdLine.optionDescriptions.find(it->first, false, false, false); 
+
+        std::string optionLongName  = opt.canonical_display_name(cls::allow_long);                          // long name ('--') prefix
+        if (optionLongName[0] == '-') optionLongName.erase(0, optionLongName.find_first_not_of("-"));       // remove the "-" or "--"
+
+        std::string optionShortName = opt.canonical_display_name(cls::allow_dash_for_short);                // short name ('-') prefix
+        if (optionShortName[0] == '-') optionShortName.erase(0, optionShortName.find_first_not_of("-"));    // remove the "-" or "--"
+
+        std::cerr << "--" << optionLongName;
+        if (optionLongName != optionShortName) std::cerr << " [ -" << optionShortName << " ]";
+        std::cerr << std::endl;
+
+        if (p_Verbose) {
+            std::cerr << "  " << opt.description() << std::endl;
+        }
+    }
 }
 
 
@@ -2179,17 +2217,18 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
         for (int iArg = 0; iArg < p_ArgCount; iArg++) {                                                                     // for each arg string
 
-            if (iArg == 0) continue;                                                                                        // ignore the executable name
+            if (iArg <= 1) continue;                                                                                        // step over the executable name
 
             type = COMPLEX_TYPE::NONE;                                                                                      // initially
 
             optionName = p_ArgStrings[iArg - 1];                                                                            // get the option name for the argument we're processing
+            optionName = utils::trim(optionName);                                                                           // trim whitespace
             if (optionName[0] == '-') optionName.erase(0, optionName.find_first_not_of("-"));                               // remove the "-" or "--"
 
             if (p_ArgStrings[iArg] != nullptr) {                                                                            // null arg?
                                                                                                                             // no
                 std::string str(p_ArgStrings[iArg]);                                                                        // convert char* to std::string
-                str = utils::ToLower(utils::trim(str));                                                                     // downshift - for comparisons
+                str = utils::trim(str);                                                                                     // trim whitespace
 
                 // check for RANGE or SET
                 // range is indicated by 'range[start,count,inc]', 'r[start,count,inc]', or just '[start,count,inc]'
@@ -2302,48 +2341,24 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
         po::store(parsedOptions, p_OptionsDescriptor.optionValues.m_VM);                                                    // store parsed options into variable map
         po::notify(p_OptionsDescriptor.optionValues.m_VM);                                                                  // populate the variables with option values
 
+        // this is our opportunity to distinguish beteen "-h" and "--help" (if specified)
+        for (auto& entry : parsedOptions.options) {
+            po::option_description const& opt = p_OptionsDescriptor.optionDescriptions.find(entry.string_key, false, false, false); 
+            std::string thisTok = entry.original_tokens[0];
+            if (!thisTok.empty()) {
+                if ((opt.canonical_display_name(cls::allow_dash_for_short) == "-h")      ||
+                    (opt.canonical_display_name(cls::allow_long)           == "--help")) {
+                    p_OptionsDescriptor.optionValues.m_ShortHelp = thisTok == "-h";
+                }
+            }
+        }
+
+
         // If we've made it this far then boost parsed the commandline arguments ok.
         //
-        // If there were any ranges or sets specified by the user we can now work
-        // out the data types of the options for which they (the ranges/sets) were
-        // specified and sanity check them.
-        //
-/*        
-        // But... because of the way Boost works (maybe one day we'll ditch Boost
-        // and parse the options ourselves...) we also have to replace the values
-        // for any options changed here manually.  Let me explain...  The Boost
-        // options_description object holds the descriptions of all the options we
-        // want to allow users to specify - either on the commandline or in the
-        // grid file.  We populate that object by calling AddOptions() - and we do
-        // that once in Initialise().  We don't really want to do it for every
-        // grid file record - that would be unnecessary overhead.  Except that it
-        // is kind-of necessary because, as I said earlier, of the way Boost works.
-        // So, once we've populated the options_description object, we can then
-        // have Boost parse (what it thinks are) our commandline options - and when
-        // it does that it updates the options_description object to indicate which
-        // options were specified on the commandline and have been parsed and values
-        // set.  When it does that it marks the options with values specified as
-        // "final" and, no matter how many times we parse a new grid line with
-        // options specified, if the option values were previously marked as "final"
-        // by Boost, it steadfastly refuses to change the value.  Fair enough -
-        // that's how it works - but it makes doing what we do here a little more
-        // complicated.  It turns out I can't get in and change the "final" flag
-        // inside the Boost construct (not easily anyway, that I know of).  What I
-        // can do, though, is overwrite the value that is considered to be "final"!
-        // Go figure... But I have to get in and do it manually - Boost won't do it
-        // for me (it considers the value "final").  That's ok, I can do that - and
-        // it's still quicker than repopulating the options_description object for
-        // each grid line (although, having now written the code I'm starting to doubt
-        // the veracity of that statement - given how much work I have to do to
-        // replace the value it might actually be faster just to repopulate - maybe
-        // we should benchmark it one day).
-        //
-        // So... here we not only sanity check the ranges and sets, we also manually
-        // set the values for any options that were specified on the commandline or
-        // grid line we just parsed.  We set the values for options that have ranges
-        // or sets specified to the first value in the range or set.
-*/
-        //
+        // If there were any ranges or sets specified by the user we can now work out the 
+        // data types of the options for which they (the ranges/sets) were specified and 
+        // sanity check them.
         //
         // First iterate through the specified ranges and sets to sanity check - and
         // manually set the value for the option to the first value in the range or set.
@@ -2358,14 +2373,46 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
         // evolution fail if an option value is bad (we don't want to read through every
         // record of a grid file and check...)
 
-/*        
-        //
-        // Next, iterate through all other options that were specified on the commandline
-        // or grid line and manually set the value as required.
-*/
-
         if (errStr.empty()) {                                                                                               // no need if we've already flagged an error
 
+            // Now's a good time to pull out SSE-only/BSE-only options that we want to ignore
+            // We really only need to remove the complex options - the COMPAS code naturally
+            // ignores BSE options when in SSE mode and vice-versa.  The only reason we want
+            // to remove the complex options is that we don't want to iterate over them and
+            // produce too many stars/binaries (see explanation of m_SSEOnly and m_BSEOnly
+            // in constants.h).
+            //
+            // First, loop through the complex options and identify the indices of the options
+            // we want to remove.
+            std::vector<int> removeOpts = {};                                                                               // vector of option indices to be removed
+            for (size_t iOpt = 0; iOpt < p_OptionsDescriptor.complexOptionValues.size(); iOpt++) {                          // for each range or set specified
+        
+                std::string opt = get<0>(p_OptionsDescriptor.complexOptionValues[iOpt]);                                    // option name
+
+                if (m_CmdLine.optionValues.m_EvolutionMode.typeString == "bse") {                                           // BSE?
+                    if (std::find(m_SSEOnly.begin(), m_SSEOnly.end(), opt) != m_SSEOnly.end()) removeOpts.push_back(iOpt);  // remove SSE only option
+                }
+                else {                                                                                                      // SSE
+                    if (std::find(m_BSEOnly.begin(), m_BSEOnly.end(), opt) != m_BSEOnly.end()) removeOpts.push_back(iOpt);  // remove BSE only option
+                }
+            }
+
+            // We now know the indices of options we want to remove from the complex options,
+            // so we can loop through and remove them.
+            // This only works because the removeOpts vector is populated in the same order as
+            // the complexOptionValues vector - that allows me to loop through complexOptionValues
+            // in reverse order to delete elements (otherwise the index numbers would change from 
+            // under me as I was deleting them)
+
+            int removeCount(removeOpts.size());
+            if (removeCount > 0) {                                                                                          // anything to remove?
+                for (int iOpt = removeCount - 1; iOpt >= 0; iOpt--) {                                                       // loop through all complex options identified to be removed
+                    p_OptionsDescriptor.complexOptionValues.erase(p_OptionsDescriptor.complexOptionValues.begin() + removeOpts[iOpt]);                                                    // erase it
+                }
+            }
+
+
+            // ok, now process the list of complex options
             RangeOrSetDescriptorT details = {};
 
             size_t count = p_OptionsDescriptor.complexOptionValues.size();                                                  // count of complex values (ranges or sets)
@@ -2399,128 +2446,147 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                             switch (dataType) {                                                                             // which data type?
 
                                 case TYPENAME::INT: {                                                                       // INT
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_INT) + std::string(" '") + optionName  + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
                                     try {
                                         RangeParameterT tmp = {0.0L};                                                       // dummy value
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
 
-                                        details.rangeParms[0].iVal   = std::stoi(details.parameters[0]);                    // integer start
-                                        details.rangeParms[2].iVal   = std::stoi(details.parameters[2]);                    // integer inc
+                                        size_t lastChar;
+                                        details.rangeParms[0].iVal   = std::stoi(details.parameters[0], &lastChar);         // integer start
+                                        COMPLAIN_IF(lastChar != details.parameters[0].size(), complaint1);                  // not a valid int
+                                        details.rangeParms[2].iVal   = std::stoi(details.parameters[2], &lastChar);         // integer inc
+                                        COMPLAIN_IF(lastChar != details.parameters[2].size(), complaint1);                  // not a valid int
 
                                         try {
-                                            details.rangeParms[1].ulVal = std::stoul(details.parameters[1]);                // unsigned long int count
+                                            size_t lastChar;
+                                            details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
+                                            COMPLAIN_IF(lastChar != details.parameters[1].size(), complaint2);              // not a valid unsigned long int
 
                                             p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
-
-//                                            p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, details.rangeParms[0].iVal); // update Boost variable map
-//                                            po::notify(p_OptionsDescriptor.optionValues.m_VM);                              // propagate the change
-
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
-                                            errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
+                                            errStr = complaint2;
                                         }
                                     }
                                     catch (const std::out_of_range& e) {                                                    // not a valid int
-                                        errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_INT) + std::string(" '") + optionName  + std::string("'");
+                                        errStr = complaint1;
                                     }
                                 } break;
 
                                 case TYPENAME::LONGINT: {                                                                   // LONG INT
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_LINT) + std::string(" '") + optionName  + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
                                     try {
                                         RangeParameterT tmp = {0.0};                                                        // dummy value
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
 
-                                        details.rangeParms[0].lVal = std::stol(details.parameters[0]);                      // unsigned long int start
-                                        details.rangeParms[2].lVal = std::stol(details.parameters[2]);                      // unsigned long int inc
+                                        size_t lastChar;
+                                        details.rangeParms[0].lVal = std::stol(details.parameters[0], &lastChar);           // unsigned long int start
+                                        COMPLAIN_IF(lastChar != details.parameters[0].size(), complaint1);                  // not a valid long int
+                                        details.rangeParms[2].lVal = std::stol(details.parameters[2], &lastChar);           // unsigned long int inc
+                                        COMPLAIN_IF(lastChar != details.parameters[2].size(), complaint1);                  // not a valid long int
 
                                         try {
-                                            details.rangeParms[1].ulVal = std::stol(details.parameters[1]);                 // unsigned long int count
+                                            size_t lastChar;
+                                            details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
+                                            COMPLAIN_IF(lastChar != details.parameters[1].size(), complaint2);              // not a valid unsigned long int
 
                                             p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
-
-//                                            p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, details.rangeParms[0].lVal); // update Boost variable map
-//                                            po::notify(p_OptionsDescriptor.optionValues.m_VM);                              // propagate the change
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
-                                            errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
+                                            errStr = complaint2;
                                         }
                                     }
                                     catch (const std::out_of_range& e) {                                                    // not a valid long int
-                                        errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_LINT) + std::string(" '") + optionName  + std::string("'");
+                                        errStr = complaint1;
                                     }
                                 } break;
 
                                 case TYPENAME::ULONGINT: {                                                                  // UNSIGNED LONG INT
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
                                     try {
                                         RangeParameterT tmp = {0.0};                                                        // dummy value
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
 
-                                        details.rangeParms[0].ulVal = std::stoul(details.parameters[0]);                    // unsigned long int start
-                                        details.rangeParms[2].ulVal = std::stoul(details.parameters[2]);                    // unsigned long int inc
+                                        size_t lastChar;
+                                        details.rangeParms[0].ulVal = std::stoul(details.parameters[0], &lastChar);         // unsigned long int start
+                                        COMPLAIN_IF(lastChar != details.parameters[0].size(), complaint1);                  // not a valid unsigned long int
+                                        details.rangeParms[2].ulVal = std::stoul(details.parameters[2], &lastChar);         // unsigned long int inc
+                                        COMPLAIN_IF(lastChar != details.parameters[2].size(), complaint1);                  // not a valid unsigned long int
 
                                         try {
-                                            details.rangeParms[1].ulVal = std::stoul(details.parameters[1]);                // unsigned long int count
+                                            size_t lastChar;
+                                            details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
+                                            COMPLAIN_IF(lastChar != details.parameters[2].size(), complaint2);              // not a valid unsigned long int
 
                                             p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
-
-//                                            p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, details.rangeParms[0].ulVal); // update Boost variable map
-//                                            po::notify(p_OptionsDescriptor.optionValues.m_VM);                              // propagate the change
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
-                                            errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
+                                            errStr = complaint2;
                                         }
                                     }
                                     catch (const std::out_of_range& e) {                                                    // not a valid unsigned long int
-                                        errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
+                                        errStr = complaint1;
                                     }
                                 } break;
 
                                 case TYPENAME::FLOAT: {                                                                     // FLOAT
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP) + std::string(" '") + optionName  + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
                                     try {
                                         RangeParameterT tmp = {0.0};                                                        // dummy value
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
 
-                                        details.rangeParms[0].dVal = std::stod(details.parameters[0]);                      // floating point start
-                                        details.rangeParms[2].dVal = std::stod(details.parameters[2]);                      // floating point inc
+                                        size_t lastChar;
+                                        details.rangeParms[0].dVal = std::stod(details.parameters[0], &lastChar);           // floating point start
+                                        COMPLAIN_IF(lastChar != details.parameters[0].size(), complaint1);                  // not a valid double
+                                        details.rangeParms[2].dVal = std::stod(details.parameters[2], &lastChar);           // floating point inc
+                                        COMPLAIN_IF(lastChar != details.parameters[2].size(), complaint1);                  // not a valid double
 
                                         try {
-                                            details.rangeParms[1].ulVal = std::stoul(details.parameters[1]);                // unsigned long int count
+                                            size_t lastChar;
+                                            details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
+                                            COMPLAIN_IF(lastChar != details.parameters[1].size(), complaint2);              // not a valid unsigned long int
 
                                             p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
-
-//                                            p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, details.rangeParms[0].dVal); // update Boost variable map
-//                                            po::notify(p_OptionsDescriptor.optionValues.m_VM);                              // propagate the change
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
-                                            errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
+                                            errStr = complaint2;
                                         }
                                     }
                                     catch (const std::out_of_range& e) {                                                    // not a valid floating point number
-                                        errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP) + std::string(" '") + optionName  + std::string("'");
+                                        errStr = complaint1;
                                     }
                                 } break;
 
                                 case TYPENAME::LONGDOUBLE: {                                                                // LONG DOUBLE
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_LFP) + std::string(" '") + optionName  + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
                                     try {
                                         RangeParameterT tmp = {0.0};                                                        // dummy value
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
 
-                                        details.rangeParms[0].ldVal = std::stold(details.parameters[0]);                    // long double start
-                                        details.rangeParms[2].ldVal = std::stold(details.parameters[2]);                    // long double inc
+                                        size_t lastChar;
+                                        details.rangeParms[0].ldVal = std::stold(details.parameters[0], &lastChar);         // long double start
+                                        COMPLAIN_IF(lastChar != details.parameters[0].size(), complaint1);                  // not a valid long double
+                                        details.rangeParms[2].ldVal = std::stold(details.parameters[2], &lastChar);         // long double inc
+                                        COMPLAIN_IF(lastChar != details.parameters[2].size(), complaint1);                  // not a valid long double
 
                                         try {
-                                            details.rangeParms[1].ulVal = std::stoul(details.parameters[1]);                // unsigned long int count
+                                            size_t lastChar;
+                                            details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
+                                            COMPLAIN_IF(lastChar != details.parameters[1].size(), complaint2);              // not a valid unsigned long int
 
                                             p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
-
-//                                            p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, details.rangeParms[0].ldVal); // update Boost variable map
-//                                            po::notify(p_OptionsDescriptor.optionValues.m_VM);                              // propagate the change
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
-                                            errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
+                                            errStr = complaint2;
                                         }
                                     }
                                     catch (const std::out_of_range& e) {                                                    // not a valid long double point number
-                                        errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_LFP) + std::string(" '") + optionName  + std::string("'");
+                                        errStr = complaint1;
                                     }
                                 } break;
                                 
@@ -2551,11 +2617,8 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                             }
                         }
                         else if (dataType == TYPENAME::BOOL) {                                                              // bool?
-                            // we allow boolean set values to be specified as 1|0, T|F, TRUE|FALSE, Y|N, YES|NO, ON|OFF - but not mixed
-                            // i.e. all must be 0|1, or all must be T|F, or all must be TRUE|FALSE etc. - case is not significant (downshifted already)
-                            // Boost doesn't recognise T|F or Y|N so we have to expand those.  Maybe we should also not allow them - we only allow
-                            // them in a SET - we don't want users to assume they can use them for individual options (i.e. not in a SET), because
-                            // Boost will just reject them.  For now I'll leave them in.
+                            // we allow boolean set values to be specified as 1|0, TRUE|FALSE, YES|NO, ON|OFF - but not mixed
+                            // i.e. all must be 0|1, or all must be TRUE|FALSE etc. - case is not significant (downshifted already)
 
                             size_t checks[4] = {0};                                                                         // all (Boost) boolean representations
                             for (size_t ip = 0; ip < parms.size(); ip++) {                                                  // yes - for each set parameter specified
@@ -2572,60 +2635,11 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                     break;
                                 }
                             }
-
                             if (error || validCheck == 0) errStr = ERR_MSG(ERROR::ARGUMENT_SET_EXPECTED_BOOL) + std::string(" '") + optionName  + std::string("'");
                         }
 
                         if (!error) {
                             p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details);            // reset values
-/*
-                            switch (details.dataType) {                                                                     // which data type?
-                                 // these should cover our options for now - but we might have to refine them over time
-
-                                 case TYPENAME::INT: {                                                                      // INT
-                                     int thisVal = std::stoi(parms[0]);
-//                                     p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal);
-//                                     po::notify(p_OptionsDescriptor.optionValues.m_VM);
-                                 }   break;
-
-                                 case TYPENAME::LONGINT: {                                                                  // LONG INT
-                                     long int thisVal = std::stol(parms[0]);
-//                                     p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal);
-//                                     po::notify(p_OptionsDescriptor.optionValues.m_VM);
-                                 }   break;
-
-                                 case TYPENAME::ULONGINT: {                                                                 // UNSIGNED LONG INT
-                                     unsigned long int thisVal = std::stoul(parms[0]);
-//                                     p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal);
-//                                     po::notify(p_OptionsDescriptor.optionValues.m_VM);
-                                 }   break;
-
-                                 case TYPENAME::FLOAT: {                                                                    // FLOAT
-                                     double thisVal = std::stod(parms[0]);                    
-//                                     p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal);
-//                                     po::notify(p_OptionsDescriptor.optionValues.m_VM);
-                                }   break;
-
-                                 case TYPENAME::LONGDOUBLE: {                                                               // LONG DOUBLE
-                                     long double thisVal = std::stold(parms[0]);                    
-//                                     p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal);
-//                                     po::notify(p_OptionsDescriptor.optionValues.m_VM);
-                                 }   break;
-
-                                 case TYPENAME::BOOL: {                                                                     // BOOL
-                                     bool thisVal = utils::IsBOOL(parms[0]) > 0;                                            // already checked to be valid - just need to know if true or false
-//                                     p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal);
-//                                     po::notify(p_OptionsDescriptor.optionValues.m_VM);
-                                 }   break;
-
-                                 case TYPENAME::STRING: {                                                                   // STRING
-//                                     p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, parms[0]);
-//                                     po::notify(p_OptionsDescriptor.optionValues.m_VM);
-                                 }   break;
-                                
-                                 default: break;                                                                            // already checked before we get here
-                             }
-*/            
                         }
                     }
                 }
@@ -2636,114 +2650,6 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
                 if (error) break;                                                                                           // stop now
             }
-    
-            // ok, ranges and sets done - now manually set values for other options
-            // we don't have to do so many checks here - by the time we get here much
-            // has already been checked and validated
-/*
-            if (errStr.empty()) {                                                                                           // no need if we've already flagged an error
-
-                int complexCount = p_OptionsDescriptor.complexOptionValues.size();                                          // count of complex values (ranges or sets)
-
-                if ((p_ArgCount - 1 - complexCount) > 0) {                                                                  // options other than those with ranges or sets specified?
-                                                                                                                            // yes - process them
-                    for (int iArg = 1; iArg < p_ArgCount; iArg ++) {                                                        // for each arg string (except the executable/placeholder)
-                        std::string optionName(p_ArgStrings[iArg]);                                                         // get the option name
-                        if (optionName[0] == '-') optionName.erase(0, optionName.find_first_not_of("-"));                   // remove the "-" or "--"
-
-                        bool complex = false;                                                                               // initially
-                        int iComplexArg = 0;                                                                                // first complex option
-                        while (!complex && iComplexArg < complexCount) {                                                    // check all complex options
-                            if (optionName == get<0>(p_OptionsDescriptor.complexOptionValues[iComplexArg])) {               // this option is complex option?
-                                complex = true;                                                                             // yes
-                            }
-                            iComplexArg++;                                                                                  // next complex option
-                        }
-                        
-                        if (!complex) {                                                                                     // this option complex?
-                                                                                                                            // no - replace the value
-                            std::string optionValue = "";
-                            if (iArg + 1 < p_ArgCount) optionValue = std::string(p_ArgStrings[iArg + 1]);                   // get the (potential) option value string
-
-                            po::variables_map::const_iterator it = p_OptionsDescriptor.optionValues.m_VM.find(optionName);  // find the option in the boost variables map
-                            if (it != p_OptionsDescriptor.optionValues.m_VM.end()) {                                        // found?
-
-                                TYPENAME dataType = TYPENAME::NONE;                                                         // yes
-                                std::tie(dataType, std::ignore, std::ignore, std::ignore) = OptionAttributes(p_OptionsDescriptor.optionValues.m_VM, it); // data type
-
-                                // don't need to wrap the conversions in try/catch here - already validated
-                                switch (dataType) {                                                                         // which data type?
-                                    // these should cover our options for now - but we might have to refine them over time
-
-                                    case TYPENAME::INT: {                                                                   // INT
-                                        int thisVal = std::stoi(optionValue);                                               // convert to int
-//                                        p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal); // update Boost variable map
-//                                        po::notify(p_OptionsDescriptor.optionValues.m_VM);                                  // propagate the change
-                                    } break;
-
-                                    case TYPENAME::LONGINT: {                                                               // LONG INT
-                                        long int thisVal = std::stol(optionValue);                                          // convert to long int
-//                                        p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal); // update Boost variable map
-//                                        po::notify(p_OptionsDescriptor.optionValues.m_VM);                                  // propagate the change
-                                    } break;
-
-                                    case TYPENAME::ULONGINT: {                                                              // UNSIGNED LONG INT
-                                        unsigned long int thisVal = std::stoul(optionValue);                                // convert to unsigned long int
-//                                        p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal); // update Boost variable map
-//                                        po::notify(p_OptionsDescriptor.optionValues.m_VM);                                  // propagate the change
-                                    } break;
-
-                                    case TYPENAME::FLOAT: {                                                                 // FLOAT
-                                        double thisVal = std::stod(optionValue);                                            // convert to double                   
-//                                        p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal); // update Boost variable map
-//                                        po::notify(p_OptionsDescriptor.optionValues.m_VM);                                  // propagate the change
-                                    } break;
-
-                                    case TYPENAME::LONGDOUBLE: {                                                            // LONG DOUBLE
-                                        long double thisVal = std::stold(optionValue);                                      // convert to lomg double                   
-//                                        p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal); // update Boost variable map
-//                                        po::notify(p_OptionsDescriptor.optionValues.m_VM);                                  // propagate the change
-                                    } break;
-
-                                    case TYPENAME::BOOL: {                                                                  // BOOL
-                                        // convert option value to bool
-                                        // boolean options can be specified with no value, in which case the value is
-                                        // assumed to be true (specifying the option with no value means enable it)
-                                        // first check whether value starts with '--', then '-*', where * is any alpha
-                                        // if either of those is true assume the value is an option string, so no value
-                                        // was specified.
-                                        // if neither is true, try to convert the value to a boolean.
-
-                                        bool haveValue = true;                                                              // whether the user specified a value - default true
-                                        if (optionValue.length() > 1 && optionValue[0] == '-') {                            // check for '--' or '-*' (* is alpga character)
-                                            if (optionValue[1] == '-') haveValue = false;                                   // '--' - no value
-                                            else if (isalpha(optionValue[1])) haveValue = false;                            // '-*', where * is alpha character - no value
-                                        }
-
-                                        bool thisVal = true;                                                                // default
-                                        if (haveValue) {                                                                    // user specified a value?
-                                            int boolVal = utils::IsBOOL(optionValue);                                       // yes - try to convert it to a boolean
-                                            if (boolVal == 0) COMPLAIN(ERR_MSG(ERROR::INVALID_VALUE_FOR_BOOLEAN_OPTION));   // not a boolean - complain
-                                            thisVal = boolVal < 0 ? false : true;                                           // is a boolean - set value
-                                        }
-//                                        p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal); // update Boost variable map
-//                                        po::notify(p_OptionsDescriptor.optionValues.m_VM);                                  // propagate the change
-                                    } break;
-
-                                    case TYPENAME::STRING: {                                                                // STRING
-//                                        p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, optionValue); // update Boost variable map
-//                                        po::notify(p_OptionsDescriptor.optionValues.m_VM);                                  // propagate the change
-                                    } break;
-                                
-                                    default:                                                                                // that's a problem...
-                                        COMPLAIN(ERR_MSG(ERROR::INVALID_DATA_TYPE));                                        // complain
-                                }            
-                            }
-                        }
-                    }
-                }
-            }
-*/
         }
     }
     catch (po::error& e) {                                                                                                  // program options exception
@@ -2785,12 +2691,19 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
 
     bool ok = true;                                                                                                 // status - unless something changes
 
+    // first, dowshift all options
+    for (int iArg = 0; iArg < p_ArgCount; iArg++) {
+        int s = strlen(p_ArgStrings[iArg]);
+        for (int i = 0; i < s; i++)
+            p_ArgStrings[iArg][i] = tolower(p_ArgStrings[iArg][i]);
+    }
+
     try {
 
         m_CmdLine.optionValues.Initialise();                                                                        // initialise option variables for program-level options
         m_GridLine.optionValues.Initialise();                                                                       // initialise option variables for evolving object-level options
 
-        po::options_description programLevelOptions("Program Options");                                             // boost options descriptions object for program-level options
+        po::options_description programLevelOptions("Program Options", 128);                                        // boost options descriptions object for program-level options
         ok = AddOptions(&m_CmdLine.optionValues, &programLevelOptions);                                             // ... add
         if (!ok) {                                                                                                  // ok?
             COMPLAIN(ERR_MSG(ERROR::BOOST_OPTION_CMDLINE));                                                         // no, complain - this throws an exception
@@ -2816,11 +2729,9 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
 
                     m_CmdLineOptionsDetails = OptionDetails(m_CmdLine);                                             // yes - get Run_Details contents
 
-                    // initialise evolving object-level options.  The values of options specified in a 
-                    // grid file take precedence over the values of the same options specified on the 
-                    // commandline, but only for the object (star/binary) corresponding to the grid file
-                    // record.
-
+                    // initialise evolving object-level options.  The values of options specified in a grid file
+                    // take precedence over the values of the same options specified on the commandline, but only
+                    // for the object (star/binary) corresponding to the grid file record.
                     po::options_description objectLevelOptions("Program Options");                                  // boost options descriptions object for per object (star/binary) options
                     ok = AddOptions(&m_GridLine.optionValues, &objectLevelOptions);                                 // ... add
                     if (!ok) {                                                                                      // ok?
@@ -2852,17 +2763,17 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
     }
     catch (po::error& e) {                                                                                          // program options exception
         std::cerr << ERR_MSG(ERROR::PROGRAM_OPTIONS_ERROR) << ": " << e.what() << std::endl;                        // show the problem
-        std::cerr << m_CmdLine.optionDescriptions << std::endl;                                                     // show help
+        std::cerr << ERR_MSG(ERROR::SUGGEST_HELP) << std::endl;                                                     // suggest using --help
         ok = false;                                                                                                 // set status
     } 
     catch (const std::string eStr) {                                                                                // custom exception
         std::cerr << ERR_MSG(ERROR::PROGRAM_OPTIONS_ERROR) << ": " << eStr << std::endl;                            // show the problem
-        std::cerr << m_CmdLine.optionDescriptions << std::endl;                                                     // show help
+        std::cerr << ERR_MSG(ERROR::SUGGEST_HELP) << std::endl;                                                     // suggest using --help
         ok = false;                                                                                                 // set status
     }
     catch (...) {                                                                                                   // unhandled exception
         std::cerr << ERR_MSG(ERROR::PROGRAM_OPTIONS_ERROR) << ": " << ERR_MSG(ERROR::UNHANDLED_EXCEPTION) << std::endl; // show the problem
-        std::cerr << m_CmdLine.optionDescriptions << std::endl;                                                     // show help
+        std::cerr << ERR_MSG(ERROR::SUGGEST_HELP) << std::endl;                                                     // suggest using --help
         ok = false;                                                                                                 // set status
     }
 
@@ -2873,18 +2784,20 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
 
 
 /*
- * Advances the grid line options to the next variation.  A "variation" is   CHANGE THIS DOCUMENTATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- * a combination of options defined by the option values, ranges, and sets
- * the user specified (in this case) on the grid file line.
+ * Advances the command or grid line options to the next variation (depending
+ * upon th eparameters passed).  A "variation" is a combination of options 
+ * defined by the option values, ranges, and sets the user specified on the
+ * commandline or grid file line.
  * 
- * When the grid file line is read and parsed, the option values are set to
- * the initial variation of range and set values, then once that is processed
+ * When the commandline or grid file line is parsed, the option values are set
+ * to the initial variation of range and set values, then once that is processed
  * this function is called to advance to the next variation - the ranges and
  * sets are played out in order.
  * 
  * 
- * int AdvanceGridLineOptionValues()
+ * int AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor)
  * 
+ * @param   [IN]    p_OptionsDescriptor         Commandline or grid line options descriptor
  * @return                                      Int result:
  *                                                  -1: en error occurred
  *                                                   0: no more variations - all done
@@ -2896,30 +2809,27 @@ int Options::AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor) {
 
     if (p_OptionsDescriptor.complexOptionValues.size() == 0) return retVal;
 
-    if (!p_OptionsDescriptor.optionValues.SetCalculatedOptionDefaults(true).empty()) return -1;
-
-    // upon entry iterators for ranges and sets need to be advanced in order
+    // Upon entry iterators for ranges and sets need to be advanced in order
     // to pick up the correct values to be loaded into the options.  Really
     // all we need to do is pick up the inner (fastest-counting) iterator (the
     // right-most in terms of placement on the commandline).  If we have to 
     // wrap-around to get that value, then we have to increment the next outer
     // (immediately left) iterator.
     
-    // traverse each of the complex option values and gather the option values
-    // we only need values for the options that have changing values
-    // values have already been sanity checked by the time we get here
-    // we traverse the complex options values in reverse order because the
+    // Traverse each of the complex option values and gather the option values.
+    // We only need values for the options that have changing values.
+    // Values have already been sanity checked by the time we get here.
+    // We traverse the complex options values in reverse order because the
     // fastest change is to the right...
 
     bool stop  = false;                                                 // stop once we have all the values we need
-    size_t idx = p_OptionsDescriptor.complexOptionValues.size() - 1;
+    int idx = p_OptionsDescriptor.complexOptionValues.size() - 1;
     while (!stop && idx >= 0) {
 
         stop = true;                                                    // assume we have what we need
 
         std::string optionName        = get<0>(p_OptionsDescriptor.complexOptionValues[idx]);        
         RangeOrSetDescriptorT details = get<1>(p_OptionsDescriptor.complexOptionValues[idx]);
-
         details.currPos++;                                              // advance iterator
 
         if (details.type == COMPLEX_TYPE::SET) {                        // SET
@@ -3047,29 +2957,18 @@ int Options::AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor) {
 
                 default: break;                                         // already checked before we get here
             }
-
         }
 
-        p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details);  // reset values
+        p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
 
-        bool skip = false;
-        if (stop) {                                                                                             // do we think we're done?
-                                                                                                                // yes, but should we skip this variation?
-            if (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::BSE) {                           // BSE?
-                if (std::find(m_SSEOnly.begin(), m_SSEOnly.end(), optionName) != m_SSEOnly.end()) skip = true;  // skip SSE only option
-            }
-            else {                                                                                              // SSE
-                if (std::find(m_BSEOnly.begin(), m_BSEOnly.end(), optionName) != m_BSEOnly.end()) skip = true;  // skip BSE only option
-            }
-        }
-
-        if (!skip) {                                                                                            // skip this variation?
-            retVal = 1;                                                                                         // no - set return value
-            idx--;                                                                                              // next (outer) iterator
-        }                
+        retVal = 1;                                                     // set return value
+        idx--;                                                          // next (outer) iterator
     }
 
-    p_OptionsDescriptor.optionValues.CheckAndSetOptions();
+    std::string errStr = p_OptionsDescriptor.optionValues.CheckAndSetOptions();
+    if (!errStr.empty()) std::cerr << ERR_MSG(ERROR::PROGRAM_OPTIONS_ERROR) << ": " << errStr << std::endl; // show the problem
+
+    retVal = errStr.empty() ? retVal : -1;
 
     return retVal;
 }
@@ -3096,6 +2995,8 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
 
         m_GridLine.optionValues.Initialise();                                                                       // initialise option variables for evolving object-level options
 
+        std::string optionsString = utils::ToLower(p_OptionsString);                                                // first downshift all options
+
         // parse the option string (just as the OS/shell would do)
 
         std::vector<std::string> parsedStrings;                                                                     // parsed option strings
@@ -3104,9 +3005,10 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
         size_t end        = 0;                                                                                      // end position of parsed option strinf
         std::string delim = " ";                                                                                    // delimiter
         while (end != std::string::npos) {                                                                          // iterate over input string
-            end = p_OptionsString.find(delim, start);                                                               // find delimiter
-            std::string s = p_OptionsString.substr(start, end - start);                                             // grab option/argument string
-            parsedStrings.push_back(utils::trim(s));                                                                // trim whitespace and store
+            end = optionsString.find(delim, start);                                                                 // find delimiter
+            std::string str = optionsString.substr(start, end - start);                                             // grab option/argument string
+            std::string trimmedStr = utils::trim(str);                                                              // trim whitespace
+            if (!trimmedStr.empty()) parsedStrings.push_back(trimmedStr);                                           // store if not empty string
             start = end + delim.length();                                                                           // new start position
         }
     
@@ -3177,9 +3079,9 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
                 }
             }
 
-            // remove any argument strings identified as being excluded options
-            // and the value associated with excluded options
-            // this only works because the removeArgs vector is populated in the
+            // Remove any argument strings identified as being excluded options
+            // and the value associated with excluded options.
+            // This only works because the removeArgs vector is populated in the
             // same order as the args vector - that allows me to loop through args
             // in reverse order to delete elements (otherwise the index numbers
             // would change from under me as I was deleting them)
@@ -3209,18 +3111,18 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
        }
     }
     catch (po::error& e) {                                                                                          // program options exception
-        std::cerr << ERR_MSG(ERROR::PROGRAM_OPTIONS_ERROR) << ": " << e.what() << std::endl;                        // show the problem
-        std::cerr << m_GridLine.optionDescriptions << std::endl;                                                    // show help
+        std::cerr << ERR_MSG(ERROR::GRID_OPTIONS_ERROR) << ": " << e.what() << std::endl;                           // show the problem
+        std::cerr << ERR_MSG(ERROR::SUGGEST_HELP) << std::endl;                                                     // suggest using --help
         ok = false;                                                                                                 // set status
     } 
     catch (const std::string eStr) {                                                                                // custom exception
-        std::cerr << ERR_MSG(ERROR::PROGRAM_OPTIONS_ERROR) << ": " << eStr << std::endl;                            // show the problem
-        std::cerr << m_GridLine.optionDescriptions << std::endl;                                                    // show help
+        std::cerr << ERR_MSG(ERROR::GRID_OPTIONS_ERROR) << ": " << eStr << std::endl;                               // show the problem
+        std::cerr << ERR_MSG(ERROR::SUGGEST_HELP) << std::endl;                                                     // suggest using --help
         ok = false;                                                                                                 // set status
     }
     catch (...) {                                                                                                   // unhandled exception
-        std::cerr << ERR_MSG(ERROR::PROGRAM_OPTIONS_ERROR) << ": " << ERR_MSG(ERROR::UNHANDLED_EXCEPTION) << std::endl; // show the problem
-        std::cerr << m_GridLine.optionDescriptions << std::endl;                                                    // show help
+        std::cerr << ERR_MSG(ERROR::GRID_OPTIONS_ERROR) << ": " << ERR_MSG(ERROR::UNHANDLED_EXCEPTION) << std::endl; // show the problem
+        std::cerr << ERR_MSG(ERROR::SUGGEST_HELP) << std::endl;                                                     // suggest using --help
         ok = false;                                                                                                 // set status
     }
 
@@ -3258,21 +3160,29 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
  */
 int Options::ApplyNextGridLine() {
 
-    int status = -1;                                                // default status is failure
+    int status = -1;                                                    // default status is failure
 
-    if (m_Gridfile.handle.is_open()) {                              // file open?
-                                                                    // yes
-        std::string record;                                         // the record read
-        std::getline(m_Gridfile.handle, record);                    // read the next record
-        if (m_Gridfile.handle.fail()) {                             // read ok?
-            if (m_Gridfile.handle.eof()) status = 0;                // eof?
-            else {                                                  // no
-                m_Gridfile.error = ERROR::FILE_READ_ERROR;          // record error
-                status = -1;                                        // set status
+    if (m_Gridfile.handle.is_open()) {                                  // file open?
+                                                                        // yes
+        bool done = false;
+        while (!done) {
+            std::string record;                                         // the record read
+            std::getline(m_Gridfile.handle, record);                    // read the next record
+            if (m_Gridfile.handle.fail()) {                             // read ok?
+                if (m_Gridfile.handle.eof()) status = 0;                // eof?
+                else {                                                  // no
+                    m_Gridfile.error = ERROR::FILE_READ_ERROR;          // record error
+                    status = -1;                                        // set status
+                }
+                done = true;                                            // we're done
             }
-        }
-        else {                                                      // read ok
-            status = InitialiseEvolvingObject(record) ? 1 : -1;     // apply record and set status
+            else {                                                      // read ok
+                record = utils::ltrim(record);                          // trim leading white space
+                if (!record.empty() && record[0] != '#') {              // blank line or comment?
+                    status = InitialiseEvolvingObject(record) ? 1 : -1; // no - apply record and set status
+                    done = true;                                        // we're done
+                }
+            }
         }
     }
 
