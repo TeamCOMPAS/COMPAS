@@ -1502,7 +1502,7 @@ void BaseBinaryStar::ResolveCoalescence() {
     m_EccentricityAtDCOFormation  = m_Eccentricity;
 
     double tC           = CalculateTimeToCoalescence(m_SemiMajorAxis * AU, m_Eccentricity, m_Star1->Mass() * MSOL_TO_KG, m_Star2->Mass() * MSOL_TO_KG);
-    m_TimeToCoalescence = (tC / SECONDS_IN_YEAR) * YEAR_TO_MYR;                                                                                 // coalescence time in Myrs
+    m_TimeToCoalescence = (tC / SECONDS_IN_YEAR) * YEAR_TO_MYR;                                                                                 // coalescence time in Myr
 
     if (utils::Compare(tC, HUBBLE_TIME) < 0) {                                                                                                  // shorter than HubbleTime
         m_MergesInHubbleTime = true;
@@ -2819,7 +2819,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                                  if (m_Error != ERROR::NONE)               evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR;                // error in binary evolution
                             else if (IsWDandWD())                          evolutionStatus = EVOLUTION_STATUS::WD_WD;                       // do not evolve double WD systems for now
                             else if (IsDCO() && m_Time>(m_DCOFormationTime+m_TimeToCoalescence))        evolutionStatus = EVOLUTION_STATUS::STOPPED;    // evolution time exceeds DCO merger time
-                            else if (m_Time > OPTIONS->MaxEvolutionTime() )                             evolutionStatus = EVOLUTION_STATUS::TIMES_UP;   // evolution time exceeds maximum 
+                            else if (m_Time > OPTIONS->MaxEvolutionTime() )                             evolutionStatus = EVOLUTION_STATUS::TIMES_UP;   // evolution time exceeds maximum
                         }
                     }
                 }
