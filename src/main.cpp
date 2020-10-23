@@ -9,6 +9,8 @@
 #include <tuple>
 #include <vector>
 #include <csignal>
+#include <iostream>
+#include <iomanip>
 
 #include "constants.h"
 #include "typedefs.h"
@@ -328,7 +330,9 @@ std::tuple<int, int> EvolveSingleStars() {
     int wallMM = (int)((wallSeconds.count() - ((double)wallHH * 3600.0)) / 60.0);                                   // minutes
     int wallSS = (int)(wallSeconds.count() - ((double)wallHH * 3600.0) - ((double)wallMM * 60.0));                  // seconds
 
-    SAY("Wall time  = " << wallHH << ":" << wallMM << ":" << wallSS << " (hh:mm:ss)");
+    SAY("Wall time  = " << std::setfill('0') << std::setw(2) << wallHH << ":" << 
+                           std::setfill('0') << std::setw(2) << wallMM << ":" << 
+                           std::setfill('0') << std::setw(2) << wallSS << " (hh:mm:ss)");                                       // Include 0 buffer 
 
     return  std::make_tuple(nStarsRequested, index);
 }
@@ -527,7 +531,9 @@ std::tuple<int, int> EvolveBinaryStars() {
     int wallMM = (int)((wallSeconds.count() - ((double)wallHH * 3600.0)) / 60.0);                               // minutes
     int wallSS = (int)(wallSeconds.count() - ((double)wallHH * 3600.0) - ((double)wallMM * 60.0));              // seconds
 
-    SAY("Wall time  = " << wallHH << ":" << wallMM << ":" << wallSS << " (hh:mm:ss)");
+    SAY("Wall time  = " << std::setfill('0') << std::setw(2) << wallHH << ":" << 
+                           std::setfill('0') << std::setw(2) << wallMM << ":" << 
+                           std::setfill('0') << std::setw(2) << wallSS << " (hh:mm:ss)");                                       // Include 0 buffer 
 
     return std::make_tuple(nBinariesRequested, index);
 }
