@@ -403,18 +403,7 @@ enum class ERROR: int {
     FILE_OPEN_ERROR,                                                // error opening file
     FILE_READ_ERROR,                                                // error reading from file - data not read
     FILE_WRITE_ERROR,                                               // error writing to file - data not written
-    GRID_FILE_DEFAULT_METALLICITY,                                  // grid file metallicity missing for SSE - using default
-    GRID_FILE_DUPLICATE_HEADER,                                     // grid file has a duplicated header field
-    GRID_FILE_EMPTY_HEADER,                                         // grid file has an empty header field
-    GRID_FILE_EXTRA_COLUMN,                                         // grid file record has an extra data column
-    GRID_FILE_INVALID_DATA,                                         // grid file record has an invalid data value (not a number)
-    GRID_FILE_MISSING_DATA,                                         // grid file record has a missing data value
-    GRID_FILE_MISSING_HEADER,                                       // grid file has a missing header field
-    GRID_FILE_NEGATIVE_DATA,                                        // grid file record has a negative data value
-    GRID_FILE_UNKNOWN_HEADER,                                       // grid file has an unknown header field
-    GRID_FILE_USING_PERIOD,                                         // grid file - using Period to calculate separation (Separation is missing)
-    HAVE_NEITHER_SEPARATION_NOR_PERIOD,                             // user specified neither separation nor period
-    HAVE_SEPARATION_AND_PERIOD,                                     // user specified both separation and period
+    GRID_OPTIONS_ERROR,                                             // grid file options error
     HIGH_TEFF_WINDS,                                                // winds being used at high temperature
     INVALID_AIS_DCO_TYPE,                                           // invalid AIS DCO type specified in program options
     INVALID_DATA_TYPE,                                              // invalid data type
@@ -444,6 +433,7 @@ enum class ERROR: int {
     RESOLVE_SUPERNOVA_IMPROPERLY_CALLED,                            // ResolveSupernova() called, but m_Supernova->IsSNevent() is false
     STELLAR_EVOLUTION_STOPPED,                                      // evolution of current star stopped
     STELLAR_SIMULATION_STOPPED,                                     // stellar simulation stopped
+    SUGGEST_HELP,                                                   // suggest using --help
     TOO_MANY_RLOF_ITERATIONS,                                       // too many iterations in RLOF root finder
     UNEXPECTED_END_OF_FILE,                                         // unexpected end of file
     UNEXPECTED_SN_EVENT,                                            // unexpected supernova event in this context
@@ -541,18 +531,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::FILE_OPEN_ERROR,                                       { ERROR_SCOPE::ALWAYS,              "Error opening file" }},
     { ERROR::FILE_READ_ERROR,                                       { ERROR_SCOPE::ALWAYS,              "Error reading from file - data not read" }},
     { ERROR::FILE_WRITE_ERROR,                                      { ERROR_SCOPE::ALWAYS,              "Error writing to file - data not written" }},
-    { ERROR::GRID_FILE_DEFAULT_METALLICITY,                         { ERROR_SCOPE::ALWAYS,              "GRID file missing metallicity - using program options value" }},
-    { ERROR::GRID_FILE_DUPLICATE_HEADER,                            { ERROR_SCOPE::ALWAYS,              "Duplicated column heading in GRID file" }},
-    { ERROR::GRID_FILE_EMPTY_HEADER,                                { ERROR_SCOPE::ALWAYS,              "Empty column heading in GRID file" }},
-    { ERROR::GRID_FILE_EXTRA_COLUMN,                                { ERROR_SCOPE::ALWAYS,              "Extra data column in GRID file" }},
-    { ERROR::GRID_FILE_INVALID_DATA,                                { ERROR_SCOPE::ALWAYS,              "Invalid data value in GRID file" }},
-    { ERROR::GRID_FILE_MISSING_DATA,                                { ERROR_SCOPE::ALWAYS,              "Missing data value in GRID file" }},
-    { ERROR::GRID_FILE_MISSING_HEADER,                              { ERROR_SCOPE::ALWAYS,              "Missing column heading in GRID file" }},
-    { ERROR::GRID_FILE_NEGATIVE_DATA,                               { ERROR_SCOPE::ALWAYS,              "Negative data value in GRID file" }},
-    { ERROR::GRID_FILE_UNKNOWN_HEADER,                              { ERROR_SCOPE::ALWAYS,              "Unknown column heading in GRID file" }},
-    { ERROR::GRID_FILE_USING_PERIOD,                                { ERROR_SCOPE::ALWAYS,              "Using Period to calculate missing Separation" }},
-    { ERROR::HAVE_NEITHER_SEPARATION_NOR_PERIOD,                    { ERROR_SCOPE::ALWAYS,              "Neither separation nor period specified - need one" }},
-    { ERROR::HAVE_SEPARATION_AND_PERIOD,                            { ERROR_SCOPE::ALWAYS,              "Both separation and period specified - need just one" }},
+    { ERROR::GRID_OPTIONS_ERROR,                                    { ERROR_SCOPE::ALWAYS,              "Grid File Options error" }},
     { ERROR::HIGH_TEFF_WINDS,                                       { ERROR_SCOPE::ALWAYS,              "Winds being used at high temperature" }},
     { ERROR::INVALID_AIS_DCO_TYPE,                                  { ERROR_SCOPE::ALWAYS,              "Invalid AIS DCO type" }},
     { ERROR::INVALID_DATA_TYPE,                                     { ERROR_SCOPE::ALWAYS,              "Invalid data type" }},
@@ -577,17 +556,18 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::NOT_INITIALISED,                                       { ERROR_SCOPE::ALWAYS,              "Object not initialised" }},
     { ERROR::OPTION_NOT_SUPPORTED_IN_GRID_FILE,                     { ERROR_SCOPE::ALWAYS,              "Option not supported in grid file" }},
     { ERROR::OUT_OF_BOUNDS,                                         { ERROR_SCOPE::ALWAYS,              "Value out of bounds" }},
-    { ERROR::PROGRAM_OPTIONS_ERROR,                                 { ERROR_SCOPE::ALWAYS,              "Program Options error" }},
+    { ERROR::PROGRAM_OPTIONS_ERROR,                                 { ERROR_SCOPE::ALWAYS,              "Commandline Options error" }},
     { ERROR::RADIUS_NOT_POSITIVE,                                   { ERROR_SCOPE::ALWAYS,              "Radius <= 0.0" }},
     { ERROR::RADIUS_NOT_POSITIVE_ONCE,                              { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Radius <= 0.0" }},
     { ERROR::RESOLVE_SUPERNOVA_IMPROPERLY_CALLED,                   { ERROR_SCOPE::ALWAYS,              "ResolveSupernova() called, but m_Supernova->IsSNevent() is false" }},
     { ERROR::STELLAR_EVOLUTION_STOPPED,                             { ERROR_SCOPE::ALWAYS,              "Evolution of current star stopped" }},
     { ERROR::STELLAR_SIMULATION_STOPPED,                            { ERROR_SCOPE::ALWAYS,              "Stellar simulation stopped" }},
+    { ERROR::SUGGEST_HELP,                                          { ERROR_SCOPE::ALWAYS,              "Use option '-h' (or '--help') to see (descriptions of) available options" }},
     { ERROR::TOO_MANY_RLOF_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when fitting star inside Roche Lobe in RLOF" }},
     { ERROR::UNEXPECTED_END_OF_FILE,                                { ERROR_SCOPE::ALWAYS,              "Unexpected end of file" }},
     { ERROR::UNEXPECTED_SN_EVENT,                                   { ERROR_SCOPE::ALWAYS,              "Unexpected supernova event in this context" }},
     { ERROR::UNHANDLED_EXCEPTION,                                   { ERROR_SCOPE::ALWAYS,              "Unhandled exception" }},
-    { ERROR::UNKNOWN_A_DISTRIBUTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown semi-major-axis (a) distribution" }},
+    { ERROR::UNKNOWN_A_DISTRIBUTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown semi-major-axis distribution" }},
     { ERROR::UNKNOWN_BH_KICK_OPTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown black hole kick option" }},
     { ERROR::UNKNOWN_BINARY_PROPERTY,                               { ERROR_SCOPE::ALWAYS,              "Unknown binary property - property details not found" }},
     { ERROR::UNKNOWN_CASE_BB_STABILITY_PRESCRIPTION,                { ERROR_SCOPE::ALWAYS,              "Unknown case BB/BC mass transfer stability prescription" }},

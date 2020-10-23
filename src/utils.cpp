@@ -474,8 +474,10 @@ namespace utils {
         bool result = false;                        // default result
 
         try {
-            (void)std::stod(p_Str);                 // try conversion
-            result = true;                          // valid FLOAT
+            size_t lastChar;
+            (void)std::stod(p_Str, &lastChar);      // try conversion
+
+            result = lastChar == p_Str.size();      // valid FLOAT if p_Str completely consumed
         }
         catch (const std::out_of_range& e) {        // conversion failed
             result = false;                         // not a valid FLOAT
@@ -501,8 +503,10 @@ namespace utils {
         bool result = false;                        // default result
 
         try {
-            (void)std::stoi(p_Str);                 // try conversion
-            result = true;                          // valid INT
+            size_t lastChar;
+            (void)std::stoi(p_Str, &lastChar);      // try conversion
+
+            result = lastChar == p_Str.size();      // valid INT if p_Str completely consumed
         }
         catch (const std::out_of_range& e) {        // conversion failed
             result = false;                         // not a valid INT
@@ -528,8 +532,10 @@ namespace utils {
         bool result = false;                        // default result
 
         try {
-            (void)std::stold(p_Str);                // try conversion
-            result = true;                          // valid LONG DOUBLE
+            size_t lastChar;
+            (void)std::stold(p_Str, &lastChar);     // try conversion
+
+            result = lastChar == p_Str.size();      // valid LONG DOUBLE if p_Str completely consumed
         }
         catch (const std::out_of_range& e) {        // conversion failed
             result = false;                         // not a valid LONG DOUBLE
@@ -555,8 +561,10 @@ namespace utils {
         bool result = false;                        // default result
 
         try {
-            (void)std::stol(p_Str);                 // try conversion
-            result = true;                          // valid LONG INT
+            size_t lastChar;
+            (void)std::stol(p_Str, &lastChar);      // try conversion
+
+            result = lastChar == p_Str.size();      // valid LONG INT if p_Str completely consumed
         }
         catch (const std::out_of_range& e) {        // conversion failed
             result = false;                         // not a valid LONG INT
@@ -582,8 +590,10 @@ namespace utils {
         bool result = false;                        // default result
 
         try {
-            (void)std::stoul(p_Str);                // try conversion
-            result = true;                          // valid UNSIGNED LONG INT
+            size_t lastChar;
+            (void)std::stoul(p_Str, &lastChar);     // try conversion
+
+            result = lastChar == p_Str.size();      // valid UNSIGNED LONG INT if p_Str completely consumed
         }
         catch (const std::out_of_range& e) {        // conversion failed
             result = false;                         // not a valid UNSIGNED LONG INT
@@ -1248,7 +1258,7 @@ namespace utils {
      * Constructs and returns a splash string.  Prints string to stdout if required.
      *
      *
-     * void SplashScreen(const bool p_Print)
+     * std::string SplashScreen(const bool p_Print)
      * 
      * @param   [IN]    p_Print             Boolean indicating whether splash string should be printed.  Default is TRUE
      * @return                              Splash string
