@@ -35,6 +35,13 @@
 /*    but it is, and always will be, just long...  The best we can do is keep it neat so  */
 /*    it doesn't become too hard to read.                                                 */
 /*                                                                                        */
+/*    When adding options to Options::AddOptions(), ensure that the option string         */
+/*    (e.g. "random-seed") is in lower case - we downshift the user specified option      */
+/*    names and values, so comparisons will only match lower case.  We could do a case-   */
+/*    insensitive match, but that would take longer.  We can't programatically downshift  */
+/*    the option strings specified in Options::AddOptions() because they go directly to   */
+/*    the Boost parser in the form they are given in Options::AddOptions().               */
+/*                                                                                        */
 /* 8. Add any sanity checks: constraint/range/dependency checks etc. for the new option,  */
 /*    and any affected existing options, to Options::OptionValues::CheckAndSetOptions()   */
 /*    in Options.cpp.  It is also here you can set any final values that, perhaps due to  */
@@ -1104,12 +1111,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "muller-mandel-kick-multiplier-bh",                                        
             po::value<double>(&p_Options->m_MullerMandelKickBH)->default_value(p_Options->m_MullerMandelKickBH),                                                                                  
-            ("Multiplier for BH kicks per Mandel and Mueller, 2020 (default = " + std::to_string(p_Options->m_MullerMandelKickBH) + ")").c_str()
+            ("Scaling prefactor for BH kicks when using the 'MULLERMANDEL' kick magnitude distribution (default = " + std::to_string(p_Options->m_MullerMandelKickBH) + ")").c_str()
         )
         (
             "muller-mandel-kick-multiplier-ns",                                        
             po::value<double>(&p_Options->m_MullerMandelKickNS)->default_value(p_Options->m_MullerMandelKickNS),                                                                                  
-            ("Multiplier for NS kicks per Mandel and Mueller, 2020 (default = " + std::to_string(p_Options->m_MullerMandelKickNS) + ")").c_str()
+            ("Scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution (default = " + std::to_string(p_Options->m_MullerMandelKickNS) + ")").c_str()
         )
 
         (
@@ -1316,29 +1323,29 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         // Serena
         /*
         (
-            "logfile-be-binaries",                                     
+            "logfile-bse-be-binaries",                                     
             po::value<std::string>(&p_Options->m_LogfileBeBinaries)->default_value(p_Options->m_LogfileBeBinaries),                                                                              
-            ("Filename for Be Binaries logfile (default = " + p_Options->m_LogfileBeBinaries + ")").c_str()
+            ("Filename for BSE Be Binaries logfile (default = " + p_Options->m_LogfileBeBinaries + ")").c_str()
         )
         */
 
         (
-            "logfile-rlof-parameters",                                 
+            "logfile-bse-rlof-parameters",                                 
             po::value<std::string>(&p_Options->m_LogfileRLOFParameters)->default_value(p_Options->m_LogfileRLOFParameters),                                                                      
-            ("Filename for RLOF Parameters logfile ( default = " + p_Options->m_LogfileRLOFParameters + ")").c_str()
+            ("Filename for BSE RLOF Parameters logfile ( default = " + p_Options->m_LogfileRLOFParameters + ")").c_str()
         )
         (
-            "logfile-common-envelopes",                                
+            "logfile-bse-common-envelopes",                                
             po::value<std::string>(&p_Options->m_LogfileCommonEnvelopes)->default_value(p_Options->m_LogfileCommonEnvelopes),                                                                    
-            ("Filename for Common Envelopes logfile (default = " + p_Options->m_LogfileCommonEnvelopes + ")").c_str()
+            ("Filename for BSE Common Envelopes logfile (default = " + p_Options->m_LogfileCommonEnvelopes + ")").c_str()
         )
         (
-            "logfile-detailed-output",                                 
+            "logfile-bse-detailed-output",                                 
             po::value<std::string>(&p_Options->m_LogfileDetailedOutput)->default_value(p_Options->m_LogfileDetailedOutput),                                                                      
-            ("Filename for Detailed Output logfile (default = " + p_Options->m_LogfileDetailedOutput + ")").c_str()
+            ("Filename for BSE Detailed Output logfile (default = " + p_Options->m_LogfileDetailedOutput + ")").c_str()
         )
         (
-            "logfile-double-compact-objects",                          
+            "logfile-bse-double-compact-objects",                          
             po::value<std::string>(&p_Options->m_LogfileDoubleCompactObjects)->default_value(p_Options->m_LogfileDoubleCompactObjects),                                                          
             ("Filename for Double Compact Objects logfile (default = " + p_Options->m_LogfileDoubleCompactObjects + ")").c_str()
         )
