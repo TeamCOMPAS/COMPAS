@@ -345,7 +345,7 @@ private:
     int                                         nBinaries;                                                      // Number of binaries to simulate (default = 10 for quick test)
     bool                                        fixedRandomSeed;                                                // Whether to use a fixed random seed given by options.randomSeed (set to true if --random-seed is passed on command line)
     unsigned long int                           randomSeed;                                                     // Random seed to use
-    double                                      maxEvolutionTime;                                               // Maximum time to evolve a binary (Myrs)
+    double                                      maxEvolutionTime;                                               // Maximum time to evolve a binary (Myr)
     int                                         maxNumberOfTimestepIterations;                                  // Maximum number of timesteps to evolve binary for before giving up
     double                                      timestepMultiplier;                                              // Multiplicative factor for timestep duration
 
@@ -586,7 +586,7 @@ private:
     double                                      pulsarBirthSpinPeriodDistributionMin;                           // Minimum birth spin period (ms)
     double                                      pulsarBirthSpinPeriodDistributionMax;                           // Maximum birth spin period (ms)
 
-    double                                      pulsarMagneticFieldDecayTimescale;                              // Timescale on which magnetic field decays (Myrs)
+    double                                      pulsarMagneticFieldDecayTimescale;                              // Timescale on which magnetic field decays (Myr)
     double                                      pulsarMagneticFieldDecayMassscale;                              // Mass scale on which magnetic field decays during accretion (solar masses)
     double                                      pulsarLog10MinimumMagneticField;                                // log10 of the minimum pulsar magnetic field in Gauss
 
