@@ -473,7 +473,10 @@
 // 02.15.18     RTW - Oct 22, 2020  - Code cleanup
 //                                      - Removed redundant 'default' extension from files in the "defaults/" folder, and fixed references in the documentation.
 //                                      - Added in '0' buffers to the Wall Times output to match the HH:MM:SS format
+// 02.15.19     IM - Oct 23, 2020   - Enhancements
+//                                      - Continue evolving DCOs until merger if EvolvePulsars is on (Issue #167)
+//                                      - Removed m_SecondaryTooSmallForDCO (Issue #337)
 
-const std::string VERSION_STRING = "02.15.18";
+const std::string VERSION_STRING = "02.15.19";
 
 # endif // __changelog_h__
