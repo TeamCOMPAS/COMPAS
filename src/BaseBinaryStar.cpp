@@ -50,7 +50,7 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
     // know if the star is a single star (SSE) or a constituent of a binary (BSE) - it only knows 
     // that it is a star - so we have to setup the kick structures here for each constituent star.
     //
-    // We can do these outsid ethe following loop - AIS doesn't know about these
+    // We can do these outside the following loop - AIS doesn't know about these
 
     KickParameters kickParameters1;
     kickParameters1.magnitudeRandomSpecified = OPTIONS->OptionSpecified("kick-magnitude-random-1") == 1;

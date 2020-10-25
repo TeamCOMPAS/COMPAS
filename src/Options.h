@@ -82,6 +82,9 @@ namespace po = boost::program_options;
 //
 //     OPT_VALUE("option-name", m_OptionVar, false)
 //
+// OPT_VALUE relies on the option name ("option-name") being exactly as specified in
+// Options::AddOptions() - if it isn't, it will fail
+//
 // Finally, there are some options that we may always want to return the value specified
 // on the commandline.  For those options, the getter should return
 //
@@ -930,6 +933,7 @@ public:
 
     typedef std::tuple<TYPENAME, bool, std::string, std::string> ATTR;  // <dataType, defaulted, typeStr, valueStr>
 
+    typedef std::tuple<std::string, std::string, std::string, std::string> OPTIONSTR;  // option strings for specified options: <asEntered, asEnteredDownshifted, longName, shortName>
 
     // we have two structs:
     //    one for the commandline (program-level) options, and 
@@ -940,15 +944,14 @@ public:
     //    an OptionValues object - holds the values of the options 
     //    a  Boost options_decsriptions object
     //    a  COMPLEX_OPTION_VALUES object - holds the complex option values (ranges, sets)
+    //    a  struct containing the option strings of the specified options
 
     typedef struct OptionsDescriptor {
         OptionValues            optionValues;
         po::options_description optionDescriptions;
         COMPLEX_OPTION_VALUES   complexOptionValues;
+        std::vector<OPTIONSTR>  optionsSpecified;
     } OptionsDescriptorT;
-
-
-//    typedef std::map<std::string, std::string> OptionAlias;              // for otion aliasing 
 
 
 // class Options
@@ -983,8 +986,6 @@ private:
     PROGRAM_STATUS  ParseCommandLineOptions(int argc, char * argv[]);
     std::string     ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], OptionsDescriptorT &p_OptionsDescriptor);
 
-//std::pair<std::string, std::string> mapOptions(const std::string &token, const OptionAlias &alias);
-//boost::program_options::ext_parser optionAlias(OptionAlias &&aliases); 
 
 public:
 
