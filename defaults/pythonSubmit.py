@@ -129,7 +129,7 @@ class pythonProgramOptions:
     mass_transfer_thermal_limit_C= 10.0
     eddington_accretion_factor = 1                              # multiplication Factor for eddington accretion onto NS&BH
 
-    case_bb_stability_prescription = 'ALWAYS_STABLE'
+    case_BB_stability_prescription = 'ALWAYS_STABLE'
     zeta_Main_Sequence = 2.0
     zeta_Radiative_Envelope_Giant = 6.5
 
@@ -178,15 +178,15 @@ class pythonProgramOptions:
     orbital_period_min = 1.1
     orbital_period_max = 1000
 
-    remnant_mass_prescription = 'FRYER2012'
-    fryer_supernova_engine = 'DELAYED'
-    black_hole_kicks = 'FALLBACK'
+    remnant_mass_prescription   = 'FRYER2012'
+    fryer_supernova_engine      = 'DELAYED'
+    black_hole_kicks            = 'FALLBACK'
     kick_magnitude_distribution = 'MAXWELLIAN'
 
     kick_magnitude_sigma_CCSN_NS = 265.0                        #  [km/s]
     kick_magnitude_sigma_CCSN_BH = 265.0                        #  [km/s]
-    kick_magnitude_sigma_ECSN = 30.0                            #  [km/s]
-    kick_magnitude_sigma_USSN = 30.0                            #  [km/s]
+    kick_magnitude_sigma_ECSN    = 30.0                         #  [km/s]
+    kick_magnitude_sigma_USSN    = 30.0                         #  [km/s]
 
     fix_dimensionless_kick_magnitude = -1
     kick_direction = 'ISOTROPIC'
@@ -209,8 +209,8 @@ class pythonProgramOptions:
     kick_phi_2              = None                              # (BSE) angle between ’x’ and ’y’, both in the orbital plane of the supernova vector, for the secondary star should it undergo a supernova event [radians]
     kick_mean_anomaly_2     = None                              # (BSE) mean anomaly at the instant of the supernova for the secondary star should it undergo a supernova event – should be uniform in [0, 2pi) [radians]
 
-    muller_mandel_kick_multiplier_bh = 200.0                    # scaling prefactor for BH kicks when using the 'MULLERMANDEL' kick magnitude distribution
-    muller_mandel_kick_multiplier_ns = 400.0                    # scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution
+    muller_mandel_kick_multiplier_BH = 200.0                    # scaling prefactor for BH kicks when using the 'MULLERMANDEL' kick magnitude distribution
+    muller_mandel_kick_multiplier_NS = 400.0                    # scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution
 
     pair_instability_supernovae = True
     PISN_lower_limit = 60.0                                     # Minimum core mass for PISN [Msol]
@@ -224,11 +224,11 @@ class pythonProgramOptions:
 
     maximum_neutron_star_mass = 2.5  #  [Msol]
 
-    log_level         = 0
-    log_classes       = []
+    log_level           = 0
+    log_classes         = []
 
-    debug_level       = 0
-    debug_classes     = []
+    debug_level         = 0
+    debug_classes       = []
 
     logfile_definitions = None
 
@@ -254,20 +254,18 @@ class pythonProgramOptions:
     # For now though, I'll leave them as is - we can change this when (if) we decide to
     # drop the prefixes
 
-    logfile_BSE_common_envelopes = None
-    logfile_BSE_detailed_output = None
-    logfile_BSE_double_compact_objects = None
-    logfile_BSE_rlof_parameters = None
-    logfile_BSE_pulsar_evolution = None
-    logfile_BSE_supernovae = None
-    logfile_BSE_system_parameters = None
-    logfile_BSE_switch_log = None
-    logfile_SSE_parameters = None
-    logfile_SSE_supernova = None
-    logfile_SSE_switch_log = None
+    logfile_common_envelopes       = None
+    logfile_detailed_output        = None
+    logfile_double_compact_objects = None
+    logfile_rlof_parameters        = None
+    logfile_pulsar_evolution       = None
+    logfile_supernovae             = None
+    logfile_switch_log             = None
+    logfile_system_parameters      = None
 
     debug_to_file  = False
     errors_to_file = False
+
 
     def booleanChoices(self):
         booleanChoices = [
@@ -393,8 +391,8 @@ class pythonProgramOptions:
             self.kick_theta_2,
             self.kick_phi_2,
             self.kick_mean_anomaly_2,
-            self.muller_mandel_kick_multiplier_bh,
-            self.muller_mandel_kick_multiplier_ns,
+            self.muller_mandel_kick_multiplier_BH,
+            self.muller_mandel_kick_multiplier_NS,
             self.log_level,
             self.debug_level
         ]
@@ -441,20 +439,20 @@ class pythonProgramOptions:
             '--pulsar-minimum-magnetic-field',
             '--orbital-period-min',
             '--orbital-period-max',
-            '--kick-magnitude-sigma-ccsn-ns',
-            '--kick-magnitude-sigma-ccsn-bh',
+            '--kick-magnitude-sigma-CCSN-NS',
+            '--kick-magnitude-sigma-CCSN-BH',
             '--fix-dimensionless-kick-magnitude',
             '--kick-direction-power',
             '--random-seed',
-            '--mass-transfer-thermal-limit-c',
+            '--mass-transfer-thermal-limit-C',
             '--eddington-accretion-factor',
             '--pisn-lower-limit',
             '--pisn-upper-limit',
             '--ppi-lower-limit',
             '--ppi-upper-limit',
             '--maximum-neutron-star-mass',
-            '--kick-magnitude-sigma-ecsn',
-            '--kick-magnitude-sigma-ussn',
+            '--kick-magnitude-sigma-ECSN',
+            '--kick-magnitude-sigma-USSN',
             '--kick-scaling-factor',
             '--maximum-mass-donor-nandez-ivanova',
             '--common-envelope-recombination-energy-density',
@@ -475,8 +473,8 @@ class pythonProgramOptions:
             '--kick-theta-2',
             '--kick-phi-2',
             '--kick-mean-anomaly-2',
-            '--muller-mandel-kick-multiplier-bh',
-            '--muller-mandel-kick-multiplier-ns',
+            '--muller-mandel-kick-multiplier-BH',
+            '--muller-mandel-kick-multiplier-NS',
             '--log-level',
             '--debug-level'
         ]
@@ -486,7 +484,7 @@ class pythonProgramOptions:
     def stringChoices(self):
         stringChoices = [
             self.mode,
-            self.case_bb_stability_prescription,
+            self.case_BB_stability_prescription,
             self.chemically_homogeneous_evolution,
             self.mass_loss_prescription,
             self.mass_transfer_angular_momentum_loss_prescription,
@@ -517,17 +515,14 @@ class pythonProgramOptions:
             self.logfile_delimiter,
             self.logfile_definitions,
             self.grid_filename,
-            self.logfile_BSE_common_envelopes,
-            self.logfile_BSE_detailed_output,
-            self.logfile_BSE_double_compact_objects,
-            self.logfile_BSE_pulsar_evolution,
-            self.logfile_BSE_rlof_parameters,
-            self.logfile_BSE_supernovae,
-            self.logfile_BSE_system_parameters,
-            self.logfile_BSE_switch_log,
-            self.logfile_SSE_parameters,
-            self.logfile_SSE_supernova,
-            self.logfile_SSE_switch_log
+            self.logfile_common_envelopes,
+            self.logfile_detailed_output,
+            self.logfile_double_compact_objects,
+            self.logfile_pulsar_evolution,
+            self.logfile_rlof_parameters,
+            self.logfile_supernovae,
+            self.logfile_switch_log,
+            self.logfile_system_parameters
         ]
 
         return stringChoices
@@ -535,7 +530,7 @@ class pythonProgramOptions:
     def stringCommands(self):
         stringCommands = [
             '--mode',
-            '--case-bb-stability-prescription',
+            '--case-BB-stability-prescription',
             '--chemically-homogeneous-evolution',
             '--mass-loss-prescription',
             '--mass-transfer-angular-momentum-loss-prescription',
@@ -566,17 +561,14 @@ class pythonProgramOptions:
             '--logfile-delimiter',
             '--logfile-definitions',
             '--grid',
-            '--logfile-bse-common-envelopes',
-            '--logfile-bse-detailed-output',
-            '--logfile-bse-double-compact-objects',
-            '--logfile-bse-pulsar-evolution',
-            '--logfile-bse-rlof-parameters',
-            '--logfile-bse-supernovae',
-            '--logfile-bse-system-parameters',
-            '--logfile-bse-switch-log',
-            '--logfile-sse-parameters',
-            '--logfile-sse-supernova',
-            '--logfile-sse-switch-log',
+            '--logfile-common-envelopes',
+            '--logfile-detailed-output',
+            '--logfile-double-compact-objects',
+            '--logfile-pulsar-evolution',
+            '--logfile-rlof-parameters',
+            '--logfile-supernovae',
+            '--logfile-switch-log',
+            '--logfile-system-parameters'
         ]
 
         return stringCommands

@@ -35,12 +35,12 @@
 /*    but it is, and always will be, just long...  The best we can do is keep it neat so  */
 /*    it doesn't become too hard to read.                                                 */
 /*                                                                                        */
-/*    When adding options to Options::AddOptions(), ensure that the option string         */
-/*    (e.g. "random-seed") is in lower case - we downshift the user specified option      */
-/*    names and values, so comparisons will only match lower case.  We could do a case-   */
-/*    insensitive match, but that would take longer.  We can't programatically downshift  */
-/*    the option strings specified in Options::AddOptions() because they go directly to   */
-/*    the Boost parser in the form they are given in Options::AddOptions().               */
+/*    When adding options to Options::AddOptions(), the convention I have used is that    */
+/*    the option string (e.g. "random-seed") is predominantly in lower case - that's not  */
+/*    strictly required, but I think it's easier for users to remember the option names   */
+/*    if they don't have to remember a mixture of upper and lower case.  I have           */
+/*    configured Boost to perform a case-insensitive match, so option strings can have    */
+/*    mixed case if necessary (e.g. muller-mandel-kick-multiplier-BH).                    */
 /*                                                                                        */
 /* 8. Add any sanity checks: constraint/range/dependency checks etc. for the new option,  */
 /*    and any affected existing options, to Options::OptionValues::CheckAndSetOptions()   */
@@ -73,7 +73,6 @@ Options* Options::m_Instance = nullptr;
 namespace po  = boost::program_options;
 namespace cls = po::command_line_style;
 namespace fs  = boost::filesystem;
-
 
 // this is required to set default value for boost program options of type vector<std::string>
 namespace std
@@ -472,15 +471,15 @@ void Options::OptionValues::Initialise() {
     m_LogfileDelimiter.typeString                                   = DELIMITERLabel.at(m_LogfileDelimiter.type);
     m_LogfileNamePrefix                                             = "";
 
-    m_LogfileSystemParameters                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));
+    m_LogfileBeBinaries                                             = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));
+    m_LogfileCommonEnvelopes                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));
     m_LogfileDetailedOutput                                         = (m_EvolutionMode.type == EVOLUTION_MODE::SSE) ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_DETAILED_OUTPUT)) : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT));
     m_LogfileDoubleCompactObjects                                   = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS));
-    m_LogfileSupernovae                                             = (m_EvolutionMode.type == EVOLUTION_MODE::SSE) ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)) : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));
-    m_LogfileCommonEnvelopes                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));
-    m_LogfileRLOFParameters                                         = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS));
-    m_LogfileBeBinaries                                             = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));
     m_LogfilePulsarEvolution                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)); // only BSE for now
+    m_LogfileRLOFParameters                                         = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS));
+    m_LogfileSupernovae                                             = (m_EvolutionMode.type == EVOLUTION_MODE::SSE) ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)) : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));
     m_LogfileSwitchLog                                              = (m_EvolutionMode.type == EVOLUTION_MODE::SSE) ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)) : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));
+    m_LogfileSystemParameters                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));
     
 
     po::variables_map vm;
@@ -608,7 +607,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         // Serena
         /* 
         (
-            "be-binaries",                                                  
+            "BE-binaries",                                                  
             po::value<bool>(&p_Options->m_BeBinaries)->default_value(p_Options->m_BeBinaries)->implicit_value(true),                                                                              
             ("Enable Be Binaries study (default = " + std::string(p_Options->m_BeBinaries ? "TRUE" : "FALSE") + ")").c_str()
         )
@@ -823,52 +822,52 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Critical mass ratio for MT from a helium giant star (default = " + std::to_string(m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor) + ") Specify both helium giant flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-helium-hg-degenerate-accretor",
+            "critical-mass-ratio-helium-HG-degenerate-accretor",
             po::value<double>(&m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor),
             ("Critical mass ratio for MT from a helium HG star (default = " + std::to_string(m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor) + ") Specify both helium HG flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-helium-hg-non-degenerate-accretor",
+            "critical-mass-ratio-helium-HG-non-degenerate-accretor",
             po::value<double>(&m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor),
             ("Critical mass ratio for MT from a helium HG star (default = " + std::to_string(m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor) + ") Specify both helium HG flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-helium-ms-degenerate-accretor",
+            "critical-mass-ratio-helium-MS-degenerate-accretor",
             po::value<double>(&m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor),
             ("Critical mass ratio for MT from a helium MS star (default = " + std::to_string(m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor) + ") Specify both helium MS flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-helium-ms-non-degenerate-accretor",
+            "critical-mass-ratio-helium-MS-non-degenerate-accretor",
             po::value<double>(&m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor),
             ("Critical mass ratio for MT from a helium MS star (default = " + std::to_string(m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor) + ") Specify both helium MS flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-hg-degenerate-accretor",
+            "critical-mass-ratio-HG-degenerate-accretor",
             po::value<double>(&m_MassTransferCriticalMassRatioHGDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioHGDegenerateAccretor),
             ("Critical mass ratio for MT from a HG star (default = " + std::to_string(m_MassTransferCriticalMassRatioHGDegenerateAccretor) + ") Specify both HG flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-hg-non-degenerate-accretor",
+            "critical-mass-ratio-HG-non-degenerate-accretor",
             po::value<double>(&m_MassTransferCriticalMassRatioHGNonDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioHGNonDegenerateAccretor),
             ("Critical mass ratio for MT from a HG star (default = " + std::to_string(m_MassTransferCriticalMassRatioHGNonDegenerateAccretor) + ") Specify both HG flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-ms-high-mass-degenerate-accretor",
+            "critical-mass-ratio-MS-high-mass-degenerate-accretor",
             po::value<double>(&m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor),
             ("Critical mass ratio for MT from a MS star to a degenerate accretor (default = " + std::to_string(m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor) + " Specify both MS high mass flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-ms-high-mass-non-degenerate-accretor",
+            "critical-mass-ratio-MS-high-mass-non-degenerate-accretor",
             po::value<double>(&m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor),
             ("Critical mass ratio for MT from a MS star (default = " + std::to_string(m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor) + ") Specify both MS high mass flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-ms-low-mass-degenerate-accretor",
+            "critical-mass-ratio-MS-low-mass-degenerate-accretor",
             po::value<double>(&m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor),
             ("Critical mass ratio for MT from a MS star to a degenerate accretor (default = " + std::to_string(m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor) + " Specify both MS low mass flags to use. 0 is always stable, <0 is disabled").c_str()
         )
         (
-            "critical-mass-ratio-ms-low-mass-non-degenerate-accretor",
+            "critical-mass-ratio-MS-low-mass-non-degenerate-accretor",
             po::value<double>(&m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor)->default_value(m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor),
             ("Critical mass ratio for MT from a MS star (default = " + std::to_string(m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor) + ") Specify both MS low mass flags to use. 0 is always stable, <0 is disabled").c_str()
         )
@@ -992,22 +991,22 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "Number used to choose the kick velocity magnitude for the secondary during the a supernova (default = uniform random number [0.0, 1.0))"
         )
         (
-            "kick-magnitude-sigma-ccsn-bh",                                
+            "kick-magnitude-sigma-CCSN-BH",                                
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH)->default_value(p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH),                                            
             ("Sigma for chosen kick magnitude distribution for black holes (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH) + " km s^-1 )").c_str()
         )
         (
-            "kick-magnitude-sigma-ccsn-ns",                                
+            "kick-magnitude-sigma-CCSN-NS",                                
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS)->default_value(p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS),                                            
             ("Sigma for chosen kick magnitude distribution for neutron stars (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS) + " km s^-1 )").c_str()
         )
         (
-            "kick-magnitude-sigma-ecsn",                                   
+            "kick-magnitude-sigma-ECSN",                                   
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaForECSN)->default_value(p_Options->m_KickMagnitudeDistributionSigmaForECSN),                                            
             ("Sigma for chosen kick magnitude distribution for ECSN (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaForECSN) + " km s^-1 )").c_str()
         )
         (
-            "kick-magnitude-sigma-ussn",                                   
+            "kick-magnitude-sigma-USSN",                                   
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaForUSSN)->default_value(p_Options->m_KickMagnitudeDistributionSigmaForUSSN),                                            
             ("Sigma for chosen kick magnitude distribution for USSN (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaForUSSN) + " km s^-1 )").c_str()
         )
@@ -1074,7 +1073,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Specific angular momentum with which the non-accreted system leaves the system (default = " + std::to_string(p_Options->m_MassTransferJloss) + ")").c_str()
         )
         (
-            "mass-transfer-thermal-limit-c",                               
+            "mass-transfer-thermal-limit-C",                               
             po::value<double>(&p_Options->m_MassTransferCParameter)->default_value(p_Options->m_MassTransferCParameter),                                                                          
             ("Mass Transfer Thermal rate factor fo the accretor (default = " + std::to_string(p_Options->m_MassTransferCParameter) + ")").c_str()
         )
@@ -1109,18 +1108,18 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Minimum mass of secondary to generate in Msol (default = " + std::to_string(p_Options->m_MinimumMassSecondary) + ")").c_str()
         )
         (
-            "muller-mandel-kick-multiplier-bh",                                        
+            "muller-mandel-kick-multiplier-BH",                                        
             po::value<double>(&p_Options->m_MullerMandelKickBH)->default_value(p_Options->m_MullerMandelKickBH),                                                                                  
             ("Scaling prefactor for BH kicks when using the 'MULLERMANDEL' kick magnitude distribution (default = " + std::to_string(p_Options->m_MullerMandelKickBH) + ")").c_str()
         )
         (
-            "muller-mandel-kick-multiplier-ns",                                        
+            "muller-mandel-kick-multiplier-NS",                                        
             po::value<double>(&p_Options->m_MullerMandelKickNS)->default_value(p_Options->m_MullerMandelKickNS),                                                                                  
             ("Scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution (default = " + std::to_string(p_Options->m_MullerMandelKickNS) + ")").c_str()
         )
 
         (
-            "neutrino-mass-loss-bh-formation-value",                       
+            "neutrino-mass-loss-BH-formation-value",                       
             po::value<double>(&p_Options->m_NeutrinoMassLossValueBH)->default_value(p_Options->m_NeutrinoMassLossValueBH),                                                                        
             ("Value corresponding to neutrino mass loss assumption (default = " + std::to_string(p_Options->m_NeutrinoMassLossValueBH) + ")").c_str()
         )
@@ -1142,22 +1141,22 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
-            "pisn-lower-limit",                                            
+            "PISN-lower-limit",                                            
             po::value<double>(&p_Options->m_PairInstabilityLowerLimit)->default_value(p_Options->m_PairInstabilityLowerLimit),                                                                    
             ("Minimum core mass for PISN (default = " + std::to_string(p_Options->m_PairInstabilityLowerLimit) + ")").c_str()
         )
         (
-            "pisn-upper-limit",                                            
+            "PISN-upper-limit",                                            
             po::value<double>(&p_Options->m_PairInstabilityUpperLimit)->default_value(p_Options->m_PairInstabilityUpperLimit),                                                                    
             ("Maximum core mass for PISN (default = " + std::to_string(p_Options->m_PairInstabilityUpperLimit) + ")").c_str()
         )
         (
-            "ppi-lower-limit",                                             
+            "PPI-lower-limit",                                             
             po::value<double>(&p_Options->m_PulsationalPairInstabilityLowerLimit)->default_value(p_Options->m_PulsationalPairInstabilityLowerLimit),                                              
             ("Minimum core mass for PPI (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityLowerLimit) + ")").c_str()
         )
         (
-            "ppi-upper-limit",                                             
+            "PPI-upper-limit",                                             
             po::value<double>(&p_Options->m_PulsationalPairInstabilityUpperLimit)->default_value(p_Options->m_PulsationalPairInstabilityUpperLimit),                                              
             ("Maximum core mass for PPI (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityUpperLimit) + ")").c_str()
         )
@@ -1260,7 +1259,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
-            "case-bb-stability-prescription",                              
+            "case-BB-stability-prescription",                              
             po::value<std::string>(&p_Options->m_CaseBBStabilityPrescription.typeString)->default_value(p_Options->m_CaseBBStabilityPrescription.typeString),                                                    
             ("Case BB/BC mass transfer stability prescription (options: [ALWAYS_STABLE, ALWAYS_STABLE_ONTO_NSBH, TREAT_AS_OTHER_MT, ALWAYS_UNSTABLE], default = " + p_Options->m_CaseBBStabilityPrescription.typeString + ")").c_str()
         )
@@ -1323,29 +1322,29 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         // Serena
         /*
         (
-            "logfile-bse-be-binaries",                                     
+            "logfile-BSE-BE-binaries",                                     
             po::value<std::string>(&p_Options->m_LogfileBeBinaries)->default_value(p_Options->m_LogfileBeBinaries),                                                                              
             ("Filename for BSE Be Binaries logfile (default = " + p_Options->m_LogfileBeBinaries + ")").c_str()
         )
         */
 
         (
-            "logfile-bse-rlof-parameters",                                 
+            "logfile-rlof-parameters",                                 
             po::value<std::string>(&p_Options->m_LogfileRLOFParameters)->default_value(p_Options->m_LogfileRLOFParameters),                                                                      
             ("Filename for BSE RLOF Parameters logfile ( default = " + p_Options->m_LogfileRLOFParameters + ")").c_str()
         )
         (
-            "logfile-bse-common-envelopes",                                
+            "logfile-common-envelopes",                                
             po::value<std::string>(&p_Options->m_LogfileCommonEnvelopes)->default_value(p_Options->m_LogfileCommonEnvelopes),                                                                    
             ("Filename for BSE Common Envelopes logfile (default = " + p_Options->m_LogfileCommonEnvelopes + ")").c_str()
         )
         (
-            "logfile-bse-detailed-output",                                 
+            "logfile-detailed-output",                                 
             po::value<std::string>(&p_Options->m_LogfileDetailedOutput)->default_value(p_Options->m_LogfileDetailedOutput),                                                                      
             ("Filename for BSE Detailed Output logfile (default = " + p_Options->m_LogfileDetailedOutput + ")").c_str()
         )
         (
-            "logfile-bse-double-compact-objects",                          
+            "logfile-double-compact-objects",                          
             po::value<std::string>(&p_Options->m_LogfileDoubleCompactObjects)->default_value(p_Options->m_LogfileDoubleCompactObjects),                                                          
             ("Filename for Double Compact Objects logfile (default = " + p_Options->m_LogfileDoubleCompactObjects + ")").c_str()
         )
@@ -1423,7 +1422,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
-            "neutrino-mass-loss-bh-formation",                             
+            "neutrino-mass-loss-BH-formation",                             
             po::value<std::string>(&p_Options->m_NeutrinoMassLossAssumptionBH.typeString)->default_value(p_Options->m_NeutrinoMassLossAssumptionBH.typeString),                                                  
             ("Assumption about neutrino mass loss during BH formation (options: [FIXED_FRACTION, FIXED_MASS], default = " + p_Options->m_NeutrinoMassLossAssumptionBH.typeString + ")").c_str()
         )
@@ -1918,6 +1917,10 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
 /*
  * Determine if the user specified a value for the option
+ * Note that this function does not check whether the option string
+ * pass as p_OptionString is a valid option string - it just checks
+ * whether the user specfied it, either at the grid line level, or
+ * at the commandline level.
  * 
  * 
  * int OptionSpecified(std::string p_OptionString) 
@@ -1925,36 +1928,31 @@ std::string Options::OptionValues::CheckAndSetOptions() {
  * 
  * @param   [IN]    p_OptionString              String containing option name
  * @return                                      Int result:
- *                                                  -1: invalid/unknown option name
- *                                                   0: option was not specified by user - default value used
- *                                                   1: option specified by user - user specified value used
+ *                                                   0: option was not specified by user
+ *                                                   1: option specified by user
  */
 int Options::OptionSpecified(const std::string p_OptionString) {
 
-    int  result = -1;                                                                                                               // default = invalid/unknown option
-    
-    try {
-        if (m_GridLine.optionValues.m_VM.count(p_OptionString) > 0) {                                                               // option exists at grid line (evolving object) level?
-            result = (!m_GridLine.optionValues.m_Populated || m_GridLine.optionValues.m_VM[p_OptionString].defaulted()) ? 0 : 1;    // yes - set result
-        }
+    std::string opt = p_OptionString;
+    opt = utils::ToLower(utils::trim(opt));
 
-        if (result != 1) {                                                                                                          // do we already have a result?
-            if (m_CmdLine.optionValues.m_VM.count(p_OptionString) > 0) {                                                            // no - option exists at the commandline (program) level?
-                result = (!m_CmdLine.optionValues.m_Populated || m_CmdLine.optionValues.m_VM[p_OptionString].defaulted()) ? 0 : 1;  // yes - set result
-            }
-            else {                                                                                                                  // option does not exist at the commandline (program-level)
-                result = -1;                                                                                                        // set result
-            }
-        }    
-    }
-    catch (po::error& e) {                                                                                                          // program options exception
-        result = -1;
-    }
-    catch (...) {                                                                                                                   // unhandled exception
-        result = -1;                                                                                                                // set return value - invalid/unknown option
-    }
-    
-    return result;
+    // check if option specified at grid line (evolving object) level?
+    auto gridLineIt = std::find_if(
+        m_GridLine.optionsSpecified.begin(), m_GridLine.optionsSpecified.end(), [&opt](const OPTIONSTR& e) {
+            return std::get<0>(e) == opt || std::get<1>(e) == opt || std::get<2>(e) == opt || std::get<3>(e) == opt;
+        }
+    );
+    if (gridLineIt != m_GridLine.optionsSpecified.end()) return 1;
+
+    // check if option specified at commandline (program) level?
+    auto cmdLineIt = std::find_if(
+        m_CmdLine.optionsSpecified.begin(), m_CmdLine.optionsSpecified.end(), [&opt](const OPTIONSTR& e) {
+            return std::get<0>(e) == opt || std::get<1>(e) == opt || std::get<2>(e) == opt || std::get<3>(e) == opt;
+        }
+    );
+    if (cmdLineIt != m_CmdLine.optionsSpecified.end()) return 1;
+
+    return 0;       // not specified
 }
 
 
@@ -2229,6 +2227,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
     try {
 
+        p_OptionsDescriptor.optionsSpecified    = {};                                                                       // initially
         p_OptionsDescriptor.complexOptionValues = {};                                                                       // initially
 
         std::string  optionName        = "";                                                                                // option name
@@ -2242,13 +2241,13 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
             type = COMPLEX_TYPE::NONE;                                                                                      // initially
 
             optionName = p_ArgStrings[iArg - 1];                                                                            // get the option name for the argument we're processing
-            optionName = utils::trim(optionName);                                                                           // trim whitespace
+            optionName = utils::ToLower(utils::trim(optionName));                                                           // downshift and trim whitespace
             if (optionName[0] == '-') optionName.erase(0, optionName.find_first_not_of("-"));                               // remove the "-" or "--"
 
             if (p_ArgStrings[iArg] != nullptr) {                                                                            // null arg?
                                                                                                                             // no
                 std::string str(p_ArgStrings[iArg]);                                                                        // convert char* to std::string
-                str = utils::trim(str);                                                                                     // trim whitespace
+                str = utils::ToLower(utils::trim(str));                                                                     // downshift and trim whitespace
 
                 // check for RANGE or SET
                 // range is indicated by 'range[start,count,inc]', 'r[start,count,inc]', or just '[start,count,inc]'
@@ -2357,19 +2356,30 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
         // in the argument strings that will be passed to boost - so boost will fail
         // and complain about the offending parameter (which is what we want)
 
-        po::parsed_options const parsedOptions = po::parse_command_line(p_ArgCount, p_ArgStrings, p_OptionsDescriptor.optionDescriptions);  // parse user-supplied options
+        po::parsed_options const parsedOptions = po::parse_command_line(p_ArgCount, p_ArgStrings, p_OptionsDescriptor.optionDescriptions, cls::unix_style|cls::case_insensitive); // parse user-supplied options
         po::store(parsedOptions, p_OptionsDescriptor.optionValues.m_VM);                                                    // store parsed options into variable map
         po::notify(p_OptionsDescriptor.optionValues.m_VM);                                                                  // populate the variables with option values
 
         // this is our opportunity to distinguish beteen "-h" and "--help" (if specified)
         for (auto& entry : parsedOptions.options) {
-            po::option_description const& opt = p_OptionsDescriptor.optionDescriptions.find(entry.string_key, false, false, false); 
-            std::string thisTok = entry.original_tokens[0];
+            po::option_description const& opt = p_OptionsDescriptor.optionDescriptions.find(entry.string_key, false, false, false);
+            std::string originalTok = entry.original_tokens[0];
+            std::string thisTok = utils::ToLower(utils::trim(originalTok));
+
             if (!thisTok.empty()) {
-                if ((opt.canonical_display_name(cls::allow_dash_for_short) == "-h")      ||
-                    (opt.canonical_display_name(cls::allow_long)           == "--help")) {
+                std::string shortOpt = utils::ToLower(opt.canonical_display_name(cls::allow_dash_for_short));
+                std::string longOpt  = utils::ToLower(opt.canonical_display_name(cls::allow_long));
+
+                if ((shortOpt == "-h") || (longOpt == "--help")) {
                     p_OptionsDescriptor.optionValues.m_ShortHelp = thisTok == "-h";
                 }
+
+                if (originalTok[0] == '-') originalTok.erase(0, originalTok.find_first_not_of("-"));                        // remove the "-" or "--"
+                if (thisTok[0]     == '-') thisTok.erase(0, thisTok.find_first_not_of("-"));                                // remove the "-" or "--"
+                if (longOpt[0]     == '-') longOpt.erase(0, longOpt.find_first_not_of("-"));                                // remove the "-" or "--"
+                if (shortOpt[0]    == '-') shortOpt.erase(0, shortOpt.find_first_not_of("-"));                              // remove the "-" or "--"
+
+                p_OptionsDescriptor.optionsSpecified.push_back(std::make_tuple(originalTok, thisTok, longOpt, shortOpt));        
             }
         }
 
@@ -2409,7 +2419,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
         
                 std::string opt = get<0>(p_OptionsDescriptor.complexOptionValues[iOpt]);                                    // option name
 
-                if (m_CmdLine.optionValues.m_EvolutionMode.typeString == "bse") {                                           // BSE?
+                if (utils::ToLower(m_CmdLine.optionValues.m_EvolutionMode.typeString) == "bse") {                           // BSE?
                     if (std::find(m_SSEOnly.begin(), m_SSEOnly.end(), opt) != m_SSEOnly.end()) removeOpts.push_back(iOpt);  // remove SSE only option
                 }
                 else {                                                                                                      // SSE
@@ -2445,7 +2455,20 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                 type       = details.type;                                                                                  // range or set
                 parms      = details.parameters;                                                                            // range/set parameter values (as strings)
 
-                po::variables_map::const_iterator it = p_OptionsDescriptor.optionValues.m_VM.find(optionName);              // yes - find the option in the boost variables map
+                // we want to use the long name of the option for this next bit
+                // look for the option in the options specified - if it's not 
+                // found the find in m_VM will fail for us...
+                std::string longOptionName = optionName;
+                auto thisIt = std::find_if(
+                    p_OptionsDescriptor.optionsSpecified.begin(), p_OptionsDescriptor.optionsSpecified.end(), [&optionName](const OPTIONSTR& e) {
+                        return std::get<0>(e) == optionName || std::get<1>(e) == optionName || std::get<2>(e) == optionName || std::get<3>(e) == optionName;
+                    }
+                );
+                if (thisIt != p_OptionsDescriptor.optionsSpecified.end()) {
+                    longOptionName = get<2>(*thisIt);
+                }
+
+                po::variables_map::const_iterator it = p_OptionsDescriptor.optionValues.m_VM.find(longOptionName);          // yes - find the option in the boost variables map
                 if (it != p_OptionsDescriptor.optionValues.m_VM.end()) {                                                    // found?
                     TYPENAME dataType = TYPENAME::NONE;                                                                     // yes
                     std::tie(dataType, std::ignore, std::ignore, std::ignore) = OptionAttributes(p_OptionsDescriptor.optionValues.m_VM, it); // data type
@@ -2466,8 +2489,8 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                             switch (dataType) {                                                                             // which data type?
 
                                 case TYPENAME::INT: {                                                                       // INT
-                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_INT) + std::string(" '") + optionName  + std::string("'");
-                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_INT) + std::string(" '") + optionName + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName + std::string("'");
                                     try {
                                         RangeParameterT tmp = {0.0L};                                                       // dummy value
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
@@ -2495,8 +2518,8 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                 } break;
 
                                 case TYPENAME::LONGINT: {                                                                   // LONG INT
-                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_LINT) + std::string(" '") + optionName  + std::string("'");
-                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_LINT) + std::string(" '") + optionName + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName + std::string("'");
                                     try {
                                         RangeParameterT tmp = {0.0};                                                        // dummy value
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
@@ -2524,8 +2547,8 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                 } break;
 
                                 case TYPENAME::ULONGINT: {                                                                  // UNSIGNED LONG INT
-                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
-                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_ULINT) + std::string(" '") + optionName + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName + std::string("'");
                                     try {
                                         RangeParameterT tmp = {0.0};                                                        // dummy value
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
@@ -2553,8 +2576,8 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                 } break;
 
                                 case TYPENAME::FLOAT: {                                                                     // FLOAT
-                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP) + std::string(" '") + optionName  + std::string("'");
-                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP) + std::string(" '") + optionName + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName + std::string("'");
                                     try {
                                         RangeParameterT tmp = {0.0};                                                        // dummy value
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
@@ -2582,8 +2605,8 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                 } break;
 
                                 case TYPENAME::LONGDOUBLE: {                                                                // LONG DOUBLE
-                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_LFP) + std::string(" '") + optionName  + std::string("'");
-                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName  + std::string("'");
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_LFP) + std::string(" '") + optionName + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName + std::string("'");
                                     try {
                                         RangeParameterT tmp = {0.0};                                                        // dummy value
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
@@ -2631,7 +2654,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                     (dataType == TYPENAME::FLOAT      && !utils::IsFLOAT(parms[ip]))       ||               // FLOAT?
                                     (dataType == TYPENAME::LONGDOUBLE && !utils::IsLONGDOUBLE(parms[ip]))) {                // LONG DOUBLE?
                                     error  = true;                                                                          // no - that's not ok
-                                    errStr = ERR_MSG(ERROR::ARGUMENT_SET_EXPECTED_NUMERIC) + std::string(" '") + optionName  + std::string("'");
+                                    errStr = ERR_MSG(ERROR::ARGUMENT_SET_EXPECTED_NUMERIC) + std::string(" '") + optionName + std::string("'");
                                     break;
                                 }
                             }
@@ -2655,7 +2678,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                     break;
                                 }
                             }
-                            if (error || validCheck == 0) errStr = ERR_MSG(ERROR::ARGUMENT_SET_EXPECTED_BOOL) + std::string(" '") + optionName  + std::string("'");
+                            if (error || validCheck == 0) errStr = ERR_MSG(ERROR::ARGUMENT_SET_EXPECTED_BOOL) + std::string(" '") + optionName + std::string("'");
                         }
 
                         if (!error) {
@@ -2711,12 +2734,14 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
 
     bool ok = true;                                                                                                 // status - unless something changes
 
-    // first, dowshift all options
-    for (int iArg = 0; iArg < p_ArgCount; iArg++) {
-        int s = strlen(p_ArgStrings[iArg]);
-        for (int i = 0; i < s; i++)
-            p_ArgStrings[iArg][i] = tolower(p_ArgStrings[iArg][i]);
-    }
+    // we need the strings in the following vectors to be downshifted for comparisons
+    // we'll do it here once - just in case someone added non-lower case strings...
+
+    for (size_t idx = 0; idx < m_GridLineExcluded.size(); idx++) m_GridLineExcluded[idx] = utils::ToLower(utils::trim(m_GridLineExcluded[idx]));
+    for (size_t idx = 0; idx < m_SSEOnly.size();          idx++) m_SSEOnly[idx]          = utils::ToLower(utils::trim(m_SSEOnly[idx]));
+    for (size_t idx = 0; idx < m_BSEOnly.size();          idx++) m_BSEOnly[idx]          = utils::ToLower(utils::trim(m_BSEOnly[idx]));
+    for (size_t idx = 0; idx < m_RangeExcluded.size();    idx++) m_RangeExcluded[idx]    = utils::ToLower(utils::trim(m_RangeExcluded[idx]));
+    for (size_t idx = 0; idx < m_SetExcluded.size();      idx++) m_SetExcluded[idx]      = utils::ToLower(utils::trim(m_SetExcluded[idx]));
 
     try {
 
@@ -3015,8 +3040,6 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
 
         m_GridLine.optionValues.Initialise();                                                                       // initialise option variables for evolving object-level options
 
-        std::string optionsString = utils::ToLower(p_OptionsString);                                                // first downshift all options
-
         // parse the option string (just as the OS/shell would do)
 
         std::vector<std::string> parsedStrings;                                                                     // parsed option strings
@@ -3025,8 +3048,8 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
         size_t end        = 0;                                                                                      // end position of parsed option strinf
         std::string delim = " ";                                                                                    // delimiter
         while (end != std::string::npos) {                                                                          // iterate over input string
-            end = optionsString.find(delim, start);                                                                 // find delimiter
-            std::string str = optionsString.substr(start, end - start);                                             // grab option/argument string
+            end = p_OptionsString.find(delim, start);                                                               // find delimiter
+            std::string str = p_OptionsString.substr(start, end - start);                                           // grab option/argument string
             std::string trimmedStr = utils::trim(str);                                                              // trim whitespace
             if (!trimmedStr.empty()) parsedStrings.push_back(trimmedStr);                                           // store if not empty string
             start = end + delim.length();                                                                           // new start position
