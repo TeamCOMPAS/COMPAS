@@ -473,12 +473,12 @@ void Options::OptionValues::Initialise() {
 
     m_LogfileBeBinaries                                             = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));
     m_LogfileCommonEnvelopes                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));
-    m_LogfileDetailedOutput                                         = (m_EvolutionMode.type == EVOLUTION_MODE::SSE) ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_DETAILED_OUTPUT)) : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT));
+    m_LogfileDetailedOutput                                         = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT));  // assume BSE - get real answer when we know mode
     m_LogfileDoubleCompactObjects                                   = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS));
     m_LogfilePulsarEvolution                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)); // only BSE for now
     m_LogfileRLOFParameters                                         = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS));
-    m_LogfileSupernovae                                             = (m_EvolutionMode.type == EVOLUTION_MODE::SSE) ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)) : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));
-    m_LogfileSwitchLog                                              = (m_EvolutionMode.type == EVOLUTION_MODE::SSE) ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)) : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));
+    m_LogfileSupernovae                                             = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));       // assume BSE - get real answer when we know mode
+    m_LogfileSwitchLog                                              = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));       // assume BSE - get real answer when we know mode
     m_LogfileSystemParameters                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));
     
 
@@ -1322,7 +1322,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         // Serena
         /*
         (
-            "logfile-BSE-BE-binaries",                                     
+            "logfile-BE-binaries",                                     
             po::value<std::string>(&p_Options->m_LogfileBeBinaries)->default_value(p_Options->m_LogfileBeBinaries),                                                                              
             ("Filename for BSE Be Binaries logfile (default = " + p_Options->m_LogfileBeBinaries + ")").c_str()
         )
@@ -1529,6 +1529,33 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
     std::string errStr = "";                                        // error string
 
     try {
+
+        // set "default" values for magnitude random number
+        // only set if the user did not specify a value
+
+        if (DEFAULTED("kick-magnitude-random")) {
+            m_KickMagnitudeRandom = RAND->Random();
+            if (p_ModifyMap) {
+                ModifyVariableMap(m_VM, "kick-magnitude-random", m_KickMagnitudeRandom);
+                po::notify(m_VM);
+            }
+        }
+    
+        if (DEFAULTED("kick-magnitude-random-1")) {
+            m_KickMagnitudeRandom1 = RAND->Random();
+            if (p_ModifyMap) {
+                ModifyVariableMap(m_VM, "kick-magnitude-random-1", m_KickMagnitudeRandom1);
+                po::notify(m_VM);
+            }
+        }
+    
+        if (DEFAULTED("kick-magnitude-random-2")) {
+            m_KickMagnitudeRandom2 = RAND->Random();
+            if (p_ModifyMap) {
+                ModifyVariableMap(m_VM, "kick-magnitude-random-2", m_KickMagnitudeRandom2);
+                po::notify(m_VM);
+            }
+        }
 
         // set "default" values for mean anomaly
         // only set if the user did not specify a value
@@ -1897,6 +1924,14 @@ std::string Options::OptionValues::CheckAndSetOptions() {
                 m_SemiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(m_InitialMass1, m_InitialMass2, m_OrbitalPeriod);   // yes - calculate separation from period
             }
         }
+
+        COMPLAIN_IF(m_KickMagnitude  < 0.0, "Kick magnitude (--kick-magnitude) must be >= 0");
+        COMPLAIN_IF(m_KickMagnitude1 < 0.0, "Kick magnitude (--kick-magnitude-1) must be >= 0");
+        COMPLAIN_IF(m_KickMagnitude2 < 0.0, "Kick magnitude (--kick-magnitude-2) must be >= 0");
+
+        COMPLAIN_IF(m_KickMagnitudeRandom  < 0.0 || m_KickMagnitudeRandom  >= 1.0, "Kick magnitude random (--kick-magnitude-random) must be >= 0 and < 1");
+        COMPLAIN_IF(m_KickMagnitudeRandom1 < 0.0 || m_KickMagnitudeRandom1 >= 1.0, "Kick magnitude random (--kick-magnitude-random-1) must be >= 0 and < 1");
+        COMPLAIN_IF(m_KickMagnitudeRandom2 < 0.0 || m_KickMagnitudeRandom2 >= 1.0, "Kick magnitude random (--kick-magnitude-random-2) must be >= 0 and < 1");
 
         errStr = SetCalculatedOptionDefaults(false);                                                                                // set calculated option values
     }
@@ -2444,16 +2479,18 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
             // ok, now process the list of complex options
             RangeOrSetDescriptorT details = {};
+            std::string longOptionName;
 
             size_t count = p_OptionsDescriptor.complexOptionValues.size();                                                  // count of complex values (ranges or sets)
             for (size_t idx = 0; idx < count; idx++) {                                                                      // for each range or set specified
 
                 error = false;                                                                                              // for now...
 
-                optionName = get<0>(p_OptionsDescriptor.complexOptionValues[idx]);                                          // the option name
-                details    = get<1>(p_OptionsDescriptor.complexOptionValues[idx]);                                          // range/set details for this optionName
-                type       = details.type;                                                                                  // range or set
-                parms      = details.parameters;                                                                            // range/set parameter values (as strings)
+                optionName     = get<0>(p_OptionsDescriptor.complexOptionValues[idx]);                                          // the option name
+                longOptionName = optionName;
+                details        = get<1>(p_OptionsDescriptor.complexOptionValues[idx]);                                          // range/set details for this optionName
+                type           = details.type;                                                                                  // range or set
+                parms          = details.parameters;                                                                            // range/set parameter values (as strings)
 
                 // we want to use the long name of the option for this next bit
                 // look for the option in the options specified - if it's not 
@@ -2466,6 +2503,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                 );
                 if (thisIt != p_OptionsDescriptor.optionsSpecified.end()) {
                     longOptionName = get<2>(*thisIt);
+                    p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details);
                 }
 
                 po::variables_map::const_iterator it = p_OptionsDescriptor.optionValues.m_VM.find(longOptionName);          // yes - find the option in the boost variables map
@@ -2506,7 +2544,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                             details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
                                             COMPLAIN_IF(lastChar != details.parameters[1].size(), complaint2);              // not a valid unsigned long int
 
-                                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
+                                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details); // reset values
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
                                             errStr = complaint2;
@@ -2535,7 +2573,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                             details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
                                             COMPLAIN_IF(lastChar != details.parameters[1].size(), complaint2);              // not a valid unsigned long int
 
-                                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
+                                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details); // reset values
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
                                             errStr = complaint2;
@@ -2564,7 +2602,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                             details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
                                             COMPLAIN_IF(lastChar != details.parameters[2].size(), complaint2);              // not a valid unsigned long int
 
-                                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
+                                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details); // reset values
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
                                             errStr = complaint2;
@@ -2593,7 +2631,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                             details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
                                             COMPLAIN_IF(lastChar != details.parameters[1].size(), complaint2);              // not a valid unsigned long int
 
-                                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
+                                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details); // reset values
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
                                             errStr = complaint2;
@@ -2622,7 +2660,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                             details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
                                             COMPLAIN_IF(lastChar != details.parameters[1].size(), complaint2);              // not a valid unsigned long int
 
-                                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details); // reset values
+                                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details); // reset values
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
                                             errStr = complaint2;
@@ -2682,7 +2720,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                         }
 
                         if (!error) {
-                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(optionName, details);            // reset values
+                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details);        // reset values
                         }
                     }
                 }
@@ -2852,7 +2890,10 @@ int Options::AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor) {
 
     int retVal = 0;
 
-    if (p_OptionsDescriptor.complexOptionValues.size() == 0) return retVal;
+    if (p_OptionsDescriptor.complexOptionValues.size() == 0) {          // more variations?
+        // no - set calculated option defaults and return
+        return p_OptionsDescriptor.optionValues.SetCalculatedOptionDefaults(false) == "" ? 0 : -1;
+    }
 
     // Upon entry iterators for ranges and sets need to be advanced in order
     // to pick up the correct values to be loaded into the options.  Really
@@ -2873,7 +2914,7 @@ int Options::AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor) {
 
         stop = true;                                                    // assume we have what we need
 
-        std::string optionName        = get<0>(p_OptionsDescriptor.complexOptionValues[idx]);        
+        std::string optionName        = get<0>(p_OptionsDescriptor.complexOptionValues[idx]);  
         RangeOrSetDescriptorT details = get<1>(p_OptionsDescriptor.complexOptionValues[idx]);
         details.currPos++;                                              // advance iterator
 

@@ -476,7 +476,7 @@
 // 02.15.19     IM - Oct 23, 2020   - Enhancements
 //                                      - Continue evolving DCOs until merger if EvolvePulsars is on (Issue #167)
 //                                      - Removed m_SecondaryTooSmallForDCO (Issue #337)
-// 02.15.19e    JR - Oct 24, 2020   - Experimental version - new grid file implementation
+// 02.15.19e    JR - Oct 27, 2020   - Experimental version - new grid file implementation
 
 const std::string VERSION_STRING = "02.15.19e";
 

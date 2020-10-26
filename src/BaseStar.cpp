@@ -2343,7 +2343,7 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
  * @return                                      Drawn kick magnitude (km s^-1)
  */
 double BaseStar::DrawKickMagnitudeDistributionMaxwell(const double p_Sigma, const double p_Rand) {
-    return p_Sigma*sqrt(gsl_cdf_chisq_Pinv(p_Rand, 3)); // a Maxwellian is a chi distribution with three degrees of freedom
+    return p_Sigma * sqrt(gsl_cdf_chisq_Pinv(p_Rand, 3)); // a Maxwellian is a chi distribution with three degrees of freedom
 }
 
 
@@ -2522,7 +2522,6 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
     }
 
     return kickMagnitude / OPTIONS->KickScalingFactor();
-
 }
 
 
@@ -2542,7 +2541,7 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
     ERROR error = ERROR::NONE;
 	double vK;
 
-    if (!m_SupernovaDetails.initialKickParameters.magnitudeSpecified ||                             // user did not supply kick magnitue, or
+    if (!m_SupernovaDetails.initialKickParameters.magnitudeSpecified ||                             // user did not supply kick magnitude, or
          m_SupernovaDetails.initialKickParameters.magnitudeRandomSpecified) {                       // ... wants to draw magnitude using supplied random number
 
         double sigma;
