@@ -1585,7 +1585,7 @@ STELLAR_TYPE GiantBranch::ResolvePairInstabilitySN() {
 
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;
-    m_SupernovaDetails.fallbackFraction  = 0.0;
+    m_SupernovaDetails.fallbackFraction   = 0.0;
 
     SetSNCurrentEvent(SN_EVENT::PISN);                                                                  // pair instability SN happening now
     SetSNPastEvent(SN_EVENT::PISN);                                                                     // ... and will be a past event
@@ -1728,7 +1728,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         // will be printed in Star::EvolveOneTimestep() after timestep is accepted (i.e. we don't revert state)
         // need to record the stellar type to which the star will switch if we don't revert state
 
-        if (OPTIONS->SingleStar()) {                                                                // only if SSE (BSE does its own SN printing)
+        if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {                                      // only if SSE (BSE does its own SN printing)
             StashSupernovaDetails(stellarType);
         }
     }

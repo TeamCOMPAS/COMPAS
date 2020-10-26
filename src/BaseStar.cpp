@@ -2,7 +2,7 @@
 #include <gsl/gsl_roots.h>
 #include <gsl/gsl_cdf.h>
 
-// boos includes
+// boost includes
 #include <boost/math/distributions.hpp>
 
 #include "Rand.h"
@@ -27,31 +27,26 @@ BaseStar::BaseStar() {
 
 
 BaseStar::BaseStar(const unsigned long int p_RandomSeed, 
-                   const double            p_MZAMS, 
+                   const double            p_MZAMS,
                    const double            p_Metallicity, 
-                   const KickParameters    p_KickParameters,
-                   const double            p_LBVfactor, 
-                   const double            p_WolfRayetFactor) {
+                   const KickParameters    p_KickParameters) {
 
     // initialise member variables
 
-    m_ObjectId            = globalObjectId++;                           // unique object id - remains for life of star (even through evolution to other phases)
-    m_ObjectType          = OBJECT_TYPE::BASE_STAR;                     // object type - remains for life of star (even through evolution to other phases)
-    m_InitialStellarType  = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
-    m_StellarType         = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
+    m_ObjectId            = globalObjectId++;                                                       // unique object id - remains for life of star (even through evolution to other phases)
+    m_ObjectType          = OBJECT_TYPE::BASE_STAR;                                                 // object type - remains for life of star (even through evolution to other phases)
+    m_InitialStellarType  = STELLAR_TYPE::STAR;                                                     // stellar type - changes throughout life of star (through evolution to other phases)
+    m_StellarType         = STELLAR_TYPE::STAR;                                                     // stellar type - changes throughout life of star (through evolution to other phases)
 
-    m_Error               = ERROR::NONE;                                // clear error flag
+    m_Error               = ERROR::NONE;                                                            // clear error flag
 
-    m_CHE                 = false;                                      // initially
+    m_CHE                 = false;                                                                  // initially
     
     // Initialise member variables from input parameters
     // (kick parameters initialised below - see m_SupernovaDetails)
     m_RandomSeed          = p_RandomSeed;
     m_MZAMS               = p_MZAMS;
-    m_Metallicity         = std::min(std::max(p_Metallicity, 0.0), 1.0);
-    m_LBVfactor           = p_LBVfactor;
-    m_WolfRayetFactor     = p_WolfRayetFactor;
-
+    m_Metallicity         = p_Metallicity;
 
     // Initialise metallicity dependent values
     m_LogMetallicityXi    = log10(m_Metallicity / ZSOL);
@@ -125,7 +120,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Time                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Dt                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Tau                                      = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Age                                      = 0.0;           // ensure age = 0.0 at construction (rather than default initial value)
+    m_Age                                      = 0.0;                                               // ensure age = 0.0 at construction (rather than default initial value)
     m_Mass                                     = m_MZAMS;
     m_Mass0                                    = m_MZAMS;
     m_Luminosity                               = m_LZAMS;
@@ -151,6 +146,11 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_RadiusPrev                               = m_RZAMS;
     m_DtPrev                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_OmegaPrev                                = m_OmegaZAMS;
+
+    // Winds
+
+    m_LBVfactor                                = OPTIONS->LuminousBlueVariableFactor();
+    m_WolfRayetFactor                          = OPTIONS->WolfRayetFactor();
 
     // Lambdas
 	m_Lambdas.dewi                             = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -183,8 +183,8 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_SupernovaDetails.HeCoreMassAtCOFormation = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_SupernovaDetails.totalMassAtCOFormation  = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_SupernovaDetails.drawnKickMagnitude       = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_SupernovaDetails.kickMagnitude            = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SupernovaDetails.drawnKickMagnitude      = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SupernovaDetails.kickMagnitude           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_SupernovaDetails.isHydrogenPoor          = false;
     m_SupernovaDetails.fallbackFraction        = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -194,22 +194,15 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     m_SupernovaDetails.supernovaState          = SN_STATE::NONE;
 
-    if (p_KickParameters.supplied) {
-        m_SupernovaDetails.kickMagnitudeRandom  = p_KickParameters.useMagnitudeRandom ? p_KickParameters.magnitudeRandom : DEFAULT_INITIAL_DOUBLE_VALUE;
-        m_SupernovaDetails.theta               = p_KickParameters.theta;
-        m_SupernovaDetails.phi                 = p_KickParameters.phi;
-        m_SupernovaDetails.meanAnomaly         = p_KickParameters.meanAnomaly;
-    }
-    else {
-        m_SupernovaDetails.kickMagnitudeRandom  = RAND->Random();
-        std::tie(m_SupernovaDetails.theta, m_SupernovaDetails.phi) = DrawKickDirection();
-        m_SupernovaDetails.meanAnomaly         = RAND->Random(0.0, _2_PI);
-    }
+    m_SupernovaDetails.kickMagnitudeRandom     = p_KickParameters.magnitudeRandom;
+    m_SupernovaDetails.theta                   = p_KickParameters.theta;
+    m_SupernovaDetails.phi                     = p_KickParameters.phi;
+    m_SupernovaDetails.meanAnomaly             = p_KickParameters.meanAnomaly;
 
     // Calculates the Baryonic mass for which the GravitationalRemnantMass will be equal to the maximumNeutronStarMass (inverse of SolveQuadratic())
     // needed to decide whether to calculate Fryer+2012 for Neutron Star or Black Hole in GiantBranch::CalculateGravitationalRemnantMass()
-    m_BaryonicMassOfMaximumNeutronStarMass      = (0.075 * OPTIONS->MaximumNeutronStarMass() * OPTIONS->MaximumNeutronStarMass()) + OPTIONS->MaximumNeutronStarMass();
     // calculate only once for entire simulation of N binaries in the future.
+    m_BaryonicMassOfMaximumNeutronStarMass     = (0.075 * OPTIONS->MaximumNeutronStarMass() * OPTIONS->MaximumNeutronStarMass()) + OPTIONS->MaximumNeutronStarMass();
 
     // Pulsar details
     m_PulsarDetails.magneticField              = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -2311,21 +2304,21 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
 
     double vK;
 
-    switch (OPTIONS->BlackHoleKicksOption()) {                      // which BH kicks option specified?
+    switch (OPTIONS->BlackHoleKicks()) {                            // which BH kicks option specified?
 
-        case BLACK_HOLE_KICK_OPTION::FULL:                          // BH receives full kick - no adjustment necessary
+        case BLACK_HOLE_KICKS::FULL:                                // BH receives full kick - no adjustment necessary
             vK = p_vK;
             break;
 
-        case BLACK_HOLE_KICK_OPTION::REDUCED:                       // Kick is reduced by the ratio of the black hole mass to neutron star mass i.e. v_bh = ns/bh  *v_ns
+        case BLACK_HOLE_KICKS::REDUCED:                             // Kick is reduced by the ratio of the black hole mass to neutron star mass i.e. v_bh = ns/bh  *v_ns
             vK = p_vK * NEUTRON_STAR_MASS / p_BlackHoleMass;
             break;
 
-        case BLACK_HOLE_KICK_OPTION::ZERO:
+        case BLACK_HOLE_KICKS::ZERO:
             vK = 0.0;                                               // BH Kicks are set to zero regardless of BH mass or kick magnitude drawn.
             break;
 
-        case BLACK_HOLE_KICK_OPTION::FALLBACK:                      // Using the so-called 'fallback' prescription for BH kicks
+        case BLACK_HOLE_KICKS::FALLBACK:                            // Using the so-called 'fallback' prescription for BH kicks
             vK = p_vK * (1.0 - p_FallbackFraction);
             break;
 
@@ -2350,7 +2343,7 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
  * @return                                      Drawn kick magnitude (km s^-1)
  */
 double BaseStar::DrawKickMagnitudeDistributionMaxwell(const double p_Sigma, const double p_Rand) {
-    return p_Sigma*sqrt(gsl_cdf_chisq_Pinv(p_Rand, 3)); // a Maxwellian is a chi distribution with three degrees of freedom
+    return p_Sigma * sqrt(gsl_cdf_chisq_Pinv(p_Rand, 3)); // a Maxwellian is a chi distribution with three degrees of freedom
 }
 
 
@@ -2430,7 +2423,9 @@ double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
 /*
  * Draw kick magnitude per Mandel and Mueller, 2020
  *
- * double DrawRemnantKickMuller(const double p_COCoreMass)
+ * double DrawRemnantKickMullerMandel(const double p_COCoreMass, 
+ *                                    const double p_Rand,
+ *                                    const double p_RemnantMass)
  * 
  * @param   [IN]    p_COCoreMass                Carbon Oxygen core mass of exploding star (Msol)
  * @param   [IN]    p_Rand                      Random number between 0 and 1 used for drawing from the distribution
@@ -2438,22 +2433,24 @@ double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
  * @return                                      Drawn kick magnitude (km s^-1)
  */
 double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass, 
-                                    const double p_Rand,
-                                    const double p_RemnantMass) {					
-	double remnantKick=-1.0;
-	double muKick=0.0;
-    double rand=p_Rand;		//makes it possible to adjust if p_Rand is too low, to avoid getting stuck
+                                             const double p_Rand,
+                                             const double p_RemnantMass) {					
+	double remnantKick = -1.0;
+	double muKick      = 0.0;
+    double rand        = p_Rand;    //makes it possible to adjust if p_Rand is too low, to avoid getting stuck
 
 	if (utils::Compare(p_RemnantMass, MULLERMANDEL_MAXNS) <  0) {
-		muKick=max(MULLERMANDEL_KICKNS*(p_COCoreMass-p_RemnantMass)/p_RemnantMass,0.0);
+		muKick = max(OPTIONS->MullerMandelKickMultiplierNS() * (p_COCoreMass - p_RemnantMass) / p_RemnantMass, 0.0);
 	}
 	else {
-		muKick=max(MULLERMANDEL_KICKBH*(p_COCoreMass-p_RemnantMass)/p_RemnantMass,0.0);
+		muKick = max(OPTIONS->MullerMandelKickMultiplierBH() * (p_COCoreMass - p_RemnantMass) / p_RemnantMass, 0.0);
 	}
-	while(remnantKick<0) {
-		remnantKick=muKick*(1.0+gsl_cdf_gaussian_Pinv(rand, MULLERMANDEL_SIGMAKICK));
-		rand=std::min(rand+p_Rand+0.0001,1.0);
+
+	while (remnantKick < 0.0) {
+		remnantKick = muKick * (1.0 + gsl_cdf_gaussian_Pinv(rand, MULLERMANDEL_SIGMAKICK));
+		rand        = min(rand + p_Rand + 0.0001, 1.0);
 	}
+
 	return remnantKick;
 }
 
@@ -2476,10 +2473,10 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
  * @return                                      Drawn kick magnitude (km s^-1)
  */
 double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
-                                    const double p_COCoreMass,
-                                    const double p_Rand,
-                                    const double p_EjectaMass,
-                                    const double p_RemnantMass) {
+                                     const double p_COCoreMass,
+                                     const double p_Rand,
+                                     const double p_EjectaMass,
+                                     const double p_RemnantMass) {
 	double kickMagnitude;
 
     switch (OPTIONS->KickMagnitudeDistribution()) {                                              // which distribution
@@ -2525,7 +2522,6 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
     }
 
     return kickMagnitude / OPTIONS->KickScalingFactor();
-
 }
 
 
@@ -2538,17 +2534,15 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
  *
  * @param   [IN]    p_RemnantMass               The mass of the remnant (Msol)
  * @param   [IN]    p_EjectaMass                Change in mass of the exploding star (i.e. mass of the ejecta) (Msol)
- * @param   [IN]    p_StellarType		Expected remnant type
+ * @param   [IN]    p_StellarType		        Expected remnant type
  * @return                                      Kick magnitude
  */
 double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType) {
     ERROR error = ERROR::NONE;
 	double vK;
 
-    if (!m_SupernovaDetails.initialKickParameters.supplied ||                                       // user did not supply kick parameters, or
-        (m_SupernovaDetails.initialKickParameters.supplied &&                                       // user did supply kick parameters but ...
-         m_SupernovaDetails.initialKickParameters.useMagnitudeRandom)) {                             // ... wants to draw magnitude using supplied random number
-
+    if (!m_SupernovaDetails.initialKickParameters.magnitudeSpecified ||                             // user did not supply kick magnitude, or
+         m_SupernovaDetails.initialKickParameters.magnitudeRandomSpecified) {                       // ... wants to draw magnitude using supplied random number
 
         double sigma;
         switch (utils::SNEventType(m_SupernovaDetails.events.current)) {                            // what type of supernova event happening now?
@@ -2602,13 +2596,12 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
         }
     }
     else {                                                                                          // user supplied kick parameters and wants to use supplied kick magnitude, so ...
-        vK = m_SupernovaDetails.initialKickParameters.magnitude;                                     // ... use it 
+        vK = m_SupernovaDetails.initialKickParameters.magnitude;                                    // ... use it 
     }
-
 
 	if (error == ERROR::NONE) {                                                                     // check for errors
 
-        m_SupernovaDetails.drawnKickMagnitude = vK;                                                  // drawn kick magnitude
+        m_SupernovaDetails.drawnKickMagnitude = vK;                                                 // drawn kick magnitude
 
         if (utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::CCSN) {              // core-collapse supernova event this timestep?
             vK = ApplyBlackHoleKicks(vK, m_SupernovaDetails.fallbackFraction, m_Mass);              // re-weight kicks by mass of remnant according to user specified black hole kicks option
@@ -2616,7 +2609,7 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
         else {                                                                                      // otherwise
             m_SupernovaDetails.fallbackFraction = 0.0;                                              // set fallback fraction to zero
         }
-        m_SupernovaDetails.kickMagnitude = vK;                                                       // updated kick magnitude
+        m_SupernovaDetails.kickMagnitude = vK;                                                      // updated kick magnitude
     }
     else {                                                                                          // error occurred
         vK = 0.0;                                                                                   // set kick magnitude to zero
@@ -2625,84 +2618,6 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
     }
 
     return vK;
-}
-
-
- /*
-  * Draw the angular components of the supernova kick theta and phi according to user specified options.
-  *
-  * Explicitly, theta is defined on [-pi/2, pi/2], where theta=0 is in the orbital plane, and theta=pi/2 is
-  * parallel to the orbital angular momentum. Phi is defined on [0, 2*pi), with phi=0 defined in the direction
-  * of the radial vector from the companion to the star undergoing SN, and increasing in the same direction as the 
-  * binary orbit (i.e it appears counter-clockwise when the binary motion is viewed as counter-clockwise)
-  * 
-  * DBL_DBL DrawKickDirection()
-  */
-DBL_DBL BaseStar::DrawKickDirection() {
-
-    double theta;                                                                                               // theta, angle out of the plane
-    double phi;                                                                                                 // phi, angle in the plane
-
-    double delta = 1.0 * DEGREE;                                                                                // small angle () in radians - could be set by user in options
-
-    double rand = RAND->Random();                                                                               // do this here to be consistent with legacy code - allows comparison tests (won't work for long - soon there will be too many changes to the code...)
-
-    switch (OPTIONS->KickDirectionDistribution()) {                                                             // which kick direction distribution?
-
-        case KICK_DIRECTION_DISTRIBUTION::ISOTROPIC:                                                            // ISOTROPIC: Draw theta and phi isotropically
-            theta = acos(1.0 - (2.0 * RAND->Random())) - (4*std::atan(1.0) / 2.0);//M_PI_2;
-            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
-            break;
-
-        case KICK_DIRECTION_DISTRIBUTION::POWERLAW: {                                                           // POWERLAW: Draw phi uniform in [0,2pi], theta according to a powerlaw
-                                                                                                                // (power law power = 0 = isotropic, +infinity = kick along pole, -infinity = kick in plane)
-            // Choose magnitude of power law distribution -- if using a negative power law that blows up at 0,
-            // need a lower cutoff (currently set at 1E-6), check it doesn't affect things too much
-            // JR: todo: shsould these be in constants.h?
-            double magnitude_of_cos_theta = utils::InverseSampleFromPowerLaw(OPTIONS->KickDirectionPower(), 1.0, 1E-6);
-
-            if (OPTIONS->KickDirectionPower() < 0.0) magnitude_of_cos_theta = 1.0 - magnitude_of_cos_theta;     // don't use utils::Compare() here
-
-            double actual_cos_theta = magnitude_of_cos_theta;
-
-            if (RAND->Random() < 0.5) actual_cos_theta = -magnitude_of_cos_theta;                               // By taking the magnitude of cos theta we lost the information about whether it was up or down, so we put that back in randomly here
-
-            actual_cos_theta = min(1.0, max(-1.0, actual_cos_theta));                                           // clamp to [-1.0, 1.0]
-
-            theta = acos(actual_cos_theta);                                                                     // set the kick angle out of the plane theta
-            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
-            } break;
-
-        case KICK_DIRECTION_DISTRIBUTION::INPLANE:                                                              // INPLANE: Force the kick to be in the plane theta = 0
-            theta = 0.0;                                                                                        // force the kick to be in the plane - theta = 0
-            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
-            break;
-
-        case KICK_DIRECTION_DISTRIBUTION::PERPENDICULAR:                                                        // PERPENDICULAR: Force kick to be along spin axis
-            theta = M_PI_2;                                                                                     // pi/2 UP
-            if (rand >= 0.5) theta = -theta;                                                                    // switch to DOWN
-            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
-            break;
-
-        case KICK_DIRECTION_DISTRIBUTION::POLES:                                                                // POLES: Direct the kick in a small cone around the poles
-            if (rand < 0.5) theta = M_PI_2 - fabs(RAND->RandomGaussian(delta));                                 // UP - slightly less than or equal to pi/2
-            else            theta = fabs(RAND->RandomGaussian(delta)) - M_PI_2;                                 // DOWN - slightly more than or equal to -pi/2
-
-            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
-            break;
-
-        case KICK_DIRECTION_DISTRIBUTION::WEDGE:                                                                // WEDGE: Direct kick into a wedge around the horizon (theta = 0)
-            theta = RAND->RandomGaussian(delta);                                                                // Gaussian around 0 with a deviation delta
-            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
-            break;
-
-        default:                                                                                                // unknown kick direction distribution - use ISOTROPIC
-            theta = acos(1.0 - (2.0 * RAND->Random())) - M_PI_2;
-            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
-            SHOW_WARN(ERROR::UNKNOWN_KICK_DIRECTION_DISTRIBUTION, " Using default");                            // warn that an error occurred
-    }
-
-    return std::make_tuple(theta, phi);
 }
 
 
@@ -2740,8 +2655,6 @@ void BaseStar::CalculateSNAnomalies(const double p_Eccentricity) {
 void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity) {
     m_ComponentVelocity += p_newVelocity;                        // Add new velocity to previous velocity 
 }
-
-
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
