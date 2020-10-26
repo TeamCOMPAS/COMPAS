@@ -23,9 +23,7 @@ public:
     BaseStar(const unsigned long int p_RandomSeed, 
              const double            p_MZAMS, 
              const double            p_Metallicity, 
-             const KickParameters    p_KickParameters,
-             const double            p_LBVfactor = 0.0, 
-             const double            p_WolfRayetFactor = 0.0);
+             const KickParameters    p_KickParameters);
 
     virtual ~BaseStar() {}
 
@@ -198,10 +196,10 @@ public:
 
             void            IncrementOmega(const double p_OmegaDelta)                                           { m_Omega += p_OmegaDelta; }                                        // Apply delta to current m_Omega
 
-            void            PrintParameters(const int p_Id)                                                     { LOGGING->LogSSEParameters(this, p_Id, ""); }                      // Write record to SSE Parameters log file
-            void            PrintSupernovaDetails()                                                             { LOGGING->LogSSESupernovaDetails(this, ""); }                      // Write record to SSE Supernova log file
-            void            PrintStashedSupernovaDetails()                                                      { LOGGING->LogStashedSSESupernovaDetails(this); }                      // Write record to SSE Supernova log file
-            void            PrintSwitchLog(const long int p_Id)                                                 { if (OPTIONS->SSESwitchLog()) LOGGING->LogSSESwitchLog(this, p_Id, ""); }
+            void            PrintDetailedOutput(const int p_Id)                                                 { if (OPTIONS->DetailedOutput()) LOGGING->LogSSEDetailedOutput(this, p_Id, ""); } // Write record to SSE Detailed Output log file
+            void            PrintSupernovaDetails()                                                             { LOGGING->LogSSESupernovaDetails(this, ""); }                      // Write record to SSE Supernovae log file
+            void            PrintStashedSupernovaDetails()                                                      { LOGGING->LogStashedSSESupernovaDetails(this); }                   // Write record to SSE Supernovae log file
+            void            PrintSwitchLog(const long int p_Id)                                                 { if (OPTIONS->SwitchLog()) LOGGING->LogSSESwitchLog(this, p_Id, ""); } // Write record to SSE Switchlog log file
 
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative
 
@@ -481,8 +479,6 @@ protected:
             double          CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS);
 
     virtual double          ChooseTimestep(const double p_Time)                                                 { return m_Dt; }
-
-            DBL_DBL         DrawKickDirection();
 
             double          DrawKickMagnitudeBrayEldridge(const double p_EjectaMass,
                                                          const double p_RemnantMass,
