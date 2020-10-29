@@ -1544,6 +1544,18 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
             m_SupernovaDetails.fallbackFraction = 0.0;                                                      // No subsequent kick adjustment by fallback fraction needed
             break;
 
+        case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020:                                                      // Schneider 2020
+
+            m_Mass = CalculateRemnantMassBySchneider2020(m_COCoreMass);
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0
+            break;
+
+        case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT:                                                   // Schneider 2020, alternative
+
+            m_Mass = CalculateRemnantMassBySchneider2020(m_COCoreMass);
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0
+            break;
+
         default:                                                                                            // unknown prescription
 
             m_Mass                              = 0.0;
