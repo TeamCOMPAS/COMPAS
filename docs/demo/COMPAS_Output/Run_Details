@@ -1,0 +1,163 @@
+
+COMPAS v02.15.19
+Compact Object Mergers: Population Astrophysics and Statistics
+by Team COMPAS (http://compas.science/index.html)
+A binary star simulator
+
+Start generating binaries at Fri Oct 30 08:45:36 2020
+
+Generated 1 of 1 binaries requested
+
+End generating binaries at Fri Oct 30 08:45:36 2020
+
+Clock time = 0.031493 CPU seconds
+Wall time  = 00:00:00 (hh:mm:ss)
+
+
+COMMAND LINE OPTIONS
+-------------------
+
+BSEswitchLog = FALSE, DEFAULT_USED, BOOL
+MCBUR1 = 1.6, DEFAULT_USED, DOUBLE
+PISN-lower-limit = 60, USER_SUPPLIED, DOUBLE
+PISN-upper-limit = 135, USER_SUPPLIED, DOUBLE
+PPI-lower-limit = 35, USER_SUPPLIED, DOUBLE
+PPI-upper-limit = 60, USER_SUPPLIED, DOUBLE
+RLOFPrinting = TRUE, USER_SUPPLIED, BOOL
+SSEswitchLog = FALSE, DEFAULT_USED, BOOL
+allow-rlof-at-birth = TRUE, USER_SUPPLIED, BOOL
+allow-touching-at-birth = FALSE, DEFAULT_USED, BOOL
+angularMomentumConservationDuringCircularisation = FALSE, DEFAULT_USED, BOOL
+black-hole-kicks = 'FALLBACK', USER_SUPPLIED, STRING
+case-bb-stability-prescription = 'ALWAYS_STABLE', USER_SUPPLIED, STRING
+chemically-homogeneous-evolution = 'NONE', USER_SUPPLIED, STRING
+circulariseBinaryDuringMassTransfer = FALSE, DEFAULT_USED, BOOL
+common-envelope-allow-main-sequence-survive = TRUE, USER_SUPPLIED, BOOL
+common-envelope-alpha = 1, USER_SUPPLIED, DOUBLE
+common-envelope-alpha-thermal = 1, USER_SUPPLIED, DOUBLE
+common-envelope-lambda = 0.1, USER_SUPPLIED, DOUBLE
+common-envelope-lambda-multiplier = 1, USER_SUPPLIED, DOUBLE
+common-envelope-lambda-prescription = 'LAMBDA_NANJING', USER_SUPPLIED, STRING
+common-envelope-mass-accretion-constant = 0, DEFAULT_USED, DOUBLE
+common-envelope-mass-accretion-max = 0.1, USER_SUPPLIED, DOUBLE
+common-envelope-mass-accretion-min = 0.04, USER_SUPPLIED, DOUBLE
+common-envelope-mass-accretion-prescription = 'ZERO', USER_SUPPLIED, STRING
+common-envelope-recombination-energy-density = 1.5e+13, USER_SUPPLIED, DOUBLE
+common-envelope-slope-Kruckow = -0.833333, USER_SUPPLIED, DOUBLE
+debug-classes = { }, DEFAULT_USED, VECTOR<STRING>
+debug-level = 0, USER_SUPPLIED, SIGNED
+debug-to-file = FALSE, DEFAULT_USED, BOOL
+detailedOutput = TRUE, USER_SUPPLIED, BOOL
+eccentricity-distribution = 'ZERO', USER_SUPPLIED, STRING
+eccentricity-max = 1, USER_SUPPLIED, DOUBLE
+eccentricity-min = 0, USER_SUPPLIED, DOUBLE
+eddington-accretion-factor = 1, USER_SUPPLIED, DOUBLE
+enable-warnings = FALSE, DEFAULT_USED, BOOL
+envelope-state-prescription = 'LEGACY', USER_SUPPLIED, STRING
+errors-to-file = FALSE, DEFAULT_USED, BOOL
+evolve-pulsars = FALSE, DEFAULT_USED, BOOL
+evolve-unbound-systems = FALSE, DEFAULT_USED, BOOL
+fix-dimensionless-kick-magnitude = -1, USER_SUPPLIED, DOUBLE
+fryer-supernova-engine = 'DELAYED', USER_SUPPLIED, STRING
+grid = 'Grid_demo.txt', USER_SUPPLIED, STRING
+help = FALSE, DEFAULT_USED, BOOL
+initial-mass-function = 'KROUPA', USER_SUPPLIED, STRING
+initial-mass-max = 150, USER_SUPPLIED, DOUBLE
+initial-mass-min = 5, USER_SUPPLIED, DOUBLE
+initial-mass-power = 0, USER_SUPPLIED, DOUBLE
+kick-direction = 'ISOTROPIC', USER_SUPPLIED, STRING
+kick-direction-power = 0, USER_SUPPLIED, DOUBLE
+kick-magnitude-distribution = 'MAXWELLIAN', USER_SUPPLIED, STRING
+kick-magnitude-max = -1, USER_SUPPLIED, DOUBLE
+kick-magnitude-sigma-CCSN-BH = 265, USER_SUPPLIED, DOUBLE
+kick-magnitude-sigma-CCSN-NS = 265, USER_SUPPLIED, DOUBLE
+kick-magnitude-sigma-ECSN = 30, USER_SUPPLIED, DOUBLE
+kick-magnitude-sigma-USSN = 30, USER_SUPPLIED, DOUBLE
+kick-scaling-factor = 1, USER_SUPPLIED, DOUBLE
+log-classes = { }, DEFAULT_USED, VECTOR<STRING>
+log-level = 0, USER_SUPPLIED, SIGNED
+logfile-BSE-common-envelopes = 'BSE_Common_Envelopes', DEFAULT_USED, STRING
+logfile-BSE-detailed-output = 'BSE_Detailed_Output', DEFAULT_USED, STRING
+logfile-BSE-double-compact-objects = 'BSE_Double_Compact_Objects', DEFAULT_USED, STRING
+logfile-BSE-pulsar-evolution = 'BSE_Pulsar_Evolution', DEFAULT_USED, STRING
+logfile-BSE-rlof-parameters = 'BSE_RLOF', DEFAULT_USED, STRING
+logfile-BSE-supernovae = 'BSE_Supernovae', DEFAULT_USED, STRING
+logfile-BSE-switch-log = 'BSE_Switch_Log', DEFAULT_USED, STRING
+logfile-BSE-system-parameters = 'BSE_System_Parameters', DEFAULT_USED, STRING
+logfile-SSE-parameters = 'SSE_Parameters', DEFAULT_USED, STRING
+logfile-SSE-supernova = 'SSE_Supernova', DEFAULT_USED, STRING
+logfile-SSE-switch-log = 'SSE_Switch_Log', DEFAULT_USED, STRING
+logfile-definitions = '', DEFAULT_USED, STRING
+logfile-delimiter = 'COMMA', USER_SUPPLIED, STRING
+logfile-name-prefix = '', DEFAULT_USED, STRING
+luminous-blue-variable-multiplier = 1.5, USER_SUPPLIED, DOUBLE
+mass-loss-prescription = 'VINK', USER_SUPPLIED, STRING
+mass-ratio-distribution = 'FLAT', USER_SUPPLIED, STRING
+mass-ratio-max = 1, USER_SUPPLIED, DOUBLE
+mass-ratio-min = 0, USER_SUPPLIED, DOUBLE
+mass-transfer-accretion-efficiency-prescription = 'THERMAL', USER_SUPPLIED, STRING
+mass-transfer-angular-momentum-loss-prescription = 'ISOTROPIC', USER_SUPPLIED, STRING
+mass-transfer-fa = 0.5, USER_SUPPLIED, DOUBLE
+mass-transfer-jloss = 1, USER_SUPPLIED, DOUBLE
+mass-transfer-rejuvenation-prescription = 'STARTRACK', USER_SUPPLIED, STRING
+mass-transfer-thermal-limit-C = 10, USER_SUPPLIED, DOUBLE
+mass-transfer-thermal-limit-accretor = 'CFACTOR', USER_SUPPLIED, STRING
+massTransfer = TRUE, USER_SUPPLIED, BOOL
+maximum-evolution-time = 13700, USER_SUPPLIED, DOUBLE
+maximum-mass-donor-Nandez-Ivanova = 2, USER_SUPPLIED, DOUBLE
+maximum-neutron-star-mass = 2.5, USER_SUPPLIED, DOUBLE
+maximum-number-timestep-iterations = 99999, USER_SUPPLIED, SIGNED
+metallicity = 0.0142, USER_SUPPLIED, DOUBLE
+minimum-secondary-mass = 0.1, USER_SUPPLIED, DOUBLE
+neutrino-mass-loss-bh-formation = 'FIXED_FRACTION', DEFAULT_USED, STRING
+neutrino-mass-loss-bh-formation-value = 0.1, DEFAULT_USED, DOUBLE
+neutron-star-equation-of-state = 'SSE', USER_SUPPLIED, STRING
+number-of-binaries = 10, USER_SUPPLIED, SIGNED
+orbital-period-max = 1000, USER_SUPPLIED, DOUBLE
+orbital-period-min = 1.1, USER_SUPPLIED, DOUBLE
+output-container = 'COMPAS_Output', DEFAULT_USED, STRING
+outputPath = '/home/rwillcox/astro/compas/COMPAS/docs/demo', USER_SUPPLIED, STRING
+pair-instability-supernovae = TRUE, USER_SUPPLIED, BOOL
+populationDataPrinting = FALSE, DEFAULT_USED, BOOL
+print-bool-as-string = FALSE, DEFAULT_USED, BOOL
+pulsar-birth-magnetic-field-distribution = 'ZERO', USER_SUPPLIED, STRING
+pulsar-birth-magnetic-field-distribution-max = 13, USER_SUPPLIED, DOUBLE
+pulsar-birth-magnetic-field-distribution-min = 11, USER_SUPPLIED, DOUBLE
+pulsar-birth-spin-period-distribution = 'ZERO', USER_SUPPLIED, STRING
+pulsar-birth-spin-period-distribution-max = 100, USER_SUPPLIED, DOUBLE
+pulsar-birth-spin-period-distribution-min = 10, USER_SUPPLIED, DOUBLE
+pulsar-magnetic-field-decay-massscale = 0.025, USER_SUPPLIED, DOUBLE
+pulsar-magnetic-field-decay-timescale = 1000, USER_SUPPLIED, DOUBLE
+pulsar-minimum-magnetic-field = 8, USER_SUPPLIED, DOUBLE
+pulsational-pair-instability = TRUE, USER_SUPPLIED, BOOL
+pulsational-pair-instability-prescription = 'MARCHANT', USER_SUPPLIED, STRING
+quiet = FALSE, DEFAULT_USED, BOOL
+random-seed = 85107, USER_SUPPLIED, UNSIGNED_LONG
+remnant-mass-prescription = 'FRYER2012', USER_SUPPLIED, STRING
+revised-energy-formalism-Nandez-Ivanova = FALSE, DEFAULT_USED, BOOL
+rotational-velocity-distribution = 'ZERO', USER_SUPPLIED, STRING
+semi-major-axis-distribution = 'FLATINLOG', USER_SUPPLIED, STRING
+semi-major-axis-max = 1000, USER_SUPPLIED, DOUBLE
+semi-major-axis-min = 0.01, USER_SUPPLIED, DOUBLE
+single-star = FALSE, DEFAULT_USED, BOOL
+single-star-mass-max = 75, USER_SUPPLIED, DOUBLE
+single-star-mass-min = 1, USER_SUPPLIED, DOUBLE
+single-star-mass-steps = 10, USER_SUPPLIED, SIGNED
+stellar-zeta-prescription = 'SOBERMAN', USER_SUPPLIED, STRING
+timestep-multiplier = 1, DEFAULT_USED, DOUBLE
+use-mass-loss = TRUE, USER_SUPPLIED, BOOL
+version = FALSE, DEFAULT_USED, BOOL
+wolf-rayet-multiplier = 1, USER_SUPPLIED, DOUBLE
+zeta-adiabatic-arbitrary = 10000, DEFAULT_USED, DOUBLE
+zeta-main-sequence = 2, USER_SUPPLIED, DOUBLE
+zeta-radiative-envelope-giant = 6.5, USER_SUPPLIED, DOUBLE
+
+
+OTHER PARAMETERS
+----------------
+
+fixedMetallicity   = TRUE, CALCULATED, BOOL
+useFixedUK         = FALSE, CALCULATED, BOOL
+outputPath         = /home/rwillcox/astro/compas/COMPAS/docs/demo, CALCULATED, STRING
+fixedRandomSeed    = TRUE, CALCULATED, BOOL
+Actual random seed = 85107, CALCULATED, UNSIGNED_LONG
