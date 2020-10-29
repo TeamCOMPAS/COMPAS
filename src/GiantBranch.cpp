@@ -1042,7 +1042,7 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
  * @param   [IN]    p_COCoreMass                COCoreMass in Msol
  * @return                                      Remnant type (stellar type)
  */
-double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMass) {
+double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMass, const bool useSchneiderAlt) {
 
     double logRemnantMass;
 
@@ -1050,8 +1050,7 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
 
         case MT_CASE::NONE:                        // No history of MT - effectively single star
 
-            // TODO: Setup Option for UseSchneiderAlt, maybe it shouldn't be an option but simply a different mass prescription
-            if (!OPTIONS->UseSchneiderAlt()) {      // Whether to use standard or alternative remnant mass prescription for effectively single stars
+            if (!useSchneiderAlt) {      // Whether to use standard or alternative remnant mass prescription for effectively single stars
 
                      // standard prescription
                      if (utils::Compare(p_COCoreMass, 6.357)  < 0) { logRemnantMass = log10(0.03357*p_COCoreMass + 1.31780); }
@@ -1544,15 +1543,16 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
             m_SupernovaDetails.fallbackFraction = 0.0;                                                      // No subsequent kick adjustment by fallback fraction needed
             break;
 
+        // TODO: Setup RemnantMassPrescription Options for Schneider and SchneiderAlt
         case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020:                                                      // Schneider 2020
 
-            m_Mass = CalculateRemnantMassBySchneider2020(m_COCoreMass);
+            m_Mass = CalculateRemnantMassBySchneider2020(m_COCoreMass, useSchneiderAlt=false);
             m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0
             break;
 
         case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT:                                                   // Schneider 2020, alternative
 
-            m_Mass = CalculateRemnantMassBySchneider2020(m_COCoreMass);
+            m_Mass = CalculateRemnantMassBySchneider2020(m_COCoreMass, useSchneiderAlt=true);
             m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0
             break;
 
