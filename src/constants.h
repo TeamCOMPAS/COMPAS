@@ -535,7 +535,6 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::OUT_OF_BOUNDS,                                         { ERROR_SCOPE::ALWAYS,              "Value out of bounds" }},
     { ERROR::RADIUS_NOT_POSITIVE,                                   { ERROR_SCOPE::ALWAYS,              "Radius <= 0.0" }},
     { ERROR::RADIUS_NOT_POSITIVE_ONCE,                              { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Radius <= 0.0" }},
-    // RTW
     { ERROR::RESOLVE_SUPERNOVA_IMPROPERLY_CALLED,                   { ERROR_SCOPE::ALWAYS,              "ResolveSupernova() called, but m_Supernova->IsSNevent() is false" }},
     { ERROR::STELLAR_EVOLUTION_STOPPED,                             { ERROR_SCOPE::ALWAYS,              "Evolution of current star stopped" }},
     { ERROR::STELLAR_SIMULATION_STOPPED,                            { ERROR_SCOPE::ALWAYS,              "Stellar simulation stopped" }},
@@ -838,13 +837,15 @@ const COMPASUnorderedMap<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION, std::string> MT_
 
 
 // Mass transfer cases
-enum class MT_CASE: int { NONE, A, B, C };
-const COMPASUnorderedMap<MT_CASE, std::string> MT_CASE_LABEL = {
-    { MT_CASE::NONE, "Mass Transfer CASE NONE: No Mass Transfer" },
-    { MT_CASE::A,    "Mass Transfer CASE A" },                          // mass transfer while donor is on main sequence
-    { MT_CASE::B,    "Mass Transfer CASE B" },                          // donor star is in (or evolving to) Red Giant phase
-    { MT_CASE::C,    "Mass Transfer CASE C" }                           // SuperGiant phase
-};
+// RTW
+//
+//enum class MT_CASE: int { NONE, A, B, C };
+//const COMPASUnorderedMap<MT_CASE, std::string> MT_CASE_LABEL = {
+//    { MT_CASE::NONE, "Mass Transfer CASE NONE: No Mass Transfer" },
+//    { MT_CASE::A,    "Mass Transfer CASE A" },                          // mass transfer while donor is on main sequence
+//    { MT_CASE::B,    "Mass Transfer CASE B" },                          // donor star is in (or evolving to) Red Giant phase
+//    { MT_CASE::C,    "Mass Transfer CASE C" }                           // SuperGiant phase
+//};
 
 
 // Mass transfer prescriptions
@@ -1275,7 +1276,7 @@ enum class TYPENAME: int {
     OBJECT_ID,
     ERROR,
     STELLAR_TYPE,
-    MT_CASE,
+    MT_CASE_FIX,
     MT_TRACKING,
     SN_EVENT,
     SN_STATE
@@ -1300,7 +1301,7 @@ const COMPASUnorderedMap<TYPENAME, std::tuple<std::string, std::string>> TYPENAM
     { TYPENAME::OBJECT_ID,    { "OBJECT_ID",          "INT"    }},
     { TYPENAME::ERROR,        { "ERROR",              "INT"    }},
     { TYPENAME::STELLAR_TYPE, { "STELLAR_TYPE",       "INT"    }},
-    { TYPENAME::MT_CASE,      { "MT_CASE",            "INT"    }},
+    { TYPENAME::MT_CASE_FIX,      { "MT_CASE",            "INT"    }},
     { TYPENAME::MT_TRACKING,  { "MT_TRACKING",        "INT"    }},
     { TYPENAME::SN_EVENT,     { "SN_EVENT",           "INT"    }},
     { TYPENAME::SN_STATE,     { "SN_STATE",           "INT"    }}
@@ -1323,7 +1324,7 @@ typedef boost::variant<
     std::string,
     ERROR,
     STELLAR_TYPE,
-    MT_CASE,
+    MT_CASE_FIX,
     MT_TRACKING,
     SN_EVENT,
     SN_STATE
@@ -2016,7 +2017,8 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::MASS,                                              { TYPENAME::DOUBLE,         "Mass",                 "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::MASS_0,                                            { TYPENAME::DOUBLE,         "Mass_0",               "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::MASS_LOSS_DIFF,                                    { TYPENAME::DOUBLE,         "dmWinds",              "Msol",             14, 6 }},
-    { ANY_STAR_PROPERTY::MASS_TRANSFER_CASE_INITIAL,                        { TYPENAME::MT_CASE,        "MT_Case",              "-",                 4, 1 }},
+    { ANY_STAR_PROPERTY::MASS_TRANSFER_CASE_HISTORY,                        { TYPENAME::MT_CASE_FIX,        "MT_Case_History",      "-",                 4, 1 }},
+    { ANY_STAR_PROPERTY::MASS_TRANSFER_CASE_INITIAL,                        { TYPENAME::STELLAR_TYPE,   "MT_Case_Initial",      "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::MASS_TRANSFER_DIFF,                                { TYPENAME::DOUBLE,         "dmMT",                 "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::MDOT,                                              { TYPENAME::DOUBLE,         "Mdot",                 "Msol yr^-1",       14, 6 }},
     { ANY_STAR_PROPERTY::METALLICITY,                                       { TYPENAME::DOUBLE,         "Metallicity@ZAMS",     "-",                14, 6 }},
