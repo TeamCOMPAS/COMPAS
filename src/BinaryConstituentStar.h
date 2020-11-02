@@ -63,14 +63,14 @@ public:
 
         m_IsPrimary                                  = false;
 
-        m_MassTransferDiff                           = DEFAULT_INITIAL_DOUBLE_VALUE;
+        m_FirstMassTransferEpisode                   = false;
         m_MassLossDiff                               = DEFAULT_INITIAL_DOUBLE_VALUE;
+        m_MassTransferCaseInitial                    = MT_CASE::NONE;
+        m_MassTransferDiff                           = DEFAULT_INITIAL_DOUBLE_VALUE;
+        m_MassTransferDonorHistory                   = std::vector<STELLAR_TYPE>(); // RTW need a default value, will this work?
 
         m_OrbitalEnergyPreSN                         = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_OrbitalEnergyPostSN                        = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-        m_FirstMassTransferEpisode                   = false;
-        m_MassTransferCaseInitial                    = MT_CASE::NONE;
 
         m_OmegaTidesIndividualDiff                   = DEFAULT_INITIAL_DOUBLE_VALUE;
 
@@ -92,14 +92,14 @@ public:
 
         m_IsPrimary                = p_Star.m_IsPrimary;
 
-        m_MassTransferDiff         = p_Star.m_MassTransferDiff;
+        m_FirstMassTransferEpisode = p_Star.m_FirstMassTransferEpisode;
         m_MassLossDiff             = p_Star.m_MassLossDiff;
+        m_MassTransferCaseInitial  = p_Star.m_MassTransferCaseInitial;
+        m_MassTransferDiff         = p_Star.m_MassTransferDiff;
+        m_MassTransferDonorHistory = p_Star.m_MassTransferDonorHistory; 
 
         m_OrbitalEnergyPreSN       = p_Star.m_OrbitalEnergyPreSN;
         m_OrbitalEnergyPostSN      = p_Star.m_OrbitalEnergyPostSN;
-
-        m_FirstMassTransferEpisode = p_Star.m_FirstMassTransferEpisode;
-        m_MassTransferCaseInitial  = p_Star.m_MassTransferCaseInitial;
 
         m_OmegaTidesIndividualDiff = p_Star.m_OmegaTidesIndividualDiff;
 
@@ -121,14 +121,14 @@ public:
 
             m_IsPrimary                = p_Star.m_IsPrimary;
 
-            m_MassTransferDiff         = p_Star.m_MassTransferDiff;
+            m_FirstMassTransferEpisode = p_Star.m_FirstMassTransferEpisode;
             m_MassLossDiff             = p_Star.m_MassLossDiff;
+            m_MassTransferCaseInitial  = p_Star.m_MassTransferCaseInitial;
+            m_MassTransferDiff         = p_Star.m_MassTransferDiff;
+            m_MassTransferDonorHistory = p_Star.m_MassTransferDonorHistory; 
 
             m_OrbitalEnergyPreSN       = p_Star.m_OrbitalEnergyPreSN;
             m_OrbitalEnergyPostSN      = p_Star.m_OrbitalEnergyPostSN;
-
-            m_FirstMassTransferEpisode = p_Star.m_FirstMassTransferEpisode;
-            m_MassTransferCaseInitial  = p_Star.m_MassTransferCaseInitial;
 
             m_OmegaTidesIndividualDiff = p_Star.m_OmegaTidesIndividualDiff;
 
@@ -179,6 +179,7 @@ public:
     double          MassLossDiff() const                                                { return m_MassLossDiff; }
     MT_CASE         MassTransferCaseInitial() const                                     { return m_MassTransferCaseInitial; }
     double          MassTransferDiff() const                                            { return m_MassTransferDiff; }
+    //MT_DONOR_HIST   MassTransferDonorHistory() const                                    { return m_MassTransferDonorHistory; }
     double          OmegaTidesIndividualDiff() const                                    { return m_OmegaTidesIndividualDiff; }
     double          OrbitalEnergyPostSN() const                                         { return m_OrbitalEnergyPostSN; };
     double          OrbitalEnergyPreSN() const                                          { return m_OrbitalEnergyPreSN; };
@@ -236,10 +237,11 @@ private:
     bool                    m_IsPrimary;
 
     bool                    m_FirstMassTransferEpisode;             // Activated for the initial Mass Transfer Episode
-
     double                  m_MassLossDiff;
     MT_CASE                 m_MassTransferCaseInitial;              // Indicator of which Mass Transfer occures when first RLOF, if any
     double                  m_MassTransferDiff;
+    // RTW
+    std::vector<STELLAR_TYPE> m_MassTransferDonorHistory;             // List of MT donor stellar types 
 
     double                  m_OmegaTidesIndividualDiff;
 
