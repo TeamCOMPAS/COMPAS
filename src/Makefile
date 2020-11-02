@@ -30,7 +30,7 @@ ifneq ($(filter staticfast,$(MAKECMDGOALS)),)
 endif
 
 
-CXXFLAGS := -g -std=c++11 -Wall $(OPTFLAGS)
+CXXFLAGS := -g -std=c++11 -fcompare-debug-second $(OPTFLAGS)
 ICFLAGS := -I$(BOOST)/include -I.
 LFLAGS :=  -L$(BOOST)/lib -lgsl -lgslcblas -lstdc++ -lm -lz -ldl -lboost_filesystem -lboost_program_options -lboost_system -Xlinker -rpath -Xlinker $(BOOST)/lib
 SOURCES :=                                                               \

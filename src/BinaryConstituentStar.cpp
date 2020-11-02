@@ -80,6 +80,7 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
             case ANY_STAR_PROPERTY::MASS_LOSS_DIFF:                                     value = MassLossDiff();                                 break;
             case ANY_STAR_PROPERTY::MASS_TRANSFER_CASE_INITIAL:                         value = static_cast<int>(MassTransferCaseInitial());    break;
             case ANY_STAR_PROPERTY::MASS_TRANSFER_DIFF:                                 value = MassTransferDiff();                             break;
+            //case ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY:                        value = MassTransferDonorHistory();                     break;
             case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE:             value = NuclearTimescalePostCEE();                      break;
             case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE:              value = NuclearTimescalePreCEE();                       break;
             case ANY_STAR_PROPERTY::ORBITAL_ENERGY_POST_SUPERNOVA:                      value = OrbitalEnergyPostSN();                          break;
