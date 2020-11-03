@@ -370,6 +370,7 @@ enum class PROGRAM_STATUS: int { SUCCESS, CONTINUE, ERROR_IN_COMMAND_LINE, LOGGI
 enum class ERROR: int {
     NONE,                                                           // no error
     AGE_NEGATIVE_ONCE,                                              // age is < 0.0 - invalid
+    AMBIGUOUS_REMNANT_MASS_PRESCRIPTION,                            // remnant mass unclear from available parameters
     BAD_LOGFILE_RECORD_SPECIFICATIONS,                              // error in logfile record specifications
     BINARY_EVOLUTION_STOPPED,                                       // evolution of current binary stopped
     BINARY_SIMULATION_STOPPED,                                      // binary simulation stopped
@@ -485,6 +486,7 @@ enum class ERROR_SCOPE: int { NEVER, ALWAYS, FIRST, FIRST_IN_OBJECT_TYPE, FIRST_
 
 const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATALOG = {
     { ERROR::AGE_NEGATIVE_ONCE,                                     { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Age < 0.0" }},
+    { ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION,                   { ERROR_SCOPE::ALWAYS,              "Insufficient information to prescribe remnant mass." }},
     { ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS,                     { ERROR_SCOPE::ALWAYS,              "Logfile record specifications error" }},
     { ERROR::BINARY_EVOLUTION_STOPPED,                              { ERROR_SCOPE::ALWAYS,              "Evolution of current binary stopped" }},
     { ERROR::BINARY_SIMULATION_STOPPED,                             { ERROR_SCOPE::ALWAYS,              "Binaries simulation stopped" }},
