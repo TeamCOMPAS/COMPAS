@@ -130,12 +130,14 @@ std::tuple<int, int> EvolveSingleStars() {
 
         // generate and evolve stars
 
-        bool doneGridFile = false;                                                                                  // flags we're done with the grid file (for this commandline variation)
+        int gridLineVariation = 0;                                                                                  // grid line variation number
+        bool doneGridFile     = false;                                                                              // flags we're done with the grid file (for this commandline variation)
         while (!doneGridFile && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                    // for each star to be evolved
 
             bool doneGridLine = false;                                                                              // flags we're done with this grid file line (if using a grid file)
             if (usingGrid) {                                                                                        // using grid file?
-                int gridResult = OPTIONS->ApplyNextGridLine();                                                      // yes - set options according to specified values in grid file              
+                gridLineVariation = 0;                                                                              // yes - first variation of this grid line
+                int gridResult = OPTIONS->ApplyNextGridLine();                                                      // set options according to specified values in grid file              
                 switch (gridResult) {                                                                               // handle result of grid file read
                     case -1: evolutionStatus = EVOLUTION_STATUS::STOPPED; break;                                    // read error - stop evolution
                     case  0:                                                                                        // end of file
@@ -184,10 +186,10 @@ std::tuple<int, int> EvolveSingleStars() {
 
                 unsigned long int randomSeed = 0l;
                 if (OPTIONS->FixedRandomSeedGridLine()) {                                                           // user specified a random seed in the grid file for this star?
-                    randomSeed = OPTIONS->RandomSeedGridLine();                                                     // yes - use it as is
+                    randomSeed = RAND->Seed(OPTIONS->RandomSeedGridLine() + (long int)gridLineVariation);           // yes - use it (indexed)
                 }
                 else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                       // no - user specified a random seed on the commandline?
-                    randomSeed = RAND->Seed(OPTIONS->RandomSeedCmdLine() + (long int)index);                        // yes - use it as is
+                    randomSeed = RAND->Seed(OPTIONS->RandomSeedCmdLine() + (long int)index);                        // yes - use it (indexed)
                 }
                 else {                                                                                              // no
                     randomSeed = RAND->Seed(RAND->DefaultSeed() + (long int)index);                                 // use default seed (based on system time) + id (index)
@@ -269,6 +271,7 @@ std::tuple<int, int> EvolveSingleStars() {
                 index++;                                                                                            // next...
 
                 if (usingGrid) {                                                                                    // using grid file?
+                    gridLineVariation++;                                                                            // yes - increment grid line variation number
                     int optionsStatus = OPTIONS->AdvanceGridLineOptionValues();                                     // apply next grid file options (ranges/sets)
                     if (optionsStatus < 0) {                                                                        // ok?
                         evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                // no - stop evolution
@@ -376,7 +379,8 @@ std::tuple<int, int> EvolveBinaryStars() {
 
         // generate and evolve binaries
 
-        bool doneGridFile = false;                                                                              // flags we're done with the grid file (for this commandline variation)
+        int gridLineVariation = 0;                                                                              // grid line variation number
+        bool doneGridFile     = false;                                                                          // flags we're done with the grid file (for this commandline variation)
         while (!doneGridFile && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                // for each binary to be evolved
 
             evolvingBinaryStar      = NULL;                                                                     // unset global pointer to evolving binary (for BSE Switch Log)
@@ -384,6 +388,7 @@ std::tuple<int, int> EvolveBinaryStars() {
 
             bool doneGridLine = false;                                                                          // flags we're done with this grid file line (if using a grid file)
             if (usingGrid) {                                                                                    // using grid file?
+                gridLineVariation = 0;                                                                          // yes - first variation of this grid line
                 int gridResult = OPTIONS->ApplyNextGridLine();                                                  // yes - set options according to specified values in grid file              
                 switch (gridResult) {                                                                           // handle result of grid file read
                     case -1: evolutionStatus = EVOLUTION_STATUS::STOPPED; break;                                // read error - stop evolution
@@ -412,11 +417,12 @@ std::tuple<int, int> EvolveBinaryStars() {
                 // BinaryStar class do the work wrt setting the parameters for each of the constituent stars
                 // (The index is really only needed for legacy comparison, so can probably be removed at any time)
                 //
-                // Note: the AIS structure will probably go away when Stroopwafel is completeley moved to  outside COMPAS.
+                // Note: the AIS structure will probably go away when Stroopwafel is completeley moved to outside COMPAS.
 
                 // create the binary
+                long int thisId = OPTIONS->FixedRandomSeedGridLine() ? gridLineVariation : index;               // set the id for the binary
                 delete binary; binary = nullptr;                                                                // so we don't leak
-                binary = new BinaryStar(ais, (long int)index);                                                  // generate binary according to the user options
+                binary = new BinaryStar(ais, thisId);                                                           // generate binary according to the user options
 
                 evolvingBinaryStar      = binary;                                                               // set global pointer to evolving binary (for BSE Switch Log)
                 evolvingBinaryStarValid = true;                                                                 // indicate that the global pointer is now valid (for BSE Switch Log)
@@ -463,6 +469,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                 index++;                                                                                        // next...
 
                 if (usingGrid) {                                                                                // using grid file?
+                    gridLineVariation++;                                                                        // yes - increment grid line variation number
                     int optionsStatus = OPTIONS->AdvanceGridLineOptionValues();                                 // apply next grid file options (ranges/sets)
                     if (optionsStatus < 0) {                                                                    // ok?
                         evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // no - stop evolution

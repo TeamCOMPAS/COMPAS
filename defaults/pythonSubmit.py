@@ -36,7 +36,7 @@ class pythonProgramOptions:
 
     enable_warnings = False                                     # option to enable/disable warning messages
 
-    number_of_stars = 10  #number of stars per batch
+    number_of_systems = 10  #number of systems per batch
 
     populationPrinting = False
 
@@ -96,7 +96,7 @@ class pythonProgramOptions:
 
     chemically_homogeneous_evolution = 'PESSIMISTIC'            # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
 
-    switchLog = False
+    switch_log = False
 
     common_envelope_alpha = 1.0
     common_envelope_lambda = 0.1                                # Only if using 'LAMBDA_FIXED'
@@ -241,8 +241,6 @@ class pythonProgramOptions:
     # set to a string (e.g. logfile_BSE_supernovae = 'mySNfilename') to use that string as the filename 
     # set to empty string (e.g. logfile_BSE_supernovae = '""') to disable logging for that file (the file will not be created)
     #
-    # detailed_output, supernovae, and switchlog files could all just be a single parameter
-    #
     # We don't really need the 'BSE' or 'SSE' prefixes any more - they were put there because
     # prior to the implementation of the containing folder it was too had to locate the files
     # created by a COMPAS run - especially the detailed output files.  Now that the output
@@ -287,7 +285,7 @@ class pythonProgramOptions:
             self.errors_to_file,
             self.allow_rlof_at_birth,
             self.allow_touching_at_birth,
-            self.switchLog
+            self.switch_log
         ]
 
         return booleanChoices
@@ -312,14 +310,14 @@ class pythonProgramOptions:
             '--errors-to-file',
             '--allow-rlof-at-birth',
             '--allow-touching-at-birth',
-            '--switchLog'
+            '--switch-log'
         ]
 
         return booleanCommands
 
     def numericalChoices(self):
         numericalChoices = [
-            self.number_of_stars,
+            self.number_of_systems,
             self.initial_mass,
             self.initial_mass_1,
             self.initial_mass_2,
@@ -401,7 +399,7 @@ class pythonProgramOptions:
 
     def numericalCommands(self):
         numericalCommands = [
-            '--number-of-stars',
+            '--number-of-systems',
             '--initial-mass',
             '--initial-mass-1',
             '--initial-mass-2',

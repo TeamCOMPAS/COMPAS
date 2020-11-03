@@ -224,9 +224,9 @@ void Options::OptionValues::Initialise() {
     m_MullerMandelKickNS                                            = MULLERMANDEL_KICKNS;
 
     // Kick magnitude random number (used to draw kick magnitude if necessary)
-    m_KickMagnitudeRandom                                           = 0.0;
-    m_KickMagnitudeRandom1                                          = 0.0;
-    m_KickMagnitudeRandom2                                          = 0.0;
+    m_KickMagnitudeRandom                                           = 0.0;                                                  // actual value set later
+    m_KickMagnitudeRandom1                                          = 0.0;                                                  // actual value set later
+    m_KickMagnitudeRandom2                                          = 0.0;                                                  // actual value set later
 
     // Mean anomaly
     m_KickMeanAnomaly1                                              = 0.0;                                                  // actual value set later
@@ -694,7 +694,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Enable output parameters before/after RLOF (default = " + std::string(p_Options->m_RlofPrinting ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
-            "switchlog",                                                
+            "switch-log",                                                
             po::value<bool>(&p_Options->m_SwitchLog)->default_value(p_Options->m_SwitchLog)->implicit_value(true),                                                                          
             ("Print switch log to file (default = " + std::string(p_Options->m_SwitchLog ? "TRUE" : "FALSE") + ")").c_str()
         )
@@ -745,9 +745,9 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         */
 
         (
-            "number-of-stars",                                        
+            "number-of-systems,n",                                        
             po::value<int>(&p_Options->m_ObjectsToEvolve)->default_value(p_Options->m_ObjectsToEvolve),                                                                                                       
-            ("Specify the number of stars to simulate (SSE) (default = " + std::to_string(p_Options->m_ObjectsToEvolve) + ")").c_str()
+            ("Specify the number of systems to simulate (SSE) (default = " + std::to_string(p_Options->m_ObjectsToEvolve) + ")").c_str()
         )
 
 
@@ -956,11 +956,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Power for power law kick direction distribution (default = " + std::to_string(p_Options->m_KickDirectionPower) + " = isotropic, +ve = polar, -ve = in plane)").c_str()
         )
         (
-            "kick-magnitude-max",                                          
-            po::value<double>(&p_Options->m_KickMagnitudeDistributionMaximum)->default_value(p_Options->m_KickMagnitudeDistributionMaximum),                                                      
-            ("Maximum drawn kick magnitude in km s^-1. Ignored if < 0. Must be > 0 if using kick-magnitude-distribution=FLAT (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionMaximum) + ")").c_str()
-        )
-        (
             "kick-magnitude",                                          
             po::value<double>(&p_Options->m_KickMagnitude)->default_value(p_Options->m_KickMagnitude),                                                      
             ("The magnitude of the kick velocity the star receives during the a supernova (default = " + std::to_string(p_Options->m_KickMagnitude) + " km s^-1 )").c_str()
@@ -974,6 +969,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "kick-magnitude-2",                                          
             po::value<double>(&p_Options->m_KickMagnitude2)->default_value(p_Options->m_KickMagnitude2),                                                      
             ("The magnitude of the kick velocity the secondary star receives during the a supernova (default = " + std::to_string(p_Options->m_KickMagnitude2) + " km s^-1 )").c_str()
+        )
+        (
+            "kick-magnitude-max",                                          
+            po::value<double>(&p_Options->m_KickMagnitudeDistributionMaximum)->default_value(p_Options->m_KickMagnitudeDistributionMaximum),                                                      
+            ("Maximum drawn kick magnitude in km s^-1. Ignored if < 0. Must be > 0 if using kick-magnitude-distribution=FLAT (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionMaximum) + ")").c_str()
         )
         (
             "kick-magnitude-random",                                          
@@ -1080,7 +1080,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "maximum-evolution-time",                                      
             po::value<double>(&p_Options->m_MaxEvolutionTime)->default_value(p_Options->m_MaxEvolutionTime),                                                                                      
-            ("Maximum time to evolve binaries in Myrs (default = " + std::to_string(p_Options->m_MaxEvolutionTime) + ")").c_str()
+            ("Maximum time to evolve binaries in Myr (default = " + std::to_string(p_Options->m_MaxEvolutionTime) + ")").c_str()
         )
         (
             "maximum-mass-donor-nandez-ivanova",                           
@@ -3088,12 +3088,18 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
         size_t start      = 0;                                                                                      // start position of parsed option string
         size_t end        = 0;                                                                                      // end position of parsed option strinf
         std::string delim = " ";                                                                                    // delimiter
-        while (end != std::string::npos) {                                                                          // iterate over input string
+        bool done         = false;
+        while (!done && end != std::string::npos) {                                                                 // iterate over input string
             end = p_OptionsString.find(delim, start);                                                               // find delimiter
             std::string str = p_OptionsString.substr(start, end - start);                                           // grab option/argument string
             std::string trimmedStr = utils::trim(str);                                                              // trim whitespace
-            if (!trimmedStr.empty()) parsedStrings.push_back(trimmedStr);                                           // store if not empty string
-            start = end + delim.length();                                                                           // new start position
+            if (trimmedStr[0] == '#') {                                                                             // comment?
+                done = true;                                                                                        // yes - done with this line 
+            }
+            else {                                                                                                  // no - not a comment
+                if (!trimmedStr.empty()) parsedStrings.push_back(trimmedStr);                                       // store if not empty string
+                start = end + delim.length();                                                                       // new start position
+            }
         }
     
         std::vector<char const *> args {"placeHolder"};                                                             // place-holder - boost expects command name as argv[0]
@@ -3439,7 +3445,10 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MAX                    : value = MassRatioDistributionMax();                                           break;
         case PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MIN                    : value = MassRatioDistributionMin();                                           break;
 
+        case PROGRAM_OPTION::MAXIMUM_EVOLUTION_TIME                         : value = MaxEvolutionTime();                                                   break;
+        case PROGRAM_OPTION::MAXIMUM_DONOR_MASS                             : value = MaximumDonorMass();                                                   break;
         case PROGRAM_OPTION::MAXIMUM_NEUTRON_STAR_MASS                      : value = MaximumNeutronStarMass();                                             break;
+        case PROGRAM_OPTION::MAXIMUM_TIMESTEPS                              : value = MaxNumberOfTimestepIterations();                                      break;
 
         case PROGRAM_OPTION::MCBUR1                                         : value = MCBUR1();                                                             break;
 
@@ -3506,7 +3515,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_MAX      : value = PulsarBirthSpinPeriodDistributionMax();                               break;
         case PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_MIN      : value = PulsarBirthSpinPeriodDistributionMin();                               break;
 
-        case PROGRAM_OPTION::PULSAR_LOG10_MINIMUM_MAGNETIC_FIELD            : value = PulsarLog10MinimumMagneticField();                                    break;
+        case PROGRAM_OPTION::PULSAR_MINIMUM_MAGNETIC_FIELD                  : value = PulsarLog10MinimumMagneticField();                                    break;
 
         case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_MASS_SCALE         : value = PulsarMagneticFieldDecayMassscale();                                  break;
         case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE         : value = PulsarMagneticFieldDecayTimescale();                                  break;
