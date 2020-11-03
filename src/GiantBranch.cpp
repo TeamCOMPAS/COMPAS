@@ -1098,8 +1098,7 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
     }
     else {                                                                              // Not one of the above defined MT events
 
-        std::cout << "No clear prescription for remnant mass" << std::endl;
-        SHOW_WARN(ERROR::UNKNOWN_SN_ENGINE, "Using defaults");              // show warning TODO: Create unknown MT error 
+        SHOW_WARN(ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION, "Using default, Mass_Remnant = 1.0");   // show warning 
 
         logRemnantMass = 0; // RTW TODO: choose a better default
     }
