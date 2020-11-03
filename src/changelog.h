@@ -476,8 +476,73 @@
 // 02.15.19     IM - Oct 23, 2020   - Enhancements
 //                                      - Continue evolving DCOs until merger if EvolvePulsars is on (Issue #167)
 //                                      - Removed m_SecondaryTooSmallForDCO (Issue #337)
-// 02.15.19e    JR - Oct 27, 2020   - Experimental version - new grid file implementation
+// 02.16.00     JR - Nov 03, 2020   - Enhancements
+//                                      - Implemented new grid file functionality (see discussion in issue #412); updated docs - see docs (doc v2.3 has new documentation)
+//
+//                                      - Added all options to printing functionality: all options can now be selected for printing, 
+//                                        either in the default log record specifications, or at runtime via the logfile-definitions option
+//
+//                                      - 'CHE_Option' header string changed to 'CHE_Mode'.  A few typos fixed in header strings.
+//
+//                                      - Added options
+//                                          - initial-mass                          initial mass for single star (SSE)
+//                                          - initial-mass-1                        initial mass for primary (BSE)
+//                                          - initial-mass-2                        initial mass for secondary (BSE)
+//                                          - semi-major-axis, a                    initial semi-major axis (BSE)
+//                                          - orbital-period                        initial orbital period – only used if ‘semi-major-axis’ not specified
+//                                          - eccentricity, e                       initial eccentricity (BSE)
+//                                          - mode                                  mode of evolution: SSE or BSE (default is BSE)
+//                                          - number-of-systems                     number of systems (single stars/binary stars) to evolve
+//                                          - kick-magnitude-random                 kick magnitude random number for the star (SSE): used to draw the kick magnitude
+//                                          - kick-magnitude                        the (drawn) kick magnitude for the star (SSE)
+//                                          - kick-magnitude-random-1               kick magnitude random number for the primary star (BSE): used to draw the kick magnitude
+//                                          - kick-magnitude-1                      the (drawn) kick magnitude for the primary star (BSE)
+//                                          - kick-theta-1                          the angle between the orbital plane and the ’z’ axis of the supernova vector for the primary star (BSE)
+//                                          - kick-phi-1                            the angle between ’x’ and ’y’, both in the orbital plane of the supernova vector, for the primary star (BSE)
+//                                          - kick-mean-anomaly-1                   the mean anomaly at the instant of the supernova for the primary star (BSE)
+//                                          - kick-magnitude-random-2               kick magnitude random number for the secondary star (BSE): used to draw the kick magnitude
+//                                          - kick-magnitude-2                      the (drawn) kick magnitude for the secondary star (BSE)
+//                                          - kick-theta-2                          the angle between the orbital plane and the ’z’ axis of the supernova vector for the secondary star (BSE)
+//                                          - kick-phi-2                            the angle between ’x’ and ’y’, both in the orbital plane of the supernova vector, for the secondary star (BSE)
+//                                          - kick-mean-anomaly-2                   the mean anomaly at the instant of the supernova for the secondary star (BSE)
+//                                          - muller-mandel-kick-multiplier-BH      scaling prefactor for BH kicks when using 'MULLERMANDEL'
+//                                          - muller-mandel-kick-multiplier-NS      scaling prefactor for NS kicks when using 'MULLERMANDEL'
+//                                          - switchlog                             replaces ‘BSEswitchLog’ and ‘SSEswitchLog’
+//                                          - logfile-rlof-parameters               replaces ‘logfile-BSE-rlof-parameters’
+//                                          - logfile-common-envelopes              replaces ‘logfile-BSE-common-envelopes’
+//                                          - logfile-detailed-output               replaces ‘logfile-BSE-detailed-output’, and now also used for SSE
+//                                          - logfile-double-compact-objects		replaces ‘logfile-BSE-double-compact-objects’
+//                                          - logfile-pulsar-evolution              replaces ‘logfile-BSE-pulsar-evolution’
+//                                          - logfile-supernovae                    replaces ‘logfile-BSE-supernovae’ and ‘logfile-SSE-supernova’
+//                                          - logfile-switch-log                    replaces ‘logfile-BSE-switch-log’ and ‘logfile-SSE-switch-log’
+//                                          - logfile-system-parameters             replaces ‘logfile-BSE-system-parameters’
+//
+//                                      - Removed options
+//                                          - number-of-binaries                    replaced by ‘number-of-systems’ for both SSE and BSE
+//                                          - single-star-min                       replaced by ‘initial-mass’ and ‘number-of-stars’
+//                                          - single-star-max                       replaced by ‘initial-mass’ and ‘number-of-stars’
+//                                          - single-star-mass-steps                replaced by ‘initial-mass’ and ‘number-of-stars’
+//                                          - BSEswitchLog                          replaced by ‘switchlog’
+//                                          - SSEswitchLog                          replaced by ‘switchlog’
+//                                          - logfile-BSE-rlof-parameters           replaced by ‘logfile-rlof-parameters’
+//                                          - logfile-BSE-common-envelopes          replaced by ‘logfile-common-envelopes’
+//                                          - logfile-BSE-detailed-output           replaced by ‘logfile-detailed-output’
+//                                          - logfile-BSE-double-compact-objects    replaced by ‘logfile-double-compact-objects’
+//                                          - logfile-BSE-pulsar-evolution          replaced by ‘logfile-pulsar-evolution’
+//                                          - logfile-BSE-supernovae                replaced by ‘logfile-supernovae’
+//                                          - logfile-SSE-supernova                 replaced by ‘logfile-supernovae’
+//                                          - logfile-BSE-switch-log                replaced by ‘logfile-switch-log’
+//                                          - logfile-SSE-switch-log                replaced by ‘logfile-switch-log’
+//                                          - logfile-BSE-system-parameters         replaced by ‘logfile-system-parameters’
+//
+//                                      - Overloaded Options – these options are context-aware and are used for both SSE and BSE:
+//                                          - number-of-systems                     specifies the number of systems (single stars/binary stars) to evolve
+//                                          - detailed-output                       switches detailed output on/off for SSE or BSE
+//                                          - switchlog                             enables the switch log for SSE or BSE
+//                                          - logfile-detailed-ouput                defines filename for SSE or BSE detailed output file
+//                                          - logfile-supernovae                    defines filename for SSE or BSE supernovae file
+//                                          - logfile-switch-log                    defines filename for SSE or BSE switch log file
 
-const std::string VERSION_STRING = "02.15.19e";
+const std::string VERSION_STRING = "02.16.00";
 
 # endif // __changelog_h__
