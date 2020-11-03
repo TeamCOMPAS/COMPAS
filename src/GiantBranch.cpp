@@ -1033,6 +1033,88 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
 }
 
 
+
+/*
+ * Calculate remnant type given COCoreMass according to the Schneider et al. 2020 prescription (arxiv:2008.08599)
+ *
+ * STELLAR_TYPE CalculateRemnantTypeBySchneider2020(const double p_COCoreMass)
+ *
+ * @param   [IN]    p_COCoreMass                COCoreMass in Msol
+ * @return                                      Remnant type (stellar type)
+ */
+double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMass, const bool useSchneiderAlt) {
+
+    double logRemnantMass;
+
+    switch (DetermineMassTransferCase()) {      // Which type of MT history          // TODO: This parameter is wrong, it tells you the MT case if MT happened for the current stellar type! I want some record of previous MT!
+
+        case MT_CASE::NONE:                        // No history of MT - effectively single star
+
+            if (!useSchneiderAlt) {      // Whether to use standard or alternative remnant mass prescription for effectively single stars
+
+                     // standard prescription
+                     if (utils::Compare(p_COCoreMass, 6.357)  < 0) { logRemnantMass = log10(0.03357*p_COCoreMass + 1.31780); }
+                else if (utils::Compare(p_COCoreMass, 7.311)  < 0) { logRemnantMass = -0.02466*p_COCoreMass + 1.28070; }
+                else if (utils::Compare(p_COCoreMass, 12.925) < 0) { logRemnantMass = log10(0.03357*p_COCoreMass + 1.31780); }
+                else                                               { logRemnantMass = 0.01940*p_COCoreMass + 0.98462; }
+            }
+            else {  
+
+                     // alternative prescription
+                     if (utils::Compare(p_COCoreMass, 6.357)  < 0) { logRemnantMass = log10(0.04199*p_COCoreMass + 1.28128); }
+                else if (utils::Compare(p_COCoreMass, 7.311)  < 0) { logRemnantMass = -0.02466*p_COCoreMass + 1.28070; }
+                else if (utils::Compare(p_COCoreMass, 12.925) < 0) { logRemnantMass = log10( 0.04701*(p_COCoreMass*p_COCoreMass) - 0.91403*p_COCoreMass + 5.93380); }
+                else                                               { logRemnantMass = 0.01940*p_COCoreMass + 0.98462; }
+            }
+
+            break;
+
+        case MT_CASE::A:                        // CASE A Mass Transfer
+
+                 if (utils::Compare(p_COCoreMass, 7.064)  < 0) { logRemnantMass = log10(0.02128*p_COCoreMass + 1.35349); }
+            else if (utils::Compare(p_COCoreMass, 8.615)  < 0) { logRemnantMass = 0.03866*p_COCoreMass + 0.64417; }
+            else if (utils::Compare(p_COCoreMass, 15.187) < 0) { logRemnantMass = log10(0.02128*p_COCoreMass + 1.35349); }
+            else                                               { logRemnantMass = 0.02573*p_COCoreMass + 0.79027; }
+
+            break;
+
+        case MT_CASE::B:                        // CASE B Mass Transfer
+
+                 if (utils::Compare(p_COCoreMass, 7.548)  < 0) { logRemnantMass = log10(0.01909*p_COCoreMass + 1.34529); }
+            else if (utils::Compare(p_COCoreMass, 8.491)  < 0) { logRemnantMass = 0.03306*p_COCoreMass + 0.68978; }
+            else if (utils::Compare(p_COCoreMass, 15.144) < 0) { logRemnantMass = log10(0.01909*p_COCoreMass + 1.34529); }
+            else                                               { logRemnantMass = 0.02477*p_COCoreMass + 0.80614; }
+
+            break;
+
+        case MT_CASE::C:                        // CASE C Mass Transfer
+
+                 if (utils::Compare(p_COCoreMass, 6.357)  < 0) { logRemnantMass = log10(0.03781*p_COCoreMass + 1.36363); }
+            else if (utils::Compare(p_COCoreMass, 7.311)  < 0) { logRemnantMass = 0.05264*p_COCoreMass + 0.58531; }
+            else if (utils::Compare(p_COCoreMass, 14.008) < 0) { logRemnantMass = log10(0.03781*p_COCoreMass + 1.36363); }
+            else                                               { logRemnantMass = 0.01795*p_COCoreMass + 0.98797; }
+
+            break;
+
+        case MT_CASE::Z:                        // CASE Z Mass Transfer - multiple MT events, 
+
+            // TODO: sort this out
+
+            break;
+
+        default:                                                                                            // unknown MT type
+            SHOW_WARN(ERROR::UNKNOWN_SN_ENGINE, "Using defaults");                                          // show warning TODO: Create unknown MT error 
+    }
+
+
+    return exp(logRemnantMass);
+
+}
+
+
+
+
+
 /*
  * Calculate remnant mass given COCoreMass and HeCoreMass
  *
@@ -1459,6 +1541,19 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
 
             m_Mass = CalculateRemnantMassByMullerMandel(m_COCoreMass, m_HeCoreMass);
             m_SupernovaDetails.fallbackFraction = 0.0;                                                      // No subsequent kick adjustment by fallback fraction needed
+            break;
+
+        // TODO: Setup RemnantMassPrescription Options for Schneider and SchneiderAlt
+        case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020:                                                      // Schneider 2020
+
+            m_Mass = CalculateRemnantMassBySchneider2020(m_COCoreMass, useSchneiderAlt=false);
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0
+            break;
+
+        case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT:                                                   // Schneider 2020, alternative
+
+            m_Mass = CalculateRemnantMassBySchneider2020(m_COCoreMass, useSchneiderAlt=true);
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0
             break;
 
         default:                                                                                            // unknown prescription
