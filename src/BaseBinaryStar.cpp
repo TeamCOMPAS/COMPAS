@@ -224,7 +224,7 @@ void BaseBinaryStar::SetInitialValues(const AIS &p_AIS, const long int p_Id) {
     OBJECT_ID id = p_Id < 0 ? m_ObjectId : p_Id;                                                        // for legacy testing
 
     if (OPTIONS->FixedRandomSeedGridLine()) {                                                           // user specified a random seed in the grid file for this binary?
-        m_RandomSeed = OPTIONS->RandomSeedGridLine();                                                   // yes - use it as is
+        m_RandomSeed = RAND->Seed(OPTIONS->RandomSeedGridLine() + id);                                  // yes - use it (indexed))
     }
     else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                       // no - user supplied seed for the random number generator?
         m_RandomSeed = RAND->Seed(OPTIONS->RandomSeedCmdLine() + id);                                   // yes - this allows the user to reproduce results for each binary
