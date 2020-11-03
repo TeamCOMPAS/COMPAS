@@ -80,7 +80,6 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
             case ANY_STAR_PROPERTY::MASS_LOSS_DIFF:                                     value = MassLossDiff();                                 break;
             case ANY_STAR_PROPERTY::MASS_TRANSFER_CASE_INITIAL:                         value = static_cast<int>(MassTransferCaseInitial());    break;
             case ANY_STAR_PROPERTY::MASS_TRANSFER_DIFF:                                 value = MassTransferDiff();                             break;
-            case ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY:                        value = MassTransferDonorHistoryString();               break;
             case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE:             value = NuclearTimescalePostCEE();                      break;
             case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE:              value = NuclearTimescalePreCEE();                       break;
             case ANY_STAR_PROPERTY::ORBITAL_ENERGY_POST_SUPERNOVA:                      value = OrbitalEnergyPostSN();                          break;
@@ -481,52 +480,4 @@ void BinaryConstituentStar::DetermineInitialMassTransferCase() {
 void BinaryConstituentStar::InitialiseMassTransfer(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity) {
     SetRocheLobeFlags(p_CommonEnvelope, p_SemiMajorAxis, p_Eccentricity);
     m_MassTransferDiff = 0.0;
-}
-
-
-/*
- * Convert Mass Transfer Donor History vector into string
- *
- * This is so that a string is passed to the output, not a vector of stellar types.
- *
- * std::string BinaryConstituentStar::MassTransferDonorHistoryString() 
- *
- * @return                              string of dash-separated stellar type numbers
- */
-std::string BinaryConstituentStar::MassTransferDonorHistoryString() const {
-    INT_VECTOR mtHistVec = m_MassTransferDonorHistory;      
-    std::string mtHistStr;
-
-    if (mtHistVec.empty()) { // This star was never a donor for MT
-        mtHistStr = "NA";
-    }
-    else {                // This star was a donor, return the stellar type string
-        std::ostringstream oss;
-        std::copy(mtHistVec.begin(), mtHistVec.end()-1, std::ostream_iterator<int>(oss, "-"));
-        oss << mtHistVec.back();
-        mtHistStr = oss.str();
-    }
-
-    return mtHistStr;
-}
-
-
-/*
- * Convert Mass Transfer Donor History vector into string
- *
- * This is so that a string is passed to the output, not a vector of stellar types.
- *
- * std::string BinaryConstituentStar::MassTransferDonorHistoryString() 
- *
- * @return                              string of dash-separated stellar type numbers
- */
-void BinaryConstituentStar::AddMassTransferEventToDonorHistory(const STELLAR_TYPE p_DonorType) {
-    int currentType = (int) p_DonorType;
-
-    if (m_MassTransferDonorHistory.empty()) {
-        m_MassTransferDonorHistory.push_back(currentType);
-    }
-    else if (m_MassTransferDonorHistory.back() != currentType) { // The star has not yet MT'd as its current type, so new event
-        m_MassTransferDonorHistory.push_back(currentType);
-    }
 }
