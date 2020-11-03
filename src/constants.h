@@ -12,6 +12,7 @@
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
 
+typedef std::vector<int>                                                INT_VECTOR;
 typedef std::vector<double>                                             DBL_VECTOR;
 typedef std::tuple <double, double>                                     DBL_DBL;
 typedef std::tuple <double, double, double>                             DBL_DBL_DBL;
@@ -535,7 +536,6 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::OUT_OF_BOUNDS,                                         { ERROR_SCOPE::ALWAYS,              "Value out of bounds" }},
     { ERROR::RADIUS_NOT_POSITIVE,                                   { ERROR_SCOPE::ALWAYS,              "Radius <= 0.0" }},
     { ERROR::RADIUS_NOT_POSITIVE_ONCE,                              { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Radius <= 0.0" }},
-    // RTW
     { ERROR::RESOLVE_SUPERNOVA_IMPROPERLY_CALLED,                   { ERROR_SCOPE::ALWAYS,              "ResolveSupernova() called, but m_Supernova->IsSNevent() is false" }},
     { ERROR::STELLAR_EVOLUTION_STOPPED,                             { ERROR_SCOPE::ALWAYS,              "Evolution of current star stopped" }},
     { ERROR::STELLAR_SIMULATION_STOPPED,                            { ERROR_SCOPE::ALWAYS,              "Stellar simulation stopped" }},
@@ -1254,10 +1254,6 @@ enum class GBP: int {
 };
 
 
-// RTW
-//typedef std::vector<STELLAR_TYPE>               MT_DONOR_HIST;
-//constexpr double DEFAULT_INITIAL_MT_DONOR_VALUE           = MT_DONOR_HIST();                                                      // default initial value for MT DONOR HISTORY is an empty vector // RTW is this necessary?
-
 // enum class TYPENAME
 // Symbolic names for variable typenames (for printing)
 enum class TYPENAME: int {
@@ -1277,7 +1273,6 @@ enum class TYPENAME: int {
     ERROR,
     STELLAR_TYPE,
     MT_CASE,
-    //MT_DONOR_HIST,
     MT_TRACKING,
     SN_EVENT,
     SN_STATE
@@ -1303,7 +1298,6 @@ const COMPASUnorderedMap<TYPENAME, std::tuple<std::string, std::string>> TYPENAM
     { TYPENAME::ERROR,        { "ERROR",              "INT"    }},
     { TYPENAME::STELLAR_TYPE, { "STELLAR_TYPE",       "INT"    }},
     { TYPENAME::MT_CASE,      { "MT_CASE",            "INT"    }},
-    //{ TYPENAME::MT_DONOR_HIST,{ "MT_DONOR_HIST",      "INT"    }},
     { TYPENAME::MT_TRACKING,  { "MT_TRACKING",        "INT"    }},
     { TYPENAME::SN_EVENT,     { "SN_EVENT",           "INT"    }},
     { TYPENAME::SN_STATE,     { "SN_STATE",           "INT"    }}
@@ -1328,7 +1322,6 @@ typedef boost::variant<
     STELLAR_TYPE,
     MT_CASE,
     MT_TRACKING,
-    //MT_DONOR_HIST,
     SN_EVENT,
     SN_STATE
 > COMPAS_VARIABLE_TYPE;
@@ -2022,7 +2015,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::MASS_LOSS_DIFF,                                    { TYPENAME::DOUBLE,         "dmWinds",              "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::MASS_TRANSFER_CASE_INITIAL,                        { TYPENAME::MT_CASE,        "MT_Case",              "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::MASS_TRANSFER_DIFF,                                { TYPENAME::DOUBLE,         "dmMT",                 "Msol",             14, 6 }},
-    { ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY,                       { TYPENAME::DOUBLE,         "MT_Donor_Hist",        "Vect<StellarType>",14, 6 }}, 
+    { ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY,                       { TYPENAME::STRING,         "MT_Donor_Hist",        "-",                16, 16}}, 
     { ANY_STAR_PROPERTY::MDOT,                                              { TYPENAME::DOUBLE,         "Mdot",                 "Msol yr^-1",       14, 6 }},
     { ANY_STAR_PROPERTY::METALLICITY,                                       { TYPENAME::DOUBLE,         "Metallicity@ZAMS",     "-",                14, 6 }},
     { ANY_STAR_PROPERTY::MZAMS,                                             { TYPENAME::DOUBLE,         "Mass@ZAMS",            "Msol",             14, 6 }},
@@ -2530,6 +2523,7 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     SUPERNOVA_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
     SUPERNOVA_PROPERTY::MASS,
     SUPERNOVA_PROPERTY::EXPERIENCED_RLOF,
+    SUPERNOVA_PROPERTY::MASS_TRANSFER_DONOR_HISTORY,
     SUPERNOVA_PROPERTY::SPEED,
     COMPANION_PROPERTY::SPEED,
     BINARY_PROPERTY::SYSTEMIC_SPEED,

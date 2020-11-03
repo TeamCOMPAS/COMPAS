@@ -67,7 +67,7 @@ public:
         m_MassLossDiff                               = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_MassTransferCaseInitial                    = MT_CASE::NONE;
         m_MassTransferDiff                           = DEFAULT_INITIAL_DOUBLE_VALUE;
-        m_MassTransferDonorHistory                   = std::vector<STELLAR_TYPE>(); // RTW need a default value, will this work?
+        m_MassTransferDonorHistory                   = INT_VECTOR(); 
 
         m_OrbitalEnergyPreSN                         = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_OrbitalEnergyPostSN                        = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -179,7 +179,8 @@ public:
     double          MassLossDiff() const                                                { return m_MassLossDiff; }
     MT_CASE         MassTransferCaseInitial() const                                     { return m_MassTransferCaseInitial; }
     double          MassTransferDiff() const                                            { return m_MassTransferDiff; }
-    //MT_DONOR_HIST   MassTransferDonorHistory() const                                    { return m_MassTransferDonorHistory; }
+    INT_VECTOR      MassTransferDonorHistory() const                                    { return m_MassTransferDonorHistory; }
+    std::string     MassTransferDonorHistoryString() const;
     double          OmegaTidesIndividualDiff() const                                    { return m_OmegaTidesIndividualDiff; }
     double          OrbitalEnergyPostSN() const                                         { return m_OrbitalEnergyPostSN; };
     double          OrbitalEnergyPreSN() const                                          { return m_OrbitalEnergyPreSN; };
@@ -198,6 +199,8 @@ public:
 
 
     // member functions - alphabetically
+    void            AddMassTransferEventToDonorHistory(const STELLAR_TYPE p_DonorType);
+
     void            BecomePrimary()                                                     { m_IsPrimary = true; }
     void            BecomeSecondary()                                                   { m_IsPrimary = false; }
 
@@ -240,8 +243,7 @@ private:
     double                  m_MassLossDiff;
     MT_CASE                 m_MassTransferCaseInitial;              // Indicator of which Mass Transfer occures when first RLOF, if any
     double                  m_MassTransferDiff;
-    // RTW
-    std::vector<STELLAR_TYPE> m_MassTransferDonorHistory;             // List of MT donor stellar types 
+    INT_VECTOR              m_MassTransferDonorHistory;             // List of MT donor stellar types 
 
     double                  m_OmegaTidesIndividualDiff;
 
