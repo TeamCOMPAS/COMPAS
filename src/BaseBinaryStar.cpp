@@ -2243,6 +2243,9 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     m_Donor->BecomePrimary();                                                                                                                               // tell the donor it is the primary
     m_Accretor->BecomeSecondary();                                                                                                                          // tell the accretor it is not the primary
 
+    // Add event to MT history of the donor
+    m_Donor->AddMassTransferEventToDonorHistory(m_Donor->StellarType());
+
     double aInitial = m_SemiMajorAxis;                                                                                                                      // semi-major axis in default units, AU, current timestep
     double aFinal;                                                                                                                                          // semi-major axis in default units, AU, after next timestep
     double jLoss    = m_JLoss;                            		                                                                                            // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
