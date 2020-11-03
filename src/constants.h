@@ -753,7 +753,7 @@ const COMPASUnorderedMap<ENVELOPE, std::string> ENVELOPE_LABEL = {
 
 
 // Kick magnitude distribution
-enum class KICK_MAGNITUDE_DISTRIBUTION: int { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL };
+enum class KICK_MAGNITUDE_DISTRIBUTION: int { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL};
 const COMPASUnorderedMap<KICK_MAGNITUDE_DISTRIBUTION, std::string> KICK_MAGNITUDE_DISTRIBUTION_LABEL = {
     { KICK_MAGNITUDE_DISTRIBUTION::ZERO,                 "ZERO" },
     { KICK_MAGNITUDE_DISTRIBUTION::FIXED,                "FIXED" },
@@ -836,13 +836,15 @@ const COMPASUnorderedMap<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION, std::string> MT_
 
 
 // Mass transfer cases
-enum class MT_CASE: int { NONE, A, B, C };
-const COMPASUnorderedMap<MT_CASE, std::string> MT_CASE_LABEL = {
-    { MT_CASE::NONE, "Mass Transfer CASE NONE: No Mass Transfer" },
-    { MT_CASE::A,    "Mass Transfer CASE A" },                          // mass transfer while donor is on main sequence
-    { MT_CASE::B,    "Mass Transfer CASE B" },                          // donor star is in (or evolving to) Red Giant phase
-    { MT_CASE::C,    "Mass Transfer CASE C" }                           // SuperGiant phase
-};
+// RTW
+//
+//enum class MT_CASE: int { NONE, A, B, C };
+//const COMPASUnorderedMap<MT_CASE, std::string> MT_CASE_LABEL = {
+//    { MT_CASE::NONE, "Mass Transfer CASE NONE: No Mass Transfer" },
+//    { MT_CASE::A,    "Mass Transfer CASE A" },                          // mass transfer while donor is on main sequence
+//    { MT_CASE::B,    "Mass Transfer CASE B" },                          // donor star is in (or evolving to) Red Giant phase
+//    { MT_CASE::C,    "Mass Transfer CASE C" }                           // SuperGiant phase
+//};
 
 
 // Mass transfer prescriptions
@@ -931,13 +933,14 @@ const COMPASUnorderedMap<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PUL
 
 
 // Remnant Mass Prescriptions
-enum class REMNANT_MASS_PRESCRIPTION: int { HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL };
+enum class REMNANT_MASS_PRESCRIPTION: int { HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT };
 const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PRESCRIPTION_LABEL = {
     { REMNANT_MASS_PRESCRIPTION::HURLEY2000,           "HURLEY2000" },
     { REMNANT_MASS_PRESCRIPTION::BELCZYNSKI2002,       "BELCZYNSKI2002" },
     { REMNANT_MASS_PRESCRIPTION::FRYER2012,            "FRYER2012" },
     { REMNANT_MASS_PRESCRIPTION::MULLER2016,           "MULLER2016" },
-    { REMNANT_MASS_PRESCRIPTION::MULLERMANDEL,         "MULLERMANDEL" }
+    { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020,        "SCHNEIDER2020" },
+    { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT ,    "SCHNEIDER2020ALT" }
 };
 
 
@@ -1272,7 +1275,7 @@ enum class TYPENAME: int {
     OBJECT_ID,
     ERROR,
     STELLAR_TYPE,
-    MT_CASE,
+    MT_CASE_FIX,
     MT_TRACKING,
     SN_EVENT,
     SN_STATE
@@ -1297,7 +1300,7 @@ const COMPASUnorderedMap<TYPENAME, std::tuple<std::string, std::string>> TYPENAM
     { TYPENAME::OBJECT_ID,    { "OBJECT_ID",          "INT"    }},
     { TYPENAME::ERROR,        { "ERROR",              "INT"    }},
     { TYPENAME::STELLAR_TYPE, { "STELLAR_TYPE",       "INT"    }},
-    { TYPENAME::MT_CASE,      { "MT_CASE",            "INT"    }},
+    { TYPENAME::MT_CASE_FIX,      { "MT_CASE",            "INT"    }},
     { TYPENAME::MT_TRACKING,  { "MT_TRACKING",        "INT"    }},
     { TYPENAME::SN_EVENT,     { "SN_EVENT",           "INT"    }},
     { TYPENAME::SN_STATE,     { "SN_STATE",           "INT"    }}
@@ -1320,7 +1323,7 @@ typedef boost::variant<
     std::string,
     ERROR,
     STELLAR_TYPE,
-    MT_CASE,
+    MT_CASE_FIX,
     MT_TRACKING,
     SN_EVENT,
     SN_STATE
@@ -2013,7 +2016,8 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::MASS,                                              { TYPENAME::DOUBLE,         "Mass",                 "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::MASS_0,                                            { TYPENAME::DOUBLE,         "Mass_0",               "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::MASS_LOSS_DIFF,                                    { TYPENAME::DOUBLE,         "dmWinds",              "Msol",             14, 6 }},
-    { ANY_STAR_PROPERTY::MASS_TRANSFER_CASE_INITIAL,                        { TYPENAME::MT_CASE,        "MT_Case",              "-",                 4, 1 }},
+    { ANY_STAR_PROPERTY::MASS_TRANSFER_CASE_HISTORY,                        { TYPENAME::MT_CASE_FIX,        "MT_Case_History",      "-",                 4, 1 }},
+    { ANY_STAR_PROPERTY::MASS_TRANSFER_CASE_INITIAL,                        { TYPENAME::STELLAR_TYPE,   "MT_Case_Initial",      "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::MASS_TRANSFER_DIFF,                                { TYPENAME::DOUBLE,         "dmMT",                 "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY,                       { TYPENAME::STRING,         "MT_Donor_Hist",        "-",                16, 16}}, 
     { ANY_STAR_PROPERTY::MDOT,                                              { TYPENAME::DOUBLE,         "Mdot",                 "Msol yr^-1",       14, 6 }},
