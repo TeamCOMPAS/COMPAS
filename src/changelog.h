@@ -476,10 +476,13 @@
 // 02.15.19     IM - Oct 23, 2020   - Enhancements
 //                                      - Continue evolving DCOs until merger if EvolvePulsars is on (Issue #167)
 //                                      - Removed m_SecondaryTooSmallForDCO (Issue #337)
-// 02.15.20     RTW - Nov 3, 2020   - Enhancement:
+// 02.15.20     RTW - Nov 3, 2020   - Code cleanup
+//                                      - Removed unnecessary supernova phi rotation - it was added to agree with Simon's original definition, and to allow for seeds to reproduce the same SN final orbit. 
+//                                      -   Removing it means seeds won't reproduce the same systems before and after, but populations are unaffected.
+// 02.15.21     RTW - Nov 3, 2020   - Enhancement:
 //                                      - Added in Schneider 2020 remnant mass prescriptions (standard and alternative)
 //                                      - Added parameter MassTransferDonorHistory, as required for above prescription, which tracks the MT donor type (from which the MT Case can be established)
 
-const std::string VERSION_STRING = "02.15.20";
+const std::string VERSION_STRING = "02.15.21";
 
 # endif // __changelog_h__
