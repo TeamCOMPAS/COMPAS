@@ -1043,30 +1043,6 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
  * @param   [IN]    useSchneiderAlt             Whether to use the Schneider alt prescription 
  * @return                                      Remnant mass in Msol
  */
-
-// RTW
-//STELLAR_TYPE::MS_LTE_07,                                    
-//STELLAR_TYPE::MS_GT_07,                                     
-//STELLAR_TYPE::HERTZSPRUNG_GAP,                              
-//STELLAR_TYPE::FIRST_GIANT_BRANCH,                           
-//STELLAR_TYPE::CORE_HELIUM_BURNING,                          
-//STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,                
-//STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,    
-//STELLAR_TYPE::NAKED_HELIUM_STAR_MS,                         
-//STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP,            
-//STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH,               
-//STELLAR_TYPE::HELIUM_WHITE_DWARF,                           
-//STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF,                    
-//STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF,                      
-//STELLAR_TYPE::NEUTRON_STAR,                                 
-//STELLAR_TYPE::BLACK_HOLE,                                   
-//STELLAR_TYPE::MASSLESS_REMNANT,                             
-//STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS,                       
-//STELLAR_TYPE::STAR,                                         
-//STELLAR_TYPE::BINARY_STAR,                                  
-//STELLAR_TYPE::NONE                                          
-
-
 double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMass, const bool p_useSchneiderAlt) {
 
     double logRemnantMass;
@@ -1094,7 +1070,7 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
     }
     else if (mtHist.size() == 1) {                                                      // 1 MT event, trivially from a non-stripped star
 
-        firstCase = mtHist[0];
+        STELLAR_TYPE firstCase = mtHist[0];
 
         if (utils::IsOneOf(firstCase, { STELLAR_TYPE::MS_LTE_07, 
                                         STELLAR_TYPE::MS_GT_07 })) {                                        // CASE A Mass Transfer - from MS
