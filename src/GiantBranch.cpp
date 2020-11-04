@@ -1043,14 +1043,38 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
  * @param   [IN]    useSchneiderAlt             Whether to use the Schneider alt prescription 
  * @return                                      Remnant mass in Msol
  */
-double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMass, const bool useSchneiderAlt) {
+
+// RTW
+//STELLAR_TYPE::MS_LTE_07,                                    
+//STELLAR_TYPE::MS_GT_07,                                     
+//STELLAR_TYPE::HERTZSPRUNG_GAP,                              
+//STELLAR_TYPE::FIRST_GIANT_BRANCH,                           
+//STELLAR_TYPE::CORE_HELIUM_BURNING,                          
+//STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,                
+//STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,    
+//STELLAR_TYPE::NAKED_HELIUM_STAR_MS,                         
+//STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP,            
+//STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH,               
+//STELLAR_TYPE::HELIUM_WHITE_DWARF,                           
+//STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF,                    
+//STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF,                      
+//STELLAR_TYPE::NEUTRON_STAR,                                 
+//STELLAR_TYPE::BLACK_HOLE,                                   
+//STELLAR_TYPE::MASSLESS_REMNANT,                             
+//STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS,                       
+//STELLAR_TYPE::STAR,                                         
+//STELLAR_TYPE::BINARY_STAR,                                  
+//STELLAR_TYPE::NONE                                          
+
+
+double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMass, const bool p_useSchneiderAlt) {
 
     double logRemnantMass;
-    INT_VECTOR mtHist = this->MassTransferDonorHistory();
+    STYPE_VECTOR mtHist = this->MassTransferDonorHistory();
 
     if (mtHist.size() == 0) {                                                           // No history of MT - effectively single star
 
-        if (!useSchneiderAlt) {      // Use standard or alternative remnant mass prescription for effectively single stars
+        if (!p_useSchneiderAlt) {      // Use standard or alternative remnant mass prescription for effectively single stars
 
                  // standard prescription
                  if (utils::Compare(p_COCoreMass, 6.357)  < 0) { logRemnantMass = log10(0.03357*p_COCoreMass + 1.31780); }
@@ -1068,9 +1092,12 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
         }
 
     }
-    else if ((mtHist.size() == 1) && (mtHist[0] < 7)) {                                 // 1 MT event, trivially from a non-stripped star
+    else if (mtHist.size() == 1) {                                                      // 1 MT event, trivially from a non-stripped star
 
-        if ((mtHist[0] == 0) | (mtHist[0] == 1)) {                                          // CASE A Mass Transfer - from MS
+        firstCase = mtHist[0];
+
+        if (utils::IsOneOf(firstCase, { STELLAR_TYPE::MS_LTE_07, 
+                                        STELLAR_TYPE::MS_GT_07 })) {                                        // CASE A Mass Transfer - from MS
 
                  if (utils::Compare(p_COCoreMass, 7.064)  < 0) { logRemnantMass = log10(0.02128*p_COCoreMass + 1.35349); }
             else if (utils::Compare(p_COCoreMass, 8.615)  < 0) { logRemnantMass = 0.03866*p_COCoreMass + 0.64417; }
@@ -1078,7 +1105,9 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
             else                                               { logRemnantMass = 0.02573*p_COCoreMass + 0.79027; }
 
         }
-        else if ((mtHist[0] == 2) | (mtHist[0] == 3) | (mtHist[0] == 4)) {                  // CASE B Mass Transfer - from HG, FGB, or CHeB
+        else if (utils::IsOneOf(firstCase, { STELLAR_TYPE::HERTZSPRUNG_GAP, 
+                                             STELLAR_TYPE::FIRST_GIANT_BRANCH, 
+                                             STELLAR_TYPE::CORE_HELIUM_BURNING })) {                        // CASE B Mass Transfer - from HG, FGB, or CHeB 
 
                  if (utils::Compare(p_COCoreMass, 7.548)  < 0) { logRemnantMass = log10(0.01909*p_COCoreMass + 1.34529); }
             else if (utils::Compare(p_COCoreMass, 8.491)  < 0) { logRemnantMass = 0.03306*p_COCoreMass + 0.68978; }
@@ -1086,7 +1115,8 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
             else                                               { logRemnantMass = 0.02477*p_COCoreMass + 0.80614; }
 
         }
-        else if ((mtHist[0] == 5) | (mtHist[0] == 6)) {                                     // CASE C Mass Transfer - from EAGB or TPAGB
+        else if (utils::IsOneOf(firstCase, { STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,            
+                                             STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH, })) { // CASE C Mass Transfer - from EAGB or TPAGB 
 
                  if (utils::Compare(p_COCoreMass, 6.357)  < 0) { logRemnantMass = log10(0.03781*p_COCoreMass + 1.36363); }
             else if (utils::Compare(p_COCoreMass, 7.311)  < 0) { logRemnantMass = 0.05264*p_COCoreMass + 0.58531; }

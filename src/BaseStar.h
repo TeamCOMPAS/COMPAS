@@ -84,7 +84,7 @@ public:
             double              Mass() const                                                    { return m_Mass; }
             double              Mass0() const                                                   { return m_Mass0; }
             double              MassPrev() const                                                { return m_MassPrev; }
-            INT_VECTOR          MassTransferDonorHistory() const                                { return m_MassTransferDonorHistory; }
+            STYPE_VECTOR          MassTransferDonorHistory() const                                { return m_MassTransferDonorHistory; }
             std::string         MassTransferDonorHistoryString() const;
             double              Mdot() const                                                    { return m_Mdot; }
             double              Metallicity() const                                             { return m_Metallicity; }
@@ -349,7 +349,7 @@ protected:
 	Vector3d                m_ComponentVelocity; 	                    // Isolated star velocity vector (binary's center-of-mass velocity for bound binary)
 
     // Star mass transfer history 
-    INT_VECTOR              m_MassTransferDonorHistory;             // List of MT donor stellar types - mostly relevent for binary stars
+    STYPE_VECTOR              m_MassTransferDonorHistory;             // List of MT donor stellar types - mostly relevent for binary stars
 
     // member functions - alphabetically
             void            AgeOneTimestepPreamble(const double p_DeltaTime);
