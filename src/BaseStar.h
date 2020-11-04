@@ -137,7 +137,7 @@ public:
             
             void                UpdateComponentVelocity(const Vector3d p_newVelocity);	
 
-            void            UpdateMassTransferDonorHistory(const STELLAR_TYPE p_DonorType);
+            void                UpdateMassTransferDonorHistory();
 
 
 
