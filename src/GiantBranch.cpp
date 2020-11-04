@@ -1106,7 +1106,7 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
 
         SHOW_WARN(ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION, "Using default, Mass_Remnant = 1.0");   // show warning 
 
-        logRemnantMass = 0; // RTW TODO: choose a better default
+        logRemnantMass = 0.096910013; // gives mRem=1.25  // RTW TODO: choose a better default
     }
 
     return exp(logRemnantMass);
