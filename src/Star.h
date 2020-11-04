@@ -133,7 +133,7 @@ public:
     // setters (JR: I don't really like this, but I think unavoidable - at least for now)
     void                        SetOmega(double p_vRot)                                                                     { m_Star->SetOmega(p_vRot); }
 
-    void                        UpdateMassTransferDonorHistory(const STELLAR_TYPE p_DonorType)                              { m_Star->UpdateMassTransferDonorHistory(p_DonorType); }
+    void                        UpdateMassTransferDonorHistory()                                                            { m_Star->UpdateMassTransferDonorHistory(); }
 
 
     // member functions - alphabetically

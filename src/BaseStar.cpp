@@ -3087,8 +3087,8 @@ std::string BaseStar::MassTransferDonorHistoryString() const {
  *
  * @return                              string of dash-separated stellar type numbers
  */
-void BaseStar::UpdateMassTransferDonorHistory(const STELLAR_TYPE p_DonorType) {
-    int currentType = (int) p_DonorType;
+void BaseStar::UpdateMassTransferDonorHistory() {
+    int currentType = (int) m_StellarType; 
 
     if (m_MassTransferDonorHistory.empty()) {
         m_MassTransferDonorHistory.push_back(currentType);
