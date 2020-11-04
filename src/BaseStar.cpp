@@ -218,7 +218,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_PulsarDetails.spinDownRate               = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // Mass Transfer Donor Type History
-    m_MassTransferDonorHistory                 = INT_VECTOR();
+    m_MassTransferDonorHistory                 = STYPE_VECTOR();
 
 }
 
@@ -3060,7 +3060,7 @@ void BaseStar::AgeOneTimestepPreamble(const double p_DeltaTime) {
  * @return                              string of dash-separated stellar type numbers
  */
 std::string BaseStar::MassTransferDonorHistoryString() const {
-    INT_VECTOR mtHistVec = m_MassTransferDonorHistory;      
+    STYPE_VECTOR mtHistVec = m_MassTransferDonorHistory;      
     std::string mtHistStr;
 
     if (mtHistVec.empty()) { // This star was never a donor for MT
@@ -3068,7 +3068,7 @@ std::string BaseStar::MassTransferDonorHistoryString() const {
     }
     else {                // This star was a donor, return the stellar type string
         std::ostringstream oss;
-        std::copy(mtHistVec.begin(), mtHistVec.end()-1, std::ostream_iterator<int>(oss, "-"));
+        std::copy(mtHistVec.begin(), mtHistVec.end()-1, std::ostream_iterator<STELLAR_TYPE>(oss, "-"));
         oss << mtHistVec.back();
         mtHistStr = oss.str();
     }
@@ -3079,27 +3079,20 @@ std::string BaseStar::MassTransferDonorHistoryString() const {
 
 
 /*
- * Convert Mass Transfer Donor History vector into string
+ * Add new MT event to event history - only for donor stars
  *
- * This is so that a string is passed to the output, not a vector of stellar types.
+ * void BaseStar::UpdateMassTransferDonorHistory()
  *
- * std::string BinaryConstituentStar::MassTransferDonorHistoryString() 
- *
- * @return                              string of dash-separated stellar type numbers
  */
 void BaseStar::UpdateMassTransferDonorHistory() {
-    int currentType = (int) m_StellarType; 
 
     if (m_MassTransferDonorHistory.empty()) {
-        m_MassTransferDonorHistory.push_back(currentType);
+        m_MassTransferDonorHistory.push_back(m_StellarType);
     }
-    else if (m_MassTransferDonorHistory.back() != currentType) { // The star has not yet MT'd as its current type, so new event
-        m_MassTransferDonorHistory.push_back(currentType);
+    else if (m_MassTransferDonorHistory.back() != m_StellarType) { // The star has not yet MT'd as its current type, so new event
+        m_MassTransferDonorHistory.push_back(m_StellarType);
     }
 }
-
-
-
 
 
 
