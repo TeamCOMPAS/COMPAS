@@ -5,7 +5,7 @@ Summary and status information during the evolution of stars is written to stdou
 
 Detailed information is written to log files (described below).  All COMPAS output files are created inside a container directory, specified by the \textit{\texttt{-{}-}output-container} program option.
 
-If Detailed Output log files (see the \textit{\texttt{-{}-}detailed-output} program option), or SwitchLog log files (see the \textit{\texttt{-{}-}switch-log} program option), are created, they will be created inside a containing directory named `Detailed\_Output' within the COMPAS output container directory.
+If Detailed Output log files (see the \textit{\texttt{-{}-}detailed-output} program option) are created, they will be created inside a containing directory named `Detailed\_Output' within the COMPAS output container directory.
 
 Also created in the COMPAS container directory is a file named `Run\_Details' in which COMPAS records some details of the run (COMPAS version, start time, program option values etc.). Note that the option values recorded in the Run details file are the values specified on the commandline, not the values specified in a grid file (if used).
 
@@ -14,7 +14,7 @@ COMPAS defines several standard log files that may be produced depending upon th
 \begin{itemize}
 \itemsep0pt
 \item{Detailed Output log file \\ Records detailed information for a star, or binary star, during evolution. Enable with program option \textit{\texttt{-{}-{detailed-output}}}.}
-\item{SwitchLog log file \\ Records detailed information for a star, or binary star, at the time of each stellar type switch during evolution. Enable with program option \textit{\texttt{-{}-{switch-log}}}.}
+\item{SwitchLog log file \\ Records detailed information for all stars, or binary stars, at the time of each stellar type switch during evolution. Enable with program option \textit{\texttt{-{}-{switch-log}}}.}
 \item{Supernovae log file \\ Records summary information for all stars that experience a SN event during evolution.}
 \item{System Parameters log file \\ Records summary information for all binary systems during BSE.}
 \item{Double Compact Objects log file \\ Records summary information for all binary systems that form DCOs during BSE.}

@@ -1252,10 +1252,18 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     recordProperties = m_BSE_Pulsars_Rec;
                     break;
 
-                case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                              // SSE_DETAILED_OUTPUT
                 case LOGFILE::SSE_SWITCH_LOG:                                                                                                   // SSE_SWITCH_LOG
-                case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                              // BSE_DETAILED_OUTPUT
-                case LOGFILE::BSE_SWITCH_LOG: {                                                                                                 // BSE_SWITCH_LOG
+                    filename         = OPTIONS->LogfileSwitchLog();
+                    recordProperties = m_SSE_Switch_Rec;
+                    break;
+
+                case LOGFILE::BSE_SWITCH_LOG:                                                                                                   // BSE_SWITCH_LOG
+                    filename         = OPTIONS->LogfileSwitchLog();
+                    recordProperties = m_BSE_Switch_Rec;
+                    break;
+
+                case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                              // SSE_DETAILED_OUTPUT
+                case LOGFILE::BSE_DETAILED_OUTPUT: {                                                                                            // BSE_DETAILED_OUTPUT
 
                     // first check if the detailed output directory exists - if not, create it
                     // use boost filesystem here - easier...
@@ -1295,19 +1303,9 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                                 recordProperties = m_SSE_Detailed_Rec;                                                                          // record properties
                                 break;
 
-                            case LOGFILE::SSE_SWITCH_LOG:                                                                                       // SSE_SWITCH_LOG
-                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileSwitchLog();                          // logfile filename with directory
-                                recordProperties = m_SSE_Switch_Rec;                                                                            // record properties
-                                break;
-
                             case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                  // BSE_DETAILED_OUTPUT
                                 filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileDetailedOutput();                     // logfile filename with directory
                                 recordProperties = m_BSE_Detailed_Rec;                                                                          // record properties
-                                break;
-
-                            case LOGFILE::BSE_SWITCH_LOG:                                                                                       // BSE_SWITCH_LOG
-                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileSwitchLog();                          // logfile filename with directory
-                                recordProperties = m_BSE_Switch_Rec;                                                                            // record properties
                                 break;
 
                             default: break;

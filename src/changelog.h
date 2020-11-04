@@ -545,7 +545,10 @@
 //                                          - logfile-detailed-ouput                defines filename for SSE or BSE detailed output file
 //                                          - logfile-supernovae                    defines filename for SSE or BSE supernovae file
 //                                          - logfile-switch-log                    defines filename for SSE or BSE switch log file
+// 02.16.01     JR - Nov 04, 2020   - Enhancement
+//                                      - changed switchlog implementation so that a single switchlog file is created per run
+//                                        (see Issue #387 - note: single '--switch-log' option (shared SSE/BSE) implemented in v02.16.00)
 
-const std::string VERSION_STRING = "02.16.00";
+const std::string VERSION_STRING = "02.16.01";
 
 # endif // __changelog_h__
