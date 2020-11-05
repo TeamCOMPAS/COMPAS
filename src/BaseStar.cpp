@@ -3061,16 +3061,19 @@ void BaseStar::AgeOneTimestepPreamble(const double p_DeltaTime) {
  */
 std::string BaseStar::MassTransferDonorHistoryString() const {
     STYPE_VECTOR mtHistVec = m_MassTransferDonorHistory;      
-    std::string mtHistStr;
+    std::string mtHistStr = "";
 
     if (mtHistVec.empty()) { // This star was never a donor for MT
         mtHistStr = "NA";
     }
-    else {                // This star was a donor, return the stellar type string
-        std::ostringstream oss;
-        std::copy(mtHistVec.begin(), mtHistVec.end()-1, std::ostream_iterator<STELLAR_TYPE>(oss, "-"));
-        oss << mtHistVec.back();
-        mtHistStr = oss.str();
+    else {                   // This star was a donor, return the stellar type string
+
+        for (int ii=0; ii<mtHistVec.size(); ii++) {
+            mtHistStr += std::to_string(static_cast<int>(mtHistVec[ii])) + "-"; // Create string of stellar type followed by dash
+        }
+
+        mtHistStr.pop_back();                                                   // Remove final dash
+
     }
 
     return mtHistStr;
@@ -3086,10 +3089,11 @@ std::string BaseStar::MassTransferDonorHistoryString() const {
  */
 void BaseStar::UpdateMassTransferDonorHistory() {
 
+    // If MassTransferDonorHistory vector is empty or if there is a new episode, add current type to the vector
     if (m_MassTransferDonorHistory.empty()) {
         m_MassTransferDonorHistory.push_back(m_StellarType);
     }
-    else if (m_MassTransferDonorHistory.back() != m_StellarType) { // The star has not yet MT'd as its current type, so new event
+    else if (!utils::IsOneOf(m_StellarType, { m_MassTransferDonorHistory.back() })) { // The star has not yet MT'd as its current type, so new event
         m_MassTransferDonorHistory.push_back(m_StellarType);
     }
 }
