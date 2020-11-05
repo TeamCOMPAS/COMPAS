@@ -1203,7 +1203,7 @@ const std::initializer_list<STELLAR_TYPE> COMPACT_OBJECTS = {
 // unordered_map - key is integer stellar type (from enum class ST above)
 // Hurley et al. 2000, just after eq 90
 const COMPASUnorderedMap<STELLAR_TYPE, double> WD_Baryon_Number = {
-    {STELLAR_TYPE::HELIUM_WHITE_DWARF,         0.4},
+    {STELLAR_TYPE::HELIUM_WHITE_DWARF,         4.0},
     {STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, 15.0},
     {STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF,   17.0}
 };
