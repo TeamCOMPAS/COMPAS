@@ -1252,10 +1252,18 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     recordProperties = m_BSE_Pulsars_Rec;
                     break;
 
-                case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                              // SSE_DETAILED_OUTPUT
                 case LOGFILE::SSE_SWITCH_LOG:                                                                                                   // SSE_SWITCH_LOG
-                case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                              // BSE_DETAILED_OUTPUT
-                case LOGFILE::BSE_SWITCH_LOG: {                                                                                                 // BSE_SWITCH_LOG
+                    filename         = OPTIONS->LogfileSwitchLog();
+                    recordProperties = m_SSE_Switch_Rec;
+                    break;
+
+                case LOGFILE::BSE_SWITCH_LOG:                                                                                                   // BSE_SWITCH_LOG
+                    filename         = OPTIONS->LogfileSwitchLog();
+                    recordProperties = m_BSE_Switch_Rec;
+                    break;
+
+                case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                              // SSE_DETAILED_OUTPUT
+                case LOGFILE::BSE_DETAILED_OUTPUT: {                                                                                            // BSE_DETAILED_OUTPUT
 
                     // first check if the detailed output directory exists - if not, create it
                     // use boost filesystem here - easier...
@@ -1295,19 +1303,9 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                                 recordProperties = m_SSE_Detailed_Rec;                                                                          // record properties
                                 break;
 
-                            case LOGFILE::SSE_SWITCH_LOG:                                                                                       // SSE_SWITCH_LOG
-                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileSwitchLog();                          // logfile filename with directory
-                                recordProperties = m_SSE_Switch_Rec;                                                                            // record properties
-                                break;
-
                             case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                  // BSE_DETAILED_OUTPUT
                                 filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileDetailedOutput();                     // logfile filename with directory
                                 recordProperties = m_BSE_Detailed_Rec;                                                                          // record properties
-                                break;
-
-                            case LOGFILE::BSE_SWITCH_LOG:                                                                                       // BSE_SWITCH_LOG
-                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileSwitchLog();                          // logfile filename with directory
-                                recordProperties = m_BSE_Switch_Rec;                                                                            // record properties
                                 break;
 
                             default: break;
@@ -1418,8 +1416,8 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
                             fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
 
-                            fullTypeStr   += "STELLAR_TYPE" + m_Logfiles[id].delimiter;                                                         // append field type string to full type string                            
-                            fullTypeStr   += "STELLAR_TYPE" + m_Logfiles[id].delimiter;                                                         // append field type string to full type string                            
+                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
+                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
                         }
 
                         // if we are writing to the BSE Switch file we add three pre-defined columns
@@ -1439,8 +1437,8 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
 
                             fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
-                            fullTypeStr   += "STELLAR_TYPE" + m_Logfiles[id].delimiter;                                                         // append field type string to full type string                            
-                            fullTypeStr   += "STELLAR_TYPE" + m_Logfiles[id].delimiter;                                                         // append field type string to full type string                            
+                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
+                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
                         }
 
                         if (!fullHeaderStr.empty()) fullHeaderStr.pop_back();                                                                   // remove the trailing delimiter from the header string

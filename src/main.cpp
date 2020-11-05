@@ -262,10 +262,6 @@ std::tuple<int, int> EvolveSingleStars() {
                     evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                    // this will cause problems later - stop evolution
                 }
 
-                if (!LOGGING->CloseStandardFile(LOGFILE::SSE_SWITCH_LOG)) {                                         // close SSE switch log file if necessary
-                    SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                              // close failed - show warning
-                    evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                    // this will cause problems later - stop evolution
-                }
                 ERRORS->Clean();                                                                                    // clean the dynamic error catalog
 
                 index++;                                                                                            // next...
@@ -455,11 +451,6 @@ std::tuple<int, int> EvolveBinaryStars() {
                 }
 
                 if (!LOGGING->CloseStandardFile(LOGFILE::BSE_DETAILED_OUTPUT)) {                                // close detailed output file if necessary
-                    SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                          // close failed - show warning
-                    evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                // this will cause problems later - stop evolution
-                }
-
-                if (!LOGGING->CloseStandardFile(LOGFILE::BSE_SWITCH_LOG)) {                                     // close BSE switch log file if necessary
                     SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                          // close failed - show warning
                     evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                // this will cause problems later - stop evolution
                 }
