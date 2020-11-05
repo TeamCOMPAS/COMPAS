@@ -92,7 +92,7 @@ class pythonProgramOptions:
     metallicity = 0.0142                                        # Solar metallicity Asplund+2010
 
     allow_rlof_at_birth = True                                  # allow binaries that have one or both stars in RLOF at birth to evolve?
-    allow_touching_at_birth = False                             # allow binaries that have stars touching at birth to evolve?
+    allow_touching_at_birth = False                             # record binaries that have stars touching at birth in output files?
 
     chemically_homogeneous_evolution = 'PESSIMISTIC'            # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
 
@@ -199,15 +199,15 @@ class pythonProgramOptions:
 
     kick_magnitude_random_1 = None                              # (BSE) used to draw the kick magnitude for the primary star should it undergo a supernova event
     kick_magnitude_1        = None                              # (BSE) (drawn) kick magnitude for the primary star should it undergo a supernova event [km/s]
-    kick_theta_1            = None                              # (BSE) angle between the orbital plane and the ’z’ axis of the supernova vector for the primary star should it undergo a supernova event [radians]
-    kick_phi_1              = None                              # (BSE) angle between ’x’ and ’y’, both in the orbital plane of the supernova vector, for the primary star should it undergo a supernova event [radians]
-    kick_mean_anomaly_1     = None                              # (BSE) mean anomaly at the instant of the supernova for the primary star should it undergo a supernova event – should be uniform in [0, 2pi) [radians]
+    kick_theta_1            = None                              # (BSE) angle between the orbital plane and the 'z' axis of the supernova vector for the primary star should it undergo a supernova event [radians]
+    kick_phi_1              = None                              # (BSE) angle between 'x' and 'y', both in the orbital plane of the supernova vector, for the primary star should it undergo a supernova event [radians]
+    kick_mean_anomaly_1     = None                              # (BSE) mean anomaly at the instant of the supernova for the primary star should it undergo a supernova event - should be uniform in [0, 2pi) [radians]
 
     kick_magnitude_random_2 = None                              # (BSE) used to draw the kick velocity for the secondary star should it undergo a supernova event
     kick_magnitude_2        = None                              # (BSE) (drawn) kick magnitude for the secondary star should it undergo a supernova event [km/s]
-    kick_theta_2            = None                              # (BSE) angle between the orbital plane and the ’z’ axis of the supernova vector for the secondary star should it undergo a supernova event [radians]
-    kick_phi_2              = None                              # (BSE) angle between ’x’ and ’y’, both in the orbital plane of the supernova vector, for the secondary star should it undergo a supernova event [radians]
-    kick_mean_anomaly_2     = None                              # (BSE) mean anomaly at the instant of the supernova for the secondary star should it undergo a supernova event – should be uniform in [0, 2pi) [radians]
+    kick_theta_2            = None                              # (BSE) angle between the orbital plane and the 'z' axis of the supernova vector for the secondary star should it undergo a supernova event [radians]
+    kick_phi_2              = None                              # (BSE) angle between 'x' and 'y', both in the orbital plane of the supernova vector, for the secondary star should it undergo a supernova event [radians]
+    kick_mean_anomaly_2     = None                              # (BSE) mean anomaly at the instant of the supernova for the secondary star should it undergo a supernova event - should be uniform in [0, 2pi) [radians]
 
     muller_mandel_kick_multiplier_BH = 200.0                    # scaling prefactor for BH kicks when using the 'MULLERMANDEL' kick magnitude distribution
     muller_mandel_kick_multiplier_NS = 400.0                    # scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution
@@ -242,7 +242,7 @@ class pythonProgramOptions:
     # set to empty string (e.g. logfile_BSE_supernovae = '""') to disable logging for that file (the file will not be created)
     #
     # We don't really need the 'BSE' or 'SSE' prefixes any more - they were put there because
-    # prior to the implementation of the containing folder it was too had to locate the files
+    # prior to the implementation of the containing folder it was too hard to locate the files
     # created by a COMPAS run - especially the detailed output files.  Now that the output
     # files are created inside a containing folder for each run there is really no need for
     # the prefixes - and if we don't have the prefixes we can share some of the options
