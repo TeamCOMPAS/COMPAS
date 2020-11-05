@@ -201,13 +201,13 @@ class pythonProgramOptions:
     kick_magnitude_1        = None                              # (BSE) (drawn) kick magnitude for the primary star should it undergo a supernova event [km/s]
     kick_theta_1            = None                              # (BSE) angle between the orbital plane and the 'z' axis of the supernova vector for the primary star should it undergo a supernova event [radians]
     kick_phi_1              = None                              # (BSE) angle between 'x' and 'y', both in the orbital plane of the supernova vector, for the primary star should it undergo a supernova event [radians]
-    kick_mean_anomaly_1     = None                              # (BSE) mean anomaly at the instant of the supernova for the primary star should it undergo a supernova event – should be uniform in [0, 2pi) [radians]
+    kick_mean_anomaly_1     = None                              # (BSE) mean anomaly at the instant of the supernova for the primary star should it undergo a supernova event - should be uniform in [0, 2pi) [radians]
 
     kick_magnitude_random_2 = None                              # (BSE) used to draw the kick velocity for the secondary star should it undergo a supernova event
     kick_magnitude_2        = None                              # (BSE) (drawn) kick magnitude for the secondary star should it undergo a supernova event [km/s]
     kick_theta_2            = None                              # (BSE) angle between the orbital plane and the 'z' axis of the supernova vector for the secondary star should it undergo a supernova event [radians]
     kick_phi_2              = None                              # (BSE) angle between 'x' and 'y', both in the orbital plane of the supernova vector, for the secondary star should it undergo a supernova event [radians]
-    kick_mean_anomaly_2     = None                              # (BSE) mean anomaly at the instant of the supernova for the secondary star should it undergo a supernova event – should be uniform in [0, 2pi) [radians]
+    kick_mean_anomaly_2     = None                              # (BSE) mean anomaly at the instant of the supernova for the secondary star should it undergo a supernova event - should be uniform in [0, 2pi) [radians]
 
     muller_mandel_kick_multiplier_BH = 200.0                    # scaling prefactor for BH kicks when using the 'MULLERMANDEL' kick magnitude distribution
     muller_mandel_kick_multiplier_NS = 400.0                    # scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution
