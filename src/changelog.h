@@ -552,7 +552,7 @@
 //                                      - Updated MT stability criteria for HeMS stars (Issue #425) to use MS zeta value
 //                                      - Corrected baryon number for HeWD to match Hurley prescription (Issue #416)
 //                                      - Corrected calculation of core mass after 2nd dredge-up (Issue #419)
-//                                      - Corrected calculation of minimum raduis on CHeB (Issue #420)
+//                                      - Corrected calculation of minimum radius on CHeB (Issue #420)
 
 const std::string VERSION_STRING = "02.16.02";
 
