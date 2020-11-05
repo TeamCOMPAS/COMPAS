@@ -1416,8 +1416,8 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
                             fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
 
-                            fullTypeStr   += "STELLAR_TYPE" + m_Logfiles[id].delimiter;                                                         // append field type string to full type string                            
-                            fullTypeStr   += "STELLAR_TYPE" + m_Logfiles[id].delimiter;                                                         // append field type string to full type string                            
+                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
+                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
                         }
 
                         // if we are writing to the BSE Switch file we add three pre-defined columns
@@ -1437,8 +1437,8 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
 
                             fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
-                            fullTypeStr   += "STELLAR_TYPE" + m_Logfiles[id].delimiter;                                                         // append field type string to full type string                            
-                            fullTypeStr   += "STELLAR_TYPE" + m_Logfiles[id].delimiter;                                                         // append field type string to full type string                            
+                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
+                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
                         }
 
                         if (!fullHeaderStr.empty()) fullHeaderStr.pop_back();                                                                   // remove the trailing delimiter from the header string
