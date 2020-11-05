@@ -268,8 +268,8 @@ void GiantBranch::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)
     gbParams(Mx)     = CalculateCoreMass_Luminosity_Mx_Static(p_GBParams);      // depends on B, D, p & q - recalculate if any of those are changed
     gbParams(Lx)     = CalculateCoreMass_Luminosity_Lx_Static(p_GBParams);      // JR: Added this - depends on B, D, p, q & Mx - recalculate if any of those are changed
 
-    gbParams(McDU)   = CalculateCoreMassAt2ndDredgeUp_Static(gbParams(McBAGB));
     gbParams(McBAGB) = CalculateCoreMassAtBAGB(p_Mass);
+    gbParams(McDU)   = CalculateCoreMassAt2ndDredgeUp_Static(gbParams(McBAGB));
     gbParams(McBGB)  = CalculateCoreMassAtBGB(p_Mass, p_GBParams);
 
     gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));   // JR: Added this
@@ -1681,7 +1681,7 @@ STELLAR_TYPE GiantBranch::ResolvePairInstabilitySN() {
 
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;
-    m_SupernovaDetails.fallbackFraction  = 0.0;
+    m_SupernovaDetails.fallbackFraction   = 0.0;
 
     SetSNCurrentEvent(SN_EVENT::PISN);                                                                  // pair instability SN happening now
     SetSNPastEvent(SN_EVENT::PISN);                                                                     // ... and will be a past event
@@ -1824,7 +1824,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         // will be printed in Star::EvolveOneTimestep() after timestep is accepted (i.e. we don't revert state)
         // need to record the stellar type to which the star will switch if we don't revert state
 
-        if (OPTIONS->SingleStar()) {                                                                // only if SSE (BSE does its own SN printing)
+        if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {                                      // only if SSE (BSE does its own SN printing)
             StashSupernovaDetails(stellarType);
         }
     }
