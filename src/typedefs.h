@@ -34,7 +34,7 @@ struct KickMagnitudeParams {
 
 
 // struct for supernova events:
-// CCSN, ECSN, PISN, PPSIN, USSN, RUNAWAY, RECYCLED_NS, RLOF_ONTO_NS
+// CCSN, ECSN, PISN, PPSIN, USSN
 
 typedef struct SNEvents {
     SN_EVENT current;                                       // Supernova event at the current timestep: NONE if no supernova event happening

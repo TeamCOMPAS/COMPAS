@@ -1018,11 +1018,8 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 // time - necessary for the code flow (from the legacy code) - which we should probably one
 // day look at and rewrite).
 //
-// The RUNAWAY, RECYCLED_NS, and RLOF_ONTO_NS valuies are used to track history and are set
-// independent of the other flags (so their value (1 or 0) can be queried independently).
-//
-// A convenience function has been provided in utils.cpp to interpret the bit map.  Given an
-// SN_EVENT bitmap (current or past), it returns (in priority order):
+// A convenience function has been provided in utils.cpp to interpret the bit map (utils::SNEventType()).
+// Given an SN_EVENT bitmap (current or past), it returns (in priority order):
 //     
 //    SN_EVENT::CCSN  iff CCSN  bit is set and USSN bit is not set
 //    SN_EVENT::ECSN  iff ECSN  bit is set
@@ -1037,10 +1034,7 @@ enum class SN_EVENT: int {
     ECSN         = 2, 
     PISN         = 4, 
     PPISN        = 8, 
-    USSN         = 16, 
-    RUNAWAY      = 32, 
-    RECYCLED_NS  = 64, 
-    RLOF_ONTO_NS = 128 
+    USSN         = 16
 };
 ENABLE_BITMASK_OPERATORS(SN_EVENT);
 
@@ -1050,10 +1044,7 @@ const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
     { SN_EVENT::ECSN,         "Electron Capture Supernova" },
     { SN_EVENT::PISN,         "Pair Instability Supernova" },
     { SN_EVENT::PPISN,        "Pulsational Pair Instability Supernova" },
-    { SN_EVENT::USSN,         "Ultra Stripped Supernova" },
-    { SN_EVENT::RUNAWAY,      "Runaway Companion" },
-    { SN_EVENT::RECYCLED_NS,  "Recycled Neutron Star" },
-    { SN_EVENT::RLOF_ONTO_NS, "Donated Mass to Neutron Star through RLOF" }
+    { SN_EVENT::USSN,         "Ultra Stripped Supernova" }
 };
 
 
@@ -1486,7 +1477,6 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     RANDOM_SEED,                                     \
     RECYCLED_NEUTRON_STAR,                           \
     RLOF_ONTO_NS,                                    \
-    RUNAWAY,                                         \
     RZAMS,                                           \
     SN_TYPE,                                         \
     SPEED,                                           \
@@ -1626,7 +1616,6 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::RANDOM_SEED,                                     "RANDOM_SEED" },
     { STAR_PROPERTY::RECYCLED_NEUTRON_STAR,                           "RECYCLED_NEUTRON_STAR" },
     { STAR_PROPERTY::RLOF_ONTO_NS,                                    "RLOF_ONTO_NS" },
-    { STAR_PROPERTY::RUNAWAY,                                         "RUNAWAY" },
     { STAR_PROPERTY::RZAMS,                                           "RZAMS" },
     { STAR_PROPERTY::SN_TYPE,                                         "SN_TYPE" },
     { STAR_PROPERTY::SPEED,                                           "SPEED" },
@@ -2452,7 +2441,6 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::RANDOM_SEED,                                       { TYPENAME::ULONGINT,       "SEED",                 "-",                12, 1 }},
     { ANY_STAR_PROPERTY::RECYCLED_NEUTRON_STAR,                             { TYPENAME::BOOL,           "Recycled_NS",          "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::RLOF_ONTO_NS,                                      { TYPENAME::BOOL,           "RLOF->NS",             "Event",             0, 0 }},
-    { ANY_STAR_PROPERTY::RUNAWAY,                                           { TYPENAME::BOOL,           "Runaway",              "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::RZAMS,                                             { TYPENAME::DOUBLE,         "R@ZAMS",                "Rsol",            14, 6 }},
     { ANY_STAR_PROPERTY::SN_TYPE,                                           { TYPENAME::SN_EVENT,       "SN_Type",              "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::SPEED,                                             { TYPENAME::DOUBLE,         "ComponentSpeed",       "kms^-1",           14, 6 }},
@@ -3098,7 +3086,6 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     BINARY_PROPERTY::TIME,
     BINARY_PROPERTY::SUPERNOVA_STATE,
     BINARY_PROPERTY::UNBOUND,
-    COMPANION_PROPERTY::RUNAWAY,
     COMPANION_PROPERTY::STELLAR_TYPE,
     SUPERNOVA_PROPERTY::STELLAR_TYPE,
     SUPERNOVA_PROPERTY::STELLAR_TYPE_PREV,

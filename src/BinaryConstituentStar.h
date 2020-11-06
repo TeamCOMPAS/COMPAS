@@ -58,6 +58,8 @@ public:
         m_CEDetails.postCEE.nuclearTimescale         = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.postCEE.radialExpansionTimescale = DEFAULT_INITIAL_DOUBLE_VALUE;
 
+        m_Flags.recycledNS                           = false;
+        m_Flags.rlofOntoNS                           = false;
 
         m_IsPrimary                                  = false;
 
@@ -88,6 +90,8 @@ public:
 
         m_CEDetails                = p_Star.m_CEDetails;
 
+        m_Flags                    = p_Star.m_Flags;
+
         m_IsPrimary                = p_Star.m_IsPrimary;
 
         m_MassTransferDiff         = p_Star.m_MassTransferDiff;
@@ -117,6 +121,8 @@ public:
 
             m_CEDetails                = p_Star.m_CEDetails;
 
+            m_Flags                    = p_Star.m_Flags;
+            
             m_IsPrimary                = p_Star.m_IsPrimary;
 
             m_MassTransferDiff         = p_Star.m_MassTransferDiff;
@@ -145,43 +151,55 @@ public:
 
     // getters - alphabetically
     double          BindingEnergyAtCEE() const                                          { return m_CEDetails.bindingEnergy; }
+    double          BindingEnergyPreCEE() const                                         { return m_CEDetails.preCEE.bindingEnergy; }
+
     double          COCoreMassAtCEE() const                                             { return m_CEDetails.COCoreMass; }
     double          CoreMassAtCEE() const                                               { return m_CEDetails.CoreMass; }
-    double          HeCoreMassAtCEE() const                                             { return m_CEDetails.HeCoreMass; }
-    double          LambdaAtCEE() const                                                 { return m_CEDetails.lambda; }
 
-    double          BindingEnergyPreCEE() const                                         { return m_CEDetails.preCEE.bindingEnergy; }
     double          DynamicalTimescalePostCEE() const                                   { return m_CEDetails.postCEE.dynamicalTimescale; }
     double          DynamicalTimescalePreCEE() const                                    { return m_CEDetails.preCEE.dynamicalTimescale; }
+
+    bool            ExperiencedRecycledNS() const                                       { return m_Flags.recycledNS; }
+    bool            ExperiencedRLOF() const                                             { return m_RLOFDetails.experiencedRLOF; }
+    bool            ExperiencedRLOFOntoNS() const                                       { return m_Flags.rlofOntoNS; }
+
+    double          HeCoreMassAtCEE() const                                             { return m_CEDetails.HeCoreMass; }
+
+    bool            IsPrimary() const                                                   { return m_IsPrimary; }
+    bool            IsRLOF() const                                                      { return m_RLOFDetails.isRLOF; }
+    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsPISN() || IsPPISN(); }
+
+    double          LambdaAtCEE() const                                                 { return m_CEDetails.lambda; }
     double          LuminosityPostCEE() const                                           { return m_CEDetails.postCEE.luminosity; }
     double          LuminosityPreCEE() const                                            { return m_CEDetails.preCEE.luminosity; }
+
+    double          MassLossDiff() const                                                { return m_MassLossDiff; }
     double          MassPostCEE() const                                                 { return m_CEDetails.postCEE.mass; }
     double          MassPreCEE() const                                                  { return m_CEDetails.preCEE.mass; }
+    MT_CASE         MassTransferCaseInitial() const                                     { return m_MassTransferCaseInitial; }
+    double          MassTransferDiff() const                                            { return m_MassTransferDiff; }
+
     double          NuclearTimescalePostCEE() const                                     { return m_CEDetails.postCEE.nuclearTimescale; }
     double          NuclearTimescalePreCEE() const                                      { return m_CEDetails.preCEE.nuclearTimescale; }
+
+    double          OmegaTidesIndividualDiff() const                                    { return m_OmegaTidesIndividualDiff; }
+    double          OrbitalEnergyPostSN() const                                         { return m_OrbitalEnergyPostSN; };
+    double          OrbitalEnergyPreSN() const                                          { return m_OrbitalEnergyPreSN; };
+
     double          RadialExpansionTimescalePostCEE() const                             { return m_CEDetails.postCEE.radialExpansionTimescale; }
     double          RadialExpansionTimescalePreCEE() const                              { return m_CEDetails.preCEE.radialExpansionTimescale; }
     double          RadiusPostCEE() const                                               { return m_CEDetails.postCEE.radius; }
     double          RadiusPreCEE() const                                                { return m_CEDetails.preCEE.radius; }
+    bool            RLOFPostCEE() const                                                 { return m_RLOFDetails.RLOFPostCEE; }
+    double          RocheLobeTracker(const double p_SemiMajorAxis, const double p_Eccentricity);
+
     STELLAR_TYPE    StellarTypePostCEE() const                                          { return m_CEDetails.postCEE.stellarType; }
     STELLAR_TYPE    StellarTypePreCEE() const                                           { return m_CEDetails.preCEE.stellarType; }
+
     double          TemperaturePostCEE() const                                          { return m_CEDetails.postCEE.temperature; }
     double          TemperaturePreCEE() const                                           { return m_CEDetails.preCEE.temperature; }
     double          ThermalTimescalePostCEE() const                                     { return m_CEDetails.postCEE.thermalTimescale; }
     double          ThermalTimescalePreCEE() const                                      { return m_CEDetails.preCEE.thermalTimescale; }
-
-    bool            ExperiencedRLOF() const                                             { return m_RLOFDetails.experiencedRLOF; }
-    bool            IsPrimary() const                                                   { return m_IsPrimary; }
-    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsPISN() || IsPPISN(); }
-    bool            IsRLOF() const                                                      { return m_RLOFDetails.isRLOF; }
-    double          MassLossDiff() const                                                { return m_MassLossDiff; }
-    MT_CASE         MassTransferCaseInitial() const                                     { return m_MassTransferCaseInitial; }
-    double          MassTransferDiff() const                                            { return m_MassTransferDiff; }
-    double          OmegaTidesIndividualDiff() const                                    { return m_OmegaTidesIndividualDiff; }
-    double          OrbitalEnergyPostSN() const                                         { return m_OrbitalEnergyPostSN; };
-    double          OrbitalEnergyPreSN() const                                          { return m_OrbitalEnergyPreSN; };
-    bool            RLOFPostCEE() const                                                 { return m_RLOFDetails.RLOFPostCEE; }
-    double          RocheLobeTracker(const double p_SemiMajorAxis, const double p_Eccentricity);
 
 
     // setters
@@ -193,6 +211,11 @@ public:
     void            SetOrbitalEnergyPostSN(const double p_OrbitalEnergyPostSN)          { m_OrbitalEnergyPostSN = p_OrbitalEnergyPostSN; };
     void            SetOrbitalEnergyPreSN(const double p_OrbitalEnergyPreSN)            { m_OrbitalEnergyPreSN = p_OrbitalEnergyPreSN; };
 
+    void            ClearRecycledNS()                                                   { m_Flags.recycledNS = false; }
+    void            SetRecycledNS()                                                     { m_Flags.recycledNS = true; }
+
+    void            ClearRLOFOntoNS()                                                   { m_Flags.rlofOntoNS = false; }
+    void            SetRLOFOntoNS()                                                     { m_Flags.rlofOntoNS = true; }
 
     // member functions - alphabetically
     void            BecomePrimary()                                                     { m_IsPrimary = true; }
@@ -234,6 +257,13 @@ private:
     bool                    m_IsPrimary;
 
     bool                    m_FirstMassTransferEpisode;             // Activated for the initial Mass Transfer Episode
+
+    struct FLAGS {                                                  // Miscellaneous flags
+
+        bool recycledNS;                                            // Indicate whether the accretor was a recycled neutron star
+        bool rlofOntoNS;                                            // Indicates whether the donor donated mass to neutron star through RLOF
+
+    }                       m_Flags;
 
     double                  m_MassLossDiff;
     MT_CASE                 m_MassTransferCaseInitial;              // Indicator of which Mass Transfer occures when first RLOF, if any

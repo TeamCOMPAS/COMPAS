@@ -86,7 +86,6 @@ public:
     bool                        ExperiencedECSN() const                                                                     { return m_Star->ExperiencedECSN(); }
     bool                        ExperiencedPISN() const                                                                     { return m_Star->ExperiencedPISN() ; }
     bool                        ExperiencedPPISN() const                                                                    { return m_Star->ExperiencedPPISN(); }
-    bool                        ExperiencedRunaway() const                                                                  { return m_Star->ExperiencedRunaway(); }
     bool                        ExperiencedUSSN() const                                                                     { return m_Star->ExperiencedUSSN(); }
     double                      HeCoreMass() const                                                                          { return m_Star->HeCoreMass(); }
     bool                        IsCCSN() const                                                                              { return m_Star->IsCCSN(); }
@@ -171,8 +170,6 @@ public:
     double          CalculateTimestep()                                                                         { return m_Star->CalculateTimestep(); }
 
     double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                                         { return m_Star->CalculateZeta(p_ZetaPrescription); }
-
-    void            CheckRunaway(const bool p_Unbound)                                                          { m_Star->CheckRunaway(p_Unbound); }
 
     void            ClearCurrentSNEvent()                                                                       { m_Star->ClearCurrentSNEvent(); }
 
