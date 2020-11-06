@@ -60,6 +60,8 @@ def detection_probability(m1, m2, redshift, distance, snr_threshold,sensitivity=
         hdfDatasetName = 'SimNoisePSDaLIGODesignSensitivityP1200087'
     elif sensitivity == 'O1':
         hdfDatasetName = 'P1500238_GW150914_H1-GDS-CALIB_STRAIN.txt'
+    elif sensitivity == 'O3':
+        hdfDatasetName = 'SimNoisePSDaLIGOMidHighSensitivityP1200087'
 
     global _interpolator
     global _sens
