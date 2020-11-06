@@ -54,9 +54,6 @@ public:
             bool                ExperiencedECSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::ECSN) == SN_EVENT::ECSN; }
             bool                ExperiencedPISN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::PISN) == SN_EVENT::PISN; }
             bool                ExperiencedPPISN() const                                        { return (m_SupernovaDetails.events.past & SN_EVENT::PPISN) == SN_EVENT::PPISN; }
-            bool                ExperiencedRecycledNS() const                                   { return (m_SupernovaDetails.events.past & SN_EVENT::RECYCLED_NS) == SN_EVENT::RECYCLED_NS; }
-            bool                ExperiencedRLOFOntoNS() const                                   { return (m_SupernovaDetails.events.past & SN_EVENT::RLOF_ONTO_NS) == SN_EVENT::RLOF_ONTO_NS; }
-            bool                ExperiencedRunaway() const                                      { return (m_SupernovaDetails.events.past & SN_EVENT::RUNAWAY) == SN_EVENT::RUNAWAY; }
             SN_EVENT            ExperiencedSN_Type() const                                      { return utils::SNEventType(m_SupernovaDetails.events.past); }
             bool                ExperiencedUSSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::USSN) == SN_EVENT::USSN; }
             double              HeCoreMass() const                                              { return m_HeCoreMass; }
@@ -185,8 +182,6 @@ public:
             double          CalculateTimestep();
 
     virtual double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription) { return 0.0; }                                                                                     // Use inheritance hierarchy
-
-    virtual void            CheckRunaway(const bool p_Unbound)                                                  { if (p_Unbound) SetSNPastEvent(SN_EVENT::RUNAWAY); }
 
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
 
