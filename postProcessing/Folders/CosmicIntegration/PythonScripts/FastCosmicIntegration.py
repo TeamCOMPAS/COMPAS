@@ -95,11 +95,11 @@ for i in range(nrBinaries):
     SNRs[Mcindex<len(Mcarray)]=SNRarray[etaindex,Mcindex[Mcindex<len(Mcarray)]]
     SNRs=SNRs/distances[0:nrRedshiftBinsDetection]
     detectiongridindex=np.round(SNRs*10).astype(int)-1
-    pDetection[i,detectiongridindex<len(pDetectiongrid)]= \
+    pDetection[i,detectiongridindex<len(pDetectiongrid)] = \
         pDetectiongrid[detectiongridindex[detectiongridindex<len(pDetectiongrid)]]
     pDetection[i,detectiongridindex>=len(pDetectiongrid)]=1
     #detectionRate[i,:]=mergerRate[i,0:nrRedshiftBinsDetection]*pDetection[i,:]* \
-        shellVolumes[0:nrRedshiftBinsDetection]/(1+redshifts[0:nrRedshiftBinsDetection])
+        #shellVolumes[0:nrRedshiftBinsDetection]/(1+redshifts[0:nrRedshiftBinsDetection])
 
 #Store pDetection matrix -- it's not affected by MSSFR parameters -- and compute the detection rate outside the loop
 detectionRate=mergerRate[:,0:nrRedshiftBinsDetection]*pDetection* \
