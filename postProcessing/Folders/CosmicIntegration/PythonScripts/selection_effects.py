@@ -54,8 +54,43 @@ def detection_probability(m1, m2, redshift, distance, snr_threshold,sensitivity=
     module level global variable to be reused.
     """
 
-    path = os.path.dirname(os.path.abspath(__file__))
+    global _interpolator
+    global _sens
+    if (_interpolator is None) or (_sens is not sensitivity):
+        _sens = sensitivity
+        _interpolator = SNRinterpolator(_sens)
+    interpolated_snr = _interpolator(m1*(1+redshift), m2*(1+redshift))
+    # SNR scales as 1/distance
+    interpolated_snr /= distance
 
+    return detection_probability_from_snr(snr_value=interpolated_snr,
+                                          snr_threshold=snr_threshold)
+
+def SNRinterpolator(sensitivity='design'):
+    """
+    Returns an Interpolator class instance for a given sensitivity
+    
+    This function is a convenience function to generate the
+    interpolator with 'SNR_Grid_IMRPhenomPv2_FD_all_noise.hdf5'
+    and 'SimNoisePSDaLIGODesignSensitivityP1200087'.
+    
+    Parameters
+    ----------
+    sensitivity : str
+    Which detector sensitivity PSD to use. Options are 'design' and 'O1'
+    
+    Returns
+    -------
+    out : Interpolator
+    Interpolator class instance
+    
+    Notes
+    -----
+    The interpolator is only initialized once and then stored in a
+    module level global variable to be reused.
+    """
+    path = os.path.dirname(os.path.abspath(__file__))
+    
     if sensitivity == 'design':
         hdfDatasetName = 'SimNoisePSDaLIGODesignSensitivityP1200087'
     elif sensitivity == 'O1':
@@ -68,15 +103,9 @@ def detection_probability(m1, m2, redshift, distance, snr_threshold,sensitivity=
     if (_interpolator is None) or (_sens is not sensitivity):
         _sens = sensitivity
         _interpolator = Interpolator(
-            path+'/SNR_Grid_IMRPhenomPv2_FD_all_noise.hdf5',
-            hdfDatasetName, mode='scipy')
-    interpolated_snr = _interpolator(m1*(1+redshift), m2*(1+redshift))
-    # SNR scales as 1/distance
-    interpolated_snr /= distance
-
-    return detection_probability_from_snr(snr_value=interpolated_snr,
-                                          snr_threshold=snr_threshold)
-
+                                     path+'/SNR_Grid_IMRPhenomPv2_FD_all_noise.hdf5',
+                                     hdfDatasetName, mode='scipy')
+    return _interpolator
 
 class Interpolator:
     """
