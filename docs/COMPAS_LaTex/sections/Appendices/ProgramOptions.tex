@@ -81,7 +81,7 @@ Following is the list of program options that can be specified at the command li
 
 \programOption{initial-mass-1}{}{Initial mass for the primary star when evolving in BSE mode~(\Msun).}{Sampled from IMF}
 
-\programOption{initial-mass-1}{}{Initial mass for the secondary star when evolving in BSE mode~(\Msun).}{Sampled from IMF}
+\programOption{initial-mass-2}{}{Initial mass for the secondary star when evolving in BSE mode~(\Msun).}{Sampled from IMF}
 
 \programOption{initial-mass-function}{i}{Initial mass function. \\ Options: \lcb\ SALPETER, POWERLAW, UNIFORM, KROUPA\ \rcb}{KROUPA}
 
@@ -193,9 +193,9 @@ Following is the list of program options that can be specified at the command li
 
 \programOption{mcbur1}{}{Minimum core mass at base of AGB to avoid fully degnerate CO core formation~(\Msun). \\ e.g. 1.6 in \citet{Hurley_2000} presciption; 1.83 in \citet{Fryer_2012} and \citet{Belczynski_2008} models.}{1.6)}
 
-\programOption{metallicity}{z}{Metallicity. \\ The value specified for metallicity is applied to both stars for BSE mode.}{0.01~(\Zsun)}
+\programOption{metallicity}{z}{Metallicity. \\ The value specified for metallicity is applied to both stars for BSE mode.}{0.02}
 
-\programOption{minimum-secondary-mass}{}{Minimum mass of secondary to generate~(\Msun).}{0.0}
+\programOption{minimum-secondary-mass}{}{Minimum mass of secondary to generate~(\Msun).}{0.00007 if \textit{\texttt{-{}-}initial-mass-2} specified; value of \textit{\texttt{-{}-}initial-mass-min} if \textit{\texttt{-{}-}initial-mass-2} not specified.}
 
 \programOption{mode}{}{The mode of evolution. \\ Options: \lcb\ SSE, BSE\ \rcb}{BSE}
 
