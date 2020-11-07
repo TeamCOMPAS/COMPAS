@@ -223,7 +223,7 @@ public:
 
     void            CalculateCommonEnvelopeValues();
 
-    void            CalculateOmegaTidesIndividualDiff(const double p_OrbitalAngularVelocity)   { m_OmegaTidesIndividualDiff = p_OrbitalAngularVelocity - OmegaPrev(); }
+    void            CalculateOmegaTidesIndividualDiff(const double p_OrbitalAngularVelocity) { m_OmegaTidesIndividualDiff = p_OrbitalAngularVelocity - OmegaPrev(); }
 
     double          CalculateCircularisationTimescale(const double p_SemiMajorAxis);
 
@@ -242,7 +242,10 @@ public:
 
     void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
                                                const double p_Stepsize,
-                                               const double p_Epsilon)                  { Star::UpdateMagneticFieldAndSpin(p_CommonEnvelope, p_Stepsize, m_MassTransferDiff * MSOL_TO_KG, p_Epsilon); }  // JR: todo: revisit this
+                                               const double p_Epsilon)                  { Star::UpdateMagneticFieldAndSpin(p_CommonEnvelope, 
+                                                                                                                           ExperiencedRecycledNS(), 
+                                                                                                                           p_Stepsize, 
+                                                                                                                           m_MassTransferDiff * MSOL_TO_KG, p_Epsilon); }  // JR: todo: revisit this
 
 
 private:

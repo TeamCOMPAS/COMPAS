@@ -63,6 +63,8 @@ public:
         m_EccentricityPreSN                = p_Star.m_EccentricityPreSN;
         m_EccentricityPrev                 = p_Star.m_EccentricityPrev;
 
+        m_Flags                            = p_Star.m_Flags;
+        
         m_FractionAccreted                 = p_Star.m_FractionAccreted;
 
         m_CosIPrime                        = p_Star.m_CosIPrime;
@@ -71,9 +73,6 @@ public:
         m_JLoss                            = p_Star.m_JLoss;
 
         m_LBVfactor                        = p_Star.m_LBVfactor;
-
-        m_MassesEquilibrated               = p_Star.m_MassesEquilibrated;
-        m_MassesEquilibratedAtBirth        = p_Star.m_MassesEquilibratedAtBirth;
 
         m_Mass1Final                       = p_Star.m_Mass1Final;
         m_Mass2Final                       = p_Star.m_Mass2Final;
@@ -88,8 +87,6 @@ public:
 
         m_MassTransferTrackerHistory       = p_Star.m_MassTransferTrackerHistory;
 
-        m_MergesInHubbleTime               = p_Star.m_MergesInHubbleTime;
-
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
 
         m_PrintExtraDetailedOutput         = p_Star.m_PrintExtraDetailedOutput;
@@ -103,9 +100,6 @@ public:
         m_SemiMajorAxisInitial             = p_Star.m_SemiMajorAxisInitial;
         m_SemiMajorAxisPreSN               = p_Star.m_SemiMajorAxisPreSN;
         m_SemiMajorAxisPrev                = p_Star.m_SemiMajorAxisPrev;
-
-        m_StellarMerger                    = p_Star.m_StellarMerger;
-        m_StellarMergerAtBirth             = p_Star.m_StellarMergerAtBirth;
 
         m_SupernovaState                   = p_Star.m_SupernovaState;
 
