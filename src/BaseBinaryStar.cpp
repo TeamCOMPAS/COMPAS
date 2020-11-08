@@ -106,18 +106,29 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
                                 ? OPTIONS->Metallicity()                                                                                // yes, use it
                                 : utils::SampleMetallicity();                                                                           // no, sample it
 
-        m_SemiMajorAxis = OPTIONS->OptionSpecified("semi-major-axis") == 1                                                              // user specified semi-major axis?
-                            ? OPTIONS->SemiMajorAxis()                                                                                  // yes, use it
-                            : m_AIS.DrawingFromAISDistributions()                                                                       // no, sample q and calculate mass2
-                                ? PPOW(10, RAND->RandomGaussian(m_AIS.CovLogA()) + m_AIS.MuLogA())                                      // ... using AIS
-                                : utils::SampleSemiMajorAxisDistribution(OPTIONS->SemiMajorAxisDistribution(), 
-                                                                         OPTIONS->SemiMajorAxisDistributionMax(), 
-                                                                         OPTIONS->SemiMajorAxisDistributionMin(),
-                                                                         OPTIONS->SemiMajorAxisDistributionPower(), 
-                                                                         OPTIONS->PeriodDistributionMax(), 
-                                                                         OPTIONS->PeriodDistributionMin(), 
-                                                                         mass1, 
-                                                                         mass2);
+        if (OPTIONS->OptionSpecified("semi-major-axis") == 1) {                                                                         // user specified semi-major axis?
+            m_SemiMajorAxis = OPTIONS->SemiMajorAxis();                                                                                 // yes, use it
+        }
+        else {                                                                                                                          // no, semi-major axis not specified
+            if (OPTIONS->OptionSpecified("orbital-period") == 1) {                                                                      // user specified orbital period?
+                m_SemiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(mass1, mass2, OPTIONS->OrbitalPeriod());                // yes - calculate semi-major axis from period
+            }
+            else {                                                                                                                      // no, sample q and calculate mass2
+                if (m_AIS.DrawingFromAISDistributions()) {                                                                              // using AIS?
+                    m_SemiMajorAxis = PPOW(10, RAND->RandomGaussian(m_AIS.CovLogA()) + m_AIS.MuLogA());                                 // yes, AIS
+                }
+                else {                                                                                                                  // no, not AIS
+                    m_SemiMajorAxis = utils::SampleSemiMajorAxisDistribution(OPTIONS->SemiMajorAxisDistribution(),                              
+                                                                             OPTIONS->SemiMajorAxisDistributionMax(), 
+                                                                             OPTIONS->SemiMajorAxisDistributionMin(),
+                                                                             OPTIONS->SemiMajorAxisDistributionPower(), 
+                                                                             OPTIONS->PeriodDistributionMax(), 
+                                                                             OPTIONS->PeriodDistributionMin(), 
+                                                                             mass1, 
+                                                                             mass2);
+                }
+            }
+        }
 
         m_Eccentricity  = OPTIONS->OptionSpecified("eccentricity") == 1                                                                 // user specified semi-major axis?
                             ? OPTIONS->Eccentricity()                                                                                   // yes, use it

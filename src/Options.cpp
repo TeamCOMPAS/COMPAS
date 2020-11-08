@@ -1932,13 +1932,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(!DEFAULTED("semi-major-axis") && m_SemiMajorAxis <= 0.0, "Semi-major axis (--semi-major-axis) <= 0");           // semi-major axis must be > 0.0
         COMPLAIN_IF(!DEFAULTED("orbital-period")  && m_OrbitalPeriod <= 0.0, "Orbital period (--orbital-period) <= 0");             // orbital period must be > 0.0
 
-        // calculate semi-major axis from orbital period if necessary
-        if (DEFAULTED("semi-major-axis")) {                                                                                         // user specified semi-major axis?
-            if (!DEFAULTED("orbital-period")) {                                                                                     // user specified orbital period?
-                m_SemiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(m_InitialMass1, m_InitialMass2, m_OrbitalPeriod);   // yes - calculate separation from period
-            }
-        }
-
         COMPLAIN_IF(m_KickMagnitude  < 0.0, "Kick magnitude (--kick-magnitude) must be >= 0");
         COMPLAIN_IF(m_KickMagnitude1 < 0.0, "Kick magnitude (--kick-magnitude-1) must be >= 0");
         COMPLAIN_IF(m_KickMagnitude2 < 0.0, "Kick magnitude (--kick-magnitude-2) must be >= 0");

@@ -570,6 +570,8 @@
 //                                          - made header strings for Lambdas uniform (all now start with 'Lambda_')
 //                                      - Issue #409
 //                                          - removed SN_THETA and SN_PHI from default SSE_SUPERNOVAE_REC (don't apply to SSE)
+//                                      - Fixed defect that caused semi-major axis to be drawn from distribution rather than calculated from supplied orbital period
+//                                        (moved check and calculation from options.cpp to BaseBinaryStar.cpp)
 
 const std::string VERSION_STRING = "02.16.03";
 
