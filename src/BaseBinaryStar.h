@@ -63,6 +63,8 @@ public:
         m_EccentricityPreSN                = p_Star.m_EccentricityPreSN;
         m_EccentricityPrev                 = p_Star.m_EccentricityPrev;
 
+        m_Flags                            = p_Star.m_Flags;
+        
         m_FractionAccreted                 = p_Star.m_FractionAccreted;
 
         m_CosIPrime                        = p_Star.m_CosIPrime;
@@ -71,9 +73,6 @@ public:
         m_JLoss                            = p_Star.m_JLoss;
 
         m_LBVfactor                        = p_Star.m_LBVfactor;
-
-        m_MassesEquilibrated               = p_Star.m_MassesEquilibrated;
-        m_MassesEquilibratedAtBirth        = p_Star.m_MassesEquilibratedAtBirth;
 
         m_Mass1Final                       = p_Star.m_Mass1Final;
         m_Mass2Final                       = p_Star.m_Mass2Final;
@@ -88,8 +87,6 @@ public:
 
         m_MassTransferTrackerHistory       = p_Star.m_MassTransferTrackerHistory;
 
-        m_MergesInHubbleTime               = p_Star.m_MergesInHubbleTime;
-
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
 
         m_PrintExtraDetailedOutput         = p_Star.m_PrintExtraDetailedOutput;
@@ -103,9 +100,6 @@ public:
         m_SemiMajorAxisInitial             = p_Star.m_SemiMajorAxisInitial;
         m_SemiMajorAxisPreSN               = p_Star.m_SemiMajorAxisPreSN;
         m_SemiMajorAxisPrev                = p_Star.m_SemiMajorAxisPrev;
-
-        m_StellarMerger                    = p_Star.m_StellarMerger;
-        m_StellarMergerAtBirth             = p_Star.m_StellarMergerAtBirth;
 
         m_SupernovaState                   = p_Star.m_SupernovaState;
 
@@ -227,10 +221,10 @@ public:
     double              Mass2PreCEE() const                         { return m_Star2->MassPreCEE(); }
     double              MassEnv1() const                            { return m_MassEnv1; }
     double              MassEnv2() const                            { return m_MassEnv2; }
-    bool                MassesEquilibrated() const                  { return m_MassesEquilibrated; }
-    bool                MassesEquilibratedAtBirth() const           { return m_MassesEquilibratedAtBirth; }
+    bool                MassesEquilibrated() const                  { return m_Flags.massesEquilibrated; }
+    bool                MassesEquilibratedAtBirth() const           { return m_Flags.massesEquilibratedAtBirth; }
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
-    bool                MergesInHubbleTime() const                  { return m_MergesInHubbleTime; }
+    bool                MergesInHubbleTime() const                  { return m_Flags.mergesInHubbleTime; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
     double              OrbitalAngularVelocity() const              { return sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
@@ -260,8 +254,8 @@ public:
     double              SemiMajorAxisRsol() const                   { return m_SemiMajorAxis*AU_TO_RSOL; }
     bool                SimultaneousRLOF() const                    { return m_RLOFDetails.simultaneousRLOF; }
     bool                StableRLOFPostCEE() const                   { return m_RLOFDetails.stableRLOFPostCEE; }
-    bool                StellarMerger() const                       { return m_StellarMerger; }
-    bool                StellarMergerAtBirth() const                { return m_StellarMergerAtBirth; }
+    bool                StellarMerger() const                       { return m_Flags.stellarMerger; }
+    bool                StellarMergerAtBirth() const                { return m_Flags.stellarMergerAtBirth; }
     STELLAR_TYPE        StellarType1() const                        { return m_Star1->StellarType(); }
     STELLAR_TYPE        StellarType1PostCEE() const                 { return m_Star1->StellarTypePostCEE(); }
     STELLAR_TYPE        StellarType1PreCEE() const                  { return m_Star1->StellarTypePreCEE(); }
@@ -328,6 +322,18 @@ private:
     double              m_EccentricityPreSN;                                                // Eccentricity prior to supernova
     double              m_EccentricityPrev;                                                 // Eccentricity at previous timestep
 
+    struct FLAGS {                                                                          // Miscellaneous flags
+
+        bool massesEquilibrated;                                                            // Indicates whether stars had masses equilbrated at some stage after birth
+        bool massesEquilibratedAtBirth;                                                     // Indicates whether stars had masses equilbrated at birth
+
+        bool mergesInHubbleTime;                                                            // Indicates if the stars merge in Hubble Time
+
+        bool stellarMerger;                                                                 // Indicates that the constituent stars merged
+        bool stellarMergerAtBirth;                                                          // Indicates that the constituent stars were touching at bierth
+
+    }                   m_Flags;
+
     double	            m_FractionAccreted;	                                                // Fraction of mass accreted from the donor during mass transfer
 
     double              m_CosIPrime;
@@ -336,9 +342,6 @@ private:
     double	            m_JLoss;			                                                // Specific angular momentum with which mass is lost during non-conservative mass transfer
 
     double              m_LBVfactor;
-
-    bool                m_MassesEquilibrated;                                               // Indicates whether stars had masses equilbrated at some stage after birth
-    bool                m_MassesEquilibratedAtBirth;                                        // Indicates whether stars had masses equilbrated at birth
 
     double              m_Mass1Final;                                                       // Star1 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
     double              m_Mass2Final;                                                       // Star2 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
@@ -359,8 +362,6 @@ private:
     double              m_TotalMassPrev;
     double              m_TotalMass;
 
-    bool                m_MergesInHubbleTime;                                               // Indicates if the stars merge in Hubble Time
-
     double              m_OrbitalVelocityPreSN;
 
     bool                m_PrintExtraDetailedOutput;                                         // Flag to ensure that detailed output only gets printed once per timestep
@@ -372,9 +373,6 @@ private:
     double              m_SemiMajorAxisInitial;                                             // Record initial semi-major axis              JR: todo: check necessary
     double              m_SemiMajorAxisPreSN;                                               // Semi-major axis prior to supernova
     double              m_SemiMajorAxisPrev;                                                // Semi-major axis at previous timestep
-
-    bool                m_StellarMerger;                                                    // Indicates that the constituent stars merged
-    bool                m_StellarMergerAtBirth;                                             // Indicates that the constituent stars were touching at bierth
 
     SN_STATE            m_SupernovaState;                                                   // Indicates which star (or stars) are undergoing / have undergone a supernova event
 

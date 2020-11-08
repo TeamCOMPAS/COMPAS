@@ -103,8 +103,6 @@ protected:
                                                                                                           SHOW_WARN(m_Error);                                                           // Warn that an error occurred
                                                                                                           return 0.0; }                                                                 // Should never be called...
 
-    void            CheckRunaway(const bool p_Unbound) { }                                                                                                      // NO-OP
-
     double          ChooseTimestep(const double p_Time);
 
     ENVELOPE        DetermineEnvelopeType()                                                             { return ENVELOPE::CONVECTIVE; }                                                // Always CONVECTIVE

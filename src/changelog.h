@@ -553,7 +553,26 @@
 //                                      - Corrected baryon number for HeWD to match Hurley prescription (Issue #416)
 //                                      - Corrected calculation of core mass after 2nd dredge-up (Issue #419)
 //                                      - Corrected calculation of minimum radius on CHeB (Issue #420)
+// 02.16.03     JR - Nov 08, 2020   - Defect repairs, Enhancements
+//                                      - Issue #308
+//                                          - added constant for minimum initial mass, maximum initial mass, minim metallicity and maximum metallicity to constants.h
+//                                          - added checks to options code (specifically Options::OptionValues::CheckAndSetOptions()) to check option values for
+//                                            initial mass and metallicity against constraints in constants.h
+//                                      - Issue #342
+//                                          - replaced header string suffixes '_1', '_2', '_SN', and '_CP' with '(1)', '(2)', '(SN)', and '(CP)' respectively
+//                                          - now header strings ending in '(1)' indicate the value is for Star_1, '(2) for Star_2, '(SN)' for the supernova, and '(CP)' the companion
+//                                      - Issue #351
+//                                          - moved flags RECYCLED_NS and RLOF_ONTO_NS fron SN_EVENT enum - now flags in BinaryConstiuentStar class
+//                                          - removed RUNAWAY flag from SN_EVENT enum - removed entirely from code (not required)
+//                                      - Issue #362
+//                                          - changed header strings for RZAMS (radius at ZAMS) to 'Radius@ZAMS' - now consistent with MZAMS (mass at ZAMS - 'Mass@ZAMS')
+//                                      - Issue #363
+//                                          - made header strings for Lambdas uniform (all now start with 'Lambda_')
+//                                      - Issue #409
+//                                          - removed SN_THETA and SN_PHI from default SSE_SUPERNOVAE_REC (don't apply to SSE)
+//                                      - Fixed defect that caused semi-major axis to be drawn from distribution rather than calculated from supplied orbital period
+//                                        (moved check and calculation from options.cpp to BaseBinaryStar.cpp)
 
-const std::string VERSION_STRING = "02.16.02";
+const std::string VERSION_STRING = "02.16.03";
 
 # endif // __changelog_h__
