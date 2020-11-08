@@ -289,6 +289,18 @@ const std::string DETAILED_OUTPUT_DIRECTORY_NAME        = "Detailed_Output";    
 const std::string RUN_DETAILS_FILE_NAME                 = "Run_Details";                                            // Name for run details output file within output container
 
 
+// option constraints
+// Use these constant to specify constraints that should be applied to program option values
+// The values specified here should be checked in Options::OptionValues::CheckAndSetOptions()
+// and in any relevant sampling functions
+
+constexpr double MINIMUM_INITIAL_MASS                   = 0.00007;                                                  // Minimum initial mass (Msol) (~theoretical minimum? How low does COMPAS actually tolerate?)
+constexpr double MAXIMUM_INITIAL_MASS                   = 150.0;                                                    // Maximum initial mass (Msol) (should actually be 100Msol?)
+
+constexpr double MINIMUM_METALLICITY                    = 0.0001;                                                   // Minimum metallicity - Hurley equations known to fail for Z < 0.0001
+constexpr double MAXIMUM_METALLICITY                    = 0.04;                                                     // Maximum metallicity (~> super-metal-rich?)
+
+
 // AIS constants
 constexpr double SALPETER_POWER                         = -2.35;                                                    // JR: todo; description (AIS)
 constexpr double KROUPA_POWER                           = -2.35;                                                    // JR: todo; description (AIS)
@@ -1018,11 +1030,8 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 // time - necessary for the code flow (from the legacy code) - which we should probably one
 // day look at and rewrite).
 //
-// The RUNAWAY, RECYCLED_NS, and RLOF_ONTO_NS valuies are used to track history and are set
-// independent of the other flags (so their value (1 or 0) can be queried independently).
-//
-// A convenience function has been provided in utils.cpp to interpret the bit map.  Given an
-// SN_EVENT bitmap (current or past), it returns (in priority order):
+// A convenience function has been provided in utils.cpp to interpret the bit map (utils::SNEventType()).
+// Given an SN_EVENT bitmap (current or past), it returns (in priority order):
 //     
 //    SN_EVENT::CCSN  iff CCSN  bit is set and USSN bit is not set
 //    SN_EVENT::ECSN  iff ECSN  bit is set
@@ -1037,10 +1046,7 @@ enum class SN_EVENT: int {
     ECSN         = 2, 
     PISN         = 4, 
     PPISN        = 8, 
-    USSN         = 16, 
-    RUNAWAY      = 32, 
-    RECYCLED_NS  = 64, 
-    RLOF_ONTO_NS = 128 
+    USSN         = 16
 };
 ENABLE_BITMASK_OPERATORS(SN_EVENT);
 
@@ -1050,10 +1056,7 @@ const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
     { SN_EVENT::ECSN,         "Electron Capture Supernova" },
     { SN_EVENT::PISN,         "Pair Instability Supernova" },
     { SN_EVENT::PPISN,        "Pulsational Pair Instability Supernova" },
-    { SN_EVENT::USSN,         "Ultra Stripped Supernova" },
-    { SN_EVENT::RUNAWAY,      "Runaway Companion" },
-    { SN_EVENT::RECYCLED_NS,  "Recycled Neutron Star" },
-    { SN_EVENT::RLOF_ONTO_NS, "Donated Mass to Neutron Star through RLOF" }
+    { SN_EVENT::USSN,         "Ultra Stripped Supernova" }
 };
 
 
@@ -1486,7 +1489,6 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     RANDOM_SEED,                                     \
     RECYCLED_NEUTRON_STAR,                           \
     RLOF_ONTO_NS,                                    \
-    RUNAWAY,                                         \
     RZAMS,                                           \
     SN_TYPE,                                         \
     SPEED,                                           \
@@ -1626,7 +1628,6 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::RANDOM_SEED,                                     "RANDOM_SEED" },
     { STAR_PROPERTY::RECYCLED_NEUTRON_STAR,                           "RECYCLED_NEUTRON_STAR" },
     { STAR_PROPERTY::RLOF_ONTO_NS,                                    "RLOF_ONTO_NS" },
-    { STAR_PROPERTY::RUNAWAY,                                         "RUNAWAY" },
     { STAR_PROPERTY::RZAMS,                                           "RZAMS" },
     { STAR_PROPERTY::SN_TYPE,                                         "SN_TYPE" },
     { STAR_PROPERTY::SPEED,                                           "SPEED" },
@@ -2412,15 +2413,15 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::IS_USSN,                                           { TYPENAME::BOOL,           "USSN",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::KICK_MAGNITUDE,                                    { TYPENAME::DOUBLE,         "Applied_Kick_Magnitude","kms^-1",          14, 6 }},
     { ANY_STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,                         { TYPENAME::DOUBLE,         "Lambda@CE",            "-",                14, 6 }},
-    { ANY_STAR_PROPERTY::LAMBDA_DEWI,                                       { TYPENAME::DOUBLE,         "Dewi",                 "-",                14, 6 }},
+    { ANY_STAR_PROPERTY::LAMBDA_DEWI,                                       { TYPENAME::DOUBLE,         "Lambda_Dewi",          "-",                14, 6 }},
     { ANY_STAR_PROPERTY::LAMBDA_FIXED,                                      { TYPENAME::DOUBLE,         "Lambda_Fixed",         "-",                14, 6 }},
-    { ANY_STAR_PROPERTY::LAMBDA_KRUCKOW,                                    { TYPENAME::DOUBLE,         "Kruckow",              "-",                14, 6 }},
-    { ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_BOTTOM,                             { TYPENAME::DOUBLE,         "Kruckow_Bottom",       "-",                14, 6 }},
-    { ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_MIDDLE,                             { TYPENAME::DOUBLE,         "Kruckow_Middle",       "-",                14, 6 }},
-    { ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_TOP,                                { TYPENAME::DOUBLE,         "Kruckow_Top",          "-",                14, 6 }},
-    { ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE,                                  { TYPENAME::DOUBLE,         "Loveridge",            "-",                14, 6 }},
-    { ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE_WINDS,                            { TYPENAME::DOUBLE,         "Loveridge_Winds",      "-",                14, 6 }},
-    { ANY_STAR_PROPERTY::LAMBDA_NANJING,                                    { TYPENAME::DOUBLE,         "Lambda_Nanjing",       "-",                14, 6 }},
+    { ANY_STAR_PROPERTY::LAMBDA_KRUCKOW,                                    { TYPENAME::DOUBLE,         "Lambda_Kruckow",       "-",                14, 6 }},
+    { ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_BOTTOM,                             { TYPENAME::DOUBLE,         "Lambda_Kruckow_Bottom","-",                14, 6 }},
+    { ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_MIDDLE,                             { TYPENAME::DOUBLE,         "Lambda_Kruckow_Middle","-",                14, 6 }},
+    { ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_TOP,                                { TYPENAME::DOUBLE,         "Lambda_Kruckow_Top",   "-",                14, 6 }},
+    { ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE,                                  { TYPENAME::DOUBLE,         "Lambda_Loveridge",     "-",                14, 6 }},
+    { ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE_WINDS,                            { TYPENAME::DOUBLE,         "Lambda_Loveridge_Winds","-",               14, 6 }},
+    { ANY_STAR_PROPERTY::LAMBDA_NANJING,                                    { TYPENAME::DOUBLE,         "Lambda_Lambda_Nanjing","-",                14, 6 }},
     { ANY_STAR_PROPERTY::LBV_PHASE_FLAG,                                    { TYPENAME::BOOL,           "LBV_Phase_Flag",       "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::LUMINOSITY,                                        { TYPENAME::DOUBLE,         "Luminosity",           "Lsol",             14, 6 }},
     { ANY_STAR_PROPERTY::LUMINOSITY_POST_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Luminosity>CE",        "Lsol",             14, 6 }},
@@ -2452,8 +2453,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::RANDOM_SEED,                                       { TYPENAME::ULONGINT,       "SEED",                 "-",                12, 1 }},
     { ANY_STAR_PROPERTY::RECYCLED_NEUTRON_STAR,                             { TYPENAME::BOOL,           "Recycled_NS",          "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::RLOF_ONTO_NS,                                      { TYPENAME::BOOL,           "RLOF->NS",             "Event",             0, 0 }},
-    { ANY_STAR_PROPERTY::RUNAWAY,                                           { TYPENAME::BOOL,           "Runaway",              "Event",             0, 0 }},
-    { ANY_STAR_PROPERTY::RZAMS,                                             { TYPENAME::DOUBLE,         "R@ZAMS",                "Rsol",            14, 6 }},
+    { ANY_STAR_PROPERTY::RZAMS,                                             { TYPENAME::DOUBLE,         "Radius@ZAMS",          "Rsol",             14, 6 }},
     { ANY_STAR_PROPERTY::SN_TYPE,                                           { TYPENAME::SN_EVENT,       "SN_Type",              "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::SPEED,                                             { TYPENAME::DOUBLE,         "ComponentSpeed",       "kms^-1",           14, 6 }},
     { ANY_STAR_PROPERTY::STELLAR_TYPE,                                      { TYPENAME::STELLAR_TYPE,   "Stellar_Type",         "-",                 4, 1 }},
@@ -2834,8 +2834,6 @@ const ANY_PROPERTY_VECTOR SSE_SUPERNOVAE_REC = {
     STAR_PROPERTY::KICK_MAGNITUDE,
     STAR_PROPERTY::FALLBACK_FRACTION,
     STAR_PROPERTY::TRUE_ANOMALY,				
-    STAR_PROPERTY::SUPERNOVA_THETA,
-    STAR_PROPERTY::SUPERNOVA_PHI,
     STAR_PROPERTY::SN_TYPE,
     STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,
     STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
@@ -2950,7 +2948,7 @@ const ANY_PROPERTY_VECTOR BSE_DOUBLE_COMPACT_OBJECTS_REC = {
     STAR_2_PROPERTY::MASS_TRANSFER_CASE_INITIAL, 
     BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME, 
     STAR_1_PROPERTY::RECYCLED_NEUTRON_STAR,  
-    STAR_2_PROPERTY::RECYCLED_NEUTRON_STAR  
+    STAR_2_PROPERTY::RECYCLED_NEUTRON_STAR
 };
 
 
@@ -3098,7 +3096,6 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     BINARY_PROPERTY::TIME,
     BINARY_PROPERTY::SUPERNOVA_STATE,
     BINARY_PROPERTY::UNBOUND,
-    COMPANION_PROPERTY::RUNAWAY,
     COMPANION_PROPERTY::STELLAR_TYPE,
     SUPERNOVA_PROPERTY::STELLAR_TYPE,
     SUPERNOVA_PROPERTY::STELLAR_TYPE_PREV,

@@ -86,7 +86,6 @@ public:
     bool                        ExperiencedECSN() const                                                                     { return m_Star->ExperiencedECSN(); }
     bool                        ExperiencedPISN() const                                                                     { return m_Star->ExperiencedPISN() ; }
     bool                        ExperiencedPPISN() const                                                                    { return m_Star->ExperiencedPPISN(); }
-    bool                        ExperiencedRunaway() const                                                                  { return m_Star->ExperiencedRunaway(); }
     bool                        ExperiencedUSSN() const                                                                     { return m_Star->ExperiencedUSSN(); }
     double                      HeCoreMass() const                                                                          { return m_Star->HeCoreMass(); }
     bool                        IsCCSN() const                                                                              { return m_Star->IsCCSN(); }
@@ -172,8 +171,6 @@ public:
 
     double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                                         { return m_Star->CalculateZeta(p_ZetaPrescription); }
 
-    void            CheckRunaway(const bool p_Unbound)                                                          { m_Star->CheckRunaway(p_Unbound); }
-
     void            ClearCurrentSNEvent()                                                                       { m_Star->ClearCurrentSNEvent(); }
 
     BaseStar*       Clone(const BaseStar& p_Star);
@@ -225,9 +222,11 @@ public:
     void            UpdateInitialMass()                                                                         { m_Star->UpdateInitialMass(); }
 
     void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
+                                               const bool   p_RecycledNS,
                                                const double p_Stepsize,
                                                const double p_MassGainPerTimeStep,
                                                const double p_Epsilon)                                          { m_Star->UpdateMagneticFieldAndSpin(p_CommonEnvelope,
+                                                                                                                                                     p_RecycledNS,
                                                                                                                                                      p_Stepsize,
                                                                                                                                                      p_MassGainPerTimeStep,
                                                                                                                                                      p_Epsilon);}
