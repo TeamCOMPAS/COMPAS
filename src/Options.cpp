@@ -1878,18 +1878,22 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         COMPLAIN_IF(m_Metallicity < MINIMUM_METALLICITY || m_Metallicity > MAXIMUM_METALLICITY, "Metallicity (--metallicity) should be absolute metallicity and must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
 
-        if (DEFAULTED("minimum-secondary-mass")) {
-            m_MinimumMassSecondary = DEFAULTED("initial-mass-2") ? m_InitialMassFunctionMin : MINIMUM_INITIAL_MASS;
-        }
-
-        if (DEFAULTED("initial-mass-2")) {
-            COMPLAIN_IF(m_MinimumMassSecondary < m_InitialMassFunctionMin, "Seconday minimum mass (--minimum-secondary-mass) must be >= IMF minimum (--initial-mass-min) of " + std::to_string(m_InitialMassFunctionMin) + " Msol");
-            COMPLAIN_IF(m_MinimumMassSecondary > m_InitialMassFunctionMax, "Seconday minimum mass (--minimum-secondary-mass) must be <= IMF maximum (--initial-mass-max) of " + std::to_string(m_InitialMassFunctionMax) + " Msol");
-        }
-        else {
-            COMPLAIN_IF(m_MinimumMassSecondary < MINIMUM_INITIAL_MASS, "Seconday minimum mass (--minimum-secondary-mass) must be >= minimum initial mass of " + std::to_string(MINIMUM_INITIAL_MASS) + " Msol");
-            COMPLAIN_IF(m_MinimumMassSecondary > MAXIMUM_INITIAL_MASS, "Seconday minimum mass (--minimum-secondary-mass) must be <= maximum initial mass of " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
-        }
+// commenting this until I figure out the best way of handling minimum secondary mass wrt initial mass limits
+//        if (DEFAULTED("minimum-secondary-mass")) {
+//            m_MinimumMassSecondary = DEFAULTED("initial-mass-2") ? m_InitialMassFunctionMin : MINIMUM_INITIAL_MASS;
+//        }
+//
+//        if (DEFAULTED("initial-mass-2")) {
+//            COMPLAIN_IF(m_MinimumMassSecondary < m_InitialMassFunctionMin, "Seconday minimum mass (--minimum-secondary-mass) must be >= IMF minimum (--initial-mass-min) of " + std::to_string(m_InitialMassFunctionMin) + " Msol");
+//            COMPLAIN_IF(m_MinimumMassSecondary > m_InitialMassFunctionMax, "Seconday minimum mass (--minimum-secondary-mass) must be <= IMF maximum (--initial-mass-max) of " + std::to_string(m_InitialMassFunctionMax) + " Msol");
+//        }
+//        else {
+//            COMPLAIN_IF(m_MinimumMassSecondary < MINIMUM_INITIAL_MASS, "Seconday minimum mass (--minimum-secondary-mass) must be >= minimum initial mass of " + std::to_string(MINIMUM_INITIAL_MASS) + " Msol");
+//            COMPLAIN_IF(m_MinimumMassSecondary > MAXIMUM_INITIAL_MASS, "Seconday minimum mass (--minimum-secondary-mass) must be <= maximum initial mass of " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
+//        }
+// just use this for now
+        COMPLAIN_IF(m_MinimumMassSecondary < MINIMUM_INITIAL_MASS, "Seconday minimum mass (--minimum-secondary-mass) must be >= minimum initial mass of " + std::to_string(MINIMUM_INITIAL_MASS) + " Msol");
+        COMPLAIN_IF(m_MinimumMassSecondary > MAXIMUM_INITIAL_MASS, "Seconday minimum mass (--minimum-secondary-mass) must be <= maximum initial mass of " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
 
         if (m_NeutrinoMassLossAssumptionBH.type == NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS) {
             COMPLAIN_IF(m_NeutrinoMassLossValueBH < 0.0, "Neutrino mass loss value < 0");
