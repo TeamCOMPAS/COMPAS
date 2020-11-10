@@ -425,6 +425,10 @@ std::tuple<int, int> EvolveBinaryStars() {
 
                 EVOLUTION_STATUS binaryStatus = binary->Evolve();                                               // evolve the binary
 
+                if (binaryStatus == EVOLUTION_STATUS::ERROR ||binaryStatus == EVOLUTION_STATUS::SSE_ERROR) {    // ok?
+                    SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED, EVOLUTION_STATUS_LABEL.at(binaryStatus));       // no - show error
+                }
+                
                 // announce result of evolving the binary
                 if (!OPTIONS->Quiet()) {                                                                        // quiet mode?
                                                                                                                 // no - announce result of evolving the binary

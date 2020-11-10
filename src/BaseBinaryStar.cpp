@@ -34,10 +34,20 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
     // also check m2 > m2min
     // also check that when we are using AIS we are sampling inside the parameter space
 
+    bool done                                   = false;
     bool merger                                 = false;
     bool rlof                                   = false;
     bool secondarySmallerThanMinimumMass        = false;
     bool initialParametersOutsideParameterSpace = false;
+
+
+        bool sampled = OPTIONS->OptionSpecified("initial-mass-1") == 0 ||
+        OPTIONS->OptionSpecified("initial-mass-2") == 0 ||
+        OPTIONS->OptionSpecified("metallicity") == 0 ||
+        (OPTIONS->OptionSpecified("semi-major-axis") == 0 &&
+        OPTIONS->OptionSpecified("orbital-period") == 0) ||
+        OPTIONS->OptionSpecified("eccentricity") == 0;                                                                                                           // will be true if any of mass1, mass2,a, e, sampled
+
 
     // Single stars are provided with a kick structure that specifies the values of the random
     // number to be used to generate to kick magnitude, and the actual kick magnitude specified
@@ -190,7 +200,21 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
                                                      (OPTIONS->OptionSpecified("semi-major-axis") != 1 && utils::Compare(m_SemiMajorAxis, OPTIONS->SemiMajorAxisDistributionMin()) < 0) ||  // semiMajorAxis is outside (below) parameter space
                                                      (OPTIONS->OptionSpecified("semi-major-axis") != 1 && utils::Compare(m_SemiMajorAxis, OPTIONS->SemiMajorAxisDistributionMax())) > 0;    // semiMajorAxis is outside (above) parameter space
         }
-    } while ( (!OPTIONS->AllowRLOFAtBirth() && rlof) || (!OPTIONS->AllowTouchingAtBirth() && merger) || secondarySmallerThanMinimumMass || initialParametersOutsideParameterSpace);
+
+        // check whether our initial conditions are good
+        // if they are - evolve the binary
+        // if they are not ok:
+        //    - if we sampled at least one of them, sample again
+        //    - if all were user supplied, show an error and return without evolving
+
+        bool ok = !((!OPTIONS->AllowRLOFAtBirth() && rlof) || (!OPTIONS->AllowTouchingAtBirth() && merger) || secondarySmallerThanMinimumMass || initialParametersOutsideParameterSpace);
+
+        done = ok;
+        if (!sampled && !ok) {
+            m_Error = ERROR::INVALID_INITIAL_ATTRIBUTES;
+            done = true;
+        }
+    } while (!done);
 
     SetRemainingValues();                                                                                                               // complete the construction of the binary
 }
@@ -2277,10 +2301,15 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
     EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
 
+    if (m_Error != ERROR::NONE) {                                                                                                           // check for error creating binary
+        SHOW_ERROR(m_Error);                                                                                                                // no - show error
+        return EVOLUTION_STATUS::ERROR;                                                                                                     // return without evolving
+    }
+
     if (HasStarsTouching()) {                                                                                                               // check if stars are touching
         m_Flags.stellarMerger        = true;
         m_Flags.stellarMergerAtBirth = true;
-        evolutionStatus        = EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH;                                                                 // binary components are touching - merger at birth
+        evolutionStatus              = EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH;                                                           // binary components are touching - merger at birth
     }
 
     PrintDetailedOutput(m_Id);                                                                                                              // print (log) detailed output for binary
