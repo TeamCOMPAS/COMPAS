@@ -1051,58 +1051,28 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
 
     double logRemnantMass;
     STYPE_VECTOR mtHist = this->MassTransferDonorHistory();
-    MT_CASE schneiderMassTransferCase;
-
+    MT_CASE schneiderMassTransferCase = MT_CASE::OTHER;
 
     // Determine which Schneider case prescription should be used. 
     if (mtHist.size() == 0) {                                                           // No history of MT - effectively single star
         schneiderMassTransferCase = MT_CASE::NONE;
     }
-    else if (mtHist.size() == 1) {                                                      // 1 MT event, trivially from a non-stripped star
+    else { // (mtHist.size() > 0)                                                       // Star was MT donor at least once
 
-        STELLAR_TYPE firstCase = mtHist[0];
+        MT_CASE mostRecentCase = mtHist[mtHist.size()-1];
 
-        if (utils::IsOneOf(firstCase, { STELLAR_TYPE::MS_LTE_07, 
-                                        STELLAR_TYPE::MS_GT_07 })) {                                        // CASE A Mass Transfer - from MS
+        if (utils::IsOneOf(mostRecentCase, { STELLAR_TYPE::MS_LTE_07, 
+                                             STELLAR_TYPE::MS_GT_07 })) {                                        // CASE A Mass Transfer - from MS
             schneiderMassTransferCase = MT_CASE::A;
         }
-        else if (utils::IsOneOf(firstCase, { STELLAR_TYPE::HERTZSPRUNG_GAP, 
-                                             STELLAR_TYPE::FIRST_GIANT_BRANCH, 
-                                             STELLAR_TYPE::CORE_HELIUM_BURNING })) {                        // CASE B Mass Transfer - from HG, FGB, or CHeB 
+        else if (utils::IsOneOf(mostRecentCase, { STELLAR_TYPE::HERTZSPRUNG_GAP, 
+                                                  STELLAR_TYPE::FIRST_GIANT_BRANCH, 
+                                                  STELLAR_TYPE::CORE_HELIUM_BURNING })) {                        // CASE B Mass Transfer - from HG, FGB, or CHeB 
             schneiderMassTransferCase = MT_CASE::B;
         }
-        else if (utils::IsOneOf(firstCase, { STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,            
-                                             STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH, })) { // CASE C Mass Transfer - from EAGB or TPAGB 
+        else if (utils::IsOneOf(mostRecentCase, { STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,            
+                                                  STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH, })) { // CASE C Mass Transfer - from EAGB or TPAGB 
             schneiderMassTransferCase = MT_CASE::C;
-        }
-    }
-    else if (mtHist.size() == 2) {                                                        // Multiple MT events - this part is somewhat uncertain
-        
-        STELLAR_TYPE firstCase = mtHist[0];
-        STELLAR_TYPE secondCase = mtHist[1];
-    
-        if (utils::IsOneOf(firstCase, { STELLAR_TYPE::MS_LTE_07, 
-                                        STELLAR_TYPE::MS_GT_07 })) {                  // First Case A Mass Transfer
-
-            if (utils::IsOneOf(secondCase, { STELLAR_TYPE::HERTZSPRUNG_GAP, 
-                                             STELLAR_TYPE::FIRST_GIANT_BRANCH, 
-                                             STELLAR_TYPE::CORE_HELIUM_BURNING })) {                             // Case AB?
-                schneiderMassTransferCase = MT_CASE::B;                                                          // Use prescription B
-            }
-
-            else if (utils::IsOneOf(secondCase, { STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,            
-                                                  STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH, })) { // Case AC? 
-                schneiderMassTransferCase = MT_CASE::C;                                                          // Use prescription C
-            }
-        }
-
-        else if (utils::IsOneOf(firstCase, { STELLAR_TYPE::HERTZSPRUNG_GAP, 
-                                             STELLAR_TYPE::FIRST_GIANT_BRANCH, 
-                                             STELLAR_TYPE::CORE_HELIUM_BURNING })) {   // First Case B Mass Transfer
-
-            if (utils::IsOneOf(secondCase, { STELLAR_TYPE::NAKED_HELIUM_STAR_MS } )) {                           // Case BA?
-                schneiderMassTransferCase = MT_CASE::A;                                                          // Use prescription A
-            }
         }
     }
 
@@ -1158,7 +1128,7 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
 
             break;
 
-        default:                                                                                            // unknown SN_ENGINE
+        default:                                    // Probably MT_CASE::OTHER, i.e ultra-stripped
 
             SHOW_WARN(ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION, "Using default, Mass_Remnant = 1.25");   // show warning 
 
