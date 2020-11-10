@@ -582,8 +582,10 @@
 //                                      - Removed m_LBVfactor variable from BaseStar - use OPTIONS->LuminousBlueVariableFactor()
 //                                      - Removed m_WolfRayetFactor variable from BaseBinaryStar - never used in BSE code
 //                                      - Removed m_LBVfactor variable from BaseStar - use OPTIONS->WolfRayetFactor()
+// 02.17.01     RTW - Nov 10, 2020   - Enhancement:
+//                                      - Added in Schneider 2020 remnant mass prescriptions (standard and alternative)
+//                                      - Added parameter MassTransferDonorHistory, as required for above prescription, which tracks the MT donor type (from which the MT Case can be established)
 
-
-const std::string VERSION_STRING = "02.17.00";
+const std::string VERSION_STRING = "02.17.01";
 
 # endif // __changelog_h__
