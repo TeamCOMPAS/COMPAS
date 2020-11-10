@@ -357,7 +357,6 @@ def addHdf5HeadersAndAttributes(hf,  group, filePath):
         elif dataType == 'BOOL':
             dtypes.append(bool)
         elif dataType == 'STRING':
-            #dtypes.append(np.dtype(('S10'), 1))
             dtypes.append(h5.string_dtype(encoding='utf-8'))
         else:
             raise ValueError("Unrecognised datatype dataType=%s - for column %s in file%s "\
