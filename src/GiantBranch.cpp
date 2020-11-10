@@ -1059,19 +1059,19 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
     }
     else { // (mtHist.size() > 0)                                                       // Star was MT donor at least once
 
-        MT_CASE mostRecentCase = mtHist[mtHist.size()-1];
+        STELLAR_TYPE mostRecentDonorType = mtHist[mtHist.size()-1];
 
-        if (utils::IsOneOf(mostRecentCase, { STELLAR_TYPE::MS_LTE_07, 
-                                             STELLAR_TYPE::MS_GT_07 })) {                                        // CASE A Mass Transfer - from MS
+        if (utils::IsOneOf(mostRecentDonorType, { STELLAR_TYPE::MS_LTE_07, 
+                                                  STELLAR_TYPE::MS_GT_07 })) {                                        // CASE A Mass Transfer - from MS
             schneiderMassTransferCase = MT_CASE::A;
         }
-        else if (utils::IsOneOf(mostRecentCase, { STELLAR_TYPE::HERTZSPRUNG_GAP, 
-                                                  STELLAR_TYPE::FIRST_GIANT_BRANCH, 
-                                                  STELLAR_TYPE::CORE_HELIUM_BURNING })) {                        // CASE B Mass Transfer - from HG, FGB, or CHeB 
+        else if (utils::IsOneOf(mostRecentDonorType, { STELLAR_TYPE::HERTZSPRUNG_GAP, 
+                                                       STELLAR_TYPE::FIRST_GIANT_BRANCH, 
+                                                       STELLAR_TYPE::CORE_HELIUM_BURNING })) {                        // CASE B Mass Transfer - from HG, FGB, or CHeB 
             schneiderMassTransferCase = MT_CASE::B;
         }
-        else if (utils::IsOneOf(mostRecentCase, { STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,            
-                                                  STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH, })) { // CASE C Mass Transfer - from EAGB or TPAGB 
+        else if (utils::IsOneOf(mostRecentDonorType, { STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,            
+                                                       STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH, })) { // CASE C Mass Transfer - from EAGB or TPAGB 
             schneiderMassTransferCase = MT_CASE::C;
         }
     }
