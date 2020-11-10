@@ -883,7 +883,7 @@ const COMPASUnorderedMap<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION, std::string> MT_
 
 
 // Mass transfer cases
-enum class MT_CASE: int { NONE, A, B, C };
+enum class MT_CASE: int { NONE, A, B, C, OTHER };
 const COMPASUnorderedMap<MT_CASE, std::string> MT_CASE_LABEL = {
     { MT_CASE::NONE, "Mass Transfer CASE NONE: No Mass Transfer" },
     { MT_CASE::A,    "Mass Transfer CASE A" },                          // mass transfer while donor is on main sequence
