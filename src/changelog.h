@@ -572,10 +572,11 @@
 //                                          - removed SN_THETA and SN_PHI from default SSE_SUPERNOVAE_REC (don't apply to SSE)
 //                                      - Fixed defect that caused semi-major axis to be drawn from distribution rather than calculated from supplied orbital period
 //                                        (moved check and calculation from options.cpp to BaseBinaryStar.cpp)
-// 02.17.00     JR - Nov 10, 2020   - Enhancement, defect repair, code cleanup
+// 02.17.00     JR - Nov 10, 2020   - Enhancement, defect repairs, code cleanup
 //                                      - Added SSE System Parameters file
 //                                          - records initial parameters and result (final stellar type) 
 //                                          - useful when detailed output is not required
+//                                      - Fix for Issue #439
 //                                      - Fixed typo in LogfileSwitchLog() in Options.h - only affected situation where user specified switchlog filename (overriding default filename)
 //                                      - Removed m_LBVfactor variable from BaseBinaryStar - never used in BSE code
 //                                      - Removed m_LBVfactor variable from BaseStar - use OPTIONS->LuminousBlueVariableFactor()
