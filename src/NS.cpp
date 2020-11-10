@@ -358,15 +358,20 @@ DBL_DBL NS::CalculateMassAcceptanceRate(const double p_DonorMassRate, const doub
  *    m_PulsarDetails.spinDownRate
  *
  *
- * void UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const double p_Stepsize, const double p_MassGainPerTimeStep, const double p_Epsilon)
+ * void UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope, 
+ *                                 const bool   p_RecycledNS, 
+ *                                 const double p_Stepsize, 
+ *                                 const double p_MassGainPerTimeStep, 
+ *                                 const double p_Epsilon)
  *
  * @param   [IN]    p_CommonEnvelope            Indicates whether there there is a common envelope - true or false
- * @param   [IN]    p_Stepsize                  Yimestep size for integration (in seconds)
+ * @param   [IN]    p_RecycledNS                Indicates whether this star is/was a recyled neutron star - true or false
+ * @param   [IN]    p_Stepsize                  Timestep size for integration (in seconds)
  * @param   [IN]    p_MassGainPerTimeStep       Mass loss from the secondary for each iteration (in kg)
  * @param   [IN]    p_Epsilon                   Uncertainty due to mass loss
  * @return                                      Tuple containing the Maximum Mass Acceptance Rate and the Accretion Efficiency Parameter
  */
-void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const double p_Stepsize, const double p_MassGainPerTimeStep, const double p_Epsilon) {
+void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_RecycledNS, const double p_Stepsize, const double p_MassGainPerTimeStep, const double p_Epsilon) {
 
     constexpr double NSRadius_IN_M = NEUTRON_STAR_RADIUS * RSOL_TO_KM * KM_TO_M ;
     constexpr double NSRadius_3    = NSRadius_IN_M * NSRadius_IN_M * NSRadius_IN_M;
@@ -383,7 +388,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const double p_
     double tau                  = OPTIONS->PulsarMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR;                                 
     double kappa                = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_KG;                                                          
 
-    if ((!ExperiencedRecycledNS() && !p_CommonEnvelope) || (!ExperiencedRecycledNS() && utils::Compare(p_MassGainPerTimeStep, 0.0) == 0 )) {
+    if ((!p_RecycledNS && !p_CommonEnvelope) || (!p_RecycledNS && utils::Compare(p_MassGainPerTimeStep, 0.0) == 0 )) {
 
         // calculate isolated decay of the magnetic field for a neutron star see Equation 6 in  arXiv:0903.3538v2       
       
@@ -403,8 +408,8 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const double p_
         m_PulsarDetails.spinDownRate = -omegaDotTop / omegaDotBottom;                                                                           // pulsar spin down rate
    
         m_AngularMomentum            = m_PulsarDetails.spinFrequency * momentOfInertia;                                                         // angular momentum of star
-   }
-   else if ((ExperiencedRecycledNS() || p_CommonEnvelope) && utils::Compare(p_MassGainPerTimeStep, 0.0) > 0) {
+    }
+    else if ((p_RecycledNS || p_CommonEnvelope) && utils::Compare(p_MassGainPerTimeStep, 0.0) > 0) {
 
         // calculate the Alfven radius for an accreting neutron star, see Equation 8 in  arXiv:0903.3538v2       
         double mDot         = p_MassGainPerTimeStep / p_Stepsize ;
@@ -427,6 +432,6 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const double p_
         m_AngularMomentum             = m_AngularMomentum + deltaAngularMomentum;                                                               // angular momentum of star
         m_PulsarDetails.spinFrequency = m_AngularMomentum / momentOfInertia;                                                                    // pulsar spin frequency
         m_PulsarDetails.spinDownRate  = (deltaAngularMomentum / p_Stepsize) / momentOfInertia;                                                  // pulsar spin down rate
-   }
+    }
 }
 

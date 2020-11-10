@@ -88,6 +88,7 @@ protected:
             ENVELOPE        DetermineEnvelopeType()                                 { return ENVELOPE::REMNANT; }                                                   // Always REMNANT
 
             void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
+                                                       const bool   p_RecycledNS,
                                                        const double p_Stepsize,
                                                        const double p_MassGainPerTimeStep,
                                                        const double p_Epsilon);
