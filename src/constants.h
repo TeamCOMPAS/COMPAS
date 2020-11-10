@@ -421,6 +421,7 @@ enum class ERROR: int {
     INVALID_DATA_TYPE,                                              // invalid data type
     INVALID_EDDINGTION_FACTOR,                                      // invalid OPTION value: Eddington Accretion Factor eddingtonAccretionFactor < 0.0
     INVALID_ENVELOPE_TYPE,                                          // invalid envelope type
+    INVALID_INITIAL_ATTRIBUTES,                                     // initial values of stellar or binary attributes are not valid - can't evolve star or binary
     INVALID_MASS_TRANSFER_DONOR,                                    // mass transfer from NS, BH or Massless Remnant
     INVALID_RADIUS_INCREASE_ONCE,                                   // radius increased when it should have decreased (or at least remained static)
     INVALID_TYPE_EDDINGTON_RATE,                                    // invalid stellar type for Eddington critical rate calculation
@@ -549,6 +550,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::INVALID_DATA_TYPE,                                     { ERROR_SCOPE::ALWAYS,              "Invalid data type" }},
     { ERROR::INVALID_EDDINGTION_FACTOR,                             { ERROR_SCOPE::ALWAYS,              "Invalid OPTION value: Eddington Accretion Factor eddingtonAccretionFactor < 0.0" }},
     { ERROR::INVALID_ENVELOPE_TYPE,                                 { ERROR_SCOPE::ALWAYS,              "Invalid envelope type" }},
+    { ERROR::INVALID_INITIAL_ATTRIBUTES,                            { ERROR_SCOPE::ALWAYS,              "Initial attributes are not valid - evolution not possible" }},
     { ERROR::INVALID_MASS_TRANSFER_DONOR,                           { ERROR_SCOPE::ALWAYS,              "Mass transfer from NS, BH, or Massless Remnant" }},
     { ERROR::INVALID_RADIUS_INCREASE_ONCE,                          { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Unexpected Radius increase" }},
     { ERROR::INVALID_TYPE_EDDINGTON_RATE,                           { ERROR_SCOPE::ALWAYS,              "Invalid stellar type for Eddington critical rate calculation" }},
