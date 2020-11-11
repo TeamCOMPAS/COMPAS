@@ -108,22 +108,24 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
                             ? OPTIONS->InitialMass1()                                                                                   // yes, use it
                             : m_AIS.DrawingFromAISDistributions()                                                                       // no - asmple it
                                 ? RAND->RandomGaussian(m_AIS.CovM1()) + m_AIS.MuM1()                                                    // ... using AIS
-                                : utils::SampleInitialMassDistribution(OPTIONS->InitialMassFunction(), 
-                                                                       OPTIONS->InitialMassFunctionMax(), 
-                                                                       OPTIONS->InitialMassFunctionMin(), 
-                                                                       OPTIONS->InitialMassFunctionPower());
+                                : utils::SampleInitialMass(OPTIONS->InitialMassFunction(), 
+                                                           OPTIONS->InitialMassFunctionMax(), 
+                                                           OPTIONS->InitialMassFunctionMin(), 
+                                                           OPTIONS->InitialMassFunctionPower());
                                   
         double mass2    = OPTIONS->OptionSpecified("initial-mass-2") == 1                                                               // user specified secondary mass?
                             ? OPTIONS->InitialMass2()                                                                                   // yes, use it
                             : m_AIS.DrawingFromAISDistributions()                                                                       // no, sample q and calculate mass2
                                 ? RAND->RandomGaussian(m_AIS.CovQ()) + m_AIS.MuQ() * mass1                                              // ... using AIS
-                                : utils::SampleQDistribution(OPTIONS->MassRatioDistribution(),
-                                                             OPTIONS->MassRatioDistributionMax(), 
-                                                             OPTIONS->MassRatioDistributionMin()) * mass1;                                                                        
+                                : utils::SampleMassRatio(OPTIONS->MassRatioDistribution(),
+                                                         OPTIONS->MassRatioDistributionMax(), 
+                                                         OPTIONS->MassRatioDistributionMin()) * mass1;                                                                        
 
         double metallicity = OPTIONS->OptionSpecified("metallicity") == 1                                                               // user specified metallicity?
                                 ? OPTIONS->Metallicity()                                                                                // yes, use it
-                                : utils::SampleMetallicity();                                                                           // no, sample it
+                                : utils::SampleMetallicity(OPTIONS->MetallicityDistribution(), 
+                                                           OPTIONS->MetallicityDistributionMax(), 
+                                                           OPTIONS->MetallicityDistributionMin());                                      // no, sample it
 
         if (OPTIONS->OptionSpecified("semi-major-axis") == 1) {                                                                         // user specified semi-major axis?
             m_SemiMajorAxis = OPTIONS->SemiMajorAxis();                                                                                 // yes, use it
@@ -137,23 +139,23 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
                     m_SemiMajorAxis = PPOW(10, RAND->RandomGaussian(m_AIS.CovLogA()) + m_AIS.MuLogA());                                 // yes, AIS
                 }
                 else {                                                                                                                  // no, not AIS
-                    m_SemiMajorAxis = utils::SampleSemiMajorAxisDistribution(OPTIONS->SemiMajorAxisDistribution(),                              
-                                                                             OPTIONS->SemiMajorAxisDistributionMax(), 
-                                                                             OPTIONS->SemiMajorAxisDistributionMin(),
-                                                                             OPTIONS->SemiMajorAxisDistributionPower(), 
-                                                                             OPTIONS->PeriodDistributionMax(), 
-                                                                             OPTIONS->PeriodDistributionMin(), 
-                                                                             mass1, 
-                                                                             mass2);
+                    m_SemiMajorAxis = utils::SampleSemiMajorAxis(OPTIONS->SemiMajorAxisDistribution(),                              
+                                                                 OPTIONS->SemiMajorAxisDistributionMax(), 
+                                                                 OPTIONS->SemiMajorAxisDistributionMin(),
+                                                                 OPTIONS->SemiMajorAxisDistributionPower(), 
+                                                                 OPTIONS->PeriodDistributionMax(), 
+                                                                 OPTIONS->PeriodDistributionMin(), 
+                                                                 mass1, 
+                                                                 mass2);
                 }
             }
         }
 
         m_Eccentricity  = OPTIONS->OptionSpecified("eccentricity") == 1                                                                 // user specified semi-major axis?
                             ? OPTIONS->Eccentricity()                                                                                   // yes, use it
-                            : utils::SampleEccentricityDistribution(OPTIONS->EccentricityDistribution(), 
-                                                                    OPTIONS->EccentricityDistributionMax(), 
-                                                                    OPTIONS->EccentricityDistributionMin());                            // no, sample it
+                            : utils::SampleEccentricity(OPTIONS->EccentricityDistribution(), 
+                                                        OPTIONS->EccentricityDistributionMax(), 
+                                                        OPTIONS->EccentricityDistributionMin());                                        // no, sample it
 
         // binary star contains two instances of star to hold masses, radii and luminosities.
         // star 1 initially more massive

@@ -324,7 +324,10 @@ private:
         "common-envelope-lambda-prescription",
         "common-envelope-mass-accretion-prescription",
 
+        "eccentricity", "e",
         "eccentricity-distribution",
+        "eccentricity-max",
+        "eccentricity-min",
 
         "mass-ratio-distribution", "q",
 
@@ -421,6 +424,8 @@ private:
         "mass-transfer-angular-momentum-loss-prescription",
         "mass-transfer-rejuvenation-prescription",
         "mass-transfer-thermal-limit-accretor",
+
+        "metallicity-distribution",
 
         "neutrino-mass-loss-bh-formation",
         "neutron-star-equation-of-state",
@@ -806,6 +811,9 @@ public:
 
             // Metallicity options
             double                                              m_Metallicity;                                                  // Metallicity
+            ENUM_OPT<METALLICITY_DISTRIBUTION>                  m_MetallicityDistribution;                                      // Which metallicity distribution
+            double                                              m_MetallicityDistributionMin;                                   // Minimum initial metallicity when using a distribution
+            double                                              m_MetallicityDistributionMax;                                   // Maximum initial metallicity when using a distribution
 
             double                                              m_mCBUR1;                                                       // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation
 
@@ -1203,6 +1211,9 @@ public:
     double                                      MCBUR1() const                                                          { return OPT_VALUE("mcbur1", m_mCBUR1, true); }
 
     double                                      Metallicity() const                                                     { return OPT_VALUE("metallicity", m_Metallicity, true); }
+    METALLICITY_DISTRIBUTION                    MetallicityDistribution() const                                         { return OPT_VALUE("metallicity-distribution", m_MetallicityDistribution.type, true); }
+    double                                      MetallicityDistributionMax() const                                      { return OPT_VALUE("metallicity-distribution-max", m_MetallicityDistributionMax, true); }
+    double                                      MetallicityDistributionMin() const                                      { return OPT_VALUE("metallicity-distribution-min", m_MetallicityDistributionMin, true); }
 
     double                                      MinimumMassSecondary() const                                            { return OPT_VALUE("minimum-secondary-mass", m_MinimumMassSecondary, true); }
 

@@ -583,6 +583,11 @@
 //                                      - Removed m_WolfRayetFactor variable from BaseBinaryStar - never used in BSE code
 //                                      - Removed m_LBVfactor variable from BaseStar - use OPTIONS->WolfRayetFactor()
 
+// added metallicity-distribution option: available distributions are ZSOLAR and LOGUNIFORM (see documentation)
+// added metallicity-min and metallicity-max options (for metallicity-distribution option)
+// DON'T FORGET TO UPDATE DOCUMENTATION!!!!!!!!!!!!!!!!!!!!!!
+
+// removed eccentricity distribution options FIXED, IMPRTANCE & THERMALISE (THERMALISE = THERMAL, which remains).  UPDATE DOCS!!!!!!!!!!!
 
 const std::string VERSION_STRING = "02.17.00";
 

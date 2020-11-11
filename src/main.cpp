@@ -202,10 +202,10 @@ std::tuple<int, int> EvolveSingleStars() {
 
                 double initialMass = OPTIONS->OptionSpecified("initial-mass") == 1                                  // user specified mass?
                                         ? OPTIONS->InitialMass()                                                    // yes, use it
-                                        : utils::SampleInitialMassDistribution(OPTIONS->InitialMassFunction(),      // no, sample it
-                                                                               OPTIONS->InitialMassFunctionMax(), 
-                                                                               OPTIONS->InitialMassFunctionMin(), 
-                                                                               OPTIONS->InitialMassFunctionPower());
+                                        : utils::SampleInitialMass(OPTIONS->InitialMassFunction(),                  // no, sample it
+                                                                   OPTIONS->InitialMassFunctionMax(), 
+                                                                   OPTIONS->InitialMassFunctionMin(), 
+                                                                   OPTIONS->InitialMassFunctionPower());
 
                 // the metallicity of the star is supplied - this is to allow binary stars to initialise
                 // the metallicity of their constituent stars (rather than have the constituent stars sample 
@@ -214,7 +214,10 @@ std::tuple<int, int> EvolveSingleStars() {
 
                 double metallicity = OPTIONS->OptionSpecified("metallicity") == 1                                   // user specified metallicity?
                                         ? OPTIONS->Metallicity()                                                    // yes, use it
-                                        : utils::SampleMetallicity();                                               // no, sample it
+                                        : utils::SampleMetallicity(OPTIONS->MetallicityDistribution(), 
+                                                                   OPTIONS->MetallicityDistributionMax(), 
+                                                                   OPTIONS->MetallicityDistributionMin());          // no, sample it
+
 
 
                 // Single stars (in SSE) are provided with a kick structure that specifies the 
