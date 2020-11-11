@@ -421,6 +421,10 @@ void Options::OptionValues::Initialise() {
 
     // Metallicity options
     m_Metallicity                                                   = ZSOL;
+    m_MetallicityDistribution.type                                  = METALLICITY_DISTRIBUTION::ZSOLAR; 
+    m_MetallicityDistribution.typeString                            = METALLICITY_DISTRIBUTION_LABEL.at(m_MetallicityDistribution.type);
+    m_MetallicityDistributionMin                                    = MINIMUM_METALLICITY;
+    m_MetallicityDistributionMax                                    = MAXIMUM_METALLICITY;
 
 
     // Neutron star equation of state
@@ -1103,6 +1107,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Metallicity to use (default " + std::to_string(p_Options->m_Metallicity) + " Zsol)").c_str()
         )
         (
+            "metallicity-max",                                            
+            po::value<double>(&p_Options->m_MetallicityDistributionMax)->default_value(p_Options->m_MetallicityDistributionMax),                                                                
+            ("Maximum metallicity to generate (default = " + std::to_string(p_Options->m_MetallicityDistributionMax) + ")").c_str()
+        )
+        (
+            "metallicity-min",                                            
+            po::value<double>(&p_Options->m_MetallicityDistributionMin)->default_value(p_Options->m_MetallicityDistributionMin),                                                                
+            ("Minimum metallicity to generate (default = " + std::to_string(p_Options->m_MetallicityDistributionMin) + ")").c_str()
+        )
+        (
             "minimum-secondary-mass",                                      
             po::value<double>(&p_Options->m_MinimumMassSecondary)->default_value(p_Options->m_MinimumMassSecondary),                                                                              
             ("Minimum mass of secondary to generate in Msol (default = " + std::to_string(p_Options->m_MinimumMassSecondary) + ")").c_str()
@@ -1282,7 +1296,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "eccentricity-distribution",                                 
             po::value<std::string>(&p_Options->m_EccentricityDistribution.typeString)->default_value(p_Options->m_EccentricityDistribution.typeString),                                                          
-            ("Initial eccentricity distribution (options: [ZERO, FIXED, FLAT, THERMALISED, GELLER+2013], default = " + p_Options->m_EccentricityDistribution.typeString + ")").c_str()
+            ("Initial eccentricity distribution (options: [ZERO, FLAT, THERMAL, THERMALISED, GELLER+2013, DUQUENNOYMAYOR1991, SANA2012], default = " + p_Options->m_EccentricityDistribution.typeString + ")").c_str()
         )
         (
             "envelope-state-prescription",                                 
@@ -1414,7 +1428,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_MassTransferThermallyLimitedVariation.typeString)->default_value(p_Options->m_MassTransferThermallyLimitedVariation.typeString),                                
             ("Mass Transfer Thermal Accretion limit (options: [CFACTOR, ROCHELOBE], default = " + p_Options->m_MassTransferThermallyLimitedVariation.typeString + ")").c_str()
         )
-
+        (
+            "metallicity-distribution",                                 
+            po::value<std::string>(&p_Options->m_MetallicityDistribution.typeString)->default_value(p_Options->m_MetallicityDistribution.typeString),                                                          
+            ("Initial eccentricity distribution (options: [ZSOLAR, LOGUNIFORM], default = " + p_Options->m_MetallicityDistribution.typeString + ")").c_str()
+        )
         (
             "mode",                                                 
             po::value<std::string>(&p_Options->m_EvolutionMode.typeString)->default_value(p_Options->m_EvolutionMode.typeString),                                                                              
@@ -1788,6 +1806,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             }
         }
 
+        if (!DEFAULTED("metallicity-distribution")) {                                                                               // metallicity distribution
+            std::tie(found, m_MetallicityDistribution.type) = utils::GetMapKey(m_MetallicityDistribution.typeString, METALLICITY_DISTRIBUTION_LABEL, m_MetallicityDistribution.type);
+            COMPLAIN_IF(!found, "Unknown Metallicity Distribution");
+        }
+
         if (!DEFAULTED("mode")) {                                                                                                   // mode
             std::tie(found, m_EvolutionMode.type) = utils::GetMapKey(m_EvolutionMode.typeString, EVOLUTION_MODE_LABEL, m_EvolutionMode.type);
             COMPLAIN_IF(!found, "Unknown Mode");
@@ -1877,6 +1900,9 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_MaxEvolutionTime <= 0.0, "Maximum evolution time in Myr (--maxEvolutionTime) must be > 0");
 
         COMPLAIN_IF(m_Metallicity < MINIMUM_METALLICITY || m_Metallicity > MAXIMUM_METALLICITY, "Metallicity (--metallicity) should be absolute metallicity and must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
+        COMPLAIN_IF(m_MetallicityDistributionMin < MINIMUM_METALLICITY || m_MetallicityDistributionMin > MAXIMUM_METALLICITY, "Minimum metallicity (--metallicity-min) must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
+        COMPLAIN_IF(m_MetallicityDistributionMax < MINIMUM_METALLICITY || m_MetallicityDistributionMax > MAXIMUM_METALLICITY, "Maximum metallicity (--metallicity-max) must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
+        COMPLAIN_IF(m_MetallicityDistributionMax <= m_MetallicityDistributionMin, "Maximum metallicity (--metallicity-max) must be > Minimum metallicity (--metallicity-min)");
 
         COMPLAIN_IF(m_MinimumMassSecondary < MINIMUM_INITIAL_MASS, "Seconday minimum mass (--minimum-secondary-mass) must be >= minimum initial mass of " + std::to_string(MINIMUM_INITIAL_MASS) + " Msol");
         COMPLAIN_IF(m_MinimumMassSecondary > MAXIMUM_INITIAL_MASS, "Seconday minimum mass (--minimum-secondary-mass) must be <= maximum initial mass of " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
