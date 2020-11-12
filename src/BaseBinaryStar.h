@@ -72,8 +72,6 @@ public:
 
         m_JLoss                            = p_Star.m_JLoss;
 
-        m_LBVfactor                        = p_Star.m_LBVfactor;
-
         m_Mass1Final                       = p_Star.m_Mass1Final;
         m_Mass2Final                       = p_Star.m_Mass2Final;
 
@@ -126,8 +124,6 @@ public:
         m_OrbitalEnergy                    = p_Star.m_OrbitalEnergy;
 
         m_uK                               = p_Star.m_uK;
-
-        m_WolfRayetFactor                  = p_Star.m_WolfRayetFactor;
 
         m_ZetaLobe                         = p_Star.m_ZetaLobe;
         m_ZetaStar                         = p_Star.m_ZetaStar;
@@ -212,7 +208,6 @@ public:
     bool                IsNSandNS() const                           { return HasTwoOf({STELLAR_TYPE::NEUTRON_STAR}); }
     bool                IsUnbound() const                           { return (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || (utils::Compare(m_Eccentricity, 1.0) > 0)); }         // semi major axis <= 0.0 means unbound, presumably by SN)
     bool                IsWDandWD() const                           { return HasTwoOf({STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF}); }
-    double              LBV_Factor() const                          { return m_LBVfactor; }
     double              Mass1Final() const                          { return m_Mass1Final; }
     double              Mass2Final() const                          { return m_Mass2Final; }
     double              Mass1PostCEE() const                        { return m_Star1->MassPostCEE(); }
@@ -270,7 +265,6 @@ public:
     double              TotalAngularMomentum() const                { return m_TotalAngularMomentum; }
     double              TotalEnergy() const                         { return m_TotalEnergy; }
     double              UK() const                                  { return m_uK; }
-    double              WolfRayetFactor() const                     { return m_WolfRayetFactor; }
     double              ZetaLobe() const                    	    { return m_ZetaLobe; }
     double              ZetaStar() const                            { return m_ZetaStar; }
 
@@ -341,8 +335,6 @@ private:
 
     double	            m_JLoss;			                                                // Specific angular momentum with which mass is lost during non-conservative mass transfer
 
-    double              m_LBVfactor;
-
     double              m_Mass1Final;                                                       // Star1 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
     double              m_Mass2Final;                                                       // Star2 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
 
@@ -399,8 +391,6 @@ private:
 	double              m_OrbitalEnergy;
 
     double              m_uK;
-
-    double              m_WolfRayetFactor;
 
     double              m_ZetaLobe;
     double              m_ZetaStar;
@@ -533,7 +523,7 @@ private:
 
     // printing functions
     void PrintRLOFParameters(const string p_Rec = "");
-    void PrintBinarySystemParameters(const string p_Rec = "")               {                                   LOGGING->LogSystemParameters(this, p_Rec); }
+    void PrintBinarySystemParameters(const string p_Rec = "")               {                                   LOGGING->LogBSESystemParameters(this, p_Rec); }
     void PrintDetailedOutput(const long int p_Id, const string p_Rec = "")  { if (OPTIONS->DetailedOutput())    LOGGING->LogBSEDetailedOutput(this, p_Id, p_Rec); }
     void PrintDoubleCompactObjects(const string p_Rec = "")                 {                                   LOGGING->LogDoubleCompactObject(this, p_Rec); }
     void PrintCommonEnvelope(const string p_Rec = "")                       {                                   LOGGING->LogCommonEnvelope(this, p_Rec); }
