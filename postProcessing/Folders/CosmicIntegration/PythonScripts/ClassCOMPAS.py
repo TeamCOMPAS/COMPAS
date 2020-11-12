@@ -159,9 +159,9 @@ class COMPASData(object):
 
         # Get metallicity grid of DCOs
         self.seedsDCO = fDCO["SEED"][()][self.DCOmask]
-        initialSeeds = Data["SystemParameters"]["SEED"][()]
+        self.initialSeeds = Data["SystemParameters"]["SEED"][()]
         initialZ = Data["SystemParameters"]["Metallicity@ZAMS_1"][()]
-        maskMetallicity = np.in1d(initialSeeds, self.seedsDCO)
+        maskMetallicity = np.in1d(self.initialSeeds, self.seedsDCO)
         self.metallicitySystems = initialZ[maskMetallicity]
 
         self.delayTimes = np.add(
