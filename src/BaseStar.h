@@ -196,11 +196,6 @@ public:
 
             void            IncrementOmega(const double p_OmegaDelta)                                           { m_Omega += p_OmegaDelta; }                                        // Apply delta to current m_Omega
 
-            void            PrintDetailedOutput(const int p_Id)                                                 { if (OPTIONS->DetailedOutput()) LOGGING->LogSSEDetailedOutput(this, p_Id, ""); } // Write record to SSE Detailed Output log file
-            void            PrintSupernovaDetails()                                                             { LOGGING->LogSSESupernovaDetails(this, ""); }                      // Write record to SSE Supernovae log file
-            void            PrintStashedSupernovaDetails()                                                      { LOGGING->LogStashedSSESupernovaDetails(this); }                   // Write record to SSE Supernovae log file
-            void            PrintSwitchLog(const long int p_Id)                                                 { if (OPTIONS->SwitchLog()) LOGGING->LogSSESwitchLog(this, p_Id, ""); } // Write record to SSE Switchlog log file
-
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative
 
     virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false)                                         { return m_StellarType; }
@@ -228,6 +223,12 @@ public:
                                                        const double p_MassGainPerTimeStep,
                                                        const double p_Epsilon) { }                                                                                                  // Default is NO-OP
 
+    // printing functions
+            void            PrintDetailedOutput(const int p_Id)                                                 { if (OPTIONS->DetailedOutput()) LOGGING->LogSSEDetailedOutput(this, p_Id, ""); } // Write record to SSE Detailed Output log file
+            void            PrintSupernovaDetails()                                                             { LOGGING->LogSSESupernovaDetails(this, ""); }                      // Write record to SSE Supernovae log file
+            void            PrintStashedSupernovaDetails()                                                      { LOGGING->LogStashedSSESupernovaDetails(this); }                   // Write record to SSE Supernovae log file
+            void            PrintSwitchLog(const long int p_Id)                                                 { if (OPTIONS->SwitchLog()) LOGGING->LogSSESwitchLog(this, p_Id, ""); } // Write record to SSE Switchlog log file
+            void            PrintSystemParameters(const string p_Rec = "")                                      { LOGGING->LogSSESystemParameters(this, p_Rec); }                   // Write record to SSE System Parameters file
 
 protected:
 
@@ -242,10 +243,8 @@ protected:
 
     bool                    m_CHE;                                      // CHE flag - true if the star spent entire MS as a CH star; false if evolved CH->MS
 
-    // Stellar variables - values passed as parameters to constructor
-    double                  m_LBVfactor;                                // Luminous Blue Variable factor
+    // Stellar variables
     unsigned long int       m_RandomSeed;                               // Seeds the random number generator for this star
-    double                  m_WolfRayetFactor;                          // Wolf Rayet factor
 
     // Zero Age Main Sequence
     double                  m_LZAMS;                                    // ZAMS Luminosity
