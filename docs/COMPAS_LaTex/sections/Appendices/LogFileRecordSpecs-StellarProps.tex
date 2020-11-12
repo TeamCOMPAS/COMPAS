@@ -184,6 +184,8 @@ FALSE indicates star spun down and switched from CH to a MS\_gt\_07 star.}{CH\_o
 
 \stellarProperty{METALLICITY}{DOUBLE}{BaseStar::m\_Metallicity}{ZAMS Metallicity.}{Metallicity@ZAMS}{}
 
+\stellarProperty{MT\_DONOR\_HIST}{STRING}{BaseStar::m\_MassTransferDonorHistory}{A list of all of the stellar types from which the current star was a Mass Transfer donor. This can be readily converted into the different cases of Mass Transfer, depending on the working definition. The output string is formatted as \#-\#-\#... where each \# represents a Hurley stellar type, delimited by dashes, in chronological order. E.g, 2-8 means the star was a MT donor as a HG(2) star, and later as a HeHG(8) star.}{MT\_Donor\_Hist}{}
+
 \stellarProperty{MZAMS}{DOUBLE}{BaseStar::m\_MZAMS}{ZAMS Mass (\Msun).}{Mass@ZAMS}{}
 
 \stellarProperty{NUCLEAR\_TIMESCALE}{DOUBLE}{BaseStar::m\_NuclearTimescale}{Nuclear timescale~(Myr).}{Tau\_Nuclear}{}

@@ -12,7 +12,7 @@ Star::Star() : m_Star(new BaseStar()) {
 }
 
 
-// Regular constructor - with parameters for RandomSeed, MZAMS, Metallicity, LBVFactor and WolfRayetFactor
+// Regular constructor - with parameters for RandomSeed, MZAMS, Metallicity, and KickParameters
 Star::Star(const unsigned long int p_RandomSeed,
            const double            p_MZAMS,
            const double            p_Metallicity, 
@@ -507,6 +507,8 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
             m_Star->PrintDetailedOutput(m_Id);                                  // log record  JR: this should probably be before the star switches type, but this way matches the original code
         }
     }
+
+    m_Star->PrintSystemParameters();                                            // log system parameters
 
     return status;
 }

@@ -147,11 +147,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_DtPrev                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_OmegaPrev                                = m_OmegaZAMS;
 
-    // Winds
-
-    m_LBVfactor                                = OPTIONS->LuminousBlueVariableFactor();
-    m_WolfRayetFactor                          = OPTIONS->WolfRayetFactor();
-
     // Lambdas
 	m_Lambdas.dewi                             = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_Lambdas.fixed                            = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -209,6 +204,9 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_PulsarDetails.spinPeriod                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.spinFrequency              = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.spinDownRate               = DEFAULT_INITIAL_DOUBLE_VALUE;
+
+    // Mass Transfer Donor Type History
+    m_MassTransferDonorHistory                 = STYPE_VECTOR();
 
 }
 
@@ -328,6 +326,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::LUMINOSITY:                                         value = Luminosity();                                           break;
             case ANY_STAR_PROPERTY::MASS:                                               value = Mass();                                                 break;
             case ANY_STAR_PROPERTY::MASS_0:                                             value = Mass0();                                                break;
+            case ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY:                        value = MassTransferDonorHistoryString();                       break;
             case ANY_STAR_PROPERTY::MDOT:                                               value = Mdot();                                                 break;
             case ANY_STAR_PROPERTY::MEAN_ANOMALY:                                       value = SN_MeanAnomaly();                                       break;
             case ANY_STAR_PROPERTY::METALLICITY:                                        value = Metallicity();                                          break;
@@ -343,9 +342,6 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE:                         value = CalculateRadialExpansionTimescale();                    break;
             case ANY_STAR_PROPERTY::RADIUS:                                             value = Radius();                                               break;
             case ANY_STAR_PROPERTY::RANDOM_SEED:                                        value = RandomSeed();                                           break;
-            case ANY_STAR_PROPERTY::RECYCLED_NEUTRON_STAR:                              value = ExperiencedRecycledNS();                                break;
-            case ANY_STAR_PROPERTY::RLOF_ONTO_NS:                                       value = ExperiencedRLOFOntoNS();                                break;
-            case ANY_STAR_PROPERTY::RUNAWAY:                                            value = ExperiencedRunaway();                                   break;
             case ANY_STAR_PROPERTY::RZAMS:                                              value = RZAMS();                                                break;
             case ANY_STAR_PROPERTY::SN_TYPE:                                            value = SN_Type();                                              break;
             case ANY_STAR_PROPERTY::SPEED:                                              value = Speed();												break;
@@ -1530,7 +1526,7 @@ double BaseStar::CalculateMassLossRateWolfRayet2(const double p_Mu) {
     // I think StarTrack may still do something different here,
     // there are references to Hamann & Koesterke 1998 and Vink and de Koter 2005
 
-    return m_WolfRayetFactor * 1.0E-13 * PPOW(m_Luminosity, 1.5) * PPOW(m_Metallicity / ZSOL, 0.86) * (1.0 - p_Mu);
+    return OPTIONS->WolfRayetFactor() * 1.0E-13 * PPOW(m_Luminosity, 1.5) * PPOW(m_Metallicity / ZSOL, 0.86) * (1.0 - p_Mu);
 }
 
 
@@ -1631,7 +1627,7 @@ double BaseStar::CalculateMassLossRateVink() {
     if ((utils::Compare(m_Luminosity, LBV_LUMINOSITY_LIMIT_STARTRACK) > 0) && (utils::Compare(tmp, 1.0) > 0)) {     // luminous blue variable
 		m_LBVphaseFlag = true;                                                                                      // ... is true
 
-        rate = CalculateMassLossRateLBV2(m_LBVfactor);                                                              // calculate mass loss rate
+        rate = CalculateMassLossRateLBV2(OPTIONS->LuminousBlueVariableFactor());                                    // calculate mass loss rate
     }
     else {
         double teff = m_Temperature * TSOL;                                                                         // change to Kelvin so it can be compared with values as stated in Vink prescription
@@ -2957,6 +2953,56 @@ void BaseStar::AgeOneTimestepPreamble(const double p_DeltaTime) {
 
     EvolveOneTimestepPreamble();
 }
+
+
+/*
+ * Convert Mass Transfer Donor History vector into string
+ *
+ * This is so that a string is passed to the output, not a vector of stellar types.
+ *
+ * std::string BinaryConstituentStar::MassTransferDonorHistoryString() 
+ *
+ * @return                              string of dash-separated stellar type numbers
+ */
+std::string BaseStar::MassTransferDonorHistoryString() const {
+    STYPE_VECTOR mtHistVec = m_MassTransferDonorHistory;      
+    std::string mtHistStr = "";
+
+    if (mtHistVec.empty()) { // This star was never a donor for MT
+        mtHistStr = "NA";
+    }
+    else {                   // This star was a donor, return the stellar type string
+
+        for (int ii=0; ii<mtHistVec.size(); ii++) {
+            mtHistStr += std::to_string(static_cast<int>(mtHistVec[ii])) + "-"; // Create string of stellar type followed by dash
+        }
+
+        mtHistStr.pop_back();                                                   // Remove final dash
+
+    }
+
+    return mtHistStr;
+}
+
+
+
+/*
+ * Add new MT event to event history - only for donor stars
+ *
+ * void BaseStar::UpdateMassTransferDonorHistory()
+ *
+ */
+void BaseStar::UpdateMassTransferDonorHistory() {
+
+    // If MassTransferDonorHistory vector is empty or if there is a new episode, add current type to the vector
+    if (m_MassTransferDonorHistory.empty()) {
+        m_MassTransferDonorHistory.push_back(m_StellarType);
+    }
+    else if (!utils::IsOneOf(m_StellarType, { m_MassTransferDonorHistory.back() })) { // The star has not yet MT'd as its current type, so new event
+        m_MassTransferDonorHistory.push_back(m_StellarType);
+    }
+}
+
 
 
 /*
