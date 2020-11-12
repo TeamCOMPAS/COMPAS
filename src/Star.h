@@ -130,6 +130,8 @@ public:
     // setters (JR: I don't really like this, but I think unavoidable - at least for now)
     void                        SetOmega(double p_vRot)                                                                     { m_Star->SetOmega(p_vRot); }
 
+    void                        UpdateMassTransferDonorHistory()                                                            { m_Star->UpdateMassTransferDonorHistory(); }
+
 
     // member functions - alphabetically
     STELLAR_TYPE    AgeOneTimestep(const double p_Dt, bool p_Switch = true);
