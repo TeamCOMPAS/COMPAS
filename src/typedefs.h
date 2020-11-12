@@ -10,6 +10,7 @@ typedef std::tuple<bool, COMPAS_VARIABLE_TYPE>                                  
 typedef std::initializer_list<STELLAR_TYPE>                                         STELLAR_TYPE_LIST;
 typedef std::initializer_list<SN_EVENT>                                             SN_EVENT_LIST;
 typedef std::tuple<int, std::string, ANY_PROPERTY_VECTOR, std::vector<std::string>> LOGFILE_DETAILS;
+typedef std::vector<STELLAR_TYPE>                                                   STYPE_VECTOR;
 
 
 // Grid file details
