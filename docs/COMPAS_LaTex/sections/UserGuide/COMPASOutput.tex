@@ -16,7 +16,7 @@ COMPAS defines several standard log files that may be produced depending upon th
 \item{Detailed Output log file \\ Records detailed information for a star, or binary star, during evolution. Enable with program option \textit{\texttt{-{}-{detailed-output}}}.}
 \item{SwitchLog log file \\ Records detailed information for all stars, or binary stars, at the time of each stellar type switch during evolution. Enable with program option \textit{\texttt{-{}-{switch-log}}}.}
 \item{Supernovae log file \\ Records summary information for all stars that experience a SN event during evolution.}
-\item{System Parameters log file \\ Records summary information for all binary systems during BSE.}
+\item{System Parameters log file \\ Records summary information for all stars, or binary stars, during evolution.}
 \item{Double Compact Objects log file \\ Records summary information for all binary systems that form DCOs during BSE.}
 \item{Common Envelopes log file \\ Records summary information for all binary systems that experience CEEs during BSE.}
 \item{Pulsar Evolution log file \\ Records detailed Pulsar evolution information during BSE.}
@@ -81,8 +81,9 @@ Logfile Definitions File specification:
 
     \lab{rec\_spec}\rab\tabto{7em}{::=}\tabto{9em}\lab{rec\_name}\rab\ \lab{op}\rab\ "\lcb"\ \lcb\ \lsb\ \lab{props\_list}\rab\ \rsb\ \rcb\ "\ \rcb"\ \lab{spec\_delim}\rab
 
-    \lab{rec\_name}\rab\tabto{7em}{::=}\tabto{9em}"SSE\_PARMS\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# SSE only} \\
-    \tabto{9em}"SSE\_SN\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# SSE only} \\
+    \lab{rec\_name}\rab\tabto{7em}{::=}\tabto{9em}"SSE\_SYSPARMS\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# SSE only} \\
+    \tabto{9em}"SSE\_DETAILED\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# SSE only} \\
+    \tabto{9em}"SSE\_SNE\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# SSE only} \\
     \tabto{9em}"SSE\_SWITCH\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# SSE only} \\
     \tabto{9em}"BSE\_SYSPARMS\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# BSE only} \\
     \tabto{9em}"BSE\_SWITCH\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# BSE only} \\       \tabto{9em}"BSE\_DCO\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# BSE only} \\

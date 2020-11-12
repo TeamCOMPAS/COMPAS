@@ -176,7 +176,7 @@ void Options::OptionValues::Initialise() {
     m_MassRatioDistributionMin                                      = 0.0;
     m_MassRatioDistributionMax                                      = 1.0;
 
-    m_MinimumMassSecondary                                          = 0.0;
+    m_MinimumMassSecondary                                          = MINIMUM_INITIAL_MASS;                                 // actual value set later
 
 
     // Initial orbit options
@@ -1840,12 +1840,12 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         // constraint/value/range checks - alphabetically (where possible)
 
-        COMPLAIN_IF(!DEFAULTED("common-envelope-alpha") && m_CommonEnvelopeAlpha < 0.0, "CE alpha (--common-envelope-alpha) < 0");
-        COMPLAIN_IF(!DEFAULTED("common-envelope-alpha-thermal") && (m_CommonEnvelopeAlphaThermal < 0.0 || m_CommonEnvelopeAlphaThermal > 1.0), "CE alpha thermal (--common-envelope-alpha-thermal) must be between 0 and 1");
-        COMPLAIN_IF(!DEFAULTED("common-envelope-lambda-multiplier") && m_CommonEnvelopeLambdaMultiplier < 0.0, "CE lambda multiplie (--common-envelope-lambda-multiplier < 0");
-        COMPLAIN_IF(!DEFAULTED("common-envelope-mass-accretion-constant") && m_CommonEnvelopeMassAccretionConstant < 0.0, "CE mass accretion constant (--common-envelope-mass-accretion-constant) < 0");
-        COMPLAIN_IF(!DEFAULTED("common-envelope-mass-accretion-max") && m_CommonEnvelopeMassAccretionMax < 0.0, "Maximum accreted mass (--common-envelope-mass-accretion-max) < 0");
-        COMPLAIN_IF(!DEFAULTED("common-envelope-mass-accretion-min") && m_CommonEnvelopeMassAccretionMin < 0.0, "Minimum accreted mass (--common-envelope-mass-accretion-min) < 0");
+        COMPLAIN_IF(m_CommonEnvelopeAlpha < 0.0, "CE alpha (--common-envelope-alpha) < 0");
+        COMPLAIN_IF(m_CommonEnvelopeAlphaThermal < 0.0 || m_CommonEnvelopeAlphaThermal > 1.0, "CE alpha thermal (--common-envelope-alpha-thermal) must be between 0 and 1");
+        COMPLAIN_IF(m_CommonEnvelopeLambdaMultiplier < 0.0, "CE lambda multiplie (--common-envelope-lambda-multiplier < 0");
+        COMPLAIN_IF(m_CommonEnvelopeMassAccretionConstant < 0.0, "CE mass accretion constant (--common-envelope-mass-accretion-constant) < 0");
+        COMPLAIN_IF(m_CommonEnvelopeMassAccretionMax < 0.0, "Maximum accreted mass (--common-envelope-mass-accretion-max) < 0");
+        COMPLAIN_IF(m_CommonEnvelopeMassAccretionMin < 0.0, "Minimum accreted mass (--common-envelope-mass-accretion-min) < 0");
 
         COMPLAIN_IF(m_DebugLevel < 0, "Debug level (--debug-level) < 0");
 
@@ -1854,8 +1854,12 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_EccentricityDistributionMax < 0.0 || m_EccentricityDistributionMax > 1.0, "Maximum eccentricity (--eccentricity-max) must be between 0 and 1");
         COMPLAIN_IF(m_EccentricityDistributionMax <= m_EccentricityDistributionMin, "Maximum eccentricity (--eccentricity-max) must be > Minimum eccentricity (--eccentricity-min)");
 
-        COMPLAIN_IF(m_InitialMassFunctionMin < 0.0, "Minimum initial mass (--initial-mass-min) < 0");
-        COMPLAIN_IF(m_InitialMassFunctionMax < 0.0, "Maximum initial mass (--initial-mass-max) < 0");
+        COMPLAIN_IF(m_InitialMass < MINIMUM_INITIAL_MASS || m_InitialMass > MAXIMUM_INITIAL_MASS, "Initial mass (--initial-mass) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
+        COMPLAIN_IF(m_InitialMass1 < MINIMUM_INITIAL_MASS || m_InitialMass1 > MAXIMUM_INITIAL_MASS, "Primary initial mass (--initial-mass-1) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
+        COMPLAIN_IF(m_InitialMass2 < MINIMUM_INITIAL_MASS || m_InitialMass2 > MAXIMUM_INITIAL_MASS, "Secondary initial mass (--initial-mass-2) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
+
+        COMPLAIN_IF(m_InitialMassFunctionMin < MINIMUM_INITIAL_MASS, "Minimum initial mass (--initial-mass-min) must be >= " + std::to_string(MINIMUM_INITIAL_MASS) + " Msol");
+        COMPLAIN_IF(m_InitialMassFunctionMax > MAXIMUM_INITIAL_MASS, "Maximum initial mass (--initial-mass-max) must be <= " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
         COMPLAIN_IF(m_InitialMassFunctionMax <= m_InitialMassFunctionMin, "Maximum initial mass (--initial-mass-max) must be > Minimum initial mass (--initial-mass-min)");
 
         if (m_KickMagnitudeDistribution.type == KICK_MAGNITUDE_DISTRIBUTION::FLAT) {
@@ -1872,10 +1876,10 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         COMPLAIN_IF(m_MaxEvolutionTime <= 0.0, "Maximum evolution time in Myr (--maxEvolutionTime) must be > 0");
 
-        COMPLAIN_IF(m_Metallicity < 0.0 || m_Metallicity > 1.0, "Metallicity (--metallicity) should be absolute metallicity and must be between 0 and 1");
+        COMPLAIN_IF(m_Metallicity < MINIMUM_METALLICITY || m_Metallicity > MAXIMUM_METALLICITY, "Metallicity (--metallicity) should be absolute metallicity and must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
 
-        COMPLAIN_IF(m_MinimumMassSecondary < 0.0, "Seconday minimum mass (--minimum-secondary-mass) must be >= 0");
-        COMPLAIN_IF(m_MinimumMassSecondary > m_InitialMassFunctionMax, "Seconday minimum mass (--minimum-secondary-mass) must be <= Maximum initial mass (--initial-mass-max)");
+        COMPLAIN_IF(m_MinimumMassSecondary < MINIMUM_INITIAL_MASS, "Seconday minimum mass (--minimum-secondary-mass) must be >= minimum initial mass of " + std::to_string(MINIMUM_INITIAL_MASS) + " Msol");
+        COMPLAIN_IF(m_MinimumMassSecondary > MAXIMUM_INITIAL_MASS, "Seconday minimum mass (--minimum-secondary-mass) must be <= maximum initial mass of " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
 
         if (m_NeutrinoMassLossAssumptionBH.type == NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS) {
             COMPLAIN_IF(m_NeutrinoMassLossValueBH < 0.0, "Neutrino mass loss value < 0");
@@ -1917,13 +1921,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         COMPLAIN_IF(!DEFAULTED("semi-major-axis") && m_SemiMajorAxis <= 0.0, "Semi-major axis (--semi-major-axis) <= 0");           // semi-major axis must be > 0.0
         COMPLAIN_IF(!DEFAULTED("orbital-period")  && m_OrbitalPeriod <= 0.0, "Orbital period (--orbital-period) <= 0");             // orbital period must be > 0.0
-
-        // calculate semi-major axis from orbital period if necessary
-        if (DEFAULTED("semi-major-axis")) {                                                                                         // user specified semi-major axis?
-            if (!DEFAULTED("orbital-period")) {                                                                                     // user specified orbital period?
-                m_SemiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(m_InitialMass1, m_InitialMass2, m_OrbitalPeriod);   // yes - calculate separation from period
-            }
-        }
 
         COMPLAIN_IF(m_KickMagnitude  < 0.0, "Kick magnitude (--kick-magnitude) must be >= 0");
         COMPLAIN_IF(m_KickMagnitude1 < 0.0, "Kick magnitude (--kick-magnitude-1) must be >= 0");

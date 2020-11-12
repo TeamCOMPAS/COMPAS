@@ -44,8 +44,6 @@ Following is the list of binary properties available for inclusion in log file r
 
 \binaryProperty{IMMEDIATE\_RLOF\_POST\_COMMON\_ENVELOPE}{BOOL}{BaseBinaryStar::m\_RLOFDetails.immediateRLOFPostCEE}{Flag to indicate if either star overflows its Roche lobe immediately following common envelope event.}{Immediate\_RLOF$>$CE}{}
 
-\binaryProperty{LUMINOUS\_BLUE\_VARIABLE\_FACTOR}{DOUBLE}{BaseBinaryStar::m\_LBVfactor}{Luminous blue variable wind mass loss multiplier. User-supplied via option \textit{\texttt{-{}-}luminous-blue-variable-multiplier}.}{LBV\_Multiplier}{}
-
 \binaryProperty{MASS\_1\_FINAL}{DOUBLE}{BaseBinaryStar::m\_Mass1Final}{Mass of the primary star after losing its envelope (assumes complete loss of envelope)~(\Msun).}{Core\_Mass\_1}{}
 
 \binaryProperty{MASS\_1\_POST\_COMMON\_ENVELOPE}{DOUBLE}{BinaryConstituentStar::m\_CEDetails.postCEE.mass}{Mass of the primary star immediately following common envelope event~(\Msun).}{Mass\_1$>$CE}{}
@@ -217,7 +215,7 @@ Following is the list of binary properties available for inclusion in log file r
 
 \binaryProperty{SYNCHRONIZATION\_TIMESCALE}{DOUBLE}{BaseBinaryStar::m\_SynchronizationTimescale}{Tidal synchronisation timescale~(Myr).}{Tau\_Sync}{}
 
-\binaryProperty{SYSTEMIC\_VELOCITY}{DOUBLE}{BaseBinaryStar::m\_SystemicVelocity}{Post-supernova systemic (centre-of-mass) velocity~(km~s$^{\minus{1}}$).}{Systemic\_Velocity}{}
+\binaryProperty{SYSTEMIC\_SPEED}{DOUBLE}{BaseBinaryStar::m\_SystemicVelocity}{Post-supernova systemic (centre-of-mass) velocity~(km~s$^{\minus{1}}$).}{Systemic\_Velocity}{}
 
 \binaryProperty{TIME}{DOUBLE}{BaseBinaryStar::m\_Time}{Time since ZAMS~(Myr).}{Time}{}
 
@@ -228,8 +226,6 @@ Following is the list of binary properties available for inclusion in log file r
 \binaryProperty{TOTAL\_ENERGY}{DOUBLE}{BaseBinaryStar::m\_TotalEnergy}{Total energy calculated using regular conservation of energy~(Msol~AU$^2$~yr$^{\minus{1}}$).}{Energy\_Total}{}
 
 \binaryProperty{UNBOUND}{BOOL}{BaseBinaryStar::m\_Unbound}{Flag to indicate the binary is unbound (or has become unbound after a supernova event).}{Unbound}{}
-
-\binaryProperty{WOLF\_RAYET\_FACTOR}{DOUBLE}{BaseBinaryStar::m\_WolfRayetFactor}{Multiplicative constant for Wolf-Rayet mass loss rate. User-supplied via option \textit{\texttt{-{}-}wolf-rayet-multiplier}.}{WR\_Multiplier}{}
 
 \binaryProperty{ZETA\_LOBE}{DOUBLE}{BaseBinaryStar::m\_ZetaLobe}{The logarithmic derivative of Roche lobe radius with respect to donor mass for q$=\frac{\mathrm{Md}}{\mathrm{Ma}}$ at the onset of the RLOF.}{Zeta\_Lobe}{}
 
