@@ -170,18 +170,20 @@ private:
 
     COMPASUnorderedMap<LOGFILE, LOGFILE_DETAILS> m_OpenStandardLogFileIds;          // currently open standard logfiles: fileId, property details, field format strings
 
-    ANY_PROPERTY_VECTOR m_SSE_Detailed_Rec    = SSE_DETAILED_OUTPUT_REC;            // default specification
-    ANY_PROPERTY_VECTOR m_SSE_Switch_Rec      = SSE_SWITCH_LOG_REC;                 // default specification
-    ANY_PROPERTY_VECTOR m_SSE_SNE_Rec         = SSE_SUPERNOVAE_REC;                 // default specification
-    ANY_PROPERTY_VECTOR m_BSE_SysParms_Rec    = BSE_SYSTEM_PARAMETERS_REC;          // default specification
-    ANY_PROPERTY_VECTOR m_BSE_DCO_Rec         = BSE_DOUBLE_COMPACT_OBJECTS_REC;     // default specification
-    ANY_PROPERTY_VECTOR m_BSE_SNE_Rec         = BSE_SUPERNOVAE_REC;                 // default specification
-    ANY_PROPERTY_VECTOR m_BSE_CEE_Rec         = BSE_COMMON_ENVELOPES_REC;           // default specification
-    ANY_PROPERTY_VECTOR m_BSE_RLOF_Rec        = BSE_RLOF_PARAMETERS_REC;            // default specification
     ANY_PROPERTY_VECTOR m_BSE_BE_Binaries_Rec = BSE_BE_BINARIES_REC;                // default specification
-    ANY_PROPERTY_VECTOR m_BSE_Pulsars_Rec     = BSE_PULSAR_EVOLUTION_REC;           // default specification
+    ANY_PROPERTY_VECTOR m_BSE_CEE_Rec         = BSE_COMMON_ENVELOPES_REC;           // default specification
+    ANY_PROPERTY_VECTOR m_BSE_DCO_Rec         = BSE_DOUBLE_COMPACT_OBJECTS_REC;     // default specification
     ANY_PROPERTY_VECTOR m_BSE_Detailed_Rec    = BSE_DETAILED_OUTPUT_REC;            // default specification
+    ANY_PROPERTY_VECTOR m_BSE_Pulsars_Rec     = BSE_PULSAR_EVOLUTION_REC;           // default specification
+    ANY_PROPERTY_VECTOR m_BSE_RLOF_Rec        = BSE_RLOF_PARAMETERS_REC;            // default specification
+    ANY_PROPERTY_VECTOR m_BSE_SNE_Rec         = BSE_SUPERNOVAE_REC;                 // default specification
     ANY_PROPERTY_VECTOR m_BSE_Switch_Rec      = BSE_SWITCH_LOG_REC;                 // default specification
+    ANY_PROPERTY_VECTOR m_BSE_SysParms_Rec    = BSE_SYSTEM_PARAMETERS_REC;          // default specification
+
+    ANY_PROPERTY_VECTOR m_SSE_Detailed_Rec    = SSE_DETAILED_OUTPUT_REC;            // default specification
+    ANY_PROPERTY_VECTOR m_SSE_SNE_Rec         = SSE_SUPERNOVAE_REC;                 // default specification
+    ANY_PROPERTY_VECTOR m_SSE_Switch_Rec      = SSE_SWITCH_LOG_REC;                 // default specification
+    ANY_PROPERTY_VECTOR m_SSE_SysParms_Rec    = SSE_SYSTEM_PARAMETERS_REC;          // default specification
 
 
     // the following block of variables support the BSE Switch Log file
@@ -591,28 +593,20 @@ public:
 
     // standard logfile logging functions
 
+    bool CloseStandardFile(const LOGFILE p_LogFile, const bool p_Erase = true);
+    bool CloseAllStandardFiles();
+
     std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> GetStandardLogFileRecordDetails(const LOGFILE p_Logfile);
 
     template <class T>
-    void LogSSEDetailedOutput(const T* const p_Star, const int p_Id, const string p_Rec)        { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_DETAILED_OUTPUT)), 0, LOGFILE::SSE_DETAILED_OUTPUT, p_Star, p_Rec, "_" + std::to_string(abs(p_Id))); }
-    template <class T>
-    void LogSSESwitchLog(const T* const p_Star, const int p_Id, const string p_Rec)             { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)), 0, LOGFILE::SSE_SWITCH_LOG, p_Star, p_Rec); }
-    template <class T>
-    void LogSSESupernovaDetails(const T* const p_Star, const string p_Rec)                      { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, p_Star, p_Rec); }
-    template <class T>
-    void LogSystemParameters(const T* const p_Binary, const string p_Rec)                       { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS)), 0, LOGFILE::BSE_SYSTEM_PARAMETERS, p_Binary, p_Rec); }
-    template <class T>
-    void LogDoubleCompactObject(const T* const p_Binary, const string p_Rec)                    { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS)), 0, LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, p_Binary, p_Rec); }
-    template <class T>
-    void LogCommonEnvelope(const T* const p_Binary, const string p_Rec)                         { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES)), 0, LOGFILE::BSE_COMMON_ENVELOPES, p_Binary, p_Rec); }
-    template <class T>
-    void LogRLOFParameters(const T* const p_Binary, const string p_Rec)                         { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS)), 0, LOGFILE::BSE_RLOF_PARAMETERS, p_Binary, p_Rec); }
-    template <class T>
     void LogBeBinary(const T* const p_Binary, const string p_Rec)                               { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES)), 0, LOGFILE::BSE_BE_BINARIES, p_Binary, p_Rec); }
+
     template <class T>
     void LogBSEDetailedOutput(const T* const p_Binary, const long int p_Id, const string p_Rec) { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT)), 0, LOGFILE::BSE_DETAILED_OUTPUT, p_Binary, p_Rec, "_" + std::to_string(abs(p_Id))); }
+
     template <class T>
     void LogBSEPulsarEvolutionParameters(const T* const p_Binary, const string p_Rec)           { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)), 0, LOGFILE::BSE_PULSAR_EVOLUTION, p_Binary, p_Rec); }
+
     template <class T>
     void LogBSESupernovaDetails(const T* const p_Binary, const string p_Rec)                    { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE)), 0, LOGFILE::BSE_SUPERNOVAE, p_Binary, p_Rec); }
     
@@ -621,6 +615,31 @@ public:
         m_PrimarySwitching = p_PrimarySwitching;        
         LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG)), 0, LOGFILE::BSE_SWITCH_LOG, p_Binary, "");
     }
+
+    template <class T>
+    void LogBSESystemParameters(const T* const p_Binary, const string p_Rec)                    { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS)), 0, LOGFILE::BSE_SYSTEM_PARAMETERS, p_Binary, p_Rec); }
+
+    template <class T>
+    void LogCommonEnvelope(const T* const p_Binary, const string p_Rec)                         { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES)), 0, LOGFILE::BSE_COMMON_ENVELOPES, p_Binary, p_Rec); }
+
+    template <class T>
+    void LogDoubleCompactObject(const T* const p_Binary, const string p_Rec)                    { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS)), 0, LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, p_Binary, p_Rec); }
+
+    template <class T>
+    void LogRLOFParameters(const T* const p_Binary, const string p_Rec)                         { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS)), 0, LOGFILE::BSE_RLOF_PARAMETERS, p_Binary, p_Rec); }
+
+    template <class T>
+    void LogSSEDetailedOutput(const T* const p_Star, const int p_Id, const string p_Rec)        { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_DETAILED_OUTPUT)), 0, LOGFILE::SSE_DETAILED_OUTPUT, p_Star, p_Rec, "_" + std::to_string(abs(p_Id))); }
+
+    template <class T>
+    void LogSSESupernovaDetails(const T* const p_Star, const string p_Rec)                      { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, p_Star, p_Rec); }
+
+    template <class T>
+    void LogSSESwitchLog(const T* const p_Star, const int p_Id, const string p_Rec)             { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)), 0, LOGFILE::SSE_SWITCH_LOG, p_Star, p_Rec); }
+
+    template <class T>
+    void LogSSESystemParameters(const T* const p_Star, const string p_Rec)                      { LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS)), 0, LOGFILE::SSE_SYSTEM_PARAMETERS, p_Star, p_Rec); }
+
 
     template <class T>
     void StashSSESupernovaDetails(const T* const p_Star, const STELLAR_TYPE p_StellarType) {
@@ -652,10 +671,6 @@ public:
             m_SSESupernova_DelayedLogRecord = "";
         }
     }
-
-
-    bool CloseStandardFile(const LOGFILE p_LogFile, const bool p_Erase = true);
-    bool CloseAllStandardFiles();
 };
 
 #endif // __Log_h__
