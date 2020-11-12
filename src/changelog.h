@@ -585,7 +585,9 @@
 // 02.17.01     RTW - Nov 10, 2020   - Enhancement:
 //                                      - Added in Schneider 2020 remnant mass prescriptions (standard and alternative)
 //                                      - Added parameter MassTransferDonorHistory, as required for above prescription, which tracks the MT donor type (from which the MT Case can be established)
+// 02.17.02     RTW - Nov 13, 2020   - Enhancement:
+//                                      - Cleaned up the demo plotting routine so that the plot produced is the plot we use in the methods paper
 
-const std::string VERSION_STRING = "02.17.01";
+const std::string VERSION_STRING = "02.17.02";
 
 # endif // __changelog_h__
