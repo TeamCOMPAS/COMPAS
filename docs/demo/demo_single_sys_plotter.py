@@ -22,7 +22,7 @@ def main():
     df['Mtot']=df['Mass_1']+df['Mass_2']
     
     ### Create subplots arranged in a 2x3 table, sharing x-axes whenever plots have the same x-axis range.
-    fig, axes = plt.subplots(2,2,  sharex=True)
+    fig, axes = plt.subplots(2,2, sharex=True, figsize=(11.8, 7.2)) # Dimensions chosen for aesthetics in the paper
     
     ### Plot mass attributes 
     lines = []  # This is used to split the legend into 2 pieces
@@ -83,7 +83,7 @@ def main():
     ### Finalize the boundaries, save, and show
     fig.subplots_adjust(left=0.05)  #adjusting boundaries of the plotter
     fig.subplots_adjust(wspace=.3)
-    plt.savefig('plot_demo.png')
+    plt.savefig('gw151226evol.png')
     plt.show()
 
 
