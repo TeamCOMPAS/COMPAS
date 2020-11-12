@@ -145,18 +145,6 @@ private:
         "help", "h",
         "version", "v",
 
-        // Floor
-        /*
-        "ais-dcotype",
-        "ais-exploratory-phase",
-        "ais-hubble",
-        "ais-pessimistic",
-        "ais-refinement-phase",
-        "ais-rlof",
-        "kappa-gaussians",
-        "nbatches-used",
-        */
-
         "quiet", 
         "log-level", 
         "log-classes",
@@ -238,18 +226,6 @@ private:
         "initial-mass-2",
         "semi-major-axis", "a",
         "orbital-period",
-
-        // Floor
-        /*
-        "ais-dcotype",
-        "ais-exploratory-phase",
-        "ais-hubble",
-        "ais-pessimistic",
-        "ais-refinement-phase",
-        "ais-rlof",
-        "kappa-gaussians",
-        "nbatches-used",
-        */
 
         "allow-rlof-at-birth",
         "allow-touching-at-birth",
@@ -366,18 +342,6 @@ private:
         "help", "h",
         "version", "v",
 
-        // Floor
-        /*
-        "ais-dcotype",
-        "ais-exploratory-phase",
-        "ais-hubble",
-        "ais-pessimistic",
-        "ais-refinement-phase",
-        "ais-rlof",
-        "kappa-gaussians",
-        "nbatches-used",
-        */
-
         "allow-rlof-at-birth",
         "allow-touching-at-birth",
         "angular-momentum-conservation-during-circularisation",
@@ -481,18 +445,6 @@ private:
         "help", "h",
         "version", "v",
 
-        // Floor
-        /*
-        "ais-dcotype",
-        "ais-exploratory-phase",
-        "ais-hubble",
-        "ais-pessimistic",
-        "ais-refinement-phase",
-        "ais-rlof",
-        "kappa-gaussians",
-        "nbatches-used",
-        */
-
         "random-seed",
 
         "quiet",
@@ -578,8 +530,6 @@ public:
             bool                                                m_ShortHelp;                                                    // Flag to indicate whether user wants short help ('-h', just option names) or long help ('--help', plus descriptions)
 
             bool                                                m_SwitchLog;                                                    // Print switch log details to file (default = false)
-
-            int                                                 m_nBatchesUsed;                                                 // Number of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
 
 
             // Miscellaneous evolution variables
@@ -789,16 +739,6 @@ public:
 	        bool                                                m_RevisedEnergyFormalismNandezIvanova;			                // Use the revised energy formalism from Nandez & Ivanova 2016 (default = false)
 	        double                                              m_MaximumMassDonorNandezIvanova;								// Maximum mass allowed to use the revised energy formalism in Msol (default = 2.0)
 	        double                                              m_CommonEnvelopeRecombinationEnergyDensity;					    // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 erg/g)
-
-
-            // Adaptive Importance Sampling options
-            bool                                                m_AISexploratoryPhase;                                          // Flag if we want to run Exploratory phase of Adaptive Importance Sampling // Floor
-            ENUM_OPT<AIS_DCO>                                   m_AISDCOtype;                                                   // Which prescription for DCO type
-            bool                                                m_AIShubble;                                                    // Whether to exclude DCOs that not merge within Hubble
-            bool                                                m_AISpessimistic;                                               // Whether to exclude Optimistic binaries
-            bool                                                m_AISrefinementPhase;                                           // Flag if we want to run refinement phase of Adaptive Importance Sampling
-            bool                                                m_AISrlof;                                                      // Whether to exclude binaries that have RLOFSecondaryZAMS
-            double                                              m_KappaGaussians;                                               // Scaling factor for the width of the Gaussian distributions in AIS main sampling phase [should be in [0,1]]
 
 
             // Zetas
@@ -1023,14 +963,6 @@ public:
 
     // getters
 
-    AIS_DCO                                     AIS_DCOType() const                                                     { return m_CmdLine.optionValues.m_AISDCOtype.type; }
-    string                                      AIS_DCOTypeString() const                                               { return m_CmdLine.optionValues.m_AISDCOtype.typeString; }
-    bool                                        AIS_ExploratoryPhase() const                                            { return m_CmdLine.optionValues.m_AISexploratoryPhase; }
-    bool                                        AIS_Hubble() const                                                      { return m_CmdLine.optionValues.m_AIShubble; }
-    bool                                        AIS_Pessimistic() const                                                 { return m_CmdLine.optionValues.m_AISpessimistic; }
-    bool                                        AIS_RefinementPhase() const                                             { return m_CmdLine.optionValues.m_AISrefinementPhase; }
-    bool                                        AIS_RLOF() const                                                        { return m_CmdLine.optionValues.m_AISrlof; }
-
     bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return OPT_VALUE("common-envelope-allow-main-sequence-survive", m_AllowMainSequenceStarToSurviveCommonEnvelope, true); }
     bool                                        AllowRLOFAtBirth() const                                                { return OPT_VALUE("allow-rlof-at-birth", m_AllowRLOFAtBirth, true); }
     bool                                        AllowTouchingAtBirth() const                                            { return OPT_VALUE("allow-touching-at-birth", m_AllowTouchingAtBirth, true); }
@@ -1219,8 +1151,6 @@ public:
 
     double                                      MullerMandelKickMultiplierBH() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-bh", m_MullerMandelKickBH, true); }
     double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-ns", m_MullerMandelKickNS, true); }
-
-    int                                         nBatchesUsed() const                                                    { return m_CmdLine.optionValues.m_nBatchesUsed; }
 
     NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-bh-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
     double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-bh-formation-value", m_NeutrinoMassLossValueBH, true); }
