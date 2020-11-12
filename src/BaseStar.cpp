@@ -147,11 +147,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_DtPrev                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_OmegaPrev                                = m_OmegaZAMS;
 
-    // Winds
-
-    m_LBVfactor                                = OPTIONS->LuminousBlueVariableFactor();
-    m_WolfRayetFactor                          = OPTIONS->WolfRayetFactor();
-
     // Lambdas
 	m_Lambdas.dewi                             = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_Lambdas.fixed                            = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -1531,7 +1526,7 @@ double BaseStar::CalculateMassLossRateWolfRayet2(const double p_Mu) {
     // I think StarTrack may still do something different here,
     // there are references to Hamann & Koesterke 1998 and Vink and de Koter 2005
 
-    return m_WolfRayetFactor * 1.0E-13 * PPOW(m_Luminosity, 1.5) * PPOW(m_Metallicity / ZSOL, 0.86) * (1.0 - p_Mu);
+    return OPTIONS->WolfRayetFactor() * 1.0E-13 * PPOW(m_Luminosity, 1.5) * PPOW(m_Metallicity / ZSOL, 0.86) * (1.0 - p_Mu);
 }
 
 
@@ -1632,7 +1627,7 @@ double BaseStar::CalculateMassLossRateVink() {
     if ((utils::Compare(m_Luminosity, LBV_LUMINOSITY_LIMIT_STARTRACK) > 0) && (utils::Compare(tmp, 1.0) > 0)) {     // luminous blue variable
 		m_LBVphaseFlag = true;                                                                                      // ... is true
 
-        rate = CalculateMassLossRateLBV2(m_LBVfactor);                                                              // calculate mass loss rate
+        rate = CalculateMassLossRateLBV2(OPTIONS->LuminousBlueVariableFactor());                                    // calculate mass loss rate
     }
     else {
         double teff = m_Temperature * TSOL;                                                                         // change to Kelvin so it can be compared with values as stated in Vink prescription

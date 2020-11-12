@@ -46,11 +46,11 @@ class pythonProgramOptions:
     else:
         random_seed = 0 # If you want a random seed, use: np.random.randint(2,2**63-1)
 
-    # environment variable COMPAS_LOGS_OUTPUT_DIR_PATH is used for docker runs
-    # if COMPAS_LOGS_OUTPUT_DIR_PATH is not set (== None) we assume this is an
-    # interactive run with python3
-    # if COMPAS_LOGS_OUTPUT_DIR_PATH is set (!= None) we assume this is a run
-    # inside a docker container and set the output path appropriately
+    # environment variable COMPAS_LOGS_OUTPUT_DIR_PATH is used primarily for docker runs
+    # if COMPAS_LOGS_OUTPUT_DIR_PATH is set (!= None) it is used as the value for the
+    # --output-path option
+    # if COMPAS_LOGS_OUTPUT_DIR_PATH is not set (== None) the current working directory
+    # is used as the value for the --output-path option
     compas_logs_output_override = os.environ.get('COMPAS_LOGS_OUTPUT_DIR_PATH')
     
     if (compas_logs_output_override is None):
@@ -60,6 +60,13 @@ class pythonProgramOptions:
         output = compas_logs_output_override
         output_container = None
 
+    # environment variable COMPAS_INPUT_DIR_PATH is used primarily for docker runs
+    # if COMPAS_INPUT_DIR_PATH is set (!= None) it is prepended to input filenames
+    # (such as grid_filename and logfile_definitions)
+    # if COMPAS_INPUT_DIR_PATH is not set (== None) the current working directory
+    # is prepended to input filenames
+    compas_input_path_override = os.environ.get('COMPAS_INPUT_DIR_PATH')
+    
     #-- option to make a grid of hyperparameter values at which to produce populations.
     #-- If this is set to true, it will divide the number_of_binaries parameter equally
     #-- amoungst the grid points (as closely as possible). See the hyperparameterGrid method below
@@ -69,10 +76,23 @@ class pythonProgramOptions:
     hyperparameterList = False
     shareSeeds = False
 
-
     mode = 'BSE'                                                # evolving single stars (SSE) or binaries (BSE)?
 
     grid_filename = None                                        # grid file name (e.g. 'mygrid.txt')
+
+    if grid_filename != None:
+        if compas_input_path_override == None:
+            grid_filename = os.getcwd() + '/' + grid_filename
+        else:
+            grid_filename = compas_input_path_override + '/' + grid_filename
+
+    logfile_definitions = None                                  # logfile record definitions file name (e.g. 'logdefs.txt')
+
+    if logfile_definitions != None:
+        if compas_input_path_override == None:
+            logfile_definitions = os.getcwd() + '/' + logfile_definitions
+        else:
+            logfile_definitions = compas_input_path_override + '/' + logfile_definitions
 
     initial_mass    = None                                      # initial mass for SSE
     initial_mass_1  = None                                      # primary initial mass for BSE
@@ -229,8 +249,6 @@ class pythonProgramOptions:
 
     debug_level         = 0
     debug_classes       = []
-
-    logfile_definitions = None
 
     logfile_name_prefix = None
     logfile_delimiter   = 'COMMA'
