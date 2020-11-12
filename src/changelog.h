@@ -572,7 +572,10 @@
 //                                          - removed SN_THETA and SN_PHI from default SSE_SUPERNOVAE_REC (don't apply to SSE)
 //                                      - Fixed defect that caused semi-major axis to be drawn from distribution rather than calculated from supplied orbital period
 //                                        (moved check and calculation from options.cpp to BaseBinaryStar.cpp)
+// 02.16.04     RTW - Nov 10, 2020   - Enhancement:
+//                                      - Added in Schneider 2020 remnant mass prescriptions (standard and alternative)
+//                                      - Added parameter MassTransferDonorHistory, as required for above prescription, which tracks the MT donor type (from which the MT Case can be established)
 
-const std::string VERSION_STRING = "02.16.03";
+const std::string VERSION_STRING = "02.16.04";
 
 # endif // __changelog_h__
