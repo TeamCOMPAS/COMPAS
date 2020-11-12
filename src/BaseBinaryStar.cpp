@@ -41,7 +41,7 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
     bool initialParametersOutsideParameterSpace = false;
 
     // determine if any if the initial conditions are sampled
-    // consider eccentricity distribution = ECCENTRICITY_DISTRIBUTION::ZERO to be not sampled!
+    // we consider eccentricity distribution = ECCENTRICITY_DISTRIBUTION::ZERO to be not sampled!
     bool sampled = OPTIONS->OptionSpecified("initial-mass-1") == 0 ||
                    OPTIONS->OptionSpecified("initial-mass-2") == 0 ||
 //                   OPTIONS->OptionSpecified("metallicity") == 0 ||   // for now we don't sample metallicity - we always return ZSOL
@@ -86,6 +86,15 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
     kickParameters2.meanAnomalySpecified     = OPTIONS->OptionSpecified("kick-mean-anomaly-2") == 1;
     kickParameters2.meanAnomaly              = OPTIONS->SN_MeanAnomaly2();
 
+    // loop here to find initial conditions that suit our needs
+    // if the user supplied all initial conditions, no loop
+    // loop for a maximum of MAX_BSE_INITIAL_CONDITIONS_ITERATIONS - it hasn't (that I
+    // know of) been a problem in the past, but we should have a guard on the loop so
+    // that we don't loop forever - probably more important now that the user can specify
+    // initial conditions (so might leave the insufficient space for the  (say) one to be
+    // sampled...)
+
+    int tries = 0;
     do {
 
         if(OPTIONS->AIS_RefinementPhase()) {                                                                                            // AIS refinement phase?
@@ -205,7 +214,7 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
         // if they are - evolve the binary
         // if they are not ok:
         //    - if we sampled at least one of them, sample again
-        //    - if all were user supplied, show an error and return without evolving
+        //    - if all were user supplied, set error - Evolve() will show the error and return without evolving
 
         bool ok = !((!OPTIONS->AllowRLOFAtBirth() && rlof) || (!OPTIONS->AllowTouchingAtBirth() && merger) || secondarySmallerThanMinimumMass || initialParametersOutsideParameterSpace);
 
@@ -214,7 +223,10 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
             m_Error = ERROR::INVALID_INITIAL_ATTRIBUTES;
             done = true;
         }
-    } while (!done);
+
+    } while (!done && ++tries < MAX_BSE_INITIAL_CONDITIONS_ITERATIONS);
+
+    if (!done) m_Error = ERROR::INVALID_INITIAL_ATTRIBUTES;                                                                             // too many iterations - bad initial conditions
 
     SetRemainingValues();                                                                                                               // complete the construction of the binary
 }
