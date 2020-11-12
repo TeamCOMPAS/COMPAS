@@ -29,3 +29,6 @@ COMPAS
 *.synctex(busy)
 *.synctex.gz
 *.synctex.gz(busy)
+
+Makefile-reinhold
+.gitignore
