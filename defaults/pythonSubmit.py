@@ -179,7 +179,7 @@ class pythonProgramOptions:
 
     metallicity_distribution = 'ZSOLAR'
     metallicity_min = 0.0001
-    metallicity_max = 0.015
+    metallicity_max = 0.03
 
     pulsar_birth_magnetic_field_distribution = 'ZERO'
     pulsar_birth_magnetic_field_min = 11.0                      # [log10(B/G)]

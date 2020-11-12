@@ -140,8 +140,6 @@ void Options::OptionValues::Initialise() {
 
     m_SwitchLog                                                     = false;
 
-    m_nBatchesUsed                                                  = -1;
-
 
     // Evolution mode: SSE or BSE
     m_EvolutionMode.type                                            = EVOLUTION_MODE::BSE;
@@ -399,17 +397,6 @@ void Options::OptionValues::Initialise() {
 	m_CommonEnvelopeRecombinationEnergyDensity                      = 1.5E13;
 
 
-    // Adaptive Importance Sampling options
-    m_AISexploratoryPhase                                           = false;
-    m_AISDCOtype.type                                               = AIS_DCO::ALL;
-    m_AISDCOtype.typeString                                         = AIS_DCO_LABEL.at(m_AISDCOtype.type);
-    m_AIShubble                                                     = false;
-    m_AISpessimistic                                                = false;
-    m_AISrefinementPhase                                            = false;
-    m_AISrlof                                                       = false;
-    m_KappaGaussians                                                = 2;
-
-
 	// Zetas
 	m_StellarZetaPrescription.type                                  = ZETA_PRESCRIPTION::SOBERMAN;
 	m_StellarZetaPrescription.typeString                            = ZETA_PRESCRIPTION_LABEL.at(m_StellarZetaPrescription.type);
@@ -563,35 +550,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         // boolean options - alphabetically
 
-        // Floor
-        /*
-        (
-            "ais-exploratory-phase",                                       
-            po::value<bool>(&p_Options->m_AISexploratoryPhase)->default_value(p_Options->m_AISexploratoryPhase)->implicit_value(true),                                                            
-            ("Run exploratory phase of STROOPWAFEL (default = " + std::string(p_Options->m_AISexploratoryPhase ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "ais-hubble",                                                  
-            po::value<bool>(&p_Options->m_AIShubble)->default_value(p_Options->m_AIShubble)->implicit_value(true),                                                                                
-            ("Excluding not in Hubble time mergers selection in exploratory phase of STROOPWAFEL (default = " + std::string(p_Options->m_AIShubble ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "ais-pessimistic",                                             
-            po::value<bool>(&p_Options->m_AISpessimistic)->default_value(p_Options->m_AISpessimistic)->implicit_value(true),                                                                      
-            ("Optimistic or Pessimistic selection in exploratory phase of STROOPWAFEL (default = " + std::string(p_Options->m_AISpessimistic ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "ais-refinement-phase",                                        
-            po::value<bool>(&p_Options->m_AISrefinementPhase)->default_value(p_Options->m_AISrefinementPhase)->implicit_value(true),                                                              
-            ("Run main sampling phase (step2) of STROOPWAFEL (default = " + std::string(p_Options->m_AISrefinementPhase ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "ais-rlof",                                                    
-            po::value<bool>(&p_Options->m_AISrlof)->default_value(p_Options->m_AISrlof)->implicit_value(true),                                                                                    
-            ("RLOFSecondaryZAMS selection in exploratory phase of STROOPWAFEL (default = " + std::string(p_Options->m_AISrlof ? "TRUE" : "FALSE") + ")").c_str()
-       )
-        */
-
         (
             "allow-rlof-at-birth",                                         
             po::value<bool>(&p_Options->m_AllowRLOFAtBirth)->default_value(p_Options->m_AllowRLOFAtBirth)->implicit_value(true),                                                                  
@@ -738,15 +696,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<int>(&p_Options->m_MaxNumberOfTimestepIterations)->default_value(p_Options->m_MaxNumberOfTimestepIterations),                                                               
             ("Maximum number of timesteps to evolve binary before giving up (default = " + std::to_string(p_Options->m_MaxNumberOfTimestepIterations) + ")").c_str()
         )
-
-        // Floor
-        /*
-        (
-            "nbatches-used",                                               
-            po::value<int>(&p_Options->m_nBatchesUsed)->default_value(p_Options->m_nBatchesUsed),                                                                                                 
-            ("Number of batches used, for STROOPWAFEL (AIS), -1 = not required (default = " + std::to_string(p_Options->m_nBatchesUsed) + ")").c_str()
-        )
-        */
 
         (
             "number-of-systems,n",                                        
@@ -944,15 +893,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<double>(&p_Options->m_InitialMassFunctionPower)->default_value(p_Options->m_InitialMassFunctionPower),                                                                      
             ("Single power law power to generate primary mass using given IMF (default = " + std::to_string(p_Options->m_InitialMassFunctionPower) + ")").c_str()
         )
-
-        // Floor
-        /*
-        (
-            "kappa-gaussians",                                             
-            po::value<double>(&p_Options->m_KappaGaussians)->default_value(p_Options->m_KappaGaussians),                                                                                          
-            ("Scaling factor for the width of the Gaussian distributions in STROOPWAFEL main sampling phase (default = " + std::to_string(p_Options->m_KappaGaussians) + ")").c_str()
-        )
-        */
 
         (
             "kick-direction-power",                                        
@@ -1257,15 +1197,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         // string options - alphabetically
 
-        // Floor
-        /*
-        (
-            "ais-dcotype",                                                 
-            po::value<std::string>(&p_Options->m_AISDCOtype.typeString)->default_value(p_Options->m_AISDCOtype.typeString),                                                                                      
-            ("DCO type selection in exploratory phase of STROOPWAFEL, (options: [ALL, BBH, BNS, BHNS], default = " + p_Options->m_AISDCOtype.typeString + ")").c_str()
-        )
-        */
-
         (
             "black-hole-kicks",                                            
             po::value<std::string>(&p_Options->m_BlackHoleKicks.typeString)->default_value(p_Options->m_BlackHoleKicks.typeString),                                                                              
@@ -1296,7 +1227,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "eccentricity-distribution",                                 
             po::value<std::string>(&p_Options->m_EccentricityDistribution.typeString)->default_value(p_Options->m_EccentricityDistribution.typeString),                                                          
-            ("Initial eccentricity distribution (options: [ZERO, FLAT, THERMAL, THERMALISED, GELLER+2013, DUQUENNOYMAYOR1991, SANA2012], default = " + p_Options->m_EccentricityDistribution.typeString + ")").c_str()
+            ("Initial eccentricity distribution (options: [ZERO, FLAT, THERMAL, GELLER+2013, DUQUENNOYMAYOR1991, SANA2012], default = " + p_Options->m_EccentricityDistribution.typeString + ")").c_str()
         )
         (
             "envelope-state-prescription",                                 
@@ -1431,7 +1362,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "metallicity-distribution",                                 
             po::value<std::string>(&p_Options->m_MetallicityDistribution.typeString)->default_value(p_Options->m_MetallicityDistribution.typeString),                                                          
-            ("Initial eccentricity distribution (options: [ZSOLAR, LOGUNIFORM], default = " + p_Options->m_MetallicityDistribution.typeString + ")").c_str()
+            ("Metallicity distribution (options: [ZSOLAR, LOGUNIFORM], default = " + p_Options->m_MetallicityDistribution.typeString + ")").c_str()
         )
         (
             "mode",                                                 
@@ -1699,14 +1630,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         m_FixedRandomSeed  = !DEFAULTED("random-seed");                                                                             // use random seed if it is provided by the user
         m_UseFixedUK       = !DEFAULTED("fix-dimensionless-kick-magnitude") && (m_FixedUK >= 0.0);                                  // determine if user supplied a valid kick magnitude
 
-
-        // Floor
-        /*
-        if (!DEFAULTED("ais-dcotype")) {                                                                                            // Adaptive Importance Sampling DCO type
-            std::tie(found, p_OptionValues->m_AISDCOtype.type) = utils::GetMapKey(p_OptionValues->m_AISDCOtype.typeString, AIS_DCO_LABEL, p_OptionValues->m_AISDCOtype.type);
-            return "Unknown AIS DCO Type";
-        }
-        */
 
         if (!DEFAULTED("black-hole-kicks")) {                                                                                       // black hole kicks
             std::tie(found, m_BlackHoleKicks.type) = utils::GetMapKey(m_BlackHoleKicks.typeString, BLACK_HOLE_KICKS_LABEL, m_BlackHoleKicks.type);
@@ -3376,16 +3299,6 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
                                                                                                                         // get property value
     switch (property) {
 
-        // Floor
-        /*
-        case PROGRAM_OPTION::AIS_DCO_TYPE                                   : value = static_cast<int>(AIS_DCOType());                                      break;
-        case PROGRAM_OPTION::AIS_EXPLORATORY_PHASE                          : value = AIS_ExploratoryPhase();                                               break;
-        case PROGRAM_OPTION::AIS_HUBBLE                                     : value = AIS_Hubble();                                                         break;
-        case PROGRAM_OPTION::AIS_PESSIMISTIC                                : value = AIS_Pessimistic();                                                    break;
-        case PROGRAM_OPTION::AIS_REFINEMENT_PHASE                           : value = AIS_RefinementPhase();                                                break;
-        case PROGRAM_OPTION::AIS_RLOF                                       : value = AIS_RLOF();                                                           break;
-        */
-
         case PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE       : value = AllowMainSequenceStarToSurviveCommonEnvelope();                       break;
         case PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH                            : value = AllowRLOFAtBirth();                                                   break;
         case PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH                        : value = AllowTouchingAtBirth();                                               break;
@@ -3476,6 +3389,9 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::MCBUR1                                         : value = MCBUR1();                                                             break;
 
         case PROGRAM_OPTION::METALLICITY                                    : value = Metallicity();                                                        break;
+        case PROGRAM_OPTION::METALLICITY_DISTRIBUTION                       : value = static_cast<int>(MetallicityDistribution());                          break;
+        case PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MAX                   : value = MetallicityDistributionMax();                                         break;
+        case PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN                   : value = MetallicityDistributionMin();                                         break;
 
         case PROGRAM_OPTION::MINIMUM_MASS_SECONDARY                         : value = MinimumMassSecondary();                                               break;
 
