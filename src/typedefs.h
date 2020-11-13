@@ -229,7 +229,6 @@ typedef struct BinaryCEDetails {                            // Common Envelope d
     BinaryCEESavedValuesT preCEE;
     BinaryCEESavedValuesT postCEE;
 
-    double                alpha;                            // Common Envelope efficiency alpha parameter
     bool                  CEEnow;                           // Indicates whether a common envelope event is occurring now
     unsigned int          CEEcount;                         // Common Envelope Event count
     bool                  doubleCoreCE;
