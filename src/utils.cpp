@@ -785,7 +785,7 @@ namespace utils {
 
                 do {
                     eccentricity = 0.23 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.38;
-                } while (eccentricity < 0.0 || eccentricity > 1.0);                                      // JR: don't use utils::Compare() here
+                } while (eccentricity < p_Min || eccentricity > p_Max);                                 // JR: don't use utils::Compare() here
                 break;
 
             case ECCENTRICITY_DISTRIBUTION::DUQUENNOYMAYOR1991:                                        // eccentricity distribution from Duquennoy & Mayor (1991)
@@ -794,7 +794,7 @@ namespace utils {
 
                 do {
                     eccentricity = 0.15 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.3;
-                } while (eccentricity < 0.0 or eccentricity > 1.0);                                      // JR: don't use utils::Compare() here
+                } while (eccentricity < p_Min or eccentricity > p_Max);                                 // JR: don't use utils::Compare() here
                 break;
 
             case ECCENTRICITY_DISTRIBUTION::SANA2012:                                                   // Sana et al 2012
@@ -1002,7 +1002,7 @@ namespace utils {
 
                 do {                                                                                            // JR: todo: catch non-convergence?
                     q = 0.42 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.23;
-                } while (q < 0.0 || q > 1.0);                                                                   // JR: don't use utils::Compare() here
+                } while (q < p_Min || q > p_Max);                                                                   // JR: don't use utils::Compare() here
                 break;
 
             case MASS_RATIO_DISTRIBUTION::SANA2012:                                                                                     // Sana et al 2012 (http://science.sciencemag.org/content/sci/337/6093/444.full.pdf) distribution of eccentricities.
