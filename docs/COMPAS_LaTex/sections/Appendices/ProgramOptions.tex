@@ -55,7 +55,7 @@ Following is the list of program options that can be specified at the command li
 
 \programOption{eccentricity}{e}{Initial eccentricity for a binary star when evolving in BSE mode.}{0.0}
 
-\programOption{eccentricity-distribution}{}{Initial eccentricity distribution. \\ Options: \lcb\ ZERO, FIXED, FLAT, THERMALISED, GELLER+2013, THERMAL, \nobreak{DUQUENNOYMAYOR1991}, SANA2012, IMPORTANCE\ \rcb}{ZERO}
+\programOption{eccentricity-distribution}{}{Initial eccentricity distribution. \\ Options: \lcb\ ZERO, FLAT, GELLER+2013, THERMAL, DUQUENNOYMAYOR1991, SANA2012\ \rcb}{ZERO}
 
 \programOption{eccentricity-max}{}{Maximum eccentricity to generate.}{1.0}
 
@@ -194,6 +194,12 @@ Following is the list of program options that can be specified at the command li
 \programOption{mcbur1}{}{Minimum core mass at base of AGB to avoid fully degnerate CO core formation~(\Msun). \\ e.g. 1.6 in \citet{Hurley_2000} presciption; 1.83 in \citet{Fryer_2012} and \citet{Belczynski_2008} models.}{1.6)}
 
 \programOption{metallicity}{z}{Metallicity. \\ The value specified for metallicity is applied to both stars for BSE mode.}{0.02}
+
+\programOption{metallicity-distribution}{}{Metallicity distribution. \\ Options: \lcb\ ZSOLAR, LOGUNIFORM\ \rcb}{ZSOLAR}
+
+\programOption{metallicity-max}{}{Maximum metallicity to generate.}{0.04}
+
+\programOption{metallicity-min}{}{Minimum metallicity to generate.}{0.0001}
 
 \programOption{minimum-secondary-mass}{}{Minimum mass of secondary to generate~(\Msun).}{0.00007 if \textit{\texttt{-{}-}initial-mass-2} specified; value of \textit{\texttt{-{}-}initial-mass-min} if \textit{\texttt{-{}-}initial-mass-2} not specified.}
 

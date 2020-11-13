@@ -9,7 +9,6 @@
 
 #include "Log.h"
 #include "Star.h"
-#include "AIS.h"
 #include "BinaryConstituentStar.h"
 
 #include <boost/math/tools/roots.hpp>
@@ -22,7 +21,6 @@
 
 class Log;
 class Star;
-class AIS;
 class BinaryConstituentStar;
 
 
@@ -30,7 +28,7 @@ class BaseBinaryStar {
 
 public:
 
-    BaseBinaryStar(const AIS &p_AIS, const long int p_Id = -1l);
+    BaseBinaryStar(const long int p_Id = -1l);
 
     void CopyMemberVariables(const BaseBinaryStar& p_Star) {
 
@@ -39,8 +37,6 @@ public:
         m_Error                            = p_Star.m_Error;
 
         m_RandomSeed                       = p_Star.m_RandomSeed;
-
-        m_AIS                              = p_Star.m_AIS;
 
         m_BeBinaryDetails                  = p_Star.m_BeBinaryDetails;
 
@@ -179,7 +175,6 @@ public:
 
     // getters - alphabetically
     BeBinaryDetailsT    BeBinaryDetails() const                     { return m_BeBinaryDetails; }
-	double              CEAlpha() const                             { return m_CEDetails.alpha; }
 	bool                CEAtLeastOnce() const                       { return m_CEDetails.CEEcount > 0; }
     unsigned int        CEEventCount() const                        { return m_CEDetails.CEEcount; }
 	double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
@@ -298,8 +293,6 @@ private:
 
     unsigned long int   m_RandomSeed;                                                       // Random seed for this binary
 
-    AIS                 m_AIS;
-
     BeBinaryDetailsT    m_BeBinaryDetails;                                                  // BeBinary details
 
     BinaryCEDetailsT    m_CEDetails;                                                        // Common Event details
@@ -414,7 +407,7 @@ private:
     //                            and call the actual function
     // JR: todo: note in the orginal code the binary orbital velicity was passed in as a parameter but never used - I removed it
 
-    void    SetInitialValues(const AIS &p_AIS, const long int p_Id);
+    void    SetInitialValues(const long int p_Id);
     void    SetRemainingValues();
 
 

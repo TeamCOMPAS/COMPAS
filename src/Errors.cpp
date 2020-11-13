@@ -125,7 +125,7 @@ bool Errors::ShowIt(const std::string  p_Prefix,
             bool,                                                                                                                               //    flag indicating if already printed
             std::vector<OBJECT_TYPE>,                                                                                                           //    object type
             std::vector<STELLAR_TYPE>,                                                                                                          //    stellar type
-            std::vector<OBJECT_ID>,                                                                                                             //    vector of non-stellar (main, utils, AIS etc) object ids
+            std::vector<OBJECT_ID>,                                                                                                             //    vector of non-stellar (main, utils, etc) object ids
             std::vector<OBJECT_ID>,                                                                                                             //    vector of stellar ids
             std::vector<std::string>,                                                                                                           //    vector of function names for non-stellar object ids
             std::vector<std::string>,                                                                                                           //    vector of function names for stellar ids
@@ -205,7 +205,7 @@ bool Errors::ShowIt(const std::string  p_Prefix,
                         }
 
                         if (print) {                                                                                                            // if will print, then...
-                            if (p_ObjectType == OBJECT_TYPE::MAIN || p_ObjectType == OBJECT_TYPE::UTILS || p_ObjectType == OBJECT_TYPE::AIS) {  // add 'p_ObjectId' and 'funcName' to relevant vectors
+                            if (p_ObjectType == OBJECT_TYPE::MAIN || p_ObjectType == OBJECT_TYPE::UTILS) {                                      // add 'p_ObjectId' and 'funcName' to relevant vectors
                                 nonStellarObjectIds.push_back(p_ObjectId);                                                                      // non-stellar objectId
                                 nonStellarFuncs.push_back(funcName);                                                                            // non-stellar funcName (required for ERROR_SCOPE::FIRST_IN_FUNCTION)
                             }
@@ -251,7 +251,7 @@ bool Errors::ShowIt(const std::string  p_Prefix,
 
 
                             if (print) {                                                                                                        // if will print, then...
-                                if (p_ObjectType == OBJECT_TYPE::MAIN || p_ObjectType == OBJECT_TYPE::UTILS || p_ObjectType == OBJECT_TYPE::AIS) {  // add 'p_ObjectId' and 'funcNmae' to relevant vectors
+                                if (p_ObjectType == OBJECT_TYPE::MAIN || p_ObjectType == OBJECT_TYPE::UTILS) {                                  // add 'p_ObjectId' and 'funcNmae' to relevant vectors
                                     nonStellarObjectIds.push_back(p_ObjectId);                                                                  // non-stellar objectId
                                     nonStellarFuncs.push_back(funcName);                                                                        // non-stellar funcName (required for ERROR_SCOPE::FIRST_IN_FUNCTION)
                                 }
