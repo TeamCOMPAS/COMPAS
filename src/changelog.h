@@ -585,7 +585,9 @@
 // 02.17.01     RTW - Nov 10, 2020  - Enhancement:
 //                                      - Added in Schneider 2020 remnant mass prescriptions (standard and alternative)
 //                                      - Added parameter MassTransferDonorHistory, as required for above prescription, which tracks the MT donor type (from which the MT Case can be established)
-// 02.17.02     JR - Nov 13, 2020   - Enhancements, code cleanup
+// 02.17.02     RTW - Nov 13, 2020  - Enhancement:
+//                                      - Cleaned up the demo plotting routine so that the plot produced is the plot we use in the methods paper
+// 02.17.03     JR - Nov 13, 2020   - Enhancements, code cleanup
 //                                      - Added metallicity-distribution option: available distributions are ZSOLAR and LOGUNIFORM (see documentation)
 //                                          - Added metallicity-min and metallicity-max options (for metallicity-distribution option)
 //                                          - Metallicity is sampled if not explicitly specified via the --metallicity option - this was existing functionality, but
@@ -596,6 +598,6 @@
 //                                          - Removed BINARY_PROPERTY::COMMON_ENVELOPE_ALPHA - use PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA
 //                                      - Issue #443: removed eccentricity distribution options FIXED, IMPORTANCE & THERMALISE (THERMALISE = THERMAL, which remains) 
 
-const std::string VERSION_STRING = "02.17.02";
+const std::string VERSION_STRING = "02.17.03";
 
 # endif // __changelog_h__
