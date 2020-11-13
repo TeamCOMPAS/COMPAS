@@ -2966,18 +2966,18 @@ void BaseStar::AgeOneTimestepPreamble(const double p_DeltaTime) {
  */
 std::string BaseStar::MassTransferDonorHistoryString() const {
     STYPE_VECTOR mtHistVec = m_MassTransferDonorHistory;      
-    std::string mtHistStr = "";
+    std::string mtHistStr  = "";
 
-    if (mtHistVec.empty()) { // This star was never a donor for MT
+    if (mtHistVec.empty()) {    // This star was never a donor for MT
         mtHistStr = "NA";
     }
-    else {                   // This star was a donor, return the stellar type string
+    else {                      // This star was a donor, return the stellar type string
 
-        for (int ii=0; ii<mtHistVec.size(); ii++) {
+        for (size_t ii = 0; ii < mtHistVec.size(); ii++) {
             mtHistStr += std::to_string(static_cast<int>(mtHistVec[ii])) + "-"; // Create string of stellar type followed by dash
         }
 
-        mtHistStr.pop_back();                                                   // Remove final dash
+        mtHistStr.pop_back();   // Remove final dash
 
     }
 

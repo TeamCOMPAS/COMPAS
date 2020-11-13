@@ -4,11 +4,9 @@
 #include "constants.h"
 #include "typedefs.h"
 
-#include "AIS.h"
 #include "BaseBinaryStar.h"
 
 
-class AIS;
 class BaseBinaryStar;
 
 
@@ -35,7 +33,7 @@ public:
      * id is used instead).
      */
 
-    BinaryStar(const AIS &p_AIS, const long int p_Id = -1l);
+    BinaryStar(const long int p_Id = -1l);
 
     // Copy constructor
     BinaryStar(const BinaryStar& p_Star) {

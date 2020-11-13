@@ -25,20 +25,18 @@
 
 
 // binary is generated according to distributions specified in program options
-BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
+BaseBinaryStar::BaseBinaryStar(const long int p_Id) {
 
-    SetInitialValues(p_AIS, p_Id);                                                                                                      // start construction of the binary
+    SetInitialValues(p_Id);                                                                                                             // start construction of the binary
                         
     // generate initial properties of binary
     // check that the constituent stars are not touching
     // also check m2 > m2min
-    // also check that when we are using AIS we are sampling inside the parameter space
 
     bool done                                   = false;
     bool merger                                 = false;
     bool rlof                                   = false;
     bool secondarySmallerThanMinimumMass        = false;
-    bool initialParametersOutsideParameterSpace = false;
 
     // determine if any if the initial conditions are sampled
     // we consider eccentricity distribution = ECCENTRICITY_DISTRIBUTION::ZERO to be not sampled!
@@ -59,8 +57,6 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
     // of binaries get different values, so use different options. The Basestar.cpp code doesn't 
     // know if the star is a single star (SSE) or a constituent of a binary (BSE) - it only knows 
     // that it is a star - so we have to setup the kick structures here for each constituent star.
-    //
-    // We can do these outside the following loop - AIS doesn't know about these
 
     KickParameters kickParameters1;
     kickParameters1.magnitudeRandomSpecified = OPTIONS->OptionSpecified("kick-magnitude-random-1") == 1;
@@ -97,33 +93,24 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
     int tries = 0;
     do {
 
-        if(OPTIONS->AIS_RefinementPhase()) {                                                                                            // AIS refinement phase?
-            m_AIS.Initialise();                                                                                                         // yes - run AIS step 2 and sample from importance sampling distribution
-        }
-
-
-        // this is a bit messy for now - but AIS will migrate out of the C++ code soon and we can clean this up
-
         double mass1    = OPTIONS->OptionSpecified("initial-mass-1") == 1                                                               // user specified primary mass?
                             ? OPTIONS->InitialMass1()                                                                                   // yes, use it
-                            : m_AIS.DrawingFromAISDistributions()                                                                       // no - asmple it
-                                ? RAND->RandomGaussian(m_AIS.CovM1()) + m_AIS.MuM1()                                                    // ... using AIS
-                                : utils::SampleInitialMassDistribution(OPTIONS->InitialMassFunction(), 
-                                                                       OPTIONS->InitialMassFunctionMax(), 
-                                                                       OPTIONS->InitialMassFunctionMin(), 
-                                                                       OPTIONS->InitialMassFunctionPower());
+                            : utils::SampleInitialMass(OPTIONS->InitialMassFunction(), 
+                                                       OPTIONS->InitialMassFunctionMax(), 
+                                                       OPTIONS->InitialMassFunctionMin(), 
+                                                       OPTIONS->InitialMassFunctionPower());                                            // no - asmple it
                                   
         double mass2    = OPTIONS->OptionSpecified("initial-mass-2") == 1                                                               // user specified secondary mass?
                             ? OPTIONS->InitialMass2()                                                                                   // yes, use it
-                            : m_AIS.DrawingFromAISDistributions()                                                                       // no, sample q and calculate mass2
-                                ? RAND->RandomGaussian(m_AIS.CovQ()) + m_AIS.MuQ() * mass1                                              // ... using AIS
-                                : utils::SampleQDistribution(OPTIONS->MassRatioDistribution(),
-                                                             OPTIONS->MassRatioDistributionMax(), 
-                                                             OPTIONS->MassRatioDistributionMin()) * mass1;                                                                        
+                            : utils::SampleMassRatio(OPTIONS->MassRatioDistribution(),
+                                                     OPTIONS->MassRatioDistributionMax(), 
+                                                     OPTIONS->MassRatioDistributionMin()) * mass1;                                      // no - asmple it                                                                        
 
         double metallicity = OPTIONS->OptionSpecified("metallicity") == 1                                                               // user specified metallicity?
                                 ? OPTIONS->Metallicity()                                                                                // yes, use it
-                                : utils::SampleMetallicity();                                                                           // no, sample it
+                                : utils::SampleMetallicity(OPTIONS->MetallicityDistribution(), 
+                                                           OPTIONS->MetallicityDistributionMax(), 
+                                                           OPTIONS->MetallicityDistributionMin());                                      // no, sample it
 
         if (OPTIONS->OptionSpecified("semi-major-axis") == 1) {                                                                         // user specified semi-major axis?
             m_SemiMajorAxis = OPTIONS->SemiMajorAxis();                                                                                 // yes, use it
@@ -133,27 +120,22 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
                 m_SemiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(mass1, mass2, OPTIONS->OrbitalPeriod());                // yes - calculate semi-major axis from period
             }
             else {                                                                                                                      // no, sample q and calculate mass2
-                if (m_AIS.DrawingFromAISDistributions()) {                                                                              // using AIS?
-                    m_SemiMajorAxis = PPOW(10, RAND->RandomGaussian(m_AIS.CovLogA()) + m_AIS.MuLogA());                                 // yes, AIS
-                }
-                else {                                                                                                                  // no, not AIS
-                    m_SemiMajorAxis = utils::SampleSemiMajorAxisDistribution(OPTIONS->SemiMajorAxisDistribution(),                              
-                                                                             OPTIONS->SemiMajorAxisDistributionMax(), 
-                                                                             OPTIONS->SemiMajorAxisDistributionMin(),
-                                                                             OPTIONS->SemiMajorAxisDistributionPower(), 
-                                                                             OPTIONS->PeriodDistributionMax(), 
-                                                                             OPTIONS->PeriodDistributionMin(), 
-                                                                             mass1, 
-                                                                             mass2);
-                }
+                m_SemiMajorAxis = utils::SampleSemiMajorAxis(OPTIONS->SemiMajorAxisDistribution(),                              
+                                                             OPTIONS->SemiMajorAxisDistributionMax(), 
+                                                             OPTIONS->SemiMajorAxisDistributionMin(),
+                                                             OPTIONS->SemiMajorAxisDistributionPower(), 
+                                                             OPTIONS->PeriodDistributionMax(), 
+                                                             OPTIONS->PeriodDistributionMin(), 
+                                                             mass1, 
+                                                             mass2);
             }
         }
 
         m_Eccentricity  = OPTIONS->OptionSpecified("eccentricity") == 1                                                                 // user specified semi-major axis?
                             ? OPTIONS->Eccentricity()                                                                                   // yes, use it
-                            : utils::SampleEccentricityDistribution(OPTIONS->EccentricityDistribution(), 
-                                                                    OPTIONS->EccentricityDistributionMax(), 
-                                                                    OPTIONS->EccentricityDistributionMin());                            // no, sample it
+                            : utils::SampleEccentricity(OPTIONS->EccentricityDistribution(), 
+                                                        OPTIONS->EccentricityDistributionMax(), 
+                                                        OPTIONS->EccentricityDistributionMin());                                        // no, sample it
 
         // binary star contains two instances of star to hold masses, radii and luminosities.
         // star 1 initially more massive
@@ -193,22 +175,8 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
         m_Star1->SetCompanion(m_Star2);
         m_Star2->SetCompanion(m_Star1);
 
-        merger                                 = (m_SemiMajorAxis * AU_TO_RSOL) < (m_Star1->Radius() + m_Star2->Radius());
-        secondarySmallerThanMinimumMass        = utils::Compare(mass2, OPTIONS->MinimumMassSecondary()) < 0;
-        initialParametersOutsideParameterSpace = false;
-
-        // the following checks will be removed when the AIS code is removed
-        // until then we'll just turn them off if any of the initial parameters
-        // checked here are specified by the user
-        // (removed the check for massratio out of bounds - it is now clamped in the sampling function)
-
-        // when using Adaptive Importance Sampling (step 2) check if drawns from Gaussians are inside the COMPAS parameter space
-        if(OPTIONS->AIS_RefinementPhase()) {
-            initialParametersOutsideParameterSpace = (OPTIONS->OptionSpecified("initial-mass-1") != 1 && utils::Compare(mass1, OPTIONS->InitialMassFunctionMin()) < 0) ||                   // mass1 is outside (below) parameter space
-                                                     (OPTIONS->OptionSpecified("initial-mass-1") != 1 && utils::Compare(mass1, OPTIONS->InitialMassFunctionMax()) > 0) ||                   // mass1 is outside (above) parameter space
-                                                     (OPTIONS->OptionSpecified("semi-major-axis") != 1 && utils::Compare(m_SemiMajorAxis, OPTIONS->SemiMajorAxisDistributionMin()) < 0) ||  // semiMajorAxis is outside (below) parameter space
-                                                     (OPTIONS->OptionSpecified("semi-major-axis") != 1 && utils::Compare(m_SemiMajorAxis, OPTIONS->SemiMajorAxisDistributionMax())) > 0;    // semiMajorAxis is outside (above) parameter space
-        }
+        merger                          = (m_SemiMajorAxis * AU_TO_RSOL) < (m_Star1->Radius() + m_Star2->Radius());
+        secondarySmallerThanMinimumMass = utils::Compare(mass2, OPTIONS->MinimumMassSecondary()) < 0;
 
         // check whether our initial conditions are good
         // if they are - evolve the binary
@@ -216,7 +184,7 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
         //    - if we sampled at least one of them, sample again
         //    - if all were user supplied, set error - Evolve() will show the error and return without evolving
 
-        bool ok = !((!OPTIONS->AllowRLOFAtBirth() && rlof) || (!OPTIONS->AllowTouchingAtBirth() && merger) || secondarySmallerThanMinimumMass || initialParametersOutsideParameterSpace);
+        bool ok = !((!OPTIONS->AllowRLOFAtBirth() && rlof) || (!OPTIONS->AllowTouchingAtBirth() && merger) || secondarySmallerThanMinimumMass);
 
         done = ok;
         if (!sampled && !ok) {
@@ -236,12 +204,11 @@ BaseBinaryStar::BaseBinaryStar(const AIS &p_AIS, const long int p_Id) {
  * Initiate the construction of the binary - initial values
  *
  *
- * void SetInitialValues(const AIS &p_AIS, const long int p_Id)
+ * void SetInitialValues(const long int p_Id)
  *
- * @param   [IN]    p_AIS                       AIS object passed to the constructor
  * @param   [IN]    p_Id                        Ordinal value of binary - see constructor notes above
  */
-void BaseBinaryStar::SetInitialValues(const AIS &p_AIS, const long int p_Id) {
+void BaseBinaryStar::SetInitialValues(const long int p_Id) {
 
     m_Error = ERROR::NONE;
 
@@ -283,12 +250,6 @@ void BaseBinaryStar::SetInitialValues(const AIS &p_AIS, const long int p_Id) {
     if (OPTIONS->PopulationDataPrinting()) {                                                            // user wants to see details of binary?
         SAY("Using supplied random seed " << m_RandomSeed << " for Binary Star id = " << m_ObjectId);   // yes - show them
     }
-
-    m_AIS = p_AIS;                                                                                      // Adaptive Importance Sampling
-
-    // apply option values for initial values
-
-    m_CEDetails.alpha = OPTIONS->CommonEnvelopeAlpha();         // JR: we can probably remove this variable now and just use the option value directly in the code
 }
 
 
@@ -613,7 +574,6 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::BE_BINARY_CURRENT_SEMI_MAJOR_AXIS:                    value = BeBinaryDetails().currentProps->semiMajorAxis;                      break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_TOTAL_TIME:                         value = BeBinaryDetails().currentProps->totalTime;                          break;
         case BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE:                            value = CircularizationTimescale();                                         break;
-        case BINARY_PROPERTY::COMMON_ENVELOPE_ALPHA:                                value = CEAlpha();                                                          break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE:                        value = CEAtLeastOnce();                                                    break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT:                          value = CommonEnvelopeEventCount();                                         break;
         case BINARY_PROPERTY::DIMENSIONLESS_KICK_MAGNITUDE:                         value = UK();                                                               break;
@@ -1494,7 +1454,7 @@ void BaseBinaryStar::EvaluateSupernovae() {
  */
 void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     
-    double alphaCE = m_CEDetails.alpha;                                                                                 // CE efficiency parameter
+    double alphaCE = OPTIONS->CommonEnvelopeAlpha();                                                                    // CE efficiency parameter
 
 	double eccentricity     = Eccentricity();								                                            // current eccentricity (before CEE)
     double semiMajorAxisRsol= SemiMajorAxisRsol();                                                                      // current semi-major axis in default units, Rsol (before CEE)
@@ -2396,7 +2356,6 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                             if(m_DCOFormationTime==DEFAULT_INITIAL_DOUBLE_VALUE) {                                                          // DCO not yet evaluated -- to ensure that the coalescence is only resolved once
                                 ResolveCoalescence();                                                                                       // yes - resolve coalescence
                                 m_DCOFormationTime = m_Time;                                                                                // set the DCO formation time
-                                if (OPTIONS->AIS_ExploratoryPhase()) (void)m_AIS.CalculateDCOHit(this);                                     // track if we have an AIS DCO hit - internal counter is updated (don't need return value here)
                             }
 
                             if (!(OPTIONS->EvolvePulsars() && HasOneOf({ STELLAR_TYPE::NEUTRON_STAR }))) {
