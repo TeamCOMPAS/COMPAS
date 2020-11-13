@@ -1,0 +1,2 @@
+# Demo BSE Grid file
+--initial-mass-1 35.4 --initial-mass-2 29.3 --metallicity 0.001  --eccentricity 0.000000e+00 --semi-major-axis 1.02
