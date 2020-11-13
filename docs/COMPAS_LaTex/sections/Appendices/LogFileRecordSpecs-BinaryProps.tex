@@ -14,8 +14,6 @@ Following is the list of binary properties available for inclusion in log file r
 
 \binaryProperty{CIRCULARIZATION\_TIMESCALE}{DOUBLE}{BaseBinaryStar::m\_CEDetails.alpha}{Tidal circularisation timescale~(Myr)}{Tau\_Circ}{}
 
-\binaryProperty{COMMON\_ENVELOPE\_ALPHA}{DOUBLE}{BaseBinaryStar::m\_CircularizationTimescale}{Common envelope alpha (efficiency) parameter. User-supplied via command line option \textit{\texttt{-{}-}common-envelope-alpha}.}{CE\_Alpha}{}
-
 \binaryProperty{COMMON\_ENVELOPE\_AT\_LEAST\_ONCE}{BOOL}{\textit{derived from }BaseBinaryStar::m\_CEDetails.CEEcount}{Flag to indicate if there has been at least one common envelope event.}{CEE}{RLOF\_CURRENT\_COMMON\_ENVELOPE}
 
 \binaryProperty{COMMON\_ENVELOPE\_EVENT\_COUNT}{INT}{BaseBinaryStar::m\_CEDetails.CEEcount}{The number of common envelope events.}{CE\_Event\_Count}{}
@@ -167,13 +165,13 @@ Following is the list of binary properties available for inclusion in log file r
 
 \binaryProperty{SEMI\_MAJOR\_AXIS\_INITIAL}{DOUBLE}{BaseBinaryStar::m\_SemiMajorAxisInitial}{Semi-major axis at ZAMS~(AU).}{Separation@ZAMS}{}
 
-\binaryProperty{SEMI\_MAJOR\_AXIS\_POST\_COMMON\_ENVELOPE}{DOUBLE}{BaseBinaryStar::m\_CEDetails.postCEE.semiMajorAxis}{Semi-major axis immediately following common envelope event~(AU).}{Separation$>$CE}{}
+\binaryProperty{SEMI\_MAJOR\_AXIS\_POST\_COMMON\_ENVELOPE}{DOUBLE}{BaseBinaryStar::m\_CEDetails.postCEE.semiMajorAxis}{Semi-major axis immediately following common envelope event~(\Rsun).}{Separation$>$CE}{}
 
 \binaryProperty{SEMI\_MAJOR\_AXIS\_PRE\_SUPERNOVA}{DOUBLE}{BaseBinaryStar::m\_SemiMajorAxisPreSN}{Semi-major axis immediately prior to supernova event~(AU).}{Separation$<$SN}{SEMI\_MAJOR\_AXIS\_PRE\_SUPERNOVA\_RSOL}
 
 \binaryProperty{SEMI\_MAJOR\_AXIS\_PRE\_SUPERNOVA\_RSOL}{DOUBLE}{\textit{derived from }BaseBinaryStar::m\_SemiMajorAxisPreSN}{Semi-major axis immediately prior to supernova event~(\Rsun).}{Separation$<$SN}{SEMI\_MAJOR\_AXIS\_PRE\_SUPERNOVA}
 
-\binaryProperty{SEMI\_MAJOR\_AXIS\_PRE\_COMMON\_ENVELOPE}{DOUBLE}{BaseBinaryStar::m\_CEDetails.preCEE.semiMajorAxis}{Semi-major axis at the onset of RLOF leading to the common-envelope episode~(AU).}{Separation$<$CE}{}
+\binaryProperty{SEMI\_MAJOR\_AXIS\_PRE\_COMMON\_ENVELOPE}{DOUBLE}{BaseBinaryStar::m\_CEDetails.preCEE.semiMajorAxis}{Semi-major axis at the onset of RLOF leading to the common-envelope episode~(\Rsun).}{Separation$<$CE}{}
 
 \binaryProperty{SEMI\_MAJOR\_AXIS}{DOUBLE}{BaseBinaryStar::m\_SemiMajorAxis}{Semi-major axis at ZAMS~(AU).}{Separation@ZAMS}{SEMI\_MAJOR\_AXIS\_RSOL}
 
