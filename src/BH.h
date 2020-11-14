@@ -35,6 +35,17 @@ public:
 
     static  double          CalculateRadiusOnPhase_Static(const double p_Mass)              { return 4.24E-6 * p_Mass; }                                            // Schwarzschild radius of Black Hole - Hurley et al. 2000, eq 94
 
+    virtual void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
+                                                       const bool   p_RecycledNS,
+                                                       const double p_Stepsize,
+                                                       const double p_MassGainPerTimeStep,
+                                                       const double p_Epsilon)              { return BaseStar::UpdateMagneticFieldAndSpin(p_CommonEnvelope, 
+                                                                                                                                          p_RecycledNS,
+                                                                                                                                          p_Stepsize, 
+                                                                                                                                          p_MassGainPerTimeStep, 
+                                                                                                                                          p_Epsilon); }             // Use BaseStar   
+
+                                                                                                                                          
 protected:
 
     void Initialise() {

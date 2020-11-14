@@ -548,7 +548,56 @@
 // 02.16.01     JR - Nov 04, 2020   - Enhancement
 //                                      - changed switchlog implementation so that a single switchlog file is created per run
 //                                        (see Issue #387 - note: single '--switch-log' option (shared SSE/BSE) implemented in v02.16.00)
+// 02.16.02     IM - Nov 05, 2020   - Enhancements, Defect repairs
+//                                      - Updated MT stability criteria for HeMS stars (Issue #425) to use MS zeta value
+//                                      - Corrected baryon number for HeWD to match Hurley prescription (Issue #416)
+//                                      - Corrected calculation of core mass after 2nd dredge-up (Issue #419)
+//                                      - Corrected calculation of minimum radius on CHeB (Issue #420)
+// 02.16.03     JR - Nov 08, 2020   - Defect repairs, Enhancements
+//                                      - Issue #308
+//                                          - added constant for minimum initial mass, maximum initial mass, minim metallicity and maximum metallicity to constants.h
+//                                          - added checks to options code (specifically Options::OptionValues::CheckAndSetOptions()) to check option values for
+//                                            initial mass and metallicity against constraints in constants.h
+//                                      - Issue #342
+//                                          - replaced header string suffixes '_1', '_2', '_SN', and '_CP' with '(1)', '(2)', '(SN)', and '(CP)' respectively
+//                                          - now header strings ending in '(1)' indicate the value is for Star_1, '(2) for Star_2, '(SN)' for the supernova, and '(CP)' the companion
+//                                      - Issue #351
+//                                          - moved flags RECYCLED_NS and RLOF_ONTO_NS fron SN_EVENT enum - now flags in BinaryConstiuentStar class
+//                                          - removed RUNAWAY flag from SN_EVENT enum - removed entirely from code (not required)
+//                                      - Issue #362
+//                                          - changed header strings for RZAMS (radius at ZAMS) to 'Radius@ZAMS' - now consistent with MZAMS (mass at ZAMS - 'Mass@ZAMS')
+//                                      - Issue #363
+//                                          - made header strings for Lambdas uniform (all now start with 'Lambda_')
+//                                      - Issue #409
+//                                          - removed SN_THETA and SN_PHI from default SSE_SUPERNOVAE_REC (don't apply to SSE)
+//                                      - Fixed defect that caused semi-major axis to be drawn from distribution rather than calculated from supplied orbital period
+//                                        (moved check and calculation from options.cpp to BaseBinaryStar.cpp)
+// 02.17.00     JR - Nov 10, 2020   - Enhancement, defect repairs, code cleanup
+//                                      - Added SSE System Parameters file
+//                                          - records initial parameters and result (final stellar type) 
+//                                          - useful when detailed output is not required
+//                                      - Fix for Issue #439
+//                                      - Fixed typo in LogfileSwitchLog() in Options.h - only affected situation where user specified switchlog filename (overriding default filename)
+//                                      - Removed m_LBVfactor variable from BaseBinaryStar - never used in BSE code
+//                                      - Removed m_LBVfactor variable from BaseStar - use OPTIONS->LuminousBlueVariableFactor()
+//                                      - Removed m_WolfRayetFactor variable from BaseBinaryStar - never used in BSE code
+//                                      - Removed m_LBVfactor variable from BaseStar - use OPTIONS->WolfRayetFactor()
+// 02.17.01     RTW - Nov 10, 2020  - Enhancement:
+//                                      - Added in Schneider 2020 remnant mass prescriptions (standard and alternative)
+//                                      - Added parameter MassTransferDonorHistory, as required for above prescription, which tracks the MT donor type (from which the MT Case can be established)
+// 02.17.02     RTW - Nov 13, 2020  - Enhancement:
+//                                      - Cleaned up the demo plotting routine so that the plot produced is the plot we use in the methods paper
+// 02.17.03     JR - Nov 13, 2020   - Enhancements, code cleanup
+//                                      - Added metallicity-distribution option: available distributions are ZSOLAR and LOGUNIFORM (see documentation)
+//                                          - Added metallicity-min and metallicity-max options (for metallicity-distribution option)
+//                                          - Metallicity is sampled if not explicitly specified via the --metallicity option - this was existing functionality, but
+//                                            no distribution was implemented: sampling always returned ZSOLAR.  This change adds the LOGUNIFORM distribution, and 'formalises' the ZSOLAR 'distribution'.
+//                                      - Added MASS to default SSE_SYSTEM_PARAMETERS_REC
+//                                      - Removed AIS code
+//                                      - Removed variable 'alpha' from BinaryCEDetails struct - use OPTIONS->CommonEnvelopeAlpha()
+//                                          - Removed BINARY_PROPERTY::COMMON_ENVELOPE_ALPHA - use PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA
+//                                      - Issue #443: removed eccentricity distribution options FIXED, IMPORTANCE & THERMALISE (THERMALISE = THERMAL, which remains) 
 
-const std::string VERSION_STRING = "02.16.01";
+const std::string VERSION_STRING = "02.17.03";
 
 # endif // __changelog_h__

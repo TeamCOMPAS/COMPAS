@@ -9,7 +9,6 @@
 
 #include "Log.h"
 #include "Star.h"
-#include "AIS.h"
 #include "BinaryConstituentStar.h"
 
 #include <boost/math/tools/roots.hpp>
@@ -22,7 +21,6 @@
 
 class Log;
 class Star;
-class AIS;
 class BinaryConstituentStar;
 
 
@@ -30,7 +28,7 @@ class BaseBinaryStar {
 
 public:
 
-    BaseBinaryStar(const AIS &p_AIS, const long int p_Id = -1l);
+    BaseBinaryStar(const long int p_Id = -1l);
 
     void CopyMemberVariables(const BaseBinaryStar& p_Star) {
 
@@ -39,8 +37,6 @@ public:
         m_Error                            = p_Star.m_Error;
 
         m_RandomSeed                       = p_Star.m_RandomSeed;
-
-        m_AIS                              = p_Star.m_AIS;
 
         m_BeBinaryDetails                  = p_Star.m_BeBinaryDetails;
 
@@ -63,17 +59,14 @@ public:
         m_EccentricityPreSN                = p_Star.m_EccentricityPreSN;
         m_EccentricityPrev                 = p_Star.m_EccentricityPrev;
 
+        m_Flags                            = p_Star.m_Flags;
+        
         m_FractionAccreted                 = p_Star.m_FractionAccreted;
 
         m_CosIPrime                        = p_Star.m_CosIPrime;
         m_IPrime                           = p_Star.m_IPrime;
 
         m_JLoss                            = p_Star.m_JLoss;
-
-        m_LBVfactor                        = p_Star.m_LBVfactor;
-
-        m_MassesEquilibrated               = p_Star.m_MassesEquilibrated;
-        m_MassesEquilibratedAtBirth        = p_Star.m_MassesEquilibratedAtBirth;
 
         m_Mass1Final                       = p_Star.m_Mass1Final;
         m_Mass2Final                       = p_Star.m_Mass2Final;
@@ -88,8 +81,6 @@ public:
 
         m_MassTransferTrackerHistory       = p_Star.m_MassTransferTrackerHistory;
 
-        m_MergesInHubbleTime               = p_Star.m_MergesInHubbleTime;
-
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
 
         m_PrintExtraDetailedOutput         = p_Star.m_PrintExtraDetailedOutput;
@@ -103,9 +94,6 @@ public:
         m_SemiMajorAxisInitial             = p_Star.m_SemiMajorAxisInitial;
         m_SemiMajorAxisPreSN               = p_Star.m_SemiMajorAxisPreSN;
         m_SemiMajorAxisPrev                = p_Star.m_SemiMajorAxisPrev;
-
-        m_StellarMerger                    = p_Star.m_StellarMerger;
-        m_StellarMergerAtBirth             = p_Star.m_StellarMergerAtBirth;
 
         m_SupernovaState                   = p_Star.m_SupernovaState;
 
@@ -132,8 +120,6 @@ public:
         m_OrbitalEnergy                    = p_Star.m_OrbitalEnergy;
 
         m_uK                               = p_Star.m_uK;
-
-        m_WolfRayetFactor                  = p_Star.m_WolfRayetFactor;
 
         m_ZetaLobe                         = p_Star.m_ZetaLobe;
         m_ZetaStar                         = p_Star.m_ZetaStar;
@@ -189,7 +175,6 @@ public:
 
     // getters - alphabetically
     BeBinaryDetailsT    BeBinaryDetails() const                     { return m_BeBinaryDetails; }
-	double              CEAlpha() const                             { return m_CEDetails.alpha; }
 	bool                CEAtLeastOnce() const                       { return m_CEDetails.CEEcount > 0; }
     unsigned int        CEEventCount() const                        { return m_CEDetails.CEEcount; }
 	double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
@@ -218,7 +203,6 @@ public:
     bool                IsNSandNS() const                           { return HasTwoOf({STELLAR_TYPE::NEUTRON_STAR}); }
     bool                IsUnbound() const                           { return (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || (utils::Compare(m_Eccentricity, 1.0) > 0)); }         // semi major axis <= 0.0 means unbound, presumably by SN)
     bool                IsWDandWD() const                           { return HasTwoOf({STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF}); }
-    double              LBV_Factor() const                          { return m_LBVfactor; }
     double              Mass1Final() const                          { return m_Mass1Final; }
     double              Mass2Final() const                          { return m_Mass2Final; }
     double              Mass1PostCEE() const                        { return m_Star1->MassPostCEE(); }
@@ -227,10 +211,10 @@ public:
     double              Mass2PreCEE() const                         { return m_Star2->MassPreCEE(); }
     double              MassEnv1() const                            { return m_MassEnv1; }
     double              MassEnv2() const                            { return m_MassEnv2; }
-    bool                MassesEquilibrated() const                  { return m_MassesEquilibrated; }
-    bool                MassesEquilibratedAtBirth() const           { return m_MassesEquilibratedAtBirth; }
+    bool                MassesEquilibrated() const                  { return m_Flags.massesEquilibrated; }
+    bool                MassesEquilibratedAtBirth() const           { return m_Flags.massesEquilibratedAtBirth; }
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
-    bool                MergesInHubbleTime() const                  { return m_MergesInHubbleTime; }
+    bool                MergesInHubbleTime() const                  { return m_Flags.mergesInHubbleTime; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
     double              OrbitalAngularVelocity() const              { return sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
@@ -260,8 +244,8 @@ public:
     double              SemiMajorAxisRsol() const                   { return m_SemiMajorAxis*AU_TO_RSOL; }
     bool                SimultaneousRLOF() const                    { return m_RLOFDetails.simultaneousRLOF; }
     bool                StableRLOFPostCEE() const                   { return m_RLOFDetails.stableRLOFPostCEE; }
-    bool                StellarMerger() const                       { return m_StellarMerger; }
-    bool                StellarMergerAtBirth() const                { return m_StellarMergerAtBirth; }
+    bool                StellarMerger() const                       { return m_Flags.stellarMerger; }
+    bool                StellarMergerAtBirth() const                { return m_Flags.stellarMergerAtBirth; }
     STELLAR_TYPE        StellarType1() const                        { return m_Star1->StellarType(); }
     STELLAR_TYPE        StellarType1PostCEE() const                 { return m_Star1->StellarTypePostCEE(); }
     STELLAR_TYPE        StellarType1PreCEE() const                  { return m_Star1->StellarTypePreCEE(); }
@@ -276,7 +260,6 @@ public:
     double              TotalAngularMomentum() const                { return m_TotalAngularMomentum; }
     double              TotalEnergy() const                         { return m_TotalEnergy; }
     double              UK() const                                  { return m_uK; }
-    double              WolfRayetFactor() const                     { return m_WolfRayetFactor; }
     double              ZetaLobe() const                    	    { return m_ZetaLobe; }
     double              ZetaStar() const                            { return m_ZetaStar; }
 
@@ -310,8 +293,6 @@ private:
 
     unsigned long int   m_RandomSeed;                                                       // Random seed for this binary
 
-    AIS                 m_AIS;
-
     BeBinaryDetailsT    m_BeBinaryDetails;                                                  // BeBinary details
 
     BinaryCEDetailsT    m_CEDetails;                                                        // Common Event details
@@ -328,17 +309,24 @@ private:
     double              m_EccentricityPreSN;                                                // Eccentricity prior to supernova
     double              m_EccentricityPrev;                                                 // Eccentricity at previous timestep
 
+    struct FLAGS {                                                                          // Miscellaneous flags
+
+        bool massesEquilibrated;                                                            // Indicates whether stars had masses equilbrated at some stage after birth
+        bool massesEquilibratedAtBirth;                                                     // Indicates whether stars had masses equilbrated at birth
+
+        bool mergesInHubbleTime;                                                            // Indicates if the stars merge in Hubble Time
+
+        bool stellarMerger;                                                                 // Indicates that the constituent stars merged
+        bool stellarMergerAtBirth;                                                          // Indicates that the constituent stars were touching at bierth
+
+    }                   m_Flags;
+
     double	            m_FractionAccreted;	                                                // Fraction of mass accreted from the donor during mass transfer
 
     double              m_CosIPrime;
     double              m_IPrime;
 
     double	            m_JLoss;			                                                // Specific angular momentum with which mass is lost during non-conservative mass transfer
-
-    double              m_LBVfactor;
-
-    bool                m_MassesEquilibrated;                                               // Indicates whether stars had masses equilbrated at some stage after birth
-    bool                m_MassesEquilibratedAtBirth;                                        // Indicates whether stars had masses equilbrated at birth
 
     double              m_Mass1Final;                                                       // Star1 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
     double              m_Mass2Final;                                                       // Star2 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
@@ -359,8 +347,6 @@ private:
     double              m_TotalMassPrev;
     double              m_TotalMass;
 
-    bool                m_MergesInHubbleTime;                                               // Indicates if the stars merge in Hubble Time
-
     double              m_OrbitalVelocityPreSN;
 
     bool                m_PrintExtraDetailedOutput;                                         // Flag to ensure that detailed output only gets printed once per timestep
@@ -372,9 +358,6 @@ private:
     double              m_SemiMajorAxisInitial;                                             // Record initial semi-major axis              JR: todo: check necessary
     double              m_SemiMajorAxisPreSN;                                               // Semi-major axis prior to supernova
     double              m_SemiMajorAxisPrev;                                                // Semi-major axis at previous timestep
-
-    bool                m_StellarMerger;                                                    // Indicates that the constituent stars merged
-    bool                m_StellarMergerAtBirth;                                             // Indicates that the constituent stars were touching at bierth
 
     SN_STATE            m_SupernovaState;                                                   // Indicates which star (or stars) are undergoing / have undergone a supernova event
 
@@ -402,8 +385,6 @@ private:
 
     double              m_uK;
 
-    double              m_WolfRayetFactor;
-
     double              m_ZetaLobe;
     double              m_ZetaStar;
 
@@ -426,7 +407,7 @@ private:
     //                            and call the actual function
     // JR: todo: note in the orginal code the binary orbital velicity was passed in as a parameter but never used - I removed it
 
-    void    SetInitialValues(const AIS &p_AIS, const long int p_Id);
+    void    SetInitialValues(const long int p_Id);
     void    SetRemainingValues();
 
 
@@ -535,7 +516,7 @@ private:
 
     // printing functions
     void PrintRLOFParameters(const string p_Rec = "");
-    void PrintBinarySystemParameters(const string p_Rec = "")               {                                   LOGGING->LogSystemParameters(this, p_Rec); }
+    void PrintBinarySystemParameters(const string p_Rec = "")               {                                   LOGGING->LogBSESystemParameters(this, p_Rec); }
     void PrintDetailedOutput(const long int p_Id, const string p_Rec = "")  { if (OPTIONS->DetailedOutput())    LOGGING->LogBSEDetailedOutput(this, p_Id, p_Rec); }
     void PrintDoubleCompactObjects(const string p_Rec = "")                 {                                   LOGGING->LogDoubleCompactObject(this, p_Rec); }
     void PrintCommonEnvelope(const string p_Rec = "")                       {                                   LOGGING->LogCommonEnvelope(this, p_Rec); }

@@ -115,19 +115,19 @@ namespace utils {
     const std::string                   vFormat(const char* const p_zcFormat, ...);
 
 
-    double                              SampleEccentricityDistribution(const ECCENTRICITY_DISTRIBUTION p_Edist, const double p_Max, const double p_Min);
+    double                              SampleEccentricity(const ECCENTRICITY_DISTRIBUTION p_Edist, const double p_Max, const double p_Min);
     double                              SampleFromTabulatedCDF(const double p_X, const std::map<double, double> pTable);
-    double                              SampleInitialMassDistribution(const INITIAL_MASS_FUNCTION p_IMF, const double p_Max, const double p_Min, const double p_Power);
-    double                              SampleMetallicity();
-    double                              SampleQDistribution(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min);
-    double                              SampleSemiMajorAxisDistribution(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
-                                                                        const double p_AdistMax, 
-                                                                        const double p_AdistMin, 
-                                                                        const double p_AdistPower, 
-                                                                        const double p_PdistMax, 
-                                                                        const double p_PdistMin, 
-                                                                        const double p_Mass1, 
-                                                                        const double p_Mass2);
+    double                              SampleInitialMass(const INITIAL_MASS_FUNCTION p_IMF, const double p_Max, const double p_Min, const double p_Power);
+    double                              SampleMassRatio(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min);
+    double                              SampleMetallicity(const METALLICITY_DISTRIBUTION p_Zdist, const double p_Max, const double p_Min);
+    double                              SampleSemiMajorAxis(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
+                                                            const double p_AdistMax, 
+                                                            const double p_AdistMin, 
+                                                            const double p_AdistPower, 
+                                                            const double p_PdistMax, 
+                                                            const double p_PdistMin, 
+                                                            const double p_Mass1, 
+                                                            const double p_Mass2);
 
     SN_EVENT                            SNEventType(const SN_EVENT p_SNEvent);
 

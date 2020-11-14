@@ -6,6 +6,12 @@ import pickle
 import itertools 
 from subprocess import call
 
+#### NOTE: For this demo, we use the Grid_demo.txt grid file. 
+#### The values in that file will override many of the defaults
+#### listed here, but in order to reproduce the example in Fig. 9
+#### of the COMPAS methods paper, but some, e.g the random_seed,
+#### must still be set correctly here. 
+
 # Check if we are using python 3
 python_version = sys.version_info[0]
 print("python_version =", python_version)
@@ -44,13 +50,13 @@ class pythonProgramOptions:
     if os.path.isfile(randomSeedFileName):
         random_seed = int(np.loadtxt(randomSeedFileName))
     else:
-        random_seed = 0 # If you want a random seed, use: np.random.randint(2,2**63-1)
+        random_seed = 85107 # If you want a random seed, use: np.random.randint(2,2**63-1)
 
-    # environment variable COMPAS_LOGS_OUTPUT_DIR_PATH is used primarily for docker runs
-    # if COMPAS_LOGS_OUTPUT_DIR_PATH is set (!= None) it is used as the value for the
-    # --output-path option
-    # if COMPAS_LOGS_OUTPUT_DIR_PATH is not set (== None) the current working directory
-    # is used as the value for the --output-path option
+    # environment variable COMPAS_LOGS_OUTPUT_DIR_PATH is used for docker runs
+    # if COMPAS_LOGS_OUTPUT_DIR_PATH is not set (== None) we assume this is an
+    # interactive run with python3
+    # if COMPAS_LOGS_OUTPUT_DIR_PATH is set (!= None) we assume this is a run
+    # inside a docker container and set the output path appropriately
     compas_logs_output_override = os.environ.get('COMPAS_LOGS_OUTPUT_DIR_PATH')
     
     if (compas_logs_output_override is None):
@@ -60,13 +66,6 @@ class pythonProgramOptions:
         output = compas_logs_output_override
         output_container = None
 
-    # environment variable COMPAS_INPUT_DIR_PATH is used primarily for docker runs
-    # if COMPAS_INPUT_DIR_PATH is set (!= None) it is prepended to input filenames
-    # (such as grid_filename and logfile_definitions)
-    # if COMPAS_INPUT_DIR_PATH is not set (== None) the current working directory
-    # is prepended to input filenames
-    compas_input_path_override = os.environ.get('COMPAS_INPUT_DIR_PATH')
-    
     #-- option to make a grid of hyperparameter values at which to produce populations.
     #-- If this is set to true, it will divide the number_of_binaries parameter equally
     #-- amoungst the grid points (as closely as possible). See the hyperparameterGrid method below
@@ -78,21 +77,7 @@ class pythonProgramOptions:
 
     mode = 'BSE'                                                # evolving single stars (SSE) or binaries (BSE)?
 
-    grid_filename = None                                        # grid file name (e.g. 'mygrid.txt')
-
-    if grid_filename != None:
-        if compas_input_path_override == None:
-            grid_filename = os.getcwd() + '/' + grid_filename
-        else:
-            grid_filename = compas_input_path_override + '/' + grid_filename
-
-    logfile_definitions = None                                  # logfile record definitions file name (e.g. 'logdefs.txt')
-
-    if logfile_definitions != None:
-        if compas_input_path_override == None:
-            logfile_definitions = os.getcwd() + '/' + logfile_definitions
-        else:
-            logfile_definitions = compas_input_path_override + '/' + logfile_definitions
+    grid_filename = 'Grid_demo.txt'
 
     initial_mass    = None                                      # initial mass for SSE
     initial_mass_1  = None                                      # primary initial mass for BSE
@@ -104,12 +89,12 @@ class pythonProgramOptions:
 
     use_mass_loss = True
     mass_transfer = True
-    detailed_output = False                                     # WARNING: this creates a data heavy file
+    detailed_output = True                             # WARNING: this creates a data heavy file
     RLOFPrinting = True
     evolve_unbound_systems = False
     quiet = False
 
-    metallicity = 0.0142                                        # metallicity for both SSE and BSE - Solar metallicity Asplund+2010
+    metallicity = 0.0142                                        # Solar metallicity Asplund+2010
 
     allow_rlof_at_birth = True                                  # allow binaries that have one or both stars in RLOF at birth to evolve?
     allow_touching_at_birth = False                             # record binaries that have stars touching at birth in output files?
@@ -176,10 +161,6 @@ class pythonProgramOptions:
     eccentricity_distribution = 'ZERO'
     eccentricity_min = 0.0
     eccentricity_max = 1.0
-
-    metallicity_distribution = 'ZSOLAR'
-    metallicity_min = 0.0001
-    metallicity_max = 0.03
 
     pulsar_birth_magnetic_field_distribution = 'ZERO'
     pulsar_birth_magnetic_field_min = 11.0                      # [log10(B/G)]
@@ -253,6 +234,8 @@ class pythonProgramOptions:
 
     debug_level         = 0
     debug_classes       = []
+
+    logfile_definitions = None
 
     logfile_name_prefix = None
     logfile_delimiter   = 'COMMA'
@@ -368,8 +351,6 @@ class pythonProgramOptions:
             self.minimum_secondary_mass,
             self.eccentricity_min,
             self.eccentricity_max,
-            self.metallicity_min,
-            self.metallicity_max,
             self.pulsar_birth_magnetic_field_min,
             self.pulsar_birth_magnetic_field_max,
             self.pulsar_birth_spin_period_min,
@@ -452,8 +433,6 @@ class pythonProgramOptions:
             '--minimum-secondary-mass',
             '--eccentricity-min',
             '--eccentricity-max',
-            '--metallicity-min',
-            '--metallicity-max',
             '--pulsar-birth-magnetic-field-distribution-min',
             '--pulsar-birth-magnetic-field-distribution-max',
             '--pulsar-birth-spin-period-distribution-min',
@@ -518,7 +497,6 @@ class pythonProgramOptions:
             self.semi_major_axis_distribution,
             self.mass_ratio_distribution,
             self.eccentricity_distribution,
-            self.metallicity_distribution,
             self.rotational_velocity_distribution,
             self.remnant_mass_prescription,
             self.fryer_supernova_engine,
@@ -565,7 +543,6 @@ class pythonProgramOptions:
             '--semi-major-axis-distribution',
             '--mass-ratio-distribution',
             '--eccentricity-distribution',
-            '--metallicity-distribution',
             '--rotational-velocity-distribution',
             '--remnant-mass-prescription',
             '--fryer-supernova-engine',
