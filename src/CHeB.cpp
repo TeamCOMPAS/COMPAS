@@ -685,9 +685,8 @@ double CHeB::CalculateMinimumRadiusOnPhase_Static(const double      p_Mass,
         double LZAHB      = GiantBranch::CalculateLuminosityOnZAHB_Static(p_Mass, p_CoreMass, p_Alpha1, p_MHeF, p_MFGB, p_MinimumLuminosityOnPhase, p_BnCoefficients);
         double mu         = p_Mass / p_MHeF;
         double MHeF_b28   = PPOW(p_MHeF, b[28]);     // pow() is slow - do it once only
-        double top        = ((b[24] * p_MHeF) + (PPOW((b[25] * p_Mass), b[26]) * MHeF_b28)) / (b[27] + MHeF_b28);
-        // still unsure about this line.
-        double bottom     = GiantBranch::CalculateRadiusOnPhase_Static(p_MHeF, LZAHB_MHeF, p_BnCoefficients); // Mass or MHeF
+        double top        = ((b[24] * p_MHeF) + (PPOW((b[25] * p_MHeF), b[26]) * MHeF_b28)) / (b[27] + MHeF_b28);
+        double bottom     = GiantBranch::CalculateRadiusOnPhase_Static(p_MHeF, LZAHB_MHeF, p_BnCoefficients);
 
         minR = GiantBranch::CalculateRadiusOnPhase_Static(p_Mass, LZAHB, p_BnCoefficients) * PPOW(top / bottom, mu);
     }

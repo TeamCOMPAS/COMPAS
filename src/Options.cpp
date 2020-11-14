@@ -140,8 +140,6 @@ void Options::OptionValues::Initialise() {
 
     m_SwitchLog                                                     = false;
 
-    m_nBatchesUsed                                                  = -1;
-
 
     // Evolution mode: SSE or BSE
     m_EvolutionMode.type                                            = EVOLUTION_MODE::BSE;
@@ -176,7 +174,7 @@ void Options::OptionValues::Initialise() {
     m_MassRatioDistributionMin                                      = 0.0;
     m_MassRatioDistributionMax                                      = 1.0;
 
-    m_MinimumMassSecondary                                          = 0.0;
+    m_MinimumMassSecondary                                          = MINIMUM_INITIAL_MASS;                                 // actual value set later
 
 
     // Initial orbit options
@@ -399,17 +397,6 @@ void Options::OptionValues::Initialise() {
 	m_CommonEnvelopeRecombinationEnergyDensity                      = 1.5E13;
 
 
-    // Adaptive Importance Sampling options
-    m_AISexploratoryPhase                                           = false;
-    m_AISDCOtype.type                                               = AIS_DCO::ALL;
-    m_AISDCOtype.typeString                                         = AIS_DCO_LABEL.at(m_AISDCOtype.type);
-    m_AIShubble                                                     = false;
-    m_AISpessimistic                                                = false;
-    m_AISrefinementPhase                                            = false;
-    m_AISrlof                                                       = false;
-    m_KappaGaussians                                                = 2;
-
-
 	// Zetas
 	m_StellarZetaPrescription.type                                  = ZETA_PRESCRIPTION::SOBERMAN;
 	m_StellarZetaPrescription.typeString                            = ZETA_PRESCRIPTION_LABEL.at(m_StellarZetaPrescription.type);
@@ -421,6 +408,10 @@ void Options::OptionValues::Initialise() {
 
     // Metallicity options
     m_Metallicity                                                   = ZSOL;
+    m_MetallicityDistribution.type                                  = METALLICITY_DISTRIBUTION::ZSOLAR; 
+    m_MetallicityDistribution.typeString                            = METALLICITY_DISTRIBUTION_LABEL.at(m_MetallicityDistribution.type);
+    m_MetallicityDistributionMin                                    = MINIMUM_METALLICITY;
+    m_MetallicityDistributionMax                                    = MAXIMUM_METALLICITY;
 
 
     // Neutron star equation of state
@@ -558,35 +549,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
 
         // boolean options - alphabetically
-
-        // Floor
-        /*
-        (
-            "ais-exploratory-phase",                                       
-            po::value<bool>(&p_Options->m_AISexploratoryPhase)->default_value(p_Options->m_AISexploratoryPhase)->implicit_value(true),                                                            
-            ("Run exploratory phase of STROOPWAFEL (default = " + std::string(p_Options->m_AISexploratoryPhase ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "ais-hubble",                                                  
-            po::value<bool>(&p_Options->m_AIShubble)->default_value(p_Options->m_AIShubble)->implicit_value(true),                                                                                
-            ("Excluding not in Hubble time mergers selection in exploratory phase of STROOPWAFEL (default = " + std::string(p_Options->m_AIShubble ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "ais-pessimistic",                                             
-            po::value<bool>(&p_Options->m_AISpessimistic)->default_value(p_Options->m_AISpessimistic)->implicit_value(true),                                                                      
-            ("Optimistic or Pessimistic selection in exploratory phase of STROOPWAFEL (default = " + std::string(p_Options->m_AISpessimistic ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "ais-refinement-phase",                                        
-            po::value<bool>(&p_Options->m_AISrefinementPhase)->default_value(p_Options->m_AISrefinementPhase)->implicit_value(true),                                                              
-            ("Run main sampling phase (step2) of STROOPWAFEL (default = " + std::string(p_Options->m_AISrefinementPhase ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "ais-rlof",                                                    
-            po::value<bool>(&p_Options->m_AISrlof)->default_value(p_Options->m_AISrlof)->implicit_value(true),                                                                                    
-            ("RLOFSecondaryZAMS selection in exploratory phase of STROOPWAFEL (default = " + std::string(p_Options->m_AISrlof ? "TRUE" : "FALSE") + ")").c_str()
-       )
-        */
 
         (
             "allow-rlof-at-birth",                                         
@@ -734,15 +696,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<int>(&p_Options->m_MaxNumberOfTimestepIterations)->default_value(p_Options->m_MaxNumberOfTimestepIterations),                                                               
             ("Maximum number of timesteps to evolve binary before giving up (default = " + std::to_string(p_Options->m_MaxNumberOfTimestepIterations) + ")").c_str()
         )
-
-        // Floor
-        /*
-        (
-            "nbatches-used",                                               
-            po::value<int>(&p_Options->m_nBatchesUsed)->default_value(p_Options->m_nBatchesUsed),                                                                                                 
-            ("Number of batches used, for STROOPWAFEL (AIS), -1 = not required (default = " + std::to_string(p_Options->m_nBatchesUsed) + ")").c_str()
-        )
-        */
 
         (
             "number-of-systems,n",                                        
@@ -941,15 +894,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Single power law power to generate primary mass using given IMF (default = " + std::to_string(p_Options->m_InitialMassFunctionPower) + ")").c_str()
         )
 
-        // Floor
-        /*
-        (
-            "kappa-gaussians",                                             
-            po::value<double>(&p_Options->m_KappaGaussians)->default_value(p_Options->m_KappaGaussians),                                                                                          
-            ("Scaling factor for the width of the Gaussian distributions in STROOPWAFEL main sampling phase (default = " + std::to_string(p_Options->m_KappaGaussians) + ")").c_str()
-        )
-        */
-
         (
             "kick-direction-power",                                        
             po::value<double>(&p_Options->m_KickDirectionPower)->default_value(p_Options->m_KickDirectionPower),                                                                                  
@@ -1103,6 +1047,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Metallicity to use (default " + std::to_string(p_Options->m_Metallicity) + " Zsol)").c_str()
         )
         (
+            "metallicity-max",                                            
+            po::value<double>(&p_Options->m_MetallicityDistributionMax)->default_value(p_Options->m_MetallicityDistributionMax),                                                                
+            ("Maximum metallicity to generate (default = " + std::to_string(p_Options->m_MetallicityDistributionMax) + ")").c_str()
+        )
+        (
+            "metallicity-min",                                            
+            po::value<double>(&p_Options->m_MetallicityDistributionMin)->default_value(p_Options->m_MetallicityDistributionMin),                                                                
+            ("Minimum metallicity to generate (default = " + std::to_string(p_Options->m_MetallicityDistributionMin) + ")").c_str()
+        )
+        (
             "minimum-secondary-mass",                                      
             po::value<double>(&p_Options->m_MinimumMassSecondary)->default_value(p_Options->m_MinimumMassSecondary),                                                                              
             ("Minimum mass of secondary to generate in Msol (default = " + std::to_string(p_Options->m_MinimumMassSecondary) + ")").c_str()
@@ -1243,15 +1197,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         // string options - alphabetically
 
-        // Floor
-        /*
-        (
-            "ais-dcotype",                                                 
-            po::value<std::string>(&p_Options->m_AISDCOtype.typeString)->default_value(p_Options->m_AISDCOtype.typeString),                                                                                      
-            ("DCO type selection in exploratory phase of STROOPWAFEL, (options: [ALL, BBH, BNS, BHNS], default = " + p_Options->m_AISDCOtype.typeString + ")").c_str()
-        )
-        */
-
         (
             "black-hole-kicks",                                            
             po::value<std::string>(&p_Options->m_BlackHoleKicks.typeString)->default_value(p_Options->m_BlackHoleKicks.typeString),                                                                              
@@ -1282,7 +1227,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "eccentricity-distribution",                                 
             po::value<std::string>(&p_Options->m_EccentricityDistribution.typeString)->default_value(p_Options->m_EccentricityDistribution.typeString),                                                          
-            ("Initial eccentricity distribution (options: [ZERO, FIXED, FLAT, THERMALISED, GELLER+2013], default = " + p_Options->m_EccentricityDistribution.typeString + ")").c_str()
+            ("Initial eccentricity distribution (options: [ZERO, FLAT, THERMAL, GELLER+2013, DUQUENNOYMAYOR1991, SANA2012], default = " + p_Options->m_EccentricityDistribution.typeString + ")").c_str()
         )
         (
             "envelope-state-prescription",                                 
@@ -1414,7 +1359,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_MassTransferThermallyLimitedVariation.typeString)->default_value(p_Options->m_MassTransferThermallyLimitedVariation.typeString),                                
             ("Mass Transfer Thermal Accretion limit (options: [CFACTOR, ROCHELOBE], default = " + p_Options->m_MassTransferThermallyLimitedVariation.typeString + ")").c_str()
         )
-
+        (
+            "metallicity-distribution",                                 
+            po::value<std::string>(&p_Options->m_MetallicityDistribution.typeString)->default_value(p_Options->m_MetallicityDistribution.typeString),                                                          
+            ("Metallicity distribution (options: [ZSOLAR, LOGUNIFORM], default = " + p_Options->m_MetallicityDistribution.typeString + ")").c_str()
+        )
         (
             "mode",                                                 
             po::value<std::string>(&p_Options->m_EvolutionMode.typeString)->default_value(p_Options->m_EvolutionMode.typeString),                                                                              
@@ -1462,7 +1411,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "remnant-mass-prescription",                                   
             po::value<std::string>(&p_Options->m_RemnantMassPrescription.typeString)->default_value(p_Options->m_RemnantMassPrescription.typeString),                                                            
-            ("Choose remnant mass prescription (options: [HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL], default = " + p_Options->m_RemnantMassPrescription.typeString + ")").c_str()
+            ("Choose remnant mass prescription (options: [HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT], default = " + p_Options->m_RemnantMassPrescription.typeString + ")").c_str()
         )
         (
             "rotational-velocity-distribution",                            
@@ -1682,14 +1631,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         m_UseFixedUK       = !DEFAULTED("fix-dimensionless-kick-magnitude") && (m_FixedUK >= 0.0);                                  // determine if user supplied a valid kick magnitude
 
 
-        // Floor
-        /*
-        if (!DEFAULTED("ais-dcotype")) {                                                                                            // Adaptive Importance Sampling DCO type
-            std::tie(found, p_OptionValues->m_AISDCOtype.type) = utils::GetMapKey(p_OptionValues->m_AISDCOtype.typeString, AIS_DCO_LABEL, p_OptionValues->m_AISDCOtype.type);
-            return "Unknown AIS DCO Type";
-        }
-        */
-
         if (!DEFAULTED("black-hole-kicks")) {                                                                                       // black hole kicks
             std::tie(found, m_BlackHoleKicks.type) = utils::GetMapKey(m_BlackHoleKicks.typeString, BLACK_HOLE_KICKS_LABEL, m_BlackHoleKicks.type);
             COMPLAIN_IF(!found, "Unknown Black Hole Kicks Option");
@@ -1788,6 +1729,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             }
         }
 
+        if (!DEFAULTED("metallicity-distribution")) {                                                                               // metallicity distribution
+            std::tie(found, m_MetallicityDistribution.type) = utils::GetMapKey(m_MetallicityDistribution.typeString, METALLICITY_DISTRIBUTION_LABEL, m_MetallicityDistribution.type);
+            COMPLAIN_IF(!found, "Unknown Metallicity Distribution");
+        }
+
         if (!DEFAULTED("mode")) {                                                                                                   // mode
             std::tie(found, m_EvolutionMode.type) = utils::GetMapKey(m_EvolutionMode.typeString, EVOLUTION_MODE_LABEL, m_EvolutionMode.type);
             COMPLAIN_IF(!found, "Unknown Mode");
@@ -1840,12 +1786,12 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         // constraint/value/range checks - alphabetically (where possible)
 
-        COMPLAIN_IF(!DEFAULTED("common-envelope-alpha") && m_CommonEnvelopeAlpha < 0.0, "CE alpha (--common-envelope-alpha) < 0");
-        COMPLAIN_IF(!DEFAULTED("common-envelope-alpha-thermal") && (m_CommonEnvelopeAlphaThermal < 0.0 || m_CommonEnvelopeAlphaThermal > 1.0), "CE alpha thermal (--common-envelope-alpha-thermal) must be between 0 and 1");
-        COMPLAIN_IF(!DEFAULTED("common-envelope-lambda-multiplier") && m_CommonEnvelopeLambdaMultiplier < 0.0, "CE lambda multiplie (--common-envelope-lambda-multiplier < 0");
-        COMPLAIN_IF(!DEFAULTED("common-envelope-mass-accretion-constant") && m_CommonEnvelopeMassAccretionConstant < 0.0, "CE mass accretion constant (--common-envelope-mass-accretion-constant) < 0");
-        COMPLAIN_IF(!DEFAULTED("common-envelope-mass-accretion-max") && m_CommonEnvelopeMassAccretionMax < 0.0, "Maximum accreted mass (--common-envelope-mass-accretion-max) < 0");
-        COMPLAIN_IF(!DEFAULTED("common-envelope-mass-accretion-min") && m_CommonEnvelopeMassAccretionMin < 0.0, "Minimum accreted mass (--common-envelope-mass-accretion-min) < 0");
+        COMPLAIN_IF(m_CommonEnvelopeAlpha < 0.0, "CE alpha (--common-envelope-alpha) < 0");
+        COMPLAIN_IF(m_CommonEnvelopeAlphaThermal < 0.0 || m_CommonEnvelopeAlphaThermal > 1.0, "CE alpha thermal (--common-envelope-alpha-thermal) must be between 0 and 1");
+        COMPLAIN_IF(m_CommonEnvelopeLambdaMultiplier < 0.0, "CE lambda multiplie (--common-envelope-lambda-multiplier < 0");
+        COMPLAIN_IF(m_CommonEnvelopeMassAccretionConstant < 0.0, "CE mass accretion constant (--common-envelope-mass-accretion-constant) < 0");
+        COMPLAIN_IF(m_CommonEnvelopeMassAccretionMax < 0.0, "Maximum accreted mass (--common-envelope-mass-accretion-max) < 0");
+        COMPLAIN_IF(m_CommonEnvelopeMassAccretionMin < 0.0, "Minimum accreted mass (--common-envelope-mass-accretion-min) < 0");
 
         COMPLAIN_IF(m_DebugLevel < 0, "Debug level (--debug-level) < 0");
 
@@ -1854,8 +1800,12 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_EccentricityDistributionMax < 0.0 || m_EccentricityDistributionMax > 1.0, "Maximum eccentricity (--eccentricity-max) must be between 0 and 1");
         COMPLAIN_IF(m_EccentricityDistributionMax <= m_EccentricityDistributionMin, "Maximum eccentricity (--eccentricity-max) must be > Minimum eccentricity (--eccentricity-min)");
 
-        COMPLAIN_IF(m_InitialMassFunctionMin < 0.0, "Minimum initial mass (--initial-mass-min) < 0");
-        COMPLAIN_IF(m_InitialMassFunctionMax < 0.0, "Maximum initial mass (--initial-mass-max) < 0");
+        COMPLAIN_IF(m_InitialMass < MINIMUM_INITIAL_MASS || m_InitialMass > MAXIMUM_INITIAL_MASS, "Initial mass (--initial-mass) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
+        COMPLAIN_IF(m_InitialMass1 < MINIMUM_INITIAL_MASS || m_InitialMass1 > MAXIMUM_INITIAL_MASS, "Primary initial mass (--initial-mass-1) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
+        COMPLAIN_IF(m_InitialMass2 < MINIMUM_INITIAL_MASS || m_InitialMass2 > MAXIMUM_INITIAL_MASS, "Secondary initial mass (--initial-mass-2) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
+
+        COMPLAIN_IF(m_InitialMassFunctionMin < MINIMUM_INITIAL_MASS, "Minimum initial mass (--initial-mass-min) must be >= " + std::to_string(MINIMUM_INITIAL_MASS) + " Msol");
+        COMPLAIN_IF(m_InitialMassFunctionMax > MAXIMUM_INITIAL_MASS, "Maximum initial mass (--initial-mass-max) must be <= " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
         COMPLAIN_IF(m_InitialMassFunctionMax <= m_InitialMassFunctionMin, "Maximum initial mass (--initial-mass-max) must be > Minimum initial mass (--initial-mass-min)");
 
         if (m_KickMagnitudeDistribution.type == KICK_MAGNITUDE_DISTRIBUTION::FLAT) {
@@ -1872,10 +1822,13 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         COMPLAIN_IF(m_MaxEvolutionTime <= 0.0, "Maximum evolution time in Myr (--maxEvolutionTime) must be > 0");
 
-        COMPLAIN_IF(m_Metallicity < 0.0 || m_Metallicity > 1.0, "Metallicity (--metallicity) should be absolute metallicity and must be between 0 and 1");
+        COMPLAIN_IF(m_Metallicity < MINIMUM_METALLICITY || m_Metallicity > MAXIMUM_METALLICITY, "Metallicity (--metallicity) should be absolute metallicity and must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
+        COMPLAIN_IF(m_MetallicityDistributionMin < MINIMUM_METALLICITY || m_MetallicityDistributionMin > MAXIMUM_METALLICITY, "Minimum metallicity (--metallicity-min) must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
+        COMPLAIN_IF(m_MetallicityDistributionMax < MINIMUM_METALLICITY || m_MetallicityDistributionMax > MAXIMUM_METALLICITY, "Maximum metallicity (--metallicity-max) must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
+        COMPLAIN_IF(m_MetallicityDistributionMax <= m_MetallicityDistributionMin, "Maximum metallicity (--metallicity-max) must be > Minimum metallicity (--metallicity-min)");
 
-        COMPLAIN_IF(m_MinimumMassSecondary < 0.0, "Seconday minimum mass (--minimum-secondary-mass) must be >= 0");
-        COMPLAIN_IF(m_MinimumMassSecondary > m_InitialMassFunctionMax, "Seconday minimum mass (--minimum-secondary-mass) must be <= Maximum initial mass (--initial-mass-max)");
+        COMPLAIN_IF(m_MinimumMassSecondary < MINIMUM_INITIAL_MASS, "Seconday minimum mass (--minimum-secondary-mass) must be >= minimum initial mass of " + std::to_string(MINIMUM_INITIAL_MASS) + " Msol");
+        COMPLAIN_IF(m_MinimumMassSecondary > MAXIMUM_INITIAL_MASS, "Seconday minimum mass (--minimum-secondary-mass) must be <= maximum initial mass of " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
 
         if (m_NeutrinoMassLossAssumptionBH.type == NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS) {
             COMPLAIN_IF(m_NeutrinoMassLossValueBH < 0.0, "Neutrino mass loss value < 0");
@@ -1917,13 +1870,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         COMPLAIN_IF(!DEFAULTED("semi-major-axis") && m_SemiMajorAxis <= 0.0, "Semi-major axis (--semi-major-axis) <= 0");           // semi-major axis must be > 0.0
         COMPLAIN_IF(!DEFAULTED("orbital-period")  && m_OrbitalPeriod <= 0.0, "Orbital period (--orbital-period) <= 0");             // orbital period must be > 0.0
-
-        // calculate semi-major axis from orbital period if necessary
-        if (DEFAULTED("semi-major-axis")) {                                                                                         // user specified semi-major axis?
-            if (!DEFAULTED("orbital-period")) {                                                                                     // user specified orbital period?
-                m_SemiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(m_InitialMass1, m_InitialMass2, m_OrbitalPeriod);   // yes - calculate separation from period
-            }
-        }
 
         COMPLAIN_IF(m_KickMagnitude  < 0.0, "Kick magnitude (--kick-magnitude) must be >= 0");
         COMPLAIN_IF(m_KickMagnitude1 < 0.0, "Kick magnitude (--kick-magnitude-1) must be >= 0");
@@ -3353,16 +3299,6 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
                                                                                                                         // get property value
     switch (property) {
 
-        // Floor
-        /*
-        case PROGRAM_OPTION::AIS_DCO_TYPE                                   : value = static_cast<int>(AIS_DCOType());                                      break;
-        case PROGRAM_OPTION::AIS_EXPLORATORY_PHASE                          : value = AIS_ExploratoryPhase();                                               break;
-        case PROGRAM_OPTION::AIS_HUBBLE                                     : value = AIS_Hubble();                                                         break;
-        case PROGRAM_OPTION::AIS_PESSIMISTIC                                : value = AIS_Pessimistic();                                                    break;
-        case PROGRAM_OPTION::AIS_REFINEMENT_PHASE                           : value = AIS_RefinementPhase();                                                break;
-        case PROGRAM_OPTION::AIS_RLOF                                       : value = AIS_RLOF();                                                           break;
-        */
-
         case PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE       : value = AllowMainSequenceStarToSurviveCommonEnvelope();                       break;
         case PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH                            : value = AllowRLOFAtBirth();                                                   break;
         case PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH                        : value = AllowTouchingAtBirth();                                               break;
@@ -3453,6 +3389,9 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::MCBUR1                                         : value = MCBUR1();                                                             break;
 
         case PROGRAM_OPTION::METALLICITY                                    : value = Metallicity();                                                        break;
+        case PROGRAM_OPTION::METALLICITY_DISTRIBUTION                       : value = static_cast<int>(MetallicityDistribution());                          break;
+        case PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MAX                   : value = MetallicityDistributionMax();                                         break;
+        case PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN                   : value = MetallicityDistributionMin();                                         break;
 
         case PROGRAM_OPTION::MINIMUM_MASS_SECONDARY                         : value = MinimumMassSecondary();                                               break;
 

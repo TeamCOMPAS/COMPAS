@@ -86,7 +86,6 @@ public:
     bool                        ExperiencedECSN() const                                                                     { return m_Star->ExperiencedECSN(); }
     bool                        ExperiencedPISN() const                                                                     { return m_Star->ExperiencedPISN() ; }
     bool                        ExperiencedPPISN() const                                                                    { return m_Star->ExperiencedPPISN(); }
-    bool                        ExperiencedRunaway() const                                                                  { return m_Star->ExperiencedRunaway(); }
     bool                        ExperiencedUSSN() const                                                                     { return m_Star->ExperiencedUSSN(); }
     double                      HeCoreMass() const                                                                          { return m_Star->HeCoreMass(); }
     bool                        IsCCSN() const                                                                              { return m_Star->IsCCSN(); }
@@ -131,6 +130,8 @@ public:
     // setters (JR: I don't really like this, but I think unavoidable - at least for now)
     void                        SetOmega(double p_vRot)                                                                     { m_Star->SetOmega(p_vRot); }
 
+    void                        UpdateMassTransferDonorHistory()                                                            { m_Star->UpdateMassTransferDonorHistory(); }
+
 
     // member functions - alphabetically
     STELLAR_TYPE    AgeOneTimestep(const double p_Dt, bool p_Switch = true);
@@ -171,8 +172,6 @@ public:
     double          CalculateTimestep()                                                                         { return m_Star->CalculateTimestep(); }
 
     double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                                         { return m_Star->CalculateZeta(p_ZetaPrescription); }
-
-    void            CheckRunaway(const bool p_Unbound)                                                          { m_Star->CheckRunaway(p_Unbound); }
 
     void            ClearCurrentSNEvent()                                                                       { m_Star->ClearCurrentSNEvent(); }
 
@@ -225,9 +224,11 @@ public:
     void            UpdateInitialMass()                                                                         { m_Star->UpdateInitialMass(); }
 
     void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
+                                               const bool   p_RecycledNS,
                                                const double p_Stepsize,
                                                const double p_MassGainPerTimeStep,
                                                const double p_Epsilon)                                          { m_Star->UpdateMagneticFieldAndSpin(p_CommonEnvelope,
+                                                                                                                                                     p_RecycledNS,
                                                                                                                                                      p_Stepsize,
                                                                                                                                                      p_MassGainPerTimeStep,
                                                                                                                                                      p_Epsilon);}

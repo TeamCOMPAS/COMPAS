@@ -145,18 +145,6 @@ private:
         "help", "h",
         "version", "v",
 
-        // Floor
-        /*
-        "ais-dcotype",
-        "ais-exploratory-phase",
-        "ais-hubble",
-        "ais-pessimistic",
-        "ais-refinement-phase",
-        "ais-rlof",
-        "kappa-gaussians",
-        "nbatches-used",
-        */
-
         "quiet", 
         "log-level", 
         "log-classes",
@@ -239,18 +227,6 @@ private:
         "semi-major-axis", "a",
         "orbital-period",
 
-        // Floor
-        /*
-        "ais-dcotype",
-        "ais-exploratory-phase",
-        "ais-hubble",
-        "ais-pessimistic",
-        "ais-refinement-phase",
-        "ais-rlof",
-        "kappa-gaussians",
-        "nbatches-used",
-        */
-
         "allow-rlof-at-birth",
         "allow-touching-at-birth",
         "angular-momentum-conservation-during-circularisation", 
@@ -324,7 +300,10 @@ private:
         "common-envelope-lambda-prescription",
         "common-envelope-mass-accretion-prescription",
 
+        "eccentricity", "e",
         "eccentricity-distribution",
+        "eccentricity-max",
+        "eccentricity-min",
 
         "mass-ratio-distribution", "q",
 
@@ -362,18 +341,6 @@ private:
     std::vector<std::string> m_RangeExcluded = {
         "help", "h",
         "version", "v",
-
-        // Floor
-        /*
-        "ais-dcotype",
-        "ais-exploratory-phase",
-        "ais-hubble",
-        "ais-pessimistic",
-        "ais-refinement-phase",
-        "ais-rlof",
-        "kappa-gaussians",
-        "nbatches-used",
-        */
 
         "allow-rlof-at-birth",
         "allow-touching-at-birth",
@@ -421,6 +388,8 @@ private:
         "mass-transfer-angular-momentum-loss-prescription",
         "mass-transfer-rejuvenation-prescription",
         "mass-transfer-thermal-limit-accretor",
+
+        "metallicity-distribution",
 
         "neutrino-mass-loss-bh-formation",
         "neutron-star-equation-of-state",
@@ -475,18 +444,6 @@ private:
     std::vector<std::string> m_SetExcluded = {
         "help", "h",
         "version", "v",
-
-        // Floor
-        /*
-        "ais-dcotype",
-        "ais-exploratory-phase",
-        "ais-hubble",
-        "ais-pessimistic",
-        "ais-refinement-phase",
-        "ais-rlof",
-        "kappa-gaussians",
-        "nbatches-used",
-        */
 
         "random-seed",
 
@@ -573,8 +530,6 @@ public:
             bool                                                m_ShortHelp;                                                    // Flag to indicate whether user wants short help ('-h', just option names) or long help ('--help', plus descriptions)
 
             bool                                                m_SwitchLog;                                                    // Print switch log details to file (default = false)
-
-            int                                                 m_nBatchesUsed;                                                 // Number of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
 
 
             // Miscellaneous evolution variables
@@ -786,16 +741,6 @@ public:
 	        double                                              m_CommonEnvelopeRecombinationEnergyDensity;					    // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 erg/g)
 
 
-            // Adaptive Importance Sampling options
-            bool                                                m_AISexploratoryPhase;                                          // Flag if we want to run Exploratory phase of Adaptive Importance Sampling // Floor
-            ENUM_OPT<AIS_DCO>                                   m_AISDCOtype;                                                   // Which prescription for DCO type
-            bool                                                m_AIShubble;                                                    // Whether to exclude DCOs that not merge within Hubble
-            bool                                                m_AISpessimistic;                                               // Whether to exclude Optimistic binaries
-            bool                                                m_AISrefinementPhase;                                           // Flag if we want to run refinement phase of Adaptive Importance Sampling
-            bool                                                m_AISrlof;                                                      // Whether to exclude binaries that have RLOFSecondaryZAMS
-            double                                              m_KappaGaussians;                                               // Scaling factor for the width of the Gaussian distributions in AIS main sampling phase [should be in [0,1]]
-
-
             // Zetas
             ENUM_OPT<ZETA_PRESCRIPTION>                         m_StellarZetaPrescription;                                 	    // Which prescription to use for calculating stellar zetas (default = SOBERMAN)
 
@@ -806,6 +751,9 @@ public:
 
             // Metallicity options
             double                                              m_Metallicity;                                                  // Metallicity
+            ENUM_OPT<METALLICITY_DISTRIBUTION>                  m_MetallicityDistribution;                                      // Which metallicity distribution
+            double                                              m_MetallicityDistributionMin;                                   // Minimum initial metallicity when using a distribution
+            double                                              m_MetallicityDistributionMax;                                   // Maximum initial metallicity when using a distribution
 
             double                                              m_mCBUR1;                                                       // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation
 
@@ -1015,14 +963,6 @@ public:
 
     // getters
 
-    AIS_DCO                                     AIS_DCOType() const                                                     { return m_CmdLine.optionValues.m_AISDCOtype.type; }
-    string                                      AIS_DCOTypeString() const                                               { return m_CmdLine.optionValues.m_AISDCOtype.typeString; }
-    bool                                        AIS_ExploratoryPhase() const                                            { return m_CmdLine.optionValues.m_AISexploratoryPhase; }
-    bool                                        AIS_Hubble() const                                                      { return m_CmdLine.optionValues.m_AIShubble; }
-    bool                                        AIS_Pessimistic() const                                                 { return m_CmdLine.optionValues.m_AISpessimistic; }
-    bool                                        AIS_RefinementPhase() const                                             { return m_CmdLine.optionValues.m_AISrefinementPhase; }
-    bool                                        AIS_RLOF() const                                                        { return m_CmdLine.optionValues.m_AISrlof; }
-
     bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return OPT_VALUE("common-envelope-allow-main-sequence-survive", m_AllowMainSequenceStarToSurviveCommonEnvelope, true); }
     bool                                        AllowRLOFAtBirth() const                                                { return OPT_VALUE("allow-rlof-at-birth", m_AllowRLOFAtBirth, true); }
     bool                                        AllowTouchingAtBirth() const                                            { return OPT_VALUE("allow-touching-at-birth", m_AllowTouchingAtBirth, true); }
@@ -1139,13 +1079,19 @@ public:
                                                                                                                                       );
                                                                                                                         }
     string                                      LogfileSwitchLog() const                                                { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-switch-log"].defaulted()
-                                                                                                                                    ? m_CmdLine.optionValues.m_LogfileSupernovae
+                                                                                                                                    ? m_CmdLine.optionValues.m_LogfileSwitchLog
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
                                                                                                                                         ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG))
                                                                                                                                         : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG))
                                                                                                                                       );
                                                                                                                         }
-    string                                      LogfileSystemParameters() const                                         { return m_CmdLine.optionValues.m_LogfileSystemParameters; }
+    string                                      LogfileSystemParameters() const                                         { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-system-parameters"].defaulted()
+                                                                                                                                    ? m_CmdLine.optionValues.m_LogfileSystemParameters
+                                                                                                                                    : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
+                                                                                                                                        ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS))
+                                                                                                                                        : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS))
+                                                                                                                                      );
+                                                                                                                        }
     int                                         LogLevel() const                                                        { return m_CmdLine.optionValues.m_LogLevel; }
 
     double                                      LuminousBlueVariableFactor() const                                      { return OPT_VALUE("luminous-blue-variable-multiplier", m_LuminousBlueVariableFactor, true); }
@@ -1197,13 +1143,14 @@ public:
     double                                      MCBUR1() const                                                          { return OPT_VALUE("mcbur1", m_mCBUR1, true); }
 
     double                                      Metallicity() const                                                     { return OPT_VALUE("metallicity", m_Metallicity, true); }
+    METALLICITY_DISTRIBUTION                    MetallicityDistribution() const                                         { return OPT_VALUE("metallicity-distribution", m_MetallicityDistribution.type, true); }
+    double                                      MetallicityDistributionMax() const                                      { return OPT_VALUE("metallicity-distribution-max", m_MetallicityDistributionMax, true); }
+    double                                      MetallicityDistributionMin() const                                      { return OPT_VALUE("metallicity-distribution-min", m_MetallicityDistributionMin, true); }
 
     double                                      MinimumMassSecondary() const                                            { return OPT_VALUE("minimum-secondary-mass", m_MinimumMassSecondary, true); }
 
     double                                      MullerMandelKickMultiplierBH() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-bh", m_MullerMandelKickBH, true); }
     double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-ns", m_MullerMandelKickNS, true); }
-
-    int                                         nBatchesUsed() const                                                    { return m_CmdLine.optionValues.m_nBatchesUsed; }
 
     NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-bh-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
     double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-bh-formation-value", m_NeutrinoMassLossValueBH, true); }

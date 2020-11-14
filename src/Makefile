@@ -72,8 +72,6 @@ SOURCES :=                                                               \
             BH.cpp                      \
             MR.cpp                      \
                                         \
-            AIS.cpp                     \
-                                        \
             BinaryConstituentStar.cpp   \
             BaseBinaryStar.cpp          \
             BinaryStar.cpp              \
