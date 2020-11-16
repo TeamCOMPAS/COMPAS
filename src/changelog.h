@@ -600,7 +600,10 @@
 // 02.17.04     JR - Nov 14, 2020   - Defect repairs
 //                                      - Added CalculateRadiusOnPhase() and CalculateLuminosityOnPhase() to class BH (increases DNS yield)
 //                                      - Added metallicity to sampling conditions in BaseBinaryStar constructor (should have been done when LOGUNIFORM metallicity distribution added)
+// 02.17.05     TW - Nov 16, 2020   - Defect repairs
+//                                      - Issue #444
+//                                          - Fixed typo in synchronisation timescale
 
-const std::string VERSION_STRING = "02.17.04";
+const std::string VERSION_STRING = "02.17.05";
 
 # endif // __changelog_h__
