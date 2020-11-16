@@ -1074,6 +1074,10 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
                                                        STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH, })) { // CASE C Mass Transfer - from EAGB or TPAGB 
             schneiderMassTransferCase = MT_CASE::C;
         }
+        else if ((mtHist.size() == 1) && 
+                 (utils::IsOneOf(mostRecentDonorType, { STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP })))  {       // CASE C Mass Transfer from HeHG star - lost its envelope through winds before first MT 
+            schneiderMassTransferCase = MT_CASE::C;
+        }
     }
 
 
@@ -1135,7 +1139,7 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
             logRemnantMass = 0.096910013; // gives MassRemnant = 1.25  
     }
 
-    return exp(logRemnantMass);
+    return std::pow(logRemnantMass, 10.0);
 
 }
 
