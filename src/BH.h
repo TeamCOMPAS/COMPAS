@@ -62,8 +62,12 @@ protected:
 
             double          CalculateGyrationRadius() const                                 { return 0.0; }                                                         // No tidal coupling to a BH
 
+            double          CalculateLuminosityOnPhase()                                    { return CalculateLuminosityOnPhase_Static(); }
+
             double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0)    { return (2.0 / 5.0) * m_Mass * m_Radius * m_Radius; }
             double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)  { return CalculateMomentOfInertia(p_RemnantRadius * RSOL_TO_AU) * RSOL_TO_AU * RSOL_TO_AU; }
+
+            double          CalculateRadiusOnPhase()                                        { return CalculateRadiusOnPhase_Static(m_Mass); }                       // Use class member variables - returns radius in Rsol
 
             bool            ShouldEvolveOnPhase()                                           { return true; }                                                        // Always
             bool            ShouldSkipPhase()                                               { return false; }                                                       // Don't skip

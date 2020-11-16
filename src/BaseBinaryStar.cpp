@@ -40,9 +40,10 @@ BaseBinaryStar::BaseBinaryStar(const long int p_Id) {
 
     // determine if any if the initial conditions are sampled
     // we consider eccentricity distribution = ECCENTRICITY_DISTRIBUTION::ZERO to be not sampled!
+    // we consider metallicity distribution = METALLICITY_DISTRIBUTION::ZSOLAR to be not sampled!
     bool sampled = OPTIONS->OptionSpecified("initial-mass-1") == 0 ||
                    OPTIONS->OptionSpecified("initial-mass-2") == 0 ||
-//                   OPTIONS->OptionSpecified("metallicity") == 0 ||   // for now we don't sample metallicity - we always return ZSOL
+                  (OPTIONS->OptionSpecified("metallicity") == 0 && OPTIONS->MetallicityDistribution() != METALLICITY_DISTRIBUTION::ZSOLAR) ||
                   (OPTIONS->OptionSpecified("semi-major-axis") == 0 && OPTIONS->OptionSpecified("orbital-period") == 0) ||
                   (OPTIONS->OptionSpecified("eccentricity") == 0 && OPTIONS->EccentricityDistribution() != ECCENTRICITY_DISTRIBUTION::ZERO);
 
