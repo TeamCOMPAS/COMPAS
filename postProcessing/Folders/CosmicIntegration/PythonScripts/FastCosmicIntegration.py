@@ -50,7 +50,7 @@ Zvector=np.exp(logZvector)
 dPdlogZ=1/sigma/np.sqrt(2*np.pi)*np.exp(-(logZvector-Zmu[:,np.newaxis])**2/2/sigma**2)
 norm=dPdlogZ.sum(axis=1)*steplogZ
 dPdlogZ=dPdlogZ/norm[:,np.newaxis]
-pDrawZ=1/(np.log(max(COMPAS.metallicitySystems))-np.log(min(COMPAS.metallicitySystems)))
+pDrawZ=1/(np.log(max(COMPAS.initialZ))-np.log(min(COMPAS.initialZ)))
 
 nrBinaries=len(COMPAS.delayTimes)
 formationRate=np.zeros(shape=(nrBinaries,nrRedshiftBins))
