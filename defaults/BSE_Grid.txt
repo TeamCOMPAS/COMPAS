@@ -1,22 +1,9 @@
-
-# sample BSE Grid file
-
-# note the order of the columns is not significant
-
-
-Mass_2, Metallicity_1, Eccentricity, Mass_1, Metallicity_2, Separation, Period
-
-
-13.2, 0.001, 0.0, 145.0, 0.002, 3.5, 1400.0		# this is a complete, valid record - Period will be ignored
-
-13.2, 0.001, 0.0, 145.0, 0.002, , 1400.0		# this is a complete, valid record - Period will be used because Separation is missing
-
-1,,,2											# this record has missing values - a warning will be issued
-
-1,2												# this record has missing values - a warning will be issued
-
-#3.2, ABCD!4!X5.7, , 0.0142, 1.2				# this record has an invalid data field - processing would stop
-
-
-3.2, -13.2, , 0.0142, 1.2						# this record has an negative data field - processing would stop
-
+--initial-mass-1  36.32588335986214   --initial-mass-2  4.364104996689981   --semi-major-axis  0.23283586335475195  --kick-magnitude-random-1  0.22624909470693577  --kick-magnitude-random-2  0.5025205211056127   --metallicity  0.0142  --eccentricity  0  --kick-theta-2  0.8040584672679683    --kick-theta-1  0.8912323793829255    --kick-phi-1  1.242334125142399   --kick-phi-2  5.191184302014315     --kick-mean-anomaly-1  5.171794295707449    --kick-mean-anomaly-2  4.639501762660214
+--initial-mass-1  5.606575612328568   --initial-mass-2  4.571263279468425   --semi-major-axis  1.5283100515430446   --kick-magnitude-random-1  0.3689824639824618   --kick-magnitude-random-2  0.09621764877495342  --metallicity  0.0142  --eccentricity  0  --kick-theta-2  0.4470331546231625    --kick-theta-1  -0.8493655459666452   --kick-phi-1  0.6327883488252171  --kick-phi-2  5.072751900954001     --kick-mean-anomaly-1  0.2251010217900232   --kick-mean-anomaly-2  6.244452966653703
+--initial-mass-1  11.20691874884929   --initial-mass-2  1.1809730814375519  --semi-major-axis  3.2771153564809117   --kick-magnitude-random-1  0.3792907803464646   --kick-magnitude-random-2  0.44419319937088797  --metallicity  0.0142  --eccentricity  0  --kick-theta-2  -0.3024624948343366   --kick-theta-1  -0.06038206997349871  --kick-phi-1  4.274007309450221   --kick-phi-2  2.819152898897581     --kick-mean-anomaly-1  4.940350208894603    --kick-mean-anomaly-2  3.3355163393465093
+--initial-mass-1  5.059278281829125   --initial-mass-2  3.8679370492300715  --semi-major-axis  1.509637707681217    --kick-magnitude-random-1  0.6770037129805918   --kick-magnitude-random-2  0.2946947301626124   --metallicity  0.0142  --eccentricity  0  --kick-theta-2  -0.46573746893088175  --kick-theta-1  -0.47240213590273794  --kick-phi-1  5.366245224774281   --kick-phi-2  0.05203803450809464   --kick-mean-anomaly-1  0.13240388794431943  --kick-mean-anomaly-2  3.2508715711799834
+--initial-mass-1  6.990165346854218   --initial-mass-2  0.8476213865990898  --semi-major-axis  1.3972241311276214   --kick-magnitude-random-1  0.486502081144464    --kick-magnitude-random-2  0.18271286090821126  --metallicity  0.0142  --eccentricity  0  --kick-theta-2  0.8560082279821524    --kick-theta-1  0.7131382751741988    --kick-phi-1  2.670372968809336   --kick-phi-2  1.2822582437863383    --kick-mean-anomaly-1  5.75669071553432     --kick-mean-anomaly-2  2.28823743078456
+--initial-mass-1  20.112545900751257  --initial-mass-2  12.1952819364905    --semi-major-axis  0.14982634456685381  --kick-magnitude-random-1  0.17673562339298687  --kick-magnitude-random-2  0.5555170893750939   --metallicity  0.0142  --eccentricity  0  --kick-theta-2  0.776121888139305     --kick-theta-1  1.39638923655404      --kick-phi-1  4.201992629260461   --kick-phi-2  0.006580130978252036  --kick-mean-anomaly-1  4.849761840669451    --kick-mean-anomaly-2  6.262830126578005
+--initial-mass-1  16.554960129185865  --initial-mass-2  3.5459471911032345  --semi-major-axis  0.9139858202907365   --kick-magnitude-random-1  0.12963901371350428  --kick-magnitude-random-2  0.2730239447458742   --metallicity  0.0142  --eccentricity  0  --kick-theta-2  0.6965735603342007    --kick-theta-1  -0.8682772962958262   --kick-phi-1  3.7412366004920417  --kick-phi-2  0.9236432931067587    --kick-mean-anomaly-1  4.15872705810284     --kick-mean-anomaly-2  3.382240547209205
+--initial-mass-1  19.16010622218186   --initial-mass-2  17.196067073735488  --semi-major-axis  215.80330985431613   --kick-magnitude-random-1  0.8774916458475752   --kick-magnitude-random-2  0.9013942973454143   --metallicity  0.0142  --eccentricity  0  --kick-theta-2  -0.19032424524392177  --kick-theta-1  0.37481771739218694   --kick-phi-1  2.35486794403605    --kick-phi-2  2.060451550924414     --kick-mean-anomaly-1  4.114713995327251    --kick-mean-anomaly-2  3.5404366358609773
+--initial-mass-1  7.212376129897965   --initial-mass-2  1.746204355211448   --semi-major-axis  58.029893554621786   --kick-magnitude-random-1  0.5009827094374167   --kick-magnitude-random-2  0.07432824693662221  --metallicity  0.0142  --eccentricity  0  --kick-theta-2  1.0237479413991943    --kick-theta-1  0.6003260900000713    --kick-phi-1  5.053137578045436   --kick-phi-2  2.1926442891399263    --kick-mean-anomaly-1  3.847696144080673    --kick-mean-anomaly-2  1.1268430212944216
