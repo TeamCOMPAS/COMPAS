@@ -135,6 +135,7 @@ class pythonProgramOptions:
     envelope_state_prescription = 'LEGACY'
 
     mass_loss_prescription = 'VINK'
+    luminous_blue_variable_prescription = 'BELCZYNSKI'
     luminous_blue_variable_multiplier = 1.5
     wolf_rayet_multiplier = 1.0
 
@@ -510,6 +511,7 @@ class pythonProgramOptions:
             self.mode,
             self.case_BB_stability_prescription,
             self.chemically_homogeneous_evolution,
+            self.luminous_blue_variable_prescription,
             self.mass_loss_prescription,
             self.mass_transfer_angular_momentum_loss_prescription,
             self.mass_transfer_accretion_efficiency_prescription,
@@ -557,6 +559,7 @@ class pythonProgramOptions:
             '--mode',
             '--case-BB-stability-prescription',
             '--chemically-homogeneous-evolution',
+            '--luminous-blue-variable-prescription',
             '--mass-loss-prescription',
             '--mass-transfer-angular-momentum-loss-prescription',
             '--mass-transfer-accretion-efficiency-prescription',

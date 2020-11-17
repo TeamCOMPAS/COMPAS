@@ -464,6 +464,7 @@ enum class ERROR: int {
     UNKNOWN_KICK_DIRECTION_DISTRIBUTION,                            // unknown kick direction distribution
     UNKNOWN_KICK_MAGNITUDE_DISTRIBUTION,                            // unknown kick magnitude distribution
     UNKNOWN_LOGFILE,                                                // unknown log file
+    UNKNOWN_LBV_PRESCRIPTION,                                       // unknown LBV mass loss prescription
     UNKNOWN_MT_ACCRETION_EFFICIENCY_PRESCRIPTION,                   // unknown mass transfer accretion efficiency prescription
     UNKNOWN_MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION,                  // unknown mass transfer angular momentum loss prescription
     UNKNOWN_MASS_LOSS_PRESCRIPTION,                                 // unknown mass loss prescription
@@ -815,6 +816,14 @@ const COMPASUnorderedMap<INITIAL_MASS_FUNCTION, std::string> INITIAL_MASS_FUNCTI
     { INITIAL_MASS_FUNCTION::KROUPA,   "KROUPA" }
 };
 
+// LBV Mass loss prescriptions
+enum class LBV_PRESCRIPTION: int { NONE, HURLEY_ADD, HURLEY_REPLACE, BELCZYNSKI };
+const COMPASUnorderedMap<LBV_PRESCRIPTION, std::string> LBV_PRESCRIPTION_LABEL = {
+    { LBV_PRESCRIPTION::NONE,           "NONE" },
+    { LBV_PRESCRIPTION::HURLEY_ADD,     "HURLEY_ADD" },
+    { LBV_PRESCRIPTION::HURLEY_REPLACE, "HURLEY_REPLACE" },
+    { LBV_PRESCRIPTION::BELCZYNSKI,     "BELCZYNSKI" }
+};
 
 // Mass loss prescriptions
 enum class MASS_LOSS_PRESCRIPTION: int { NONE, HURLEY, VINK };
@@ -2004,7 +2013,7 @@ enum class PROGRAM_OPTION: int {
     KICK_THETA_2,
 
     LBV_FACTOR,
-
+    LBV_PRESCRIPTION,
     MASS_LOSS_PRESCRIPTION,
 
     MASS_RATIO_DISTRIBUTION,
@@ -2195,7 +2204,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::KICK_THETA_2,                                     "KICK_THETA_2" },
 
     { PROGRAM_OPTION::LBV_FACTOR,                                       "LBV_FACTOR" },
-
+    { PROGRAM_OPTION::LBV_PRESCRIPTION,                                 "LBV_PRESCRIPTION" },
     { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                           "MASS_LOSS_PRESCRIPTION" },
 
     { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION,                          "MASS_RATIO_DISTRIBUTION" },
@@ -2664,7 +2673,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::KICK_THETA_2,                                         { TYPENAME::DOUBLE,         "Kick_Theta_2",                 "-",                14, 6 }},
 
     { PROGRAM_OPTION::LBV_FACTOR,                                           { TYPENAME::DOUBLE,         "LBV_Factor",                   "-",                14, 6 }},
-
+    { PROGRAM_OPTION::LBV_PRESCRIPTION,                                     { TYPENAME::INT,            "LBV_Mass_Loss_Prscrptn",       "-",                 4, 1 }},
     { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                               { TYPENAME::INT,            "Mass_Loss_Prscrptn",           "-",                 4, 1 }},
 
     { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION,                              { TYPENAME::INT,            "Mass_Ratio_Dstrbtn",           "-",                 4, 1 }},
