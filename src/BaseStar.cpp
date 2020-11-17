@@ -1561,8 +1561,8 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
 
     double rate;
 
-    if (utils::Compare(p_Teff, 12500.0) >= 0 && utils::Compare(p_Teff, 25000.0) <= 0) {
-        double V         = 1.3;                                                             // v_inf/v_esc
+    if (utils::Compare(p_Teff, VINK_MASS_LOSS_MINIMUM_TEMP) >= 0 && utils::Compare(p_Teff, VINK_MASS_LOSS_BISTABILITY_TEMP) <= 0) {
+        double V         = 1.3;                                                                                 // v_inf/v_esc
 
         double logMdotOB = -6.688                             +
                            (2.210 * log10(m_Luminosity / 1.0E5)) -
@@ -1573,10 +1573,10 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
 
         rate = PPOW(10.0, logMdotOB);
     }
-    else if (utils::Compare(p_Teff, 25000.0) > 0) {
-        SHOW_WARN_IF(utils::Compare(p_Teff, 50000.0) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
+    else if (utils::Compare(p_Teff, VINK_MASS_LOSS_BISTABILITY_TEMP) > 0) {
+        SHOW_WARN_IF(utils::Compare(p_Teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
 
-        double V         = 2.6;                                                             // v_inf/v_esc
+        double V         = 2.6;                                                                                 // v_inf/v_esc
 
         double logMdotOB = -6.697 +
                            (2.194 * log10(m_Luminosity / 1.0E5)) -
@@ -1588,8 +1588,8 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
 
         rate = PPOW(10.0, logMdotOB);
     }
-    else{
-        SHOW_WARN(ERROR::LOW_TEFF_WINDS, "Mass Loss Rate = 0.0");                           // too cold to use winds - show warning
+    else {                                                                                                      // TW: this should never happen given how function is called - remove? 
+        SHOW_WARN(ERROR::LOW_TEFF_WINDS, "Mass Loss Rate = 0.0");                                               // too cold to use winds - show warning.
         rate = 0.0;
     }
 
@@ -1608,7 +1608,7 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
  * @return                                      Mass loss rate in Msol per year
  */
 double BaseStar::CalculateMassLossRateHurley() {
-    return (utils::Compare(m_Luminosity, 4.0E3) > 0) ? CalculateMassLossRateNieuwenhuijzenDeJager() : 0.0;          // JR: todo: make this a constant
+    return (utils::Compare(m_Luminosity, NJ_MINIMUM_LUMINOSITY) > 0) ? CalculateMassLossRateNieuwenhuijzenDeJager() : 0.0;
 }
 
 
@@ -1632,7 +1632,7 @@ double BaseStar::CalculateMassLossRateVink() {
     else {
         double teff = m_Temperature * TSOL;                                                                         // change to Kelvin so it can be compared with values as stated in Vink prescription
 
-        if (utils::Compare(teff, 12500.0) < 0) {                                                                    // cool stars, use Hurley et al 2000 winds  JR: todo: make this a constant
+        if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                                // cool stars, use Hurley et al 2000 winds  JR: todo: make this a constant
             rate = CalculateMassLossRateHurley();
         }
         else  {                                                                                                     // hot stars, use Vink et al. 2001 winds (ignoring bistability jump)
