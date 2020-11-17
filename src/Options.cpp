@@ -295,6 +295,8 @@ void Options::OptionValues::Initialise() {
     m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::VINK;
     m_MassLossPrescription.typeString                               = MASS_LOSS_PRESCRIPTION_LABEL.at(m_MassLossPrescription.type);
 
+    m_LuminousBlueVariablePrescription.type                         = LBV_PRESCRIPTION::BELCZYNSKI;
+    m_LuminousBlueVariablePrescription.typeString                   = LBV_PRESCRIPTION_LABEL.at(m_LuminousBlueVariablePrescription.type);
 
     // Wind mass loss multiplicitive constants
     m_LuminousBlueVariableFactor                                    = 1.5;
@@ -1330,6 +1332,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
+            "luminous-blue-variable-prescription",                                      
+            po::value<std::string>(&p_Options->m_LuminousBlueVariablePrescription.typeString)->default_value(p_Options->m_LuminousBlueVariablePrescription.typeString),                                                                  
+            ("LBV Mass loss prescription (options: [NONE, HURLEY_ADD, HURLEY_REPLACE, BELCZYNSKI], default = " + p_Options->m_LuminousBlueVariablePrescription.typeString + ")").c_str()
+        )
+        (
             "mass-loss-prescription",                                      
             po::value<std::string>(&p_Options->m_MassLossPrescription.typeString)->default_value(p_Options->m_MassLossPrescription.typeString),                                                                  
             ("Mass loss prescription (options: [NONE, HURLEY, VINK], default = " + p_Options->m_MassLossPrescription.typeString + ")").c_str()
@@ -1689,6 +1696,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         if (!DEFAULTED("logfile-delimiter")) {                                                                                      // logfile field delimiter
             std::tie(found, m_LogfileDelimiter.type) = utils::GetMapKey(m_LogfileDelimiter.typeString, DELIMITERLabel, m_LogfileDelimiter.type);
             COMPLAIN_IF(!found, "Unknown Logfile Delimiter");
+        }
+
+        if (!DEFAULTED("luminous-blue-variable-prescription")) {                                                                    // LBV mass loss prescription
+            std::tie(found, m_LuminousBlueVariablePrescription.type) = utils::GetMapKey(m_LuminousBlueVariablePrescription.typeString, LBV_PRESCRIPTION_LABEL, m_LuminousBlueVariablePrescription.type);
+            COMPLAIN_IF(!found, "Unknown LBV Mass Loss Prescription");
         }
 
         if (!DEFAULTED("mass-loss-prescription")) {                                                                                 // mass loss prescription
@@ -3137,11 +3149,13 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
                                                     /*****  << do *not* try this at home >> *****/
         std::string errStr = ParseOptionValues(args.size(), const_cast<char**>(args.data()), m_GridLine);           // parse the option values - specifically for ranges and sets
         if (!errStr.empty()) {                                                                                      // parsed ok?
+            printf("\n Throw here 1\n");
             COMPLAIN(errStr);                                                                                       // no, complain - this throws an exception
         }
         else {
             errStr = m_GridLine.optionValues.CheckAndSetOptions();                                                  // yes - sanity check, and set, evolving object-level values
-            if (!errStr.empty()) {                                                                                  // check ok?
+            if (!errStr.empty()) {                                                                              // parsed ok?
+                printf("\n Throw here 2\n");                                                                                // check ok?
                 COMPLAIN(errStr);                                                                                   // no, complain - this throws an exception
             }
        }
@@ -3149,16 +3163,19 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
     catch (po::error& e) {                                                                                          // program options exception
         std::cerr << ERR_MSG(ERROR::GRID_OPTIONS_ERROR) << ": " << e.what() << std::endl;                           // show the problem
         std::cerr << ERR_MSG(ERROR::SUGGEST_HELP) << std::endl;                                                     // suggest using --help
+        printf("\nThis 1\n");
         ok = false;                                                                                                 // set status
     } 
     catch (const std::string eStr) {                                                                                // custom exception
         std::cerr << ERR_MSG(ERROR::GRID_OPTIONS_ERROR) << ": " << eStr << std::endl;                               // show the problem
         std::cerr << ERR_MSG(ERROR::SUGGEST_HELP) << std::endl;                                                     // suggest using --help
+        printf("\nThis 2\n");
         ok = false;                                                                                                 // set status
     }
     catch (...) {                                                                                                   // unhandled exception
         std::cerr << ERR_MSG(ERROR::GRID_OPTIONS_ERROR) << ": " << ERR_MSG(ERROR::UNHANDLED_EXCEPTION) << std::endl; // show the problem
         std::cerr << ERR_MSG(ERROR::SUGGEST_HELP) << std::endl;                                                     // suggest using --help
+        printf("\nThis 3\n");
         ok = false;                                                                                                 // set status
     }
 
@@ -3374,7 +3391,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::KICK_THETA_2                                   : value = SN_Theta2();                                                          break;
 
         case PROGRAM_OPTION::LBV_FACTOR                                     : value = LuminousBlueVariableFactor();                                         break;
-
+        case PROGRAM_OPTION::LBV_PRESCRIPTION                               : value = static_cast<int>(LuminousBlueVariablePrescription());                 break;
         case PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION                         : value = static_cast<int>(MassLossPrescription());                             break;
 
         case PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION                        : value = static_cast<int>(MassRatioDistribution());                            break;
