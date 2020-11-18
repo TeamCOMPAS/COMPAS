@@ -905,12 +905,6 @@ double GiantBranch::CalculateMassLossRateHurley() {
         dms = std::max(dml, dms);
     }
 
-    double tmp = m_Radius * sqrt(m_Luminosity) * 1.0E-5;
-    if ((utils::Compare(m_Luminosity, 6.0E5) > 0) && (utils::Compare(tmp, 1.0) > 0)) {
-        dml = CalculateMassLossRateLBV();
-        dms = dms + dml;
-    }
-
     return dms;
 }
 
