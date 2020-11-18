@@ -895,7 +895,7 @@ double GiantBranch::CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB)
  */
 double GiantBranch::CalculateMassLossRateHurley() {
 
-    double dms = (utils::Compare(m_Luminosity, NJ_MINIMUM_LUMINOSITY) > 0) ? CalculateMassLossRateNieuwenhuijzenDeJager() : 0.0;
+    double dms = CalculateMassLossRateNieuwenhuijzenDeJager();
     double dml = CalculateMassLossRateKudritzkiReimers();
 
     dms = std::max(dml, dms);
