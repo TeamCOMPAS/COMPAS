@@ -1625,7 +1625,7 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
 
         rate = PPOW(10.0, logMdotOB);
     }
-    else {                                                                                                      // TW: this should never happen given how function is called - remove? 
+    else {
         SHOW_WARN(ERROR::LOW_TEFF_WINDS, "Mass Loss Rate = 0.0");                                               // too cold to use winds - show warning.
         rate = 0.0;
     }
