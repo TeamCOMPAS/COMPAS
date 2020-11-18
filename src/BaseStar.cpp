@@ -1452,23 +1452,63 @@ double BaseStar::CalculateMassLossRateKudritzkiReimers() {
  * @return                                      Nieuwenhuijzen & de Jager mass loss rate for massive stars (in Msol yr^-1)
  */
 double BaseStar::CalculateMassLossRateNieuwenhuijzenDeJager() {
-    double smoothTaper = min(1.0, (m_Luminosity - 4000.0) / 500.0); // Smooth taper between no mass loss and mass loss
-    return sqrt((m_Metallicity / ZSOL)) * smoothTaper * 9.6E-15 * PPOW(m_Radius, 0.81) * PPOW(m_Luminosity, 1.24) * PPOW(m_Mass, 0.16);
+    double rate = 0.0;
+    if (utils::Compare(m_Luminosity, NJ_MINIMUM_LUMINOSITY) > 0) {      // check for minimum luminosity
+        double smoothTaper = min(1.0, (m_Luminosity - 4000.0) / 500.0); // Smooth taper between no mass loss and mass loss
+        rate = sqrt((m_Metallicity / ZSOL)) * smoothTaper * 9.6E-15 * PPOW(m_Radius, 0.81) * PPOW(m_Luminosity, 1.24) * PPOW(m_Mass, 0.16);
+    } else {
+        rate = 0.0;
+    }
+    return rate;
 }
-
 
 /*
  * Calculate LBV-like mass loss rate for stars beyond the Humphreys-Davidson limit (Humphreys & Davidson 1994)
  *
- * Ref?
- *
- *
- * double CalculateMassLossRateLBV()
+ * double CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_prescription)
  *
  * @return                                      LBV-like mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateLBV() {
-    return 0.1 * PPOW(((1.0E-5 * m_Radius * sqrt(m_Luminosity)) - 1.0), 3.0) * ((m_Luminosity / 6.0E5) - 1.0);
+double BaseStar::CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_prescription) {
+    double rate = 0.0;
+    double HD_limit_factor = m_Radius * sqrt(m_Luminosity) * 1.0E-5;                                                            // calculate factor by which you are above the HD limit
+    if ((utils::Compare(m_Luminosity, LBV_LUMINOSITY_LIMIT_STARTRACK) > 0) && (utils::Compare(HD_limit_factor, 1.0) > 0)) {     // check if luminous blue variable
+		m_LBVphaseFlag = true;                                                                                                  // mark the star as LBV
+        
+        switch (p_LBV_prescription) {                                                                    // decide which LBV prescription to use
+            case LBV_PRESCRIPTION::NONE:
+                rate = 0.0;
+                break;
+            case LBV_PRESCRIPTION::HURLEY_ADD:
+            case LBV_PRESCRIPTION::HURLEY:
+                rate = CalculateMassLossRateLBVHurley(HD_limit_factor);
+                break;
+            case LBV_PRESCRIPTION::BELCZYNSKI:
+                rate = CalculateMassLossRateLBVBelczynski();
+                break;
+            default:
+                SHOW_WARN(ERROR::UNKNOWN_LBV_PRESCRIPTION, "Using default value BELCZYNSKI");
+                rate = CalculateMassLossRateLBVBelczynski();
+                break;
+        }
+    } else {
+        rate = 0.0;                                                                                                            // no winds if it isn't an LBV star!
+    }
+    return rate;
+}
+
+/*
+ * Calculate LBV-like mass loss rate for stars beyond the Humphreys-Davidson limit (Humphreys & Davidson 1994)
+ *
+ * Hurley+ 2000 Section 7.1 a few equation after Eq. 106 (Equation not labelled)
+ *
+ * double CalculateMassLossRateLBVHurley(const double p_HD_limit_factor)
+ *
+ * @param   [IN]    p_HD_limit_factor           Factor by which star is above Humphreys-Davidson limit
+ * @return                                      LBV-like mass loss rate (in Msol yr^{-1})
+ */
+double BaseStar::CalculateMassLossRateLBVHurley(const double p_HD_limit_factor) {
+    return 0.1 * PPOW((p_HD_limit_factor - 1.0), 3.0) * ((m_Luminosity / 6.0E5) - 1.0);
 }
 
 
@@ -1477,15 +1517,12 @@ double BaseStar::CalculateMassLossRateLBV() {
  *
  * Belczynski et al. 2010, eq 8
  *
+ * double CalculateMassLossRateLBVBelczynski()
  *
- * double CalculateMassLossRateLBV2(const double p_Flbv)
- *
- * @param   [IN]    p_Flbv                      Multiplicitive constant multiplying base rate of 1E-4 Msol yr^-1 for LBV mass loss
- *                                              (Belczynski et al 2010 sets this as 1.5, Mennekens & Vanbeveren 2014 set this as 10)
- * @return                                      LBV-like mass loss rate (in Msol yr^{-1})
+* @return                                      LBV-like mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateLBV2(const double p_Flbv) {
-    return p_Flbv * 1.0E-4;
+double BaseStar::CalculateMassLossRateLBVBelczynski() {
+    return OPTIONS->LuminousBlueVariableFactor() * 1.0E-4;
 }
 
 
@@ -1561,8 +1598,8 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
 
     double rate;
 
-    if (utils::Compare(p_Teff, 12500.0) >= 0 && utils::Compare(p_Teff, 25000.0) <= 0) {
-        double V         = 1.3;                                                             // v_inf/v_esc
+    if (utils::Compare(p_Teff, VINK_MASS_LOSS_MINIMUM_TEMP) >= 0 && utils::Compare(p_Teff, VINK_MASS_LOSS_BISTABILITY_TEMP) <= 0) {
+        double V         = 1.3;                                                                                 // v_inf/v_esc
 
         double logMdotOB = -6.688                             +
                            (2.210 * log10(m_Luminosity / 1.0E5)) -
@@ -1573,10 +1610,10 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
 
         rate = PPOW(10.0, logMdotOB);
     }
-    else if (utils::Compare(p_Teff, 25000.0) > 0) {
-        SHOW_WARN_IF(utils::Compare(p_Teff, 50000.0) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
+    else if (utils::Compare(p_Teff, VINK_MASS_LOSS_BISTABILITY_TEMP) > 0) {
+        SHOW_WARN_IF(utils::Compare(p_Teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
 
-        double V         = 2.6;                                                             // v_inf/v_esc
+        double V         = 2.6;                                                                                 // v_inf/v_esc
 
         double logMdotOB = -6.697 +
                            (2.194 * log10(m_Luminosity / 1.0E5)) -
@@ -1588,8 +1625,8 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
 
         rate = PPOW(10.0, logMdotOB);
     }
-    else{
-        SHOW_WARN(ERROR::LOW_TEFF_WINDS, "Mass Loss Rate = 0.0");                           // too cold to use winds - show warning
+    else {
+        SHOW_WARN(ERROR::LOW_TEFF_WINDS, "Mass Loss Rate = 0.0");                                               // too cold to use winds - show warning.
         rate = 0.0;
     }
 
@@ -1608,7 +1645,7 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
  * @return                                      Mass loss rate in Msol per year
  */
 double BaseStar::CalculateMassLossRateHurley() {
-    return (utils::Compare(m_Luminosity, 4.0E3) > 0) ? CalculateMassLossRateNieuwenhuijzenDeJager() : 0.0;          // JR: todo: make this a constant
+    return CalculateMassLossRateNieuwenhuijzenDeJager();
 }
 
 
@@ -1621,22 +1658,18 @@ double BaseStar::CalculateMassLossRateHurley() {
  * @return                                      Mass loss rate in Msol per year
  */
 double BaseStar::CalculateMassLossRateVink() {
-    double rate;
+    double rate = CalculateMassLossRateLBV(OPTIONS->LuminousBlueVariablePrescription());                            // start with LBV winds (can be, and is often, 0.0)
 
-    double tmp = m_Radius * sqrt(m_Luminosity) * 1.0E-5;
-    if ((utils::Compare(m_Luminosity, LBV_LUMINOSITY_LIMIT_STARTRACK) > 0) && (utils::Compare(tmp, 1.0) > 0)) {     // luminous blue variable
-		m_LBVphaseFlag = true;                                                                                      // ... is true
+    if (utils::Compare(rate, 0.0) == 0 || 
+        OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::HURLEY_ADD ) {                             // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if LBV winds are 0.0 for others)
 
-        rate = CalculateMassLossRateLBV2(OPTIONS->LuminousBlueVariableFactor());                                    // calculate mass loss rate
-    }
-    else {
         double teff = m_Temperature * TSOL;                                                                         // change to Kelvin so it can be compared with values as stated in Vink prescription
 
-        if (utils::Compare(teff, 12500.0) < 0) {                                                                    // cool stars, use Hurley et al 2000 winds  JR: todo: make this a constant
-            rate = CalculateMassLossRateHurley();
+        if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                                // cool stars, add Hurley et al 2000 winds
+            rate += CalculateMassLossRateHurley();
         }
-        else  {                                                                                                     // hot stars, use Vink et al. 2001 winds (ignoring bistability jump)
-            rate = CalculateMassLossRateOB(teff);
+        else  {                                                                                                     // hot stars, add Vink et al. 2001 winds (ignoring bistability jump)
+            rate += CalculateMassLossRateOB(teff);
         }
     }
 
@@ -1661,19 +1694,19 @@ double BaseStar::CalculateMassLossRate() {
     double mDot = 0.0;
     if (OPTIONS->UseMassLoss()) {
 
-        switch (OPTIONS->MassLossPrescription()) {                                  // which prescription?
+        switch (OPTIONS->MassLossPrescription()) {                                                              // which prescription?
 
-            case MASS_LOSS_PRESCRIPTION::HURLEY:                                    // HURLEY
-                mDot = CalculateMassLossRateHurley();
+            case MASS_LOSS_PRESCRIPTION::HURLEY:                                                                // HURLEY
+                mDot = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD) + CalculateMassLossRateHurley();
                 break;
 
-            case MASS_LOSS_PRESCRIPTION::VINK:                                      // VINK
+            case MASS_LOSS_PRESCRIPTION::VINK:                                                                  // VINK
                 mDot = CalculateMassLossRateVink();
                 break;
 
-            default:                                                                // unknown mass loss prescription
-                SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using HURLEY");   // show warning
-                mDot = CalculateMassLossRateHurley();                               // use HURLEY
+            default:                                                                                            // unknown mass loss prescription
+                SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using HURLEY");                               // show warning
+                mDot = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD) + CalculateMassLossRateHurley();  // use HURLEY
         }
     }
 

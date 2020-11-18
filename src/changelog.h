@@ -605,7 +605,13 @@
 //                                          - Fixed typo in synchronisation timescale
 // 02.17.06     RTW - Nov 17, 2020  - Bug fix:
 //                                      - Fixed Schneider remnant mass inversion from logRemnantMass^10 to 10^logRemnantMass, added some comments in the same section
+// 02.17.07     TW - Nov 17, 2020   - Enhancements, code cleanup
+//                                      - Issue #431
+//                                          - Added option to change LBV wind prescription: choices are NONE, HURLEY_ADD, HURLEY and BELCYZNSKI
+//                                      - Replaced numbers with constants for luminosity and temperature limits in mass loss
+//                                      - Consolidated checks of luminosity for NJ winds within function
+//                                      - NOTE: the above makes sure luminosity is checked before applying NJ winds for MS stars, this was not previously the case but I think it should be
 
-const std::string VERSION_STRING = "02.17.06";
+const std::string VERSION_STRING = "02.17.07";
 
 # endif // __changelog_h__
