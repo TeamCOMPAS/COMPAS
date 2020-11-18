@@ -3149,13 +3149,11 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
                                                     /*****  << do *not* try this at home >> *****/
         std::string errStr = ParseOptionValues(args.size(), const_cast<char**>(args.data()), m_GridLine);           // parse the option values - specifically for ranges and sets
         if (!errStr.empty()) {                                                                                      // parsed ok?
-            printf("\n Throw here 1\n");
             COMPLAIN(errStr);                                                                                       // no, complain - this throws an exception
         }
         else {
             errStr = m_GridLine.optionValues.CheckAndSetOptions();                                                  // yes - sanity check, and set, evolving object-level values
             if (!errStr.empty()) {                                                                              // parsed ok?
-                printf("\n Throw here 2\n");                                                                                // check ok?
                 COMPLAIN(errStr);                                                                                   // no, complain - this throws an exception
             }
        }
@@ -3163,19 +3161,16 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
     catch (po::error& e) {                                                                                          // program options exception
         std::cerr << ERR_MSG(ERROR::GRID_OPTIONS_ERROR) << ": " << e.what() << std::endl;                           // show the problem
         std::cerr << ERR_MSG(ERROR::SUGGEST_HELP) << std::endl;                                                     // suggest using --help
-        printf("\nThis 1\n");
         ok = false;                                                                                                 // set status
     } 
     catch (const std::string eStr) {                                                                                // custom exception
         std::cerr << ERR_MSG(ERROR::GRID_OPTIONS_ERROR) << ": " << eStr << std::endl;                               // show the problem
         std::cerr << ERR_MSG(ERROR::SUGGEST_HELP) << std::endl;                                                     // suggest using --help
-        printf("\nThis 2\n");
         ok = false;                                                                                                 // set status
     }
     catch (...) {                                                                                                   // unhandled exception
         std::cerr << ERR_MSG(ERROR::GRID_OPTIONS_ERROR) << ": " << ERR_MSG(ERROR::UNHANDLED_EXCEPTION) << std::endl; // show the problem
         std::cerr << ERR_MSG(ERROR::SUGGEST_HELP) << std::endl;                                                     // suggest using --help
-        printf("\nThis 3\n");
         ok = false;                                                                                                 // set status
     }
 
