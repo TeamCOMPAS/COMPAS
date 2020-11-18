@@ -1477,7 +1477,7 @@ double BaseStar::CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_prescript
                 return 0.0;
                 break;
             case LBV_PRESCRIPTION::HURLEY_ADD:
-            case LBV_PRESCRIPTION::HURLEY_REPLACE:
+            case LBV_PRESCRIPTION::HURLEY:
                 return CalculateMassLossRateLBVHurley(HD_limit_factor);
                 break;
             case LBV_PRESCRIPTION::BELCZYNSKI:
@@ -1657,7 +1657,7 @@ double BaseStar::CalculateMassLossRateVink() {
     double rate = CalculateMassLossRateLBV(OPTIONS->LuminousBlueVariablePrescription());                                                                   // start with LBV winds (can be, and is often, 0.0)
 
     if (utils::Compare(rate, 0.0) > 0 && 
-        (OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::HURLEY_REPLACE
+        (OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::HURLEY
         ||  OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::BELCZYNSKI) ) {                      // check if star is currently LBV (has ratio > 0) and is a prescription with *only* LBV winds
         return rate;                                                                                            // immediately return rate before adding other winds
     }
