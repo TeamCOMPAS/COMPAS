@@ -1481,11 +1481,11 @@ double BaseStar::CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_prescript
                 return CalculateMassLossRateLBVHurley(HD_limit_factor);
                 break;
             case LBV_PRESCRIPTION::BELCZYNSKI:
-                return CalculateMassLossRateLBVBelcynzski();
+                return CalculateMassLossRateLBVBelczynski();
                 break;
             default:
                 SHOW_WARN(ERROR::UNKNOWN_LBV_PRESCRIPTION, "Using default value BELCZYNSKI");
-                return CalculateMassLossRateLBVBelcynzski();
+                return CalculateMassLossRateLBVBelczynski();
                 break;
         }
     } else {
@@ -1513,11 +1513,11 @@ double BaseStar::CalculateMassLossRateLBVHurley(const double p_HD_limit_factor) 
  *
  * Belczynski et al. 2010, eq 8
  *
- * double CalculateMassLossRateLBVBelcynzski()
+ * double CalculateMassLossRateLBVBelczynski()
  *
 * @return                                      LBV-like mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateLBVBelcynzski() {
+double BaseStar::CalculateMassLossRateLBVBelczynski() {
     return OPTIONS->LuminousBlueVariableFactor() * 1.0E-4;
 }
 

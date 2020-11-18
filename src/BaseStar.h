@@ -416,7 +416,7 @@ protected:
             double          CalculateMassLossRateKudritzkiReimers();
             double          CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_prescription);
             double          CalculateMassLossRateLBVHurley(const double p_HD_limit_fac);
-            double          CalculateMassLossRateLBVBelcynzski();
+            double          CalculateMassLossRateLBVBelczynski();
             double          CalculateMassLossRateNieuwenhuijzenDeJager();
             double          CalculateMassLossRateOB(const double p_Teff);
             double          CalculateMassLossRateVassiliadisWood();
