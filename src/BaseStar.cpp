@@ -1514,7 +1514,7 @@ double BaseStar::CalculateMassLossRateLBVHurley(const double p_HD_limit_factor) 
 * @return                                      LBV-like mass loss rate (in Msol yr^{-1})
  */
 double BaseStar::CalculateMassLossRateLBVBelcynzski() {
-    return OPTIONS->LuminousBlueVariableFactor * 1.0E-4;
+    return OPTIONS->LuminousBlueVariableFactor() * 1.0E-4;
 }
 
 
@@ -1650,11 +1650,11 @@ double BaseStar::CalculateMassLossRateHurley() {
  * @return                                      Mass loss rate in Msol per year
  */
 double BaseStar::CalculateMassLossRateVink() {
-    double rate = CalculateMassLossRateLBV(OPTIONS->LuminousBlueVariablePrescription);                                                                   // start with LBV winds (can be, and is often, 0.0)
+    double rate = CalculateMassLossRateLBV(OPTIONS->LuminousBlueVariablePrescription());                                                                   // start with LBV winds (can be, and is often, 0.0)
 
     if (utils::Compare(rate, 0.0) > 0 && 
-        (OPTIONS->LuminousBlueVariablePrescription == LBV_PRESCRIPTION::HURLEY_REPLACE
-        ||  OPTIONS->LuminousBlueVariablePrescription == LBV_PRESCRIPTION::BELCZYNSKI) ) {                      // check if star is currently LBV (has ratio > 0) and is a prescription with *only* LBV winds
+        (OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::HURLEY_REPLACE
+        ||  OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::BELCZYNSKI) ) {                      // check if star is currently LBV (has ratio > 0) and is a prescription with *only* LBV winds
         return rate;                                                                                            // immediately return rate before adding other winds
     }
 
