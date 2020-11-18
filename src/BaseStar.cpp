@@ -1651,11 +1651,11 @@ double BaseStar::CalculateMassLossRateVink() {
     if ((utils::Compare(m_Luminosity, LBV_LUMINOSITY_LIMIT_STARTRACK) > 0) && (utils::Compare(tmp, 1.0) > 0)) {     // luminous blue variable
 		m_LBVphaseFlag = true;                                                                                      // ... is true
         rate = CalculateMassLossRateLBV();                                                                          // calculate mass loss rate
-    }
 
-    if (OPTIONS->LuminousBlueVariablePrescription == LBV_PRESCRIPTION::HURLEY_REPLACE || 
-        OPTIONS->LuminousBlueVariablePrescription == LBV_PRESCRIPTION::BELCZYNSKI) {
-        return rate;                                                                                                // if LBV prescription replaces other winds then return immediately
+        if (OPTIONS->LuminousBlueVariablePrescription == LBV_PRESCRIPTION::HURLEY_REPLACE || 
+            OPTIONS->LuminousBlueVariablePrescription == LBV_PRESCRIPTION::BELCZYNSKI) {
+            return rate;                                                                                                // if LBV prescription replaces other winds then return immediately
+        }
     }
 
     double teff = m_Temperature * TSOL;                                                                         // change to Kelvin so it can be compared with values as stated in Vink prescription
