@@ -603,7 +603,9 @@
 // 02.17.05     TW - Nov 16, 2020   - Defect repairs
 //                                      - Issue #444
 //                                          - Fixed typo in synchronisation timescale
+// 02.17.06     RTW - Nov 17, 2020  - Bug fix:
+//                                      - Fixed Schneider remnant mass inversion from logRemnantMass^10 to 10^logRemnantMass, added some comments in the same section
 
-const std::string VERSION_STRING = "02.17.05";
+const std::string VERSION_STRING = "02.17.06";
 
 # endif // __changelog_h__
