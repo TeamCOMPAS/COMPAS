@@ -560,7 +560,7 @@ double EAGB::CalculateCOCoreMassOnPhase(const double p_Time) {
  */
 double EAGB::CalculateMassLossRateHurley() {
 
-    double dms = (utils::Compare(m_Luminosity, 4.0E3) > 0) ? CalculateMassLossRateNieuwenhuijzenDeJager() : 0.0;
+    double dms = CalculateMassLossRateNieuwenhuijzenDeJager();
     double dml = CalculateMassLossRateKudritzkiReimers();
     double dmt = CalculateMassLossRateVassiliadisWood();
 

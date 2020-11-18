@@ -895,7 +895,7 @@ double GiantBranch::CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB)
  */
 double GiantBranch::CalculateMassLossRateHurley() {
 
-    double dms = (utils::Compare(m_Luminosity, 4.0E3) > 0) ? CalculateMassLossRateNieuwenhuijzenDeJager() : 0.0;
+    double dms = CalculateMassLossRateNieuwenhuijzenDeJager();
     double dml = CalculateMassLossRateKudritzkiReimers();
 
     dms = std::max(dml, dms);
@@ -903,12 +903,6 @@ double GiantBranch::CalculateMassLossRateHurley() {
     if (utils::Compare(m_Mu, 1.0) < 0) {
         dml = CalculateMassLossRateWolfRayetLike(m_Mu);
         dms = std::max(dml, dms);
-    }
-
-    double tmp = m_Radius * sqrt(m_Luminosity) * 1.0E-5;
-    if ((utils::Compare(m_Luminosity, 6.0E5) > 0) && (utils::Compare(tmp, 1.0) > 0)) {
-        dml = CalculateMassLossRateLBV();
-        dms = dms + dml;
     }
 
     return dms;
