@@ -597,9 +597,15 @@
 //                                      - Removed variable 'alpha' from BinaryCEDetails struct - use OPTIONS->CommonEnvelopeAlpha()
 //                                          - Removed BINARY_PROPERTY::COMMON_ENVELOPE_ALPHA - use PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA
 //                                      - Issue #443: removed eccentricity distribution options FIXED, IMPORTANCE & THERMALISE (THERMALISE = THERMAL, which remains) 
-// 02.17.04     RTW - Nov 17, 2020  - Bug fix:
+// 02.17.04     JR - Nov 14, 2020   - Defect repairs
+//                                      - Added CalculateRadiusOnPhase() and CalculateLuminosityOnPhase() to class BH (increases DNS yield)
+//                                      - Added metallicity to sampling conditions in BaseBinaryStar constructor (should have been done when LOGUNIFORM metallicity distribution added)
+// 02.17.05     TW - Nov 16, 2020   - Defect repairs
+//                                      - Issue #444
+//                                          - Fixed typo in synchronisation timescale
+// 02.17.06     RTW - Nov 17, 2020  - Bug fix:
 //                                      - Fixed Schneider remnant mass inversion from logRemnantMass^10 to 10^logRemnantMass, added some comments in the same section
 
-const std::string VERSION_STRING = "02.17.04";
+const std::string VERSION_STRING = "02.17.06";
 
 # endif // __changelog_h__
