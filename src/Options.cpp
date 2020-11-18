@@ -1334,7 +1334,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "luminous-blue-variable-prescription",                                      
             po::value<std::string>(&p_Options->m_LuminousBlueVariablePrescription.typeString)->default_value(p_Options->m_LuminousBlueVariablePrescription.typeString),                                                                  
-            ("LBV Mass loss prescription (options: [NONE, HURLEY_ADD, HURLEY_REPLACE, BELCZYNSKI], default = " + p_Options->m_LuminousBlueVariablePrescription.typeString + ")").c_str()
+            ("LBV Mass loss prescription (options: [NONE, HURLEY_ADD, HURLEY, BELCZYNSKI], default = " + p_Options->m_LuminousBlueVariablePrescription.typeString + ")").c_str()
         )
         (
             "mass-loss-prescription",                                      

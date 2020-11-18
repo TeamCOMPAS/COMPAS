@@ -605,7 +605,7 @@
 //                                          - Fixed typo in synchronisation timescale
 // 02.17.06     TW - Nov 17, 2020   - Enhancements, code cleanup
 //                                      - Issue #431
-//                                          - Added option to change LBV wind prescription: choices are NONE, HURLEY_ADD, HURLEY_REPLACE and BELCYZNSKI
+//                                          - Added option to change LBV wind prescription: choices are NONE, HURLEY_ADD, HURLEY and BELCYZNSKI
 //                                      - Replaced numbers with constants for luminosity and temperature limits in mass loss
 //                                      - Consolidated checks of luminosity for NJ winds within function
 //                                      - NOTE: the above makes sure luminosity is checked before applying NJ winds for MS stars, this was not previously the case but I think it should be  
