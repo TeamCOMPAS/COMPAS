@@ -278,7 +278,7 @@ private:
         "kick-theta-1",
         "kick-theta-2",
 
-        "mass-ratio",
+        "mass-ratio", "q",
         "mass-ratio-max",
         "mass-ratio-min",
 
@@ -309,7 +309,7 @@ private:
         "eccentricity-max",
         "eccentricity-min",
 
-        "mass-ratio-distribution", "q",
+        "mass-ratio-distribution",
 
         "mass-transfer-accretion-efficiency-prescription",
         "mass-transfer-angular-momentum-loss-prescription",
@@ -388,7 +388,7 @@ private:
         "luminous-blue-variable-prescription",
 
         "mass-loss-prescription",
-        "mass-ratio-distribution", "q",
+        "mass-ratio-distribution",
 
         "mass-transfer-accretion-efficiency-prescription",
         "mass-transfer-angular-momentum-loss-prescription",
