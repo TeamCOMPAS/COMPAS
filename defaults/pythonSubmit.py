@@ -172,8 +172,8 @@ class pythonProgramOptions:
     semi_major_axis_max = 1000.0                                # [AU]
 
     orbital_period_distribution = 'FLATINLOG'
-    orbital_period_min = 1.1
-    orbital_period_max = 1000
+    orbital_period_min = 1.1                                    # [days]
+    orbital_period_max = 1000                                   # [days]
 
     mass_ratio_distribution = 'FLAT'
     mass_ratio_min = 0.01
