@@ -120,14 +120,15 @@ namespace utils {
     double                              SampleInitialMass(const INITIAL_MASS_FUNCTION p_IMF, const double p_Max, const double p_Min, const double p_Power);
     double                              SampleMassRatio(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min);
     double                              SampleMetallicity(const METALLICITY_DISTRIBUTION p_Zdist, const double p_Max, const double p_Min);
+    double                              SampleOrbitalPeriod(const ORBITAL_PERIOD_DISTRIBUTION p_Pdist, const double p_PdistMax, const double p_PdistMin);
     double                              SampleSemiMajorAxis(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
-                                                            const double p_AdistMax, 
-                                                            const double p_AdistMin, 
-                                                            const double p_AdistPower, 
-                                                            const double p_PdistMax, 
-                                                            const double p_PdistMin, 
-                                                            const double p_Mass1, 
-                                                            const double p_Mass2);
+                                                            const double                       p_AdistMax, 
+                                                            const double                       p_AdistMin, 
+                                                            const double                       p_AdistPower, 
+                                                            const double                       p_PdistMax, 
+                                                            const double                       p_PdistMin, 
+                                                            const double                       p_Mass1, 
+                                                            const double                       p_Mass2);
 
     SN_EVENT                            SNEventType(const SN_EVENT p_SNEvent);
 

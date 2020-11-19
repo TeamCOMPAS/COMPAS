@@ -680,7 +680,7 @@ STELLAR_TYPE EAGB::ResolveRemnantAfterEnvelopeLoss() {
     double p1_p = p1 / gbParams(p);
     double q1_q = q1 / gbParams(q);
 
-    timescales(tHeMS)=HeMS::CalculateLifetimeOnPhase_Static(m_Mass);    // calculate common values
+    timescales(tHeMS) = HeMS::CalculateLifetimeOnPhase_Static(m_Mass);  // calculate common values
 
     double LTHe = HeMS::CalculateLuminosityAtPhaseEnd_Static(m_Mass);
 
@@ -690,7 +690,7 @@ STELLAR_TYPE EAGB::ResolveRemnantAfterEnvelopeLoss() {
 
     m_Age      = HeGB::CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, timescales(tHeMS), m_GBParams);
 
-    CalculateGBParams(m_Mass0, m_GBParams);                         // Mass or Mass0 for GBParams?      JR: doesn't matter here (Mass0 = Mass above)
+    CalculateGBParams(m_Mass0, m_GBParams);                             // Mass or Mass0 for GBParams?      JR: doesn't matter here (Mass0 = Mass above)
 
     m_Luminosity = HeGB::CalculateLuminosityOnPhase_Static(m_COCoreMass, gbParams(B), gbParams(D));
 
@@ -703,7 +703,7 @@ STELLAR_TYPE EAGB::ResolveRemnantAfterEnvelopeLoss() {
     }
     else {
         m_Radius    = R2;
-        stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH; // Has a deep convective envelope
+        stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH;     // Has a deep convective envelope
     }
 
     return stellarType;
@@ -729,7 +729,7 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) > 0) {          // Envelope lost, form an evolved naked helium giant
+    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) > 0) {              // Envelope lost, form an evolved naked helium giant
 
         m_Mass     = m_HeCoreMass;
         m_Mass0    = m_Mass;
@@ -740,7 +740,7 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
         double p1_p = p1 / gbParams(p);
         double q1_q = q1 / gbParams(q);
 
-        timescales(tHeMS)=HeMS::CalculateLifetimeOnPhase_Static(m_Mass);    // calculate common values
+        timescales(tHeMS) = HeMS::CalculateLifetimeOnPhase_Static(m_Mass);  // calculate common values
 
         double LTHe = HeMS::CalculateLuminosityAtPhaseEnd_Static(m_Mass);
 
@@ -768,7 +768,7 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
         }
         else {
             m_Radius    = R2;
-            stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH; // Has a deep convective envelope
+            stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH;     // Has a deep convective envelope
         }
     }
 

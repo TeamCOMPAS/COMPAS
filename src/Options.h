@@ -278,6 +278,7 @@ private:
         "kick-theta-1",
         "kick-theta-2",
 
+        "mass-ratio",
         "mass-ratio-max",
         "mass-ratio-min",
 
@@ -288,10 +289,13 @@ private:
 
         "minimum-secondary-mass",
 
+        "orbital-period",
+        "orbital-period-distribution",
         "orbital-period-max",
         "orbital-period-min",
 
         "semi-major-axis", "a",
+        "semi-major-axis-dsitribution",
         "semi-major-axis-max",
         "semi-major-axis-min",
 
@@ -395,6 +399,8 @@ private:
 
         "neutrino-mass-loss-bh-formation",
         "neutron-star-equation-of-state",
+
+        "orbital-period-distribution",
 
         "pulsar-birth-magnetic-field-distribution",
         "pulsar-birth-spin-period-distribution",
@@ -558,6 +564,7 @@ public:
             double                                              m_InitialMassFunctionPower;                                     // single IMF power law set manually
 
             // Mass ratio
+            double                                              m_MassRatio;                                                    // Mass ratio for BSE
             ENUM_OPT<MASS_RATIO_DISTRIBUTION>                   m_MassRatioDistribution;                                        // Which mass ratio distribution
             double                                              m_MassRatioDistributionMin;                                     // Minimum initial mass ratio when using a distribution
             double                                              m_MassRatioDistributionMax;                                     // Maximum initial mass ratio when using a distribution
@@ -571,10 +578,11 @@ public:
             double                                              m_SemiMajorAxisDistributionMax;                                 // Maximum a in AU
             double                                              m_SemiMajorAxisDistributionPower;                               // Set semi-major axis distribution power law slope by hand     ** JR: there is no option for this....
 
-            // Period
+            // Orbital period
             double                                              m_OrbitalPeriod;                                                // Orbital period in days
-            double                                              m_PeriodDistributionMin;                                        // Minimum initial period in days
-            double                                              m_PeriodDistributionMax;                                        // Maximum initial period in days
+            ENUM_OPT<ORBITAL_PERIOD_DISTRIBUTION>               m_OrbitalPeriodDistribution;                                    // Which orbital period distribution
+            double                                              m_OrbitalPeriodDistributionMin;                                 // Minimum initial period in days
+            double                                              m_OrbitalPeriodDistributionMax;                                 // Maximum initial period in days
 
             // Eccentricity
             double                                              m_Eccentricity;                                                 // Eccentricity
@@ -1102,6 +1110,7 @@ public:
     
     MASS_LOSS_PRESCRIPTION                      MassLossPrescription() const                                            { return OPT_VALUE("mass-loss-prescription", m_MassLossPrescription.type, true); }
 
+    double                                      MassRatio() const                                                       { return OPT_VALUE("mass-ratio", m_MassRatio, true); }
     MASS_RATIO_DISTRIBUTION                     MassRatioDistribution() const                                           { return OPT_VALUE("mass-ratio-distribution", m_MassRatioDistribution.type, true); }
     double                                      MassRatioDistributionMax() const                                        { return OPT_VALUE("mass-ratio-max", m_MassRatioDistributionMax, true); }
     double                                      MassRatioDistributionMin() const                                        { return OPT_VALUE("mass-ratio-min", m_MassRatioDistributionMin, true); }
@@ -1167,15 +1176,15 @@ public:
     string                                      CmdLineOptionsDetails() const                                           { return m_CmdLineOptionsDetails; }
 
     double                                      OrbitalPeriod() const                                                   { return OPT_VALUE("orbital-period", m_OrbitalPeriod, true); }
+    ORBITAL_PERIOD_DISTRIBUTION                 OrbitalPeriodDistribution() const                                       { return OPT_VALUE("orbital-period-distribution", m_OrbitalPeriodDistribution.type, true); }
+    double                                      OrbitalPeriodDistributionMax() const                                    { return OPT_VALUE("orbital-period-max", m_OrbitalPeriodDistributionMax, true); }
+    double                                      OrbitalPeriodDistributionMin() const                                    { return OPT_VALUE("orbital-period-min", m_OrbitalPeriodDistributionMin, true); }
 
     string                                      OutputContainerName() const                                             { return m_CmdLine.optionValues.m_OutputContainerName; }
     string                                      OutputPathString() const                                                { return m_CmdLine.optionValues.m_OutputPath.string(); }
 
     double                                      PairInstabilityLowerLimit() const                                       { return OPT_VALUE("pisn-lower-limit", m_PairInstabilityLowerLimit, true); }
     double                                      PairInstabilityUpperLimit() const                                       { return OPT_VALUE("pisn-upper-limit", m_PairInstabilityUpperLimit, true); }
-
-    double                                      PeriodDistributionMax() const                                           { return OPT_VALUE("orbital-period-max", m_PeriodDistributionMax, true); }
-    double                                      PeriodDistributionMin() const                                           { return OPT_VALUE("orbital-period-min", m_PeriodDistributionMin, true); }
 
     bool                                        PopulationDataPrinting() const                                          { return m_CmdLine.optionValues.m_PopulationDataPrinting; }
     bool                                        PrintBoolAsString() const                                               { return m_CmdLine.optionValues.m_PrintBoolAsString; }

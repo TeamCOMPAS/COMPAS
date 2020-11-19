@@ -942,14 +942,14 @@ double BaseStar::CalculatePerturbationR(const double p_Mu, const double p_Mass, 
 
     double r = 0.0;
 
-    if(utils::Compare(p_Mu, 0.0) > 0 && utils::Compare(p_Radius, p_Rc) > 0) {                            // only if mu > 0 and radius is larger than core radius, otherwise r=0 and perturbed radius = core radius
+    if (utils::Compare(p_Mu, 0.0) > 0 && utils::Compare(p_Radius, p_Rc) > 0) {  // only if mu > 0 and radius is larger than core radius, otherwise r=0 and perturbed radius = core radius
 
         double c      = CalculatePerturbationC(p_Mass);
-        double c_3    = c * c * c;                                  // pow() is slow - use multiplication
-        double mu_c_3 = p_Mu * p_Mu * p_Mu / c_3;                   // calculate once
+        double c_3    = c * c * c;                                              // pow() is slow - use multiplication
+        double mu_c_3 = p_Mu * p_Mu * p_Mu / c_3;                               // calculate once
 
         double q        = CalculatePerturbationQ(p_Radius, p_Rc);
-        double exponent = min((0.1 / q), (-14.0 / log10(p_Mu)));    // JR: todo: Hurley et al. 2000 is just 0.1 / q ?
+        double exponent = min((0.1 / q), (-14.0 / log10(p_Mu)));                // JR: todo: Hurley et al. 2000 is just 0.1 / q ?
 
         r = ((1.0 + c_3) * mu_c_3 * PPOW((p_Mu), exponent)) / ((1.0 + mu_c_3));
     }
@@ -1096,10 +1096,10 @@ double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass,
  * @return                                      Adiabatic exponent
  */
 double BaseStar::CalculateZadiabaticHurley2002(const double p_CoreMass) const{
-    if(utils::Compare(p_CoreMass, m_Mass)>=0)
-        return 0;                                       // If the object is all core, the calculation is meaningless
+    if (utils::Compare(p_CoreMass, m_Mass) >= 0) return 0.0;    // If the object is all core, the calculation is meaningless
+
     double m = p_CoreMass / m_Mass;
-    double x = -0.3;                                    // Depends on composition, should use x from Hurley et al 2000
+    double x = -0.3;                                            // Depends on composition, should use x from Hurley et al 2000
     return -x + (2.0 * m * m * m * m * m);
 }
 
@@ -1114,12 +1114,12 @@ double BaseStar::CalculateZadiabaticHurley2002(const double p_CoreMass) const{
  * @return                                      Adiabatic exponent
  */
 double BaseStar::CalculateZadiabaticSPH(const double p_CoreMass) const {
-    if(utils::Compare(p_CoreMass, m_Mass)>=0)
-        return 0;                                       // If the object is all core, the calculation is meaningless (and would result in division by zero)
-    double m           = p_CoreMass / m_Mass;                                                                                                       // eq (57) Soberman, Phinney, vdHeuvel (1997)
+    if (utils::Compare(p_CoreMass, m_Mass) >= 0) return 0.0;    // If the object is all core, the calculation is meaningless (and would result in division by zero)
+
+    double m           = p_CoreMass / m_Mass;                   // eq (57) Soberman, Phinney, vdHeuvel (1997)
     double oneMinusM   = 1.0 - m;
     double oneMinusM_6 = oneMinusM * oneMinusM * oneMinusM * oneMinusM * oneMinusM * oneMinusM;
-    return ((2.0 / 3.0) * m / oneMinusM) - ((1.0 / 3.0) * (oneMinusM / (1.0 + (m + m)))) - (0.03 * m) + (0.2 * m / (1.0 + (1.0 / oneMinusM_6)));    // eq (61) Soberman, Phinney, vdHeuvel (1997)
+    return ((2.0 / 3.0) * m / oneMinusM) - ((1.0 / 3.0) * (oneMinusM / (1.0 + (m + m)))) - (0.03 * m) + (0.2 * m / (1.0 + (1.0 / oneMinusM_6))); // eq (61) Soberman, Phinney, vdHeuvel (1997)
 }
 
 
@@ -2002,12 +2002,12 @@ double BaseStar::CalculateOStarRotationalVelocity_Static(const double p_Xmin, co
 
     double rand = RAND->Random();
 
-    while(utils::Compare(rand, maximumInverse) > 0) {
+    while (utils::Compare(rand, maximumInverse) > 0) {
         xMax          *= 2.0;
         maximumInverse = CalculateOStarRotationalVelocityAnalyticCDF_Static(xMax);
     }
 
-    if(utils::Compare(rand, minimumInverse) >= 0) {
+    if (utils::Compare(rand, minimumInverse) >= 0) {
 
         const gsl_root_fsolver_type *T;
         gsl_root_fsolver            *s;
@@ -2054,7 +2054,7 @@ double BaseStar::CalculateOStarRotationalVelocity_Static(const double p_Xmin, co
  * double CalculateRotationalVelocity(double p_MZAMS)
  *
  * @param   [IN]    p_MZAMS                     Zero age main sequence mass in Msol
- * @return                                      Initial equatorial rotational velocity in km s^-1 - vRot in Hurley at al. 2000
+ * @return                                      Initial equatorial rotational velocity in km s^-1 - vRot in Hurley et al. 2000
  */
 double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
 
@@ -2103,7 +2103,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
  * Calculate the initial angular frequency (in yr^-1) of a star with
  * ZAMS mass and radius MZAMS and RZAMS respectively
  *
- * Hurley at al. 2000, eq 108
+ * Hurley et al. 2000, eq 108
  *
  *
  * double CalculateRotationalAngularFrequency(const double p_MZAMS, const double p_RZAMS)
@@ -2114,7 +2114,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
  */
 double BaseStar::CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS) {
     double vRot = CalculateRotationalVelocity(p_MZAMS);
-    return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 * vRot / p_RZAMS;    // Hurley at al. 2000, eq 108       JR: todo: added check for vRot = 0
+    return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 * vRot / p_RZAMS;    // Hurley et al. 2000, eq 108       JR: todo: added check for vRot = 0
 }
 
 

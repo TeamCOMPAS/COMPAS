@@ -98,8 +98,11 @@ class pythonProgramOptions:
     initial_mass_1  = None                                      # primary initial mass for BSE
     initial_mass_2  = None                                      # secondary initial mass for BSE
 
+    mass_ratio      = None
+
     eccentricity    = None                                      # eccentricity for BSE
     semi_major_axis = None                                      # semi-major axis for BSE
+    orbital_period  = None                                      # orbital period for BSE
 
 
     use_mass_loss = True
@@ -168,8 +171,12 @@ class pythonProgramOptions:
     semi_major_axis_min = 0.01                                  # [AU]
     semi_major_axis_max = 1000.0                                # [AU]
 
+    orbital_period_distribution = 'FLATINLOG'
+    semi_major_axis_min = 1.1                                   # [days]
+    semi_major_axis_max = 1000.0                                # [days]
+
     mass_ratio_distribution = 'FLAT'
-    mass_ratio_min = 0.0
+    mass_ratio_min = 0.01
     mass_ratio_max = 1.0
 
     minimum_secondary_mass = 0.1                                # Brown dwarf limit  [Msol]
@@ -346,6 +353,7 @@ class pythonProgramOptions:
             self.initial_mass_2,
             self.eccentricity,
             self.semi_major_axis,
+            self.orbital_period,
             self.metallicity,
             self.common_envelope_alpha,
             self.common_envelope_lambda,
@@ -364,6 +372,7 @@ class pythonProgramOptions:
             self.initial_mass_power,
             self.semi_major_axis_min,
             self.semi_major_axis_max,
+            self.mass_ratio,
             self.mass_ratio_min,
             self.mass_ratio_max,
             self.minimum_secondary_mass,
@@ -430,6 +439,7 @@ class pythonProgramOptions:
             '--initial-mass-2',
             '--eccentricity',
             '--semi-major-axis',
+            '--orbital-period',
             '--metallicity',
             '--common-envelope-alpha',
             '--common-envelope-lambda',
@@ -448,6 +458,7 @@ class pythonProgramOptions:
             '--initial-mass-power',
             '--semi-major-axis-min',
             '--semi-major-axis-max',
+            '--mass-ratio',
             '--mass-ratio-min',
             '--mass-ratio-max',
             '--minimum-secondary-mass',
@@ -518,6 +529,7 @@ class pythonProgramOptions:
             self.mass_transfer_rejuvenation_prescription,
             self.initial_mass_function,
             self.semi_major_axis_distribution,
+            self.orbital_period_distribution,
             self.mass_ratio_distribution,
             self.eccentricity_distribution,
             self.metallicity_distribution,
@@ -566,6 +578,7 @@ class pythonProgramOptions:
             '--mass-transfer-rejuvenation-prescription',
             '--initial-mass-function',
             '--semi-major-axis-distribution',
+            '--orbital-period-distribution',
             '--mass-ratio-distribution',
             '--eccentricity-distribution',
             '--metallicity-distribution',
