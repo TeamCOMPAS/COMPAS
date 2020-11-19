@@ -172,8 +172,8 @@ class pythonProgramOptions:
     semi_major_axis_max = 1000.0                                # [AU]
 
     orbital_period_distribution = 'FLATINLOG'
-    semi_major_axis_min = 1.1                                   # [days]
-    semi_major_axis_max = 1000.0                                # [days]
+    orbital_period_min = 1.1
+    orbital_period_max = 1000
 
     mass_ratio_distribution = 'FLAT'
     mass_ratio_min = 0.01
@@ -206,9 +206,6 @@ class pythonProgramOptions:
     rotational_velocity_distribution = 'ZERO'
 
     neutron_star_equation_of_state = 'SSE'
-
-    orbital_period_min = 1.1
-    orbital_period_max = 1000
 
     remnant_mass_prescription   = 'FRYER2012'
     fryer_supernova_engine      = 'DELAYED'
