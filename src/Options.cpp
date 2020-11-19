@@ -1021,7 +1021,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
-            "mass-ratio",                                              
+            "mass-ratio,q",                                              
             po::value<double>(&p_Options->m_MassRatio)->default_value(p_Options->m_MassRatio),                                                                      
             ("Mass ratio m2/m1 used to determine secondary mass if not specified (default = " + std::to_string(p_Options->m_MassRatio) + ")").c_str()
         )
@@ -1369,7 +1369,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Mass loss prescription (options: [NONE, HURLEY, VINK], default = " + p_Options->m_MassLossPrescription.typeString + ")").c_str()
         )
         (
-            "mass-ratio-distribution,q",                                   
+            "mass-ratio-distribution",                                   
             po::value<std::string>(&p_Options->m_MassRatioDistribution.typeString)->default_value(p_Options->m_MassRatioDistribution.typeString),                                                                
             ("Initial mass ratio distribution for q=m2/m1 (options: [FLAT, DUQUENNOYMAYOR1991, SANA2012], default = " + p_Options->m_MassRatioDistribution.typeString + ")").c_str()
         )
