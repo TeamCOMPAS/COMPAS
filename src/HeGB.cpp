@@ -27,7 +27,7 @@ double HeGB::CalculateLuminosityOnPhase_Static(const double p_CoreMass, const do
 /*
  * Calculate the giant branch radius for a helium star
  *
- * Hurley at al. 2000, eqs 85, 86, 87 & 88
+ * Hurley et al. 2000, eqs 85, 86, 87 & 88
  *
  * Calculates and returns R1 and R2 - the caller can then choose the radius and the
  * resultant stellar type based on the radius chosen
@@ -67,7 +67,7 @@ std::tuple<double, double> HeGB::CalculateRadiusOnPhase_Static(const double p_Ma
 /*
  * Calculate the giant branch radius for a helium star
  *
- * Hurley at al. 2000, eqs 85, 86, 87 & 88
+ * Hurley et al. 2000, eqs 85, 86, 87 & 88
  *
  * Calls CalculateRadiusOnPhase_Static() and returns the minimum of R1 and R2.
  *
@@ -89,7 +89,7 @@ double HeGB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosi
 /*
  * Calculate the giant branch radius for a helium star and determine new stellar type
  *
- * Hurley at al. 2000, eqs 85, 86, 87 & 88
+ * Hurley et al. 2000, eqs 85, 86, 87 & 88
  *
  * Calls CalculateRadiusOnPhase_Static() and returns the minimum of R1 and R2.  
  * Returns stellr type to which star should evolve based on radius calculated.

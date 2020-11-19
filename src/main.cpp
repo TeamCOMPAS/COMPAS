@@ -593,7 +593,7 @@ int main(int argc, char * argv[]) {
 
                 if (programStatus == PROGRAM_STATUS::CONTINUE) {                                    // all ok?
 
-                    if(OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {                           // SSE?
+                    if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {                          // SSE?
                         std::tie(objectsRequested, objectsCreated) = EvolveSingleStars();           // yes - evolve single stars
                     }
                     else {                                                                          // no - BSE
