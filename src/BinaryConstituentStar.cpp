@@ -438,7 +438,7 @@ void BinaryConstituentStar::SetRocheLobeFlags(const bool p_CommonEnvelope, const
  * @return                              Ratio of stars radius to its Roche lobe radius
  */
 double  BinaryConstituentStar::RocheLobeTracker(const double p_SemiMajorAxis, const double p_Eccentricity) {
-    if((utils::Compare(p_SemiMajorAxis, 0.0) <= 0) || (utils::Compare(p_Eccentricity, 1.0) > 0))
+    if ((utils::Compare(p_SemiMajorAxis, 0.0) <= 0) || (utils::Compare(p_Eccentricity, 1.0) > 0))
         return 0.0;         // binary is unbound, so not in RLOF
     
     double rocheLobeRadius = BaseBinaryStar::CalculateRocheLobeRadius_Static(Mass(), m_Companion->Mass());
