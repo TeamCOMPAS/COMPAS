@@ -611,7 +611,13 @@
 //                                      - Replaced numbers with constants for luminosity and temperature limits in mass loss
 //                                      - Consolidated checks of luminosity for NJ winds within function
 //                                      - NOTE: the above makes sure luminosity is checked before applying NJ winds for MS stars, this was not previously the case but I think it should be
+// 02.17.08     JR - Nov 19, 2020   - Enhancements, code cleanup
+//                                      - Added orbital-period-distribution option (see not in Options.cpp re orbital period option)
+//                                      - Added mass-ratio option
+//                                      - Updated default pythonSubmit to reflect new options, plus some previous omissions (by me...)
+//                                      - Minor typo/formatting changes throughout
+//                                      - Updated docs for new options, plus some typos/fixes/previous omissions
 
-const std::string VERSION_STRING = "02.17.07";
+const std::string VERSION_STRING = "02.17.08";
 
 # endif // __changelog_h__

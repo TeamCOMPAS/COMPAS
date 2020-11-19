@@ -179,7 +179,7 @@ double HeHG::CalculateRadiusOnPhase() {
 /*
  * Calculate the giant branch radius for a helium star and determine new stellar type
  *
- * Hurley at al. 2000, eqs 85, 86, 87 & 88
+ * Hurley et al. 2000, eqs 85, 86, 87 & 88
  *
  * Calls CalculateRadiusOnPhase_Static() and returns the minimum of R1 and R2.  
  * Returns stellar type to which star should evolve based on radius calculated.
@@ -440,7 +440,7 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
         m_Mass      = m_CoreMass;
         m_Mass0     = m_Mass;
         
-        if(!(IsSupernova())){
+        if (!(IsSupernova())) {
             stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
             m_Age       = 0.0;
             m_Radius    = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
@@ -459,11 +459,11 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
  * @return                                      Boolean flag: true if star has gone Supernova, false if not
  */
 bool HeHG::IsSupernova() {
-    if(utils::Compare(m_COCoreMass, m_Mass)==0) {                // special case of ultra-stripped-star -- go SN immediately if over ECSN limit
+    if (utils::Compare(m_COCoreMass, m_Mass) == 0) {    // special case of ultra-stripped-star -- go SN immediately if over ECSN limit
         return (utils::Compare(m_Mass, MECS) > 0);
     }
         
-    return (utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(m_GBParams[static_cast<int>(GBP::McBAGB)]))>= 0);   // Go supernova if CO core mass large enough
+    return (utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(m_GBParams[static_cast<int>(GBP::McBAGB)]))>= 0); // Go supernova if CO core mass large enough
 }
 
 /*
@@ -474,8 +474,8 @@ bool HeHG::IsSupernova() {
  *
  * @return                                      double: Initial supernova supernova mass variable
  */
-double  HeHG::CalculateInitialSupernovaMass(){
-    if(utils::Compare(m_COCoreMass, m_Mass)==0) {                // special case of ultra-stripped-star -- use current mass
+double  HeHG::CalculateInitialSupernovaMass() {
+    if (utils::Compare(m_COCoreMass, m_Mass) == 0) {    // special case of ultra-stripped-star -- use current mass
         return std::max(m_Mass, m_GBParams[static_cast<int>(GBP::McBAGB)]);
     }
     return GiantBranch::CalculateInitialSupernovaMass();
