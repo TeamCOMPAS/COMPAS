@@ -196,13 +196,13 @@ void Options::OptionValues::Initialise() {
     // eventually, it will be the case for all initial attributes that we have a 
     // single "convenience" distribution available in the C++ code - we expect 
     // users will sample outside the C++ code (with Stroopwafel etc.) so that we
-    // don;t have to code and maintain everybody's favourite distribution inside
-    // the C++ code)
+    // don't have to code and maintain everybody's favourite distribution inside
+    // the C++ code).
     //
     // The orbital period distribution will only used if it is specified by the
     // user AND semi-major axis (--semi-major-axis), orbital period (--orbital-period),
     // and semi-major axis distribution (--semi-major-axis-distribution) are NOT 
-    // specified by the user,
+    // specified by the user.
     //
     // This --orbital-period-distribution option exists even though there is no real
     // choice (there is a single distribution available) so that users can specify
