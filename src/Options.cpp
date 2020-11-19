@@ -62,6 +62,8 @@
 /*    Read the explanations for each of the vectors in Options.h to get a better idea of  */
 /*    what they are for and where the new option should go.                               */
 /*                                                                                        */
+/* 10. Add the new option to Options::OptionValue() - this enables selection of the       */
+/*     option value for printing in the output (log) files.                               */
 /******************************************************************************************/
 
 
@@ -168,10 +170,11 @@ void Options::OptionValues::Initialise() {
     m_InitialMassFunctionPower                                      = -2.3;
 
 
-    // Initial mass ratios
+    // Initial mass ratio
+    m_MassRatio                                                     = 1.0;
     m_MassRatioDistribution.type                                    = MASS_RATIO_DISTRIBUTION::FLAT;                        // Most likely want FLAT or SANA2012
     m_MassRatioDistribution.typeString                              = MASS_RATIO_DISTRIBUTION_LABEL.at(m_MassRatioDistribution.type);
-    m_MassRatioDistributionMin                                      = 0.0;
+    m_MassRatioDistributionMin                                      = 0.01;
     m_MassRatioDistributionMax                                      = 1.0;
 
     m_MinimumMassSecondary                                          = MINIMUM_INITIAL_MASS;                                 // actual value set later
@@ -188,8 +191,27 @@ void Options::OptionValues::Initialise() {
 
     // Initial orbital period
     m_OrbitalPeriod                                                 = 0.1;                                                  // Only used if user specified and semi-major axis not specified
-    m_PeriodDistributionMin                                         = 1.1;
-    m_PeriodDistributionMax                                         = 1000.0;
+
+    // There is a single distribution available for orbital period (and actually,
+    // eventually, it will be the case for all initial attributes that we have a 
+    // single "convenience" distribution available in the C++ code - we expect 
+    // users will sample outside the C++ code (with Stroopwafel etc.) so that we
+    // don't have to code and maintain everybody's favourite distribution inside
+    // the C++ code).
+    //
+    // The orbital period distribution will only used if it is specified by the
+    // user AND semi-major axis (--semi-major-axis), orbital period (--orbital-period),
+    // and semi-major axis distribution (--semi-major-axis-distribution) are NOT 
+    // specified by the user.
+    //
+    // This --orbital-period-distribution option exists even though there is no real
+    // choice (there is a single distribution available) so that users can specify
+    // the distribution, and so it will be used according to the rule stated above.
+
+    m_OrbitalPeriodDistribution.type                                = ORBITAL_PERIOD_DISTRIBUTION::FLATINLOG;
+    m_OrbitalPeriodDistribution.typeString                          = ORBITAL_PERIOD_DISTRIBUTION_LABEL.at(m_OrbitalPeriodDistribution.type);
+    m_OrbitalPeriodDistributionMin                                  = 1.1;
+    m_OrbitalPeriodDistributionMax                                  = 1000.0;
 
     // Eccentricity
     m_Eccentricity                                                  = 0.0;
@@ -999,6 +1021,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
+            "mass-ratio,q",                                              
+            po::value<double>(&p_Options->m_MassRatio)->default_value(p_Options->m_MassRatio),                                                                      
+            ("Mass ratio m2/m1 used to determine secondary mass if not specified (default = " + std::to_string(p_Options->m_MassRatio) + ")").c_str()
+        )
+        (
             "mass-ratio-max",                                              
             po::value<double>(&p_Options->m_MassRatioDistributionMax)->default_value(p_Options->m_MassRatioDistributionMax),                                                                      
             ("Maximum mass ratio m2/m1 to generate (default = " + std::to_string(p_Options->m_MassRatioDistributionMax) + ")").c_str()
@@ -1087,13 +1114,13 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
         (
             "orbital-period-max",                                          
-            po::value<double>(&p_Options->m_PeriodDistributionMax)->default_value(p_Options->m_PeriodDistributionMax),                                                                            
-            ("Maximum period in days to generate (default = " + std::to_string(p_Options->m_PeriodDistributionMax) + ")").c_str()
+            po::value<double>(&p_Options->m_OrbitalPeriodDistributionMax)->default_value(p_Options->m_OrbitalPeriodDistributionMax),                                                                            
+            ("Maximum period in days to generate (default = " + std::to_string(p_Options->m_OrbitalPeriodDistributionMax) + ")").c_str()
         )
         (
             "orbital-period-min",                                          
-            po::value<double>(&p_Options->m_PeriodDistributionMin)->default_value(p_Options->m_PeriodDistributionMin),                                                                            
-            ("Minimum period in days to generate (default = " + std::to_string(p_Options->m_PeriodDistributionMin) + ")").c_str()
+            po::value<double>(&p_Options->m_OrbitalPeriodDistributionMin)->default_value(p_Options->m_OrbitalPeriodDistributionMin),                                                                            
+            ("Minimum period in days to generate (default = " + std::to_string(p_Options->m_OrbitalPeriodDistributionMin) + ")").c_str()
         )
 
         (
@@ -1342,7 +1369,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Mass loss prescription (options: [NONE, HURLEY, VINK], default = " + p_Options->m_MassLossPrescription.typeString + ")").c_str()
         )
         (
-            "mass-ratio-distribution,q",                                   
+            "mass-ratio-distribution",                                   
             po::value<std::string>(&p_Options->m_MassRatioDistribution.typeString)->default_value(p_Options->m_MassRatioDistribution.typeString),                                                                
             ("Initial mass ratio distribution for q=m2/m1 (options: [FLAT, DUQUENNOYMAYOR1991, SANA2012], default = " + p_Options->m_MassRatioDistribution.typeString + ")").c_str()
         )
@@ -1388,6 +1415,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Neutron star equation of state to use (options: [SSE, ARP3], default = " + p_Options->m_NeutronStarEquationOfState.typeString + ")").c_str()
         )
 
+        (
+            "orbital-period-distribution",                              
+            po::value<std::string>(&p_Options->m_OrbitalPeriodDistribution.typeString)->default_value(p_Options->m_OrbitalPeriodDistribution.typeString),                                                        
+            ("Initial orbital period distribution (options: [FLATINLOG], default = " + p_Options->m_OrbitalPeriodDistribution.typeString + ")").c_str()
+        )        
         (
             "output-container,c",                                          
             po::value<std::string>(&p_Options->m_OutputContainerName)->default_value(p_Options->m_OutputContainerName)->implicit_value(""),                                                            
@@ -1828,8 +1860,10 @@ std::string Options::OptionValues::CheckAndSetOptions() {
  
         COMPLAIN_IF(m_LuminousBlueVariableFactor < 0.0, "LBV multiplier (--luminous-blue-variable-multiplier) < 0");
 
-        COMPLAIN_IF(m_MassRatioDistributionMin < 0.0 || m_MassRatioDistributionMin > 1.0, "Minimum mass ratio (--mass-ratio-min) must be between 0 and 1");
-        COMPLAIN_IF(m_MassRatioDistributionMax < 0.0 || m_MassRatioDistributionMax > 1.0, "Maximum mass ratio (--mass-ratio-max) must be between 0 and 1");
+        COMPLAIN_IF(m_MassRatio <= 0.0 || m_MassRatio > 1.0, "Mass ratio (--mass-ratio) must be greater than 0 and less than or equal to 1");
+
+        COMPLAIN_IF(m_MassRatioDistributionMin <= 0.0 || m_MassRatioDistributionMin > 1.0, "Minimum mass ratio (--mass-ratio-min) must be greater than 0 and less than or equal to 1");
+        COMPLAIN_IF(m_MassRatioDistributionMax <= 0.0 || m_MassRatioDistributionMax > 1.0, "Maximum mass ratio (--mass-ratio-max) must be greater than 0 and less than or equal to 1");
         COMPLAIN_IF(m_MassRatioDistributionMax <= m_MassRatioDistributionMin, "Maximum mass ratio (--mass-ratio-max) must be > Minimum mass ratio (--mass-ratio-min)");
 
         COMPLAIN_IF(m_MaxEvolutionTime <= 0.0, "Maximum evolution time in Myr (--maxEvolutionTime) must be > 0");
@@ -1863,8 +1897,9 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             }
         }
 
-        COMPLAIN_IF(m_PeriodDistributionMin < 0.0, "Minimum orbital period (--orbital-period-min) < 0");
-        COMPLAIN_IF(m_PeriodDistributionMax < 0.0, "Maximum orbital period (--orbital-period-max) < 0");
+        COMPLAIN_IF(m_OrbitalPeriodDistributionMin < 0.0, "Minimum orbital period (--orbital-period-min) < 0");
+        COMPLAIN_IF(m_OrbitalPeriodDistributionMax < 0.0, "Maximum orbital period (--orbital-period-max) < 0");
+        COMPLAIN_IF(m_OrbitalPeriodDistributionMax <= m_OrbitalPeriodDistributionMin, "Maximum orbital period (--orbital-period-max) must be > Minimum orbital period (--orbital-period-min)");
 
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale") && m_PulsarMagneticFieldDecayTimescale <= 0.0, "Pulsar magnetic field decay timescale (--pulsar-magnetic-field-decay-timescale) <= 0");
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar Magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
@@ -3387,8 +3422,10 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::LBV_FACTOR                                     : value = LuminousBlueVariableFactor();                                         break;
         case PROGRAM_OPTION::LBV_PRESCRIPTION                               : value = static_cast<int>(LuminousBlueVariablePrescription());                 break;
+
         case PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION                         : value = static_cast<int>(MassLossPrescription());                             break;
 
+        case PROGRAM_OPTION::MASS_RATIO                                     : value = MassRatio();                                                          break;                     
         case PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION                        : value = static_cast<int>(MassRatioDistribution());                            break;
         case PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MAX                    : value = MassRatioDistributionMax();                                           break;
         case PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MIN                    : value = MassRatioDistributionMin();                                           break;
@@ -3452,11 +3489,12 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::NS_EOS                                         : value = static_cast<int>(NeutronStarEquationOfState());                       break;
 
+        case PROGRAM_OPTION::ORBITAL_PERIOD                                 : value = static_cast<int>(OrbitalPeriodDistribution());                        break;
+        case PROGRAM_OPTION::ORBITAL_PERIOD_DISTRIBUTION_MAX                : value = OrbitalPeriodDistributionMax();                                       break;
+        case PROGRAM_OPTION::ORBITAL_PERIOD_DISTRIBUTION_MIN                : value = OrbitalPeriodDistributionMin();                                       break;
+
         case PROGRAM_OPTION::PISN_LOWER_LIMIT                               : value = PairInstabilityLowerLimit();                                          break;
         case PROGRAM_OPTION::PISN_UPPER_LIMIT                               : value = PairInstabilityUpperLimit();                                          break;
-
-        case PROGRAM_OPTION::PERIOD_DISTRIBUTION_MAX                        : value = PeriodDistributionMax();                                              break;
-        case PROGRAM_OPTION::PERIOD_DISTRIBUTION_MIN                        : value = PeriodDistributionMin();                                              break;
 
         case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION             : value = static_cast<int>(PulsarBirthMagneticFieldDistribution());             break;
         case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MAX         : value = PulsarBirthMagneticFieldDistributionMax();                            break;

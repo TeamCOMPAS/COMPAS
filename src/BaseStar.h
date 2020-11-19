@@ -519,7 +519,7 @@ protected:
     /*
      * Perturb Luminosity and Radius
      *
-     * See Hurley at al. 2000, section 6.3
+     * See Hurley et al. 2000, section 6.3
      *
      * The default is no perturbation - this function does nothing and is called
      * only if the stellar class doesn't define its own perturbation function.
