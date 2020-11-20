@@ -617,7 +617,7 @@
 //                                      - Updated default pythonSubmit to reflect new options, plus some previous omissions (by me...)
 //                                      - Minor typo/formatting changes throughout
 //                                      - Updated docs for new options, plus some typos/fixes/previous omissions
-// 02.17.08     RTW - Nov 20, 2020  - Bug fix:
+// 02.17.09     RTW - Nov 20, 2020  - Bug fix:
 //                                      - Removed corner case for MT_hist=8 stars in the Schneider prescription (these should be considered Ultra-stripped)
 
 const std::string VERSION_STRING = "02.17.09";
