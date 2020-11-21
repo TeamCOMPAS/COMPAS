@@ -312,7 +312,8 @@ void Options::OptionValues::Initialise() {
     
 
     // Mass loss options
-    m_UseMassLoss                                                   = false;
+    m_UseMassLoss                                                   = false; // TW - shouldn't this be true by default? It says so in options.h
+    m_CheckPhotonTiringLimit                                        = false;
 
     m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::VINK;
     m_MassLossPrescription.typeString                               = MASS_LOSS_PRESCRIPTION_LABEL.at(m_MassLossPrescription.type);
@@ -598,7 +599,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Enable Be Binaries study (default = " + std::string(p_Options->m_BeBinaries ? "TRUE" : "FALSE") + ")").c_str()
         )
         */
-
+        (
+            "check-photon-tiring-limit",
+            po::value<bool>(&p_Options->m_CheckPhotonTiringLimit)->default_value(p_Options->m_CheckPhotonTiringLimit)->implicit_value(true),                            
+            ("Check the photon tiring limit hasn't been exceeded by wind mass loss (default = " + std::string(p_Options->m_CheckPhotonTiringLimit ? "TRUE" : "FALSE") + ")").c_str()
+        )
         (
             "circularise-binary-during-mass-transfer",                         
             po::value<bool>(&p_Options->m_CirculariseBinaryDuringMassTransfer)->default_value(p_Options->m_CirculariseBinaryDuringMassTransfer)->implicit_value(true),                            
@@ -3360,6 +3365,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
     
         case PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION                 : value = static_cast<int>(CaseBBStabilityPrescription());                      break;
     
+        case PROGRAM_OPTION::CHECK_PHOTON_TIRING_LIMIT                      : value = CheckPhotonTiringLimit();                                             break;
+
         case PROGRAM_OPTION::CHE_MODE                                       : value = static_cast<int>(CHEMode());                                          break;
 
         case PROGRAM_OPTION::CIRCULARISE_BINARY_DURING_MT                   : value = CirculariseBinaryDuringMassTransfer();                                break;
