@@ -1762,6 +1762,11 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
         mDot = CalculateMassLossRate();                                     // calculate mass loss rate
         double massLoss = CalculateMassLoss_Static(mass, mDot, dt);         // calculate mass loss - limited to (mass * MAXIMUM_MASS_LOSS_FRACTION)
 
+        if (OPTIONS->CheckPhotonTiringLimit()) {
+            double lim = m_Luminosity / (G_SOLAR_YEAR * m_Mass / m_Radius)  // calculate the photon tiring limit in Msol yr^-1 using Owocki & Gayley 1997, equation slightly clearer in Owocki+2004 Eq. 20
+            massloss = std::min(massloss, lim);                             // limit mass loss to the photon tiring limit
+        }
+
         // could do this without the test - we know the mass loss may already
         // have been limited.  This way is probably marginally faster
         if (utils::Compare(massLoss, (mass * MAXIMUM_MASS_LOSS_FRACTION)) < 0) {
