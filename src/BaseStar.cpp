@@ -1534,12 +1534,12 @@ double BaseStar::CalculateMassLossRateLBVBelczynski() {
  * Note that the reduction of this formula is imposed in order to match the observed number of black holes in binaries (Hurley et al 2000)
  *
  *
- * double CalculateMassLossRateWolfRayetLike(const double p_Mu)
+ * double CalculateMassLossRateWolfRayet(const double p_Mu)
  *
  * @param   [IN]    p_Mu                        Small envelope parameter (see Hurley et al. 2000, eq 97 & 98)
  * @return                                      Mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateWolfRayetLike(const double p_Mu) {
+double BaseStar::CalculateMassLossRateWolfRayet(const double p_Mu) {
     // In the fortran code there is a parameter here hewind which by default is 1.0 -
     // can be set to zero to disable this particular part of winds. We instead opt for all winds on or off.
     return PPOW(m_Luminosity, 1.5) * (1.0 - p_Mu) * 1.0E-13;
@@ -1554,16 +1554,20 @@ double BaseStar::CalculateMassLossRateWolfRayetLike(const double p_Mu) {
  * Note that the reduction of this formula is imposed in order to match the observed number of black holes in binaries (Hurley et al 2000)
  *
  *
- * double CalculateMassLossRateWolfRayet2(const double p_Mu)
+ * double CalculateMassLossRateWolfRayetZDependent(const double p_Mu)
  *
  * @param   [IN]    p_Mu                        Small envelope parameter (see Hurley et al. 2000, eq 97 & 98)
  * @return                                      Mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateWolfRayet2(const double p_Mu) {
+double BaseStar::CalculateMassLossRateWolfRayetZDependent(const double p_Mu) {
     // I think StarTrack may still do something different here,
     // there are references to Hamann & Koesterke 1998 and Vink and de Koter 2005
-
-    return OPTIONS->WolfRayetFactor() * 1.0E-13 * PPOW(m_Luminosity, 1.5) * PPOW(m_Metallicity / ZSOL, 0.86) * (1.0 - p_Mu);
+    // TW - Haven't seen StarTrack but I think H&K gives the original equation and V&dK gives the Z dependence
+    double rate = 0.0;
+    if (utils::Compare(p_Mu, 1.0) < 0) {
+        rate = OPTIONS->WolfRayetFactor() * 1.0E-13 * PPOW(m_Luminosity, 1.5) * PPOW(m_Metallicity / ZSOL, 0.86) * (1.0 - p_Mu);
+    }
+    return rate;
 }
 
 

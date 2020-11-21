@@ -559,12 +559,11 @@ double EAGB::CalculateCOCoreMassOnPhase(const double p_Time) {
  * @return                                      Mass loss rate in Msol per year
  */
 double EAGB::CalculateMassLossRateHurley() {
-
-    double dms = CalculateMassLossRateNieuwenhuijzenDeJager();
-    double dml = CalculateMassLossRateKudritzkiReimers();
-    double dmt = CalculateMassLossRateVassiliadisWood();
-
-    return std::max(dms, std::max(dml, dmt));
+    double rate_NJ = CalculateMassLossRateNieuwenhuijzenDeJager();
+    double rate_KR = CalculateMassLossRateKudritzkiReimers();
+    double rate_VW = CalculateMassLossRateVassiliadisWood();
+    double rate_WR = CalculateMassLossRateWolfRayetZDependent(m_Mu);
+    return std::max(rate_WR, std::max(rate_NJ, std::max(rate_KR, rate_VW)));
 }
 
 
