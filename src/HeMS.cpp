@@ -233,7 +233,7 @@ double HeMS::CalculateMassLossRateHurley() {
  * @return                                      Mass loss rate in Msol per year
  */
 double HeMS::CalculateMassLossRateVink() {
-    return CalculateMassLossRateWolfRayet2(0.0);
+    return CalculateMassLossRateWolfRayetZDependent(0.0);
 }
 
 

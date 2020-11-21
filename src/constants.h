@@ -1963,6 +1963,8 @@ enum class PROGRAM_OPTION: int {
     
     CASE_BB_STABILITY_PRESCRIPTION,
     
+    CHECK_PHOTON_TIRING_LIMIT,
+
     CHE_MODE,
 
     CIRCULARISE_BINARY_DURING_MT,
@@ -2155,6 +2157,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     
     { PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION,                   "CASE_BB_STABILITY_PRESCRIPTION" },
     
+    { PROGRAM_OPTION::CHECK_PHOTON_TIRING_LIMIT,                        "CHECK_PHOTON_TIRING_LIMIT" },
+
     { PROGRAM_OPTION::CHE_MODE,                                         "CHE_MODE" },
 
     { PROGRAM_OPTION::CIRCULARISE_BINARY_DURING_MT,                     "CIRCULARISE_BINARY_DURING_MT" },
@@ -2629,6 +2633,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     
     { PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION,                       { TYPENAME::INT,            "BB_Mass_xFer_Stblty_Prscrptn", "-",                 4, 1 }},
     
+    { PROGRAM_OPTION::CHECK_PHOTON_TIRING_LIMIT,                            { TYPENAME::BOOL,           "Check_Photon_Tiring_Limit",    "Flag",              0, 0 }},
+
     { PROGRAM_OPTION::CHE_MODE,                                             { TYPENAME::INT,            "CHE_Mode",                     "-",                 4, 1 }},
 
     { PROGRAM_OPTION::CIRCULARISE_BINARY_DURING_MT,                         { TYPENAME::BOOL,           "Circularise@MT",               "Flag",              0, 0 }},
