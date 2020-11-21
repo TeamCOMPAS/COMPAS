@@ -896,7 +896,7 @@ double GiantBranch::CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB)
 double GiantBranch::CalculateMassLossRateHurley() {
     double rate_NJ = CalculateMassLossRateNieuwenhuijzenDeJager();
     double rate_KR = CalculateMassLossRateKudritzkiReimers();
-    double rate_WR = CalculateMassLossRateWolfRayetLike(m_Mu);
+    double rate_WR = CalculateMassLossRateWolfRayetZDependent(m_Mu);
 
     return std::max(rate_NJ, std::max(rate_KR, rate_WR));
 }
