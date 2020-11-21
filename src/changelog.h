@@ -619,7 +619,16 @@
 //                                      - Updated docs for new options, plus some typos/fixes/previous omissions
 // 02.17.09     RTW - Nov 20, 2020  - Bug fix:
 //                                      - Removed corner case for MT_hist=8 stars in the Schneider prescription (these should be considered Ultra-stripped)
+// 02.17.10     TW - Nov 21, 2020   - Enhancement, code cleanup, bug fix
+//                                      - Issue #463
+//                                          - Changed variable names from dml, dms etc. to rate_XX where XX is the mass loss recipe
+//                                          - No longer overwrite variables with next mass loss recipe for clarity
+//                                      - Issue #465
+//                                          - Changed to always use metallicity dependent WR mass loss to avoid WR-like mass loss being used for massive giants
+//                                          - Note: This is different from the original HURLEY prescription but it's the same equation just with a metallicity dependence
+//                                                  so the HURLEY prescription in COMPAS won't be identical to the original Hurley+00 paper...but it wasn't anyway in several places ;)
+//                                      - Added a new option to check the photon tiring limit during mass loss
 
-const std::string VERSION_STRING = "02.17.09";
+const std::string VERSION_STRING = "02.17.10";
 
 # endif // __changelog_h__
