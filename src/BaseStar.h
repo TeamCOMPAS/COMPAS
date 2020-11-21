@@ -421,9 +421,9 @@ protected:
             double          CalculateMassLossRateOB(const double p_Teff);
             double          CalculateMassLossRateVassiliadisWood();
     virtual double          CalculateMassLossRateVink();
-            double          CalculateMassLossRateWolfRayet2(const double p_Mu);
-            double          CalculateMassLossRateWolfRayet3();                                                                                                                              // JR: Never called - do we need it?
-            double          CalculateMassLossRateWolfRayetLike(const double p_Mu);
+            double          CalculateMassLossRateWolfRayetZDependent(const double p_Mu);
+            double          CalculateMassLossRateWolfRayet3();                                                                                                                              // JR: Never called - do we need it? TW: +1
+            double          CalculateMassLossRateWolfRayet(const double p_Mu);
 
     virtual double          CalculateMassTransferRejuvenationFactor();
 
