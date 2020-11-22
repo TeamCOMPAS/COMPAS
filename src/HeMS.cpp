@@ -216,10 +216,10 @@ double HeMS::CalculateMassTransferRejuvenationFactor() {
  * @return                                      Mass loss rate in Msol per year
  */
 double HeMS::CalculateMassLossRateHurley() {
-    double rate_NJ = CalculateMassLossRateNieuwenhuijzenDeJager();
-    double rate_KR = CalculateMassLossRateKudritzkiReimers();
-    double rate_WR = CalculateMassLossRateWolfRayetZDependent(0.0); // use mu=0.0 for Helium stars
-    return std::max(rate_NJ, std::max(rate_KR, rate_WR));
+    double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
+    double rateKR = CalculateMassLossRateKudritzkiReimers();
+    double rateWR = CalculateMassLossRateWolfRayetZDependent(0.0); // use mu=0.0 for Helium stars
+    return std::max(rateNJ, std::max(rateKR, rateWR));
 }
 
 
