@@ -353,6 +353,7 @@ private:
         // Serena
         //"be-binaries",
 
+        "check-photon-tiring-limit",
         "circularise-binary-during-mass-transfer",
         "common-envelope-allow-main-sequence-survive",
 

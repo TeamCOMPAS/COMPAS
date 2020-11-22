@@ -894,11 +894,11 @@ double GiantBranch::CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB)
  * @return                                      Mass loss rate in Msol per year
  */
 double GiantBranch::CalculateMassLossRateHurley() {
-    double rate_NJ = CalculateMassLossRateNieuwenhuijzenDeJager();
-    double rate_KR = CalculateMassLossRateKudritzkiReimers();
-    double rate_WR = CalculateMassLossRateWolfRayetZDependent(m_Mu);
+    double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
+    double rateKR = CalculateMassLossRateKudritzkiReimers();
+    double rateWR = CalculateMassLossRateWolfRayetZDependent(m_Mu);
 
-    return std::max(rate_NJ, std::max(rate_KR, rate_WR));
+    return std::max(rateNJ, std::max(rateKR, rateWR));
 }
 
 
