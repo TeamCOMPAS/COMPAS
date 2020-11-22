@@ -897,8 +897,21 @@ double GiantBranch::CalculateMassLossRateHurley() {
     double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
     double rateKR = CalculateMassLossRateKudritzkiReimers();
     double rateWR = CalculateMassLossRateWolfRayetZDependent(m_Mu);
+    double dominantRate;
 
-    return std::max(rateNJ, std::max(rateKR, rateWR));
+    if (utils::Compare(rateNJ, rateKR) > 0) {
+        dominantRate = rateNJ;
+        m_DMLR = MLR_TYPE::NIEUWENHUIJZEN_DE_JAGER;
+    } else {
+        dominantRate = rateKR;
+        m_DMLR = MLR_TYPE::KUDRITZKI_REIMERS;
+    }
+    if (utils::Compare(rateWR, dominantRate) > 0) {
+        dominantRate = rateWR;
+        m_DMLR = MLR_TYPE::WOLF_RAYET_LIKE;
+    }
+
+    return dominantRate;
 }
 
 
