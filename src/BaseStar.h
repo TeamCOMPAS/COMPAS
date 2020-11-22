@@ -47,6 +47,7 @@ public:
             bool                CHonMS() const                                                  { return m_CHE; }
             double              COCoreMass() const                                              { return m_COCoreMass; }
             double              CoreMass() const                                                { return m_CoreMass; }
+            int                 DominantMassLossRate() const                                    { return static_cast<int>(m_DMLR); }
             double              Dt() const                                                      { return m_Dt; }
             double              DtPrev() const                                                  { return m_DtPrev; }
             ERROR               Error() const                                                   { return m_Error; }
@@ -272,6 +273,7 @@ protected:
     double                  m_Mass0;                                    // Current effective initial mass (Msol)        JR: todo: fix this one day - it is not always initial mass
     double                  m_MinimumLuminosityOnPhase;                 // JR: Only required for CHeB stars, but only needs to be calculated once per star
     double                  m_Mdot;                                     // Current mass loss rate (Msol per ?)
+    MLR_TYPE                m_DMLR;                                     // Current dominant mass loss rate
     double                  m_Mu;                                       // Current small envelope parameter mu
     double                  m_Omega;                                    // Current angular frequency (yr-1)
     double                  m_Radius;                                   // Current radius (Rsol)
