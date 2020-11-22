@@ -1239,6 +1239,18 @@ enum class MASS_CUTOFF: int {
     COUNT                   // Sentinel for entry count
 };
 
+// enum class MLR_TYPE
+// Symbolic names for mass loss rate type
+enum class MLR_TYPE: int {
+    NONE,
+    NIEUWENHUIJZEN_DE_JAGER,
+    KUDRITZKI_REIMERS,
+    VASSILIADIS_WOOD,
+    WOLF_RAYET_LIKE,
+    VINK,
+    LUMINOUS_BLUE_VARIABLE
+};
+
 
 // enum class TIMESCALE
 // Symbolic names for timescales
@@ -1432,6 +1444,7 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     CORE_MASS_AT_COMMON_ENVELOPE,                    \
     CORE_MASS_AT_COMPACT_OBJECT_FORMATION,           \
     DRAWN_KICK_MAGNITUDE,                            \
+    DOMINANT_MASS_LOSS_RATE,                         \
     DT,                                              \
     DYNAMICAL_TIMESCALE,                             \
     DYNAMICAL_TIMESCALE_POST_COMMON_ENVELOPE,        \
@@ -1572,6 +1585,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::CORE_MASS_AT_COMMON_ENVELOPE,                    "CORE_MASS_AT_COMMON_ENVELOPE" },
     { STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,           "CORE_MASS_AT_COMPACT_OBJECT_FORMATION" },
     { STAR_PROPERTY::DRAWN_KICK_MAGNITUDE,                            "DRAWN_KICK_MAGNITUDE" },
+    { STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE,                         "DOMINANT_MASS_LOSS_RATE"},
     { STAR_PROPERTY::DT,                                              "DT" },
     { STAR_PROPERTY::DYNAMICAL_TIMESCALE,                             "DYNAMICAL_TIMESCALE" },
     { STAR_PROPERTY::DYNAMICAL_TIMESCALE_POST_COMMON_ENVELOPE,        "DYNAMICAL_TIMESCALE_POST_COMMON_ENVELOPE" },
@@ -2399,6 +2413,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::CORE_MASS_AT_COMMON_ENVELOPE,                      { TYPENAME::DOUBLE,         "Mass_Core@CE",         "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,             { TYPENAME::DOUBLE,         "Mass_Core@CO",         "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE,                              { TYPENAME::DOUBLE,         "Drawn_Kick_Magnitude", "kms^-1",           14, 6 }},
+    { ANY_STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE,                           { TYPENAME::INT,            "Dominant_Mass_Loss_Rate","-",               4, 1 }},
     { ANY_STAR_PROPERTY::DT,                                                { TYPENAME::DOUBLE,         "dT",                   "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE,                               { TYPENAME::DOUBLE,         "Tau_Dynamical",        "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE_POST_COMMON_ENVELOPE,          { TYPENAME::DOUBLE,         "Tau_Dynamical>CE",     "Myr",              16, 8 }},
@@ -2977,6 +2992,8 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     STAR_2_PROPERTY::ZETA_HURLEY_HE,
     STAR_1_PROPERTY::MASS_LOSS_DIFF,
     STAR_2_PROPERTY::MASS_LOSS_DIFF,
+    STAR_1_PROPERTY::DOMINANT_MASS_LOSS_RATE,
+    STAR_2_PROPERTY::DOMINANT_MASS_LOSS_RATE,
     STAR_1_PROPERTY::MASS_TRANSFER_DIFF,
     STAR_2_PROPERTY::MASS_TRANSFER_DIFF,
     BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM,
@@ -3195,6 +3212,7 @@ const ANY_PROPERTY_VECTOR SSE_DETAILED_OUTPUT_REC = {
     STAR_PROPERTY::CO_CORE_MASS,
     STAR_PROPERTY::HE_CORE_MASS,
     STAR_PROPERTY::MDOT,
+    STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE,
     STAR_PROPERTY::TIMESCALE_MS
 };
 
