@@ -1615,6 +1615,7 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
                            (1.07  * log10(p_Teff / 20000.0));
 
         rate = PPOW(10.0, logMdotOB);
+        m_DMLR = MLR_TYPE::VINK;
     }
     else if (utils::Compare(p_Teff, VINK_MASS_LOSS_BISTABILITY_TEMP) > 0) {
         SHOW_WARN_IF(utils::Compare(p_Teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
@@ -1630,6 +1631,7 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
                            (10.92 * log10(p_Teff / 40000.0) * log10(p_Teff/40000.0));
 
         rate = PPOW(10.0, logMdotOB);
+        m_DMLR = MLR_TYPE::VINK;
     }
     else {
         SHOW_WARN(ERROR::LOW_TEFF_WINDS, "Mass Loss Rate = 0.0");                                               // too cold to use winds - show warning.
@@ -1664,24 +1666,28 @@ double BaseStar::CalculateMassLossRateHurley() {
  * @return                                      Mass loss rate in Msol per year
  */
 double BaseStar::CalculateMassLossRateVink() {
-    double rate = CalculateMassLossRateLBV(OPTIONS->LuminousBlueVariablePrescription());                            // start with LBV winds (can be, and is often, 0.0)
+    double LBVRate = CalculateMassLossRateLBV(OPTIONS->LuminousBlueVariablePrescription());                         // start with LBV winds (can be, and is often, 0.0)
+    double otherWindsRate = 0.0;
 
-    if (utils::Compare(rate, 0.0) == 0 || 
+    if (utils::Compare(LBVRate, 0.0) == 0 || 
         OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::HURLEY_ADD ) {                             // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if LBV winds are 0.0 for others)
 
         double teff = m_Temperature * TSOL;                                                                         // change to Kelvin so it can be compared with values as stated in Vink prescription
-
         if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                                // cool stars, add Hurley et al 2000 winds
-            rate += CalculateMassLossRateHurley();
+            otherWindsRate = CalculateMassLossRateHurley();
         }
         else  {                                                                                                     // hot stars, add Vink et al. 2001 winds (ignoring bistability jump)
-            rate += CalculateMassLossRateOB(teff);
+            otherWindsRate = CalculateMassLossRateOB(teff);
         }
+    }
+
+    if (utils::Compare(LBVRate, otherWindsRate) > 0) {
+        m_DMLR = MLR_TYPE::LUMINOUS_BLUE_VARIABLE;
     }
 
     // BSE and StarTrack have some mulptilier they apply here
 
-    return rate;
+    return LBVRate + otherWindsRate;
 }
 
 
@@ -1700,10 +1706,18 @@ double BaseStar::CalculateMassLossRate() {
     double mDot = 0.0;
     if (OPTIONS->UseMassLoss()) {
 
+        double LBVRate;
+        double otherWindsRate;
+
         switch (OPTIONS->MassLossPrescription()) {                                                              // which prescription?
 
             case MASS_LOSS_PRESCRIPTION::HURLEY:                                                                // HURLEY
-                mDot = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD) + CalculateMassLossRateHurley();
+                LBVRate = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD);
+                otherWindsRate = CalculateMassLossRateHurley();
+                if (utils::Compare(LBVRate, otherWindsRate) > 0) {
+                    m_DMLR = MLR_TYPE::LUMINOUS_BLUE_VARIABLE;
+                }
+                mDot = LBVRate + otherWindsRate;
                 break;
 
             case MASS_LOSS_PRESCRIPTION::VINK:                                                                  // VINK
@@ -1712,7 +1726,12 @@ double BaseStar::CalculateMassLossRate() {
 
             default:                                                                                            // unknown mass loss prescription
                 SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using HURLEY");                               // show warning
-                mDot = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD) + CalculateMassLossRateHurley();  // use HURLEY
+                LBVRate = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD);
+                otherWindsRate = CalculateMassLossRateHurley();
+                if (utils::Compare(LBVRate, otherWindsRate) > 0) {
+                    m_DMLR = MLR_TYPE::LUMINOUS_BLUE_VARIABLE;
+                }
+                mDot = LBVRate + otherWindsRate;                                                             // use HURLEY
         }
     }
 

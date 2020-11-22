@@ -219,7 +219,21 @@ double HeMS::CalculateMassLossRateHurley() {
     double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
     double rateKR = CalculateMassLossRateKudritzkiReimers();
     double rateWR = CalculateMassLossRateWolfRayetZDependent(0.0); // use mu=0.0 for Helium stars
-    return std::max(rateNJ, std::max(rateKR, rateWR));
+    double dominantRate;
+
+    if (utils::Compare(rateNJ, rateKR) > 0) {
+        dominantRate = rateNJ;
+        m_DMLR = MLR_TYPE::NIEUWENHUIJZEN_DE_JAGER;
+    } else {
+        dominantRate = rateKR;
+        m_DMLR = MLR_TYPE::KUDRITZKI_REIMERS;
+    }
+    if (utils::Compare(rateWR, dominantRate) > 0) {
+        dominantRate = rateWR;
+        m_DMLR = MLR_TYPE::WOLF_RAYET_LIKE;
+    }
+
+    return dominantRate;
 }
 
 
@@ -233,6 +247,7 @@ double HeMS::CalculateMassLossRateHurley() {
  * @return                                      Mass loss rate in Msol per year
  */
 double HeMS::CalculateMassLossRateVink() {
+    m_DMLR = MLR_TYPE::WOLF_RAYET_LIKE;
     return CalculateMassLossRateWolfRayetZDependent(0.0);
 }
 
