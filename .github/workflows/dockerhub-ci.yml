@@ -15,7 +15,7 @@ jobs:
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       
       - name: Get release version
-        run: echo "COMPAS_VERSION=$(sed -n '/const std::string VERSION_STRING/,/^$/p' ./src/constants.h | sed 's/.*"\(.*\)"[^"]*$/\1/')" >> $GITHUB_ENV
+        run: echo "COMPAS_VERSION=$(sed -n '/const std::string VERSION_STRING/,/^$/p' ./src/changelog.h | sed 's/.*"\(.*\)"[^"]*$/\1/')" >> $GITHUB_ENV
         
       - name: Print version
         run: echo $COMPAS_VERSION
