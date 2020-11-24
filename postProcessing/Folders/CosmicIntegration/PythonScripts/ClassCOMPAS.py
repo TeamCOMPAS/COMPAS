@@ -187,7 +187,7 @@ class COMPASData(object):
             mass_ratio_inverse_CDF = lambda q: q
 
         # randomly sample a large number of masses from IMF, mass ratios from supplied function, binary for boolean
-        primary_mass = primary_mass_inverse_CDF(np.random.rand(SAMPLES))
+        primary_mass = primary_mass_inverse_CDF(np.random.rand(SAMPLES)) * u.Msun
         mass_ratio = mass_ratio_inverse_CDF(np.random.rand(SAMPLES))
         binary = np.random.rand(SAMPLES)
 
