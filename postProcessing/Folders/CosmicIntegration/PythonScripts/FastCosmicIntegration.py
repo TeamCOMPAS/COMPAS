@@ -19,7 +19,6 @@ SFRmassPerSampledBinary=115 #Msol; amount of star formation for each generated b
 
 pathData        = "/Users/ilyam/Work/COMPASresults/popsynth/JeffTest/"
 COMPAS = ClassCOMPAS.COMPASData(path=pathData,Mlower=5,Mupper=150,binaryFraction=0.7)
-COMPAS.setGridAndMassEvolved()
 COMPAS.setCOMPASDCOmask(types='BBH', pessimistic=True)
 COMPAS.setCOMPASData()
 chirpMass=COMPAS.mass1**0.6*COMPAS.mass2**0.6/(COMPAS.mass1+COMPAS.mass2)**0.2
