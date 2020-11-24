@@ -38,6 +38,7 @@ class COMPASData(object):
         self.BBHmask = None
         self.DNSmask = None
         self.BHNSmask = None
+        self.initialZ = None
 
         # Additional arrays that might be nice to store
         # to more quickly make some plots.
@@ -147,7 +148,8 @@ class COMPASData(object):
         # so dont redo if we reset the data
         Data = h5.File(self.path + self.fileName, "r")
         if self.initialZ is None:
-            self.metallicityGrid = np.unique(self.initialZ)
+            self.initialZ = Data["SystemParameters"]["Metallicity@ZAMS_1"][()]
+        self.metallicityGrid = np.unique(self.initialZ)
         Data.close()
 
     def setCOMPASData(self):
@@ -159,9 +161,10 @@ class COMPASData(object):
 
         # Get metallicity grid of DCOs
         self.seedsDCO = fDCO["SEED"][()][self.DCOmask]
-        self.initialSeeds = Data["SystemParameters"]["SEED"][()]
-        self.initialZ = Data["SystemParameters"]["Metallicity@ZAMS_1"][()]
-        maskMetallicity = np.in1d(self.initialSeeds, self.seedsDCO)
+        initialSeeds = Data["SystemParameters"]["SEED"][()]
+        if self.initialZ is None:
+            self.initialZ = Data["SystemParameters"]["Metallicity@ZAMS_1"][()]
+        maskMetallicity = np.in1d(initialSeeds, self.seedsDCO)
         self.metallicitySystems = self.initialZ[maskMetallicity]
 
         self.delayTimes = np.add(
