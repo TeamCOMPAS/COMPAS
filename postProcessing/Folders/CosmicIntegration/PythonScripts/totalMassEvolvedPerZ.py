@@ -143,10 +143,6 @@ def inverseCDF(C, CDF, index, xmin, xmax):
 
 
 def retrieveMassEvolvedPerZ(path, fileName):
-    #Thanks Jim Barrett for this code snippet :+1:
-    
-    #After running this, I am not so happy anymore
-    #This is too fast, no time to walk away and grab coffee ;p
     path = os.path.join(path, fileName) 
     f = h5.File(path, 'r') # open in read-only
 

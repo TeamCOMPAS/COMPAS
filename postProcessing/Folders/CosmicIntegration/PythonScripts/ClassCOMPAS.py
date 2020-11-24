@@ -38,6 +38,7 @@ class COMPASData(object):
         self.BBHmask = None
         self.DNSmask = None
         self.BHNSmask = None
+        self.initialZ = None
 
         # Additional arrays that might be nice to store
         # to more quickly make some plots.
@@ -53,7 +54,7 @@ class COMPASData(object):
         self.binaryFraction = binaryFraction
         self.totalMassEvolvedPerZ = None  # Msun
 
-        print("ClassCOMPAS: Remember to self.setGridAndMassEvolved()")
+        print("ClassCOMPAS: Remember to self.setGridAndMassEvolved() [optional]")
         print("                   then  self.setCOMPASDCOmask()")
         print("                   then  self.setCOMPASData()")
 
@@ -63,7 +64,7 @@ class COMPASData(object):
         # By default, we mask for BBHs that merge within a Hubble time, assumming
         # the pessimistic CEE prescription (HG donors cannot survive a CEE) and
         # not allowing immediate RLOF post-CEE
-        Data = h5.File(self.path + self.fileName)
+        Data = h5.File(self.path + self.fileName, "r")
         fDCO = Data["DoubleCompactObjects"]
         fCEE = Data["CommonEnvelopes"]
 
@@ -145,13 +146,14 @@ class COMPASData(object):
         # Want to recover entire metallicity grid, assume that every metallicity
         # evolved shows in all systems again should not change within same run
         # so dont redo if we reset the data
-        Data = h5.File(self.path + self.fileName)
-        metallicities = Data["SystemParameters"]["Metallicity@ZAMS_1"][()]
-        self.metallicityGrid = np.unique(metallicities)
+        Data = h5.File(self.path + self.fileName, "r")
+        if self.initialZ is None:
+            self.initialZ = Data["SystemParameters"]["Metallicity@ZAMS_1"][()]
+        self.metallicityGrid = np.unique(self.initialZ)
         Data.close()
 
     def setCOMPASData(self):
-        Data = h5.File(self.path + self.fileName)
+        Data = h5.File(self.path + self.fileName, "r")
         fDCO = Data["DoubleCompactObjects"]
         # sorry not the prettiest line is a boolean slice of seeds
         # this only works because seeds in systems file and DCO file are printed
@@ -160,9 +162,10 @@ class COMPASData(object):
         # Get metallicity grid of DCOs
         self.seedsDCO = fDCO["SEED"][()][self.DCOmask]
         initialSeeds = Data["SystemParameters"]["SEED"][()]
-        initialZ = Data["SystemParameters"]["Metallicity@ZAMS_1"][()]
+        if self.initialZ is None:
+            self.initialZ = Data["SystemParameters"]["Metallicity@ZAMS_1"][()]
         maskMetallicity = np.in1d(initialSeeds, self.seedsDCO)
-        self.metallicitySystems = initialZ[maskMetallicity]
+        self.metallicitySystems = self.initialZ[maskMetallicity]
 
         self.delayTimes = np.add(
             fDCO["Time"][()][self.DCOmask], fDCO["Coalescence_Time"][()][self.DCOmask]
