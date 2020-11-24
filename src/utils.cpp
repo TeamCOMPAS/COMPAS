@@ -1056,22 +1056,56 @@ namespace utils {
 
 
     /*
+     * Draw orbital period from the distribution specified by the user
+     * 
+     * 
+     * double SampleOrbitalPeriodDistribution(const ORBITAL_PERIOD_DISTRIBUTION p_Pdist, 
+     *                                        const double                      p_PdistMax, 
+     *                                        const double                      p_PdistMin)
+     *
+     * @param   [IN]    p_Pdist                     The distribution to use to draw orbital period
+     * @param   [IN]    p_PdistMax                  Orbital period distribution maximum
+     * @param   [IN]    p_PdistMin                  Orbital period distribution minimum
+     * @return                                      Orbital period in days
+     */
+    double SampleOrbitalPeriod(const ORBITAL_PERIOD_DISTRIBUTION p_Pdist, 
+                               const double                      p_PdistMax, 
+                               const double                      p_PdistMin) {
+
+        double orbitalPeriod;
+
+        switch (p_Pdist) {                                                                                              // which distribution?
+
+            case ORBITAL_PERIOD_DISTRIBUTION::FLATINLOG:                                                                // FLAT IN LOG
+
+                orbitalPeriod = utils::InverseSampleFromPowerLaw(-1.0, p_PdistMax, p_PdistMin);
+                break;
+
+            default:                                                                                                    // unknown distribution
+                orbitalPeriod = utils::InverseSampleFromPowerLaw(-1.0, 1000.0, 1.1);                                    // calculate orbitalPeriod using power law with default values
+        }
+
+        return orbitalPeriod;
+    }
+
+
+    /*
      * Draw semi-major axis from the distribution specified by the user
      * 
      * 
      * double SampleSemiMajorAxisDistribution(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
-     *                                        const double p_AdistMax, 
-     *                                        const double p_AdistMin, 
-     *                                        const double p_AdistPower, 
-     *                                        const double p_PdistMax, 
-     *                                        const double p_PdistMin, 
-     *                                        const double p_Mass1, 
-     *                                        const double p_Mass2)
+     *                                        const double                       p_AdistMax, 
+     *                                        const double                       p_AdistMin, 
+     *                                        const double                       p_AdistPower, 
+     *                                        const double                       p_PdistMax, 
+     *                                        const double                       p_PdistMin, 
+     *                                        const double                       p_Mass1, 
+     *                                        const double                       p_Mass2)
      *
      * @param   [IN]    p_Adist                     The distribution to use to draw semi-major axis
      * @param   [IN]    p_AdistMax                  Semi-major axis distribution maximum
      * @param   [IN]    p_AdistMin                  Semi-major axis distribution minimum
-     * @param   [IN]    p_Power                     Semi-major axis distribution power (for CUSTOM distribution)
+     * @param   [IN]    p_AdistPower                Semi-major axis distribution power (for CUSTOM distribution)
      * @param   [IN]    p_PdistMax                  Period distribution maximum (for SANA2012 distribution)
      * @param   [IN]    p_PdistMin                  Period distribution minimum (for SANA2012 distribution)
      * @param   [IN]    p_Mass1                     Mass of the primary
@@ -1079,13 +1113,13 @@ namespace utils {
      * @return                                      Semi-major axis in AU
      */
     double SampleSemiMajorAxis(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
-                               const double p_AdistMax, 
-                               const double p_AdistMin, 
-                               const double p_AdistPower, 
-                               const double p_PdistMax, 
-                               const double p_PdistMin, 
-                               const double p_Mass1, 
-                               const double p_Mass2) {
+                               const double                       p_AdistMax, 
+                               const double                       p_AdistMin, 
+                               const double                       p_AdistPower, 
+                               const double                       p_PdistMax, 
+                               const double                       p_PdistMin, 
+                               const double                       p_Mass1, 
+                               const double                       p_Mass2) {
 
         double semiMajorAxis;
 

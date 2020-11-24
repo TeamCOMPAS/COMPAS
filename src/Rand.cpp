@@ -28,11 +28,11 @@ void Rand::Initialise() {
 
     // Seed the random number generator
     // Preferably use environment GSL_RNG_SEED, otherwise time(0)
-    if(!getenv("GSL_RNG_SEED")) {
+    if (!getenv("GSL_RNG_SEED")) {
         gsl_rng_default_seed = time(NULL);
     }
 
-    if(!m_Rng) {
+    if (!m_Rng) {
         m_Rng = gsl_rng_alloc(gsl_rng_default);
     }
 }

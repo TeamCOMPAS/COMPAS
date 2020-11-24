@@ -500,7 +500,7 @@ double MainSequence::CalculateRadialExtentConvectiveEnvelope() {
 /*
  * Calculate relative age on the Main Sequence
  *
- * Hurley at al. 2000, eq 11
+ * Hurley et al. 2000, eq 11
  * Naturally bounded by [0, 1], but clamp here anyway
  *
  * double CalculateTauOnPhase()

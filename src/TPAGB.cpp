@@ -427,7 +427,7 @@ double TPAGB::CalculateLambdaNanjing() {
 
 /*
  * Calculate M'c (core mass used for calculating luminosity and core mass on TPAGB)
- * Described in Hurley at al. 2000, just after eq 73.
+ * Described in Hurley et al. 2000, just after eq 73.
  * Calculated using Hurley et al. 2000, eq 39, modified as described in Section 5.4
  *
  *
@@ -624,7 +624,7 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;               // default is unchanged
 
-    if (p_NoCheck || (utils::Compare(m_CoreMass, m_Mass)) >= 0){
+    if (p_NoCheck || (utils::Compare(m_CoreMass, m_Mass)) >= 0) {
 
         stellarType = utils::Compare(gbParams(McBAGB), OPTIONS->MCBUR1() ) < 0 ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
         

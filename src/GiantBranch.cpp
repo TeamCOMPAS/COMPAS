@@ -895,7 +895,7 @@ double GiantBranch::CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB)
  */
 double GiantBranch::CalculateMassLossRateHurley() {
 
-    double dms = (utils::Compare(m_Luminosity, 4.0E3) > 0) ? CalculateMassLossRateNieuwenhuijzenDeJager() : 0.0;
+    double dms = CalculateMassLossRateNieuwenhuijzenDeJager();
     double dml = CalculateMassLossRateKudritzkiReimers();
 
     dms = std::max(dml, dms);
@@ -903,12 +903,6 @@ double GiantBranch::CalculateMassLossRateHurley() {
     if (utils::Compare(m_Mu, 1.0) < 0) {
         dml = CalculateMassLossRateWolfRayetLike(m_Mu);
         dms = std::max(dml, dms);
-    }
-
-    double tmp = m_Radius * sqrt(m_Luminosity) * 1.0E-5;
-    if ((utils::Compare(m_Luminosity, 6.0E5) > 0) && (utils::Compare(tmp, 1.0) > 0)) {
-        dml = CalculateMassLossRateLBV();
-        dms = dms + dml;
     }
 
     return dms;
@@ -1135,7 +1129,7 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
             logRemnantMass = 0.096910013; // gives MassRemnant = 1.25  
     }
 
-    return exp(logRemnantMass);
+    return std::pow(10.0, logRemnantMass);
 
 }
 
@@ -1155,54 +1149,53 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
  * @param   [IN]    p_HeCoreMass                HeCoreMass in Msol
  * @return                                      Remnant mass in Msol
  */
-double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass, const double p_HeCoreMass){
-    double remnantMass=0;   
-    double pBH=0;
-    double pCompleteCollapse=0;
+double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass, const double p_HeCoreMass) {
+
+    double remnantMass       = 0.0;   
+    double pBH               = 0.0;
+    double pCompleteCollapse = 0.0;
     
 
     if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
-	pBH=0;
+	    pBH = 0.0;
     }
     else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M3) < 0) {
-    	pBH=1.0/(MULLERMANDEL_M3-MULLERMANDEL_M1)*(p_COCoreMass-MULLERMANDEL_M1);
+    	pBH = 1.0 / (MULLERMANDEL_M3-MULLERMANDEL_M1) * (p_COCoreMass-MULLERMANDEL_M1);
     }
     else {
-	pBH=1.0;
+	    pBH=1.0;
     } 
  
-    if(utils::Compare(RAND->Random(0,1), pBH) < 0) {  	// this is a BH
-        if(utils::Compare(p_COCoreMass, MULLERMANDEL_M4) < 0)
-		pCompleteCollapse=1.0/(MULLERMANDEL_M4-MULLERMANDEL_M1)*(p_COCoreMass-MULLERMANDEL_M1);
+    if (utils::Compare(RAND->Random(0, 1), pBH) < 0) {  // this is a BH
+        if (utils::Compare(p_COCoreMass, MULLERMANDEL_M4) < 0)
+		    pCompleteCollapse = 1.0 / (MULLERMANDEL_M4 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1);
         else
-		pCompleteCollapse=1.0;
+		    pCompleteCollapse = 1.0;
 
-	if(utils::Compare(RAND->Random(0,1), pCompleteCollapse) < 0) {
-		remnantMass=p_HeCoreMass;
+	    if (utils::Compare(RAND->Random(0, 1), pCompleteCollapse) < 0) {
+		    remnantMass = p_HeCoreMass;
         }
-	else {
-		while(remnantMass<MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass+p_HeCoreMass) ){ 
-			remnantMass = MULLERMANDEL_MUBH*p_COCoreMass + RAND->RandomGaussian(MULLERMANDEL_SIGMABH);
-		}
-	}
+	    else {
+		    while (remnantMass<MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass + p_HeCoreMass)) { 
+			    remnantMass = MULLERMANDEL_MUBH * p_COCoreMass + RAND->RandomGaussian(MULLERMANDEL_SIGMABH);
+		    }
+	    }
     }
-    else {						// this is an NS
-	if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
-		while(remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass+p_HeCoreMass) ){
-			remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
-		}
-	}
-	else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
-                while(remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass+p_HeCoreMass) ){
-                        remnantMass = MULLERMANDEL_MU2A + 
-			MULLERMANDEL_MU2B/(MULLERMANDEL_M2-MULLERMANDEL_M1)*(p_COCoreMass-MULLERMANDEL_M1)+RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
-                }
+    else {                                              // this is an NS
+	    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
+		    while (remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass + p_HeCoreMass)) {
+			    remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
+		    }
+	    }
+	    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
+            while (remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass + p_HeCoreMass)) {
+                remnantMass = MULLERMANDEL_MU2A + MULLERMANDEL_MU2B / (MULLERMANDEL_M2 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1) + RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
+            }
         }
         else {
-                while(remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass+p_HeCoreMass) ){
-                        remnantMass = MULLERMANDEL_MU3A + 
-			MULLERMANDEL_MU3B/(MULLERMANDEL_M3-MULLERMANDEL_M2)*(p_COCoreMass-MULLERMANDEL_M2)+RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
-                }
+            while (remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass+p_HeCoreMass)) {
+                remnantMass = MULLERMANDEL_MU3A + MULLERMANDEL_MU3B / (MULLERMANDEL_M3 - MULLERMANDEL_M2) * (p_COCoreMass - MULLERMANDEL_M2) + RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
+            }
         }
     }
 
@@ -1597,13 +1590,13 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
         stellarType = CalculateRemnantTypeByMuller2016(m_COCoreMass);
     }
     else if (OPTIONS->RemnantMassPrescription() == REMNANT_MASS_PRESCRIPTION::MULLERMANDEL) {
-        if(utils::Compare(m_Mass, MULLERMANDEL_MAXNS ) > 0)
+        if (utils::Compare(m_Mass, MULLERMANDEL_MAXNS ) > 0)
             stellarType = STELLAR_TYPE::BLACK_HOLE;
         else
             stellarType = STELLAR_TYPE::NEUTRON_STAR;
     }
     else if (OPTIONS->RemnantMassPrescription() == REMNANT_MASS_PRESCRIPTION::HURLEY2000) {
-        stellarType = (utils::Compare(m_Mass, 1.8 ) > 0)? STELLAR_TYPE::BLACK_HOLE : STELLAR_TYPE::NEUTRON_STAR;    //Hurley+ 2000, Eq. (92)
+        stellarType = (utils::Compare(m_Mass, 1.8 ) > 0) ? STELLAR_TYPE::BLACK_HOLE : STELLAR_TYPE::NEUTRON_STAR; //Hurley+ 2000, Eq. (92)
     }
     else if (utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass()) > 0) {
         std::tie(m_Luminosity, m_Radius, m_Temperature) = BH::CalculateCoreCollapseSNParams_Static(m_Mass);
@@ -1614,7 +1607,7 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
         stellarType = STELLAR_TYPE::NEUTRON_STAR;
     }
 
-    if(utils::Compare(mass,m_CoreMass)==0 && utils::Compare(m_HeCoreMass, m_COCoreMass)==0) {               // entire star is CO core, so this is a USSN
+    if (utils::Compare(mass,m_CoreMass) == 0 && utils::Compare(m_HeCoreMass, m_COCoreMass) == 0) {          // entire star is CO core, so this is a USSN
         SetSNCurrentEvent(SN_EVENT::USSN);                                                                  // flag ultra-stripped SN happening now
         SetSNPastEvent(SN_EVENT::USSN);                                                                     // ... and will be a past event
     }
