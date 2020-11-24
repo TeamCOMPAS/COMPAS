@@ -38,7 +38,7 @@ shellVolumes= np.diff(volumes)
 shellVolumes= np.append(shellVolumes, shellVolumes[-1])  #add last element again to keep same array length
 
 SFR = 0.01 * ((1+redshifts)**2.77) / (1 + ((1+redshifts)/2.9)**4.7) * 1e9  #per Gpc^3 per year
-SFRfactor=SFR/(SFRmassPerSampledBinary*len(COMPAS.initialSeeds))
+SFRfactor=SFR/(SFRmassPerSampledBinary*len(COMPAS.initialZ))
 
 Zmean=Z0 * 10**(alpha*redshifts)
 Zmu=np.log(Zmean)-sigma**2/2
