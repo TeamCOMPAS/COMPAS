@@ -1544,7 +1544,11 @@ double BaseStar::CalculateMassLossRateLBVBelczynski() {
 double BaseStar::CalculateMassLossRateWolfRayet(const double p_Mu) {
     // In the fortran code there is a parameter here hewind which by default is 1.0 -
     // can be set to zero to disable this particular part of winds. We instead opt for all winds on or off.
-    return PPOW(m_Luminosity, 1.5) * (1.0 - p_Mu) * 1.0E-13;
+    double rate = 0.0;
+    if (utils::Compare(p_Mu, 1.0) < 0) {
+        rate = PPOW(m_Luminosity, 1.5) * (1.0 - p_Mu) * 1.0E-13;
+    }
+    return rate;
 }
 
 
