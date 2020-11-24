@@ -134,7 +134,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Mu                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_CoreRadius                               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Mdot                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_DMLR                                     = MLR_TYPE::NONE;
+    m_DominantMassLossRate                                     = MASS_LOSS_TYPE::NONE;
 
     m_Omega                                    = m_OmegaZAMS;
 
@@ -1619,7 +1619,7 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
                            (1.07  * log10(p_Teff / 20000.0));
 
         rate = PPOW(10.0, logMdotOB);
-        m_DMLR = MLR_TYPE::VINK;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
     }
     else if (utils::Compare(p_Teff, VINK_MASS_LOSS_BISTABILITY_TEMP) > 0) {
         SHOW_WARN_IF(utils::Compare(p_Teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
@@ -1635,7 +1635,7 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
                            (10.92 * log10(p_Teff / 40000.0) * log10(p_Teff/40000.0));
 
         rate = PPOW(10.0, logMdotOB);
-        m_DMLR = MLR_TYPE::VINK;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
     }
     else {
         SHOW_WARN(ERROR::LOW_TEFF_WINDS, "Mass Loss Rate = 0.0");                                               // too cold to use winds - show warning.
@@ -1686,7 +1686,7 @@ double BaseStar::CalculateMassLossRateVink() {
     }
 
     if (utils::Compare(LBVRate, otherWindsRate) > 0) {
-        m_DMLR = MLR_TYPE::LUMINOUS_BLUE_VARIABLE;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE;
     }
 
     // BSE and StarTrack have some mulptilier they apply here
@@ -1719,7 +1719,7 @@ double BaseStar::CalculateMassLossRate() {
                 LBVRate = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD);
                 otherWindsRate = CalculateMassLossRateHurley();
                 if (utils::Compare(LBVRate, otherWindsRate) > 0) {
-                    m_DMLR = MLR_TYPE::LUMINOUS_BLUE_VARIABLE;
+                    m_DominantMassLossRate = MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE;
                 }
                 mDot = LBVRate + otherWindsRate;
                 break;
@@ -1733,7 +1733,7 @@ double BaseStar::CalculateMassLossRate() {
                 LBVRate = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD);
                 otherWindsRate = CalculateMassLossRateHurley();
                 if (utils::Compare(LBVRate, otherWindsRate) > 0) {
-                    m_DMLR = MLR_TYPE::LUMINOUS_BLUE_VARIABLE;
+                    m_DominantMassLossRate = MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE;
                 }
                 mDot = LBVRate + otherWindsRate;                                                             // use HURLEY
         }
