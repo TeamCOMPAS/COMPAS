@@ -54,7 +54,7 @@ class COMPASData(object):
         self.binaryFraction = binaryFraction
         self.totalMassEvolvedPerZ = None  # Msun
 
-        print("ClassCOMPAS: Remember to self.setGridAndMassEvolved()")
+        print("ClassCOMPAS: Remember to self.setGridAndMassEvolved() [optional]")
         print("                   then  self.setCOMPASDCOmask()")
         print("                   then  self.setCOMPASData()")
 
