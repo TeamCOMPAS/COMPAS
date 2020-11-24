@@ -564,33 +564,33 @@ double EAGB::CalculateMassLossRateHurley() {
     double rateVW = CalculateMassLossRateVassiliadisWood();
     double rateWR = CalculateMassLossRateWolfRayetZDependent(m_Mu);
 
-    MLR_TYPE DMLR, DMLRPair1, DMLRPair2;                                // Compare pair-wise to minimise comparisons
-    double rate, ratePair1, ratePair2;
+    MASS_LOSS_TYPE dominantType, typePair1, typePair2;                                // Compare pair-wise to minimise comparisons
+    double dominantRate, ratePair1, ratePair2;
     if (utils::Compare(rateNJ, rateKR) > 0) {
-        DMLRPair1 = MLR_TYPE::NIEUWENHUIJZEN_DE_JAGER;
+        typePair1 = MASS_LOSS_TYPE::NIEUWENHUIJZEN_DE_JAGER;
         ratePair1 = rateNJ;
     } else {
-        DMLRPair1 = MLR_TYPE::KUDRITZKI_REIMERS;
+        typePair1 = MASS_LOSS_TYPE::KUDRITZKI_REIMERS;
         ratePair1 = rateKR;
     }
     if (utils::Compare(rateVW, rateWR) > 0) {
-        DMLRPair2 = MLR_TYPE::VASSILIADIS_WOOD;
+        typePair2 = MASS_LOSS_TYPE::VASSILIADIS_WOOD;
         ratePair2 = rateVW;
     } else {
-        DMLRPair2 = MLR_TYPE::WOLF_RAYET_LIKE;
+        typePair2 = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
         ratePair2 = rateWR;
     }
 
     if (utils::Compare(ratePair1, ratePair2) > 0) {
-        DMLR = DMLRPair1;
-        rate = ratePair1;
+        dominantType = typePair1;
+        dominantRate = ratePair1;
     } else {
-        DMLR = DMLRPair2;
-        rate = ratePair2;
+        dominantType = typePair2;
+        dominantRate = ratePair2;
     }
 
-    m_DMLR = DMLR;
-    return rate;
+    m_DominantMassLossRate = dominantType;
+    return dominantRate;
 }
 
 

@@ -14,9 +14,9 @@
 double MS_gt_07::CalculateMassLossRateHurley() {
     double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
     if (utils::Compare(rateNJ, 0.0) > 0) {
-        m_DMLR = MLR_TYPE::NIEUWENHUIJZEN_DE_JAGER;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::NIEUWENHUIJZEN_DE_JAGER;
     } else {
-        m_DMLR = MLR_TYPE::NONE;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;
     }
     return rateNJ;
 }

@@ -1239,9 +1239,9 @@ enum class MASS_CUTOFF: int {
     COUNT                   // Sentinel for entry count
 };
 
-// enum class MLR_TYPE
+// enum class MASS_LOSS_TYPE
 // Symbolic names for mass loss rate type
-enum class MLR_TYPE: int {
+enum class MASS_LOSS_TYPE: int {
     NONE,
     NIEUWENHUIJZEN_DE_JAGER,
     KUDRITZKI_REIMERS,
