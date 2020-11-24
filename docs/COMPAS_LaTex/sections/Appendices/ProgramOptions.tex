@@ -157,15 +157,19 @@ Following is the list of program options that can be specified at the command li
 
 \programOption{log-level}{}{Determines which print statements are included in the logfile.}{0}
 
+\programOption{luminous-blue-variable-prescription}{}{Luminous blue variable mass loss prescription. \\ Options: \lcb\ NONE, HURLEY, HURLEY\_ADD, BELCZYNSKI\ \rcb}{BELCZYNSKI}
+
 \programOption{luminous-blue-variable-multiplier}{}{Multiplicative constant for LBV mass loss. (Use 10 for \citet{Mennekens_2014})}{1.5}
 
 \programOption{mass-loss-prescription}{}{Mass loss prescription. \\ Options: \lcb\ NONE, HURLEY, VINK\ \rcb}{VINK}
 
-\programOption{mass-ratio-distribution}{q}{Initial mass ratio distribution for q$=\frac{m2}{m1}$. \\ Options: \lcb\ FLAT, DUQUENNOYMAYOR1991, SANA2012\ \rcb}{FLAT}
+\programOption{mass-ratio}{q}{Mass ratio $\frac{m2}{m1}$ used to determine secondary mass if not specified via \textit{\texttt{-{}-}initial-mass-2}.}{Value is sampled if option not specified.}
+
+\programOption{mass-ratio-distribution}{}{Initial mass ratio distribution for q$=\frac{m2}{m1}$. \\ Options: \lcb\ FLAT, DUQUENNOYMAYOR1991, SANA2012\ \rcb}{FLAT}
 
 \programOption{mass-ratio-max}{}{Maximum mass ratio $\frac{m2}{m1}$ to generate.}{1.0}
 
-\programOption{mass-ratio-min}{}{Minimum mass ratio $\frac{m2}{m1}$ to generate.}{0.0}
+\programOption{mass-ratio-min}{}{Minimum mass ratio $\frac{m2}{m1}$ to generate.}{0.01}
 
 \programOption{massTransfer}{}{Enable mass transfer.}{TRUE}
 
@@ -217,7 +221,7 @@ Following is the list of program options that can be specified at the command li
 In both cases the number of objects evolved will be the number specified by the grid.
 }{10}
 
-\programOption{orbital-period}{}{Initial orbital period for a binary star when evolving in BSE mode~(days). \\Used only if the semi-major axis is not specified via \textit{\texttt{-{}-}semi-major-axis}.}{1000.0}
+\programOption{orbital-period}{}{Initial orbital period for a binary star when evolving in BSE mode~(days). \\Used only if the semi-major axis is not specified via \textit{\texttt{-{}-}semi-major-axis}.}{Value is sampled if option not specified.}
 
 \programOption{orbital-period-max}{}{Maximum period to generate (days).}{1000.0}
 

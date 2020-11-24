@@ -384,8 +384,8 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
 
         case ENVELOPE::RADIATIVE: {                                             // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
 
-            double coeff2          = PPOW(52.0, 5.0 / 3.0);                      // JR: todo: replace this with a constant (calculated) value?
-            double e2              = 1.592E-9 * PPOW(Mass(), 2.84);              // second order tidal coefficient (a.k.a. E_2)
+            double coeff2          = 5.0 * PPOW(2.0, 5.0 / 3.0);                // JR: todo: replace this with a constant (calculated) value?
+            double e2              = 1.592E-9 * PPOW(Mass(), 2.84);             // second order tidal coefficient (a.k.a. E_2)
             double rAU             = Radius() * RSOL_TO_AU;
             double rAU_3           = rAU * rAU * rAU;
             double freeFallFactor  = sqrt(G1 * Mass() / rAU_3);
@@ -438,7 +438,7 @@ void BinaryConstituentStar::SetRocheLobeFlags(const bool p_CommonEnvelope, const
  * @return                              Ratio of stars radius to its Roche lobe radius
  */
 double  BinaryConstituentStar::RocheLobeTracker(const double p_SemiMajorAxis, const double p_Eccentricity) {
-    if((utils::Compare(p_SemiMajorAxis, 0.0) <= 0) || (utils::Compare(p_Eccentricity, 1.0) > 0))
+    if ((utils::Compare(p_SemiMajorAxis, 0.0) <= 0) || (utils::Compare(p_Eccentricity, 1.0) > 0))
         return 0.0;         // binary is unbound, so not in RLOF
     
     double rocheLobeRadius = BaseBinaryStar::CalculateRocheLobeRadius_Static(Mass(), m_Companion->Mass());

@@ -40,9 +40,10 @@ BaseBinaryStar::BaseBinaryStar(const long int p_Id) {
 
     // determine if any if the initial conditions are sampled
     // we consider eccentricity distribution = ECCENTRICITY_DISTRIBUTION::ZERO to be not sampled!
+    // we consider metallicity distribution = METALLICITY_DISTRIBUTION::ZSOLAR to be not sampled!
     bool sampled = OPTIONS->OptionSpecified("initial-mass-1") == 0 ||
                    OPTIONS->OptionSpecified("initial-mass-2") == 0 ||
-//                   OPTIONS->OptionSpecified("metallicity") == 0 ||   // for now we don't sample metallicity - we always return ZSOL
+                  (OPTIONS->OptionSpecified("metallicity") == 0 && OPTIONS->MetallicityDistribution() != METALLICITY_DISTRIBUTION::ZSOLAR) ||
                   (OPTIONS->OptionSpecified("semi-major-axis") == 0 && OPTIONS->OptionSpecified("orbital-period") == 0) ||
                   (OPTIONS->OptionSpecified("eccentricity") == 0 && OPTIONS->EccentricityDistribution() != ECCENTRICITY_DISTRIBUTION::ZERO);
 
@@ -93,18 +94,27 @@ BaseBinaryStar::BaseBinaryStar(const long int p_Id) {
     int tries = 0;
     do {
 
-        double mass1    = OPTIONS->OptionSpecified("initial-mass-1") == 1                                                               // user specified primary mass?
-                            ? OPTIONS->InitialMass1()                                                                                   // yes, use it
-                            : utils::SampleInitialMass(OPTIONS->InitialMassFunction(), 
-                                                       OPTIONS->InitialMassFunctionMax(), 
-                                                       OPTIONS->InitialMassFunctionMin(), 
-                                                       OPTIONS->InitialMassFunctionPower());                                            // no - asmple it
-                                  
-        double mass2    = OPTIONS->OptionSpecified("initial-mass-2") == 1                                                               // user specified secondary mass?
-                            ? OPTIONS->InitialMass2()                                                                                   // yes, use it
-                            : utils::SampleMassRatio(OPTIONS->MassRatioDistribution(),
-                                                     OPTIONS->MassRatioDistributionMax(), 
-                                                     OPTIONS->MassRatioDistributionMin()) * mass1;                                      // no - asmple it                                                                        
+        double mass1 = OPTIONS->OptionSpecified("initial-mass-1") == 1                                                                  // user specified primary mass?
+                        ? OPTIONS->InitialMass1()                                                                                       // yes, use it
+                        : utils::SampleInitialMass(OPTIONS->InitialMassFunction(), 
+                                                   OPTIONS->InitialMassFunctionMax(), 
+                                                   OPTIONS->InitialMassFunctionMin(), 
+                                                   OPTIONS->InitialMassFunctionPower());                                                // no - asmple it
+
+        double mass2 = 0.0;                      
+        if (OPTIONS->OptionSpecified("initial-mass-2") == 1) {                                                                          // user specified secondary mass?
+            mass2 = OPTIONS->InitialMass2();                                                                                            // yes, use it
+        }
+        else {                                                                                                                          // no - sample it
+            // first, determine mass ratio q    
+            double q = OPTIONS->OptionSpecified("mass-ratio") == 1                                                                      // user specified mass ratio?
+                        ? OPTIONS->MassRatio()                                                                                          // yes, use it
+                        : utils::SampleMassRatio(OPTIONS->MassRatioDistribution(),
+                                                 OPTIONS->MassRatioDistributionMax(), 
+                                                 OPTIONS->MassRatioDistributionMin());                                                  // no - sample it
+
+            mass2 = mass1 * q;                                                                                                          // calculate mass2 using mass ratio                                                                     
+        }
 
         double metallicity = OPTIONS->OptionSpecified("metallicity") == 1                                                               // user specified metallicity?
                                 ? OPTIONS->Metallicity()                                                                                // yes, use it
@@ -119,19 +129,29 @@ BaseBinaryStar::BaseBinaryStar(const long int p_Id) {
             if (OPTIONS->OptionSpecified("orbital-period") == 1) {                                                                      // user specified orbital period?
                 m_SemiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(mass1, mass2, OPTIONS->OrbitalPeriod());                // yes - calculate semi-major axis from period
             }
-            else {                                                                                                                      // no, sample q and calculate mass2
-                m_SemiMajorAxis = utils::SampleSemiMajorAxis(OPTIONS->SemiMajorAxisDistribution(),                              
-                                                             OPTIONS->SemiMajorAxisDistributionMax(), 
-                                                             OPTIONS->SemiMajorAxisDistributionMin(),
-                                                             OPTIONS->SemiMajorAxisDistributionPower(), 
-                                                             OPTIONS->PeriodDistributionMax(), 
-                                                             OPTIONS->PeriodDistributionMin(), 
-                                                             mass1, 
-                                                             mass2);
+            else {                                                                                                                      // no
+                if (OPTIONS->OptionSpecified("semi-major-axis-distribution") == 1 ||                                                    // user specified semi-major axis distribution, or
+                    OPTIONS->OptionSpecified("orbital-period-distribution" ) == 0) {                                                    // user did not specify oprbital period distribution
+                    m_SemiMajorAxis = utils::SampleSemiMajorAxis(OPTIONS->SemiMajorAxisDistribution(),                              
+                                                                 OPTIONS->SemiMajorAxisDistributionMax(), 
+                                                                 OPTIONS->SemiMajorAxisDistributionMin(),
+                                                                 OPTIONS->SemiMajorAxisDistributionPower(), 
+                                                                 OPTIONS->OrbitalPeriodDistributionMax(), 
+                                                                 OPTIONS->OrbitalPeriodDistributionMin(), 
+                                                                 mass1, 
+                                                                 mass2);                                                                // yes, sample from semi-major axis distribution (might be default)
+                }
+                else {                                                                                                                  // no - sample from orbital period distribution
+                    double orbitalPeriod = utils::SampleOrbitalPeriod(OPTIONS->OrbitalPeriodDistribution(),                              
+                                                                      OPTIONS->OrbitalPeriodDistributionMax(), 
+                                                                      OPTIONS->OrbitalPeriodDistributionMin());
+
+                    m_SemiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(mass1, mass2, orbitalPeriod);                       // calculate semi-major axis from period
+                }
             }
         }
 
-        m_Eccentricity  = OPTIONS->OptionSpecified("eccentricity") == 1                                                                 // user specified semi-major axis?
+        m_Eccentricity = OPTIONS->OptionSpecified("eccentricity") == 1                                                                  // user specified eccentricity?
                             ? OPTIONS->Eccentricity()                                                                                   // yes, use it
                             : utils::SampleEccentricity(OPTIONS->EccentricityDistribution(), 
                                                         OPTIONS->EccentricityDistributionMax(), 
@@ -1077,7 +1097,7 @@ void BaseBinaryStar::ResolveCoalescence() {
         m_Flags.mergesInHubbleTime = false;
     }
 
-    if(!IsUnbound())
+    if (!IsUnbound())
         PrintDoubleCompactObjects();                                                                                                            // print (log) double compact object details
 }
 
@@ -1763,7 +1783,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     
     InitialiseMassTransfer();                                                                                                   // initialise - even if not using mass transfer (sets some flags we might need)
     
-    if(Unbound())
+    if (Unbound())
         return;                                                                                                                 // do nothing for unbound binaries
     
     if (!OPTIONS->UseMassTransfer()) return;                                                                                    // mass transfer not enabled - nothing to do
@@ -1812,8 +1832,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 		// Begin Mass Transfer
         double thermalRateDonor    = m_Donor->CalculateThermalMassLossRate();
         double thermalRateAccretor = OPTIONS->MassTransferThermallyLimitedVariation() == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE
-                    ? (m_Accretor->Mass() - m_Accretor->CoreMass()) / m_Accretor->CalculateThermalTimescale(m_Accretor->Mass(), CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL, m_Accretor->Luminosity(), m_Accretor->Mass() - m_Accretor->CoreMass())                                                  // assume accretor radius = accretor Roche Lobe radius
-                    : m_Accretor->CalculateThermalMassLossRate();
+                                        ? (m_Accretor->Mass() - m_Accretor->CoreMass()) / m_Accretor->CalculateThermalTimescale(m_Accretor->Mass(), CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL, m_Accretor->Luminosity(), m_Accretor->Mass() - m_Accretor->CoreMass())                                                  // assume accretor radius = accretor Roche Lobe radius
+                                        : m_Accretor->CalculateThermalMassLossRate();
                 
         std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(thermalRateDonor, thermalRateAccretor);
 
@@ -1824,16 +1844,20 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         m_ZetaLobe = CalculateZRocheLobe(jLoss);
         m_ZetaStar = m_Donor->CalculateZeta(OPTIONS->StellarZetaPrescription());
 
-        if( (utils::Compare(m_ZetaStar, m_ZetaLobe) > 0 && (! (OPTIONS->CaseBBStabilityPrescription()==CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_UNSTABLE &&
-                                    m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH }) ) ) )
-                || ( m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH }) &&
-                    ( OPTIONS->CaseBBStabilityPrescription()==CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE ||
-                     (OPTIONS->CaseBBStabilityPrescription()==CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH &&
-                      m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE }) ) ) ) )   {                 // Stable MT
-                m_MassTransferTrackerHistory = m_Donor->IsPrimary() ? MT_TRACKING::STABLE_FROM_1_TO_2 : MT_TRACKING::STABLE_FROM_2_TO_1;    // record what happened - for later printing
+        bool caseBBAlwaysStable           = OPTIONS->CaseBBStabilityPrescription() == CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE;
+        bool caseBBAlwaysUnstable         = OPTIONS->CaseBBStabilityPrescription() == CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_UNSTABLE;
+        bool caseBBAlwaysUnstableOntoNSBH = OPTIONS->CaseBBStabilityPrescription() == CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH;
+
+        bool donorIsHeHGorHeGB            = m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH });
+        bool accretorIsNSorBH             = m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE });
+
+        if ((utils::Compare(m_ZetaStar, m_ZetaLobe) > 0 && (!(caseBBAlwaysUnstable && donorIsHeHGorHeGB))) ||
+            (donorIsHeHGorHeGB && (caseBBAlwaysStable || (caseBBAlwaysUnstableOntoNSBH && accretorIsNSorBH)))) {                 // Stable MT
+
+                m_MassTransferTrackerHistory = m_Donor->IsPrimary() ? MT_TRACKING::STABLE_FROM_1_TO_2 : MT_TRACKING::STABLE_FROM_2_TO_1; // record what happened - for later printing
                 double envMassDonor  = m_Donor->Mass() - m_Donor->CoreMass();
 
-                if(m_Donor->CoreMass()>0 && envMassDonor>0){                                                                    //donor has a core and an envelope
+                if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                        // donor has a core and an envelope
                     double mdEnvAccreted = envMassDonor * m_FractionAccreted;
                     
                     m_Donor->SetMassTransferDiff(-envMassDonor);
@@ -1866,18 +1890,16 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                                                       m_MassTransferTrackerHistory == MT_TRACKING::STABLE_FROM_1_TO_2;
                 }
         }
-
         else {                                                                                                                  // Unstable Mass Transfer
-                if (m_Donor->IsOneOf( MAIN_SEQUENCE )) {
-                        m_Flags.stellarMerger = true;
-                        isCEE                 = true;
-                }
-                else {
-                        m_CEDetails.CEEnow = true;
-                        isCEE              = true;
-                }
+            if (m_Donor->IsOneOf( MAIN_SEQUENCE )) {
+                m_Flags.stellarMerger = true;
+                isCEE                 = true;
+            }
+            else {
+                m_CEDetails.CEEnow = true;
+                isCEE              = true;
+            }
         }
-
     }
     
 	// Check for recycled pulsars. Not considering CEE as a way of recycling NSs.
@@ -2197,7 +2219,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
     }
     else {
         ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
-        if(HasStarsTouching()){                                                                                         // if stars emerged from mass transfer as touching, it's a merger
+        if (HasStarsTouching()) {                                                                                       // if stars emerged from mass transfer as touching, it's a merger
             m_Flags.stellarMerger = true;
         }
     }
@@ -2353,7 +2375,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                         PrintBeBinary();                                                                                                    // print (log) BeBinary properties
                         
                         if (IsDCO() && !IsUnbound()) {                                                                                      // bound double compact object?
-                            if(m_DCOFormationTime==DEFAULT_INITIAL_DOUBLE_VALUE) {                                                          // DCO not yet evaluated -- to ensure that the coalescence is only resolved once
+                            if (m_DCOFormationTime == DEFAULT_INITIAL_DOUBLE_VALUE) {                                                       // DCO not yet evaluated -- to ensure that the coalescence is only resolved once
                                 ResolveCoalescence();                                                                                       // yes - resolve coalescence
                                 m_DCOFormationTime = m_Time;                                                                                // set the DCO formation time
                             }
@@ -2385,8 +2407,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 stepNum++;                                                                                                                  // increment stepNum
             }
         }
-        if(!StellarMerger())
-            PrintDetailedOutput(m_Id);                                                                                                          // print (log) detailed output for binary
+        if (!StellarMerger())
+            PrintDetailedOutput(m_Id);                                                                                                      // print (log) detailed output for binary
 
         if (evolutionStatus == EVOLUTION_STATUS::STEPS_UP) {                                                                                // stopped because max timesteps reached?
             SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED);                                                                                    // show error

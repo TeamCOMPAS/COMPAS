@@ -36,7 +36,7 @@ double FGB::CalculateLuminosityOnPhase(const double p_Time) {
     double p   = gbParams(p);
     double q   = gbParams(q);
 
-    // Calculate the core mass according to Hurley at al. 2000, eq 39, regardless
+    // Calculate the core mass according to Hurley et al. 2000, eq 39, regardless
     // of whether it is the correct expression to use given the star's mass
     double coreMass = utils::Compare(p_Time, timescales(tMx_FGB)) <= 0
                         ? PPOW(((p - 1.0) * AH * D * (timescales(tinf1_FGB) - p_Time)), (1.0 / (1.0 - p)))

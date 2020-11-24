@@ -597,7 +597,29 @@
 //                                      - Removed variable 'alpha' from BinaryCEDetails struct - use OPTIONS->CommonEnvelopeAlpha()
 //                                          - Removed BINARY_PROPERTY::COMMON_ENVELOPE_ALPHA - use PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA
 //                                      - Issue #443: removed eccentricity distribution options FIXED, IMPORTANCE & THERMALISE (THERMALISE = THERMAL, which remains) 
+// 02.17.04     JR - Nov 14, 2020   - Defect repairs
+//                                      - Added CalculateRadiusOnPhase() and CalculateLuminosityOnPhase() to class BH (increases DNS yield)
+//                                      - Added metallicity to sampling conditions in BaseBinaryStar constructor (should have been done when LOGUNIFORM metallicity distribution added)
+// 02.17.05     TW - Nov 16, 2020   - Defect repairs
+//                                      - Issue #444
+//                                          - Fixed typo in synchronisation timescale
+// 02.17.06     RTW - Nov 17, 2020  - Bug fix:
+//                                      - Fixed Schneider remnant mass inversion from logRemnantMass^10 to 10^logRemnantMass, added some comments in the same section
+// 02.17.07     TW - Nov 17, 2020   - Enhancements, code cleanup
+//                                      - Issue #431
+//                                          - Added option to change LBV wind prescription: choices are NONE, HURLEY_ADD, HURLEY and BELCYZNSKI
+//                                      - Replaced numbers with constants for luminosity and temperature limits in mass loss
+//                                      - Consolidated checks of luminosity for NJ winds within function
+//                                      - NOTE: the above makes sure luminosity is checked before applying NJ winds for MS stars, this was not previously the case but I think it should be
+// 02.17.08     JR - Nov 19, 2020   - Enhancements, code cleanup
+//                                      - Added orbital-period-distribution option (see not in Options.cpp re orbital period option)
+//                                      - Added mass-ratio option
+//                                      - Updated default pythonSubmit to reflect new options, plus some previous omissions (by me...)
+//                                      - Minor typo/formatting changes throughout
+//                                      - Updated docs for new options, plus some typos/fixes/previous omissions
+// 02.17.09     RTW - Nov 20, 2020  - Bug fix:
+//                                      - Removed corner case for MT_hist=8 stars in the Schneider prescription (these should be considered Ultra-stripped)
 
-const std::string VERSION_STRING = "02.17.03";
+const std::string VERSION_STRING = "02.17.09";
 
 # endif // __changelog_h__

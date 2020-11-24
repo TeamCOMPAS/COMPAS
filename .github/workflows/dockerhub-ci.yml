@@ -10,13 +10,12 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
+        
       - name: Log in to Dockerhub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       
       - name: Get release version
-        run: |
-          export COMPAS_VERSION=$(sed -n '/const std::string VERSION_STRING/,/^$/p' ./src/changelog.h | sed 's/.*"\(.*\)"[^"]*$/\1/')
-          echo "::set-env name=COMPAS_VERSION::$COMPAS_VERSION"
+        run: echo "COMPAS_VERSION=$(sed -n '/const std::string VERSION_STRING/,/^$/p' ./src/changelog.h | sed 's/.*"\(.*\)"[^"]*$/\1/')" >> $GITHUB_ENV
         
       - name: Print version
         run: echo $COMPAS_VERSION
@@ -28,4 +27,3 @@ jobs:
         run: |
           docker push teamcompas/compas:$COMPAS_VERSION
           docker push teamcompas/compas:latest
-          

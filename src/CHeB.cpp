@@ -886,7 +886,7 @@ double CHeB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Tau) {
 /*
  * Calculate relative age during Core Helium Burning
  *
- * Hurley at al. 2000, just before eq 59
+ * Hurley et al. 2000, just before eq 59
  * Naturally bounded by [0, 1], but clamp here anyway
  *
  *

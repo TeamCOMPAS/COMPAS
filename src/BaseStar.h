@@ -414,8 +414,9 @@ protected:
     virtual double          CalculateMassLossRate();
     virtual double          CalculateMassLossRateHurley();
             double          CalculateMassLossRateKudritzkiReimers();
-            double          CalculateMassLossRateLBV();
-            double          CalculateMassLossRateLBV2(const double p_Flbv);
+            double          CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_prescription);
+            double          CalculateMassLossRateLBVHurley(const double p_HD_limit_fac);
+            double          CalculateMassLossRateLBVBelczynski();
             double          CalculateMassLossRateNieuwenhuijzenDeJager();
             double          CalculateMassLossRateOB(const double p_Teff);
             double          CalculateMassLossRateVassiliadisWood();
@@ -518,7 +519,7 @@ protected:
     /*
      * Perturb Luminosity and Radius
      *
-     * See Hurley at al. 2000, section 6.3
+     * See Hurley et al. 2000, section 6.3
      *
      * The default is no perturbation - this function does nothing and is called
      * only if the stellar class doesn't define its own perturbation function.
