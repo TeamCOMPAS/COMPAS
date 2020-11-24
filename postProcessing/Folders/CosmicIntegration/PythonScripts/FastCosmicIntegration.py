@@ -19,7 +19,6 @@ SFRmassPerSampledBinary=115 #Msol; amount of star formation for each generated b
 
 pathData        = "/Users/ilyam/Work/COMPASresults/popsynth/JeffTest/"
 COMPAS = ClassCOMPAS.COMPASData(path=pathData,Mlower=5,Mupper=150,binaryFraction=0.7)
-COMPAS.setGridAndMassEvolved()
 COMPAS.setCOMPASDCOmask(types='BBH', pessimistic=True)
 COMPAS.setCOMPASData()
 chirpMass=COMPAS.mass1**0.6*COMPAS.mass2**0.6/(COMPAS.mass1+COMPAS.mass2)**0.2
@@ -39,7 +38,7 @@ shellVolumes= np.diff(volumes)
 shellVolumes= np.append(shellVolumes, shellVolumes[-1])  #add last element again to keep same array length
 
 SFR = 0.01 * ((1+redshifts)**2.77) / (1 + ((1+redshifts)/2.9)**4.7) * 1e9  #per Gpc^3 per year
-SFRfactor=SFR/(SFRmassPerSampledBinary*len(COMPAS.initialSeeds))
+SFRfactor=SFR/(SFRmassPerSampledBinary*len(COMPAS.initialZ))
 
 Zmean=Z0 * 10**(alpha*redshifts)
 Zmu=np.log(Zmean)-sigma**2/2
@@ -50,7 +49,7 @@ Zvector=np.exp(logZvector)
 dPdlogZ=1/sigma/np.sqrt(2*np.pi)*np.exp(-(logZvector-Zmu[:,np.newaxis])**2/2/sigma**2)
 norm=dPdlogZ.sum(axis=1)*steplogZ
 dPdlogZ=dPdlogZ/norm[:,np.newaxis]
-pDrawZ=1/(np.log(max(COMPAS.metallicitySystems))-np.log(min(COMPAS.metallicitySystems)))
+pDrawZ=1/(np.log(max(COMPAS.initialZ))-np.log(min(COMPAS.initialZ)))
 
 nrBinaries=len(COMPAS.delayTimes)
 formationRate=np.zeros(shape=(nrBinaries,nrRedshiftBins))
