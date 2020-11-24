@@ -4,6 +4,7 @@ import h5py  as h5
 import os
 
 import scipy.special
+from   scipy.optimize import newton
 from   astropy.cosmology import FlatLambdaCDM
 from   astropy.cosmology import WMAP9 #as cosmo
 import astropy.units as u
@@ -34,14 +35,15 @@ class CosmicIntegrator(object):
     -Class MSSFR: Class that calculates the metallicity Specific StarFormation rate
                   for each inidividual object at each individual merger time of interest
 
-    Each class lives in a separate file (except cosmo which is inbuilt library astropy)
+    Each class lives in a seperate file (except cosmo which is inbuilt library astropy
 
     
     """
 
-    def __init__(self,pathCOMPAS=None, Cosmology='WMAP',\
-                hubbleConstant = 67.8, omegaMatter=0.308,\
-                minRedshift=0.0,   maxRedshift=10., stepRedshift=0.001,\
+    def __init__(self,pathCOMPAS=None, Cosmology='WMAP',hubbleConstant = 67.8,\
+                omegaMatter=0.308,redshiftFirstSFR=10., \
+                minRedshift=0.0,   maxRedshift=2., nrRedshiftBins=20,\
+                RedshiftTabulated =True, RedshiftTabulatedResolution=100000,
                 GWdetector_sensitivity='O1', GWdetector_snrThreshold=8, verbose = False):
 
         #################################################
@@ -59,13 +61,13 @@ class CosmicIntegrator(object):
         if Cosmology == 'Custom Flat':
             self.cosmology            = FlatLambdaCDM(H0=hubbleConstant *\
                                         u.km / u.s / u.Mpc, Om0=omegaMatter)
+        self.redshiftFirstSFR         = redshiftFirstSFR
+        self.ageFirstSFR              = self.cosmology.age(self.redshiftFirstSFR).value
         
         #These are the redshifts shells we integrate over
         self.minRedshift              = minRedshift
         self.maxRedshift              = maxRedshift
-        self.nrRedshiftBins           = int((maxRedshift-minRedshift)/stepRedshift)
-        self.ageFirstSFR              = self.cosmology.age(self.maxRedshift).value
-
+        self.nrRedshiftBins           = nrRedshiftBins
         #These are set by function
         self.Shell_centerRedshift     = None
         self.Shell_volume             = None
@@ -118,6 +120,8 @@ class CosmicIntegrator(object):
         # dN per year in detector from shell 
         self.PerSystemPerRedshift_ratesObserved  = None
 
+        self.RedshiftTabulated                   = RedshiftTabulated
+        self.RedshiftTabulatedResolution         = RedshiftTabulatedResolution
         self.redshiftAgeTable                    = None 
         
 
@@ -125,6 +129,8 @@ class CosmicIntegrator(object):
         if self.verbose:
             print("Creating redshift shells for integral")
 
+        #Thanx Jim Barrett for cleaning up this part a bit :D
+        #Flat universe with Hubble constant of 70 and OmegaM of 0.3
         redshiftEdges = np.linspace(self.minRedshift,\
                                     self.maxRedshift,\
                                     self.nrRedshiftBins+1) #The bin edges in redshift
@@ -167,12 +173,14 @@ class CosmicIntegrator(object):
         self.PerSystemPerRedshift_redshiftBirth = np.zeros(shape=(int(self.nrRedshiftBins),\
                                                             len(self.COMPAS.delayTimes)))
 
-        #calculating age from redshift is cheap, inverse not
-        #we precalulate a grid and look up closest value
-        if (self.redshiftAgeTable is None):
-            redshifts  =  np.linspace(self.minRedshift,\
-                                      self.maxRedshift,\
-                                      self.nrRedshiftBins)
+        #calculating redshift from age is cheap, inverse not
+        #either we precalulate a grid and look up closest value
+        #cheap and quick but technically less precise
+        #or we use an inverse function, which is slower
+        if (self.RedshiftTabulated) and (self.redshiftAgeTable is None):
+            redshifts  =  np.linspace(0.0000001,\
+                                      self.redshiftFirstSFR,\
+                                      self.RedshiftTabulatedResolution)
             ages       = self.cosmology.age(redshifts).value
             self.redshiftAgeTable = np.column_stack((redshifts,ages))
 
@@ -180,10 +188,21 @@ class CosmicIntegrator(object):
             maskUnphysical = (row == -1) #born before first SFR
             maskPhysical   = np.logical_not(maskUnphysical)
             
-            #find indices in precalculated table
-            inds      = np.digitize(row[maskPhysical], self.redshiftAgeTable[:,1])
-            redshifts = self.redshiftAgeTable[inds,0]
-            
+            if self.RedshiftTabulated:
+                #find indices in precalculated table 
+                inds      = np.digitize(row[maskPhysical], self.redshiftAgeTable[:,1])
+                redshifts = self.redshiftAgeTable[inds,0]
+            else:
+                """
+                All credits go to
+                https://mail.scipy.org/pipermail/astropy/2013-December/002950.html
+                The problem is that astropy seems to only have redshift->time
+                not time->redshift
+                """
+                redshifts = np.zeros(np.sum(maskPhysical))
+                for nra, age in enumerate(maskPhysical):
+                     redshifts[nra] = newton(lambda x: \
+                                    self.cosmology.age(x).value-age, 0)
             #fill in values
             self.PerSystemPerRedshift_redshiftBirth[nrR][maskUnphysical] = -1
             self.PerSystemPerRedshift_redshiftBirth[nrR][maskPhysical]   = redshifts
@@ -222,7 +241,7 @@ class CosmicIntegrator(object):
             print("Doing the actual cosmic integration")
             print("Filling in the 2D arrays with rate per system per redshift")
         #For each row in 2D array wich corresponds to a merger redshift
-        #Get birth Age in Gyr, redshifts birth, and metallicities from COMPAS
+        # Get birth Age in Gyr , redshifts birth, and metallicities from COMPAS
         #Calcultate MSSFR for that row and fill in the answer
         for nr in range(int(self.nrRedshiftBins)):
             for nrZ, Z in enumerate(self.COMPAS.metallicityGrid):
