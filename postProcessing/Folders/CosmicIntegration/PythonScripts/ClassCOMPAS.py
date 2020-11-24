@@ -163,22 +163,31 @@ class COMPASData(object):
             return
         return (self.primary_masses*self.secondary_masses)/(self.primary_masses+self.secondary_masses)**2
 
-    def find_star_forming_mass_per_binary_sampling(self, mass_ratio_inverse_CDF=None, SAMPLES=20000000):
+    def find_star_forming_mass_per_binary_sampling(self, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3,
+            primary_mass_inverse_CDF=None, mass_ratio_inverse_CDF=None, SAMPLES=20000000):
         """
             Calculate the star forming mass evolved for each binary in the file.
             This function does this by sampling from the IMF and mass ratio distributions
 
             Args:
-                mass_ratio_inverse_CDF --> [function] a function that computes the inverse CDF function for the mass ratio distribution
+                mi                       --> [float]    masses at which to transition the slope of the IMF (ignored if primary_mass_inverse_CDF is not None)
+                aij                      --> [float]    slope of the IMF between mi and mj (ignored if primary_mass_inverse_CDF is not None)
+                primary_mass_inverse_CDF --> [function] a function that computes the inverse CDF functoin for the primary mass distribution
+                                                        this defaults to the Kroupa IMF (which can be varied using mi, aij)
+                mass_ratio_inverse_CDF   --> [function] a function that computes the inverse CDF function for the mass ratio distribution
                                                         this defaults to assuming a uniform mass ratio on [0, 1]
-                SAMPLES                --> [int]      number of samples to draw when creating a mock universe
+                SAMPLES                  --> [int]      number of samples to draw when creating a mock universe
         """
+        # if primary mass inverse CDF is None, assume the Kroupa IMF
+        if primary_mass_inverse_CDF is None:
+            primary_mass_inverse_CDF = lambda U: inverse_CDF_IMF(U, m1=m1, m2=m2, m3=m3, m4=m4, a12=a12, a23=a23, a34=a34)
+
         # if mass ratio inverse CDF function is None, assume uniform
         if mass_ratio_inverse_CDF is None:
             mass_ratio_inverse_CDF = lambda q: q
 
         # randomly sample a large number of masses from IMF, mass ratios from supplied function, binary for boolean
-        primary_mass = inverse_CDF_IMF(np.random.rand(SAMPLES))
+        primary_mass = primary_mass_inverse_CDF(np.random.rand(SAMPLES))
         mass_ratio = mass_ratio_inverse_CDF(np.random.rand(SAMPLES))
         binary = np.random.rand(SAMPLES)
 
