@@ -83,7 +83,7 @@ class COMPASData(object):
         """
         # get the appropriate variables from the COMPAS file
         stellar_type_1, stellar_type_2, hubble_flag, dco_seeds = \
-            self.get_COMPAS_variables("DoubleCompactObjects", ["Stellar_Type_1", "Stellar_Type_2", "Merges_Hubble_Time", "SEED"])
+            self.get_COMPAS_variables("DoubleCompactObjects", ["Stellar_Type(1)", "Stellar_Type(2)", "Merges_Hubble_Time", "SEED"])
 
         # if user wants to mask on Hubble time use the flag, otherwise just set all to True
         hubble_mask = hubble_flag if merges_in_hubble_time else True
@@ -99,10 +99,7 @@ class COMPASData(object):
         # if user wants to mask RLOF or pessimistic and they haven't supplied masks then we need to create them
         if (no_RLOF_after_CEE or pessimistic_CEE) and (rlof_mask is None or pessimistic_mask is None):
             # Try to get the flags and unique seeds from the Common Envelopes file
-            try:
-                ce_seeds, rlof_flag, pessimistic_flag = self.get_COMPAS_variables("CommonEnvelopes", ["SEED", "Immediate_RLOF>CE", "Optimistic_CE"])
-            except:
-                ce_seeds, rlof_flag, pessimistic_flag = self.get_COMPAS_variables("SystemParameters", ["SEED", "Immediate_RLOF>CE", "Optimistic_CE"])
+            ce_seeds, rlof_flag, pessimistic_flag = self.get_COMPAS_variables("CommonEnvelopes", ["SEED", "Immediate_RLOF>CE", "Optimistic_CE"])
 
             # match the seeds to DCO seeds and only take corresponding flags
             dco_from_ce = np.in1d(ce_seeds, dco_seeds)
@@ -130,12 +127,12 @@ class COMPASData(object):
         """
         # get the primary
         primary_masses, secondary_masses, formation_times, coalescence_times = \
-            self.get_COMPAS_variables("DoubleCompactObjects", ["Mass_1", "Mass_2", "Time", "Coalescence_Time"])
+            self.get_COMPAS_variables("DoubleCompactObjects", ["Mass(1)", "Mass(1)", "Time", "Coalescence_Time"])
         self.primary_masses, self.secondary_masses = primary_masses * u.Msun, secondary_masses * u.Msun
         self.delay_times = (formation_times + coalescence_times) * u.Myr
 
         dco_seeds = self.get_COMPAS_variables("DoubleCompactObjects", "SEED")
-        systems_seeds, systems_metallicites = self.get_COMPAS_variables("SystemParameters", ["SEED", "Metallicity@ZAMS_1"])
+        systems_seeds, systems_metallicites = self.get_COMPAS_variables("SystemParameters", ["SEED", "Metallicity@ZAMS(1)"])
         self.n_systems = len(systems_seeds)
         self.metallicities_allsystems = systems_metallicites
 
