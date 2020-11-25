@@ -260,7 +260,7 @@ def find_detection_probability(Mc, eta, redshifts, distances, n_redshifts_detect
 
 def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BHBH", weight_column=None,
                         max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001,
-                        m1_min=5, m1_max=150, m2_min=0.1, fbin=0.7,
+                        m1_min=5 * u.Msun, m1_max=150 * u.Msun, m2_min=0.1 * u.Msun, fbin=0.7,
                         Z0=0.035, alpha=-0.23, sigma=0.39, min_logZ=-12.0, max_logZ=0.0, step_logZ=0.01,
                         sensitivity="O1", snr_threshold=8, 
                         Mc_min=0.1, Mc_max=300.0, Mc_step=0.1, eta_min=0.01, eta_max=0.25, eta_step=0.01,
