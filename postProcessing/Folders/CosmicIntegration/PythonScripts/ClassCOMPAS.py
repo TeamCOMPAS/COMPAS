@@ -8,7 +8,7 @@ import astropy.constants as c
 class COMPASData(object):
     """ A Class for reading and masking a COMPAS data file """
 
-    def __init__(self, path, filename="COMPAS_output.h5", m1_min=5 * u.Msun, m1_max=150 * u.Msun, m2_min=0.1 * u.Msun, fbin=0.7):
+    def __init__(self, path, filename="COMPASOutput.h5", m1_min=5 * u.Msun, m1_max=150 * u.Msun, m2_min=0.1 * u.Msun, fbin=0.7):
         """ 
             Initialise the Class to prepare for other functions 
         
@@ -195,7 +195,7 @@ class COMPASData(object):
         binary_mask = binary < self.fbin
         
         # assign each a random secondary mass, default 0 because single stars have m2=0 (surprisingly :P)
-        secondary_mass = np.zeros(SAMPLES)
+        secondary_mass = np.zeros(SAMPLES) * u.Msun
         secondary_mass[binary_mask] = primary_mass[binary_mask] * mass_ratio[binary_mask]
 
         # find the total mass of the whole population
