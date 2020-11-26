@@ -402,6 +402,8 @@ private:
 
         "orbital-period-distribution",
 
+        "overall-wind-mass-loss-multiplier",
+
         "pulsar-birth-magnetic-field-distribution",
         "pulsar-birth-spin-period-distribution",
         "pulsational-pair-instability-prescription",
@@ -583,6 +585,9 @@ public:
             ENUM_OPT<ORBITAL_PERIOD_DISTRIBUTION>               m_OrbitalPeriodDistribution;                                    // Which orbital period distribution
             double                                              m_OrbitalPeriodDistributionMin;                                 // Minimum initial period in days
             double                                              m_OrbitalPeriodDistributionMax;                                 // Maximum initial period in days
+
+            // Wind mass loss
+            double                                              m_OverallWindMassLossMultiplier;                                // Multiplication factor to reduce the overall wind mass loss rate at each timestep
 
             // Eccentricity
             double                                              m_Eccentricity;                                                 // Eccentricity
@@ -1182,6 +1187,9 @@ public:
 
     string                                      OutputContainerName() const                                             { return m_CmdLine.optionValues.m_OutputContainerName; }
     string                                      OutputPathString() const                                                { return m_CmdLine.optionValues.m_OutputPath.string(); }
+
+
+    double                                      OverallWindMassLossMultiplier() const                                   { return OPT_VALUE("overall-wind-mass-loss-multiplier", m_OverallWindMassLossMultiplier, true); }
 
     double                                      PairInstabilityLowerLimit() const                                       { return OPT_VALUE("pisn-lower-limit", m_PairInstabilityLowerLimit, true); }
     double                                      PairInstabilityUpperLimit() const                                       { return OPT_VALUE("pisn-upper-limit", m_PairInstabilityUpperLimit, true); }
