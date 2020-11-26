@@ -140,6 +140,7 @@ class pythonProgramOptions:
     mass_loss_prescription = 'VINK'
     luminous_blue_variable_prescription = 'BELCZYNSKI'
     luminous_blue_variable_multiplier = 1.5
+    overall_wind_mass_loss_multiplier = 1.0
     wolf_rayet_multiplier = 1.0
 
     circularise_binary_during_mass_transfer = False
@@ -358,6 +359,7 @@ class pythonProgramOptions:
             self.common_envelope_alpha_thermal,
             self.common_envelope_lambda_multiplier,
             self.luminous_blue_variable_multiplier,
+            self.overall_wind_mass_loss_multiplier,
             self.wolf_rayet_multiplier,
             self.mass_transfer_fa,
             self.mass_transfer_jloss,
@@ -444,6 +446,7 @@ class pythonProgramOptions:
             '--common-envelope-alpha-thermal',
             '--common-envelope-lambda-multiplier',
             '--luminous-blue-variable-multiplier',
+            '--overall-wind-mass-loss-multiplier',
             '--wolf-rayet-multiplier',
             '--mass-transfer-fa',
             '--mass-transfer-jloss',

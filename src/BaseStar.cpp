@@ -1708,6 +1708,7 @@ double BaseStar::CalculateMassLossRate() {
                 SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using HURLEY");                               // show warning
                 mDot = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD) + CalculateMassLossRateHurley();  // use HURLEY
         }
+        mDot = mDot * OPTIONS->OverallWindMassLossMultiplier();                                                 // Apply overall wind mass loss multiplier
     }
 
     return mDot;
