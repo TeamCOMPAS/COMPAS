@@ -619,7 +619,10 @@
 //                                      - Updated docs for new options, plus some typos/fixes/previous omissions
 // 02.17.09     RTW - Nov 20, 2020  - Bug fix:
 //                                      - Removed corner case for MT_hist=8 stars in the Schneider prescription (these should be considered Ultra-stripped)
+// 02.17.10     LVS - Nov 27, 2020  - Enhancements:
+//                                      - Added option to vary all winds with OverallWindMassLossMultiplier
+//
 
-const std::string VERSION_STRING = "02.17.09";
+const std::string VERSION_STRING = "02.17.10";
 
 # endif // __changelog_h__
