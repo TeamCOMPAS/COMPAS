@@ -402,8 +402,6 @@ private:
 
         "orbital-period-distribution",
 
-        "overall-wind-mass-loss-multiplier",
-
         "pulsar-birth-magnetic-field-distribution",
         "pulsar-birth-spin-period-distribution",
         "pulsational-pair-instability-prescription",
