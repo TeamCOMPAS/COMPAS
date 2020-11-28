@@ -621,6 +621,8 @@
 //                                      - Removed corner case for MT_hist=8 stars in the Schneider prescription (these should be considered Ultra-stripped)
 // 02.17.10     LVS - Nov 27, 2020  - Enhancements:
 //                                      - Added option to vary all winds with OverallWindMassLossMultiplier
+// 02.17.11     LVS - Nov 28, 2020  - Enhancements:
+//										- Added option to vary winds of cool stars with CoolWindMassLossMultiplier
 //
 
 const std::string VERSION_STRING = "02.17.10";
