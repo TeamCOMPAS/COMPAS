@@ -159,7 +159,7 @@ Following is the list of program options that can be specified at the command li
 
 \programOption{luminous-blue-variable-prescription}{}{Luminous blue variable mass loss prescription. \\ Options: \lcb\ NONE, HURLEY, HURLEY\_ADD, BELCZYNSKI\ \rcb}{BELCZYNSKI}
 
-\programOption{luminous-blue-variable-multiplier}{}{Multiplicative constant for LBV mass loss. (Use 10 for \citet{Mennekens_2014})}{1.5}
+\programOption{luminous-blue-variable-multiplier}{}{Multiplicative constant for LBV mass loss. (Use 10 for \citet{Mennekens_2014})  Note that wind mass loss will also be multiplied by the overall-wind-mass-loss-multiplier. }{1.5}
 
 \programOption{mass-loss-prescription}{}{Mass loss prescription. \\ Options: \lcb\ NONE, HURLEY, VINK\ \rcb}{VINK}
 
@@ -231,6 +231,8 @@ In both cases the number of objects evolved will be the number specified by the 
 
 \programOption{output-path}{o}{Path to which output is saved (i.e. directory in which the output container is created).}{Current working directory~(CWD)}
 
+\programOption{overall-wind-mass-loss-multiplier}{}{Multiplicitive constant for overall wind mass loss (default = 1). Note that this multiplication factor is applied after the luminous-blue-variable-multiplier and the wolf-rayet-multiplier.}
+
 \programOption{pair-instability-supernovae}{}{Enable pair instability supernovae (PISN).}{FALSE}
 
 \programOption{PISN-lower-limit}{}{Minimum core mass for PISN~(\Msun).}{60.0}
@@ -295,7 +297,7 @@ In both cases the number of objects evolved will be the number specified by the 
 
 \programOption{use-mass-loss}{}{Enable mass loss.}{FALSE}
 
-\programOption{wolf-rayet-multiplier}{}{Multiplicative constant for Wolf Rayet winds.}{1.0}
+\programOption{wolf-rayet-multiplier}{}{Multiplicative constant for Wolf Rayet winds. Note that wind mass loss will also be multiplied by the overall-wind-mass-loss-multiplier. }{1.0}
 
 \programOption{zeta-adiabatic-arbitrary}{}{Value of logarithmic derivative of radius with respect to mass, $\zeta$~adiabatic.}{1.0\tenpow{4}}
 
