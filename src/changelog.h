@@ -621,7 +621,11 @@
 //                                      - Removed corner case for MT_hist=8 stars in the Schneider prescription (these should be considered Ultra-stripped)
 // 02.17.10     RTW - Nov 25, 2020  - Enhancement:
 //                                      - Cleaned up Schneider remnant mass function (now uses PPOW), and set the HeCore mass as an upper limit to the remnant mass
+// 02.17.11     LVS - Nov 27, 2020  - Enhancements:
+//                                      - Added option to vary all winds with OverallWindMassLossMultiplier
+//
+//
 
-const std::string VERSION_STRING = "02.17.10";
+const std::string VERSION_STRING = "02.17.11";
 
 # endif // __changelog_h__
