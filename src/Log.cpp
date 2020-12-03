@@ -156,7 +156,7 @@ void Log::Start(const string              p_LogBasePath,
                         std::time_t timeStart = std::chrono::system_clock::to_time_t(m_WallStart);                  // record start time
 
                         // record start time and whether evolving single stars or binaries   
-                        if(OPTIONS->SingleStar())
+                        if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE)
                             m_RunDetailsFile << "Start generating stars at " << std::ctime(&timeStart) << std::endl;
                         else
                             m_RunDetailsFile << "Start generating binaries at " << std::ctime(&timeStart) << std::endl;
@@ -219,7 +219,7 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
             std::time_t timeEnd = std::chrono::system_clock::to_time_t(m_WallEnd);                              // get end time and date
         
             // record end time and whether evolving single stars or binaries   
-            if(OPTIONS->SingleStar()) {
+            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {
                 m_RunDetailsFile << "Generated " << std::to_string(std::get<1>(p_ObjectStats)) << " of " << (std::get<0>(p_ObjectStats) < 0 ? "<INCOMPLETE GRID>" : std::to_string(std::get<0>(p_ObjectStats))) << " stars requested" << std::endl;
                 m_RunDetailsFile << "\nEnd generating stars at " << std::ctime(&timeEnd) << std::endl;
             }
@@ -236,10 +236,13 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
             int wallMM = (int)((wallSeconds.count() - ((double)wallHH * 3600.0)) / 60.0);                       // minutes
             int wallSS = (int)(wallSeconds.count() - ((double)wallHH * 3600.0) - ((double)wallMM * 60.0));      // seconds
 
-            m_RunDetailsFile << "Wall time  = " << wallHH << ":" << wallMM << ":" << wallSS << " (hh:mm:ss)" << std::endl; 
+            m_RunDetailsFile << "Wall time  = " << 
+                                std::setfill('0') << std::setw(2) << wallHH << ":" << 
+                                std::setfill('0') << std::setw(2) << wallMM << ":" << 
+                                std::setfill('0') << std::setw(2) << wallSS << " (hh:mm:ss)" << std::endl;      // Include 0 buffer 
 
-            m_RunDetailsFile << "\n\n" << OPTIONS->OptionsDetails();                                            // record the options details string
-            m_RunDetailsFile << "Actual random seed = " << (OPTIONS->FixedRandomSeed() ? OPTIONS->RandomSeed() : RAND->DefaultSeed()) << ", CALCULATED, UNSIGNED_LONG" << std::endl;    // actual random seed
+            m_RunDetailsFile << "\n\n" << OPTIONS->CmdLineOptionsDetails();                                     // record the commandline options details string
+            m_RunDetailsFile << "Actual random seed = " << (OPTIONS->FixedRandomSeedCmdLine() ? OPTIONS->RandomSeedCmdLine() : RAND->DefaultSeed()) << ", CALCULATED, UNSIGNED_LONG" << std::endl;    // actual random seed
         }
         catch (const std::ofstream::failure &e) {                                                               // problem...
             Squawk("ERROR: Unable to update run details file with file name " + filename);                      // announce error
@@ -1030,52 +1033,56 @@ std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> Log::GetStandardLogFileReco
 
         switch (p_Logfile) {                                                                                                        // which logfile?
 
-            case LOGFILE::SSE_PARAMETERS:                                                                                           // SSE_PARAMETERS
-                recordProperties = m_SSE_Parms_Rec;                                                                                 // record properties
-                break;
-
-            case LOGFILE::SSE_SWITCH_LOG:                                                                                           // SSE_SWITCH_LOG
-                recordProperties = m_SSE_Switch_Rec;                                                                                // record properties
-                break;
-
-            case LOGFILE::SSE_SUPERNOVA:                                                                                            // SSE_SUPERNOVA
-                recordProperties = m_SSE_SN_Rec;                                                                                    // record properties
-                break;
-
-            case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                    // BSE_SYSTEM_PARAMETERS
-                recordProperties = m_BSE_SysParms_Rec;                                                                              // record properties
-                break;
-
-            case LOGFILE::BSE_SWITCH_LOG:                                                                                           // BSE_SWITCH_LOG
-                recordProperties = m_BSE_Switch_Rec;                                                                                // record properties
-                break;
-
-            case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS:                                                                               // BSE_DOUBLE_COMPACT_OBJECTS
-                recordProperties = m_BSE_DCO_Rec;                                                                                   // record properties
-                break;
-
-            case LOGFILE::BSE_SUPERNOVAE:                                                                                           // BSE_SUPERNOVAE
-                recordProperties = m_BSE_SNE_Rec;                                                                                   // record properties
+            case LOGFILE::BSE_BE_BINARIES:                                                                                          // BSE_BE_BINARIES
+                recordProperties = m_BSE_BE_Binaries_Rec;                                                                           // record properties
                 break;
 
             case LOGFILE::BSE_COMMON_ENVELOPES:                                                                                     // BSE_COMMON_ENVELOPES
                 recordProperties = m_BSE_CEE_Rec;                                                                                   // record properties
                 break;
 
-            case LOGFILE::BSE_RLOF_PARAMETERS:                                                                                      // BSE_RLOF_PARAMETERS
-                recordProperties = m_BSE_RLOF_Rec;                                                                                  // record properties
+            case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                      // BSE_DETAILED_OUTPUT
+                recordProperties = m_BSE_Detailed_Rec;                                                                              // record properties
                 break;
 
-            case LOGFILE::BSE_BE_BINARIES:                                                                                          // BSE_BE_BINARIES
-                recordProperties = m_BSE_BE_Binaries_Rec;                                                                           // record properties
+            case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS:                                                                               // BSE_DOUBLE_COMPACT_OBJECTS
+                recordProperties = m_BSE_DCO_Rec;                                                                                   // record properties
                 break;
 
             case LOGFILE::BSE_PULSAR_EVOLUTION:                                                                                     // BSE_PULSAR_EVOLUTION
                 recordProperties = m_BSE_Pulsars_Rec;                                                                               // record properties
                 break;
 
-            case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                      // BSE_DETAILED_OUTPUT
-                recordProperties = m_BSE_Detailed_Rec;                                                                              // record properties
+            case LOGFILE::BSE_RLOF_PARAMETERS:                                                                                      // BSE_RLOF_PARAMETERS
+                recordProperties = m_BSE_RLOF_Rec;                                                                                  // record properties
+                break;
+
+            case LOGFILE::BSE_SUPERNOVAE:                                                                                           // BSE_SUPERNOVAE
+                recordProperties = m_BSE_SNE_Rec;                                                                                   // record properties
+                break;
+
+            case LOGFILE::BSE_SWITCH_LOG:                                                                                           // BSE_SWITCH_LOG
+                recordProperties = m_BSE_Switch_Rec;                                                                                // record properties
+                break;
+
+            case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                    // BSE_SYSTEM_PARAMETERS
+                recordProperties = m_BSE_SysParms_Rec;                                                                              // record properties
+                break;
+
+            case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                      // SSE_DETAILED_OUTPUT
+                recordProperties = m_SSE_Detailed_Rec;                                                                              // record properties
+                break;
+
+            case LOGFILE::SSE_SUPERNOVAE:                                                                                           // SSE_SUPERNOVAE
+                recordProperties = m_SSE_SNE_Rec;                                                                                   // record properties
+                break;
+
+            case LOGFILE::SSE_SWITCH_LOG:                                                                                           // SSE_SWITCH_LOG
+                recordProperties = m_SSE_Switch_Rec;                                                                                // record properties
+                break;
+
+            case LOGFILE::SSE_SYSTEM_PARAMETERS:                                                                                    // SSE_SYSTEM_PARAMETERS
+                recordProperties = m_SSE_SysParms_Rec;                                                                              // record properties
                 break;
 
             default:                                                                                                                // unknown logfile
@@ -1105,25 +1112,25 @@ std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> Log::GetStandardLogFileReco
                     case ANY_PROPERTY_TYPE::T_STAR_1_PROPERTY: {                                                                    // star 1 of binary
                         ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<STAR_1_PROPERTY>(property));      // property
                         PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
-                        std::tie(std::ignore, std::ignore, std::ignore, fmtStr) = FormatFieldHeaders(details, "_1");                // get format string
+                        std::tie(std::ignore, std::ignore, std::ignore, fmtStr) = FormatFieldHeaders(details, "(1)");               // get format string
                         } break;
 
                     case ANY_PROPERTY_TYPE::T_STAR_2_PROPERTY: {                                                                    // star 2 of binary
                         ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<STAR_2_PROPERTY>(property));      // property
                         PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
-                        std::tie(std::ignore, std::ignore, std::ignore, fmtStr) = FormatFieldHeaders(details, "_2");                // get format string
+                        std::tie(std::ignore, std::ignore, std::ignore, fmtStr) = FormatFieldHeaders(details, "(2)");               // get format string
                         } break;
 
                     case ANY_PROPERTY_TYPE::T_SUPERNOVA_PROPERTY: {                                                                 // supernova star of binary that contains a supernova
                         ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<SUPERNOVA_PROPERTY>(property));   // property
                         PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
-                        std::tie(std::ignore, std::ignore, std::ignore, fmtStr) = FormatFieldHeaders(details, "_SN");               // get format string
+                        std::tie(std::ignore, std::ignore, std::ignore, fmtStr) = FormatFieldHeaders(details, "(SN)");              // get format string
                         } break;
 
                     case ANY_PROPERTY_TYPE::T_COMPANION_PROPERTY: {                                                                 // companion star of binary that contains a supernova
                         ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<COMPANION_PROPERTY>(property));   // property
                         PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
-                        std::tie(std::ignore, std::ignore, std::ignore, fmtStr) = FormatFieldHeaders(details, "_CP");               // get format string
+                        std::tie(std::ignore, std::ignore, std::ignore, fmtStr) = FormatFieldHeaders(details, "(CP)");              // get format string
                         } break;
 
                     case ANY_PROPERTY_TYPE::T_BINARY_PROPERTY: {                                                                    // binary
@@ -1206,50 +1213,63 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
             switch (p_Logfile) {                                                                                                                // which logfile?
 
-                case LOGFILE::SSE_SUPERNOVA:                                                                                                    // SSE_SUPERNOVA
-                    filename         = OPTIONS->LogfileSSESupernova();
-                    recordProperties = m_SSE_SN_Rec;
-                    break;
-
-                case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                            // BSE_SYSTEM_PARAMETERS
-                    filename         = OPTIONS->LogfileBSESystemParameters();
-                    recordProperties = m_BSE_SysParms_Rec;
-                    break;
-
-                case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS:                                                                                       // BSE_DOUBLE_COMPACT_OBJECTS
-                    filename         = OPTIONS->LogfileBSEDoubleCompactObjects();
-                    recordProperties = m_BSE_DCO_Rec;
-                    break;
-
-                case LOGFILE::BSE_SUPERNOVAE:                                                                                                   // BSE_SUPERNOVAE
-                    filename         = OPTIONS->LogfileBSESupernovae();
-                    recordProperties = m_BSE_SNE_Rec;
-                    break;
-
-                case LOGFILE::BSE_COMMON_ENVELOPES:                                                                                             // BSE_COMMON_ENVELOPES
-                    filename         = OPTIONS->LogfileBSECommonEnvelopes();
-                    recordProperties = m_BSE_CEE_Rec;
-                    break;
-
-                case LOGFILE::BSE_RLOF_PARAMETERS:                                                                                              // BSE_RLOF_PARAMETERS
-                    filename         = OPTIONS->LogfileBSERLOFParameters();
-                    recordProperties = m_BSE_RLOF_Rec;
-                    break;
-
                 case LOGFILE::BSE_BE_BINARIES:                                                                                                  // BSE_BE_BINARIES
-                    filename         = OPTIONS->LogfileBSEBeBinaries();
+                    filename         = OPTIONS->LogfileBeBinaries();
                     recordProperties = m_BSE_BE_Binaries_Rec;
                     break;
 
+                case LOGFILE::BSE_COMMON_ENVELOPES:                                                                                             // BSE_COMMON_ENVELOPES
+                    filename         = OPTIONS->LogfileCommonEnvelopes();
+                    recordProperties = m_BSE_CEE_Rec;
+                    break;
+
+                case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS:                                                                                       // BSE_DOUBLE_COMPACT_OBJECTS
+                    filename         = OPTIONS->LogfileDoubleCompactObjects();
+                    recordProperties = m_BSE_DCO_Rec;
+                    break;
+               
                 case LOGFILE::BSE_PULSAR_EVOLUTION:                                                                                             // BSE_PULSAR_EVOLUTION
-                    filename         = OPTIONS->LogfileBSEPulsarEvolution();
+                    filename         = OPTIONS->LogfilePulsarEvolution();
                     recordProperties = m_BSE_Pulsars_Rec;
                     break;
 
-                case LOGFILE::SSE_PARAMETERS:                                                                                                   // SSE_PARAMETERS
+                case LOGFILE::BSE_RLOF_PARAMETERS:                                                                                              // BSE_RLOF_PARAMETERS
+                    filename         = OPTIONS->LogfileRLOFParameters();
+                    recordProperties = m_BSE_RLOF_Rec;
+                    break;
+
+                case LOGFILE::BSE_SUPERNOVAE:                                                                                                   // BSE_SUPERNOVAE
+                    filename         = OPTIONS->LogfileSupernovae();
+                    recordProperties = m_BSE_SNE_Rec;
+                    break;
+
+                case LOGFILE::BSE_SWITCH_LOG:                                                                                                   // BSE_SWITCH_LOG
+                    filename         = OPTIONS->LogfileSwitchLog();
+                    recordProperties = m_BSE_Switch_Rec;
+                    break;
+
+                case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                            // BSE_SYSTEM_PARAMETERS
+                    filename         = OPTIONS->LogfileSystemParameters();
+                    recordProperties = m_BSE_SysParms_Rec;
+                    break;
+
+                case LOGFILE::SSE_SUPERNOVAE:                                                                                                   // SSE_SUPERNOVAE
+                    filename         = OPTIONS->LogfileSupernovae();
+                    recordProperties = m_SSE_SNE_Rec;
+                    break;
+
                 case LOGFILE::SSE_SWITCH_LOG:                                                                                                   // SSE_SWITCH_LOG
-                case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                              // BSE_DETAILED_OUTPUT
-                case LOGFILE::BSE_SWITCH_LOG: {                                                                                                 // BSE_SWITCH_LOG
+                    filename         = OPTIONS->LogfileSwitchLog();
+                    recordProperties = m_SSE_Switch_Rec;
+                    break;
+
+                case LOGFILE::SSE_SYSTEM_PARAMETERS:                                                                                            // SSE_SYSTEM_PARAMETERS
+                    filename         = OPTIONS->LogfileSystemParameters();
+                    recordProperties = m_SSE_SysParms_Rec;
+                    break;
+
+                case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                              // SSE_DETAILED_OUTPUT
+                case LOGFILE::BSE_DETAILED_OUTPUT: {                                                                                            // BSE_DETAILED_OUTPUT
 
                     // first check if the detailed output directory exists - if not, create it
                     // use boost filesystem here - easier...
@@ -1284,24 +1304,14 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                                                                                                                                                 // yes - add path to filename
                         switch (p_Logfile) {                                                                                                    // which logfile?
 
-                            case LOGFILE::SSE_PARAMETERS:                                                                                       // SSE_PARAMETERS
-                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileSSEParameters();                      // logfile filename with directory
-                                recordProperties = m_SSE_Parms_Rec;                                                                             // record properties
-                                break;
-
-                            case LOGFILE::SSE_SWITCH_LOG:                                                                                       // SSE_SWITCH_LOG
-                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileSSESwitchLog();                       // logfile filename with directory
-                                recordProperties = m_SSE_Switch_Rec;                                                                            // record properties
+                            case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                  // SSE_DETAILED_OUTPUT
+                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileDetailedOutput();                     // logfile filename with directory
+                                recordProperties = m_SSE_Detailed_Rec;                                                                          // record properties
                                 break;
 
                             case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                  // BSE_DETAILED_OUTPUT
-                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileBSEDetailedOutput();                  // logfile filename with directory
+                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileDetailedOutput();                     // logfile filename with directory
                                 recordProperties = m_BSE_Detailed_Rec;                                                                          // record properties
-                                break;
-
-                            case LOGFILE::BSE_SWITCH_LOG:                                                                                       // BSE_SWITCH_LOG
-                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileBSESwitchLog();                       // logfile filename with directory
-                                recordProperties = m_BSE_Switch_Rec;                                                                            // record properties
                                 break;
 
                             default: break;
@@ -1352,25 +1362,25 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                                 case ANY_PROPERTY_TYPE::T_STAR_1_PROPERTY: {                                                                    // star 1 of binary
                                     ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<STAR_1_PROPERTY>(property));      // property
                                     PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
-                                    std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details, "_1");                         // format the headers
+                                    std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details, "(1)");                        // format the headers
                                     } break;
 
                                 case ANY_PROPERTY_TYPE::T_STAR_2_PROPERTY: {                                                                    // star 2 of binary
                                     ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<STAR_2_PROPERTY>(property));      // property
                                     PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
-                                    std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details, "_2");                         // format the headers
+                                    std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details, "(2)");                        // format the headers
                                     } break;
 
                                 case ANY_PROPERTY_TYPE::T_SUPERNOVA_PROPERTY: {                                                                 // supernova star of binary that contains a supernova
                                     ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<SUPERNOVA_PROPERTY>(property));   // property
                                     PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
-                                    std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details, "_SN");                        // format the headers
+                                    std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details, "(SN)");                       // format the headers
                                     } break;
 
                                 case ANY_PROPERTY_TYPE::T_COMPANION_PROPERTY: {                                                                 // companion star of binary that contains a supernova
                                     ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<COMPANION_PROPERTY>(property));   // property
                                     PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
-                                    std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details, "_CP");                        // format the headers
+                                    std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details, "(CP)");                       // format the headers
                                     } break;
 
                                 case ANY_PROPERTY_TYPE::T_BINARY_PROPERTY: {                                                                    // binary
@@ -1412,8 +1422,8 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
                             fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
 
-                            fullTypeStr   += "STELLAR_TYPE" + m_Logfiles[id].delimiter;                                                         // append field type string to full type string                            
-                            fullTypeStr   += "STELLAR_TYPE" + m_Logfiles[id].delimiter;                                                         // append field type string to full type string                            
+                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
+                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
                         }
 
                         // if we are writing to the BSE Switch file we add three pre-defined columns
@@ -1433,8 +1443,8 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
 
                             fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
-                            fullTypeStr   += "STELLAR_TYPE" + m_Logfiles[id].delimiter;                                                         // append field type string to full type string                            
-                            fullTypeStr   += "STELLAR_TYPE" + m_Logfiles[id].delimiter;                                                         // append field type string to full type string                            
+                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
+                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
                         }
 
                         if (!fullHeaderStr.empty()) fullHeaderStr.pop_back();                                                                   // remove the trailing delimiter from the header string
@@ -1635,18 +1645,19 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
     if (p_UseDefaultProps) {                                                                                            // use logfile default props as base?
                                                                                                                         // yes - get existing props for given logfile
         switch (p_Logfile) {
-            case LOGFILE::SSE_PARAMETERS            : baseProps = m_SSE_Parms_Rec;       break;
-            case LOGFILE::SSE_SWITCH_LOG            : baseProps = m_SSE_Switch_Rec;      break;
-            case LOGFILE::SSE_SUPERNOVA             : baseProps = m_SSE_SN_Rec;          break;
-            case LOGFILE::BSE_SYSTEM_PARAMETERS     : baseProps = m_BSE_SysParms_Rec;    break;
-            case LOGFILE::BSE_SWITCH_LOG            : baseProps = m_BSE_Switch_Rec;      break;
-            case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: baseProps = m_BSE_DCO_Rec;         break;
-            case LOGFILE::BSE_SUPERNOVAE            : baseProps = m_BSE_SNE_Rec;         break;
-            case LOGFILE::BSE_COMMON_ENVELOPES      : baseProps = m_BSE_CEE_Rec;         break;
-            case LOGFILE::BSE_RLOF_PARAMETERS       : baseProps = m_BSE_RLOF_Rec;        break;
             case LOGFILE::BSE_BE_BINARIES           : baseProps = m_BSE_BE_Binaries_Rec; break;
-            case LOGFILE::BSE_PULSAR_EVOLUTION      : baseProps = m_BSE_Pulsars_Rec;     break;
+            case LOGFILE::BSE_COMMON_ENVELOPES      : baseProps = m_BSE_CEE_Rec;         break;
             case LOGFILE::BSE_DETAILED_OUTPUT       : baseProps = m_BSE_Detailed_Rec;    break;
+            case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: baseProps = m_BSE_DCO_Rec;         break;
+            case LOGFILE::BSE_PULSAR_EVOLUTION      : baseProps = m_BSE_Pulsars_Rec;     break;
+            case LOGFILE::BSE_RLOF_PARAMETERS       : baseProps = m_BSE_RLOF_Rec;        break;
+            case LOGFILE::BSE_SUPERNOVAE            : baseProps = m_BSE_SNE_Rec;         break;
+            case LOGFILE::BSE_SWITCH_LOG            : baseProps = m_BSE_Switch_Rec;      break;
+            case LOGFILE::BSE_SYSTEM_PARAMETERS     : baseProps = m_BSE_SysParms_Rec;    break;
+            case LOGFILE::SSE_DETAILED_OUTPUT       : baseProps = m_SSE_Detailed_Rec;    break;
+            case LOGFILE::SSE_SUPERNOVAE            : baseProps = m_SSE_SNE_Rec;         break;
+            case LOGFILE::SSE_SWITCH_LOG            : baseProps = m_SSE_Switch_Rec;      break;
+            case LOGFILE::SSE_SYSTEM_PARAMETERS     : baseProps = m_SSE_SysParms_Rec;    break;
             default: break;                                                                                             // avoids compiler warning
         }
     }
@@ -1707,18 +1718,19 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
 
     // replace  existing props for given logfile
     switch (p_Logfile) {
-        case LOGFILE::SSE_PARAMETERS            : m_SSE_Parms_Rec       = newProps; break;
-        case LOGFILE::SSE_SWITCH_LOG            : m_SSE_Switch_Rec      = newProps; break;
-        case LOGFILE::SSE_SUPERNOVA             : m_SSE_SN_Rec          = newProps; break;
-        case LOGFILE::BSE_SYSTEM_PARAMETERS     : m_BSE_SysParms_Rec    = newProps; break;
-        case LOGFILE::BSE_SWITCH_LOG            : m_BSE_Switch_Rec      = newProps; break;
-        case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: m_BSE_DCO_Rec         = newProps; break;
-        case LOGFILE::BSE_SUPERNOVAE            : m_BSE_SNE_Rec         = newProps; break;
-        case LOGFILE::BSE_COMMON_ENVELOPES      : m_BSE_CEE_Rec         = newProps; break;
-        case LOGFILE::BSE_RLOF_PARAMETERS       : m_BSE_RLOF_Rec        = newProps; break;
         case LOGFILE::BSE_BE_BINARIES           : m_BSE_BE_Binaries_Rec = newProps; break;
-        case LOGFILE::BSE_PULSAR_EVOLUTION      : m_BSE_Pulsars_Rec     = newProps; break;
+        case LOGFILE::BSE_COMMON_ENVELOPES      : m_BSE_CEE_Rec         = newProps; break;
         case LOGFILE::BSE_DETAILED_OUTPUT       : m_BSE_Detailed_Rec    = newProps; break;
+        case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: m_BSE_DCO_Rec         = newProps; break;
+        case LOGFILE::BSE_PULSAR_EVOLUTION      : m_BSE_Pulsars_Rec     = newProps; break;
+        case LOGFILE::BSE_RLOF_PARAMETERS       : m_BSE_RLOF_Rec        = newProps; break;
+        case LOGFILE::BSE_SUPERNOVAE            : m_BSE_SNE_Rec         = newProps; break;
+        case LOGFILE::BSE_SWITCH_LOG            : m_BSE_Switch_Rec      = newProps; break;
+        case LOGFILE::BSE_SYSTEM_PARAMETERS     : m_BSE_SysParms_Rec    = newProps; break;
+        case LOGFILE::SSE_DETAILED_OUTPUT       : m_SSE_Detailed_Rec    = newProps; break;
+        case LOGFILE::SSE_SUPERNOVAE            : m_SSE_SNE_Rec         = newProps; break;
+        case LOGFILE::SSE_SWITCH_LOG            : m_SSE_Switch_Rec      = newProps; break;
+        case LOGFILE::SSE_SYSTEM_PARAMETERS     : m_SSE_SysParms_Rec    = newProps; break;
         default: break;                                                                                                 // avoids compiler warning...
     }
 }
@@ -1756,7 +1768,8 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *
  * <rec_name>   ::= "SSE_PARMS_REC"       |				# SSE only
  *                  "SSE_SWITCH_REC"      |				# SSE only
- *                  "SSE_SN_REC"          |				# SSE only
+ *                  "SSE_SNE_REC"         |				# SSE only
+ *                  "SSE_SYSPARMS_REC"    |				# SSE only
  *                  "BSE_SYSPARMS_REC"    |				# BSE only
  *                  "BSE_DCO_REC"         |				# BSE only
  *                  "BSE_SNE_REC"         |				# BSE only

@@ -9,25 +9,18 @@
 
 #include "Log.h"
 #include "Star.h"
-#include "AIS.h"
 #include "BinaryConstituentStar.h"
 
 #include <boost/math/tools/roots.hpp>
-//using boost::math::policies::policy;
-//using boost::math::tools::newton_raphson_iterate;
-//using boost::math::tools::halley_iterate; //
-//using boost::math::tools::eps_tolerance; // Binary functor for specified number of bits.
-//using boost::math::tools::bracket_and_solve_root;
-//using boost::math::tools::toms748_solve;
 
-#include <boost/math/special_functions/next.hpp> // For float_distance.
-#include <tuple> // for std::tuple and std::make_tuple.
-#include <boost/math/special_functions/cbrt.hpp> // For boost::math::cbrt.
+#include <boost/math/special_functions/next.hpp>    // For float_distance.
+#include <boost/math/special_functions/cbrt.hpp>    // For boost::math::cbrt.
+
+#include <tuple>                                    // for std::tuple and std::make_tuple.
 
 
 class Log;
 class Star;
-class AIS;
 class BinaryConstituentStar;
 
 
@@ -35,19 +28,7 @@ class BaseBinaryStar {
 
 public:
 
-    BaseBinaryStar(const AIS &p_AIS, const long int p_Id = -1l);
-
-    BaseBinaryStar(const AIS           &p_AIS,
-                   const double         p_Mass1,
-                   const double         p_Mass2,
-                   const double         p_Metallicity1,
-                   const double         p_Metallicity2,
-                   const double         p_SemiMajorAxis,
-                   const double         p_Eccentricity,
-                   const KickParameters p_KickParameters1,
-                   const KickParameters p_KickParameters2,
-                   const long int       p_Id = -1l);
-
+    BaseBinaryStar(const long int p_Id = -1l);
 
     void CopyMemberVariables(const BaseBinaryStar& p_Star) {
 
@@ -56,8 +37,6 @@ public:
         m_Error                            = p_Star.m_Error;
 
         m_RandomSeed                       = p_Star.m_RandomSeed;
-
-        m_AIS                              = p_Star.m_AIS;
 
         m_BeBinaryDetails                  = p_Star.m_BeBinaryDetails;
 
@@ -70,6 +49,8 @@ public:
 
         m_Unbound                          = p_Star.m_Unbound;
 
+        m_DCOFormationTime                 = p_Star.m_DCOFormationTime;
+        
         m_Dt                               = p_Star.m_Dt;
 
         m_Eccentricity                     = p_Star.m_Eccentricity;
@@ -78,17 +59,14 @@ public:
         m_EccentricityPreSN                = p_Star.m_EccentricityPreSN;
         m_EccentricityPrev                 = p_Star.m_EccentricityPrev;
 
+        m_Flags                            = p_Star.m_Flags;
+        
         m_FractionAccreted                 = p_Star.m_FractionAccreted;
 
         m_CosIPrime                        = p_Star.m_CosIPrime;
         m_IPrime                           = p_Star.m_IPrime;
 
         m_JLoss                            = p_Star.m_JLoss;
-
-        m_LBVfactor                        = p_Star.m_LBVfactor;
-
-        m_MassesEquilibrated               = p_Star.m_MassesEquilibrated;
-        m_MassesEquilibratedAtBirth        = p_Star.m_MassesEquilibratedAtBirth;
 
         m_Mass1Final                       = p_Star.m_Mass1Final;
         m_Mass2Final                       = p_Star.m_Mass2Final;
@@ -103,9 +81,6 @@ public:
 
         m_MassTransferTrackerHistory       = p_Star.m_MassTransferTrackerHistory;
 
-        m_Merged                           = p_Star.m_Merged;
-        m_MergesInHubbleTime               = p_Star.m_MergesInHubbleTime;
-
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
 
         m_PrintExtraDetailedOutput         = p_Star.m_PrintExtraDetailedOutput;
@@ -114,16 +89,11 @@ public:
         m_RLOFDetails.currentProps         = p_Star.m_RLOFDetails.currentProps  == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
         m_RLOFDetails.previousProps        = p_Star.m_RLOFDetails.previousProps == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
 
-        m_SecondaryTooSmallForDCO          = p_Star.m_SecondaryTooSmallForDCO;
-
         m_SemiMajorAxis                    = p_Star.m_SemiMajorAxis;
         m_SemiMajorAxisAtDCOFormation      = p_Star.m_SemiMajorAxisAtDCOFormation;
         m_SemiMajorAxisInitial             = p_Star.m_SemiMajorAxisInitial;
         m_SemiMajorAxisPreSN               = p_Star.m_SemiMajorAxisPreSN;
         m_SemiMajorAxisPrev                = p_Star.m_SemiMajorAxisPrev;
-
-        m_StellarMerger                    = p_Star.m_StellarMerger;
-        m_StellarMergerAtBirth             = p_Star.m_StellarMergerAtBirth;
 
         m_SupernovaState                   = p_Star.m_SupernovaState;
 
@@ -150,8 +120,6 @@ public:
         m_OrbitalEnergy                    = p_Star.m_OrbitalEnergy;
 
         m_uK                               = p_Star.m_uK;
-
-        m_WolfRayetFactor                  = p_Star.m_WolfRayetFactor;
 
         m_ZetaLobe                         = p_Star.m_ZetaLobe;
         m_ZetaStar                         = p_Star.m_ZetaStar;
@@ -207,7 +175,6 @@ public:
 
     // getters - alphabetically
     BeBinaryDetailsT    BeBinaryDetails() const                     { return m_BeBinaryDetails; }
-	double              CEAlpha() const                             { return m_CEDetails.alpha; }
 	bool                CEAtLeastOnce() const                       { return m_CEDetails.CEEcount > 0; }
     unsigned int        CEEventCount() const                        { return m_CEDetails.CEEcount; }
 	double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
@@ -236,7 +203,6 @@ public:
     bool                IsNSandNS() const                           { return HasTwoOf({STELLAR_TYPE::NEUTRON_STAR}); }
     bool                IsUnbound() const                           { return (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || (utils::Compare(m_Eccentricity, 1.0) > 0)); }         // semi major axis <= 0.0 means unbound, presumably by SN)
     bool                IsWDandWD() const                           { return HasTwoOf({STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF}); }
-    double              LBV_Factor() const                          { return m_LBVfactor; }
     double              Mass1Final() const                          { return m_Mass1Final; }
     double              Mass2Final() const                          { return m_Mass2Final; }
     double              Mass1PostCEE() const                        { return m_Star1->MassPostCEE(); }
@@ -245,10 +211,10 @@ public:
     double              Mass2PreCEE() const                         { return m_Star2->MassPreCEE(); }
     double              MassEnv1() const                            { return m_MassEnv1; }
     double              MassEnv2() const                            { return m_MassEnv2; }
-    bool                MassesEquilibrated() const                  { return m_MassesEquilibrated; }
-    bool                MassesEquilibratedAtBirth() const           { return m_MassesEquilibratedAtBirth; }
+    bool                MassesEquilibrated() const                  { return m_Flags.massesEquilibrated; }
+    bool                MassesEquilibratedAtBirth() const           { return m_Flags.massesEquilibratedAtBirth; }
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
-    bool                MergesInHubbleTime() const                  { return m_MergesInHubbleTime; }
+    bool                MergesInHubbleTime() const                  { return m_Flags.mergesInHubbleTime; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
     double              OrbitalAngularVelocity() const              { return sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
@@ -269,7 +235,6 @@ public:
     double              RocheLobeRadius2() const                    { return CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass()); }
     double              RocheLobeTracker1() const                   { return m_Star1->RocheLobeTracker(m_SemiMajorAxis, m_Eccentricity); }
     double              RocheLobeTracker2() const                   { return m_Star2->RocheLobeTracker(m_SemiMajorAxis, m_Eccentricity); }
-    bool                SecondaryTooSmallForDCO() const             { return m_SecondaryTooSmallForDCO; }
     double              SemiMajorAxisAtDCOFormation() const         { return m_SemiMajorAxisAtDCOFormation; }
     double              SemiMajorAxisInitial() const                { return m_SemiMajorAxisInitial; }
     double              SemiMajorAxisPostCEE() const                { return m_CEDetails.postCEE.semiMajorAxis; }
@@ -279,8 +244,8 @@ public:
     double              SemiMajorAxisRsol() const                   { return m_SemiMajorAxis*AU_TO_RSOL; }
     bool                SimultaneousRLOF() const                    { return m_RLOFDetails.simultaneousRLOF; }
     bool                StableRLOFPostCEE() const                   { return m_RLOFDetails.stableRLOFPostCEE; }
-    bool                StellarMerger() const                       { return m_StellarMerger; }
-    bool                StellarMergerAtBirth() const                { return m_StellarMergerAtBirth; }
+    bool                StellarMerger() const                       { return m_Flags.stellarMerger; }
+    bool                StellarMergerAtBirth() const                { return m_Flags.stellarMergerAtBirth; }
     STELLAR_TYPE        StellarType1() const                        { return m_Star1->StellarType(); }
     STELLAR_TYPE        StellarType1PostCEE() const                 { return m_Star1->StellarTypePostCEE(); }
     STELLAR_TYPE        StellarType1PreCEE() const                  { return m_Star1->StellarTypePreCEE(); }
@@ -295,7 +260,6 @@ public:
     double              TotalAngularMomentum() const                { return m_TotalAngularMomentum; }
     double              TotalEnergy() const                         { return m_TotalEnergy; }
     double              UK() const                                  { return m_uK; }
-    double              WolfRayetFactor() const                     { return m_WolfRayetFactor; }
     double              ZetaLobe() const                    	    { return m_ZetaLobe; }
     double              ZetaStar() const                            { return m_ZetaStar; }
 
@@ -307,7 +271,7 @@ public:
 
             EVOLUTION_STATUS    Evolve();
 
-            void                PrintSwitchLog(const long int p_Id, const bool p_PrimarySwitching) { if (OPTIONS->BSESwitchLog()) LOGGING->LogBSESwitchLog(this, p_Id, p_PrimarySwitching); }
+            void                PrintSwitchLog(const long int p_Id, const bool p_PrimarySwitching) { if (OPTIONS->SwitchLog()) LOGGING->LogBSESwitchLog(this, p_Id, p_PrimarySwitching); }
 
             COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
 
@@ -329,8 +293,6 @@ private:
 
     unsigned long int   m_RandomSeed;                                                       // Random seed for this binary
 
-    AIS                 m_AIS;
-
     BeBinaryDetailsT    m_BeBinaryDetails;                                                  // BeBinary details
 
     BinaryCEDetailsT    m_CEDetails;                                                        // Common Event details
@@ -347,17 +309,24 @@ private:
     double              m_EccentricityPreSN;                                                // Eccentricity prior to supernova
     double              m_EccentricityPrev;                                                 // Eccentricity at previous timestep
 
+    struct FLAGS {                                                                          // Miscellaneous flags
+
+        bool massesEquilibrated;                                                            // Indicates whether stars had masses equilbrated at some stage after birth
+        bool massesEquilibratedAtBirth;                                                     // Indicates whether stars had masses equilbrated at birth
+
+        bool mergesInHubbleTime;                                                            // Indicates if the stars merge in Hubble Time
+
+        bool stellarMerger;                                                                 // Indicates that the constituent stars merged
+        bool stellarMergerAtBirth;                                                          // Indicates that the constituent stars were touching at bierth
+
+    }                   m_Flags;
+
     double	            m_FractionAccreted;	                                                // Fraction of mass accreted from the donor during mass transfer
 
     double              m_CosIPrime;
     double              m_IPrime;
 
     double	            m_JLoss;			                                                // Specific angular momentum with which mass is lost during non-conservative mass transfer
-
-    double              m_LBVfactor;
-
-    bool                m_MassesEquilibrated;                                               // Indicates whether stars had masses equilbrated at some stage after birth
-    bool                m_MassesEquilibratedAtBirth;                                        // Indicates whether stars had masses equilbrated at birth
 
     double              m_Mass1Final;                                                       // Star1 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
     double              m_Mass2Final;                                                       // Star2 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
@@ -378,25 +347,17 @@ private:
     double              m_TotalMassPrev;
     double              m_TotalMass;
 
-    bool                m_Merged;                                                           // Indicates if the stars merged
-    bool                m_MergesInHubbleTime;                                               // Indicates if the stars merge in Hubble Time
-
     double              m_OrbitalVelocityPreSN;
 
     bool                m_PrintExtraDetailedOutput;                                         // Flag to ensure that detailed output only gets printed once per timestep
 
     BinaryRLOFDetailsT  m_RLOFDetails;                                                      // RLOF details
 
-    bool                m_SecondaryTooSmallForDCO;                                          // Indicates if the secondary star was born too small for the binary to evolbve into a DCO
-
     double              m_SemiMajorAxis;                                                    // Semi-major axis
     double              m_SemiMajorAxisAtDCOFormation;                                      // Semi-major axis at DCO formation
     double              m_SemiMajorAxisInitial;                                             // Record initial semi-major axis              JR: todo: check necessary
     double              m_SemiMajorAxisPreSN;                                               // Semi-major axis prior to supernova
     double              m_SemiMajorAxisPrev;                                                // Semi-major axis at previous timestep
-
-    bool                m_StellarMerger;                                                    // Indicates that the constituent stars merged
-    bool                m_StellarMergerAtBirth;                                             // Indicates that the constituent stars were touching at bierth
 
     SN_STATE            m_SupernovaState;                                                   // Indicates which star (or stars) are undergoing / have undergone a supernova event
 
@@ -410,6 +371,7 @@ private:
     double              m_Time;                                                             // Physical simulation time
     double              m_TimePrev;                                                         // Previous simulation time
     double              m_TimeToCoalescence;                                                // Coalescence time
+    double              m_DCOFormationTime;                                                 // Time of DCO formation
 
     double              m_TotalAngularMomentum;
 
@@ -422,8 +384,6 @@ private:
 	double              m_OrbitalEnergy;
 
     double              m_uK;
-
-    double              m_WolfRayetFactor;
 
     double              m_ZetaLobe;
     double              m_ZetaStar;
@@ -447,8 +407,8 @@ private:
     //                            and call the actual function
     // JR: todo: note in the orginal code the binary orbital velicity was passed in as a parameter but never used - I removed it
 
-    void    SetInitialCommonValues(const AIS &p_AIS, const long int p_Id);
-    void    SetRemainingCommonValues();
+    void    SetInitialValues(const long int p_Id);
+    void    SetRemainingValues();
 
 
     double  CalculateAngularMomentum(const double p_SemiMajorAxis,
@@ -473,7 +433,7 @@ private:
 
     double  CalculateAngularMomentumPrev()                                  { return CalculateAngularMomentum(m_SemiMajorAxisPrev, m_EccentricityPrev, m_Star1->MassPrev(), m_Star2->MassPrev(), m_Star1->RadiusPrev(), m_Star2->RadiusPrev(), m_Star1->OmegaPrev(), m_Star2->OmegaPrev(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
 
-    double  CalculateCDFKroupa(const double p_Mass);
+    double  CalculateCosFinalPlaneTilt(const double p_KickTheta, const double p_KickPhi);
 
     void    CalculateEnergyAndAngularMomentum();
 
@@ -482,7 +442,7 @@ private:
 
 
     void    CalculateMassTransfer(const double p_Dt);
-    double CalculateMassTransferOrbit(const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor, const double p_FractionAccreted);
+    double  CalculateMassTransferOrbit(const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor, const double p_FractionAccreted);
     void    CalculateWindsMassLoss();
     void    InitialiseMassTransfer();
 
@@ -528,7 +488,7 @@ private:
 
     void    EvaluateBinary(const double p_Dt);
 
-    void    EvaluateSupernovae(const bool p_Resolve2ndSN);
+    void    EvaluateSupernovae();
 
     void    EvolveOneTimestep(const double p_Dt);
     void    EvolveOneTimestepPreamble(const double p_Dt);
@@ -537,12 +497,6 @@ private:
     void    ResolveCommonEnvelopeEvent();
     void    ResolveMassChanges();
     bool    ResolveSupernova();
-
-    double  SampleSemiMajorAxisDistribution(const double p_Mass1, const double p_Mass2);
-    double  SampleEccentricityDistribution();
-    double  SampleInitialMassDistribution();
-    double  SampleMetallicityDistribution();
-    double  SampleQDistribution();
 
     void    SetPostCEEValues(const double p_SemiMajorAxis,
                              const double p_Eccentricity,
@@ -562,10 +516,10 @@ private:
 
     // printing functions
     void PrintRLOFParameters(const string p_Rec = "");
-    void PrintBinarySystemParameters(const string p_Rec = "")               {                                   LOGGING->LogBSEParameters(this, p_Rec); }
+    void PrintBinarySystemParameters(const string p_Rec = "")               {                                   LOGGING->LogBSESystemParameters(this, p_Rec); }
     void PrintDetailedOutput(const long int p_Id, const string p_Rec = "")  { if (OPTIONS->DetailedOutput())    LOGGING->LogBSEDetailedOutput(this, p_Id, p_Rec); }
-    void PrintDoubleCompactObjects(const string p_Rec = "")                 {                                   LOGGING->LogBSEDoubleCompactObject(this, p_Rec); }
-    void PrintCommonEnvelope(const string p_Rec = "")                       {                                   LOGGING->LogBSECommonEnvelope(this, p_Rec); }
+    void PrintDoubleCompactObjects(const string p_Rec = "")                 {                                   LOGGING->LogDoubleCompactObject(this, p_Rec); }
+    void PrintCommonEnvelope(const string p_Rec = "")                       {                                   LOGGING->LogCommonEnvelope(this, p_Rec); }
     void PrintBeBinary(const string p_Rec = "");
     void PrintPulsarEvolutionParameters(const string p_Rec = "")            { if (OPTIONS->EvolvePulsars())     LOGGING->LogBSEPulsarEvolutionParameters(this, p_Rec); }
     void PrintSupernovaDetails(const string p_Rec = "")                     {                                   LOGGING->LogBSESupernovaDetails(this, p_Rec); }
@@ -577,29 +531,33 @@ private:
     {
         RadiusEqualsRocheLobeFunctor(BaseBinaryStar * p_Binary, BinaryConstituentStar * p_Donor, BinaryConstituentStar * p_Accretor, ERROR * p_Error, double p_FractionAccreted)
         {
-            m_Binary=p_Binary;
-            m_Donor=p_Donor;
-            m_Accretor=p_Accretor;
-            m_Error = p_Error;
+            m_Binary           = p_Binary;
+            m_Donor            = p_Donor;
+            m_Accretor         = p_Accretor;
+            m_Error            = p_Error;
             m_FractionAccreted = p_FractionAccreted;
         }
         T operator()(double const& dM)
         {
-            if(dM >= m_Donor->Mass()){                    // Can't remove more than the donor's mass
+            if (dM >= m_Donor->Mass()) {            // Can't remove more than the donor's mass
                 *m_Error = ERROR::TOO_MANY_RLOF_ITERATIONS;
                 return m_Donor->Radius();
             }
-            double donorMass=m_Donor->Mass();
-            double accretorMass=m_Accretor->Mass();
+
+            double donorMass    = m_Donor->Mass();
+            double accretorMass = m_Accretor->Mass();
+
             BinaryConstituentStar* donorCopy = new BinaryConstituentStar(*m_Donor);
             double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -dM , donorCopy->CalculateThermalMassLossRate(), *m_Accretor, m_FractionAccreted);
-            double RLRadius      = semiMajorAxis * (1-m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - dM, accretorMass + (m_Binary->FractionAccreted() * dM)) * AU_TO_RSOL;
-            (void)donorCopy->UpdateAttributes(-dM, -dM*donorCopy->Mass0()/donorCopy->Mass());
-            // Modify donor Mass0 and Age for MS (including HeMS) and HG stars
-            donorCopy->UpdateInitialMass();                                                                                                                 // update initial mass (MS, HG & HeMS)  JR: todo: fix this kludge - mass0 is overloaded, and isn't always "initial mass"
-            donorCopy->UpdateAgeAfterMassLoss();                                                                                                            // update age (MS, HG & HeMS)
+            double RLRadius      = semiMajorAxis * (1 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - dM, accretorMass + (m_Binary->FractionAccreted() * dM)) * AU_TO_RSOL;
             
-            (void)donorCopy->AgeOneTimestep(0.0);                                                                                                           // recalculate radius of star - don't age - just update values
+            (void)donorCopy->UpdateAttributes(-dM, -dM*donorCopy->Mass0()/donorCopy->Mass());
+            
+            // Modify donor Mass0 and Age for MS (including HeMS) and HG stars
+            donorCopy->UpdateInitialMass();         // update initial mass (MS, HG & HeMS)  JR: todo: fix this kludge - mass0 is overloaded, and isn't always "initial mass"
+            donorCopy->UpdateAgeAfterMassLoss();    // update age (MS, HG & HeMS)
+            
+            (void)donorCopy->AgeOneTimestep(0.0);   // recalculate radius of star - don't age - just update values
             
             double thisRadiusAfterMassLoss = donorCopy->Radius();
             
@@ -608,10 +566,10 @@ private:
             return (RLRadius-thisRadiusAfterMassLoss);
         }
     private:
-        BaseBinaryStar * m_Binary;
-        BinaryConstituentStar * m_Donor;
-        BinaryConstituentStar * m_Accretor;
-        ERROR * m_Error;
+        BaseBinaryStar *m_Binary;
+        BinaryConstituentStar *m_Donor;
+        BinaryConstituentStar *m_Accretor;
+        ERROR *m_Error;
         double m_FractionAccreted;
     };
     
@@ -619,22 +577,24 @@ private:
     //Root solver to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
     double MassLossToFitInsideRocheLobe(BaseBinaryStar * p_Binary, BinaryConstituentStar * p_Donor, BinaryConstituentStar * p_Accretor, double p_FractionAccreted)
     {
-        using namespace std;                          // Help ADL of std functions.
-        using namespace boost::math::tools;           // For bracket_and_solve_root.
+        using namespace std;                                                    // Help ADL of std functions.
+        using namespace boost::math::tools;                                     // For bracket_and_solve_root.
         
-        double guess = ADAPTIVE_RLOF_FRACTION_DONOR_GUESS * p_Donor->Mass();    // Rough guess at solution
-        double factor = ADAPTIVE_RLOF_SEARCH_FACTOR;  // Size of search steps
+        double guess  = ADAPTIVE_RLOF_FRACTION_DONOR_GUESS * p_Donor->Mass();   // Rough guess at solution
+        double factor = ADAPTIVE_RLOF_SEARCH_FACTOR;                            // Size of search steps
         
         const boost::uintmax_t maxit = ADAPTIVE_RLOF_MAX_ITERATIONS;            // Limit to maximum iterations.
-        boost::uintmax_t it = maxit;                  // Initally our chosen max iterations, but updated with actual.
-        bool is_rising = true;                        // So if result with guess is too low, then try increasing guess.
-        int digits = std::numeric_limits<double>::digits;  // Maximum possible binary digits accuracy for type T.
+        boost::uintmax_t it = maxit;                                            // Initally our chosen max iterations, but updated with actual.
+        bool is_rising = true;                                                  // So if result with guess is too low, then try increasing guess.
+        int digits = std::numeric_limits<double>::digits;                       // Maximum possible binary digits accuracy for type T.
+
         // Some fraction of digits is used to control how accurate to try to make the result.
-        int get_digits = digits - 5;                  // We have to have a non-zero interval at each step, so
+        int get_digits = digits - 5;                                            // We have to have a non-zero interval at each step, so
+
         // maximum accuracy is digits - 1.  But we also have to
         // allow for inaccuracy in f(x), otherwise the last few
         // iterations just thrash around.
-        eps_tolerance<double> tol(get_digits);             // Set the tolerance.
+        eps_tolerance<double> tol(get_digits);                                  // Set the tolerance.
         
         std::pair<double, double> root;
         try {
@@ -643,16 +603,13 @@ private:
             if (error != ERROR::NONE) SHOW_WARN(error);
         }
         catch(exception& e) {
-            SHOW_ERROR(ERROR::TOO_MANY_RLOF_ITERATIONS, e.what());  //Catch generic boost root finding error
+            SHOW_ERROR(ERROR::TOO_MANY_RLOF_ITERATIONS, e.what());              // Catch generic boost root finding error
             m_Donor->Radius();
         }
         SHOW_WARN_IF(it>=maxit, ERROR::TOO_MANY_RLOF_ITERATIONS);
         
-        return root.first + (root.second - root.first)/2;      // Midway between brackets is our result, if necessary we could return the result as an interval here.
+        return root.first + (root.second - root.first)/2;                       // Midway between brackets is our result, if necessary we could return the result as an interval here.
     }
-
-    
-    
 };
 
 #endif // __BaseBinaryStar_h__

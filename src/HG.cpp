@@ -734,8 +734,8 @@ double HG::CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription) {
             
         case ENVELOPE::CONVECTIVE:
             zeta = CalculateZadiabatic(p_ZetaPrescription);
-            if(OPTIONS->EnvelopeStatePrescription()==ENVELOPE_STATE_PRESCRIPTION::LEGACY && StellarType()==STELLAR_TYPE::HERTZSPRUNG_GAP)
-                zeta=OPTIONS->ZetaRadiativeEnvelopeGiant();         // HG stars within LEGACY  prescription are hardcoded to use zeta=ZetaRadiativeEnvelopeGiant despite nominally being convective
+            if (OPTIONS->EnvelopeStatePrescription() == ENVELOPE_STATE_PRESCRIPTION::LEGACY && StellarType() == STELLAR_TYPE::HERTZSPRUNG_GAP)
+                zeta = OPTIONS->ZetaRadiativeEnvelopeGiant();       // HG stars within LEGACY  prescription are hardcoded to use zeta=ZetaRadiativeEnvelopeGiant despite nominally being convective
             break;
             
         default:                                                    // shouldn't happen

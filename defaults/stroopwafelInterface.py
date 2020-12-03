@@ -29,7 +29,7 @@ output_folder = 'output/'           # Location of output folder (relative to cwd
 random_seed_base = 0                # The initial random seed to increment from                                       # Note: overrides pythonSubmit value
 
 num_cores = 4                       # Number of cores to parallelize over 
-num_per_core = 76                   # Number of binaries per batch
+num_per_core = 250                  # Number of binaries per batch
 mc_only = True                      # Exclude adaptive importance sampling (currently not implemented, leave set to True)
 run_on_hpc = False                  # Run on slurm based cluster HPC
 
@@ -45,9 +45,9 @@ def create_dimensions():
     OUT:
         As Output, this should return a list containing all the instances of Dimension class.
     """
-    m1 = classes.Dimension('Mass_1', 40, 50, sampler.kroupa, prior.kroupa)
-    q = classes.Dimension('q', 0.2, 1, sampler.uniform, prior.uniform, should_print = False)
-    a = classes.Dimension('Separation', .01, 100, sampler.flat_in_log, prior.flat_in_log)
+    m1 = classes.Dimension('Mass_1', 5, 50, sampler.kroupa, prior.kroupa)
+    q = classes.Dimension('q', 0.1, 1, sampler.uniform, prior.uniform, should_print = False)
+    a = classes.Dimension('Separation', .01, 1000, sampler.flat_in_log, prior.flat_in_log)
     #kick_velocity_random_1 = classes.Dimension('Kick_Velocity_Random_1', 0, 1, sampler.uniform, prior.uniform)
     #kick_theta_1 = classes.Dimension('Kick_Theta_1', -np.pi / 2, np.pi / 2, sampler.uniform_in_cosine, prior.uniform_in_cosine)
     #kick_phi_1 = classes.Dimension('Kick_Phi_1', 0, 2 * np.pi, sampler.uniform, prior.uniform)
@@ -228,7 +228,7 @@ if __name__ == '__main__':
 
     # Set commandOptions defaults - these are Compas option arguments
     commandOptions = dict()
-    commandOptions.update({'--outputPath' : output_folder}) 
+    commandOptions.update({'--output-path' : output_folder}) 
     commandOptions.update({'--logfile-delimiter' : 'COMMA'})  # overriden if there is a pythonSubmit
 
     # Over-ride with pythonSubmit parameters, if desired
@@ -243,7 +243,7 @@ if __name__ == '__main__':
             pySubOptions.pop('--grid', None)
             pySubOptions.pop('--output-container', None)
             pySubOptions.pop('--number-of-binaries', None)
-            pySubOptions.pop('--outputPath', None)
+            pySubOptions.pop('--output-path', None)
             pySubOptions.pop('--random-seed', None)
 
             commandOptions.update(pySubOptions)
@@ -269,18 +269,17 @@ if __name__ == '__main__':
 
     # STEP 3: Initialize the stroopwafel object with the user defined functions and create dimensions and initial distribution
     dimensions = create_dimensions()
-    #sw_object.initialize(dimensions, interesting_systems, configure_code_run, rejected_systems, update_properties_method = update_properties)
-    sw_object.initialize(dimensions, None, configure_code_run, None, update_properties_method = update_properties)
+    sw_object.initialize(dimensions, interesting_systems, configure_code_run, rejected_systems, update_properties_method = update_properties)
 
 
     intial_pdf = distributions.InitialDistribution(dimensions)
     # STEP 4: Run the 4 phases of stroopwafel
     sw_object.explore(intial_pdf) #Pass in the initial distribution for exploration phase
-    #sw_object.adapt(n_dimensional_distribution_type = distributions.Gaussian) #Adaptaion phase, tell stroopwafel what kind of distribution you would like to create instrumental distributions
+    sw_object.adapt(n_dimensional_distribution_type = distributions.Gaussian) #Adaptaion phase, tell stroopwafel what kind of distribution you would like to create instrumental distributions
     ## Do selection effects
-    #selection_effects(sw)
-    #sw_object.refine() #Stroopwafel will draw samples from the adapted distributions
-    #sw_object.postprocess(distributions.Gaussian, only_hits = False) #Run it to create weights, if you want only hits in the output, then make only_hits = True
+    selection_effects(sw)
+    sw_object.refine() #Stroopwafel will draw samples from the adapted distributions
+    sw_object.postprocess(distributions.Gaussian, only_hits = False) #Run it to create weights, if you want only hits in the output, then make only_hits = True
 
     end_time = time.time()
     print ("Total running time = %d seconds" %(end_time - start_time))

@@ -35,6 +35,17 @@ public:
 
     static  double          CalculateRadiusOnPhase_Static(const double p_Mass)              { return 4.24E-6 * p_Mass; }                                            // Schwarzschild radius of Black Hole - Hurley et al. 2000, eq 94
 
+    virtual void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
+                                                       const bool   p_RecycledNS,
+                                                       const double p_Stepsize,
+                                                       const double p_MassGainPerTimeStep,
+                                                       const double p_Epsilon)              { return BaseStar::UpdateMagneticFieldAndSpin(p_CommonEnvelope, 
+                                                                                                                                          p_RecycledNS,
+                                                                                                                                          p_Stepsize, 
+                                                                                                                                          p_MassGainPerTimeStep, 
+                                                                                                                                          p_Epsilon); }             // Use BaseStar   
+
+                                                                                                                                          
 protected:
 
     void Initialise() {
@@ -51,8 +62,12 @@ protected:
 
             double          CalculateGyrationRadius() const                                 { return 0.0; }                                                         // No tidal coupling to a BH
 
+            double          CalculateLuminosityOnPhase()                                    { return CalculateLuminosityOnPhase_Static(); }
+
             double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0)    { return (2.0 / 5.0) * m_Mass * m_Radius * m_Radius; }
             double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)  { return CalculateMomentOfInertia(p_RemnantRadius * RSOL_TO_AU) * RSOL_TO_AU * RSOL_TO_AU; }
+
+            double          CalculateRadiusOnPhase()                                        { return CalculateRadiusOnPhase_Static(m_Mass); }                       // Use class member variables - returns radius in Rsol
 
             bool            ShouldEvolveOnPhase()                                           { return true; }                                                        // Always
             bool            ShouldSkipPhase()                                               { return false; }                                                       // Don't skip

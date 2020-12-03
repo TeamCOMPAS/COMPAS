@@ -268,8 +268,8 @@ void GiantBranch::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)
     gbParams(Mx)     = CalculateCoreMass_Luminosity_Mx_Static(p_GBParams);      // depends on B, D, p & q - recalculate if any of those are changed
     gbParams(Lx)     = CalculateCoreMass_Luminosity_Lx_Static(p_GBParams);      // JR: Added this - depends on B, D, p, q & Mx - recalculate if any of those are changed
 
-    gbParams(McDU)   = CalculateCoreMassAt2ndDredgeUp_Static(gbParams(McBAGB));
     gbParams(McBAGB) = CalculateCoreMassAtBAGB(p_Mass);
+    gbParams(McDU)   = CalculateCoreMassAt2ndDredgeUp_Static(gbParams(McBAGB));
     gbParams(McBGB)  = CalculateCoreMassAtBGB(p_Mass, p_GBParams);
 
     gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));   // JR: Added this
@@ -895,7 +895,7 @@ double GiantBranch::CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB)
  */
 double GiantBranch::CalculateMassLossRateHurley() {
 
-    double dms = (utils::Compare(m_Luminosity, 4.0E3) > 0) ? CalculateMassLossRateNieuwenhuijzenDeJager() : 0.0;
+    double dms = CalculateMassLossRateNieuwenhuijzenDeJager();
     double dml = CalculateMassLossRateKudritzkiReimers();
 
     dms = std::max(dml, dms);
@@ -903,12 +903,6 @@ double GiantBranch::CalculateMassLossRateHurley() {
     if (utils::Compare(m_Mu, 1.0) < 0) {
         dml = CalculateMassLossRateWolfRayetLike(m_Mu);
         dms = std::max(dml, dms);
-    }
-
-    double tmp = m_Radius * sqrt(m_Luminosity) * 1.0E-5;
-    if ((utils::Compare(m_Luminosity, 6.0E5) > 0) && (utils::Compare(tmp, 1.0) > 0)) {
-        dml = CalculateMassLossRateLBV();
-        dms = dms + dml;
     }
 
     return dms;
@@ -1033,6 +1027,117 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
 }
 
 
+
+/*
+ * Calculate remnant type given COCoreMass according to the Schneider et al. 2020 prescription (arxiv:2008.08599)
+ *
+ * Note that Schneider only prescribes remnant masses for the simple cases of single episode
+ * Mass Transfer, so some of the double episode cases here are a bit uncertain, and may
+ * need to be refined at a later date.
+ *
+ * STELLAR_TYPE CalculateRemnantTypeBySchneider2020(const double p_COCoreMass)
+ *
+ * @param   [IN]    p_COCoreMass                COCoreMass in Msol
+ * @param   [IN]    useSchneiderAlt             Whether to use the Schneider alt prescription 
+ * @return                                      Remnant mass in Msol
+ */
+double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMass, const bool p_useSchneiderAlt) {
+
+    double logRemnantMass;
+    STYPE_VECTOR mtHist = this->MassTransferDonorHistory();
+    MT_CASE schneiderMassTransferCase = MT_CASE::OTHER;
+
+    // Determine which Schneider case prescription should be used. 
+    if (mtHist.size() == 0) {                                                           // No history of MT - effectively single star
+        schneiderMassTransferCase = MT_CASE::NONE;
+    }
+    else { // (mtHist.size() > 0)                                                       // Star was MT donor at least once
+
+        STELLAR_TYPE mostRecentDonorType = mtHist[mtHist.size()-1];
+
+        if (utils::IsOneOf(mostRecentDonorType, { STELLAR_TYPE::MS_LTE_07, 
+                                                  STELLAR_TYPE::MS_GT_07 })) {                                        // CASE A Mass Transfer - from MS
+            schneiderMassTransferCase = MT_CASE::A;
+        }
+        else if (utils::IsOneOf(mostRecentDonorType, { STELLAR_TYPE::HERTZSPRUNG_GAP, 
+                                                       STELLAR_TYPE::FIRST_GIANT_BRANCH, 
+                                                       STELLAR_TYPE::CORE_HELIUM_BURNING })) {                        // CASE B Mass Transfer - from HG, FGB, or CHeB 
+            schneiderMassTransferCase = MT_CASE::B;
+        }
+        else if (utils::IsOneOf(mostRecentDonorType, { STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,            
+                                                       STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH, })) { // CASE C Mass Transfer - from EAGB or TPAGB 
+            schneiderMassTransferCase = MT_CASE::C;
+        }
+    }
+
+
+    // Apply the appropriate remnant mass prescription for the chosen MT case
+    switch (schneiderMassTransferCase) {   // Which MT Case prescription to use
+
+        case MT_CASE::NONE:                     // No history of MT
+
+            if (!p_useSchneiderAlt) {               // Use standard or alternative remnant mass prescription for effectively single stars?
+
+                     // standard prescription
+                     if (utils::Compare(p_COCoreMass, 6.357)  < 0) { logRemnantMass = log10(0.03357*p_COCoreMass + 1.31780); }
+                else if (utils::Compare(p_COCoreMass, 7.311)  < 0) { logRemnantMass = -0.02466*p_COCoreMass + 1.28070; }
+                else if (utils::Compare(p_COCoreMass, 12.925) < 0) { logRemnantMass = log10(0.03357*p_COCoreMass + 1.31780); }
+                else                                               { logRemnantMass = 0.01940*p_COCoreMass + 0.98462; }
+            }
+            else {  
+
+                     // alternative prescription
+                     if (utils::Compare(p_COCoreMass, 6.357)  < 0) { logRemnantMass = log10(0.04199*p_COCoreMass + 1.28128); }
+                else if (utils::Compare(p_COCoreMass, 7.311)  < 0) { logRemnantMass = -0.02466*p_COCoreMass + 1.28070; }
+                else if (utils::Compare(p_COCoreMass, 12.925) < 0) { logRemnantMass = log10( 0.04701*(p_COCoreMass*p_COCoreMass) - 0.91403*p_COCoreMass + 5.93380); }
+                else                                               { logRemnantMass = 0.01940*p_COCoreMass + 0.98462; }
+            }
+
+            break;
+
+        case MT_CASE::A:                           // Case A MT
+
+                     if (utils::Compare(p_COCoreMass, 7.064)  < 0) { logRemnantMass = log10(0.02128*p_COCoreMass + 1.35349); }
+                else if (utils::Compare(p_COCoreMass, 8.615)  < 0) { logRemnantMass = 0.03866*p_COCoreMass + 0.64417; }
+                else if (utils::Compare(p_COCoreMass, 15.187) < 0) { logRemnantMass = log10(0.02128*p_COCoreMass + 1.35349); }
+                else                                               { logRemnantMass = 0.02573*p_COCoreMass + 0.79027; }
+
+            break;
+
+        case MT_CASE::B:                           // Case B MT
+
+                     if (utils::Compare(p_COCoreMass, 7.548)  < 0) { logRemnantMass = log10(0.01909*p_COCoreMass + 1.34529); }
+                else if (utils::Compare(p_COCoreMass, 8.491)  < 0) { logRemnantMass = 0.03306*p_COCoreMass + 0.68978; }
+                else if (utils::Compare(p_COCoreMass, 15.144) < 0) { logRemnantMass = log10(0.01909*p_COCoreMass + 1.34529); }
+                else                                               { logRemnantMass = 0.02477*p_COCoreMass + 0.80614; }
+
+            break;
+
+        case MT_CASE::C:                            // Case C MT
+
+                     if (utils::Compare(p_COCoreMass, 6.357)  < 0) { logRemnantMass = log10(0.03781*p_COCoreMass + 1.36363); }
+                else if (utils::Compare(p_COCoreMass, 7.311)  < 0) { logRemnantMass = 0.05264*p_COCoreMass + 0.58531; }
+                else if (utils::Compare(p_COCoreMass, 14.008) < 0) { logRemnantMass = log10(0.03781*p_COCoreMass + 1.36363); }
+                else                                               { logRemnantMass = 0.01795*p_COCoreMass + 0.98797; }
+
+            break;
+
+        default:                                    // Probably MT_CASE::OTHER, i.e ultra-stripped
+
+            SHOW_WARN(ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION, "Using default, Mass_Remnant = 1.25");   // show warning 
+
+            logRemnantMass = 0.096910013; // gives MassRemnant = 1.25  
+    }
+    
+    // Convert to linear value, and limit to the pre-SN He Core mass
+    return std::min(PPOW(10.0, logRemnantMass), m_SupernovaDetails.HeCoreMassAtCOFormation);
+
+}
+
+
+
+
+
 /*
  * Calculate remnant mass given COCoreMass and HeCoreMass
  *
@@ -1045,54 +1150,53 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
  * @param   [IN]    p_HeCoreMass                HeCoreMass in Msol
  * @return                                      Remnant mass in Msol
  */
-double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass, const double p_HeCoreMass){
-    double remnantMass=0;   
-    double pBH=0;
-    double pCompleteCollapse=0;
+double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass, const double p_HeCoreMass) {
+
+    double remnantMass       = 0.0;   
+    double pBH               = 0.0;
+    double pCompleteCollapse = 0.0;
     
 
     if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
-	pBH=0;
+	    pBH = 0.0;
     }
     else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M3) < 0) {
-    	pBH=1.0/(MULLERMANDEL_M3-MULLERMANDEL_M1)*(p_COCoreMass-MULLERMANDEL_M1);
+    	pBH = 1.0 / (MULLERMANDEL_M3-MULLERMANDEL_M1) * (p_COCoreMass-MULLERMANDEL_M1);
     }
     else {
-	pBH=1.0;
+	    pBH=1.0;
     } 
  
-    if(utils::Compare(RAND->Random(0,1), pBH) < 0) {  	// this is a BH
-        if(utils::Compare(p_COCoreMass, MULLERMANDEL_M4) < 0)
-		pCompleteCollapse=1.0/(MULLERMANDEL_M4-MULLERMANDEL_M1)*(p_COCoreMass-MULLERMANDEL_M1);
+    if (utils::Compare(RAND->Random(0, 1), pBH) < 0) {  // this is a BH
+        if (utils::Compare(p_COCoreMass, MULLERMANDEL_M4) < 0)
+		    pCompleteCollapse = 1.0 / (MULLERMANDEL_M4 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1);
         else
-		pCompleteCollapse=1.0;
+		    pCompleteCollapse = 1.0;
 
-	if(utils::Compare(RAND->Random(0,1), pCompleteCollapse) < 0) {
-		remnantMass=p_HeCoreMass;
+	    if (utils::Compare(RAND->Random(0, 1), pCompleteCollapse) < 0) {
+		    remnantMass = p_HeCoreMass;
         }
-	else {
-		while(remnantMass<MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass+p_HeCoreMass) ){ 
-			remnantMass = MULLERMANDEL_MUBH*p_COCoreMass + RAND->RandomGaussian(MULLERMANDEL_SIGMABH);
-		}
-	}
+	    else {
+		    while (remnantMass<MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass + p_HeCoreMass)) { 
+			    remnantMass = MULLERMANDEL_MUBH * p_COCoreMass + RAND->RandomGaussian(MULLERMANDEL_SIGMABH);
+		    }
+	    }
     }
-    else {						// this is an NS
-	if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
-		while(remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass+p_HeCoreMass) ){
-			remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
-		}
-	}
-	else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
-                while(remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass+p_HeCoreMass) ){
-                        remnantMass = MULLERMANDEL_MU2A + 
-			MULLERMANDEL_MU2B/(MULLERMANDEL_M2-MULLERMANDEL_M1)*(p_COCoreMass-MULLERMANDEL_M1)+RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
-                }
+    else {                                              // this is an NS
+	    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
+		    while (remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass + p_HeCoreMass)) {
+			    remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
+		    }
+	    }
+	    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
+            while (remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass + p_HeCoreMass)) {
+                remnantMass = MULLERMANDEL_MU2A + MULLERMANDEL_MU2B / (MULLERMANDEL_M2 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1) + RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
+            }
         }
         else {
-                while(remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass+p_HeCoreMass) ){
-                        remnantMass = MULLERMANDEL_MU3A + 
-			MULLERMANDEL_MU3B/(MULLERMANDEL_M3-MULLERMANDEL_M2)*(p_COCoreMass-MULLERMANDEL_M2)+RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
-                }
+            while (remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > (p_COCoreMass+p_HeCoreMass)) {
+                remnantMass = MULLERMANDEL_MU3A + MULLERMANDEL_MU3B / (MULLERMANDEL_M3 - MULLERMANDEL_M2) * (p_COCoreMass - MULLERMANDEL_M2) + RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
+            }
         }
     }
 
@@ -1461,6 +1565,18 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
             m_SupernovaDetails.fallbackFraction = 0.0;                                                      // No subsequent kick adjustment by fallback fraction needed
             break;
 
+        case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020:                                                      // Schneider 2020
+
+            m_Mass = CalculateRemnantMassBySchneider2020(m_COCoreMass);
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0
+            break;
+
+        case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT:                                                   // Schneider 2020, alternative
+
+            m_Mass = CalculateRemnantMassBySchneider2020Alt(m_COCoreMass);
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0
+            break;
+
         default:                                                                                            // unknown prescription
 
             m_Mass                              = 0.0;
@@ -1475,13 +1591,13 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
         stellarType = CalculateRemnantTypeByMuller2016(m_COCoreMass);
     }
     else if (OPTIONS->RemnantMassPrescription() == REMNANT_MASS_PRESCRIPTION::MULLERMANDEL) {
-        if(utils::Compare(m_Mass, MULLERMANDEL_MAXNS ) > 0)
+        if (utils::Compare(m_Mass, MULLERMANDEL_MAXNS ) > 0)
             stellarType = STELLAR_TYPE::BLACK_HOLE;
         else
             stellarType = STELLAR_TYPE::NEUTRON_STAR;
     }
     else if (OPTIONS->RemnantMassPrescription() == REMNANT_MASS_PRESCRIPTION::HURLEY2000) {
-        stellarType = (utils::Compare(m_Mass, 1.8 ) > 0)? STELLAR_TYPE::BLACK_HOLE : STELLAR_TYPE::NEUTRON_STAR;    //Hurley+ 2000, Eq. (92)
+        stellarType = (utils::Compare(m_Mass, 1.8 ) > 0) ? STELLAR_TYPE::BLACK_HOLE : STELLAR_TYPE::NEUTRON_STAR; //Hurley+ 2000, Eq. (92)
     }
     else if (utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass()) > 0) {
         std::tie(m_Luminosity, m_Radius, m_Temperature) = BH::CalculateCoreCollapseSNParams_Static(m_Mass);
@@ -1492,7 +1608,7 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
         stellarType = STELLAR_TYPE::NEUTRON_STAR;
     }
 
-    if(utils::Compare(mass,m_CoreMass)==0 && utils::Compare(m_HeCoreMass, m_COCoreMass)==0) {               // entire star is CO core, so this is a USSN
+    if (utils::Compare(mass,m_CoreMass) == 0 && utils::Compare(m_HeCoreMass, m_COCoreMass) == 0) {          // entire star is CO core, so this is a USSN
         SetSNCurrentEvent(SN_EVENT::USSN);                                                                  // flag ultra-stripped SN happening now
         SetSNPastEvent(SN_EVENT::USSN);                                                                     // ... and will be a past event
     }
@@ -1585,7 +1701,7 @@ STELLAR_TYPE GiantBranch::ResolvePairInstabilitySN() {
 
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;
-    m_SupernovaDetails.fallbackFraction  = 0.0;
+    m_SupernovaDetails.fallbackFraction   = 0.0;
 
     SetSNCurrentEvent(SN_EVENT::PISN);                                                                  // pair instability SN happening now
     SetSNPastEvent(SN_EVENT::PISN);                                                                     // ... and will be a past event
@@ -1728,7 +1844,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         // will be printed in Star::EvolveOneTimestep() after timestep is accepted (i.e. we don't revert state)
         // need to record the stellar type to which the star will switch if we don't revert state
 
-        if (OPTIONS->SingleStar()) {                                                                // only if SSE (BSE does its own SN printing)
+        if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {                                      // only if SSE (BSE does its own SN printing)
             StashSupernovaDetails(stellarType);
         }
     }
