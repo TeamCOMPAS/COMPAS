@@ -86,8 +86,10 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
             case ANY_STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA:                       value = OrbitalEnergyPreSN();                           break;
             case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_POST_COMMON_ENVELOPE:    value = RadialExpansionTimescalePostCEE();              break;
             case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_PRE_COMMON_ENVELOPE:     value = RadialExpansionTimescalePreCEE();               break;
-            case ANY_STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE:                   value = TemperaturePostCEE()*TSOL;                      break;
-            case ANY_STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE:                    value = TemperaturePreCEE()*TSOL;                       break;
+            case ANY_STAR_PROPERTY::RECYCLED_NEUTRON_STAR:                              value = ExperiencedRecycledNS();                        break;
+            case ANY_STAR_PROPERTY::RLOF_ONTO_NS:                                       value = ExperiencedRLOFOntoNS();                        break;
+            case ANY_STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE:                   value = TemperaturePostCEE() * TSOL;                    break;
+            case ANY_STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE:                    value = TemperaturePreCEE() * TSOL;                     break;
             case ANY_STAR_PROPERTY::THERMAL_TIMESCALE_POST_COMMON_ENVELOPE:             value = ThermalTimescalePostCEE();                      break;
             case ANY_STAR_PROPERTY::THERMAL_TIMESCALE_PRE_COMMON_ENVELOPE:              value = ThermalTimescalePreCEE();                       break;
 
@@ -382,8 +384,8 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
 
         case ENVELOPE::RADIATIVE: {                                             // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
 
-            double coeff2          = PPOW(52.0, 5.0 / 3.0);                      // JR: todo: replace this with a constant (calculated) value?
-            double e2              = 1.592E-9 * PPOW(Mass(), 2.84);              // second order tidal coefficient (a.k.a. E_2)
+            double coeff2          = 5.0 * PPOW(2.0, 5.0 / 3.0);                // JR: todo: replace this with a constant (calculated) value?
+            double e2              = 1.592E-9 * PPOW(Mass(), 2.84);             // second order tidal coefficient (a.k.a. E_2)
             double rAU             = Radius() * RSOL_TO_AU;
             double rAU_3           = rAU * rAU * rAU;
             double freeFallFactor  = sqrt(G1 * Mass() / rAU_3);
@@ -402,7 +404,7 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
 /*
  * Set the Roche Lobe flags for a star based on its Roche Lobe radius
  *
- * Changes class member struct m_Flags
+ * Changes class member struct m_RLOFDetails
  *
  *
  * double SetRocheLobeFlags(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity)
@@ -417,7 +419,7 @@ void BinaryConstituentStar::SetRocheLobeFlags(const bool p_CommonEnvelope, const
 
     double rocheLobeTracker = RocheLobeTracker(p_SemiMajorAxis, p_Eccentricity);
 
-    if (utils::Compare(rocheLobeTracker, 1.0) >= 0) {                                                                 // if star is equal to or larger than its Roche Lobe...
+    if (utils::Compare(rocheLobeTracker, 1.0) >= 0) {                                                                   // if star is equal to or larger than its Roche Lobe...
 		m_RLOFDetails.isRLOF          = true;                                                                           // ... it is currently Roche Lobe overflowing
 		m_RLOFDetails.experiencedRLOF = true;                                                                           // ... and for future checks, did Roche Lobe overflow
 	}
@@ -436,7 +438,7 @@ void BinaryConstituentStar::SetRocheLobeFlags(const bool p_CommonEnvelope, const
  * @return                              Ratio of stars radius to its Roche lobe radius
  */
 double  BinaryConstituentStar::RocheLobeTracker(const double p_SemiMajorAxis, const double p_Eccentricity) {
-    if((utils::Compare(p_SemiMajorAxis, 0.0) <= 0) || (utils::Compare(p_Eccentricity, 1.0) > 0))
+    if ((utils::Compare(p_SemiMajorAxis, 0.0) <= 0) || (utils::Compare(p_Eccentricity, 1.0) > 0))
         return 0.0;         // binary is unbound, so not in RLOF
     
     double rocheLobeRadius = BaseBinaryStar::CalculateRocheLobeRadius_Static(Mass(), m_Companion->Mass());

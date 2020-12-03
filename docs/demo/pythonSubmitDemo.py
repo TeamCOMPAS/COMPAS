@@ -6,6 +6,12 @@ import pickle
 import itertools 
 from subprocess import call
 
+#### NOTE: For this demo, we use the Grid_demo.txt grid file. 
+#### The values in that file will override many of the defaults
+#### listed here, but in order to reproduce the example in Fig. 9
+#### of the COMPAS methods paper, but some, e.g the random_seed,
+#### must still be set correctly here. 
+
 # Check if we are using python 3
 python_version = sys.version_info[0]
 print("python_version =", python_version)
@@ -17,6 +23,14 @@ class pythonProgramOptions:
 
     # Do './COMPAS --help' to see all options
     #-- Define variables
+
+    # environment variable COMPAS_EXECUTABLE_PATH is used for docker runs
+    # if COMPAS_EXECUTABLE_PATH is not set (== None) we assume this is an
+    # interactive run with python3
+    # if COMPAS_EXECUTABLE_PATH is set (!= None) we assume this is a run
+    # inside a docker container - we have different directories inside a 
+    # docker container (src, obj, bin), and the COMPAS executable resides
+    # in the bin directory (rather than the src directory)
     compas_executable_override = os.environ.get('COMPAS_EXECUTABLE_PATH')
     print('compas_executable_override', compas_executable_override)
     
@@ -28,15 +42,21 @@ class pythonProgramOptions:
 
     enable_warnings = False                                     # option to enable/disable warning messages
 
-    number_of_binaries = 10  #number of binaries per batch
+    number_of_systems = 10  #number of systems per batch
+
     populationPrinting = False
 
     randomSeedFileName = 'randomSeed.txt'
     if os.path.isfile(randomSeedFileName):
         random_seed = int(np.loadtxt(randomSeedFileName))
     else:
-        random_seed = 0 # If you want a random seed, use: np.random.randint(2,2**63-1)
+        random_seed = 85107 # If you want a random seed, use: np.random.randint(2,2**63-1)
 
+    # environment variable COMPAS_LOGS_OUTPUT_DIR_PATH is used for docker runs
+    # if COMPAS_LOGS_OUTPUT_DIR_PATH is not set (== None) we assume this is an
+    # interactive run with python3
+    # if COMPAS_LOGS_OUTPUT_DIR_PATH is set (!= None) we assume this is a run
+    # inside a docker container and set the output path appropriately
     compas_logs_output_override = os.environ.get('COMPAS_LOGS_OUTPUT_DIR_PATH')
     
     if (compas_logs_output_override is None):
@@ -55,45 +75,48 @@ class pythonProgramOptions:
     hyperparameterList = False
     shareSeeds = False
 
-    single_star = False
-    single_star_mass_steps = 10
-    single_star_mass_min   = 1.0
-    single_star_mass_max   = 75.0    
+    mode = 'BSE'                                                # evolving single stars (SSE) or binaries (BSE)?
 
-    grid_filename = None
+    grid_filename = 'Grid_demo.txt'
+
+    initial_mass    = None                                      # initial mass for SSE
+    initial_mass_1  = None                                      # primary initial mass for BSE
+    initial_mass_2  = None                                      # secondary initial mass for BSE
+
+    eccentricity    = None                                      # eccentricity for BSE
+    semi_major_axis = None                                      # semi-major axis for BSE
+
 
     use_mass_loss = True
     mass_transfer = True
-    detailed_output = False                             # WARNING: this creates a data heavy file
+    detailed_output = True                             # WARNING: this creates a data heavy file
     RLOFPrinting = True
     evolve_unbound_systems = False
     quiet = False
 
-    metallicity = 0.0142                                # Solar metallicity Asplund+2010
+    metallicity = 0.0142                                        # Solar metallicity Asplund+2010
 
-    allow_rlof_at_birth = True                                             # allow binaries that have one or both stars in RLOF at birth to evolve?
-    allow_touching_at_birth = False                                        # allow binaries that have stars touching at birth to evolve?
+    allow_rlof_at_birth = True                                  # allow binaries that have one or both stars in RLOF at birth to evolve?
+    allow_touching_at_birth = False                             # record binaries that have stars touching at birth in output files?
 
-    chemically_homogeneous_evolution = 'PESSIMISTIC'                       # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
+    chemically_homogeneous_evolution = 'PESSIMISTIC'            # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
 
-    SSEswitchLog = False
-    BSEswitchLog = False
-
+    switch_log = False
 
     common_envelope_alpha = 1.0
-    common_envelope_lambda = 0.1                # Only if using 'LAMBDA_FIXED'
-    common_envelope_lambda_prescription = 'LAMBDA_NANJING'  # Xu & Li 2010
+    common_envelope_lambda = 0.1                                # Only if using 'LAMBDA_FIXED'
+    common_envelope_lambda_prescription = 'LAMBDA_NANJING'      # Xu & Li 2010
     common_envelope_slope_Kruckow = -5.0/6.0
     stellar_zeta_prescription = 'SOBERMAN'
     common_envelope_revised_energy_formalism = False
     common_envelope_maximum_donor_mass_revised_energy_formalism = 2.0
     common_envelope_recombination_energy_density = 1.5E13
-    common_envelope_alpha_thermal = 1.0                     # lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
-    common_envelope_lambda_multiplier = 1.0                 # Multiply common envelope lambda by some constant
-    common_envelope_allow_main_sequence_survive = True      # Allow main sequence stars to survive CE. Was previously False by default
+    common_envelope_alpha_thermal = 1.0                         # lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
+    common_envelope_lambda_multiplier = 1.0                     # Multiply common envelope lambda by some constant
+    common_envelope_allow_main_sequence_survive = True          # Allow main sequence stars to survive CE. Was previously False by default
     common_envelope_mass_accretion_prescription = 'ZERO'
-    common_envelope_mass_accretion_min = 0.04           # For 'MACLEOD+2014' [Msol]
-    common_envelope_mass_accretion_max = 0.10           # For 'MACLEOD+2014' [Msol]
+    common_envelope_mass_accretion_min = 0.04                   # For 'MACLEOD+2014' [Msol]
+    common_envelope_mass_accretion_max = 0.10                   # For 'MACLEOD+2014' [Msol]
     envelope_state_prescription = 'LEGACY'
 
     mass_loss_prescription = 'VINK'
@@ -104,52 +127,52 @@ class pythonProgramOptions:
     angular_momentum_conservation_during_circularisation = False
     mass_transfer_angular_momentum_loss_prescription = 'ISOTROPIC'
     mass_transfer_accretion_efficiency_prescription = 'THERMAL'
-    mass_transfer_fa = 0.5  # Only if using mass_transfer_accretion_efficiency_prescription = 'FIXED'
-    mass_transfer_jloss = 1.0   # Only if using mass_transfer_angular_momentum_loss_prescription = 'FIXED'
+    mass_transfer_fa = 0.5                                      # Only if using mass_transfer_accretion_efficiency_prescription = 'FIXED'
+    mass_transfer_jloss = 1.0                                   # Only if using mass_transfer_angular_momentum_loss_prescription = 'FIXED'
     mass_transfer_rejuvenation_prescription = 'STARTRACK'
     mass_transfer_thermal_limit_accretor= 'CFACTOR'
     mass_transfer_thermal_limit_C= 10.0
-    eddington_accretion_factor = 1    #multiplication Factor for eddington accretion onto NS&BH
+    eddington_accretion_factor = 1                              # multiplication Factor for eddington accretion onto NS&BH
 
-    case_bb_stability_prescription = 'ALWAYS_STABLE'
+    case_BB_stability_prescription = 'ALWAYS_STABLE'
     zeta_Main_Sequence = 2.0
     zeta_Radiative_Envelope_Giant = 6.5
 
-    maximum_evolution_time = 13700.0                    # Maximum physical time a system can be evolved [Myrs]
+    maximum_evolution_time = 13700.0                            # Maximum physical time a system can be evolved [Myrs]
     maximum_number_timesteps = 99999
-    timestep_multiplier = 1.0				# Optional multiplier relative to default time step duration
+    timestep_multiplier = 1.0                                   # Optional multiplier relative to default time step duration
 
     initial_mass_function = 'KROUPA'
-    initial_mass_min = 5.0                              # Use 1.0 for LRNe, 5.0 for DCOs  [Msol]
-    initial_mass_max = 150.0                            # Stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
+    initial_mass_min = 5.0                                      # Use 1.0 for LRNe, 5.0 for DCOs  [Msol]
+    initial_mass_max = 150.0                                    # Stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
 
     initial_mass_power = 0.0
 
     semi_major_axis_distribution = 'FLATINLOG'
-    semi_major_axis_min = 0.01                          #  [AU]
-    semi_major_axis_max = 1000.0                        #  [AU]
+    semi_major_axis_min = 0.01                                  # [AU]
+    semi_major_axis_max = 1000.0                                # [AU]
 
     mass_ratio_distribution = 'FLAT'
     mass_ratio_min = 0.0
     mass_ratio_max = 1.0
 
-    minimum_secondary_mass = 0.1                        # Brown dwarf limit  [Msol]
+    minimum_secondary_mass = 0.1                                # Brown dwarf limit  [Msol]
 
     eccentricity_distribution = 'ZERO'
     eccentricity_min = 0.0
     eccentricity_max = 1.0
 
     pulsar_birth_magnetic_field_distribution = 'ZERO'
-    pulsar_birth_magnetic_field_min = 11.0              # [log10(B/G)]
-    pulsar_birth_magnetic_field_max = 13.0              # [log10(B/G)]
+    pulsar_birth_magnetic_field_min = 11.0                      # [log10(B/G)]
+    pulsar_birth_magnetic_field_max = 13.0                      # [log10(B/G)]
 
     pulsar_birth_spin_period_distribution = "ZERO"
-    pulsar_birth_spin_period_min = 10.0                 # [ms]
-    pulsar_birth_spin_period_max = 100.0                # [ms]
+    pulsar_birth_spin_period_min = 10.0                         # [ms]
+    pulsar_birth_spin_period_max = 100.0                        # [ms]
 
-    pulsar_magnetic_field_decay_timescale = 1000.0      # [Myrs]
-    pulsar_magnetic_field_decay_massscale = 0.025       # [Msol]
-    pulsar_minimum_magnetic_field = 8.0                 # [log10(B/G)]
+    pulsar_magnetic_field_decay_timescale = 1000.0              # [Myr]
+    pulsar_magnetic_field_decay_massscale = 0.025               # [Msol]
+    pulsar_minimum_magnetic_field = 8.0                         # [log10(B/G)]
 
     evolvePulsars = False
 
@@ -160,15 +183,15 @@ class pythonProgramOptions:
     orbital_period_min = 1.1
     orbital_period_max = 1000
 
-    remnant_mass_prescription = 'FRYER2012'
-    fryer_supernova_engine = 'DELAYED'
-    black_hole_kicks = 'FALLBACK'
+    remnant_mass_prescription   = 'FRYER2012'
+    fryer_supernova_engine      = 'DELAYED'
+    black_hole_kicks            = 'FALLBACK'
     kick_magnitude_distribution = 'MAXWELLIAN'
 
-    kick_magnitude_sigma_CCSN_NS = 265.0                 #  [km/s]
-    kick_magnitude_sigma_CCSN_BH = 265.0                 #  [km/s]
-    kick_magnitude_sigma_ECSN = 30.0                     #  [km/s]
-    kick_magnitude_sigma_USSN = 30.0                     #  [km/s]
+    kick_magnitude_sigma_CCSN_NS = 265.0                        #  [km/s]
+    kick_magnitude_sigma_CCSN_BH = 265.0                        #  [km/s]
+    kick_magnitude_sigma_ECSN    = 30.0                         #  [km/s]
+    kick_magnitude_sigma_USSN    = 30.0                         #  [km/s]
 
     fix_dimensionless_kick_magnitude = -1
     kick_direction = 'ISOTROPIC'
@@ -176,22 +199,41 @@ class pythonProgramOptions:
     kick_scaling_factor = 1.0
     kick_magnitude_maximum = -1.0
 
+    kick_magnitude_random   = None                              # (SSE) used to draw the kick magnitude for the star should it undergo a supernova event
+    kick_magnitude          = None                              # (SSE) (drawn) kick magnitude for the star should it undergo a supernova event [km/s]
+
+    kick_magnitude_random_1 = None                              # (BSE) used to draw the kick magnitude for the primary star should it undergo a supernova event
+    kick_magnitude_1        = None                              # (BSE) (drawn) kick magnitude for the primary star should it undergo a supernova event [km/s]
+    kick_theta_1            = None                              # (BSE) angle between the orbital plane and the 'z' axis of the supernova vector for the primary star should it undergo a supernova event [radians]
+    kick_phi_1              = None                              # (BSE) angle between 'x' and 'y', both in the orbital plane of the supernova vector, for the primary star should it undergo a supernova event [radians]
+    kick_mean_anomaly_1     = None                              # (BSE) mean anomaly at the instant of the supernova for the primary star should it undergo a supernova event - should be uniform in [0, 2pi) [radians]
+
+    kick_magnitude_random_2 = None                              # (BSE) used to draw the kick velocity for the secondary star should it undergo a supernova event
+    kick_magnitude_2        = None                              # (BSE) (drawn) kick magnitude for the secondary star should it undergo a supernova event [km/s]
+    kick_theta_2            = None                              # (BSE) angle between the orbital plane and the 'z' axis of the supernova vector for the secondary star should it undergo a supernova event [radians]
+    kick_phi_2              = None                              # (BSE) angle between 'x' and 'y', both in the orbital plane of the supernova vector, for the secondary star should it undergo a supernova event [radians]
+    kick_mean_anomaly_2     = None                              # (BSE) mean anomaly at the instant of the supernova for the secondary star should it undergo a supernova event - should be uniform in [0, 2pi) [radians]
+
+    muller_mandel_kick_multiplier_BH = 200.0                    # scaling prefactor for BH kicks when using the 'MULLERMANDEL' kick magnitude distribution
+    muller_mandel_kick_multiplier_NS = 400.0                    # scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution
+
     pair_instability_supernovae = True
-    PISN_lower_limit = 60.0                             # Minimum core mass for PISN [Msol]
-    PISN_upper_limit = 135.0                            # Maximum core mass for PISN [Msol]
+    PISN_lower_limit = 60.0                                     # Minimum core mass for PISN [Msol]
+    PISN_upper_limit = 135.0                                    # Maximum core mass for PISN [Msol]
+
     pulsation_pair_instability = True
-    PPI_lower_limit = 35.0                              # Minimum core mass for PPI [Msol]
-    PPI_upper_limit = 60.0                              # Maximum core mass for PPI [Msol]
+    PPI_lower_limit = 35.0                                      # Minimum core mass for PPI [Msol]
+    PPI_upper_limit = 60.0                                      # Maximum core mass for PPI [Msol]
 
     pulsational_pair_instability_prescription = 'MARCHANT'
 
     maximum_neutron_star_mass = 2.5  #  [Msol]
 
-    log_level         = 0
-    log_classes       = []
+    log_level           = 0
+    log_classes         = []
 
-    debug_level       = 0
-    debug_classes     = []
+    debug_level         = 0
+    debug_classes       = []
 
     logfile_definitions = None
 
@@ -203,26 +245,34 @@ class pythonProgramOptions:
     # set to None (e.g. logfile_BSE_supernovae = None) to use the default filename
     # set to a string (e.g. logfile_BSE_supernovae = 'mySNfilename') to use that string as the filename 
     # set to empty string (e.g. logfile_BSE_supernovae = '""') to disable logging for that file (the file will not be created)
+    #
+    # We don't really need the 'BSE' or 'SSE' prefixes any more - they were put there because
+    # prior to the implementation of the containing folder it was too hard to locate the files
+    # created by a COMPAS run - especially the detailed output files.  Now that the output
+    # files are created inside a containing folder for each run there is really no need for
+    # the prefixes - and if we don't have the prefixes we can share some of the options
+    # (e.g. specifying the supernovae filename doesn't need to have separate options for 
+    # SSE and BSE - we really just need one (we only ever run in one mode or the other))
+    #
+    # For now though, I'll leave them as is - we can change this when (if) we decide to
+    # drop the prefixes
 
-    logfile_BSE_common_envelopes = None
-    logfile_BSE_detailed_output = None
-    logfile_BSE_double_compact_objects = None
-    logfile_BSE_rlof_parameters = None
-    logfile_BSE_pulsar_evolution = None
-    logfile_BSE_supernovae = None
-    logfile_BSE_system_parameters = None
-    logfile_BSE_switch_log = None
-    logfile_SSE_parameters = None
-    logfile_SSE_supernova = None
-    logfile_SSE_switch_log = None
+    logfile_common_envelopes       = None
+    logfile_detailed_output        = None
+    logfile_double_compact_objects = None
+    logfile_rlof_parameters        = None
+    logfile_pulsar_evolution       = None
+    logfile_supernovae             = None
+    logfile_switch_log             = None
+    logfile_system_parameters      = None
 
     debug_to_file  = False
     errors_to_file = False
 
+
     def booleanChoices(self):
         booleanChoices = [
             self.enable_warnings,
-            self.single_star,
             self.use_mass_loss,
             self.mass_transfer,
             self.detailed_output,
@@ -240,8 +290,7 @@ class pythonProgramOptions:
             self.errors_to_file,
             self.allow_rlof_at_birth,
             self.allow_touching_at_birth,
-            self.BSEswitchLog,
-            self.SSEswitchLog
+            self.switch_log
         ]
 
         return booleanChoices
@@ -249,15 +298,14 @@ class pythonProgramOptions:
     def booleanCommands(self):
         booleanCommands = [
             '--enable-warnings',
-            '--single-star',
             '--use-mass-loss',
-            '--massTransfer',
-            '--detailedOutput',
+            '--mass-transfer',
+            '--detailed-output',
             '--evolve-unbound-systems',
-            '--populationDataPrinting',
-            '--RLOFPrinting',
-            '--circulariseBinaryDuringMassTransfer',
-            '--angularMomentumConservationDuringCircularisation',
+            '--population-data-printing',
+            '--rlof-printing',
+            '--circularise-binary-during-mass-transfer',
+            '--angular-momentum-conservation-during-circularisation',
             '--pair-instability-supernovae',
             '--pulsational-pair-instability',
             '--quiet',
@@ -267,15 +315,19 @@ class pythonProgramOptions:
             '--errors-to-file',
             '--allow-rlof-at-birth',
             '--allow-touching-at-birth',
-            '--BSEswitchLog',
-            '--SSEswitchLog'
+            '--switch-log'
         ]
 
         return booleanCommands
 
     def numericalChoices(self):
         numericalChoices = [
-            self.number_of_binaries,
+            self.number_of_systems,
+            self.initial_mass,
+            self.initial_mass_1,
+            self.initial_mass_2,
+            self.eccentricity,
+            self.semi_major_axis,
             self.metallicity,
             self.common_envelope_alpha,
             self.common_envelope_lambda,
@@ -330,22 +382,38 @@ class pythonProgramOptions:
             self.zeta_Main_Sequence,
             self.zeta_Radiative_Envelope_Giant,
             self.kick_magnitude_maximum,
+            self.kick_magnitude_random,
+            self.kick_magnitude,
+            self.kick_magnitude_random_1,
+            self.kick_magnitude_1,
+            self.kick_theta_1,
+            self.kick_phi_1,
+            self.kick_mean_anomaly_1,
+            self.kick_magnitude_random_2,
+            self.kick_magnitude_2,
+            self.kick_theta_2,
+            self.kick_phi_2,
+            self.kick_mean_anomaly_2,
+            self.muller_mandel_kick_multiplier_BH,
+            self.muller_mandel_kick_multiplier_NS,
             self.log_level,
-            self.debug_level,
-            self.single_star_mass_steps,
-            self.single_star_mass_min,
-            self.single_star_mass_max
+            self.debug_level
         ]
 
         return numericalChoices
 
     def numericalCommands(self):
         numericalCommands = [
-            '--number-of-binaries',
+            '--number-of-systems',
+            '--initial-mass',
+            '--initial-mass-1',
+            '--initial-mass-2',
+            '--eccentricity',
+            '--semi-major-axis',
             '--metallicity',
             '--common-envelope-alpha',
             '--common-envelope-lambda',
-            '--common-envelope-slope-Kruckow',
+            '--common-envelope-slope-kruckow',
             '--common-envelope-alpha-thermal',
             '--common-envelope-lambda-multiplier',
             '--luminous-blue-variable-multiplier',
@@ -381,32 +449,45 @@ class pythonProgramOptions:
             '--random-seed',
             '--mass-transfer-thermal-limit-C',
             '--eddington-accretion-factor',
-            '--PISN-lower-limit',
-            '--PISN-upper-limit','--PPI-lower-limit',
-            '--PPI-upper-limit',
+            '--pisn-lower-limit',
+            '--pisn-upper-limit',
+            '--ppi-lower-limit',
+            '--ppi-upper-limit',
             '--maximum-neutron-star-mass',
             '--kick-magnitude-sigma-ECSN',
             '--kick-magnitude-sigma-USSN',
             '--kick-scaling-factor',
-            '--maximum-mass-donor-Nandez-Ivanova',
+            '--maximum-mass-donor-nandez-ivanova',
             '--common-envelope-recombination-energy-density',
             '--common-envelope-mass-accretion-max',
             '--common-envelope-mass-accretion-min',
             '--zeta-main-sequence',
             '--zeta-radiative-envelope-giant',
             '--kick-magnitude-max',
+            '--kick-magnitude-random',
+            '--kick-magnitude',
+            '--kick-magnitude-random-1',
+            '--kick-magnitude-1',
+            '--kick-theta-1',
+            '--kick-phi-1',
+            '--kick-mean-anomaly-1',
+            '--kick-magnitude-random-2',
+            '--kick-magnitude-2',
+            '--kick-theta-2',
+            '--kick-phi-2',
+            '--kick-mean-anomaly-2',
+            '--muller-mandel-kick-multiplier-BH',
+            '--muller-mandel-kick-multiplier-NS',
             '--log-level',
-            '--debug-level',
-            '--single-star-mass-steps',
-            '--single-star-mass-min',
-            '--single-star-mass-max'
+            '--debug-level'
         ]
 
         return numericalCommands
 
     def stringChoices(self):
         stringChoices = [
-            self.case_bb_stability_prescription,
+            self.mode,
+            self.case_BB_stability_prescription,
             self.chemically_homogeneous_evolution,
             self.mass_loss_prescription,
             self.mass_transfer_angular_momentum_loss_prescription,
@@ -437,24 +518,22 @@ class pythonProgramOptions:
             self.logfile_delimiter,
             self.logfile_definitions,
             self.grid_filename,
-            self.logfile_BSE_common_envelopes,
-            self.logfile_BSE_detailed_output,
-            self.logfile_BSE_double_compact_objects,
-            self.logfile_BSE_pulsar_evolution,
-            self.logfile_BSE_rlof_parameters,
-            self.logfile_BSE_supernovae,
-            self.logfile_BSE_system_parameters,
-            self.logfile_BSE_switch_log,
-            self.logfile_SSE_parameters,
-            self.logfile_SSE_supernova,
-            self.logfile_SSE_switch_log
+            self.logfile_common_envelopes,
+            self.logfile_detailed_output,
+            self.logfile_double_compact_objects,
+            self.logfile_pulsar_evolution,
+            self.logfile_rlof_parameters,
+            self.logfile_supernovae,
+            self.logfile_switch_log,
+            self.logfile_system_parameters
         ]
 
         return stringChoices
 
     def stringCommands(self):
         stringCommands = [
-            '--case-bb-stability-prescription',
+            '--mode',
+            '--case-BB-stability-prescription',
             '--chemically-homogeneous-evolution',
             '--mass-loss-prescription',
             '--mass-transfer-angular-momentum-loss-prescription',
@@ -470,7 +549,7 @@ class pythonProgramOptions:
             '--black-hole-kicks',
             '--kick-magnitude-distribution',
             '--kick-direction',
-            '--outputPath',
+            '--output-path',
             '--output-container',
             '--common-envelope-lambda-prescription',
             '--stellar-zeta-prescription',
@@ -485,17 +564,14 @@ class pythonProgramOptions:
             '--logfile-delimiter',
             '--logfile-definitions',
             '--grid',
-            '--logfile-BSE-common-envelopes',
-            '--logfile-BSE-detailed-output',
-            '--logfile-BSE-double-compact-objects',
-            '--logfile-BSE-pulsar-evolution',
-            '--logfile-BSE-rlof-parameters',
-            '--logfile-BSE-supernovae',
-            '--logfile-BSE-system-parameters',
-            '--logfile-BSE-switch-log',
-            '--logfile-SSE-parameters',
-            '--logfile-SSE-supernova',
-            '--logfile-SSE-switch-log',
+            '--logfile-common-envelopes',
+            '--logfile-detailed-output',
+            '--logfile-double-compact-objects',
+            '--logfile-pulsar-evolution',
+            '--logfile-rlof-parameters',
+            '--logfile-supernovae',
+            '--logfile-switch-log',
+            '--logfile-system-parameters'
         ]
 
         return stringCommands

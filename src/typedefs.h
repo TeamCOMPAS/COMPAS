@@ -10,7 +10,15 @@ typedef std::tuple<bool, COMPAS_VARIABLE_TYPE>                                  
 typedef std::initializer_list<STELLAR_TYPE>                                         STELLAR_TYPE_LIST;
 typedef std::initializer_list<SN_EVENT>                                             SN_EVENT_LIST;
 typedef std::tuple<int, std::string, ANY_PROPERTY_VECTOR, std::vector<std::string>> LOGFILE_DETAILS;
+typedef std::vector<STELLAR_TYPE>                                                   STYPE_VECTOR;
 
+
+// Grid file details
+typedef struct Gridfile {
+    std::string   filename;                                 // filename for grid file
+    ERROR         error;                                    // status - ERROR::NONE if no problem, otherwise an error number
+    std::ifstream handle;                                   // the file handle
+} GridfileT;
 
 
 // RotationalVelocityParams struct for gsl root solver
@@ -26,51 +34,41 @@ struct KickMagnitudeParams {
 };
 
 
-// KickParameters struct for both SSE and BSE grid file parameters
-
-typedef struct KickParameters {
-    bool   supplied;
-    bool   useMagnitudeRandom;
-    double magnitudeRandom;
-    double magnitude;
-    double theta;                   // only used for BSE
-    double phi;                     // only used for BSE
-    double meanAnomaly;             // only used for BSE
-} KickParameters;
-
-
-// struct for SSE grid file parameters
-
-typedef struct SSEGridParameters {
-    double mass;
-    double metallicity;
-
-    KickParameters kickParameters;
- } SSEGridParameters;
-
-
-// structs for binary stars and BSE grid file parameters
-
-typedef struct BSEGridParameters {
-    double mass1;
-    double mass2;
-    double metallicity1; 
-    double metallicity2;
-    double separation;
-    double eccentricity;
-
-    KickParameters star1KickParameters;
-    KickParameters star2KickParameters;
-} BSEGridParameters;
-
-
 // struct for supernova events:
-// CCSN, ECSN, PISN, PPSIN, USSN, RUNAWAY, RECYCLED_NS, RLOF_ONTO_NS
+// CCSN, ECSN, PISN, PPSIN, USSN
 
 typedef struct SNEvents {
     SN_EVENT current;                                       // Supernova event at the current timestep: NONE if no supernova event happening
     SN_EVENT past;                                          // Supernova event at any past timestep   : NONE if no supernova event happened in any past timestep
 } SNEventsT;
+
+
+// supernova kick struct for both SSE and BSE options
+//
+// some of these are only required for binary stars, but
+// easier (and more logical I think (for now, anyway) to
+// keep all SN-related attributes in the same place
+//
+// we need to know if these values were actually specified
+// by the user via options - hence the boolean values
+
+typedef struct KickParameters {
+    bool   magnitudeRandomSpecified;                        // SSE and BSE
+    double magnitudeRandom;                                 // SSE and BSE
+
+    bool   magnitudeSpecified;                              // SSE and BSE
+    double magnitude;                                       // SSE and BSE
+
+    bool   phiSpecified;                                    // BSE only
+    double phi;                                             // BSE only
+
+    bool   thetaSpecified;                                  // BSE only
+    double theta;                                           // BSE only
+
+    bool   meanAnomalySpecified;                            // BSE only
+    double meanAnomaly;                                     // BSE only
+} KickParameters;
+
 
 // struct for supernova attributes of the base star
 // some of these are only required for binary stars, but
@@ -231,7 +229,6 @@ typedef struct BinaryCEDetails {                            // Common Envelope d
     BinaryCEESavedValuesT preCEE;
     BinaryCEESavedValuesT postCEE;
 
-    double                alpha;                            // Common Envelope efficiency alpha parameter
     bool                  CEEnow;                           // Indicates whether a common envelope event is occurring now
     unsigned int          CEEcount;                         // Common Envelope Event count
     bool                  doubleCoreCE;

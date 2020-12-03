@@ -12,9 +12,7 @@ Following is the list of binary properties available for inclusion in log file r
 
 \subsection{Binary Properties}\label{sec:BinaryProperties}
 
-\binaryProperty{CIRCULARIZATION\_TIMESCALE}{DOUBLE}{BaseBinaryStar::m\_CEDetails.alpha}{Tidal circularisation timescale~(Myr)}{Tau\_Circ}{}
-
-\binaryProperty{COMMON\_ENVELOPE\_ALPHA}{DOUBLE}{BaseBinaryStar::m\_CircularizationTimescale}{Common envelope alpha (efficiency) parameter. User-supplied via command line option \textit{\texttt{-{}-}common-envelope-alpha}.}{CE\_Alpha}{}
+\binaryProperty{CIRCULARIZATION\_TIMESCALE}{DOUBLE}{BaseBinaryStar::m\_CircularizationTimescale}{Tidal circularisation timescale~(Myr)}{Tau\_Circ}{}
 
 \binaryProperty{COMMON\_ENVELOPE\_AT\_LEAST\_ONCE}{BOOL}{\textit{derived from }BaseBinaryStar::m\_CEDetails.CEEcount}{Flag to indicate if there has been at least one common envelope event.}{CEE}{RLOF\_CURRENT\_COMMON\_ENVELOPE}
 
@@ -43,8 +41,6 @@ Following is the list of binary properties available for inclusion in log file r
 \binaryProperty{ID}{INT}{BaseBinaryStar::m\_ObjectId}{Unique object identifier for C++ object -- used in debugging to identify objects.}{ID}{ANY\_STAR\_PROPERTY::ID \& RLOF\_CURRENT\_ID}
 
 \binaryProperty{IMMEDIATE\_RLOF\_POST\_COMMON\_ENVELOPE}{BOOL}{BaseBinaryStar::m\_RLOFDetails.immediateRLOFPostCEE}{Flag to indicate if either star overflows its Roche lobe immediately following common envelope event.}{Immediate\_RLOF$>$CE}{}
-
-\binaryProperty{LUMINOUS\_BLUE\_VARIABLE\_FACTOR}{DOUBLE}{BaseBinaryStar::m\_LBVfactor}{Luminous blue variable wind mass loss multiplier. User-supplied via option \textit{\texttt{-{}-}luminous-blue-variable-multiplier}.}{LBV\_Multiplier}{}
 
 \binaryProperty{MASS\_1\_FINAL}{DOUBLE}{BaseBinaryStar::m\_Mass1Final}{Mass of the primary star after losing its envelope (assumes complete loss of envelope)~(\Msun).}{Core\_Mass\_1}{}
 
@@ -104,7 +100,7 @@ Following is the list of binary properties available for inclusion in log file r
 
 \binaryProperty{RLOF\_CURRENT\_EVENT\_COUNTER}{UNSIGNED INT}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$eventCounter}{The number of times the binary has overflowed its Roche lobe up to and including this episode}{Event\_Counter}{}
 
-\binaryProperty{RLOF\_CURRENT\_SEMI\_MAJOR\_AXIS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$semiMajorAxis}{Semi-major Axis(\Rsun) immediately after RLOF.}{SemiMajorAxis}{SEMI\_MAJOR\_AXIS, SEMI\_MAJOR\_AXIS\_RSOL \& ANY\_STAR\_PROPERTY::SEED}
+\binaryProperty{RLOF\_CURRENT\_SEMI\_MAJOR\_AXIS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$semiMajorAxis}{Semi-major Axis(\Rsun) immediately after RLOF.}{SemiMajorAxis}{SEMI\_MAJOR\_AXIS, SEMI\_MAJOR\_AXIS\_RSOL}
 
 \binaryProperty{RLOF\_CURRENT\_STAR1\_MASS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.currentProps$\rightarrow$mass1}{Mass (\Msun) of the primary immediately after RLOF.}{Mass\_1}{ANY\_STAR\_PROPERTY::MASS (Star 1)}
 
@@ -128,7 +124,7 @@ Following is the list of binary properties available for inclusion in log file r
 
 \binaryProperty{RLOF\_PREVIOUS\_EVENT\_COUNTER}{UNSIGNED INT}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$eventCounter}{The number of times the binary has overflowed its Roche lobe up to and excluding this episode}{Event\_Counter\_Prev}{}
 
-\binaryProperty{RLOF\_PREVIOUS\_SEMI\_MAJOR\_AXIS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$semiMajorAxis}{Semi-major Axis (\Rsun) at the onset of RLOF.}{SemiMajorAxis\_Prev}{SEMI\_MAJOR\_AXIS, SEMI\_MAJOR\_AXIS\_RSOL \& ANY\_STAR\_PROPERTY::SEED}
+\binaryProperty{RLOF\_PREVIOUS\_SEMI\_MAJOR\_AXIS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$semiMajorAxis}{Semi-major Axis (\Rsun) at the onset of RLOF.}{SemiMajorAxis\_Prev}{SEMI\_MAJOR\_AXIS, SEMI\_MAJOR\_AXIS\_RSOL}
 
 \binaryProperty{RLOF\_PREVIOUS\_STAR1\_MASS}{DOUBLE}{BaseBinaryStar::m\_RLOFDetails.previousProps$\rightarrow$mass1}{Mass (\Msun) of the primary at the onset of RLOF.}{Mass\_1\_Prev}{}
 
@@ -165,19 +161,17 @@ Following is the list of binary properties available for inclusion in log file r
 
 \binaryProperty{ROCHE\_LOBE\_TRACKER\_2}{DOUBLE}{BinaryConstituentStar::m\_RocheLobeTracker}{Ratio of the secondary star's stellar radius to Roche radius~(R/RL), evaluated at periapsis.}{Radius\_2/RL}{}
 
-\binaryProperty{SECONDARY\_TOO\_SMALL\_FOR\_DCO}{BOOL}{BaseBinaryStar::m\_SecondaryTooSmallForDCO}{Flag to indicate that the secondary star was born too small for the binary to evolve into a DCO.}{Secondary$<<$DCO}{}
-
 \binaryProperty{SEMI\_MAJOR\_AXIS\_AT\_DCO\_FORMATION}{DOUBLE}{BaseBinaryStar::m\_SemiMajorAxisAtDCOFormation}{Semi-major axis at DCO formation~(AU).}{Separation@DCO}{}
 
 \binaryProperty{SEMI\_MAJOR\_AXIS\_INITIAL}{DOUBLE}{BaseBinaryStar::m\_SemiMajorAxisInitial}{Semi-major axis at ZAMS~(AU).}{Separation@ZAMS}{}
 
-\binaryProperty{SEMI\_MAJOR\_AXIS\_POST\_COMMON\_ENVELOPE}{DOUBLE}{BaseBinaryStar::m\_CEDetails.postCEE.semiMajorAxis}{Semi-major axis immediately following common envelope event~(AU).}{Separation$>$CE}{}
+\binaryProperty{SEMI\_MAJOR\_AXIS\_POST\_COMMON\_ENVELOPE}{DOUBLE}{BaseBinaryStar::m\_CEDetails.postCEE.semiMajorAxis}{Semi-major axis immediately following common envelope event~(\Rsun).}{Separation$>$CE}{}
 
 \binaryProperty{SEMI\_MAJOR\_AXIS\_PRE\_SUPERNOVA}{DOUBLE}{BaseBinaryStar::m\_SemiMajorAxisPreSN}{Semi-major axis immediately prior to supernova event~(AU).}{Separation$<$SN}{SEMI\_MAJOR\_AXIS\_PRE\_SUPERNOVA\_RSOL}
 
 \binaryProperty{SEMI\_MAJOR\_AXIS\_PRE\_SUPERNOVA\_RSOL}{DOUBLE}{\textit{derived from }BaseBinaryStar::m\_SemiMajorAxisPreSN}{Semi-major axis immediately prior to supernova event~(\Rsun).}{Separation$<$SN}{SEMI\_MAJOR\_AXIS\_PRE\_SUPERNOVA}
 
-\binaryProperty{SEMI\_MAJOR\_AXIS\_PRE\_COMMON\_ENVELOPE}{DOUBLE}{BaseBinaryStar::m\_CEDetails.preCEE.semiMajorAxis}{Semi-major axis at the onset of RLOF leading to the common-envelope episode~(AU).}{Separation$<$CE}{}
+\binaryProperty{SEMI\_MAJOR\_AXIS\_PRE\_COMMON\_ENVELOPE}{DOUBLE}{BaseBinaryStar::m\_CEDetails.preCEE.semiMajorAxis}{Semi-major axis at the onset of RLOF leading to the common-envelope episode~(\Rsun).}{Separation$<$CE}{}
 
 \binaryProperty{SEMI\_MAJOR\_AXIS}{DOUBLE}{BaseBinaryStar::m\_SemiMajorAxis}{Semi-major axis at ZAMS~(AU).}{Separation@ZAMS}{SEMI\_MAJOR\_AXIS\_RSOL}
 
@@ -219,7 +213,7 @@ Following is the list of binary properties available for inclusion in log file r
 
 \binaryProperty{SYNCHRONIZATION\_TIMESCALE}{DOUBLE}{BaseBinaryStar::m\_SynchronizationTimescale}{Tidal synchronisation timescale~(Myr).}{Tau\_Sync}{}
 
-\binaryProperty{SYSTEMIC\_VELOCITY}{DOUBLE}{BaseBinaryStar::m\_SystemicVelocity}{Post-supernova systemic (centre-of-mass) velocity~(km~s$^{\minus{1}}$).}{Systemic\_Velocity}{}
+\binaryProperty{SYSTEMIC\_SPEED}{DOUBLE}{BaseBinaryStar::m\_SystemicVelocity}{Post-supernova systemic (centre-of-mass) velocity~(km~s$^{\minus{1}}$).}{Systemic\_Velocity}{}
 
 \binaryProperty{TIME}{DOUBLE}{BaseBinaryStar::m\_Time}{Time since ZAMS~(Myr).}{Time}{}
 
@@ -230,8 +224,6 @@ Following is the list of binary properties available for inclusion in log file r
 \binaryProperty{TOTAL\_ENERGY}{DOUBLE}{BaseBinaryStar::m\_TotalEnergy}{Total energy calculated using regular conservation of energy~(Msol~AU$^2$~yr$^{\minus{1}}$).}{Energy\_Total}{}
 
 \binaryProperty{UNBOUND}{BOOL}{BaseBinaryStar::m\_Unbound}{Flag to indicate the binary is unbound (or has become unbound after a supernova event).}{Unbound}{}
-
-\binaryProperty{WOLF\_RAYET\_FACTOR}{DOUBLE}{BaseBinaryStar::m\_WolfRayetFactor}{Multiplicative constant for Wolf-Rayet mass loss rate. User-supplied via option \textit{\texttt{-{}-}wolf-rayet-multiplier}.}{WR\_Multiplier}{}
 
 \binaryProperty{ZETA\_LOBE}{DOUBLE}{BaseBinaryStar::m\_ZetaLobe}{The logarithmic derivative of Roche lobe radius with respect to donor mass for q$=\frac{\mathrm{Md}}{\mathrm{Ma}}$ at the onset of the RLOF.}{Zeta\_Lobe}{}
 

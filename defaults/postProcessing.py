@@ -356,6 +356,8 @@ def addHdf5HeadersAndAttributes(hf,  group, filePath):
             dtypes.append(np.float64)
         elif dataType == 'BOOL':
             dtypes.append(bool)
+        elif dataType == 'STRING':
+            dtypes.append(h5.string_dtype(encoding='utf-8'))
         else:
             raise ValueError("Unrecognised datatype dataType=%s - for column %s in file%s "\
                              %(dataType, params[iType], group))
@@ -466,7 +468,7 @@ def printH5Columns(dataRootDir='./', h5Name="COMPAS_output.h5"):
     if not os.path.isfile(h5data):
         raise ValueError("h5 file not found. Wrong path given?")
     else:
-        Data = h5.File(h5data)
+        Data = h5.File(h5data, 'r')
 
     Files = Data.keys()
 

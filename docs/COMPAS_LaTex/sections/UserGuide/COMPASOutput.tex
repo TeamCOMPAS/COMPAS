@@ -5,27 +5,22 @@ Summary and status information during the evolution of stars is written to stdou
 
 Detailed information is written to log files (described below).  All COMPAS output files are created inside a container directory, specified by the \textit{\texttt{-{}-}output-container} program option.
 
-For SSE, SSE Parameters output log files, and SSE Switch log files if they are created (see the \textit{\texttt{-{}-}SSEswitchLog} program option), will be created inside a containing directory named `Detailed\_Output' within the COMPAS output container directory.
+If Detailed Output log files (see the \textit{\texttt{-{}-}detailed-output} program option) are created, they will be created inside a containing directory named `Detailed\_Output' within the COMPAS output container directory.
 
-For BSE, if BSE Detailed Output log files (see the \textit{\texttt{-{}-}detailedOutput} program option), or BSE Switch log files (see the \textit{\texttt{-{}-}BSEswitchLog} program option), are created, they will be created inside a containing directory named `Detailed\_Output' within the COMPAS output container directory.
-
-Also created in the COMPAS container directory is a file named `Run\_Details' in which COMPAS records some details of the run (COMPAS version, start time, program option values etc.).
+Also created in the COMPAS container directory is a file named `Run\_Details' in which COMPAS records some details of the run (COMPAS version, start time, program option values etc.). Note that the option values recorded in the Run details file are the values specified on the commandline, not the values specified in a grid file (if used).
 
 COMPAS defines several standard log files that may be produced depending upon the simulation type (Single Star Evolution (SSE), or Binary Star Evolution (BSE), and the value of various program options. The standard log files are:
 
 \begin{itemize}
 \itemsep0pt
-\item{SSE Parameters log file \\ Records detailed information for a star during SSE.}
-\item{SSE Switch log file \\ Records detailed information for a star at the time of each stellar type switch during SSE. Enable with program option \textit{\texttt{-{}-{SSEswitchLog}}}.}
-\item{SSE Supernova log file \\ Records summary information for all stars that experience a SN event during SSE.}
-\item{BSE System Parameters log file \\ Records summary information for all binary systems during BSE.}
-\item{BSE Switch log file \\ Records detailed information for a star at the time of each stellar type switch during BSE. Enable with program option \textit{\texttt{-{}-{BSEswitchLog}}}.}
-\item{BSE Detailed Output log file \\ Records detailed information for a star during BSE. Enable with program option \textit{\texttt{-{}-{detailedOutput}}}.}
-\item{BSE Double Compact Objects log file \\ Records summary information for all binary systems that form DCOs during BSE.}
-\item{BSE Common Envelopes log file \\ Records summary information for all binary systems that experience CEEs during BSE.}
-\item{BSE Supernovae log file \\ Records summary information for all binary systems that have one or more constituent stars experience a SN event during BSE.}
-\item{BSE Pulsar Evolution log file \\ Records detailed Pulsar evolution information during BSE.}
-\item{BSE RLOF file \\ Records detailed information RLOF events during BSE. Enable with program option \textit{\texttt{-{}-{RLOFPrinting}}}.}
+\item{Detailed Output log file \\ Records detailed information for a star, or binary star, during evolution. Enable with program option \textit{\texttt{-{}-{detailed-output}}}.}
+\item{SwitchLog log file \\ Records detailed information for all stars, or binary stars, at the time of each stellar type switch during evolution. Enable with program option \textit{\texttt{-{}-{switch-log}}}.}
+\item{Supernovae log file \\ Records summary information for all stars that experience a SN event during evolution.}
+\item{System Parameters log file \\ Records summary information for all stars, or binary stars, during evolution.}
+\item{Double Compact Objects log file \\ Records summary information for all binary systems that form DCOs during BSE.}
+\item{Common Envelopes log file \\ Records summary information for all binary systems that experience CEEs during BSE.}
+\item{Pulsar Evolution log file \\ Records detailed Pulsar evolution information during BSE.}
+\item{RLOF file \\ Records detailed information RLOF events during BSE. Enable with program option \textit{\texttt{-{}-{rlof-printing}}}.}
 \end{itemize}
 
 \newpage
@@ -86,8 +81,9 @@ Logfile Definitions File specification:
 
     \lab{rec\_spec}\rab\tabto{7em}{::=}\tabto{9em}\lab{rec\_name}\rab\ \lab{op}\rab\ "\lcb"\ \lcb\ \lsb\ \lab{props\_list}\rab\ \rsb\ \rcb\ "\ \rcb"\ \lab{spec\_delim}\rab
 
-    \lab{rec\_name}\rab\tabto{7em}{::=}\tabto{9em}"SSE\_PARMS\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# SSE only} \\
-    \tabto{9em}"SSE\_SN\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# SSE only} \\
+    \lab{rec\_name}\rab\tabto{7em}{::=}\tabto{9em}"SSE\_SYSPARMS\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# SSE only} \\
+    \tabto{9em}"SSE\_DETAILED\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# SSE only} \\
+    \tabto{9em}"SSE\_SNE\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# SSE only} \\
     \tabto{9em}"SSE\_SWITCH\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# SSE only} \\
     \tabto{9em}"BSE\_SYSPARMS\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# BSE only} \\
     \tabto{9em}"BSE\_SWITCH\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# BSE only} \\       \tabto{9em}"BSE\_DCO\_REC"\tabto{23em}\textbar\tabto{28em}\textit{\# BSE only} \\

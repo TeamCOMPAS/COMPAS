@@ -23,9 +23,7 @@ public:
     BaseStar(const unsigned long int p_RandomSeed, 
              const double            p_MZAMS, 
              const double            p_Metallicity, 
-             const KickParameters    p_KickParameters,
-             const double            p_LBVfactor = 0.0, 
-             const double            p_WolfRayetFactor = 0.0);
+             const KickParameters    p_KickParameters);
 
     virtual ~BaseStar() {}
 
@@ -56,9 +54,6 @@ public:
             bool                ExperiencedECSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::ECSN) == SN_EVENT::ECSN; }
             bool                ExperiencedPISN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::PISN) == SN_EVENT::PISN; }
             bool                ExperiencedPPISN() const                                        { return (m_SupernovaDetails.events.past & SN_EVENT::PPISN) == SN_EVENT::PPISN; }
-            bool                ExperiencedRecycledNS() const                                   { return (m_SupernovaDetails.events.past & SN_EVENT::RECYCLED_NS) == SN_EVENT::RECYCLED_NS; }
-            bool                ExperiencedRLOFOntoNS() const                                   { return (m_SupernovaDetails.events.past & SN_EVENT::RLOF_ONTO_NS) == SN_EVENT::RLOF_ONTO_NS; }
-            bool                ExperiencedRunaway() const                                      { return (m_SupernovaDetails.events.past & SN_EVENT::RUNAWAY) == SN_EVENT::RUNAWAY; }
             SN_EVENT            ExperiencedSN_Type() const                                      { return utils::SNEventType(m_SupernovaDetails.events.past); }
             bool                ExperiencedUSSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::USSN) == SN_EVENT::USSN; }
             double              HeCoreMass() const                                              { return m_HeCoreMass; }
@@ -84,6 +79,8 @@ public:
             double              Mass() const                                                    { return m_Mass; }
             double              Mass0() const                                                   { return m_Mass0; }
             double              MassPrev() const                                                { return m_MassPrev; }
+            STYPE_VECTOR          MassTransferDonorHistory() const                                { return m_MassTransferDonorHistory; }
+            std::string         MassTransferDonorHistoryString() const;
             double              Mdot() const                                                    { return m_Mdot; }
             double              Metallicity() const                                             { return m_Metallicity; }
             double              MZAMS() const                                                   { return m_MZAMS; }
@@ -134,6 +131,9 @@ public:
             void                SetSNPastEvent(const SN_EVENT p_SNEvent)                        { m_SupernovaDetails.events.past |= p_SNEvent; }                                    // Set supernova primary event/state for any past timestep
             
             void                UpdateComponentVelocity(const Vector3d p_newVelocity);	
+
+            void                UpdateMassTransferDonorHistory();
+
 
 
 
@@ -188,8 +188,6 @@ public:
 
     virtual double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription) { return 0.0; }                                                                                     // Use inheritance hierarchy
 
-    virtual void            CheckRunaway(const bool p_Unbound)                                                  { if (p_Unbound) SetSNPastEvent(SN_EVENT::RUNAWAY); }
-
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
 
     virtual ENVELOPE        DetermineEnvelopeType()                                                             { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
@@ -197,11 +195,6 @@ public:
     virtual MT_CASE         DetermineMassTransferCase() { return MT_CASE::NONE; }                                                                                                   // Use inheritance hierarchy
 
             void            IncrementOmega(const double p_OmegaDelta)                                           { m_Omega += p_OmegaDelta; }                                        // Apply delta to current m_Omega
-
-            void            PrintParameters(const int p_Id)                                                     { LOGGING->LogSSEParameters(this, p_Id, ""); }                      // Write record to SSE Parameters log file
-            void            PrintSupernovaDetails()                                                             { LOGGING->LogSSESupernovaDetails(this, ""); }                      // Write record to SSE Supernova log file
-            void            PrintStashedSupernovaDetails()                                                      { LOGGING->LogStashedSSESupernovaDetails(this); }                      // Write record to SSE Supernova log file
-            void            PrintSwitchLog(const long int p_Id)                                                 { if (OPTIONS->SSESwitchLog()) LOGGING->LogSSESwitchLog(this, p_Id, ""); }
 
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative
 
@@ -225,10 +218,17 @@ public:
     virtual void            UpdateInitialMass() { }                                                                                                                                 // Default is NO-OP
 
     virtual void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
+                                                       const bool   p_RecyclesNS,
                                                        const double p_Stepsize,
                                                        const double p_MassGainPerTimeStep,
                                                        const double p_Epsilon) { }                                                                                                  // Default is NO-OP
 
+    // printing functions
+            void            PrintDetailedOutput(const int p_Id)                                                 { if (OPTIONS->DetailedOutput()) LOGGING->LogSSEDetailedOutput(this, p_Id, ""); } // Write record to SSE Detailed Output log file
+            void            PrintSupernovaDetails()                                                             { LOGGING->LogSSESupernovaDetails(this, ""); }                      // Write record to SSE Supernovae log file
+            void            PrintStashedSupernovaDetails()                                                      { LOGGING->LogStashedSSESupernovaDetails(this); }                   // Write record to SSE Supernovae log file
+            void            PrintSwitchLog(const long int p_Id)                                                 { if (OPTIONS->SwitchLog()) LOGGING->LogSSESwitchLog(this, p_Id, ""); } // Write record to SSE Switchlog log file
+            void            PrintSystemParameters(const string p_Rec = "")                                      { LOGGING->LogSSESystemParameters(this, p_Rec); }                   // Write record to SSE System Parameters file
 
 protected:
 
@@ -243,10 +243,8 @@ protected:
 
     bool                    m_CHE;                                      // CHE flag - true if the star spent entire MS as a CH star; false if evolved CH->MS
 
-    // Stellar variables - values passed as parameters to constructor
-    double                  m_LBVfactor;                                // Luminous Blue Variable factor
+    // Stellar variables
     unsigned long int       m_RandomSeed;                               // Seeds the random number generator for this star
-    double                  m_WolfRayetFactor;                          // Wolf Rayet factor
 
     // Zero Age Main Sequence
     double                  m_LZAMS;                                    // ZAMS Luminosity
@@ -343,6 +341,9 @@ protected:
     // Star vector velocity 
 	Vector3d                m_ComponentVelocity; 	                    // Isolated star velocity vector (binary's center-of-mass velocity for bound binary)
 
+    // Star mass transfer history 
+    STYPE_VECTOR              m_MassTransferDonorHistory;             // List of MT donor stellar types - mostly relevent for binary stars
+
     // member functions - alphabetically
             void            AgeOneTimestepPreamble(const double p_DeltaTime);
 
@@ -413,8 +414,9 @@ protected:
     virtual double          CalculateMassLossRate();
     virtual double          CalculateMassLossRateHurley();
             double          CalculateMassLossRateKudritzkiReimers();
-            double          CalculateMassLossRateLBV();
-            double          CalculateMassLossRateLBV2(const double p_Flbv);
+            double          CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_prescription);
+            double          CalculateMassLossRateLBVHurley(const double p_HD_limit_fac);
+            double          CalculateMassLossRateLBVBelczynski();
             double          CalculateMassLossRateNieuwenhuijzenDeJager();
             double          CalculateMassLossRateOB(const double p_Teff);
             double          CalculateMassLossRateVassiliadisWood();
@@ -482,8 +484,6 @@ protected:
 
     virtual double          ChooseTimestep(const double p_Time)                                                 { return m_Dt; }
 
-            DBL_DBL         DrawKickDirection();
-
             double          DrawKickMagnitudeBrayEldridge(const double p_EjectaMass,
                                                          const double p_RemnantMass,
                                                          const double p_Alpha,
@@ -519,7 +519,7 @@ protected:
     /*
      * Perturb Luminosity and Radius
      *
-     * See Hurley at al. 2000, section 6.3
+     * See Hurley et al. 2000, section 6.3
      *
      * The default is no perturbation - this function does nothing and is called
      * only if the stellar class doesn't define its own perturbation function.
