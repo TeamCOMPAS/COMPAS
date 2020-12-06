@@ -1,5 +1,7 @@
 #include "GiantBranch.h"
 #include "HeMS.h"
+#include "WhiteDwarfs.h"
+#include "NS.h"
 #include "BH.h"
 
 
@@ -530,7 +532,7 @@ double GiantBranch::CalculateRemnantLuminosity() {
 
     return (utils::Compare(m_Mass, massCutoffs(MHeF)) < 0)
             ? HeMS::CalculateLuminosityAtZAMS_Static(m_CoreMass)
-            : HeWD::CalculateLuminosityOnPhase_Static(m_CoreMass, 0.0, m_Metallicity);
+            : WhiteDwarfs::CalculateLuminosityOnPhase_Static(m_CoreMass, 0.0, m_Metallicity, WD_Baryon_Number.at(STELLAR_TYPE::HELIUM_WHITE_DWARF));
 
 #undef massCutoffs
 }
@@ -670,7 +672,7 @@ double GiantBranch::CalculateRemnantRadius() {
 
     return (utils::Compare(m_Mass, massCutoffs(MHeF)) < 0)
             ? HeMS::CalculateRadiusAtZAMS_Static(m_CoreMass)
-            : HeWD::CalculateRadiusOnPhase_Static(m_CoreMass);
+            : WhiteDwarfs::CalculateRadiusOnPhase_Static(m_CoreMass);
 
 #undef massCutoffs
 }

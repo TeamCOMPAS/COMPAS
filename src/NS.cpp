@@ -283,7 +283,7 @@ double NS::CalculateSpinDownRate_Static(const double p_Omega, const double p_Mom
 /*
  * Calculates and sets pulsar parameters
  *
- * 
+ * JR: todo: description?
  *
  *
  *
@@ -291,16 +291,16 @@ double NS::CalculateSpinDownRate_Static(const double p_Omega, const double p_Mom
  */
 void NS::CalculateAndSetPulsarParameters() {
 
-    m_PulsarDetails.magneticField = PPOW(10.0, CalculatePulsarBirthMagneticField_Static()) * GAUSS_TO_TESLA ;                                                                        // magnetic field in Gauss -> convert to Tesla
+    m_PulsarDetails.magneticField = PPOW(10.0, CalculatePulsarBirthMagneticField_Static()) * GAUSS_TO_TESLA ;                                                                       // magnetic field in Gauss -> convert to Tesla
     m_PulsarDetails.spinPeriod    = CalculatePulsarBirthSpinPeriod_Static();                                                                                                        // spin period in ms
     m_PulsarDetails.spinFrequency = _2_PI / (m_PulsarDetails.spinPeriod * SECONDS_IN_MS);
 
-    m_MomentOfInertia      = CalculateMomentOfInertia_Static(m_Mass, m_Radius * RSOL_TO_KM) ;                                                                                       // in CGS g cm^2
+    m_MomentOfInertia             = CalculateMomentOfInertia_Static(m_Mass, m_Radius * RSOL_TO_KM) ;                                                                                // in CGS g cm^2
 
 	// Note we convert neutronStarMomentOfInertia from CGS to SI here
-	constexpr double factor = G_TO_KG * CM_TO_M * CM_TO_M;
-    m_PulsarDetails.spinDownRate   = CalculateSpinDownRate_Static(m_PulsarDetails.spinFrequency, m_MomentOfInertia * factor, m_PulsarDetails.magneticField, m_Radius * RSOL, 1.0);  // alpha = 1.0
-    m_AngularMomentum       = _2_PI * m_MomentOfInertia / (m_PulsarDetails.spinPeriod * SECONDS_IN_MS) * factor;                                                                    // in kg m^2 sec^-1
+	constexpr double factor       = G_TO_KG * CM_TO_M * CM_TO_M;
+    m_PulsarDetails.spinDownRate  = CalculateSpinDownRate_Static(m_PulsarDetails.spinFrequency, m_MomentOfInertia * factor, m_PulsarDetails.magneticField, m_Radius * RSOL, 1.0);   // alpha = 1.0
+    m_AngularMomentum             = _2_PI * m_MomentOfInertia / (m_PulsarDetails.spinPeriod * SECONDS_IN_MS) * factor;                                                              // in kg m^2 sec^-1
 }
 
 
@@ -380,13 +380,13 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
     constexpr double MU_0_3_C_3    = 3.0 * MU_0 * C * C * C;
     constexpr double unitsMoI      = G_TO_KG * CM_TO_M * CM_TO_M;
 
-    double mass                 = m_Mass * MSOL_TO_KG;
-    double radius               = m_Radius * RSOL;
-    double initialMagField      = m_PulsarDetails.magneticField;
-    double magFieldLowerLimit   = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA;                                       
-    double momentOfInertia      = m_MomentOfInertia * unitsMoI;
-    double tau                  = OPTIONS->PulsarMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR;                                 
-    double kappa                = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_KG;                                                          
+    double mass               = m_Mass * MSOL_TO_KG;
+    double radius             = m_Radius * RSOL;
+    double initialMagField    = m_PulsarDetails.magneticField;
+    double magFieldLowerLimit = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA;                                       
+    double momentOfInertia    = m_MomentOfInertia * unitsMoI;
+    double tau                = OPTIONS->PulsarMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR;                                 
+    double kappa              = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_KG;                                                          
 
     if ((!p_RecycledNS && !p_CommonEnvelope) || (!p_RecycledNS && utils::Compare(p_MassGainPerTimeStep, 0.0) == 0 )) {
 
