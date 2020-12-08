@@ -562,7 +562,7 @@ double EAGB::CalculateMassLossRateHurley() {
     double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
     double rateKR = CalculateMassLossRateKudritzkiReimers();
     double rateVW = CalculateMassLossRateVassiliadisWood();
-    double rateWR = CalculateMassLossRateWolfRayetZDependent(m_Mu);
+    double rateWR = CalculateMassLossRateWolfRayet(m_Mu);
 
     MASS_LOSS_TYPE dominantType, typePair1, typePair2;                                // Compare pair-wise to minimise comparisons
     double dominantRate, ratePair1, ratePair2;

@@ -896,7 +896,7 @@ double GiantBranch::CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB)
 double GiantBranch::CalculateMassLossRateHurley() {
     double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
     double rateKR = CalculateMassLossRateKudritzkiReimers();
-    double rateWR = CalculateMassLossRateWolfRayetZDependent(m_Mu);
+    double rateWR = CalculateMassLossRateWolfRayet(m_Mu);
     double dominantRate;
 
     if (utils::Compare(rateNJ, rateKR) > 0) {
