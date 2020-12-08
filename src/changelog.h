@@ -623,10 +623,6 @@
 //                                      - Issue #463
 //                                          - Changed variable names from dml, dms etc. to rate_XX where XX is the mass loss recipe
 //                                          - No longer overwrite variables with next mass loss recipe for clarity
-//                                      - Issue #465
-//                                          - Changed to always use metallicity dependent WR mass loss to avoid WR-like mass loss being used for massive giants
-//                                          - Note: This is different from the original HURLEY prescription but it's the same equation just with a metallicity dependence
-//                                                  so the HURLEY prescription in COMPAS won't be identical to the original Hurley+00 paper...but it wasn't anyway in several places ;)
 //                                      - Added a new option to check the photon tiring limit during mass loss
 //                                      - Added a new class variable to track the dominant mass loss rate at each timestep
 
