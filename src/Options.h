@@ -353,6 +353,7 @@ private:
         // Serena
         //"be-binaries",
 
+        "check-photon-tiring-limit",
         "circularise-binary-during-mass-transfer",
         "common-envelope-allow-main-sequence-survive",
 
@@ -662,6 +663,7 @@ public:
 
             // Mass loss options
             bool                                                m_UseMassLoss;                                                  // Whether to activate mass loss (default = True)
+            bool                                                m_CheckPhotonTiringLimit;                                       // Whether to check the photon tiring limit for wind mass loss
 
             // Can also have options for modifying strength of winds etc here
 
@@ -991,6 +993,8 @@ public:
     
     CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return OPT_VALUE("case-bb-stability-prescription", m_CaseBBStabilityPrescription.type, true); }
     
+    bool                                        CheckPhotonTiringLimit() const                                          { return OPT_VALUE("check-photon-tiring-limit", m_CheckPhotonTiringLimit, true); }
+
     CHE_MODE                                    CHEMode() const                                                         { return OPT_VALUE("chemically-homogeneous-evolution", m_CheMode.type, true); }
 
     bool                                        CirculariseBinaryDuringMassTransfer() const                             { return OPT_VALUE("circularise-binary-during-mass-transfer", m_CirculariseBinaryDuringMassTransfer, true); }
