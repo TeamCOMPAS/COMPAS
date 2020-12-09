@@ -619,13 +619,17 @@
 //                                      - Updated docs for new options, plus some typos/fixes/previous omissions
 // 02.17.09     RTW - Nov 20, 2020  - Bug fix:
 //                                      - Removed corner case for MT_hist=8 stars in the Schneider prescription (these should be considered Ultra-stripped)
-// 02.17.10     TW - Nov 21, 2020   - Enhancement, code cleanup, bug fix
+// 02.17.10     RTW - Nov 25, 2020  - Enhancement:
+//                                      - Cleaned up Schneider remnant mass function (now uses PPOW), and set the HeCore mass as an upper limit to the remnant mass
+// 02.17.11     LVS - Nov 27, 2020  - Enhancements:
+//                                      - Added option to vary all winds with OverallWindMassLossMultiplier
+// 02.17.12     TW - Dec 9, 2020    - Enhancement, code cleanup, bug fix
 //                                      - Issue #463
 //                                          - Changed variable names from dml, dms etc. to rate_XX where XX is the mass loss recipe
 //                                          - No longer overwrite variables with next mass loss recipe for clarity
-//                                      - Added a new option to check the photon tiring limit during mass loss
+//                                      - Added a new option to check the photon tiring limit during mass loss (default false for now)
 //                                      - Added a new class variable to track the dominant mass loss rate at each timestep
 
-const std::string VERSION_STRING = "02.17.10";
+const std::string VERSION_STRING = "02.17.12";
 
 # endif // __changelog_h__

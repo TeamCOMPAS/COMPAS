@@ -1134,8 +1134,9 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
 
             logRemnantMass = 0.096910013; // gives MassRemnant = 1.25  
     }
-
-    return std::pow(10.0, logRemnantMass);
+    
+    // Convert to linear value, and limit to the pre-SN He Core mass
+    return std::min(PPOW(10.0, logRemnantMass), m_SupernovaDetails.HeCoreMassAtCOFormation);
 
 }
 
