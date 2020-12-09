@@ -1737,6 +1737,7 @@ double BaseStar::CalculateMassLossRate() {
                 }
                 mDot = LBVRate + otherWindsRate;                                                             // use HURLEY
         }
+        mDot = mDot * OPTIONS->OverallWindMassLossMultiplier();                                                 // Apply overall wind mass loss multiplier
     }
 
     return mDot;
