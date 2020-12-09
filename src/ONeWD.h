@@ -49,11 +49,11 @@ protected:
                                                                                                                                         p_Metallicity, 
                                                                                                                                         WD_Baryon_Number.at(STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF)); }
 
-           bool         IsSupernova() const                                             { return (utils::Compare(m_Mass, MECS) > 0); }                              // Going supernova if mass large enough
+            bool         IsSupernova() const                                             { return (utils::Compare(m_Mass, MECS) > 0); }                              // Going supernova if mass large enough
 
-           STELLAR_TYPE ResolveSupernova()                                              { return GiantBranch::ResolveSupernova(); }                                 // Use GiantBranch
+            STELLAR_TYPE ResolveSupernova()                                              { return GiantBranch::ResolveSupernova(); }                                 // Use GiantBranch
 
-           bool         ShouldEvolveOnPhase() const                                     { return (utils::Compare(m_Mass, MECS) <= 0); }                             // Evolve on phase unless mass > ECSN threshold mass
+            bool         ShouldEvolveOnPhase() const                                     { return (utils::Compare(m_Mass, MECS) <= 0); }                             // Evolve on phase unless mass > ECSN threshold mass
 
 };
 

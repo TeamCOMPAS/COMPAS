@@ -62,16 +62,7 @@ protected:
     // member functions - alphabetically
             void            CalculateAndSetPulsarParameters();
 
-            double          CalculateCOCoreMassOnPhase() const                      { return m_Mass; }                                                              // Return m_Mass
-
-            double          CalculateHeCoreMassOnPhase() const                      { return m_Mass; }                                                              // Return m_Mass
-
-            double          CalculateInitialSupernovaMass()                         { return GiantBranch::CalculateInitialSupernovaMass(); }                        // Use GiantBranch
-
             double          CalculateLuminosityOnPhase() const                      { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age); }                    // Use class member variables
-
-            DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                        const double p_AccretorMassRate = 0.0 );
 
     static  double          CalculateMomentOfInertia_Static(const double p_Mass, const double p_Radius);
 
@@ -85,17 +76,11 @@ protected:
                                                          const double p_Radius,
                                                          double const p_Alpha);
 
-            ENVELOPE        DetermineEnvelopeType() const                           { return ENVELOPE::REMNANT; }                                                   // Always REMNANT
-
             void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
                                                        const bool   p_RecycledNS,
                                                        const double p_Stepsize,
                                                        const double p_MassGainPerTimeStep,
                                                        const double p_Epsilon);
-            STELLAR_TYPE    ResolveSupernova()                                      { return BaseStar::ResolveSupernova(); }                                        // Default to BaseStar
-
-            bool            ShouldEvolveOnPhase() const                             { return true; }                                                                // Always
-            bool            ShouldSkipPhase() const                                 { return false; }                                                               // Don't skip
 };
 
 #endif // __NS_h__

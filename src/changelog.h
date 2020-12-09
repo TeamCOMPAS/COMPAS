@@ -623,9 +623,20 @@
 //                                      - Cleaned up Schneider remnant mass function (now uses PPOW), and set the HeCore mass as an upper limit to the remnant mass
 // 02.17.11     LVS - Nov 27, 2020  - Enhancements:
 //                                      - Added option to vary all winds with OverallWindMassLossMultiplier
-//
-//
+// 02.17.12     JR - Dec 08, 2020   - Code and architecture cleanup
+//                                      - Architecture changes:
+//                                          - Added Remnants class    - inherits from HeGB class
+//                                          - Added WhiteDwarfs class - inherits from Remnants class; most of the WD code moved from HeWD, COWD and ONeWD to WhiteDwarfs class
+//                                          - Changed HeWD class      - inherits from WhiteDwarfs class (COWD still inherits from HeWD; ONeWD from COWD)
+//                                          - Change NS class         - inherits from Remnants class; code added/moved as necessary
+//                                          - Change BH class         - inherits from Remnants class; code added/moved as necessary
+//                                          - Change MR class         - inherits from Remnants class; code added/moved as necessary
+//                                      - Code cleanup:
+//                                          - added "const" to many functions (mostly SSE code) that dont modify class variables ("this") (still much to do, but this is a start)
 
-const std::string VERSION_STRING = "02.17.11";
+// added "virtual" --- document
+// changed hard-coded headers from _1 -> (1), _2 -> (2)  NEED TO ALSO CHANGE DOCUMENTATION!!!!
+
+const std::string VERSION_STRING = "02.17.12";
 
 # endif // __changelog_h__

@@ -354,7 +354,7 @@ void GiantBranch::CalculateGBParams_Static(const double      p_Mass,
  *
  * @return                                      Perturbation parameter mu
  */
-double GiantBranch::CalculatePerturbationMu() {
+double GiantBranch::CalculatePerturbationMu() const {
     double kappa = -0.5;
     double L0    = 7.0E4;
 
@@ -527,7 +527,7 @@ double GiantBranch::CalculateLuminosityAtHeIgnition_Static(const double      p_M
  *
  * @return                                      Luminosity of remnant core in Lsol
  */
-double GiantBranch::CalculateRemnantLuminosity() {
+double GiantBranch::CalculateRemnantLuminosity() const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     return (utils::Compare(m_Mass, massCutoffs(MHeF)) < 0)
@@ -629,7 +629,7 @@ double GiantBranch::CalculateRadiusOnZAHB_Static(const double      p_Mass,
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Radius at Helium Ignition in Rsol
  */
-double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) {
+double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     double RHeI = 0.0;                                                  // Radius at Helium Ignition
@@ -667,7 +667,7 @@ double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) {
  *
  * @return                                      Radius of remnant core in Rsol
  */
-double GiantBranch::CalculateRemnantRadius() {
+double GiantBranch::CalculateRemnantRadius() const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     return (utils::Compare(m_Mass, massCutoffs(MHeF)) < 0)
@@ -690,7 +690,7 @@ double GiantBranch::CalculateRemnantRadius() {
  *
  * @return                                      Radial extent of the star's convective envelope in Rsol
  */
-double GiantBranch::CalculateRadialExtentConvectiveEnvelope() {
+double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const{
 
 	BaseStar clone = *this;                         // clone this star so can manipulate without changes persisiting
 	clone.ResolveRemnantAfterEnvelopeLoss();        // update clone's attributes after envelope is lost
@@ -717,7 +717,7 @@ double GiantBranch::CalculateRadialExtentConvectiveEnvelope() {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Core mass at the Base of the Asymptotic Giant Branch in Msol
  */
-double GiantBranch::CalculateCoreMassAtBAGB(const double p_Mass) {
+double GiantBranch::CalculateCoreMassAtBAGB(const double p_Mass) const {
 #define b m_BnCoefficients  // for convenience and readability - undefined at end of function
 
     return sqrt(sqrt((b[36] * PPOW(p_Mass, b[37])) + b[38]));   // sqrt() is much faster than PPOW()
@@ -844,7 +844,7 @@ double GiantBranch::CalculateCoreMassAtSupernova_Static(const double p_McBAGB) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Core mass at Helium Ignition in Msol
  */
-double GiantBranch::CalculateCoreMassAtHeIgnition(const double p_Mass) {
+double GiantBranch::CalculateCoreMassAtHeIgnition(const double p_Mass) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     double coreMass;
@@ -895,7 +895,7 @@ double GiantBranch::CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB)
  *
  * @return                                      Mass loss rate in Msol per year
  */
-double GiantBranch::CalculateMassLossRateHurley() {
+double GiantBranch::CalculateMassLossRateHurley() const {
 
     double dms = CalculateMassLossRateNieuwenhuijzenDeJager();
     double dml = CalculateMassLossRateKudritzkiReimers();
@@ -925,7 +925,7 @@ double GiantBranch::CalculateMassLossRateHurley() {
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
  * @return                                      Boolean indicating stability of mass transfer (true = unstable)
  */
-bool GiantBranch::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) {
+bool GiantBranch::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const {
 
     bool result = false;                                                                                                    // default is stable
 
@@ -1135,9 +1135,6 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
     return std::min(PPOW(10.0, logRemnantMass), m_SupernovaDetails.HeCoreMassAtCOFormation);
 
 }
-
-
-
 
 
 /*

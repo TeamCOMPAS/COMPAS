@@ -26,7 +26,7 @@ public:
 
 
     // member functions
-           void   CalculateAngularMomentum() const { }                                                                                                              // NO-OP
+           void   CalculateAngularMomentum() const { }                                                                                                          // NO-OP
 
     static double CalculateLuminosityOnPhase_Static(const double p_Mass, 
                                                     const double p_Time, 
@@ -39,19 +39,19 @@ public:
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;                                                                                                    // Set stellar type
-        CalculateTimescales();                                                                                                                                      // Initialise timescales
+        m_StellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;                                                                                                // Set stellar type
+        CalculateTimescales();                                                                                                                                  // Initialise timescales
     }
 
 
     double          CalculateLuminosityOnPhase(const double p_Mass,
                                                const double p_Time,
                                                const double p_Metallicity) const    { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
-    double          CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Mass, m_Age, m_Metallicity); }            // Use class member variables
+    double          CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Mass, m_Age, m_Metallicity); }        // Use class member variables
 
     STELLAR_TYPE    EvolveToNextPhase()                                             { m_Mass = m_Radius = m_Luminosity = m_Age = 0.0; return STELLAR_TYPE::MASSLESS_REMNANT; }
 
-    bool            ShouldEvolveOnPhase() const                                     { return (m_Mass <= MCH); }                                                     // Evolve on phase unless mass > Chandrasekhar mass
+    bool            ShouldEvolveOnPhase() const                                     { return (m_Mass <= MCH); }                                                 // Evolve on phase unless mass > Chandrasekhar mass
 
 };
 

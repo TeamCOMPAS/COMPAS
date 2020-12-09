@@ -24,7 +24,7 @@
  * @param   [IN]    p_Time                      Time in Myr
  * @return                                      Luminosity on the First Giant Branch in Lsol
  */
-double FGB::CalculateLuminosityOnPhase(const double p_Time) {
+double FGB::CalculateLuminosityOnPhase(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
@@ -68,7 +68,7 @@ double FGB::CalculateLuminosityOnPhase(const double p_Time) {
  * @param   [IN]    p_Time                      Time after ZAMS in MYRS (tBGB <= time <= tHeI)
  * @return                                      Core mass on the First Giant Branch in Msol
  */
-double FGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) {
+double FGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]                // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
@@ -105,11 +105,9 @@ double FGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) {
  * @return                                      FGB relative age, clamped to [0, 1]
  */
 
-double FGB::CalculateTauOnPhase() {
+double FGB::CalculateTauOnPhase() const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-
     return std::max(0.0, std::min(1.0, (m_Age - timescales(tBGB)) / (timescales(tHeI) - timescales(tBGB))));
-
 #undef timescales
 }
 
@@ -133,7 +131,7 @@ double FGB::CalculateTauOnPhase() {
  * @param   [IN]    p_Time                      Current age of star in Myr
  * @return                                      Suggested timestep (dt)
  */
-double FGB::ChooseTimestep(const double p_Time) {
+double FGB::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 
     double dtk = utils::Compare(p_Time, timescales(tMx_FGB)) <= 0       // ah because timescales[4,5,6] are not calculated yet   JR: todo: ?but... timescales[4] is used if this is true...? (and 5 if not)
