@@ -142,6 +142,7 @@ class pythonProgramOptions:
     luminous_blue_variable_multiplier = 1.5
     overall_wind_mass_loss_multiplier = 1.0
     wolf_rayet_multiplier = 1.0
+    check_photon_tiring_limit = False
 
     circularise_binary_during_mass_transfer = False
     angular_momentum_conservation_during_circularisation = False
@@ -313,7 +314,8 @@ class pythonProgramOptions:
             self.errors_to_file,
             self.allow_rlof_at_birth,
             self.allow_touching_at_birth,
-            self.switch_log
+            self.switch_log,
+            self.check_photon_tiring_limit
         ]
 
         return booleanChoices
@@ -338,7 +340,8 @@ class pythonProgramOptions:
             '--errors-to-file',
             '--allow-rlof-at-birth',
             '--allow-touching-at-birth',
-            '--switch-log'
+            '--switch-log',
+            '--check-photon-tiring-limit'
         ]
 
         return booleanCommands

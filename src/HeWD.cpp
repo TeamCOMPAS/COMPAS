@@ -66,7 +66,13 @@ double HeWD::CalculateRadiusOnPhase_Static(const double p_Mass) {
  * @return                                      Mass loss rate in Msol per year
  */
 double HeWD::CalculateMassLossRateHurley() {
-    return CalculateMassLossRateNieuwenhuijzenDeJager();
+    double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
+    if (utils::Compare(rateNJ, 0.0) > 0) {
+        m_DominantMassLossRate = MASS_LOSS_TYPE::NIEUWENHUIJZEN_DE_JAGER;
+    } else {
+        m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;
+    }
+    return rateNJ;
 }
 
 
