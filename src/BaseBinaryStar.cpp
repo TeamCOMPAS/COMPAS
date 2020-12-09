@@ -1025,7 +1025,7 @@ void BaseBinaryStar::SetPostCEEValues(const double p_SemiMajorAxis,
 double BaseBinaryStar::CalculateTimeToCoalescence(const double p_SemiMajorAxis,
                                                   const double p_Eccentricity,
                                                   const double p_Mass1,
-                                                  const double p_Mass2) {
+                                                  const double p_Mass2) const {
 
     double beta    = (64.0 / 5.0) * G * G * G * p_Mass1 * p_Mass2 * (p_Mass1 + p_Mass2) / (C * C * C * C * C);  // defined in Equation 5.9 in Peters 1964 http://journals.aps.org/pr/pdf/10.1103/PhysRev.136.B1224
     double _4_beta = 4.0 * beta;
@@ -1630,6 +1630,9 @@ double BaseBinaryStar::CalculateRocheLobeRadius_Static(const double p_MassPrimar
  * This is gamma (as in Pols's notes) or jloss (as in Belczynski et al. 2008
  * which is the fraction of specific angular momentum with which the non-accreted mass leaves the system.
  *
+ * Updates class member variable m_Error      JR: todo: revisit error handling (this could be a const function)
+ * 
+ * 
  * Calculation is based on user-specified Angular Momentum Loss prescription
  *
  *
@@ -1665,7 +1668,11 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
  * Pols et al. notes; Belczynski et al. 2008, eq 32, 33
  *
  *
- * double CalculateMassTransferOrbit (const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor, const double p_FractionAccreted)
+ * double CalculateMassTransferOrbit (const double                 p_DonorMass, 
+ *                                    const double                 p_DeltaMassDonor, 
+ *                                    const double                 p_ThermalRateDonor, 
+ *                                          BinaryConstituentStar& p_Accretor, 
+ *                                    const double                 p_FractionAccreted)
  *
  * @param   [IN]    p_DonorMass                 Donor mass
  * @param   [IN]    p_AccretorMass              Accretor mass
@@ -1675,7 +1682,11 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
  * @param   [IN]    p_FractionAccreted      Mass fraction lost from donor accreted by accretor
  * @return                                      Semi-major axis
  */
-double BaseBinaryStar::CalculateMassTransferOrbit(const double p_DonorMass, const double p_DeltaMassDonor, const double p_ThermalRateDonor, BinaryConstituentStar& p_Accretor, const double p_FractionAccreted) {
+double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p_DonorMass, 
+                                                  const double                 p_DeltaMassDonor, 
+                                                  const double                 p_ThermalRateDonor, 
+                                                        BinaryConstituentStar& p_Accretor, 
+                                                  const double                 p_FractionAccreted) {
 
     double semiMajorAxis   = m_SemiMajorAxis;                                                                   // new semi-major axis value - default is no change
     double massA           = p_Accretor.Mass();                                                                 // accretor mass
@@ -1718,7 +1729,7 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double p_DonorMass, cons
  *                                              (Podsiadlowski et al. 1992, Beta: specific angular momentum of matter [2Pia^2/P])
  * @return                                      Roche Lobe response
  */
-double BaseBinaryStar::CalculateZRocheLobe(const double p_jLoss) {
+double BaseBinaryStar::CalculateZRocheLobe(const double p_jLoss) const {
 
     double donorMass    = m_Donor->Mass();                  // donor mass
     double accretorMass = m_Accretor->Mass();               // accretor mass
@@ -1759,12 +1770,12 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
             double mWinds1 = m_Star1->CalculateMassLossValues(true);                                                            // calculate new values assuming mass loss applied
             double mWinds2 = m_Star2->CalculateMassLossValues(true);                                                            // calculate new values assuming mass loss applied
 
-            double aWinds = m_SemiMajorAxisPrev / (2.0 - ((m_Star1->MassPrev() + m_Star2->MassPrev()) / (mWinds1 + mWinds2)));  // new semi-major axis for circularlised orbit
+            double aWinds  = m_SemiMajorAxisPrev / (2.0 - ((m_Star1->MassPrev() + m_Star2->MassPrev()) / (mWinds1 + mWinds2))); // new semi-major axis for circularlised orbit
 
             m_Star1->SetMassLossDiff(mWinds1 - m_Star1->Mass());                                                                // JR: todo: find a better way?
             m_Star2->SetMassLossDiff(mWinds2 - m_Star2->Mass());                                                                // JR: todo: find a better way?
 
-            m_aMassLossDiff     = aWinds - m_SemiMajorAxisPrev;                                                                 // change to orbit (semi-major axis) due to winds mass loss
+            m_aMassLossDiff = aWinds - m_SemiMajorAxisPrev;                                                                 // change to orbit (semi-major axis) due to winds mass loss
         }
     }
 }
@@ -1774,6 +1785,8 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
  *  Check if mass transfer should happen (either star, but not both, overflowing Roche Lobe)
  *  Perform mass transfer if required and update individual stars accordingly
  *
+ *  Updates class member variables
+ * 
  *
  * void CalculateMassTransfer(const double p_Dt)
  *
@@ -2031,7 +2044,7 @@ double BaseBinaryStar::CalculateTotalEnergy(const double p_SemiMajorAxis,
                                             const double p_Star1_SpinAngularVelocity,
                                             const double p_Star2_SpinAngularVelocity,
                                             const double p_Star1_GyrationRadius,
-                                            const double p_Star2_GyrationRadius) {
+                                            const double p_Star2_GyrationRadius) const {
 	double m1  = p_Star1Mass;
 	double m2  = p_Star2Mass;
 
@@ -2091,7 +2104,7 @@ double BaseBinaryStar::CalculateAngularMomentum(const double p_SemiMajorAxis,
                                                 const double p_Star1_SpinAngularVelocity,
                                                 const double p_Star2_SpinAngularVelocity,
                                                 const double p_Star1_GyrationRadius,
-                                                const double p_Star2_GyrationRadius) {
+                                                const double p_Star2_GyrationRadius) const {
 	double m1 = p_Star1Mass;
 	double m2 = p_Star2Mass;
 
@@ -2224,7 +2237,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         }
     }
 
-    if (m_PrintExtraDetailedOutput == true && !StellarMerger()) { PrintDetailedOutput(m_Id); }                                              // print detailed output record if stellar type changed (except on merger, when detailed output is meaningless)
+    if (m_PrintExtraDetailedOutput == true && !StellarMerger()) { PrintDetailedOutput(m_Id); }                          // print detailed output record if stellar type changed (except on merger, when detailed output is meaningless)
     m_PrintExtraDetailedOutput = false;                                                                                 // reset detailed output printing flag for the next timestep
 
     if ((m_Star1->IsSNevent() || m_Star2->IsSNevent())) {
@@ -2352,7 +2365,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 PrintRLOFParameters();                                                                                                      // print (log) RLOF parameters
                 
                 // check for problems
-                if (StellarMerger() ) {                                                                                                     // have stars merged?
+                if (StellarMerger()) {                                                                                                      // have stars merged?
                     evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                     // for now, stop evolution
                 }
                 else if (HasStarsTouching()) {                                                                                              // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
@@ -2381,8 +2394,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                             }
 
                             if (!(OPTIONS->EvolvePulsars() && HasOneOf({ STELLAR_TYPE::NEUTRON_STAR }))) {
-                                if (!OPTIONS->Quiet()) SAY(ERR_MSG(ERROR::BINARY_EVOLUTION_STOPPED) << ": Double compact object");              // announce that we're stopping evolution
-                                evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                    // stop evolving
+                                if (!OPTIONS->Quiet()) SAY(ERR_MSG(ERROR::BINARY_EVOLUTION_STOPPED) << ": Double compact object");          // announce that we're stopping evolution
+                                evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                // stop evolving
                             }
                         }
 
@@ -2401,7 +2414,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
             if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                            // continue evolution?
 
-                dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier();                                                  // new timestep
+                dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier();                  // new timestep
                 if ((m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) || dt<NUCLEAR_MINIMUM_TIMESTEP)
                     dt=NUCLEAR_MINIMUM_TIMESTEP;                                                                                            // but not less than minimum
                 stepNum++;                                                                                                                  // increment stepNum

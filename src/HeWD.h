@@ -39,23 +39,23 @@ public:
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::HELIUM_WHITE_DWARF;                                                                                                               // Set stellar type
-        CalculateTimescales();                                                                                                                                          // Initialise timescales
-        m_Age = 0.0;                                                                                                                                                    // Set age appropriately
+        m_StellarType = STELLAR_TYPE::HELIUM_WHITE_DWARF;                                                                                                           // Set stellar type
+        CalculateTimescales();                                                                                                                                      // Initialise timescales
+        m_Age = 0.0;                                                                                                                                                // Set age appropriately
     }
 
 
     // member functions - alphabetically
-    double          CalculateLuminosityOnPhase(const double p_Mass,
+    double  CalculateLuminosityOnPhase(const double p_Mass,
                                                const double p_Time,
-                                               const double p_Metallicity)              { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
-    double          CalculateLuminosityOnPhase()                                        { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age, m_Metallicity); }     // Use class member variables
+                                               const double p_Metallicity)          { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
+    double  CalculateLuminosityOnPhase()                                            { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age, m_Metallicity); }     // Use class member variables
 
-    double          CalculateRadiusOnPhase(const double p_Mass)                         { return CalculateRadiusOnPhase_Static(p_Mass); }
-    double          CalculateRadiusOnPhase()                                            { return CalculateRadiusOnPhase(m_Mass); }                                      // Use class member variables
-    std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase()            { return BaseStar::CalculateRadiusAndStellarTypeOnPhase(); }
+    double  CalculateRadiusOnPhase(const double p_Mass)                             { return CalculateRadiusOnPhase_Static(p_Mass); }
+    double  CalculateRadiusOnPhase()                                                { return CalculateRadiusOnPhase(m_Mass); }                                      // Use class member variables
+    std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const  { return BaseStar::CalculateRadiusAndStellarTypeOnPhase(); }
 
-    bool            ShouldEvolveOnPhase() const                                         { return true; }                                                                // Always it seems...  JR: todo: check this
+    bool    ShouldEvolveOnPhase() const                                             { return true; }                                                                // Always it seems...  JR: todo: check this
 };
 
 #endif // __HeWD_h__

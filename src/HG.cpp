@@ -21,7 +21,7 @@
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Rho - Constant such that MCTMS = Rho * MCEHG
  */
-double HG::CalculateRho(const double p_Mass) {
+double HG::CalculateRho(const double p_Mass) const {
 
     double m_5_25 = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass * sqrt(sqrt(p_Mass));    // pow() is slow - use multiplication (sqrt() is much faster than pow())
 
@@ -52,10 +52,10 @@ double HG::CalculateRho(const double p_Mass) {
  *
  * @return                                      Dewi lambda for use in common envelope
  */
-double HG::CalculateLambdaDewi() {
+double HG::CalculateLambdaDewi() const {
 
-	double lambda1 = std::min(0.80, (3.0 / (2.4 + PPOW(m_Mass,-3.0 / 2.0))) - (0.15 * log10(m_Luminosity)));              // (A.3) Claeys+2014
-	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                   // (A.2) Claeys+2014
+	double lambda1 = std::min(0.80, (3.0 / (2.4 + PPOW(m_Mass,-3.0 / 2.0))) - (0.15 * log10(m_Luminosity)));                // (A.3) Claeys+2014
+	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014
 	double envMass = utils::Compare(m_CoreMass, 0.0) > 0 && utils::Compare(m_Mass, m_CoreMass) > 0 ? m_Mass - m_CoreMass : 0.0;
 
     double lambdaCE;
@@ -89,7 +89,7 @@ double HG::CalculateLambdaDewi() {
  *
  * @return                                      Nanjing lambda for use in common envelope
  */
-double HG::CalculateLambdaNanjing() {
+double HG::CalculateLambdaNanjing() const {
 
 	DBL_VECTOR maxBG    = {};                                                           // [0] = maxB, [1] = maxG
 	DBL_VECTOR lambdaBG = {};                                                           // [0] = lambdaB, [1] = lambdaG
@@ -411,7 +411,7 @@ double HG::CalculateLambdaNanjing() {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Luminosity at the end of the Hertzsprung Gap in Lsol
  */
-double HG::CalculateLuminosityAtPhaseEnd(const double p_Mass) {
+double HG::CalculateLuminosityAtPhaseEnd(const double p_Mass) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     return (utils::Compare(p_Mass, massCutoffs(MFGB)) < 0)
@@ -434,7 +434,7 @@ double HG::CalculateLuminosityAtPhaseEnd(const double p_Mass) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Luminosity on the HG in Lsol
  */
-double HG::CalculateLuminosityOnPhase(const double p_Age, const double p_Mass) {
+double HG::CalculateLuminosityOnPhase(const double p_Age, const double p_Mass) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     double LTMS = MainSequence::CalculateLuminosityAtPhaseEnd(p_Mass);
@@ -467,7 +467,7 @@ double HG::CalculateLuminosityOnPhase(const double p_Age, const double p_Mass) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Radius at the end of the Hertzsprung Gap in Rsol
  */
-double HG::CalculateRadiusAtPhaseEnd(const double p_Mass) {
+double HG::CalculateRadiusAtPhaseEnd(const double p_Mass) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     return (utils::Compare(p_Mass, massCutoffs(MFGB)) < 0)
@@ -491,7 +491,7 @@ double HG::CalculateRadiusAtPhaseEnd(const double p_Mass) {
  * @param   [IN]    p_RZAMS                     Zero Age Main Sequence (ZAMS) Radius
  * @return                                      Radius on the Hertzsprung Gap in Rsol
  */
-double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const double p_RZAMS) {
+double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const double p_RZAMS) const {
 
     double RTMS = MainSequence::CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
     double REHG = CalculateRadiusAtPhaseEnd(p_Mass);
@@ -512,7 +512,7 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
  *
  * @return                                      Radial extent of the star's convective envelope in Rsol
  */
-double HG::CalculateRadialExtentConvectiveEnvelope() {
+double HG::CalculateRadialExtentConvectiveEnvelope() const {
 
 	BaseStar clone = *this;                         // clone this star so can manipulate without changes persisiting
 	clone.ResolveRemnantAfterEnvelopeLoss();        // update clone's attributes after envelope is lost
@@ -540,7 +540,7 @@ double HG::CalculateRadialExtentConvectiveEnvelope() {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Core mass at the end of the Hertzsprung Gap (Base of the Giant Branch) in Msol
  */
-double HG::CalculateCoreMassAtPhaseEnd(const double p_Mass) {
+double HG::CalculateCoreMassAtPhaseEnd(const double p_Mass) const {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]                // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
@@ -576,7 +576,7 @@ double HG::CalculateCoreMassAtPhaseEnd(const double p_Mass) {
  * @param   [IN]    p_Time                      Time after ZAMS in Myr (tBGB <= time <= tHeI)
  * @return                                      Core mass on the Hertzsprung Gap in Msol
  */
-double HG::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) {
+double HG::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     double McEHG = CalculateCoreMassAtPhaseEnd(p_Mass);
@@ -605,7 +605,7 @@ double HG::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) {
  *
  * @return                                      Rejuvenation factor
  */
-double HG::CalculateMassTransferRejuvenationFactor() {
+double HG::CalculateMassTransferRejuvenationFactor() const {
 
     double fRej = 1.0;
 
@@ -641,7 +641,7 @@ double HG::CalculateMassTransferRejuvenationFactor() {
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
  * @return                                      Boolean indicating stability of mass transfer (true = unstable)
  */
-bool HG::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) {
+bool HG::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const {
 
     bool result = false;                                                                                                    // default is stable
 
@@ -672,11 +672,9 @@ bool HG::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorI
  *
  * @return                                      HG relative age, clamped to [0, 1]
  */
-double HG::CalculateTauOnPhase() {
+double HG::CalculateTauOnPhase() const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-
     return std::max(0.0, std::min(1.0, (m_Age - timescales(tMS)) / (timescales(tBGB) - timescales(tMS))));
-
 #undef timescales
 }
 
@@ -756,20 +754,19 @@ double HG::CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription) {
  *
  * @return                                      ENVELOPE::{ RADIATIVE, CONVECTIVE, REMNANT }
  */
-ENVELOPE HG::DetermineEnvelopeType() {
-
+ENVELOPE HG::DetermineEnvelopeType() const {
  
-    ENVELOPE envelope = ENVELOPE::CONVECTIVE;                                                        // default envelope type is CONVECTIVE
+    ENVELOPE envelope = ENVELOPE::CONVECTIVE;                                                       // default envelope type is CONVECTIVE
     
-    switch (OPTIONS->EnvelopeStatePrescription()) {                                         // which envelope prescription?
+    switch (OPTIONS->EnvelopeStatePrescription()) {                                                 // which envelope prescription?
             
         case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
-        case ENVELOPE_STATE_PRESCRIPTION::HURLEY: // Eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual growth of convective envelope over HG; we approximate it as convective here
+        case ENVELOPE_STATE_PRESCRIPTION::HURLEY:                                                   // Eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual growth of convective envelope over HG; we approximate it as convective here
             envelope = ENVELOPE::CONVECTIVE;
             break;
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
-            envelope =  utils::Compare(Temperature()*TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            envelope =  utils::Compare(Temperature() * TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             break;
             
         default:                                                                                    // unknown prescription - use default envelope type
@@ -792,7 +789,7 @@ ENVELOPE HG::DetermineEnvelopeType() {
  * @param   [IN]    p_Time                      Current age of star in Myr
  * @return                                      Suggested timestep (dt)
  */
-double HG::ChooseTimestep(const double p_Time) {
+double HG::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     double dtk      = 0.05 * (timescales(tBGB) - timescales(tMS));
