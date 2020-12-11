@@ -2377,6 +2377,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                        // continue evolution?
 
+//JR FIX THIS - Ilya's commit August 31 !!!!!!!!!!!!!!!!!
                     // check for problems
                          if (m_Error != ERROR::NONE) evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR;                                      // error in binary evolution
                     else if (StellarMerger())        evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                    // constituent stars have merged
