@@ -629,7 +629,9 @@
 //                                          - No longer overwrite variables with next mass loss recipe for clarity
 //                                      - Added a new option to check the photon tiring limit during mass loss (default false for now)
 //                                      - Added a new class variable to track the dominant mass loss rate at each timestep
+// 02.17.13     JR - Dec 11, 2020   - Defect repair
+//                                      - uncomment initialisations of mass transfer critical mass ratios in Options.cpp (erroneously commented in v02.16.00)
 
-const std::string VERSION_STRING = "02.17.12";
+const std::string VERSION_STRING = "02.17.13";
 
 # endif // __changelog_h__
