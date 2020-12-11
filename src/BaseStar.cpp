@@ -1709,7 +1709,9 @@ double BaseStar::CalculateMassLossRate() {
                 SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using HURLEY");                               // show warning
                 mDot = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD) + CalculateMassLossRateHurley();  // use HURLEY
         }
+        std::cout << "JRPRINT Overall winds multiplier = " << OPTIONS->OverallWindMassLossMultiplier() << ", mDot before = " << mDot << "\n";
         mDot = mDot * OPTIONS->OverallWindMassLossMultiplier();                                                 // Apply overall wind mass loss multiplier
+        std::cout << "JRPRINT Overall winds multiplier = " << OPTIONS->OverallWindMassLossMultiplier() << ", mDot after = " << mDot << "\n";
     }
 
     return mDot;
@@ -3020,7 +3022,6 @@ std::string BaseStar::MassTransferDonorHistoryString() const {
 }
 
 
-
 /*
  * Add new MT event to event history - only for donor stars
  *
@@ -3037,7 +3038,6 @@ void BaseStar::UpdateMassTransferDonorHistory() {
         m_MassTransferDonorHistory.push_back(m_StellarType);
     }
 }
-
 
 
 /*

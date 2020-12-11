@@ -1076,7 +1076,7 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
     // Apply the appropriate remnant mass prescription for the chosen MT case
     switch (schneiderMassTransferCase) {   // Which MT Case prescription to use
 
-        case MT_CASE::NONE:                     // No history of MT
+        case MT_CASE::NONE:                         // No history of MT
 
             if (!p_useSchneiderAlt) {               // Use standard or alternative remnant mass prescription for effectively single stars?
 
@@ -1128,7 +1128,7 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
 
             SHOW_WARN(ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION, "Using default, Mass_Remnant = 1.25");   // show warning 
 
-            logRemnantMass = 0.096910013; // gives MassRemnant = 1.25  
+            logRemnantMass = 0.096910013;           // gives MassRemnant = 1.25  
     }
     
     // Convert to linear value, and limit to the pre-SN He Core mass
