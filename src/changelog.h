@@ -631,7 +631,11 @@
 //                                      - Added a new class variable to track the dominant mass loss rate at each timestep
 // 02.17.13     JR - Dec 11, 2020   - Defect repair
 //                                      - uncomment initialisations of mass transfer critical mass ratios in Options.cpp (erroneously commented in v02.16.00)
+// 02.17.14     TW - Dec 14, 2020   - Bug Fix
+//                                      - Issue #483
+//                                          - Ensure mass transfer case C actually shows up (was previously labelled as case B)
 
-const std::string VERSION_STRING = "02.17.13";
+
+const std::string VERSION_STRING = "02.17.14";
 
 # endif // __changelog_h__
