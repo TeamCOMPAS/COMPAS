@@ -362,8 +362,6 @@ void Options::OptionValues::Initialise() {
     m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor   = 1.44;                                                 // Claeys+ 2014 = 1.44
     m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor      = 1.0;                                                  // Claeys+ 2014 = 1.0
 
-    // AVG
-    /*
     m_MassTransferCriticalMassRatioMSHighMass                       = false;
     m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor  = 0.625;                                                // Claeys+ 2014 = 0.625
     m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor     = 0.0;
@@ -391,7 +389,6 @@ void Options::OptionValues::Initialise() {
     m_MassTransferCriticalMassRatioWhiteDwarf                       = false;
 	m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor  = 0.0;
     m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor     = 1.6;                                                  // Claeys+ 2014 = 1.6
-    */
 
     // Common Envelope options
     m_CommonEnvelopeAlpha                                           = 1.0;
