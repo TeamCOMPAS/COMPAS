@@ -106,7 +106,7 @@ protected:
 
             ENVELOPE        DetermineEnvelopeType();
 
-            MT_CASE         DetermineMassTransferCase()                                                      { return MT_CASE::B; }                                                 // Mass Transfer Case B for HeHG stars
+            MT_CASE         DetermineMassTransferCase()                                                      { return HG::DetermineMassTransferCase(); }                            // Mass Transfer Case B for HeHG stars
 
             STELLAR_TYPE    EvolveToNextPhase();
 

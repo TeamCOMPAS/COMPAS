@@ -62,6 +62,8 @@ protected:
             
             ENVELOPE    DetermineEnvelopeType()                                                                         { return ENVELOPE::CONVECTIVE; }                        // Always CONVECTIVE
 
+            MT_CASE     DetermineMassTransferCase()                                                                     { return GiantBranch::DetermineMassTransferCase(); }    // Mass Transfer Case C for giant branch stars
+
             bool        IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate);
 };
 

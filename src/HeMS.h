@@ -114,7 +114,7 @@ protected:
 
             double          ChooseTimestep(const double p_Time);
 
-            MT_CASE         DetermineMassTransferCase()                                          { return MT_CASE::A; }                                                  // Mass Transfer Case A for HeMS stars
+            MT_CASE         DetermineMassTransferCase()                                          { return MainSequence::DetermineMassTransferCase(); }                   // Mass Transfer Case A for HeMS stars
 
             STELLAR_TYPE    EvolveToNextPhase();
 

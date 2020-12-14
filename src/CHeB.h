@@ -109,8 +109,6 @@ protected:
 
     ENVELOPE        DetermineEnvelopeType();
 
-    MT_CASE         DetermineMassTransferCase()                                  { return GiantBranch::DetermineMassTransferCase(); }                           // Mass Transfer Case C for CHeB stars and beyond
-
     STELLAR_TYPE    EvolveToNextPhase();
 
     bool            IsEndOfPhase()                                               { return !ShouldEvolveOnPhase(); }                                             // Phase ends when age at or after He Burning

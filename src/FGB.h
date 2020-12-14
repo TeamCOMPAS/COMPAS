@@ -69,6 +69,8 @@ protected:
 
     ENVELOPE        DetermineEnvelopeType()                                                     { return ENVELOPE::CONVECTIVE; }                                                                // Always CONVECTIVE
 
+    MT_CASE         DetermineMassTransferCase()                                                 { return GiantBranch::DetermineMassTransferCase(); }                                            // Mass Transfer Case C for stars after HG
+
     STELLAR_TYPE    EvolveToNextPhase();
 
     bool            IsEndOfPhase()                                                              { return !ShouldEvolveOnPhase(); }                                                              // Phase ends when age at or after He ignition timescale
