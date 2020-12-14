@@ -114,6 +114,8 @@ protected:
 
     virtual double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)			    { return 0.0; }
 
+            MT_CASE         DetermineMassTransferCase()                                             { return MT_CASE::C; }                                              // Mass Transfer Case C for CHeB stars and beyond
+
             bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate);
 
     virtual void            PerturbLuminosityAndRadius();

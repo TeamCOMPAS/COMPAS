@@ -109,7 +109,7 @@ protected:
 
     ENVELOPE        DetermineEnvelopeType();
 
-    MT_CASE         DetermineMassTransferCase()                                  { return MT_CASE::C; }                                                         // Mass Transfer Case C for CHeB stars and beyond
+    MT_CASE         DetermineMassTransferCase()                                  { return GiantBranch::DetermineMassTransferCase(); }                           // Mass Transfer Case C for CHeB stars and beyond
 
     STELLAR_TYPE    EvolveToNextPhase();
 
