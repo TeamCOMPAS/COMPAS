@@ -276,6 +276,10 @@ constexpr double MINIMUM_MASS_SECONDARY                 = 4.0;                  
 constexpr double MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP= 0.001;                                                    // Maximal fraction of donor mass that can be transferred in one step of stable mass transfer
 
 constexpr double LAMBDA_NANJING_ZLIMIT                  = 0.0105;                                                   // Metallicity cutoff for Nanjing lambda calculations
+constexpr double LAMBDA_NANJING_POPI_Z                  = 0.02;                                                     // Population I metallicity in Xu & Li (2010)
+constexpr double LAMBDA_NANJING_POPII_Z                 = 0.001;                                                    // Population II metallicity in Xu & Li (2010)
+constexpr double LAMBDA_NANJING_MIN_MASS                = 1.5;                                                      // Minimum tabulated mass model in Xu & Li (2010)
+constexpr double LAMBDA_NANJING_MAX_MASS                = 75.0;                                                     // Maximum tabulated mass model in Xu & Li (2010)
 
 constexpr int    MAX_KEPLER_ITERATIONS                  = 1000;                                                     // Maximum number of iterations to solve Kepler's equation
 constexpr double NEWTON_RAPHSON_EPSILON                 = 1.0E-5;                                                   // Accuracy for Newton-Raphson method

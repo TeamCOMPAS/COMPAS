@@ -58,7 +58,7 @@ protected:
 
     double          CalculateInitialSupernovaMass()                                             { return m_GBParams[static_cast<int>(GBP::McBAGB)]; }               // For EAGB & TPAGB we use the mass at Base Asymptotic Giant Branch to determine SN type
 
-    double          CalculateLambdaNanjing();
+    double          CalculateLambdaNanjing(double mass, double metallicity);
 
     double          CalculateLifetimeTo2ndDredgeUp(const double p_Tinf1_FAGB, const double p_Tinf2_FAGB);
 

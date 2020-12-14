@@ -69,7 +69,7 @@ protected:
             double          CalculateInitialSupernovaMass()                                      { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch
 
             double          CalculateLambdaDewi()                                                { return 0.5; }
-            double          CalculateLambdaNanjing()                                             { return BaseStar::CalculateLambdaNanjing(); }                          // Not supported - use BaseStar
+            double          CalculateLambdaNanjing(double mass, double metallicity)              { return BaseStar::CalculateLambdaNanjing(mass, metallicity); }   // Not supported - use BaseStar
 
             double          CalculateLuminosityAtPhaseEnd(const double p_Mass)                   { return CalculateLuminosityAtPhaseEnd_Static(p_Mass); }
             double          CalculateLuminosityAtPhaseEnd()                                      { return CalculateLuminosityAtPhaseEnd(m_Mass); }                       // Use class member variables
