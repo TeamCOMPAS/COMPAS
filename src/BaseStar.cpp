@@ -1081,6 +1081,91 @@ double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass,
 }
 
 
+/* 
+ * Calculate mass- and metallicity-interpolated Nanjing lambda
+ * 
+ * 
+ * double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing()
+ * 
+ * @return                                      Common envelope lambda parameter
+ */ 
+double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing() {
+
+    double lambda;
+    double minZ = 0.0;
+    double maxZ = 1.0;
+    const DBL_VECTOR metallicityBins = {minZ, LAMBDA_NANJING_POPI_Z, LAMBDA_NANJING_POPII_Z, maxZ};
+
+    if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPI_Z) < 0) {
+        // Metallicity is not between the two metallicities calculated by Xu & Li (2010)
+        return lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(LAMBDA_NANJING_POPI_Z);
+    }
+    else if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPII_Z) > 0) {
+        // Metallicity is not between the two metallicities calculated by Xu & Li (2010)
+        return lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(LAMBDA_NANJING_POPII_Z);
+    }
+    else {
+        // Linear interpolation in logZ between upper and lower metallicity bins
+        double lowerZbin = minZ;
+        double upperZbin = maxZ;
+        for (long unsigned int i = 0; i < metallicityBins.size(); i++) {
+            if (metallicityBins[i] < m_Metallicity) {
+                lowerZbin = metallicityBins[i];
+                upperZbin = metallicityBins[i+1];
+                break;
+            }
+        }
+
+        double lambda_low = BaseStar::CalculateMassInterpolatedLambdaNanjing(m_Metallicity);
+        double lambda_up  = BaseStar::CalculateMassInterpolatedLambdaNanjing(m_Metallicity);
+        return lambda     = lambda_low + (log(m_Metallicity) - log(lowerZbin)) / (log(upperZbin) - log(lowerZbin)) * (lambda_up - lambda_low);
+    }   
+}
+
+
+/* 
+ * Interpolate mass-interpolated Nanjing lambda for a given metallicity
+ * 
+ * 
+ * double BaseStar::CalculateMassInterpolatedLambdaNanjing(double metallicity)
+ * 
+ * @param   [IN]    metallicity                 metallicity
+ * @return                                      Common envelope lambda parameter
+ */ 
+double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double metallicity) {
+
+    double lambda;
+    double maxMass = 1000000.0;
+    double minMass = 0.0;
+    const DBL_VECTOR massBins = {minMass,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,11.0,13.0,15.0,18.0,35.0,75.0,maxMass};
+
+    if (utils::Compare(m_Mass0, LAMBDA_NANJING_MIN_MASS) < 0) {
+        // Mass outside range calculated by Xu & Li (2010)
+        return lambda = CalculateLambdaNanjing(LAMBDA_NANJING_MIN_MASS, metallicity);
+    }
+    else if (utils::Compare(m_Mass0, LAMBDA_NANJING_MAX_MASS) > 0) {
+        // Mass outside range calculated by Xu & Li (2010)
+        return lambda = CalculateLambdaNanjing(LAMBDA_NANJING_MAX_MASS, metallicity);
+    }
+    else {
+        // Linear interpolation between upper and lower mass bins
+        double lowerMassBin = minMass;
+        double upperMassBin = maxMass;
+        for (long unsigned int i = 0; i < massBins.size(); i++) {
+            if (massBins[i] < m_Mass0) {
+                lowerMassBin = massBins[i];
+                upperMassBin = massBins[i+1];
+                break;
+            }
+        }
+
+        double lambda_low = CalculateLambdaNanjing(lowerMassBin, metallicity);
+        double lambda_up  = CalculateLambdaNanjing(upperMassBin, metallicity);
+        return lambda     = lambda_low + (m_Mass0 - lowerMassBin) / (upperMassBin - lowerMassBin) * (lambda_up - lambda_low);
+    }
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                                 ZETA CALCULATIONS                                 //
@@ -1174,7 +1259,7 @@ double BaseStar::CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) {
 void BaseStar::CalculateLambdas(const double p_EnvMass) {
 
     m_Lambdas.fixed          = OPTIONS->CommonEnvelopeLambda();
-	m_Lambdas.nanjing        = CalculateLambdaNanjing();
+	m_Lambdas.nanjing        = CalculateMassAndZInterpolatedLambdaNanjing();
 	m_Lambdas.loveridge      = CalculateLambdaLoveridgeEnergyFormalism(p_EnvMass, false);
 	m_Lambdas.loveridgeWinds = CalculateLambdaLoveridgeEnergyFormalism(p_EnvMass, true);      
 	m_Lambdas.kruckow        = CalculateLambdaKruckow(m_Radius, OPTIONS->CommonEnvelopeSlopeKruckow());

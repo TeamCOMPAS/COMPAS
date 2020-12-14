@@ -392,7 +392,9 @@ protected:
     virtual double          CalculateLambdaDewi()                                                               { SHOW_WARN(ERROR::NO_LAMBDA_DEWI, "Default used: 1.0"); return 1.0; }      // Not supported: show error
             double          CalculateLambdaKruckow(const double p_Radius, const double p_Alpha);
             double          CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss = false);
-    virtual double          CalculateLambdaNanjing()                                                            { SHOW_WARN(ERROR::NO_LAMBDA_NANJING, "Default used: 1.0"); return 1.0; }   // Not supported: show error
+    virtual double          CalculateLambdaNanjing(double mass, double metallicity)                             { SHOW_WARN(ERROR::NO_LAMBDA_NANJING, "Default used: 1.0"); return 1.0; }   // Not supported: show error
+            double          CalculateMassInterpolatedLambdaNanjing(double metallicity);
+            double          CalculateMassAndZInterpolatedLambdaNanjing();
 
             void            CalculateLCoefficients(const double p_LogMetallicityXi, DBL_VECTOR &p_LCoefficients);
 

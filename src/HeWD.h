@@ -60,7 +60,7 @@ protected:
     double          CalculateHeCoreMassOnPhase()                                                        { return m_HeCoreMass; }                                                        // NO-OP
 
     double          CalculateLambdaDewi()                                                               { return BaseStar::CalculateLambdaDewi(); }                                     // Not supported - use BaseStar
-    double          CalculateLambdaNanjing()                                                            { return BaseStar::CalculateLambdaNanjing(); }                                  // Not supported - use BaseStar     JR: todo: check this (type 10 not mentioned as not supported in original code)
+    double          CalculateLambdaNanjing(double mass, double metallicity)                             { return BaseStar::CalculateLambdaNanjing(mass, metallicity); }                                  // Not supported - use BaseStar     JR: todo: check this (type 10 not mentioned as not supported in original code)
 
     double          CalculateLuminosityOnPhase(const double p_Mass,
                                                const double p_Time,
