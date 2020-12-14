@@ -80,7 +80,7 @@ public:
             double              Mass() const                                                    { return m_Mass; }
             double              Mass0() const                                                   { return m_Mass0; }
             double              MassPrev() const                                                { return m_MassPrev; }
-            STYPE_VECTOR          MassTransferDonorHistory() const                                { return m_MassTransferDonorHistory; }
+            STYPE_VECTOR        MassTransferDonorHistory() const                                { return m_MassTransferDonorHistory; }
             std::string         MassTransferDonorHistoryString() const;
             double              Mdot() const                                                    { return m_Mdot; }
             double              Metallicity() const                                             { return m_Metallicity; }

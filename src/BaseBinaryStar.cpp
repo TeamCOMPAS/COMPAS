@@ -2381,17 +2381,17 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                             }
 
                             if (!(OPTIONS->EvolvePulsars() && HasOneOf({ STELLAR_TYPE::NEUTRON_STAR }))) {
-                                if (!OPTIONS->Quiet()) SAY(ERR_MSG(ERROR::BINARY_EVOLUTION_STOPPED) << ": Double compact object");              // announce that we're stopping evolution
-                                evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                    // stop evolving
+                                if (!OPTIONS->Quiet()) SAY(ERR_MSG(ERROR::BINARY_EVOLUTION_STOPPED) << ": Double compact object");          // announce that we're stopping evolution
+                                evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                // stop evolving
                             }
                         }
 
                         // check for problems
                         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                // continue evolution?
-                                 if (m_Error != ERROR::NONE)               evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR;                // error in binary evolution
-                            else if (IsWDandWD())                          evolutionStatus = EVOLUTION_STATUS::WD_WD;                       // do not evolve double WD systems for now
-                            else if (IsDCO() && m_Time>(m_DCOFormationTime+m_TimeToCoalescence))        evolutionStatus = EVOLUTION_STATUS::STOPPED;    // evolution time exceeds DCO merger time
-                            else if (m_Time > OPTIONS->MaxEvolutionTime() )                             evolutionStatus = EVOLUTION_STATUS::TIMES_UP;   // evolution time exceeds maximum
+                                 if (m_Error != ERROR::NONE)                                     evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR;  // error in binary evolution
+                            else if (IsWDandWD())                                                evolutionStatus = EVOLUTION_STATUS::WD_WD;         // do not evolve double WD systems for now
+                            else if (IsDCO() && m_Time>(m_DCOFormationTime+m_TimeToCoalescence)) evolutionStatus = EVOLUTION_STATUS::STOPPED;       // evolution time exceeds DCO merger time
+                            else if (m_Time > OPTIONS->MaxEvolutionTime())                       evolutionStatus = EVOLUTION_STATUS::TIMES_UP;      // evolution time exceeds maximum
                         }
                     }
                 }
@@ -2401,9 +2401,9 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
             if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                            // continue evolution?
 
-                dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier();                                                  // new timestep
+                dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier();                  // new timestep
                 if ((m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) || dt<NUCLEAR_MINIMUM_TIMESTEP)
-                    dt=NUCLEAR_MINIMUM_TIMESTEP;                                                                                            // but not less than minimum
+                    dt = NUCLEAR_MINIMUM_TIMESTEP;                                                                                          // but not less than minimum
                 stepNum++;                                                                                                                  // increment stepNum
             }
         }
