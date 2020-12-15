@@ -156,18 +156,17 @@ def find_formation_and_merger_rates(n_binaries, redshifts, times, n_formed, dPdl
 
         # include the whole array if digitize returns end of array and subtract one so we don't include the time past the limit
         first_too_early_index = first_too_early_index + 1 if first_too_early_index == n_redshifts else first_too_early_index
-        first_too_early_index -= 1
 
         # as long as that doesn't preclude the whole range
         if first_too_early_index > 0:
             # work out the redshift at the time of formation
-            z_of_formation = times_to_redshifts(time_of_formation[:first_too_early_index])
+            z_of_formation = times_to_redshifts(time_of_formation[:first_too_early_index - 1])
 
             # calculate which index in the redshift array these redshifts correspond to
             z_of_formation_index = np.ceil(z_of_formation / redshift_step).astype(int)
 
             # set the merger rate at z (with z<10) to the formation rate at z_form
-            merger_rate[i, :first_too_early_index] = formation_rate[i, z_of_formation_index]
+            merger_rate[i, :first_too_early_index - 1] = formation_rate[i, z_of_formation_index]
     return formation_rate, merger_rate
 
 def compute_snr_and_detection_grids(sensitivity="O1", snr_threshold=8.0, Mc_max=300.0, Mc_step=0.1,
