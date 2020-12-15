@@ -90,7 +90,7 @@ def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
     mu_metallicities = np.log(mean_metallicities) - sigma**2/2
 
     # create a range of metallicities
-    log_metallicities = np.arange(min_logZ_COMPAS, min_logZ_COMPAS + step_logZ, step_logZ)
+    log_metallicities = np.arange(min_logZ_COMPAS, max_logZ_COMPAS + step_logZ, step_logZ)
     metallicities = np.exp(log_metallicities)
 
     # use Neijessel+19 Eq. 7 to find probabilities (without the factor of 1/Z since this is dp/dlogZ not dp/dZ)
