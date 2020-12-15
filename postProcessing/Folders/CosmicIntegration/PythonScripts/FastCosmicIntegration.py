@@ -26,7 +26,7 @@ def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=
             shell_volumes          --> [list of floats] Equivalent of redshifts but converted to shell volumes
     """
     # ensure that max_redshift_detection is below max_redshift
-    assert(max_redshift_detection <= max_redshift)
+    assert max_redshift_detection <= max_redshift, "Maximum redshift must be greater than maximum detection redshift!"
 
     # create a list of redshifts and record lengths
     redshifts = np.arange(0, max_redshift + redshift_step, redshift_step)
