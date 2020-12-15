@@ -15,20 +15,21 @@ def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=
 
         Args:
             max_redshift           --> [float]          Maximum redshift to use in array
-            max_redshift_detection --> [float]          Maximum redshift to calculate detection rates
+            max_redshift_detection --> [float]          Maximum redshift to calculate detection rates (must be <= max_redshift)
             redshift_step          --> [float]          size of step to take in redshift
 
         Returns:
             redshifts              --> [list of floats] List of redshifts between limits supplied
-            n_redshifts            --> [int]            Number of redshifts in list
             n_redshifts_detection  --> [int]            Number of redshifts in list that should be used to calculate detection rates
             times                  --> [list of floats] Equivalent of redshifts but converted to age of Universe
             distances              --> [list of floats] Equivalent of redshifts but converted to luminosity distances
             shell_volumes          --> [list of floats] Equivalent of redshifts but converted to shell volumes
     """
+    # ensure that max_redshift_detection is below max_redshift
+    assert(max_redshift_detection <= max_redshift)
+
     # create a list of redshifts and record lengths
     redshifts = np.arange(0, max_redshift + redshift_step, redshift_step)
-    n_redshifts = len(redshifts)
     n_redshifts_detection = int(max_redshift_detection / redshift_step)
 
     # convert redshifts to times and ensure all times are in Myr
@@ -45,7 +46,7 @@ def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=
     shell_volumes = np.diff(volumes)
     shell_volumes = np.append(shell_volumes, shell_volumes[-1])
 
-    return redshifts, n_redshifts, n_redshifts_detection, times, distances, shell_volumes
+    return redshifts, n_redshifts_detection, times, distances, shell_volumes
 
 def find_sfr(redshifts):
     """
@@ -63,7 +64,7 @@ def find_sfr(redshifts):
     return sfr.to(u.Msun / u.yr / u.Gpc**3).value
 
 def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
-                                    Z0=0.035, alpha=-0.23, sigma=0.39, min_logZ=-12.0, max_logZ=0.0, step_logZ=0.01):
+                                    Z0=0.035, alpha=-0.23, sigma=0.39, step_logZ=0.01):
     """
         Calculate the distribution of metallicities at different redshifts using Neijssel+19 Eq.7-9
         (which is based on Madau & Dickinson 2014)
@@ -77,8 +78,6 @@ def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
             Z0                 --> [float]          Parameter used for calculating mean metallicity
             alpha              --> [float]          Parameter used for calculating mean metallicity
             sigma              --> [float]          Parameter used for calculating mean metallicity
-            min_logZ           --> [float]          Minimum logZ at which to calculate dPdlogZ
-            max_logZ           --> [float]          Maximum logZ at which to calculate dPdlogZ
             step_logZ          --> [float]          Size of logZ steps to take in finding a Z range
 
         Returns:
@@ -91,7 +90,7 @@ def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
     mu_metallicities = np.log(mean_metallicities) - sigma**2/2
 
     # create a range of metallicities
-    log_metallicities = np.arange(min_logZ, max_logZ + step_logZ, step_logZ)
+    log_metallicities = np.arange(min_logZ_COMPAS, min_logZ_COMPAS + step_logZ, step_logZ)
     metallicities = np.exp(log_metallicities)
 
     # use Neijessel+19 Eq. 7 to find probabilities (without the factor of 1/Z since this is dp/dlogZ not dp/dZ)
@@ -106,30 +105,34 @@ def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
 
     return dPdlogZ, metallicities, p_draw_metallicity
 
-def find_formation_and_merger_rates(n_binaries, n_redshifts, redshifts, times, n_formed, dPdlogZ, metallicities, p_draw_metallicity,
-                                    COMPAS_metallicites, COMPAS_delay_times, COMPAS_weights, redshift_step=0.001):
+def find_formation_and_merger_rates(n_binaries, redshifts, times, n_formed, dPdlogZ, metallicities, p_draw_metallicity,
+                                    COMPAS_metallicites, COMPAS_delay_times, COMPAS_weights=None):
     """
         Find both the formation and merger rates for each binary at each redshift
 
         Args:
-            n_binaries          --> [float]          Number of DCO binaries in the arrays
-            n_redshifts         --> [float]          Number of redshifts in the arrays
+            n_binaries          --> [int]            Number of DCO binaries in the arrays
             redshifts           --> [list of floats] Redshifts at which to evaluate the rates
             times               --> [list of floats] Equivalent of the redshifts in terms of age of the Universe
-            n_formed            --> [float]          Number of stars formed per yer per cubic Gpc
+            n_formed            --> [float]          Binary formation rate (number of binaries formed per year per cubic Gpc) represented by each simulated COMPAS binary
             dPdlogZ             --> [2D float array] Probability of getting a particular logZ at a certain redshift
             metallicities       --> [list of floats] Metallicities at which dPdlogZ is evaluated
             p_draw_metallicity  --> [float]          Probability of drawing a certain metallicity in COMPAS (float because assuming uniform)
             COMPAS_metallicites --> [list of floats] Metallicity of each binary in COMPAS data
             COMPAS_delay_times  --> [list of floats] Delay time of each binary in COMPAS data
-            COMPAS_weights      --> [list of floats] Adaptive sampling weights for each binary in COMPAS data (all 1s for unweighted samples)
-            redshift_step       --> [float]          Size of redshift step taken in redshift array
+            COMPAS_weights      --> [list of floats] Adaptive sampling weights for each binary in COMPAS data (defaults to all 1s for unweighted samples)
 
         Returns:
             formation_rate      --> [2D float array] Formation rate for each binary at each redshift
             merger_rate         --> [2D float array] Merger rate for each binary at each redshift
     """
+    # check if weights were provided, if not use uniform weights
+    if COMPAS_weights is None:
+        COMPAS_weights = np.ones(n_binaries)
+
     # initalise rates to zero
+    n_redshifts = len(redshifts)
+    redshift_step = redshifts[1] - redshifts[0]
     formation_rate = np.zeros(shape=(n_binaries, n_redshifts))
     merger_rate = np.zeros(shape=(n_binaries, n_redshifts))
 
@@ -147,8 +150,8 @@ def find_formation_and_merger_rates(n_binaries, n_redshifts, redshifts, times, n
         # calculate the time at which the binary formed if it merges at this redshift
         time_of_formation = times - COMPAS_delay_times[i]
 
-        # we have only calculated formation rate up to z=10, so we need to only find merger rates for formation times at z<10
-        # first locate the index above which the binary would have formed before z=10
+        # we have only calculated formation rate up to z=max(redshifts), so we need to only find merger rates for formation times at z<max(redshifts)
+        # first locate the index above which the binary would have formed before z=max(redshifts)
         first_too_early_index = np.digitize(age_first_sfr, time_of_formation)
 
         # include the whole array if digitize returns end of array and subtract one so we don't include the time past the limit
@@ -167,10 +170,17 @@ def find_formation_and_merger_rates(n_binaries, n_redshifts, redshifts, times, n
             merger_rate[i, :first_too_early_index] = formation_rate[i, z_of_formation_index]
     return formation_rate, merger_rate
 
-def compute_snr_and_detection_grids(sensitivity="O1", snr_threshold=8.0, Mc_min=0.1, Mc_max=300.0, Mc_step=0.1,
-                                    eta_min=0.01, eta_max=0.25, eta_step=0.01, snr_min=0.1, snr_max=1000.0, snr_step=0.1):
+def compute_snr_and_detection_grids(sensitivity="O1", snr_threshold=8.0, Mc_max=300.0, Mc_step=0.1,
+                                    eta_max=0.25, eta_step=0.01, snr_max=1000.0, snr_step=0.1):
     """
         Compute a grid of SNRs and detection probabilities for a range of masses and SNRs
+
+        These grids are computed to allow for interpolating the values of the snr and detection probability. This function
+        combined with find_detection_probability() could be replaced by something like
+            for i in range(n_binaries):
+                detection_probability = selection_effects.detection_probability(COMPAS.mass1[i],COMPAS.mass2[i],
+                                            redshifts, distances, GWdetector_snr_threshold, GWdetector_sensitivity)
+        if runtime was not important.
 
         Args:
             sensitivity                --> [string]         Which detector sensitivity to use: one of ["design", "O1", "O3"]
@@ -189,6 +199,11 @@ def compute_snr_and_detection_grids(sensitivity="O1", snr_threshold=8.0, Mc_min=
             snr_grid_at_1Mpc           --> [2D float array] The snr of a binary with masses (Mc, eta) at a distance of 1 Mpc
             detection_probability_grid --> [list of floats] A grid of detection probabilities for different SNRs
     """
+    # set minimum values
+    Mc_min = 0.1
+    eta_min = 0.01
+    snr_min = 0.1
+
     # get interpolator given sensitivity
     interpolator = selection_effects.SNRinterpolator(sensitivity)
 
@@ -221,14 +236,14 @@ def find_detection_probability(Mc, eta, redshifts, distances, n_redshifts_detect
             redshifts                  --> [list of floats] List of redshifts
             distances                  --> [list of floats] List of distances corresponding to redshifts
             n_redshifts_detection      --> [int]            Index (in redshifts) to which we evaluate detection probability
-            n_binaries                 --> [int]            Number of binaries in the COMPAS file
+            n_binaries                 --> [int]            Number of merging binaries in the COMPAS file
             snr_grid_at_1Mpc           --> [2D float array] The snr of a binary with masses (Mc, eta) at a distance of 1 Mpc
             detection_probability_grid --> [list of floats] A grid of detection probabilities for different SNRs
             Mc_step                    --> [float]          Step in chirp mass to use in grid
             eta_step                   --> [float]          Step in symmetric mass ratio to use in grid
             snr_step                   --> [float]          Step in snr to use in grid
     """
-    # by default, set detection probability to one (you'll see why below, patience is a virtue my friend)
+    # by default, set detection probability to one
     detection_probability = np.ones(shape=(n_binaries, n_redshifts_detection))
 
     # for each binary in the COMPAS file
@@ -252,8 +267,8 @@ def find_detection_probability(Mc, eta, redshifts, distances, n_redshifts_detect
         detection_grid_index = np.round(snrs / snr_step).astype(int) - 1
         snr_below_max = detection_grid_index < len(detection_probability_grid)
 
-        # remember we set probability = 1 by default? Because if we don't set it here, we have snr > max
-        # which is 1000 by default...so that sounds rather detectable ;)
+        # remember we set probability = 1 by default? Because if we don't set it here, we have snr > max snr
+        # which is 1000 by default, meaning very detectable
         detection_probability[i, snr_below_max] = detection_probability_grid[detection_grid_index[snr_below_max]]
 
     return detection_probability
@@ -261,10 +276,10 @@ def find_detection_probability(Mc, eta, redshifts, distances, n_redshifts_detect
 def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BHBH", weight_column=None,
                         max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001,
                         m1_min=5 * u.Msun, m1_max=150 * u.Msun, m2_min=0.1 * u.Msun, fbin=0.7,
-                        Z0=0.035, alpha=-0.23, sigma=0.39, min_logZ=-12.0, max_logZ=0.0, step_logZ=0.01,
+                        Z0=0.035, alpha=-0.23, sigma=0.39, step_logZ=0.01,
                         sensitivity="O1", snr_threshold=8, 
-                        Mc_min=0.1, Mc_max=300.0, Mc_step=0.1, eta_min=0.01, eta_max=0.25, eta_step=0.01,
-                        snr_min=0.1, snr_max=1000.0, snr_step=0.1):
+                        Mc_max=300.0, Mc_step=0.1, eta_max=0.25, eta_step=0.01,
+                        snr_max=1000.0, snr_step=0.1):
     """
         The main function of this file. Finds the detection rate, formation rate and merger rate for each
         binary in a COMPAS file at a series of redshifts defined by intput. Also returns relevant COMPAS
@@ -286,7 +301,7 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BHBH", weig
             == Arguments for creating redshift array ==
             ===========================================
             max_redshift           --> [float]  Maximum redshift to use in array
-            max_redshift_detection --> [float]  Maximum redshift to calculate detection rates
+            max_redshift_detection --> [float]  Maximum redshift to calculate detection rates (must be <= max_redshift)
             redshift_step          --> [float]  Size of step to take in redshift
 
             ====================================================================
@@ -303,8 +318,6 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BHBH", weig
             Z0                     --> [float]  Parameter used for calculating mean metallicity
             alpha                  --> [float]  Parameter used for calculating mean metallicity
             sigma                  --> [float]  Parameter used for calculating mean metallicity
-            min_logZ               --> [float]  Minimum logZ at which to calculate dPdlogZ
-            max_logZ               --> [float]  Maximum logZ at which to calculate dPdlogZ
             step_logZ              --> [float]  Size of logZ steps to take in finding a Z range
 
             =======================================================
@@ -312,13 +325,10 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BHBH", weig
             =======================================================
             sensitivity            --> [string] Which detector sensitivity to use: one of ["design", "O1", "O3"]
             snr_threshold          --> [float]  What SNR threshold required for a detection
-            Mc_min                 --> [float]  Minimum chirp mass in grid
             Mc_max                 --> [float]  Maximum chirp mass in grid
             Mc_step                --> [float]  Step in chirp mass to use in grid
-            eta_min                --> [float]  Minimum symmetric mass ratio in grid
             eta_max                --> [float]  Maximum symmetric mass ratio in grid
             eta_step               --> [float]  Step in symmetric mass ratio to use in grid
-            snr_min                --> [float]  Minimum snr in grid
             snr_max                --> [float]  Maximum snr in grid
             snr_step               --> [float]  Step in snr to use in grid
 
@@ -343,8 +353,7 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BHBH", weig
     n_binaries = len(chirp_masses)
 
     # calculate the redshifts array and its equivalents
-    redshifts, n_redshifts, n_redshifts_detection, times, distances, shell_volumes = \
-                    calculate_redshift_related_params(max_redshift, max_redshift_detection, redshift_step)
+    redshifts, n_redshifts_detection, times, distances, shell_volumes = calculate_redshift_related_params(max_redshift, max_redshift_detection, redshift_step)
 
     # find the star forming mass per year per Gpc^3 and convert to total number formed per year per Gpc^3
     sfr = find_sfr(redshifts)
@@ -352,18 +361,17 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BHBH", weig
 
     # work out the metallicity distribution at each redshift and probability of drawing each metallicity in COMPAS
     dPdlogZ, metallicities, p_draw_metallicity = find_metallicity_distribution(redshifts, np.log(np.min(COMPAS.metallicities_allsystems)),
-                                                                                np.log(np.max(COMPAS.metallicities_allsystems)), Z0, alpha, sigma,
-                                                                                min_logZ, max_logZ, step_logZ)
+                                                                                np.log(np.max(COMPAS.metallicities_allsystems)), Z0, alpha, sigma, step_logZ)
 
     # calculate the formation and merger rates using what we computed above
-    formation_rate, merger_rate = find_formation_and_merger_rates(n_binaries, n_redshifts, redshifts, times, n_formed, dPdlogZ,
+    formation_rate, merger_rate = find_formation_and_merger_rates(n_binaries, redshifts, times, n_formed, dPdlogZ,
                                                                     metallicities, p_draw_metallicity, COMPAS.metallicities[COMPAS.DCO_masks[dco_type]],
                                                                     COMPAS.delay_times[COMPAS.DCO_masks[dco_type]].to(u.Myr).value, 
-                                                                    COMPAS.sw_weights[COMPAS.DCO_masks[dco_type]], redshift_step)
+                                                                    COMPAS.sw_weights[COMPAS.DCO_masks[dco_type]])
 
     # create lookup tables for the SNR at 1Mpc as a function of the masses and the probability of detection as a function of SNR
-    snr_grid_at_1Mpc, detection_probability_grid = compute_snr_and_detection_grids(sensitivity, snr_threshold, Mc_min, Mc_max, Mc_step,
-                                                                                    eta_min, eta_max, eta_step, snr_min, snr_max, snr_step)
+    snr_grid_at_1Mpc, detection_probability_grid = compute_snr_and_detection_grids(sensitivity, snr_threshold, Mc_max, Mc_step,
+                                                                                    eta_max, eta_step, snr_max, snr_step)
 
     # use lookup tables to find the probability of detecting each binary at each redshift
     detection_probability = find_detection_probability(chirp_masses, etas, redshifts, distances, n_redshifts_detection, n_binaries,
