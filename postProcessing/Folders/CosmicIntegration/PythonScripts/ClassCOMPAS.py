@@ -68,8 +68,7 @@ class COMPASData(object):
             else:
                 return [compas_file[hdf5_file][var_name][...].squeeze() for var_name in var_names]
 
-    def set_DCO_masks(self, dco_types=["ALL", "BHBH", "BHNS", "NSNS"], merges_in_hubble_time=True, no_RLOF_after_CEE=True, pessimistic_CEE=True,
-                            rlof_mask=None, pessimistic_mask=None):
+    def set_DCO_masks(self, dco_types=["ALL", "BHBH", "BHNS", "NSNS"], merges_in_hubble_time=True, no_RLOF_after_CEE=True, pessimistic_CEE=True):
         """
             Create masks for different DCO types
 
@@ -78,8 +77,6 @@ class COMPASData(object):
                 merges_in_hubble_time --> whether to mask binaries that don't merge in a Hubble time
                 no_RLOF_after_CEE     --> whether to mask binaries that have immediate RLOF after a CCE
                 pessimistic_CEE       --> whether to mask binaries that go through Optimistic CE scenario
-                rlof_mask             --> a mask for RLOF after CEE (default is taken from CommonEnvelopes file, this is for if you don't have CE file)
-                pessimistic_mask      --> a mask for Optimstic CE scenarios (default is taken from CommonEnvelopes file, this is for if you don't have CE file)
         """
         # get the appropriate variables from the COMPAS file
         stellar_type_1, stellar_type_2, hubble_flag, dco_seeds = \
@@ -96,25 +93,31 @@ class COMPASData(object):
             "NSNS": np.logical_and(stellar_type_1 == 13, stellar_type_2 == 13),
         }
 
-        # if user wants to mask RLOF or pessimistic and they haven't supplied masks then we need to create them
-        if (no_RLOF_after_CEE or pessimistic_CEE) and (rlof_mask is None or pessimistic_mask is None):
-            # Try to get the flags and unique seeds from the Common Envelopes file
-            ce_seeds, rlof_flag, pessimistic_flag = self.get_COMPAS_variables("CommonEnvelopes", ["SEED", "Immediate_RLOF>CE", "Optimistic_CE"])
+        # if the user wants to make RLOF or optimistic CEs
+        if no_RLOF_after_CEE or pessimistic_CEE:
 
-            # match the seeds to DCO seeds and only take corresponding flags
+            # get the flags and unique seeds from the Common Envelopes file
+            ce_seeds = self.get_COMPAS_variables("CommonEnvelopes", "SEED")
             dco_from_ce = np.in1d(ce_seeds, dco_seeds)
-            rlof_flag, pessimistic_flag = rlof_flag[dco_from_ce], pessimistic_flag[dco_from_ce]
-            
-            # if user wants to mask on immediate RLOF use the inverse of the flag
-            rlof_mask = np.logical_not(rlof_flag)
+            dco_ce_seeds = ce_seeds[dco_from_ce]
 
-            # if user wants to mask on pessimistic CEE use the inverse of the flag
-            pessimistic_mask = np.logical_not(pessimistic_flag)
+            # if masking on RLOF, get flag and match seeds to dco seeds
+            if no_RLOF_after_CEE:
+                rlof_flag = self.get_COMPAS_variables("CommonEnvelopes", "Immediate_RLOF>CE")[dco_from_ce]
+                rlof_seeds = np.unique(dco_ce_seeds[rlof_flag])
+                rlof_mask = np.logical_not(np.in1d(dco_seeds, rlof_seeds))
+            else:
+                rlof_mask = True
 
-        # if the user doesn't want to mask then just set to true
-        if not no_RLOF_after_CEE:
+            # if masking on pessimistic CE, get flag and match seeds to dco seeds
+            if pessimistic_CEE:
+                pessimistic_flag = self.get_COMPAS_variables("CommonEnvelopes", "Optimistic_CE")[dco_from_ce]
+                pessimistic_seeds = np.unique(dco_ce_seeds[pessimistic_flag])
+                pessimistic_mask = np.logical_not(np.in1d(dco_seeds, pessimistic_seeds))
+            else:
+                pessimistic_mask = True
+        else:
             rlof_mask = True
-        if not pessimistic_CEE:
             pessimistic_mask = True
 
         # create a mask for each dco type supplied
