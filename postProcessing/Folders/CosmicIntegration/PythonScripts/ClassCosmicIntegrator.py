@@ -40,7 +40,7 @@ class CosmicIntegrator(object):
     
     """
 
-    def __init__(self,pathCOMPAS=None, Cosmology='WMAP',hubbleConstant = 67.8,\
+    def __init__(self, fileName=None, pathCOMPAS=None, Cosmology='WMAP',hubbleConstant = 67.8,\
                 omegaMatter=0.308,redshiftFirstSFR=10., \
                 minRedshift=0.0,   maxRedshift=2., nrRedshiftBins=20,\
                 RedshiftTabulated =True, RedshiftTabulatedResolution=100000,
@@ -55,6 +55,7 @@ class CosmicIntegrator(object):
         #Define topology universe using astropy
         self.verbose                  = verbose
         self.pathCOMPAS               = pathCOMPAS
+        self.fileName                 = fileName
 
         if Cosmology == 'WMAP':
             self.cosmology            = WMAP9
@@ -87,9 +88,16 @@ class CosmicIntegrator(object):
         if self.verbose:
             print("Creating instance COMPAS class User has to still set DCO and Data")
         #setting Mlower/Mupper etc to None to force warning for user
-        self.COMPAS  = ClassCOMPAS.COMPASData(path=self.pathCOMPAS, lazyData=True,\
+        if fileName is None:
+            # ClassCOMPAS will assume default filename "COMPAS_output.h5"
+            self.COMPAS  = ClassCOMPAS.COMPASData(path=self.pathCOMPAS, lazyData=True,\
                                               Mlower=None, Mupper=None, \
                                               binaryFraction=None)
+        else:
+            self.COMPAS  = ClassCOMPAS.COMPASData(path=self.pathCOMPAS, fileName=fileName, lazyData=True,\
+                                              Mlower=None, Mupper=None, \
+                                              binaryFraction=None)
+
         #####################################################
         #     set the MSSFR class                           #
         #####################################################
