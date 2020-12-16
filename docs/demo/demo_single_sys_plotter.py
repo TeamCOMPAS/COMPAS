@@ -19,7 +19,7 @@ def main():
     df.columns = df.columns.str.strip() # Strip white space around headers
     
     ### Creating new column for total mass
-    df['Mtot']=df['Mass_1']+df['Mass_2']
+    df['Mtot']=df['Mass(1)']+df['Mass(2)']
     
     ### Create subplots arranged in a 2x3 table, sharing x-axes whenever plots have the same x-axis range.
     fig, axes = plt.subplots(2,2, sharex=True, figsize=(10, 6)) # Dimensions chosen for aesthetics in the paper
@@ -27,12 +27,12 @@ def main():
     ### Plot mass attributes 
     lines = []  # This is used to split the legend into 2 pieces
     lines += axes[0][0].plot(df['Time'], df['Mtot'], linestyle='-', c='k', label='System Mass')
-    lines += axes[0][0].plot(df['Time'], df['Mass_1'], linestyle='-', c='r', label='Total Mass 1')
-    lines += axes[0][0].plot(df['Time'], df['Mass_He_Core_1'], linestyle='--', c='r', label='He Core 1')
-    lines += axes[0][0].plot(df['Time'], df['Mass_CO_Core_1'], linestyle=':', c='r', label='CO Core 1')
-    lines += axes[0][0].plot(df['Time'], df['Mass_2'], linestyle='-', c='b', label='Total Mass 2')
-    lines += axes[0][0].plot(df['Time'], df['Mass_He_Core_2'], linestyle='--', c='b', label='He Core 2')
-    lines += axes[0][0].plot(df['Time'], df['Mass_CO_Core_2'], linestyle=':', c='b', label='CO Core 2')
+    lines += axes[0][0].plot(df['Time'], df['Mass(1)'], linestyle='-', c='r', label='Total Mass 1')
+    lines += axes[0][0].plot(df['Time'], df['Mass_He_Core(1)'], linestyle='--', c='r', label='He Core 1')
+    lines += axes[0][0].plot(df['Time'], df['Mass_CO_Core(1)'], linestyle=':', c='r', label='CO Core 1')
+    lines += axes[0][0].plot(df['Time'], df['Mass(2)'], linestyle='-', c='b', label='Total Mass 2')
+    lines += axes[0][0].plot(df['Time'], df['Mass_He_Core(2)'], linestyle='--', c='b', label='He Core 2')
+    lines += axes[0][0].plot(df['Time'], df['Mass_CO_Core(2)'], linestyle=':', c='b', label='CO Core 2')
     axes[0][0].set_ylabel(r'Mass $/ \; M_{\odot}$')
     axes[0][0].grid(linestyle=':', c='gray')
     axes[0][0].legend(lines[:4], axes[0][0].get_legend_handles_labels()[1][:4], prop={'size':8}, loc=(0.05, 0.6))
@@ -44,10 +44,10 @@ def main():
     
     ### Plot radius attributes 
     axes[0][1].plot(df['Time'], df['SemiMajorAxis'], linestyle='-', c='k', label='Semi-Major Axis')
-    axes[0][1].plot(df['Time'], df['Radius_1']/df['Radius_1/RL'], linestyle='--', alpha=0.5, c='r', label='Roche Radius 1')
-    axes[0][1].plot(df['Time'], df['Radius_2']/df['Radius_2/RL'], linestyle='--', alpha=0.5, c='b', label='Roche Radius 2')
-    axes[0][1].plot(df['Time'], df['Radius_1'], linestyle='-', c='r', label='Stellar Radius 1')
-    axes[0][1].plot(df['Time'], df['Radius_2'], linestyle='-', c='b', label='Stellar Radius 2')
+    axes[0][1].plot(df['Time'], df['Radius(1)']/df['Radius_1/RL'], linestyle='--', alpha=0.5, c='r', label='Roche Radius 1')
+    axes[0][1].plot(df['Time'], df['Radius(2)']/df['Radius_2/RL'], linestyle='--', alpha=0.5, c='b', label='Roche Radius 2')
+    axes[0][1].plot(df['Time'], df['Radius(1)'], linestyle='-', c='r', label='Stellar Radius 1')
+    axes[0][1].plot(df['Time'], df['Radius(2)'], linestyle='-', c='b', label='Stellar Radius 2')
     axes[0][1].set_ylabel(r'Radius $/ \; R_{\odot}$')
     axes[0][1].set_yscale('log')
     axes[0][1].grid(linestyle=':', c='gray')
@@ -63,8 +63,8 @@ def main():
     ### Plot stellar types
     stellarTypes, useTypes, typeNameMap = getStellarTypes(df)
     
-    axes[1][1].plot(df['Time'], typeNameMap(df['Stellar_Type_1']), linestyle='-', c='r', label='Stellar Type 1')
-    axes[1][1].plot(df['Time'], typeNameMap(df['Stellar_Type_2']), linestyle='-', c='b', label='Stellar Type 2')
+    axes[1][1].plot(df['Time'], typeNameMap(df['Stellar_Type(1)']), linestyle='-', c='r', label='Stellar Type 1')
+    axes[1][1].plot(df['Time'], typeNameMap(df['Stellar_Type(2)']), linestyle='-', c='b', label='Stellar Type 2')
     axes[1][1].set_ylabel('Stellar Type')
     axes[1][1].set_xlabel('Time / Myr')
     axes[1][1].grid(linestyle=':', c='gray')
@@ -100,7 +100,7 @@ def getStellarTypes(df):
     # List of Hurley stellar types
     stellarTypes = [r'MS$<0.7M_{\odot}$', r'MS$\geq0.7M_{\odot}$', 'HG', 'FGB', 'CHeB', 'EAGB', 'TPAGB', 'HeMS', 'HeHG', 'HeGB', 'HeWD', 'COWD', 'ONeWD', 'NS', 'BH', 'MR']
 
-    useTypes = np.unique(np.append(df['Stellar_Type_1'], df['Stellar_Type_2']))
+    useTypes = np.unique(np.append(df['Stellar_Type(1)'], df['Stellar_Type(2)']))
     if (0 in useTypes) != (1 in useTypes): # XOR
         stellarTypes[0] = stellarTypes[1] = 'MS'
 
