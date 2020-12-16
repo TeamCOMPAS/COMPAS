@@ -3316,10 +3316,10 @@ typedef std::tuple<std::string, ANY_PROPERTY_VECTOR, std::string, std::string, L
 // fields are: {default filename, record descriptor, short file name, short record name, type}
 // (the short names are for logfile definitions file parsing)
 const std::map<LOGFILE, LOGFILE_DESCRIPTOR_T> LOGFILE_DESCRIPTOR = {
-    { LOGFILE::NONE,                       { "" ,                          {},                             "",                "",                        LOGFILE_TYPE::NONE}},
+    { LOGFILE::NONE,                       { "" ,                              {},                             "",                "",                    LOGFILE_TYPE::NONE}},
 
-    { LOGFILE::DEBUG_LOG,                  { "Debug_Log",                  {},                             "",                "",                        LOGFILE_TYPE::NONE }},
-    { LOGFILE::ERROR_LOG,                  { "Error_Log",                  {},                             "",                "",                        LOGFILE_TYPE::NONE }},
+    { LOGFILE::DEBUG_LOG,                  { "Debug_Log",                      {},                             "",                "",                    LOGFILE_TYPE::NONE }},
+    { LOGFILE::ERROR_LOG,                  { "Error_Log",                      {},                             "",                "",                    LOGFILE_TYPE::NONE }},
 
     { LOGFILE::BSE_BE_BINARIES,            { "BSE_BE_Binaries",                BSE_BE_BINARIES_REC,            "BSE_BE_BINARIES", "BSE_BE_BINARIES_REC", LOGFILE_TYPE::BINARY }},
     { LOGFILE::BSE_COMMON_ENVELOPES,       { "BSE_Common_Envelopes",           BSE_COMMON_ENVELOPES_REC,       "BSE_CEE",         "BSE_CEE_REC",         LOGFILE_TYPE::BINARY }},
