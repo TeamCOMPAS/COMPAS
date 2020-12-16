@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <time.h>
 
+#include <iostream>
+
 #include "Rand.h"
 
 Rand* Rand::m_Instance = nullptr;

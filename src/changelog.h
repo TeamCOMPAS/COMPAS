@@ -631,7 +631,9 @@
 //                                      - Added a new class variable to track the dominant mass loss rate at each timestep
 // 02.17.13     JR - Dec 11, 2020   - Defect repair
 //                                      - uncomment initialisations of mass transfer critical mass ratios in Options.cpp (erroneously commented in v02.16.00)
-// 02.17.14     JR - Dec 14, 2020   - Code and architecture cleanup
+// 02.17.14     TW - Dec 16, 2020   - Bug fix
+//                                      - fix behaviour at fLBV=0 (had been including other winds but should just ignore them)
+// 02.17.15     JR - Dec 17, 2020   - Code and architecture cleanup
 //                                      - Architecture changes:
 //                                          - Added Remnants class    - inherits from HeGB class
 //                                          - Added WhiteDwarfs class - inherits from Remnants class; most of the WD code moved from HeWD, COWD and ONeWD to WhiteDwarfs class
@@ -644,7 +646,9 @@
 //                                          - added "virtual" to GiantBranch::CalculateCoreMassAtBAGB() and BaseStar::CalculateTemperatureAtPhaseEnd()
 //                                              - will have no impact given where they are called, but the keyword should be there (in case of future changes)
 //                                          - changed hard-coded header suffixes from _1 -> (1), _2 -> (2)
+//                                      - Added call to main() to seed random number generator with seed = 0 before options are processed (and user specified seed is know).  Ensures repeatability.
+//                                      - Changed "timestep below minimum" warnings in Star.cpp to be displayed only if --enable-warnings is specified
 
-const std::string VERSION_STRING = "02.17.14";
+const std::string VERSION_STRING = "02.17.15";
 
 # endif // __changelog_h__
