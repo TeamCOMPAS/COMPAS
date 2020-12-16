@@ -137,27 +137,21 @@ class COMPASData(object):
 
     def setCOMPASData(self):
         
+        primary_masses, secondary_masses, formation_times, coalescence_times, dco_seeds = \
+            self.get_COMPAS_variables("DoubleCompactObjects", ["Mass(1)", "Mass(2)", "Time", "Coalescence_Time", "SEED"])
 
-
-        Data = h5.File(self.path + self.fileName, "r")
-        fDCO = Data["DoubleCompactObjects"]
-        # sorry not the prettiest line is a boolean slice of seeds
-        # this only works because seeds in systems file and DCO file are printed
-        # in same order
+        initial_seeds, initial_Z = self.get_COMPAS_variables("SystemParameters", ["SEED", "Metallicity@ZAMS(1)"])
 
         # Get metallicity grid of DCOs
-        self.seedsDCO = fDCO["SEED"][()][self.DCOmask]
-        initialSeeds = Data["SystemParameters"]["SEED"][()]
+        self.seedsDCO = dco_seeds[self.DCOmask]
         if self.initialZ is None:
-            self.initialZ = Data["SystemParameters"]["Metallicity@ZAMS_1"][()]
-        maskMetallicity = np.in1d(initialSeeds, self.seedsDCO)
+            self.initialZ = initial_Z
+        maskMetallicity = np.in1d(initial_seeds, self.seedsDCO)
         self.metallicitySystems = self.initialZ[maskMetallicity]
 
-        self.delayTimes = np.add(
-            fDCO["Time"][()][self.DCOmask], fDCO["Coalescence_Time"][()][self.DCOmask]
-        )
-        self.mass1 = fDCO["Mass_1"][()][self.DCOmask]
-        self.mass2 = fDCO["Mass_2"][()][self.DCOmask]
+        self.delayTimes = np.add(formation_times[self.DCOmask], coalescence_times[self.DCOmask])
+        self.mass1 = primary_masses[self.DCOmask]
+        self.mass2 = secondary_masses[self.DCOmask]
 
         # Stuff of data I dont need for integral
         # but I might be to laze to read in myself
@@ -170,9 +164,7 @@ class COMPASData(object):
                 (np.multiply(self.mass2, self.mass1) ** (3.0 / 5.0)),
                 (np.add(self.mass2, self.mass1) ** (1.0 / 5.0)),
             )
-            self.Hubble = fDCO["Merges_Hubble_Time"][...].squeeze()[self.DCOmask]
-
-        Data.close()
+            self.Hubble = self.get_COMPAS_variables("DoubleCompactObjects", "Merges_Hubble_Time")[self.DCOmask]
 
     def recalculateTrueSolarMassEvolved(self, Mlower, Mupper, binaryFraction):
         # Possibility to test assumptions of True solar mass evolved
