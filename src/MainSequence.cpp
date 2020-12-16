@@ -51,7 +51,7 @@ void MainSequence::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timesc
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Luminosity perturbation (delta_L in Hurley et al. 2000)
  */
-double MainSequence::CalculateDeltaL(const double p_Mass) {
+double MainSequence::CalculateDeltaL(const double p_Mass) const {
 #define a m_AnCoefficients                                              // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
@@ -87,7 +87,7 @@ double MainSequence::CalculateDeltaL(const double p_Mass) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Luminosity beta coefficient (beta_L in Hurley et al. 2000)
  */
-double MainSequence::CalculateBetaL(const double p_Mass) {
+double MainSequence::CalculateBetaL(const double p_Mass) const {
 #define a m_AnCoefficients    // for convenience and readability - undefined at end of function
 
     double betaL  = std::max(0.0, (a[54] - (a[55] * PPOW(p_Mass, a[56]))));
@@ -114,7 +114,7 @@ double MainSequence::CalculateBetaL(const double p_Mass) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Luminosity alpha constant (alpha_L in Hurley et al. 2000)
  */
-double MainSequence::CalculateAlphaL(const double p_Mass) {
+double MainSequence::CalculateAlphaL(const double p_Mass) const {
 #define a m_AnCoefficients    // for convenience and readability - undefined at end of function
 
     // You might find that functions you give Metallicity to as an argument don't actually need it -- metallicity dependence is in an/MFGB etc.
@@ -128,7 +128,7 @@ double MainSequence::CalculateAlphaL(const double p_Mass) {
     else if (utils::Compare(p_Mass, a[52]) < 0) alphaL = 0.3 + ((a[50] - 0.3) * (p_Mass - 0.7) / (a[52] - 0.7));
     else if (utils::Compare(p_Mass, a[53]) < 0) alphaL = a[50] + ((a[51] - a[50]) * (p_Mass - a[52]) / (a[53] - a[52]));
     else if (utils::Compare(p_Mass, 2.0)   < 0) alphaL = a[51] + ((m_LConstants[static_cast<int>(L_CONSTANTS::B_ALPHA_L)] - a[51]) * (p_Mass - a[53]) / (2.0 - a[53]));
-    else                                       alphaL = (a[45] + (a[46] * PPOW(p_Mass, a[48]))) / (PPOW(p_Mass, 0.4) + (a[47] * PPOW(p_Mass, 1.9)));
+    else                                        alphaL = (a[45] + (a[46] * PPOW(p_Mass, a[48]))) / (PPOW(p_Mass, 0.4) + (a[47] * PPOW(p_Mass, 1.9)));
 
     return alphaL;
 
@@ -147,7 +147,7 @@ double MainSequence::CalculateAlphaL(const double p_Mass) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      The exponent eta (for Hurley et al. 2000, eq 12)
  */
-double MainSequence::CalculateEta(const double p_Mass) {
+double MainSequence::CalculateEta(const double p_Mass) const {
 
     double eta = 10.0;
 
@@ -175,7 +175,7 @@ double MainSequence::CalculateEta(const double p_Mass) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      The exponent eta (for Hurley et al. 2000, eq 12)
  */
-double MainSequence::CalculateGamma(const double p_Mass) {
+double MainSequence::CalculateGamma(const double p_Mass) const {
 #define a m_AnCoefficients                                                      // for convenience and readability - undefined at end of function
 #define B_GAMMA m_GammaConstants[static_cast<int>(GAMMA_CONSTANTS::B_GAMMA)]    // for convenience and readability - undefined at end of function
 #define C_GAMMA m_GammaConstants[static_cast<int>(GAMMA_CONSTANTS::C_GAMMA)]    // for convenience and readability - undefined at end of function
@@ -206,7 +206,7 @@ double MainSequence::CalculateGamma(const double p_Mass) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Luminosity at the end of the Main Sequence in Lsol
  */
-double MainSequence::CalculateLuminosityAtPhaseEnd(const double p_Mass) {
+double MainSequence::CalculateLuminosityAtPhaseEnd(const double p_Mass) const {
 #define a m_AnCoefficients    // for convenience and readability - undefined at end of function
 
     // pow() is slow - use multiplication
@@ -236,7 +236,7 @@ double MainSequence::CalculateLuminosityAtPhaseEnd(const double p_Mass) {
  * @param   [IN]    p_LZAMS0                    Zero Age Main Sequence (ZAMS) Luminosity
  * @return                                      Luminosity on the Main Sequence as a function of time
  */
-double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) {
+double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) const {
 #define a m_AnCoefficients                                          // for convenience and readability - undefined at end of function
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
@@ -284,8 +284,7 @@ double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const doubl
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Radius constant alpha_R
  */
-
-double MainSequence::CalculateAlphaR(const double p_Mass) {
+double MainSequence::CalculateAlphaR(const double p_Mass) const {
 #define a m_AnCoefficients    // for convenience and readability - undefined at end of function
 
     double alphaR = 0.0;
@@ -314,7 +313,7 @@ double MainSequence::CalculateAlphaR(const double p_Mass) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Radius constant beta_R
  */
-double MainSequence::CalculateBetaR(const double p_Mass) {
+double MainSequence::CalculateBetaR(const double p_Mass) const {
 #define a m_AnCoefficients    // for convenience and readability - undefined at end of function
 
     double betaRPrime = 0.0;
@@ -342,7 +341,7 @@ double MainSequence::CalculateBetaR(const double p_Mass) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      The radius perturbation DeltaR
  */
-double MainSequence::CalculateDeltaR(const double p_Mass) {
+double MainSequence::CalculateDeltaR(const double p_Mass) const {
 #define a m_AnCoefficients                                              // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
@@ -377,7 +376,7 @@ double MainSequence::CalculateDeltaR(const double p_Mass) {
  * @param   [IN]    p_RZAMS                     Zero Age Main Sequence (ZAMS) Radius
  * @return                                      Radius at the end of the Main Sequence in Rsol
  */
-double MainSequence::CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_RZAMS) {
+double MainSequence::CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_RZAMS) const {
 #define a m_AnCoefficients    // for convenience and readability - undefined at end of function
 
     double RTMS;
@@ -431,7 +430,7 @@ double MainSequence::CalculateRadiusAtPhaseEnd(const double p_Mass, const double
  * @param   [IN]    p_RZAMS                     Zero Age Main Sequence (ZAMS) Radius
  * @return                                      Radius on the Main Sequence in Rsol
  */
-double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_Time, const double p_RZAMS) {
+double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_Time, const double p_RZAMS) const {
 #define a m_AnCoefficients                                          // for convenience and readability - undefined at end of function
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
@@ -483,11 +482,9 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
  *
  * @return                                      Radial extent of the star's convective envelope in Rsol
  */
-double MainSequence::CalculateRadialExtentConvectiveEnvelope() {
+double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
     return utils::Compare(m_Mass, 0.35) <= 0 ? m_Radius * PPOW(1.0 - m_Tau, 1.0 / 4.0) : 0.0;
 }
-
-
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -507,8 +504,7 @@ double MainSequence::CalculateRadialExtentConvectiveEnvelope() {
  *
  * @return                                      MS relative age, clamped to [0, 1]
  */
-
-double MainSequence::CalculateTauOnPhase() {
+double MainSequence::CalculateTauOnPhase() const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     return std::max(0.0, std::min(1.0, m_Age / timescales(tMS)));
@@ -529,7 +525,7 @@ double MainSequence::CalculateTauOnPhase() {
  * @param   [IN]    p_TBGB                      Lifetime to Base of Giant Branch
  * @return                                      Lifetime of Main Sequence in Myr
  */
-double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB) {
+double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB) const {
 #define a m_AnCoefficients    // for convenience and readability - undefined at end of function
 
     // Calculate time to Hook
@@ -598,12 +594,12 @@ void MainSequence::UpdateAgeAfterMassLoss() {
  * Define gyration radius 'k=r_g^2' using fit from de Mink et al. 2013, calling k_definition function
  * Original created by Alejandro Vigna-Gomez on 11/2015.  Rewritten June 2019, JR.
  *
- * The original fits from de Mink+2013 where made for MS stars a Z=0.02.
+ * The original fits from de Mink+2013 were made for MS stars a Z=0.02.
  *
  * Uses class member variables instaed of passing in parameters
  *
  *
- * double CalculateGyrationRadius() const
+ * double CalculateGyrationRadius()
  *
  * @return                                      Gyration radius in Rsol
  *
@@ -626,7 +622,7 @@ double MainSequence::CalculateGyrationRadius() const {
 
     double radiusRatio = m_Radius / m_RZAMS;
 
-	return ((k0 - 0.025) * PPOW(radiusRatio, CUpper)) + (0.025 * PPOW(radiusRatio, -0.1));            // gyration radius
+	return ((k0 - 0.025) * PPOW(radiusRatio, CUpper)) + (0.025 * PPOW(radiusRatio, -0.1));          // gyration radius
 }
 
 
@@ -661,7 +657,7 @@ void MainSequence::EvolveOneTimestepPreamble() {
  * @param   [IN]    p_Time                      Current age of star in Myr
  * @return                                      Suggested timestep (dt)
  */
-double MainSequence::ChooseTimestep(const double p_Time) {
+double MainSequence::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     double dtk = 1.0E-2 * timescales(tMS);

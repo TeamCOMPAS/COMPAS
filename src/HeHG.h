@@ -32,9 +32,9 @@ public:
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP;                                                                                                            // Set stellar type
+        m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP;                                                                                                                    // Set stellar type
         m_Tau = 0.0;                                                                                      // Start of phase
-        CalculateTimescales();                                                                                                                                                      // Initialise timescales
+        CalculateTimescales();                                                                                                                                                              // Initialise timescales
         // JR: Age for HeHG is calculated before switching -
         // can get here via EvolveOneTimestep() and ResolveEnvelopeLoss(),
         // and Age is calculated differently in those cases
@@ -50,82 +50,82 @@ protected:
 
 
     // member functions - aphabetically
-            double          CalculateCOCoreMassAtPhaseEnd()                                                  { return m_COCoreMass; }                                               // NO-OP
-            double          CalculateCOCoreMassOnPhase();
+            double          CalculateCOCoreMassAtPhaseEnd() const                                                   { return m_COCoreMass; }                                                // NO-OP
+            double          CalculateCOCoreMassOnPhase() const;
 
-            double          CalculateCoreMassAtBAGB()                                                        { return m_Mass0; }                                                    // McBAGB = M0 (Hurely et al. 2000, discussion just before eq 89)
-            double          CalculateCoreMassAtPhaseEnd()                                                    { return m_CoreMass; }                                                 // NO-OP
-            double          CalculateCoreMassOnPhase()                                                       { return m_COCoreMass; }                                               // Mc(HeMS) = McCOMass
+            double          CalculateCoreMassAtBAGB() const                                                         { return m_Mass0; }                                                     // McBAGB = M0 (Hurely et al. 2000, discussion just before eq 89)
+            double          CalculateCoreMassAtPhaseEnd() const                                                     { return m_CoreMass; }                                                  // NO-OP
+            double          CalculateCoreMassOnPhase() const                                                        { return m_COCoreMass; }                                                // Mc(HeMS) = McCOMass
 
-    static  double          CalculateCoreMass_Luminosity_B_Static()                                          { return 4.1E4; }
-    static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass)                       { return 5.5E4 / (1.0 + (0.4 * p_Mass * p_Mass * p_Mass * p_Mass)); }  // pow() is slow - use multiplication
+    static  double          CalculateCoreMass_Luminosity_B_Static()                                                 { return 4.1E4; }
+    static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass)                              { return 5.5E4 / (1.0 + (0.4 * p_Mass * p_Mass * p_Mass * p_Mass)); }   // pow() is slow - use multiplication
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
-            void            CalculateGBParams()                                                              { CalculateGBParams(m_Mass0, m_GBParams); }                            // Use class member variables
+            void            CalculateGBParams()                                                                     { CalculateGBParams(m_Mass0, m_GBParams); }                             // Use class member variables
 
-            double          CalculateGyrationRadius() const                                                        { return 0.21; }                                                       // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
+            double          CalculateGyrationRadius() const                                                         { return 0.21; }                                                        // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 
-            double          CalculateHeCoreMassAtPhaseEnd()                                                  { return CalculateHeCoreMassOnPhase(); }                               // Same as on phase
-            double          CalculateHeCoreMassOnPhase()                                                     { return m_Mass; }                                               // NO-OP
+            double          CalculateHeCoreMassAtPhaseEnd() const                                                   { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
+            double          CalculateHeCoreMassOnPhase() const                                                      { return m_Mass; }                                                      // NO-OP
 
-            double          CalculateLambdaNanjing();
+            double          CalculateLambdaNanjing() const;
 
-            double          CalculateLuminosityOnPhase();
-            double          CalculateLuminosityAtPhaseEnd()                                                  { return m_Luminosity; }                                                                                                // NO-OP
+            double          CalculateLuminosityOnPhase() const;
+            double          CalculateLuminosityAtPhaseEnd() const                                                   { return m_Luminosity; }                                                // NO-OP
 
-            double          CalculateMassTransferRejuvenationFactor();
+            double          CalculateMassTransferRejuvenationFactor() const;
 
-   	        double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0)                     { return GiantBranch::CalculateMomentOfInertia(p_RemnantRadius); }     // Skip HeMS
-   	        double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)                   { return GiantBranch::CalculateMomentOfInertiaAU(p_RemnantRadius); }   // Skip HeMS
+   	        double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                      { return GiantBranch::CalculateMomentOfInertia(p_RemnantRadius); }      // Skip HeMS
+   	        double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const                    { return GiantBranch::CalculateMomentOfInertiaAU(p_RemnantRadius); }    // Skip HeMS
 
-            double          CalculatePerturbationMu();
-            double          CalculatePerturbationMuAtPhaseEnd()                                              { return m_Mu; }                                                       // NO-OP
+            double          CalculatePerturbationMu() const;
+            double          CalculatePerturbationMuAtPhaseEnd() const                                               { return m_Mu; }                                                        // NO-OP
 
-            double          CalculateRadialExtentConvectiveEnvelope()                                        { return GiantBranch::CalculateRadialExtentConvectiveEnvelope(); }     // Skip HeMS
+            double          CalculateRadialExtentConvectiveEnvelope() const                                         { return GiantBranch::CalculateRadialExtentConvectiveEnvelope(); }      // Skip HeMS
 
-            double          CalculateRadiusAtPhaseEnd()                                                      { return m_Radius; }                                                                                                        // NO-OP
-            double          CalculateRadiusOnPhase();
+            double          CalculateRadiusAtPhaseEnd() const                                                       { return m_Radius; }                                                    // NO-OP
+            double          CalculateRadiusOnPhase() const;
 
-            std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity);
-            std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase()                         { return CalculateRadiusAndStellarTypeOnPhase(m_Mass, m_Luminosity); }
+            std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity) const;
+            std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                          { return CalculateRadiusAndStellarTypeOnPhase(m_Mass, m_Luminosity); }
 
-            double          CalculateTauAtPhaseEnd()                                                         { return m_Tau; }                                                      // NO-OP
-            double          CalculateTauOnPhase()                                                            { return 0.0; }
+            double          CalculateTauAtPhaseEnd() const                                                          { return m_Tau; }                                                       // NO-OP
+            double          CalculateTauOnPhase() const                                                             { return 0.0; }
 
-            double          CalculateTemperatureAtPhaseEnd(const double p_Luminosity, const double p_Radius) { return m_Temperature; }                                              // NO-OP
-            double          CalculateTemperatureAtPhaseEnd()                                                 { return CalculateTemperatureAtPhaseEnd(m_Luminosity, m_Radius); }     // Use class member variables
+            double          CalculateTemperatureAtPhaseEnd(const double p_Luminosity, const double p_Radius) const  { return m_Temperature; }                                               // NO-OP
+            double          CalculateTemperatureAtPhaseEnd() const                                                  { return CalculateTemperatureAtPhaseEnd(m_Luminosity, m_Radius); }      // Use class member variables
 
-            double          CalculateThermalMassLossRate()                                                   { return GiantBranch::CalculateThermalMassLossRate(); }                // Skip HeMS
+            double          CalculateThermalMassLossRate() const                                                    { return GiantBranch::CalculateThermalMassLossRate(); }                 // Skip HeMS
 
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
-            void            CalculateTimescales()                                                            { CalculateTimescales(m_Mass0, m_Timescales); }                        // Use class member variables
+            void            CalculateTimescales()                                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
     
-            double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)             { return HG::CalculateZeta(p_ZetaPrescription); }                               // Calculate Zetas as for HG and other giant stars (HeMS stars were an exception)
+            double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                                     { return HG::CalculateZeta(p_ZetaPrescription); }                       // Calculate Zetas as for HG and other giant stars (HeMS stars were an exception)
 
-            double          ChooseTimestep(const double p_Time);
+            double          ChooseTimestep(const double p_Time) const;
 
-            ENVELOPE        DetermineEnvelopeType();
+            ENVELOPE        DetermineEnvelopeType() const;
 
-            MT_CASE         DetermineMassTransferCase()                                                      { return MT_CASE::B; }                                                 // Mass Transfer Case B for HeHG stars
+            MT_CASE         DetermineMassTransferCase() const                                                       { return MT_CASE::B; }                                                  // Mass Transfer Case B for HeHG stars
 
             STELLAR_TYPE    EvolveToNextPhase();
 
-            bool            IsEndOfPhase()                                                                   { return !ShouldEvolveOnPhase(); }
-            bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate);
-            bool            IsSupernova() ;
-            double          CalculateInitialSupernovaMass();
+            bool            IsEndOfPhase() const                                                                    { return !ShouldEvolveOnPhase(); }
+            bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
+            bool            IsSupernova() const;
+            double          CalculateInitialSupernovaMass() const;
     
-            void            PerturbLuminosityAndRadius()                                                     { GiantBranch::PerturbLuminosityAndRadius(); }                                                                                        // NO-OP
+            void            PerturbLuminosityAndRadius()                                                            { GiantBranch::PerturbLuminosityAndRadius(); }                          // NO-OP
 
             STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
-            void            ResolveHeliumFlash() { }                                                                                                                                // NO-OP
-            STELLAR_TYPE    ResolveSkippedPhase()                                                            { return m_StellarType; }                                              // NO-OP
+            void            ResolveHeliumFlash() { }                                                                                                                                        // NO-OP
+            STELLAR_TYPE    ResolveSkippedPhase()                                                                   { return m_StellarType; }                                               // NO-OP
 
-            bool            ShouldEvolveOnPhase();
-            bool            ShouldSkipPhase()                                                                { return false; }                                                      // Never skip HeMS phase
+            bool            ShouldEvolveOnPhase() const;
+            bool            ShouldSkipPhase() const                                                                 { return false; }                                                       // Never skip HeMS phase
 
-            void            UpdateAgeAfterMassLoss()                                                         { GiantBranch::UpdateAgeAfterMassLoss(); }                             // Skip HeMS
-            void            UpdateInitialMass()                                                              { GiantBranch::UpdateInitialMass(); }                                  // Skip HeMS
+            void            UpdateAgeAfterMassLoss()                                                                { GiantBranch::UpdateAgeAfterMassLoss(); }                              // Skip HeMS
+            void            UpdateInitialMass()                                                                     { GiantBranch::UpdateInitialMass(); }                                   // Skip HeMS
 
 };
 

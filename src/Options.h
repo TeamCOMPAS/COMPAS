@@ -957,8 +957,8 @@ public:
 
 
 
-    int             AdvanceCmdLineOptionValues()    { return AdvanceOptionVariation(m_CmdLine); }
-    int             AdvanceGridLineOptionValues()   { return AdvanceOptionVariation(m_GridLine); }
+    int             AdvanceCmdLineOptionValues()            { return AdvanceOptionVariation(m_CmdLine); }
+    int             AdvanceGridLineOptionValues()           { return AdvanceOptionVariation(m_GridLine); }
     int             ApplyNextGridLine();
 
     void            CloseGridFile() { m_Gridfile.handle.close(); m_Gridfile.filename = ""; m_Gridfile.error = ERROR::EMPTY_FILENAME; }
@@ -975,7 +975,6 @@ public:
     void            PrintOptionHelp(const bool p_Verbose);
 
     void            RewindGridFile() { m_Gridfile.handle.clear(); m_Gridfile.handle.seekg(0); }
-
 
     // getters
 

@@ -32,7 +32,7 @@ double MS_gt_07::CalculateMassLossRateHurley() {
  *
  * @return                                      Rejuvenation factor
  */
-double MS_gt_07::CalculateMassTransferRejuvenationFactor() {
+double MS_gt_07::CalculateMassTransferRejuvenationFactor() const {
 
     double fRej = 1.0;                                                                              // default - Hurley et al. 2000
 
@@ -67,7 +67,7 @@ double MS_gt_07::CalculateMassTransferRejuvenationFactor() {
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
  * @return                                      Boolean indicating stability of mass transfer (true = unstable)
  */
-bool MS_gt_07::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) {
+bool MS_gt_07::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const {
 
     bool result = false;                                                                                                    // default is stable
 
@@ -90,11 +90,11 @@ bool MS_gt_07::IsMassRatioUnstable(const double p_AccretorMass, const bool p_Acc
  *
  * @return                                      ENVELOPE::{ RADIATIVE, CONVECTIVE, REMNANT }
  */
-ENVELOPE MS_gt_07::DetermineEnvelopeType() {
+ENVELOPE MS_gt_07::DetermineEnvelopeType() const {
     
     ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                        // default envelope type  is RADIATIVE
     
-    switch (OPTIONS->EnvelopeStatePrescription()) {                                         // which envelope prescription?
+    switch (OPTIONS->EnvelopeStatePrescription()) {                                                 // which envelope prescription?
             
         case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
             envelope = ENVELOPE::RADIATIVE;
@@ -106,11 +106,11 @@ ENVELOPE MS_gt_07::DetermineEnvelopeType() {
             break;
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
-            envelope =  utils::Compare(Temperature()*TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            envelope =  utils::Compare(Temperature() * TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             break;
             
         default:                                                                                    // unknown prescription - use default envelope type
-            SHOW_WARN(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION, "Using Envelope = RADIATIVE");   // show warning
+            SHOW_WARN(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION, "Using Envelope = RADIATIVE");    // show warning
     }
     
     return envelope;
