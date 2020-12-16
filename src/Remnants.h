@@ -50,7 +50,7 @@ protected:
     DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                     const double p_AccretorMassRate = 0.0);
 
-    double          CalculateMassLossRateHurley() const;
+    double          CalculateMassLossRateHurley();
     double          CalculateMassLossRateVink()                                                                 { return 0.0; }
 
     double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                          { return GiantBranch::CalculateMomentOfInertia(p_RemnantRadius); }      // Default to GiantBranch
@@ -70,7 +70,7 @@ protected:
                                               const double p_Luminosity,
                                               const double p_EnvMass = 1.0) const                               { return CalculateThermalTimescale(); }                                 // Ignore parameters
 
-    double          CalculateThermalMassLossRate()                                                              { return BaseStar::CalculateThermalMassLossRate(); }                    // Set thermal mass gain rate to be effectively infinite, using dynamical timescale (in practice, will be Eddington limited), avoid division by zero
+    double          CalculateThermalMassLossRate() const                                                        { return BaseStar::CalculateThermalMassLossRate(); }                    // Set thermal mass gain rate to be effectively infinite, using dynamical timescale (in practice, will be Eddington limited), avoid division by zero
 
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales)                          { return TPAGB::CalculateTimescales(p_Mass, p_Timescales); }            // Use TPAGB
     void            CalculateTimescales()                                                                       { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables

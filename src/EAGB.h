@@ -56,7 +56,7 @@ protected:
     double          CalculateHeCoreMassAtPhaseEnd() const                                           { return CalculateHeCoreMassOnPhase(); }                            // Same as on phase
     double          CalculateHeCoreMassOnPhase() const                                              { return m_HeCoreMass; }                                            // NO-OP
 
-    double          CalculateInitialSupernovaMass()                                                 { return m_GBParams[static_cast<int>(GBP::McBAGB)]; }               // For EAGB & TPAGB we use the mass at Base Asymptotic Giant Branch to determine SN type
+    double          CalculateInitialSupernovaMass() const                                           { return m_GBParams[static_cast<int>(GBP::McBAGB)]; }               // For EAGB & TPAGB we use the mass at Base Asymptotic Giant Branch to determine SN type
 
     double          CalculateLambdaNanjing() const;
 
@@ -67,7 +67,7 @@ protected:
     double          CalculateLuminosityOnPhase(const double p_CoreMass) const;
     double          CalculateLuminosityOnPhase() const                                              { return CalculateLuminosityOnPhase(m_COCoreMass); }
 
-    double          CalculateMassLossRateHurley() const;
+    double          CalculateMassLossRateHurley();
 
     double          CalculateRadialExtentConvectiveEnvelope() const                                 { return GiantBranch::CalculateRadialExtentConvectiveEnvelope(); }  // Skip CHeB
 

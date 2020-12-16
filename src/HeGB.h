@@ -49,18 +49,18 @@ protected:
 
 
     // member functions - alphabetically
-    double      CalculateGyrationRadius() const                                                                 { return 0.1; }                                         // Hurley et al., 2000, after eq 109 for giants. Single number approximation.
+    double      CalculateGyrationRadius() const                                                                     { return 0.1; }                                         // Hurley et al., 2000, after eq 109 for giants. Single number approximation.
 
-    double      CalculateLuminosityOnPhase(const double p_CoreMass, const double p_GBPB, const double p_GBPD)   { return CalculateLuminosityOnPhase_Static(p_CoreMass, p_GBPB, p_GBPD); }
-    double      CalculateLuminosityOnPhase()                                                                    { return CalculateLuminosityOnPhase(m_CoreMass, m_GBParams[static_cast<int>(GBP::B)], m_GBParams[static_cast<int>(GBP::D)]); }
+    double      CalculateLuminosityOnPhase(const double p_CoreMass, const double p_GBPB, const double p_GBPD) const { return CalculateLuminosityOnPhase_Static(p_CoreMass, p_GBPB, p_GBPD); }
+    double      CalculateLuminosityOnPhase() const                                                                  { return CalculateLuminosityOnPhase(m_CoreMass, m_GBParams[static_cast<int>(GBP::B)], m_GBParams[static_cast<int>(GBP::D)]); }
 
-    double      CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity);
-    double      CalculateRadiusOnPhase()                                                                        { return CalculateRadiusOnPhase(m_Mass, m_Luminosity); }
+    double      CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const;
+    double      CalculateRadiusOnPhase() const                                                                      { return CalculateRadiusOnPhase(m_Mass, m_Luminosity); }
 
     std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity) const;
-    std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                              { return CalculateRadiusAndStellarTypeOnPhase(m_Mass, m_Luminosity); }
+    std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                                  { return CalculateRadiusAndStellarTypeOnPhase(m_Mass, m_Luminosity); }
             
-    ENVELOPE    DetermineEnvelopeType() const                                                                   { return ENVELOPE::CONVECTIVE; }                        // Always CONVECTIVE
+    ENVELOPE    DetermineEnvelopeType() const                                                                       { return ENVELOPE::CONVECTIVE; }                        // Always CONVECTIVE
 
     bool        IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
 };

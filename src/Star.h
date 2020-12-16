@@ -162,12 +162,12 @@ public:
                                              const double p_EjectaMass, 
 								             const STELLAR_TYPE p_StellarType)                                      { return m_Star->CalculateSNKickMagnitude(p_RemnantMass, p_EjectaMass, p_StellarType); }
 
-    double          CalculateThermalMassLossRate()                                                                  { return m_Star->CalculateThermalMassLossRate(); }
+    double          CalculateThermalMassLossRate() const                                                            { return m_Star->CalculateThermalMassLossRate(); }
 
     double          CalculateThermalTimescale(const double p_Mass,
                                               const double p_Radius,
                                               const double p_Luminosity,
-                                              const double p_EnvMass = 1.0)                                         { return m_Star->CalculateThermalTimescale(p_Mass, p_Radius, p_Luminosity, p_EnvMass); }
+                                              const double p_EnvMass = 1.0) const                                   { return m_Star->CalculateThermalTimescale(p_Mass, p_Radius, p_Luminosity, p_EnvMass); }
 
     double          CalculateTimestep()                                                                             { return m_Star->CalculateTimestep(); }
 

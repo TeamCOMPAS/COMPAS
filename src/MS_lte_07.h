@@ -37,7 +37,7 @@ protected:
 
 
     // member functions - alphabetically
-    double      CalculateMassTransferRejuvenationFactor();
+    double      CalculateMassTransferRejuvenationFactor() const;
 
     ENVELOPE    DetermineEnvelopeType() const { return ENVELOPE::CONVECTIVE; }                      // Always CONVECTIVE
 

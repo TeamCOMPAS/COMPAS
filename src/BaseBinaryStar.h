@@ -153,9 +153,9 @@ public:
 
         if (this != &p_Star) {                                      // make sure we're not not copying ourselves...
 
-            m_ObjectId    = globalObjectId++;                      // get unique object id (don't copy source)
-            m_ObjectType  = OBJECT_TYPE::BASE_BINARY_STAR;         // can only copy from BASE_BINARY_STAR
-            m_StellarType = STELLAR_TYPE::BINARY_STAR;             // always
+            m_ObjectId    = globalObjectId++;                       // get unique object id (don't copy source)
+            m_ObjectType  = OBJECT_TYPE::BASE_BINARY_STAR;          // can only copy from BASE_BINARY_STAR
+            m_StellarType = STELLAR_TYPE::BINARY_STAR;              // always
 
             CopyMemberVariables(p_Star);                            // copy member variables
         }
@@ -218,8 +218,8 @@ public:
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
     double              OrbitalAngularVelocity() const              { return sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
-    double              Periastron() const                          { return m_SemiMajorAxis*(1.0-m_Eccentricity); }
-    double              PeriastronRsol() const                      { return Periastron()*AU_TO_RSOL; }
+    double              Periastron() const                          { return m_SemiMajorAxis * (1.0-m_Eccentricity); }
+    double              PeriastronRsol() const                      { return Periastron() * AU_TO_RSOL; }
 	double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
 	double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
 	double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }
@@ -241,7 +241,7 @@ public:
     double              SemiMajorAxisPreSN() const                  { return m_SemiMajorAxisPreSN; }
     double              SemiMajorAxisPreCEE() const                 { return m_CEDetails.preCEE.semiMajorAxis; }
     double              SemiMajorAxis() const                       { return m_SemiMajorAxis; }
-    double              SemiMajorAxisRsol() const                   { return m_SemiMajorAxis*AU_TO_RSOL; }
+    double              SemiMajorAxisRsol() const                   { return m_SemiMajorAxis * AU_TO_RSOL; }
     bool                SimultaneousRLOF() const                    { return m_RLOFDetails.simultaneousRLOF; }
     bool                StableRLOFPostCEE() const                   { return m_RLOFDetails.stableRLOFPostCEE; }
     bool                StellarMerger() const                       { return m_Flags.stellarMerger; }

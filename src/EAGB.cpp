@@ -556,13 +556,31 @@ double EAGB::CalculateCOCoreMassOnPhase(const double p_Time) const {
  *
  * @return                                      Mass loss rate in Msol per year
  */
-double EAGB::CalculateMassLossRateHurley() const {
+double EAGB::CalculateMassLossRateHurley() {
+    double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
+    double rateKR = CalculateMassLossRateKudritzkiReimers();
+    double rateVW = CalculateMassLossRateVassiliadisWood();
+    double rateWR = CalculateMassLossRateWolfRayet(m_Mu);
+    double dominantRate;
 
-    double dms = CalculateMassLossRateNieuwenhuijzenDeJager();
-    double dml = CalculateMassLossRateKudritzkiReimers();
-    double dmt = CalculateMassLossRateVassiliadisWood();
+    if (utils::Compare(rateNJ, rateKR) > 0) {
+        m_DominantMassLossRate = MASS_LOSS_TYPE::NIEUWENHUIJZEN_DE_JAGER;
+        dominantRate = rateNJ;
+    } else {
+        m_DominantMassLossRate = MASS_LOSS_TYPE::KUDRITZKI_REIMERS;
+        dominantRate = rateKR;
+    }
 
-    return std::max(dms, std::max(dml, dmt));
+    if (utils::Compare(rateVW, dominantRate) > 0) {
+        m_DominantMassLossRate = MASS_LOSS_TYPE::VASSILIADIS_WOOD;
+        dominantRate = rateVW;
+    }
+
+    if (utils::Compare(rateWR, dominantRate) > 0) {
+        m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
+        dominantRate = rateWR;
+    }
+    return dominantRate;
 }
 
 

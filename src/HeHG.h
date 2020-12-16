@@ -73,7 +73,7 @@ protected:
             double          CalculateLuminosityOnPhase() const;
             double          CalculateLuminosityAtPhaseEnd() const                                                   { return m_Luminosity; }                                                // NO-OP
 
-            double          CalculateMassTransferRejuvenationFactor();
+            double          CalculateMassTransferRejuvenationFactor() const;
 
    	        double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                      { return GiantBranch::CalculateMomentOfInertia(p_RemnantRadius); }      // Skip HeMS
    	        double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const                    { return GiantBranch::CalculateMomentOfInertiaAU(p_RemnantRadius); }    // Skip HeMS
@@ -95,7 +95,7 @@ protected:
             double          CalculateTemperatureAtPhaseEnd(const double p_Luminosity, const double p_Radius) const  { return m_Temperature; }                                               // NO-OP
             double          CalculateTemperatureAtPhaseEnd() const                                                  { return CalculateTemperatureAtPhaseEnd(m_Luminosity, m_Radius); }      // Use class member variables
 
-            double          CalculateThermalMassLossRate()                                                          { return GiantBranch::CalculateThermalMassLossRate(); }                 // Skip HeMS
+            double          CalculateThermalMassLossRate() const                                                    { return GiantBranch::CalculateThermalMassLossRate(); }                 // Skip HeMS
 
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
             void            CalculateTimescales()                                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
@@ -113,7 +113,7 @@ protected:
             bool            IsEndOfPhase() const                                                                    { return !ShouldEvolveOnPhase(); }
             bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
             bool            IsSupernova() const;
-            double          CalculateInitialSupernovaMass();
+            double          CalculateInitialSupernovaMass() const;
     
             void            PerturbLuminosityAndRadius()                                                            { GiantBranch::PerturbLuminosityAndRadius(); }                          // NO-OP
 

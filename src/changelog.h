@@ -623,7 +623,15 @@
 //                                      - Cleaned up Schneider remnant mass function (now uses PPOW), and set the HeCore mass as an upper limit to the remnant mass
 // 02.17.11     LVS - Nov 27, 2020  - Enhancements:
 //                                      - Added option to vary all winds with OverallWindMassLossMultiplier
-// 02.17.12     JR - Dec 08, 2020   - Code and architecture cleanup
+// 02.17.12     TW - Dec 9, 2020    - Enhancement, code cleanup, bug fix
+//                                      - Issue #463
+//                                          - Changed variable names from dml, dms etc. to rate_XX where XX is the mass loss recipe
+//                                          - No longer overwrite variables with next mass loss recipe for clarity
+//                                      - Added a new option to check the photon tiring limit during mass loss (default false for now)
+//                                      - Added a new class variable to track the dominant mass loss rate at each timestep
+// 02.17.13     JR - Dec 11, 2020   - Defect repair
+//                                      - uncomment initialisations of mass transfer critical mass ratios in Options.cpp (erroneously commented in v02.16.00)
+// 02.17.14     JR - Dec 14, 2020   - Code and architecture cleanup
 //                                      - Architecture changes:
 //                                          - Added Remnants class    - inherits from HeGB class
 //                                          - Added WhiteDwarfs class - inherits from Remnants class; most of the WD code moved from HeWD, COWD and ONeWD to WhiteDwarfs class
@@ -633,10 +641,10 @@
 //                                          - Change MR class         - inherits from Remnants class; code added/moved as necessary
 //                                      - Code cleanup:
 //                                          - added "const" to many functions (mostly SSE code) that dont modify class variables ("this") (still much to do, but this is a start)
+//                                          - added "virtual" to GiantBranch::CalculateCoreMassAtBAGB() and BaseStar::CalculateTemperatureAtPhaseEnd()
+//                                              - will have no impact given where they are called, but the keyword should be there (in case of future changes)
+//                                          - changed hard-coded header suffixes from _1 -> (1), _2 -> (2)
 
-// added "virtual" --- document
-// changed hard-coded headers from _1 -> (1), _2 -> (2)  NEED TO ALSO CHANGE DOCUMENTATION!!!!
-
-const std::string VERSION_STRING = "02.17.12";
+const std::string VERSION_STRING = "02.17.14";
 
 # endif // __changelog_h__

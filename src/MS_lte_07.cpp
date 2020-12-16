@@ -15,7 +15,7 @@
  *
  * @return                                      Rejuvenation factor
  */
-double MS_lte_07::CalculateMassTransferRejuvenationFactor() {
+double MS_lte_07::CalculateMassTransferRejuvenationFactor() const {
 
     double fRej = 1.0;                                                                              // default - Hurley et al. 2000
 

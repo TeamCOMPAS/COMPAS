@@ -238,7 +238,7 @@ double HeHG::CalculateCOCoreMassOnPhase() const {
  *
  * @return                                      Rejuvenation factor
  */
-double HeHG::CalculateMassTransferRejuvenationFactor() {
+double HeHG::CalculateMassTransferRejuvenationFactor() const {
 
     double fRej = 1.0;
 
@@ -472,7 +472,7 @@ bool HeHG::IsSupernova() const {
  *
  * @return                                      double: Initial supernova supernova mass variable
  */
-double HeHG::CalculateInitialSupernovaMass() {
+double HeHG::CalculateInitialSupernovaMass() const {
     if (utils::Compare(m_COCoreMass, m_Mass) == 0) {    // special case of ultra-stripped-star -- use current mass
         return std::max(m_Mass, m_GBParams[static_cast<int>(GBP::McBAGB)]);
     }

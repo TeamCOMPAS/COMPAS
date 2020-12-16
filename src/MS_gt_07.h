@@ -37,8 +37,8 @@ protected:
 
 
     // member functions - alphabetically
-    double      CalculateMassLossRateHurley() const;
-    double      CalculateMassTransferRejuvenationFactor();
+    double      CalculateMassLossRateHurley();
+    double      CalculateMassTransferRejuvenationFactor() const;
 
     ENVELOPE    DetermineEnvelopeType() const;
 
