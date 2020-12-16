@@ -647,6 +647,6 @@
 //                                      - Added call to main() to seed random number generator with seed = 0 before options are processed (and user specified seed is know).  Ensure repeatability.
 //                                      - Changed "timestep below minimum" warnings in Star.cpp to be displayed only if --enable-warnings is specified
 
-const std::string VERSION_STRING = "02.17.14";
+const std::string VERSION_STRING = "02.17.15";
 
 # endif // __changelog_h__
