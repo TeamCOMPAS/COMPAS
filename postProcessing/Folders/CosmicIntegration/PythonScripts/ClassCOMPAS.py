@@ -12,6 +12,7 @@ class COMPASData(object):
         lazyData=True,
         Mlower=None,
         Mupper=None,
+        m2_min=None,
         binaryFraction=None,
     ):
         self.path = path
@@ -37,6 +38,7 @@ class COMPASData(object):
         self.BHNSmask = None
         self.initialZ = None
         self.sw_weights = None
+        self.n_systems = None
 
         # Additional arrays that might be nice to store
         # to more quickly make some plots.
@@ -49,6 +51,7 @@ class COMPASData(object):
         # Needed to recover true solar mass evolved
         self.Mlower = Mlower  # Msun
         self.Mupper = Mupper  # Msun
+        self.m2_min = m2_min # Msun
         self.binaryFraction = binaryFraction
         self.totalMassEvolvedPerZ = None  # Msun
         self.mass_evolved_per_binary = None # Msun
@@ -148,6 +151,7 @@ class COMPASData(object):
             self.initialZ = initial_Z
         maskMetallicity = np.in1d(initial_seeds, self.seedsDCO)
         self.metallicitySystems = self.initialZ[maskMetallicity]
+        self.n_systems = len(initial_seeds)
 
         self.delayTimes = np.add(formation_times[self.DCOmask], coalescence_times[self.DCOmask])
         self.mass1 = primary_masses[self.DCOmask]
@@ -243,7 +247,7 @@ class COMPASData(object):
 
         # apply the COMPAS cuts on primary and secondary mass
         primary_mask = np.logical_and(primary_mass >= self.Mlower, primary_mass <= self.Mupper)
-        secondary_mask = secondary_mass > 0.1 * u.Msun
+        secondary_mask = secondary_mass > self.m2_min
         full_mask = np.logical_and(primary_mask, secondary_mask)
         
         # find the total mass with COMPAS cuts
