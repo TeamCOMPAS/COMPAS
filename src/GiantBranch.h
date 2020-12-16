@@ -26,11 +26,11 @@ protected:
 
     // member functions - alphabetically (sort of - some are grouped by functionality)
     static  double          CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB);
-            double          CalculateCoreMassAtBAGB(const double p_Mass);
+    virtual double          CalculateCoreMassAtBAGB(const double p_Mass) const;
     static  double          CalculateCoreMassAtBAGB_Static(const double p_Mass, const DBL_VECTOR &p_BnCoefficients);
             double          CalculateCoreMassAtBGB(const double p_Mass, const DBL_VECTOR &p_GBParams);
     static  double          CalculateCoreMassAtBGB_Static(const double p_Mass, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_GBParams);
-            double          CalculateCoreMassAtHeIgnition(const double p_Mass);
+            double          CalculateCoreMassAtHeIgnition(const double p_Mass) const;
     static  double          CalculateCoreMassAtSupernova_Static(const double p_McBAGB);
 
     static  double          CalculateCoreMass_Luminosity_B_Static(const double p_Mass);
@@ -42,11 +42,11 @@ protected:
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
     static  void            CalculateGBParams_Static(const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_BnCoefficients, DBL_VECTOR &p_GBParams);
-            void            CalculateGBParams()                                                     { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
+            void            CalculateGBParams()                                                             { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
 
     static  double          CalculateHRateConstant_Static(const double p_Mass);
 
-    virtual double          CalculateInitialSupernovaMass()                                         { return m_Mass; }                                                  // Use class member variables
+    virtual double          CalculateInitialSupernovaMass() const                                           { return m_Mass; }                                                  // Use class member variables
 
             double          CalculateLifetimeToHeIgnition(const double p_Mass, const double p_Tinf1_FGB, const double p_Tinf2_FGB);
 
@@ -79,17 +79,17 @@ protected:
             double          CalculateRemnantMassByMuller2016(const double p_Mass, const double p_COCoreMass);
 	    double          CalculateRemnantMassByMullerMandel(const double p_COCoreMass, const double p_HeCoreMass);
             double          CalculateRemnantMassBySchneider2020(const double p_COCoreMass, const bool p_useSchneiderAlt = false);
-            double          CalculateRemnantMassBySchneider2020Alt(const double p_COCoreMass) { return CalculateRemnantMassBySchneider2020(p_COCoreMass, true); }
-            double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0)             { return (0.1 * (m_Mass-m_CoreMass) * m_Radius * m_Radius) + (0.21 * m_CoreMass * p_RemnantRadius * p_RemnantRadius); }   // k2 = 0.1 and k3 = 0.21 as defined in Hurley et al. 2000, after eq 109
-            double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)           { return CalculateMomentOfInertia(p_RemnantRadius * RSOL_TO_AU) * RSOL_TO_AU * RSOL_TO_AU; }
+            double          CalculateRemnantMassBySchneider2020Alt(const double p_COCoreMass)               { return CalculateRemnantMassBySchneider2020(p_COCoreMass, true); }
+            double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const              { return (0.1 * (m_Mass - m_CoreMass) * m_Radius * m_Radius) + (0.21 * m_CoreMass * p_RemnantRadius * p_RemnantRadius); } // k2 = 0.1 and k3 = 0.21 as defined in Hurley et al. 2000, after eq 109
+            double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const            { return CalculateMomentOfInertia(p_RemnantRadius * RSOL_TO_AU) * RSOL_TO_AU * RSOL_TO_AU; }
 
-            double          CalculatePerturbationMu();
+            double          CalculatePerturbationMu() const;
 
-            double          CalculateRadialExtentConvectiveEnvelope();
+            double          CalculateRadialExtentConvectiveEnvelope() const;
 
-            double          CalculateRadiusAtHeIgnition(const double p_Mass);
-            double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity)  { return CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity, m_BnCoefficients); }
-            double          CalculateRadiusOnPhase()                                                { return CalculateRadiusOnPhase(m_Mass, m_Luminosity); }
+            double          CalculateRadiusAtHeIgnition(const double p_Mass) const;
+            double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { return CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity, m_BnCoefficients); }
+            double          CalculateRadiusOnPhase() const                                                  { return CalculateRadiusOnPhase(m_Mass, m_Luminosity); }
     static  double          CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Luminosity, const DBL_VECTOR &p_BnCoefficients);
     static  double          CalculateRadiusOnZAHB_Static(const double      p_Mass,
                                                          const double      p_CoreMass,
@@ -99,24 +99,24 @@ protected:
                                                          const double      p_MinimumLuminosityOnPhase,
                                                          const DBL_VECTOR &p_BnCoefficients);
 
-    virtual double          CalculateRemnantLuminosity();
+    virtual double          CalculateRemnantLuminosity() const;
             STELLAR_TYPE    CalculateRemnantTypeByMuller2016(const double p_COCoreMass);
 	
-    virtual double          CalculateRemnantRadius();
+    virtual double          CalculateRemnantRadius() const;
 
-            double          CalculateThermalMassLossRate()                                          { return (m_Mass - m_CoreMass) / CalculateThermalTimescale(); }     // Use class member variables
+            double          CalculateThermalMassLossRate() const                                            { return (m_Mass - m_CoreMass) / CalculateThermalTimescale(); }     // Use class member variables
 
             double          CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass = 1.0) const;
-            double          CalculateThermalTimescale() const                                             { return CalculateThermalTimescale(m_Mass, m_Radius, m_Luminosity, m_Mass - m_CoreMass); }
+            double          CalculateThermalTimescale() const                                               { return CalculateThermalTimescale(m_Mass, m_Radius, m_Luminosity, m_Mass - m_CoreMass); }
 
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
-            void            CalculateTimescales()                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                     // Use class member variables
+            void            CalculateTimescales()                                                           { CalculateTimescales(m_Mass0, m_Timescales); }                     // Use class member variables
 
-    virtual double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)			    { return 0.0; }
+            double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)			            { return 0.0; }
 
-            MT_CASE         DetermineMassTransferCase()                                             { return MT_CASE::C; }                                              // Mass Transfer Case C for GiamtBranch stars
+            MT_CASE         DetermineMassTransferCase() const                                               { return MT_CASE::C; }                                              // Mass Transfer Case C for GiamtBranch stars
 
-            bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate);
+            bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
 
     virtual void            PerturbLuminosityAndRadius();
 
@@ -127,9 +127,9 @@ protected:
             STELLAR_TYPE    ResolvePulsationalPairInstabilitySN();
             STELLAR_TYPE    ResolveTypeIIaSN();
     
-            void            UpdateAgeAfterMassLoss() { }                                                                                                                // NO-OP for most stellar types
+            void            UpdateAgeAfterMassLoss() { }                                                                                                                        // NO-OP for most stellar types
 
-            void            UpdateInitialMass() { }                                                                                                                     // NO-OP for most stellar types
+            void            UpdateInitialMass() { }                                                                                                                             // NO-OP for most stellar types
 
 };
 

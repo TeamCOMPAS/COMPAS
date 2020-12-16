@@ -426,13 +426,13 @@ double Star::EvolveOneTimestep(const double p_Dt) {
         if (utils::Compare(m_Star->CalculateRadialChange(), MAXIMUM_RADIAL_CHANGE) >= 0) {                      // too much change?
             if (utils::Compare(dt, minTimestep) <= 0) {                                                         // yes - already at or below minimum timestep?
                 takeTimestep = true;                                                                            // yes - just take the last timestep
-                if (!OPTIONS->Quiet()) SAY("WARNING: Timestep below minimum - timestep taken!");                // announce the problem if required and plough on regardless...
+                SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                                       // announce the problem if required and plough on regardless...
             }
             else {                                                                                              // not at or below dynamical - reduce timestep and try again
                 retryCount++;                                                                                   // increment retry count
                 if (retryCount > MAX_TIMESTEP_RETRIES) {                                                        // too many retries?
                     takeTimestep = true;                                                                        // yes - take the last timestep anyway
-                    if (!OPTIONS->Quiet()) SAY("WARNING: Too many retries finding timestep - timestep taken!"); // announce the problem if required and plough on regardless...
+                    SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                                   // announce the problem if required and plough on regardless...
                 }
                 else {                                                                                          // not too many retries - retry with smaller timestep
                     if (RevertState()) {                                                                        // revert to last state ok?
@@ -441,7 +441,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
                     }
                     else {                                                                                      // revert failed
                         takeTimestep = true;                                                                    // take the last timestep anyway
-                       if (!OPTIONS->Quiet()) SAY("Revert of star failed - timestep taken!");                  // announce the problem if required and plough on regardless...
+                        SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                               // announce the problem if required and plough on regardless...
                     }
                 }
             }

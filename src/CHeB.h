@@ -33,7 +33,7 @@ public:
                                                     const double      p_Alpha1,
                                                     const double      p_MHeF,
                                                     const double      p_MFGB,
-                                                    const DBL_VECTOR &p_BnCoefficients);
+                                                    const DBL_VECTOR &p_BnCoefficients) const;
 
     static double CalculateMinimumRadiusOnPhase_Static(const double      p_Mass,
                                                        const double      p_CoreMass,
@@ -61,65 +61,65 @@ protected:
 
     double          CalculateBluePhaseFBL(const double p_Mass);
 
-    double          CalculateCOCoreMassOnPhase()                                 { return 0.0; }                                                                // McCO(CHeB) = 0.0
+    double          CalculateCOCoreMassOnPhase() const                          { return 0.0; }                                                                 // McCO(CHeB) = 0.0
 
-    double          CalculateCoreMassAtPhaseEnd()                                { return CalculateCoreMassAtBAGB(m_Mass0); }                                   // Use class member variables
-    double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Tau);
-    double          CalculateCoreMassOnPhase()                                   { return CalculateCoreMassOnPhase(m_Mass0, m_Tau); }                           // Use class member variables
+    double          CalculateCoreMassAtPhaseEnd() const                         { return CalculateCoreMassAtBAGB(m_Mass0); }                                    // Use class member variables
+    double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Tau) const;
+    double          CalculateCoreMassOnPhase() const                            { return CalculateCoreMassOnPhase(m_Mass0, m_Tau); }                            // Use class member variables
 
-    double          CalculateHeCoreMassAtPhaseEnd()                              { return m_CoreMass; }
+    double          CalculateHeCoreMassAtPhaseEnd() const                       { return m_CoreMass; }
 
-    double          CalculateGyrationRadius() const                              { return 0.21; }                                                               // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
+    double          CalculateGyrationRadius() const                             { return 0.21; }                                                                // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 
-    double          CalculateLambdaDewi();
-    double          CalculateLambdaNanjing();
+    double          CalculateLambdaDewi() const;
+    double          CalculateLambdaNanjing() const;
 
     double          CalculateLifetimeOnBluePhase(const double p_Mass);
     double          CalculateLifetimeOnPhase(const double p_Mass);
 
-    double          CalculateLuminosityAtBluePhaseEnd(const double p_Mass);
-    double          CalculateLuminosityAtBluePhaseStart(const double p_Mass);
+    double          CalculateLuminosityAtBluePhaseEnd(const double p_Mass) const;
+    double          CalculateLuminosityAtBluePhaseStart(const double p_Mass) const;
 
-    double          CalculateLuminosityAtPhaseEnd()                              { return CalculateLuminosityAtBAGB(m_Mass0); }
-    double          CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau);
-    double          CalculateLuminosityOnPhase()                                 { return CalculateLuminosityOnPhase(m_Mass0, m_Tau); }
+    double          CalculateLuminosityAtPhaseEnd() const                       { return CalculateLuminosityAtBAGB(m_Mass0); }
+    double          CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau) const;
+    double          CalculateLuminosityOnPhase() const                          { return CalculateLuminosityOnPhase(m_Mass0, m_Tau); }
 
-    double          CalculateRadialExtentConvectiveEnvelope()                    { return BaseStar::CalculateRadialExtentConvectiveEnvelope(); }                // CHeB stars don't have a convective envelope
+    double          CalculateRadialExtentConvectiveEnvelope() const             { return BaseStar::CalculateRadialExtentConvectiveEnvelope(); }                 // CHeB stars don't have a convective envelope
 
-    double          CalculateRadiusAtBluePhaseEnd(const double p_Mass);
-    double          CalculateRadiusAtBluePhaseStart(const double p_Mass);
+    double          CalculateRadiusAtBluePhaseEnd(const double p_Mass) const;
+    double          CalculateRadiusAtBluePhaseStart(const double p_Mass) const;
 
-    double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_Luminosity);
-    double          CalculateRadiusAtPhaseEnd()                                  { return CalculateRadiusAtPhaseEnd(m_Mass, m_Luminosity); }
-    double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity, const double p_Tau);
-    double          CalculateRadiusOnPhase()                                     { return CalculateRadiusOnPhase(m_Mass, m_Luminosity, m_Tau); }
+    double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_Luminosity) const;
+    double          CalculateRadiusAtPhaseEnd() const                           { return CalculateRadiusAtPhaseEnd(m_Mass, m_Luminosity); }
+    double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity, const double p_Tau) const;
+    double          CalculateRadiusOnPhase() const                              { return CalculateRadiusOnPhase(m_Mass, m_Luminosity, m_Tau); }
 
-    double          CalculateRadiusRho(const double p_Mass, const double p_Tau);
+    double          CalculateRadiusRho(const double p_Mass, const double p_Tau) const;
 
-    double          CalculateRemnantLuminosity();
-    double          CalculateRemnantRadius();
+    double          CalculateRemnantLuminosity() const;
+    double          CalculateRemnantRadius() const;
 
-    double          CalculateTauAtPhaseEnd()                                     { return CalculateTauOnPhase(); }                                              // Same as on phase
-    double          CalculateTauOnPhase();
+    double          CalculateTauAtPhaseEnd() const                              { return CalculateTauOnPhase(); }                                               // Same as on phase
+    double          CalculateTauOnPhase() const;
 
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
-    void            CalculateTimescales()                                        { CalculateTimescales(m_Mass0, m_Timescales); }                                // Use class member variables
+    void            CalculateTimescales()                                       { CalculateTimescales(m_Mass0, m_Timescales); }                                 // Use class member variables
 
-    double          ChooseTimestep(const double p_Time);
+    double          ChooseTimestep(const double p_Time) const;
 
-    ENVELOPE        DetermineEnvelopeType();
+    ENVELOPE        DetermineEnvelopeType() const;
 
     STELLAR_TYPE    EvolveToNextPhase();
 
-    bool            IsEndOfPhase()                                               { return !ShouldEvolveOnPhase(); }                                             // Phase ends when age at or after He Burning
-    bool            IsSupernova()                                                { return false; }                                                              // Not here
+    bool            IsEndOfPhase() const                                        { return !ShouldEvolveOnPhase(); }                                              // Phase ends when age at or after He Burning
+    bool            IsSupernova() const                                         { return false; }                                                               // Not here
 
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
     void            ResolveHeliumFlash() {  }                                                                                                                   // NO-OP
     STELLAR_TYPE    ResolveRemnantAfterEnvelopeLoss();
 
-    bool            ShouldEvolveOnPhase();
-    bool            ShouldSkipPhase()                                            { return false; }                                                              // Never skip CHeB phase
+    bool            ShouldEvolveOnPhase() const;
+    bool            ShouldSkipPhase() const                                     { return false; }                                                               // Never skip CHeB phase
 
 };
 
