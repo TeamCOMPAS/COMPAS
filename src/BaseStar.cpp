@@ -1109,15 +1109,15 @@ double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing() {
         double lowerZbin = minZ;
         double upperZbin = maxZ;
         for (long unsigned int i = 0; i < metallicityBins.size(); i++) {
-            if (metallicityBins[i] < m_Metallicity) {
-                lowerZbin = metallicityBins[i];
-                upperZbin = metallicityBins[i+1];
+            if (metallicityBins[i] > m_Metallicity) {
+                lowerZbin = metallicityBins[i-1];
+                upperZbin = metallicityBins[i];
                 break;
             }
         }
 
-        double lambda_low = BaseStar::CalculateMassInterpolatedLambdaNanjing(m_Metallicity);
-        double lambda_up  = BaseStar::CalculateMassInterpolatedLambdaNanjing(m_Metallicity);
+        double lambda_low = BaseStar::CalculateMassInterpolatedLambdaNanjing(lowerZbin);
+        double lambda_up  = BaseStar::CalculateMassInterpolatedLambdaNanjing(upperZbin);
         return lambda     = lambda_low + (log(m_Metallicity) - log(lowerZbin)) / (log(upperZbin) - log(lowerZbin)) * (lambda_up - lambda_low);
     }   
 }
@@ -1152,9 +1152,9 @@ double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double metallicity
         double lowerMassBin = minMass;
         double upperMassBin = maxMass;
         for (long unsigned int i = 0; i < massBins.size(); i++) {
-            if (massBins[i] < m_Mass0) {
-                lowerMassBin = massBins[i];
-                upperMassBin = massBins[i+1];
+            if (massBins[i] > m_Mass0) {
+                lowerMassBin = massBins[i-1];
+                upperMassBin = massBins[i];
                 break;
             }
         }
