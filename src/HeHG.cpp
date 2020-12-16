@@ -148,11 +148,9 @@ void HeHG::CalculateGBParams_Static(const double      p_Mass0,
  *
  * @return                                      Luminosity for a Helium HertzSprung Gap star
  */
-double HeHG::CalculateLuminosityOnPhase() {
+double HeHG::CalculateLuminosityOnPhase() const {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
-
     return HeGB::CalculateLuminosityOnPhase_Static(m_COCoreMass, gbParams(B), gbParams(D));
-
 #undef gbParams
 }
 
@@ -167,7 +165,7 @@ double HeHG::CalculateLuminosityOnPhase() {
  *
  * @return                                      Radius of a Helium HertzSprung Gap star
  */
-double HeHG::CalculateRadiusOnPhase() {
+double HeHG::CalculateRadiusOnPhase() const {
 
     double R1, R2;
     std::tie(R1, R2) = HeGB::CalculateRadiusOnPhase_Static(m_Mass, m_Luminosity);
@@ -191,7 +189,7 @@ double HeHG::CalculateRadiusOnPhase() {
  * @param   [IN]    p_Luminosity                Luminosity in Lsol
  * @return                                      Radius on the helium giant branch / post-HeMs
  */
-std::tuple <double, STELLAR_TYPE> HeHG::CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity) {
+std::tuple <double, STELLAR_TYPE> HeHG::CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity) const {
 
     double       radius;
     STELLAR_TYPE stellarType = m_StellarType;
@@ -217,7 +215,7 @@ std::tuple <double, STELLAR_TYPE> HeHG::CalculateRadiusAndStellarTypeOnPhase(con
  *
  * @return                                      HeHG CoCoreMass in Msol
  */
-double HeHG::CalculateCOCoreMassOnPhase() {
+double HeHG::CalculateCOCoreMassOnPhase() const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     return HeGB::CalculateCoreMassOnPhase_Static(m_Mass0, m_Age, timescales(tHeMS), m_GBParams);
@@ -240,7 +238,7 @@ double HeHG::CalculateCOCoreMassOnPhase() {
  *
  * @return                                      Rejuvenation factor
  */
-double HeHG::CalculateMassTransferRejuvenationFactor() {
+double HeHG::CalculateMassTransferRejuvenationFactor() const {
 
     double fRej = 1.0;
 
@@ -272,7 +270,7 @@ double HeHG::CalculateMassTransferRejuvenationFactor() {
  *
  * @return                                      Perturbation parameter mu
  */
-double HeHG::CalculatePerturbationMu() {
+double HeHG::CalculatePerturbationMu() const {
     double McMax = CalculateMaximumCoreMass(m_Mass);
     return std::max(5.0 * ((McMax - m_CoreMass) / McMax), 0.0);         //return non-negative value to avoid round-off issues
 }
@@ -298,7 +296,7 @@ double HeHG::CalculatePerturbationMu() {
  *
  * @return                                      Nanjing lambda for use in common envelope
  */
-double HeHG::CalculateLambdaNanjing() {
+double HeHG::CalculateLambdaNanjing() const {
 
     double rMin = 0.25;                              // minimum considered radius: Natasha       JR: todo: should this be in constants.h?
 	double rMax = 120.0;                             // maximum considered radius: Natasha       JR: todo: should this be in constants.h?
@@ -325,11 +323,11 @@ double HeHG::CalculateLambdaNanjing() {
  *
  * @return                                      ENVELOPE::{ RADIATIVE, CONVECTIVE, REMNANT }
  */
-ENVELOPE HeHG::DetermineEnvelopeType() {
+ENVELOPE HeHG::DetermineEnvelopeType() const {
     
-    ENVELOPE envelope = ENVELOPE::CONVECTIVE;                                                        // default envelope type  is CONVECTIVE
+    ENVELOPE envelope = ENVELOPE::CONVECTIVE;                                                       // default envelope type  is CONVECTIVE
     
-    switch (OPTIONS->EnvelopeStatePrescription()) {                                         // which envelope prescription?
+    switch (OPTIONS->EnvelopeStatePrescription()) {                                                 // which envelope prescription?
             
         case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
         case ENVELOPE_STATE_PRESCRIPTION::HURLEY: // Eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual growth of convective envelope over HG, but we approximate it as already convective here
@@ -337,7 +335,7 @@ ENVELOPE HeHG::DetermineEnvelopeType() {
             break;
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
-            envelope =  utils::Compare(Temperature()*TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            envelope =  utils::Compare(Temperature() *  TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             break;
             
         default:                                                                                    // unknown prescription - use default envelope type
@@ -362,7 +360,7 @@ ENVELOPE HeHG::DetermineEnvelopeType() {
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
  * @return                                      Boolean indicating stability of mass transfer (true = unstable)
  */
-bool HeHG::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) {
+bool HeHG::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const {
 
     bool result = false;                                                                                                    // default is stable
 
@@ -386,7 +384,7 @@ bool HeHG::IsMassRatioUnstable(const double p_AccretorMass, const bool p_Accreto
  * @param   [IN]    p_Time                      Current age of star in Myr
  * @return                                      Suggested timestep (dt)
  */
-double HeHG::ChooseTimestep(const double p_Time) {
+double HeHG::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     // Implementation of timestep recommendation from Section 8 of Hurley et al., 2000
@@ -409,7 +407,7 @@ double HeHG::ChooseTimestep(const double p_Time) {
  *
  * @return                                      Boolean flag: true if evolution on this phase should continue, false if not
  */
-bool HeHG::ShouldEvolveOnPhase() {
+bool HeHG::ShouldEvolveOnPhase() const {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
 
     double McMax = CalculateMaximumCoreMass(m_Mass);
@@ -458,12 +456,12 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
  *
  * @return                                      Boolean flag: true if star has gone Supernova, false if not
  */
-bool HeHG::IsSupernova() {
+bool HeHG::IsSupernova() const {
     if (utils::Compare(m_COCoreMass, m_Mass) == 0) {    // special case of ultra-stripped-star -- go SN immediately if over ECSN limit
         return (utils::Compare(m_Mass, MECS) > 0);
     }
         
-    return (utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(m_GBParams[static_cast<int>(GBP::McBAGB)]))>= 0); // Go supernova if CO core mass large enough
+    return (utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0); // Go supernova if CO core mass large enough
 }
 
 /*
@@ -474,7 +472,7 @@ bool HeHG::IsSupernova() {
  *
  * @return                                      double: Initial supernova supernova mass variable
  */
-double  HeHG::CalculateInitialSupernovaMass() {
+double HeHG::CalculateInitialSupernovaMass() const {
     if (utils::Compare(m_COCoreMass, m_Mass) == 0) {    // special case of ultra-stripped-star -- use current mass
         return std::max(m_Mass, m_GBParams[static_cast<int>(GBP::McBAGB)]);
     }

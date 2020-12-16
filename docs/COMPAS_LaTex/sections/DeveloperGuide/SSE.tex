@@ -2,9 +2,9 @@
 
 \subsubsection{Class Hierarchy}\label{sec:SSEClassHierarchy}
 
-The main class for single star evolution is the \textbf{Star} class.  
+The SSE architecture is based on the classification of individual stars, with each stellar classification being described by a separate C++ class. Figure~\ref{fig:SSE_ClassDiagram} shows the SSE class diagram, where the arrows indicate inheritance.  The COMPAS C++ code is implemented using multiple inheritance, and all stellar classes also inherit directly from the Base Star class (arrows not shown in Figure~\ref{fig:SSE_ClassDiagram} for clarity). Each of the stellar classes encapsulates data structures and algorithms specific to the evolutionary phase corresponding to the class.
 
-The Star class is a wrapper that abstracts away the details of the star and the evolution.  Internally the Star class maintains a pointer to an object representing the star being evolved, with that object being an instance of one of the following classes:
+The main class for single star evolution is the \textbf{Star} class. The Star class is a wrapper that abstracts away the details of the star and the evolution.  Internally the Star class maintains a pointer to an object representing the star being evolved, with that object being an instance of one of the following classes:
 
 \bigskip
 \hfill
@@ -30,7 +30,7 @@ The Star class is a wrapper that abstracts away the details of the star and the 
 
 which track the phases from \citet{Hurley_2000}, with the exception of the \textbf{CH} class for Chemically Homogeneous stars, which is not described in \citet{Hurley_2000}.
 
-Three other SSE classes are defined:
+Several other SSE classes are defined:
 
 \bigskip
 \hfill
@@ -38,33 +38,46 @@ Three other SSE classes are defined:
     \textbf{BaseStar} \\
     \textbf{MainSequence} \\
     \textbf{GiantBranch} \\
+    \textbf{Remnants} \\
+    \textbf{WhiteDwarfs}
 \end{minipage}
  
+\bigskip
 These extra classes are included to allow inheritance of common functionality.
 
-The \textbf{BaseStar} class is the main class for the underlying star object held by the Star class.  The BaseStar class defines all member variables, and many member functions that provide common functionality.  Similarly, the \textbf{MainSequence} and \textbf{GiantBranch} classes provide repositories for common functionality for main sequence and giant branch stars respectively.
+The \textbf{BaseStar} class is the main class for the underlying star object held by the Star class.  The BaseStar class defines all member variables, and many member functions that provide common functionality.  Similarly, the \textbf{MainSequence} and \textbf{GiantBranch} classes provide repositories for common functionality for main sequence and giant branch stars respectively, and the the \textbf{Remnants} and \textbf{WhiteDwarfs} classes provide repositories for common functionality for remnant and white dwarf stars respectively.
 
-\newpage
-The inheritance chain follows the phases described in \citet{Hurley_2000} (again, with the exception of the \textbf{CH} class, and is as follows:
-
-\bigskip
-Star \\
-\tabto{1em}BaseStar\ \rarr\ MainSequence\ \rarr\tabto{13.5em}(\ MS\_lte\_07\tabto{19.4em}) \\
-\tabto{13.5em}(\ MS\_gt\_07\tabto{19.4em})\tabto{20.0em}\rarr\ CH \\
-\tabto{13.5em}(\ GiantBranch\tabto{19.4em})\tabto{20.0em}\rarr\ HG\ \rarr\ FGB\ \rarr\ CHeB\ \rarr\ EAGB\rarr\ TPAGB\rarr{\ ...} \\
-\tabto{19.0em}...\tabto{20.0em}\rarr\ HeMS\ \rarr\ HeHG\ \rarr\ HeGB\ \rarr\ HeWD\ \rarr{\ ...} \\
-\tabto{19.0em}...\tabto{20.0em}\rarr\ COWD\ \rarr\ OneWD\ \rarr\ NS\ \rarr\ BH\ \rarr\ MR    
+\begin{figure}
+    \begin{center}
+	    \includegraphics[viewport = 0 0 535 405, width = 13.65cm, clip]{sections/images/SSE_ClassDiagram.pdf}
+    \end{center}
+    \vspace{-2.00mm}
+    \caption{SSE class diagram.}
+    \label{fig:SSE_ClassDiagram}
+\end{figure}
 
 \medskip
-CH (Chemically Homogeneous) class stars inherit from the \textbf{MS\_gt\_07} class because (in this implementation) they are just (large) main sequence stars that have a static radius.
+\textbf{CH} (Chemically Homogeneous) class stars inherit from the \textbf{MS\_gt\_07} class because (in this implementation) they are just (large) main sequence stars that have a static radius.
 
 \textbf{HG} (Hertzsprung Gap) class stars inherit from the GiantBranch class because they share the giant branch parameters described in \citet{Hurley_2000}, section 5.2.
 
-Each class in the inheritance chain has its own set of member functions that calculate various attributes of the star according to the phase the class represents (using the equations and parameters from \citet{Hurley_2000} where applicable).
+Each class has its own set of member functions that calculate various attributes of the star according to the phase the class represents (using the equations and parameters from \citet{Hurley_2000} where applicable).
 
 \newpage
 \subsubsection{Evolution Model}\label{sec:SSE_EvolutionModel}
 
+The high-level stellar evolution model is shown in Figure~\ref{fig:SSE_FlowChart}.
+
+\begin{figure}
+    \begin{center}
+	    \includegraphics[viewport = 0 0 360 632, width = 8.5cm, clip]{sections/images/SSE_FlowChart.pdf}
+    \end{center}
+    \vspace{-2.00mm}
+    \caption{High-level SSE evolution.}
+    \label{fig:SSE_FlowChart}
+\end{figure}
+
+\newpage
 The stellar evolution model is driven by the \textbf{Evolve()} function in the Star class, which evolves the star through its entire lifetime by doing the following:
 
 \tabto{2em}DO:
@@ -121,6 +134,7 @@ The stellar evolution model is driven by the \textbf{Evolve()} function in the S
 \bigskip
 \tabto{2em}WHILE the underlying star object is not one of: \lcb\ HeWD, COWD, ONeWD, NS, BH, MR\ \rcb
 
+\bigskip
 \bigskip
 Evolving the star through a single time step (step 3a above) is driven by the \nobreak\textbf{UpdateAttributesAndAgeOneTimestep()} function in the BaseStar class which does the following:
 

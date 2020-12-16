@@ -46,7 +46,7 @@ public:
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                                                                                                                 // Set stellar type
+        m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                                                                                                                     // Set stellar type
         CalculateTimescales();
         // JR: Age for HeMS is partially calculated before switching -
         // can get here from various places in ResolveEnvelopeLoss(),
@@ -55,88 +55,88 @@ protected:
 
 
     // member functions - alphabetically
-            double          CalculateCOCoreMassAtPhaseEnd()                                      { return CalculateCOCoreMassOnPhase(); }                                // Same as on phase
-            double          CalculateCOCoreMassOnPhase()                                         { return 0.0; }                                                         // McCO(HeMS) = 0.0
+            double          CalculateCOCoreMassAtPhaseEnd() const                                       { return CalculateCOCoreMassOnPhase(); }                                // Same as on phase
+            double          CalculateCOCoreMassOnPhase() const                                          { return 0.0; }                                                         // McCO(HeMS) = 0.0
 
-            double          CalculateCoreMassAtPhaseEnd()                                        { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
-            double          CalculateCoreMassOnPhase()                                           { return m_COCoreMass; }                                                // Mc(HeMS) = McCOMass
+            double          CalculateCoreMassAtPhaseEnd() const                                         { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
+            double          CalculateCoreMassOnPhase() const                                            { return m_COCoreMass; }                                                // Mc(HeMS) = McCOMass
 
-            double          CalculateGyrationRadius() const                                           { return 0.1; }                                                         // JR: todo: Nobody seems sure about this...
+            double          CalculateGyrationRadius() const                                             { return 0.1; }                                                         // JR: todo: Nobody seems sure about this...
 
-            double          CalculateHeCoreMassOnPhase()                                        { return m_Mass; }                                                     // McHe(HeMS) = Mass
-            double          CalculateHeCoreMassAtPhaseEnd()                                      { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
+            double          CalculateHeCoreMassOnPhase() const                                          { return m_Mass; }                                                      // McHe(HeMS) = Mass
+            double          CalculateHeCoreMassAtPhaseEnd() const                                       { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
 
-            double          CalculateInitialSupernovaMass()                                      { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch
+            double          CalculateInitialSupernovaMass() const                                       { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch
 
-            double          CalculateLambdaDewi()                                                { return 0.5; }
-            double          CalculateLambdaNanjing()                                             { return BaseStar::CalculateLambdaNanjing(); }                          // Not supported - use BaseStar
+            double          CalculateLambdaDewi() const                                                 { return 0.5; }
+            double          CalculateLambdaNanjing() const                                              { return BaseStar::CalculateLambdaNanjing(); }                          // Not supported - use BaseStar
 
-            double          CalculateLuminosityAtPhaseEnd(const double p_Mass)                   { return CalculateLuminosityAtPhaseEnd_Static(p_Mass); }
-            double          CalculateLuminosityAtPhaseEnd()                                      { return CalculateLuminosityAtPhaseEnd(m_Mass); }                       // Use class member variables
-            double          CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau)  { return CalculateLuminosityOnPhase_Static(p_Mass, p_Tau); }
-            double          CalculateLuminosityOnPhase()                                         { return CalculateLuminosityOnPhase(m_Mass, m_Tau); }                   // Use class member variables
+            double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const                    { return CalculateLuminosityAtPhaseEnd_Static(p_Mass); }
+            double          CalculateLuminosityAtPhaseEnd() const                                       { return CalculateLuminosityAtPhaseEnd(m_Mass); }                       // Use class member variables
+            double          CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau) const   { return CalculateLuminosityOnPhase_Static(p_Mass, p_Tau); }
+            double          CalculateLuminosityOnPhase() const                                          { return CalculateLuminosityOnPhase(m_Mass, m_Tau); }                   // Use class member variables
 
             double          CalculateMassLossRateHurley();
             double          CalculateMassLossRateVink();
 
-            double          CalculateMassTransferRejuvenationFactor();
+            double          CalculateMassTransferRejuvenationFactor() const;
 
-            double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0)         { return MainSequence::CalculateMomentOfInertia(p_RemnantRadius); }     // Use MainSequence
-            double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)       { return MainSequence::CalculateMomentOfInertiaAU(p_RemnantRadius); }   // Use MainSequence
+            double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const          { return MainSequence::CalculateMomentOfInertia(p_RemnantRadius); }     // Use MainSequence
+            double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const        { return MainSequence::CalculateMomentOfInertiaAU(p_RemnantRadius); }   // Use MainSequence
 
-            double          CalculatePerturbationMu()                                            { return 5.0; }                                                         // Hurley et al. 2000, eqs 97 & 98
+            double          CalculatePerturbationMu() const                                             { return 5.0; }                                                         // Hurley et al. 2000, eqs 97 & 98
 
-            double          CalculateRadialExtentConvectiveEnvelope()                            { return BaseStar::CalculateRadialExtentConvectiveEnvelope(); }         // HeMS stars don't have a convective envelope
+            double          CalculateRadialExtentConvectiveEnvelope() const                             { return BaseStar::CalculateRadialExtentConvectiveEnvelope(); }         // HeMS stars don't have a convective envelope
 
-            double          CalculateRadiusAtPhaseEnd(const double p_Mass)                       { return CalculateRadiusAtPhaseEnd_Static(p_Mass); }
-            double          CalculateRadiusAtPhaseEnd()                                          { return CalculateRadiusAtPhaseEnd(m_Mass); }                           // Use class member variables
+            double          CalculateRadiusAtPhaseEnd(const double p_Mass) const                        { return CalculateRadiusAtPhaseEnd_Static(p_Mass); }
+            double          CalculateRadiusAtPhaseEnd() const                                           { return CalculateRadiusAtPhaseEnd(m_Mass); }                           // Use class member variables
     static  double          CalculateRadiusAtPhaseEnd_Static(const double p_Mass);
-            double          CalculateRadiusOnPhase(const double p_Mass, const double p_Tau)      { return CalculateRadiusOnPhase_Static(p_Mass, p_Tau); }
-            double          CalculateRadiusOnPhase()                                             { return CalculateRadiusOnPhase(m_Mass, m_Tau); }                       // Use class member variables
+            double          CalculateRadiusOnPhase(const double p_Mass, const double p_Tau) const       { return CalculateRadiusOnPhase_Static(p_Mass, p_Tau); }
+            double          CalculateRadiusOnPhase() const                                              { return CalculateRadiusOnPhase(m_Mass, m_Tau); }                       // Use class member variables
 
-            double          CalculateTauAtPhaseEnd()                                             { return 1.0; }
-            double          CalculateTauOnPhase()                                                { return m_Age / m_Timescales[static_cast<int>(TIMESCALE::tHeMS)]; }
+            double          CalculateTauAtPhaseEnd() const                                              { return 1.0; }
+            double          CalculateTauOnPhase() const                                                 { return m_Age / m_Timescales[static_cast<int>(TIMESCALE::tHeMS)]; }
 
-            double          CalculateTemperatureAtPhaseEnd()                                     { return BaseStar::CalculateTemperatureAtPhaseEnd(); }
+            double          CalculateTemperatureAtPhaseEnd() const                                      { return BaseStar::CalculateTemperatureAtPhaseEnd(); }
 
-            double          CalculateThermalMassLossRate()                                       { return BaseStar::CalculateThermalMassLossRate(); }                   // Use BaseStar
+            double          CalculateThermalMassLossRate() const                                        { return BaseStar::CalculateThermalMassLossRate(); }                    // Use BaseStar
 
             double          CalculateThermalTimescale(const double p_Mass,
                                                       const double p_Radius,
                                                       const double p_Luminosity,
-                                                      const double p_EnvMass = 1.0) const             { return MainSequence::CalculateThermalTimescale(p_Mass, p_Radius, p_Luminosity); }
-            double          CalculateThermalTimescale() const                                         { return CalculateThermalTimescale(m_Mass, m_Radius, m_Luminosity); }  // Use class member variables
+                                                      const double p_EnvMass = 1.0) const               { return MainSequence::CalculateThermalTimescale(p_Mass, p_Radius, p_Luminosity); }
+            double          CalculateThermalTimescale() const                                           { return CalculateThermalTimescale(m_Mass, m_Radius, m_Luminosity); }   // Use class member variables
 
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
-            void            CalculateTimescales()                                                { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
+            void            CalculateTimescales()                                                       { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
     
-            double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)             { return OPTIONS->ZetaMainSequence(); }                                          // A HeMS star is treated as any other MS star for Zeta calculation purposes
+            double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                         { return OPTIONS->ZetaMainSequence(); }                                 // A HeMS star is treated as any other MS star for Zeta calculation purposes
 
-            double          ChooseTimestep(const double p_Time);
+            double          ChooseTimestep(const double p_Time) const;
 
-            MT_CASE         DetermineMassTransferCase()                                          { return MT_CASE::A; }                                                  // Mass Transfer Case A for HeMS stars
+            MT_CASE         DetermineMassTransferCase() const                                           { return MT_CASE::A; }                                                  // Mass Transfer Case A for HeMS stars
 
             STELLAR_TYPE    EvolveToNextPhase();
 
-            ENVELOPE        DetermineEnvelopeType()                                              { return ENVELOPE::RADIATIVE; }                                         // Always RADIATIVE
+            ENVELOPE        DetermineEnvelopeType() const                                               { return ENVELOPE::RADIATIVE; }                                         // Always RADIATIVE
 
-            bool            IsEndOfPhase()                                                       { return !ShouldEvolveOnPhase(); }
-            bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate);
-            bool            IsSupernova()                                                        { return false; }                                                       // Not here
+            bool            IsEndOfPhase() const                                                        { return !ShouldEvolveOnPhase(); }
+            bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
+            bool            IsSupernova() const                                                         { return false; }                                                       // Not here
 
-            void            PerturbLuminosityAndRadius() { }                                                                                                             // NO-OP
+            void            PerturbLuminosityAndRadius() { }                                                                                                                    // NO-OP
 
             STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
-            void            ResolveHeliumFlash() { }                                                                                                                     // NO-OP
-            STELLAR_TYPE    ResolveSkippedPhase()                                                { return m_StellarType; }                                               // NO-OP
+            void            ResolveHeliumFlash() { }                                                                                                                            // NO-OP
+            STELLAR_TYPE    ResolveSkippedPhase()                                                       { return m_StellarType; }                                               // NO-OP
 
-            void            SetSNHydrogenContent()                                               { m_SupernovaDetails.isHydrogenPoor = true; }        // Always true
+            void            SetSNHydrogenContent()                                                      { m_SupernovaDetails.isHydrogenPoor = true; }                           // Always true
 
-            bool            ShouldEvolveOnPhase()                                                { return (utils::Compare(m_Tau, 0.0) >= 0 && utils::Compare(m_Tau, 1.0) < 0); }       // Evolve on HeMS phase if 0 <= tau < 1.0
-            bool            ShouldSkipPhase()                                                    { return false; }                                                       // Never skip HeMS phase
+            bool            ShouldEvolveOnPhase() const                                                 { return (utils::Compare(m_Tau, 0.0) >= 0 && utils::Compare(m_Tau, 1.0) < 0); } // Evolve on HeMS phase if 0 <= tau < 1.0
+            bool            ShouldSkipPhase() const                                                     { return false; }                                                       // Never skip HeMS phase
 
-            void            UpdateInitialMass()                                                  { m_Mass0 = m_Mass; }                                                   // Per Hurley et al. 2000, section 7.1
-            void            UpdateAgeAfterMassLoss();                                                                                                                    // Per Hurley et al. 2000, section 7.1
+            void            UpdateInitialMass()                                                         { m_Mass0 = m_Mass; }                                                   // Per Hurley et al. 2000, section 7.1
+            void            UpdateAgeAfterMassLoss();                                                                                                                           // Per Hurley et al. 2000, section 7.1
 
 };
 

@@ -1,7 +1,5 @@
 #include "BH.h"
 
-
-
 /*
  * Calculate the gravitational mass of the Black Hole in Msol
  *
@@ -15,18 +13,18 @@ double BH::CalculateNeutrinoMassLoss_Static(const double p_BaryonicMass) {
 
     double gravitationalMass = 0.0;
 
-    switch (OPTIONS->NeutrinoMassLossAssumptionBH()) {                                                          // which assumption?
+    switch (OPTIONS->NeutrinoMassLossAssumptionBH()) {                                      // which assumption?
 
-        case NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_FRACTION:                                                   // FIXED FRACTION
+        case NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_FRACTION:                               // FIXED FRACTION
             gravitationalMass = p_BaryonicMass * (1.0 - OPTIONS->NeutrinoMassLossValueBH());
             break;
 
-        case NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS:                                                       // FIXED MASS
+        case NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS:                                   // FIXED MASS
             gravitationalMass = p_BaryonicMass - OPTIONS->NeutrinoMassLossValueBH();
             break;
 
-        default:                                                                                                // unknown assumption
-            SHOW_WARN_STATIC(ERROR::UNKNOWN_NEUTRINO_MASS_LOSS_PRESCRIPTION,                                    // show warning
+        default:                                                                            // unknown assumption
+            SHOW_WARN_STATIC(ERROR::UNKNOWN_NEUTRINO_MASS_LOSS_PRESCRIPTION,                // show warning
                              "Using mass = 0.0",
                              OBJECT_TYPE::BASE_STAR,
                              STELLAR_TYPE::BLACK_HOLE);
