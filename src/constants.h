@@ -2460,7 +2460,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_TOP,                                { TYPENAME::DOUBLE,         "Lambda_Kruckow_Top",   "-",                14, 6 }},
     { ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE,                                  { TYPENAME::DOUBLE,         "Lambda_Loveridge",     "-",                14, 6 }},
     { ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE_WINDS,                            { TYPENAME::DOUBLE,         "Lambda_Loveridge_Winds","-",               14, 6 }},
-    { ANY_STAR_PROPERTY::LAMBDA_NANJING,                                    { TYPENAME::DOUBLE,         "Lambda_Lambda_Nanjing","-",                14, 6 }},
+    { ANY_STAR_PROPERTY::LAMBDA_NANJING,                                    { TYPENAME::DOUBLE,         "Lambda_Nanjing",       "-",                14, 6 }},
     { ANY_STAR_PROPERTY::LBV_PHASE_FLAG,                                    { TYPENAME::BOOL,           "LBV_Phase_Flag",       "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::LUMINOSITY,                                        { TYPENAME::DOUBLE,         "Luminosity",           "Lsol",             14, 6 }},
     { ANY_STAR_PROPERTY::LUMINOSITY_POST_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Luminosity>CE",        "Lsol",             14, 6 }},
