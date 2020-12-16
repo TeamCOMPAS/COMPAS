@@ -251,7 +251,7 @@ def find_detection_probability(Mc, eta, redshifts, distances, n_redshifts_detect
         Mc_shifted = Mc[i] * (1 + redshifts[:n_redshifts_detection])
 
         # work out the closest index to the given values of eta and Mc
-        eta_index = np.round(eta[i].value / eta_step).astype(int) - 1
+        eta_index = np.round(eta[i] / eta_step).astype(int) - 1
         Mc_index = np.round(Mc_shifted / Mc_step).astype(int) - 1
 
         # lookup values for the snr (but make sure you don't go over the top of the array)
@@ -340,15 +340,15 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BHBH", weig
     """
 
     # start by getting the necessary data from the COMPAS file
-    COMPAS = ClassCOMPAS.COMPASData(path, filename, m1_min, m1_max, m2_min, fbin)
-    COMPAS.set_DCO_masks()
-    COMPAS.set_COMPAS_data()
+    COMPAS = ClassCOMPAS.COMPASData(path, fileName=filename, Mlower=m1_min, Mupper=m1_max, m2_min=m2_min, binaryFraction=fbin)
+    COMPAS.setCOMPASDCOmask()
+    COMPAS.setCOMPASData()
     COMPAS.set_sw_weights(weight_column)
     COMPAS.find_star_forming_mass_per_binary_sampling()
 
     # compute the chirp masses and symmetric mass ratios only for systems of interest
-    chirp_masses = COMPAS.chirp_masses()[COMPAS.DCO_masks[dco_type]].to(u.Msun).value
-    etas = COMPAS.etas()[COMPAS.DCO_masks[dco_type]]
+    chirp_masses = (COMPAS.mass1*COMPAS.mass2)**(3/5) / (COMPAS.mass1 + COMPAS.mass2)**(1/5)
+    etas = COMPAS.mass1 * COMPAS.mass2 / (COMPAS.mass1 + COMPAS.mass2)**2
     n_binaries = len(chirp_masses)
 
     # calculate the redshifts array and its equivalents
@@ -359,14 +359,13 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BHBH", weig
     n_formed = sfr / (COMPAS.mass_evolved_per_binary * COMPAS.n_systems)
 
     # work out the metallicity distribution at each redshift and probability of drawing each metallicity in COMPAS
-    dPdlogZ, metallicities, p_draw_metallicity = find_metallicity_distribution(redshifts, np.log(np.min(COMPAS.metallicities_allsystems)),
-                                                                                np.log(np.max(COMPAS.metallicities_allsystems)), Z0, alpha, sigma, step_logZ)
+    dPdlogZ, metallicities, p_draw_metallicity = find_metallicity_distribution(redshifts, np.log(np.min(COMPAS.initialZ)),
+                                                                                np.log(np.max(COMPAS.initialZ)), Z0, alpha, sigma, step_logZ)
 
     # calculate the formation and merger rates using what we computed above
     formation_rate, merger_rate = find_formation_and_merger_rates(n_binaries, redshifts, times, n_formed, dPdlogZ,
-                                                                    metallicities, p_draw_metallicity, COMPAS.metallicities[COMPAS.DCO_masks[dco_type]],
-                                                                    COMPAS.delay_times[COMPAS.DCO_masks[dco_type]].to(u.Myr).value, 
-                                                                    COMPAS.sw_weights[COMPAS.DCO_masks[dco_type]])
+                                                                    metallicities, p_draw_metallicity, COMPAS.metallicitySystems,
+                                                                    COMPAS.delayTimes, COMPAS.sw_weights)
 
     # create lookup tables for the SNR at 1Mpc as a function of the masses and the probability of detection as a function of SNR
     snr_grid_at_1Mpc, detection_probability_grid = compute_snr_and_detection_grids(sensitivity, snr_threshold, Mc_max, Mc_step,
