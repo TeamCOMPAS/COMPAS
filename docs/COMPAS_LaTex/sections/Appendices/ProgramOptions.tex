@@ -17,6 +17,8 @@ Following is the list of program options that can be specified at the command li
 
 \programOption{case-bb-stability-prescription}{}{Prescription for the stability of case BB/BC mass transfer. \\ Options: \lcb\ ALWAYS\_STABLE, ALWAYS\_STABLE\_ONTO\_NSBH, TREAT\_AS\_OTHER\_MT, NEVER\_STABLE\ \rcb}{ALWAYS\_STABLE}
 
+\programOption{check-photon-tiring-limit}{}{Check the photon tiring limit is not exceeded during mass loss.}{FALSE}
+
 \programOption{chemically-homogeneous-evolution}{}{Chemically Homogeneous Evolution mode. \\ Options: \lcb\ NONE, OPTIMISTIC, PESSIMISTIC\ \rcb}{NONE}
 
 \programOption{circulariseBinaryDuringMassTransfer}{}{Circularise binary when it enters a Mass Transfer episode.}{FALSE}
@@ -231,7 +233,7 @@ In both cases the number of objects evolved will be the number specified by the 
 
 \programOption{output-path}{o}{Path to which output is saved (i.e. directory in which the output container is created).}{Current working directory~(CWD)}
 
-\programOption{overall-wind-mass-loss-multiplier}{}{Multiplicitive constant for overall wind mass loss (default = 1). Note that this multiplication factor is applied after the luminous-blue-variable-multiplier and the wolf-rayet-multiplier.}
+\programOption{overall-wind-mass-loss-multiplier}{}{Multiplicitive constant for overall wind mass loss. \\Note that this multiplication factor is applied after the luminous-blue-variable-multiplier and the wolf-rayet-multiplier.}{1.0}
 
 \programOption{pair-instability-supernovae}{}{Enable pair instability supernovae (PISN).}{FALSE}
 

@@ -54,8 +54,14 @@ DBL_DBL Remnants::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
  *
  * @return                                      Mass loss rate in Msol per year
  */
-double Remnants::CalculateMassLossRateHurley() const {
-    return (utils::Compare(m_Luminosity, 4.0E3) > 0) ? CalculateMassLossRateNieuwenhuijzenDeJager() : 0.0;
+double Remnants::CalculateMassLossRateHurley() {
+    double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
+    if (utils::Compare(rateNJ, 0.0) > 0) {
+        m_DominantMassLossRate = MASS_LOSS_TYPE::NIEUWENHUIJZEN_DE_JAGER;
+    } else {
+        m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;
+    }
+    return rateNJ;
 }
 
 

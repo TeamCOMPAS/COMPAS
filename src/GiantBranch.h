@@ -64,7 +64,7 @@ protected:
                                                              const double      p_MinimumLuminosityOnPhase,
                                                              const DBL_VECTOR &p_BnCoefficients);
 
-            double          CalculateMassLossRateHurley() const;
+            double          CalculateMassLossRateHurley();
 
             double          CalculateBaryonicRemnantMass(const double p_ProtoMass, double p_FallbackMass);
             double          CalculateFallbackByBelczynski2002(const double p_COCoreMass);
@@ -104,7 +104,7 @@ protected:
 	
     virtual double          CalculateRemnantRadius() const;
 
-            double          CalculateThermalMassLossRate()                                                  { return (m_Mass - m_CoreMass) / CalculateThermalTimescale(); }     // Use class member variables
+            double          CalculateThermalMassLossRate() const                                            { return (m_Mass - m_CoreMass) / CalculateThermalTimescale(); }     // Use class member variables
 
             double          CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass = 1.0) const;
             double          CalculateThermalTimescale() const                                               { return CalculateThermalTimescale(m_Mass, m_Radius, m_Luminosity, m_Mass - m_CoreMass); }
@@ -112,7 +112,7 @@ protected:
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
             void            CalculateTimescales()                                                           { CalculateTimescales(m_Mass0, m_Timescales); }                     // Use class member variables
 
-    virtual double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)			            { return 0.0; }
+            double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)			            { return 0.0; }
 
             MT_CASE         DetermineMassTransferCase() const                                               { return MT_CASE::C; }                                              // Mass Transfer Case C for GiamtBranch stars
 

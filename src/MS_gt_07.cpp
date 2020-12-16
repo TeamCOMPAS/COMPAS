@@ -11,8 +11,14 @@
  *
  * @return                                      Mass loss rate in Msol per year
  */
-double MS_gt_07::CalculateMassLossRateHurley() const {
-    return CalculateMassLossRateNieuwenhuijzenDeJager();
+double MS_gt_07::CalculateMassLossRateHurley() {
+    double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
+    if (utils::Compare(rateNJ, 0.0) > 0) {
+        m_DominantMassLossRate = MASS_LOSS_TYPE::NIEUWENHUIJZEN_DE_JAGER;
+    } else {
+        m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;
+    }
+    return rateNJ;
 }
 
 
@@ -26,7 +32,7 @@ double MS_gt_07::CalculateMassLossRateHurley() const {
  *
  * @return                                      Rejuvenation factor
  */
-double MS_gt_07::CalculateMassTransferRejuvenationFactor() {
+double MS_gt_07::CalculateMassTransferRejuvenationFactor() const {
 
     double fRej = 1.0;                                                                              // default - Hurley et al. 2000
 

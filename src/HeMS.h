@@ -66,7 +66,7 @@ protected:
             double          CalculateHeCoreMassOnPhase() const                                          { return m_Mass; }                                                      // McHe(HeMS) = Mass
             double          CalculateHeCoreMassAtPhaseEnd() const                                       { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
 
-            double          CalculateInitialSupernovaMass()                                             { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch
+            double          CalculateInitialSupernovaMass() const                                       { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch
 
             double          CalculateLambdaDewi() const                                                 { return 0.5; }
             double          CalculateLambdaNanjing() const                                              { return BaseStar::CalculateLambdaNanjing(); }                          // Not supported - use BaseStar
@@ -76,7 +76,7 @@ protected:
             double          CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau) const   { return CalculateLuminosityOnPhase_Static(p_Mass, p_Tau); }
             double          CalculateLuminosityOnPhase() const                                          { return CalculateLuminosityOnPhase(m_Mass, m_Tau); }                   // Use class member variables
 
-            double          CalculateMassLossRateHurley() const;
+            double          CalculateMassLossRateHurley();
             double          CalculateMassLossRateVink();
 
             double          CalculateMassTransferRejuvenationFactor() const;
@@ -99,7 +99,7 @@ protected:
 
             double          CalculateTemperatureAtPhaseEnd() const                                      { return BaseStar::CalculateTemperatureAtPhaseEnd(); }
 
-            double          CalculateThermalMassLossRate()                                              { return BaseStar::CalculateThermalMassLossRate(); }                    // Use BaseStar
+            double          CalculateThermalMassLossRate() const                                        { return BaseStar::CalculateThermalMassLossRate(); }                    // Use BaseStar
 
             double          CalculateThermalTimescale(const double p_Mass,
                                                       const double p_Radius,

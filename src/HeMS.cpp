@@ -215,8 +215,25 @@ double HeMS::CalculateMassTransferRejuvenationFactor() const {
  *
  * @return                                      Mass loss rate in Msol per year
  */
-double HeMS::CalculateMassLossRateHurley() const {
-    return std::max(CalculateMassLossRateKudritzkiReimers(), CalculateMassLossRateWolfRayetLike(0.0));
+double HeMS::CalculateMassLossRateHurley() {
+    double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
+    double rateKR = CalculateMassLossRateKudritzkiReimers();
+    double rateWR = CalculateMassLossRateWolfRayet(0.0); // use mu=0.0 for Helium stars
+    double dominantRate;
+
+    if (utils::Compare(rateNJ, rateKR) > 0) {
+        dominantRate = rateNJ;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::NIEUWENHUIJZEN_DE_JAGER;
+    } else {
+        dominantRate = rateKR;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::KUDRITZKI_REIMERS;
+    }
+    if (utils::Compare(rateWR, dominantRate) > 0) {
+        dominantRate = rateWR;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
+    }
+
+    return dominantRate;
 }
 
 
@@ -230,7 +247,8 @@ double HeMS::CalculateMassLossRateHurley() const {
  * @return                                      Mass loss rate in Msol per year
  */
 double HeMS::CalculateMassLossRateVink() {
-    return CalculateMassLossRateWolfRayet2(0.0);
+    m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
+    return CalculateMassLossRateWolfRayetZDependent(0.0);
 }
 
 

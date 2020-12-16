@@ -78,7 +78,7 @@ std::tuple<double, double> HeGB::CalculateRadiusOnPhase_Static(const double p_Ma
  * @param   [IN]    p_Luminosity                Luminosity in Lsol
  * @return                                      Radius on the helium giant branch / post-HeMs
  */
-double HeGB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) {
+double HeGB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const {
     double R1, R2;
     std::tie(R1, R2) = CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity);
 

@@ -594,12 +594,12 @@ void MainSequence::UpdateAgeAfterMassLoss() {
  * Define gyration radius 'k=r_g^2' using fit from de Mink et al. 2013, calling k_definition function
  * Original created by Alejandro Vigna-Gomez on 11/2015.  Rewritten June 2019, JR.
  *
- * The original fits from de Mink+2013 where made for MS stars a Z=0.02.
+ * The original fits from de Mink+2013 were made for MS stars a Z=0.02.
  *
  * Uses class member variables instaed of passing in parameters
  *
  *
- * double CalculateGyrationRadius() const
+ * double CalculateGyrationRadius()
  *
  * @return                                      Gyration radius in Rsol
  *
