@@ -1766,19 +1766,19 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *
  * <rec_spec>   ::= <rec_name> <op> "{" { [ <props_list> ] } "}" <spec_delim>
  *
- * <rec_name>   ::= "SSE_PARMS_REC"       |				# SSE only
- *                  "SSE_SWITCH_REC"      |				# SSE only
- *                  "SSE_SNE_REC"         |				# SSE only
- *                  "SSE_SYSPARMS_REC"    |				# SSE only
- *                  "BSE_SYSPARMS_REC"    |				# BSE only
- *                  "BSE_DCO_REC"         |				# BSE only
- *                  "BSE_SNE_REC"         |				# BSE only
- *                  "BSE_CEE_REC"         |				# BSE only
- *                  "BSE_RLOF_REC"        |				# BSE only
- *                  "BSE_BE_BINARIES_REC" |				# BSE only
- *                  "BSE_PULSARS_REC"     |				# BSE only
- *                  "BSE_DETAILED_REC"	  |				# BSE only
- *                  "BSE_SWITCH_REC"					# BSE only
+ * <rec_name>   ::= "SSE_SYSPARMS_REC"       |				# SSE only
+ *                  "SSE_SWITCH_REC"         |				# SSE only
+ *                  "SSE_SNE_REC"            |				# SSE only
+ *                  "SSE_DETAILED_REC"       |				# SSE only
+ *                  "BSE_SYSPARMS_REC"       |				# BSE only
+ *                  "BSE_DCO_REC"            |				# BSE only
+ *                  "BSE_SNE_REC"            |				# BSE only
+ *                  "BSE_CEE_REC"            |				# BSE only
+ *                  "BSE_RLOF_REC"           |				# BSE only
+ *                  "BSE_BE_BINARIES_REC"    |				# BSE only
+ *                  "BSE_PULSARS_REC"        |				# BSE only
+ *                  "BSE_DETAILED_REC"	     |				# BSE only
+ *                  "BSE_SWITCH_REC"		   			   # BSE only
  *
  * <op>         ::= "=" | "+=" | "-="
  *
