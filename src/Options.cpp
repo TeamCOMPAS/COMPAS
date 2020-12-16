@@ -1660,7 +1660,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
  * Note this is a class OptionValues function.
  * 
  * 
- * std::string Options::OptionValues::CheckAndSetOptions(const po::variables_map p_VM)
+ * std::string Options::OptionValues::CheckAndSetOptions()
  * 
  * @return                                      String containing an error string
  *                                              If no error occurred the return string will be the empty string 
@@ -1678,7 +1678,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         m_FixedRandomSeed  = !DEFAULTED("random-seed");                                                                             // use random seed if it is provided by the user
         m_UseFixedUK       = !DEFAULTED("fix-dimensionless-kick-magnitude") && (m_FixedUK >= 0.0);                                  // determine if user supplied a valid kick magnitude
-
 
         if (!DEFAULTED("black-hole-kicks")) {                                                                                       // black hole kicks
             std::tie(found, m_BlackHoleKicks.type) = utils::GetMapKey(m_BlackHoleKicks.typeString, BLACK_HOLE_KICKS_LABEL, m_BlackHoleKicks.type);

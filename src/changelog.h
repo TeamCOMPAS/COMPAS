@@ -644,6 +644,8 @@
 //                                          - added "virtual" to GiantBranch::CalculateCoreMassAtBAGB() and BaseStar::CalculateTemperatureAtPhaseEnd()
 //                                              - will have no impact given where they are called, but the keyword should be there (in case of future changes)
 //                                          - changed hard-coded header suffixes from _1 -> (1), _2 -> (2)
+//                                      - Added call to main() to seed random number generator with seed = 0 before options are processed (and user specified seed is know).  Ensure repeatability.
+//                                      - Changed "timestep below minimum" warnings in Star.cpp to be displayed only if --enable-warnings is specified
 
 const std::string VERSION_STRING = "02.17.14";
 
