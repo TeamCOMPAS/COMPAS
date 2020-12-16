@@ -612,7 +612,7 @@
 //                                      - Consolidated checks of luminosity for NJ winds within function
 //                                      - NOTE: the above makes sure luminosity is checked before applying NJ winds for MS stars, this was not previously the case but I think it should be
 // 02.17.08     JR - Nov 19, 2020   - Enhancements, code cleanup
-//                                      - Added orbital-period-distribution option (see not in Options.cpp re orbital period option)
+//                                      - Added orbital-period-distribution option (see note in Options.cpp re orbital period option)
 //                                      - Added mass-ratio option
 //                                      - Updated default pythonSubmit to reflect new options, plus some previous omissions (by me...)
 //                                      - Minor typo/formatting changes throughout
@@ -631,7 +631,20 @@
 //                                      - Added a new class variable to track the dominant mass loss rate at each timestep
 // 02.17.13     JR - Dec 11, 2020   - Defect repair
 //                                      - uncomment initialisations of mass transfer critical mass ratios in Options.cpp (erroneously commented in v02.16.00)
+// 02.17.14     JR - Dec 14, 2020   - Code and architecture cleanup
+//                                      - Architecture changes:
+//                                          - Added Remnants class    - inherits from HeGB class
+//                                          - Added WhiteDwarfs class - inherits from Remnants class; most of the WD code moved from HeWD, COWD and ONeWD to WhiteDwarfs class
+//                                          - Changed HeWD class      - inherits from WhiteDwarfs class (COWD still inherits from HeWD; ONeWD from COWD)
+//                                          - Change NS class         - inherits from Remnants class; code added/moved as necessary
+//                                          - Change BH class         - inherits from Remnants class; code added/moved as necessary
+//                                          - Change MR class         - inherits from Remnants class; code added/moved as necessary
+//                                      - Code cleanup:
+//                                          - added "const" to many functions (mostly SSE code) that dont modify class variables ("this") (still much to do, but this is a start)
+//                                          - added "virtual" to GiantBranch::CalculateCoreMassAtBAGB() and BaseStar::CalculateTemperatureAtPhaseEnd()
+//                                              - will have no impact given where they are called, but the keyword should be there (in case of future changes)
+//                                          - changed hard-coded header suffixes from _1 -> (1), _2 -> (2)
 
-const std::string VERSION_STRING = "02.17.13";
+const std::string VERSION_STRING = "02.17.14";
 
 # endif // __changelog_h__
