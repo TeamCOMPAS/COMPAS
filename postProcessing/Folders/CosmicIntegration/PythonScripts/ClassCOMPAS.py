@@ -63,70 +63,54 @@ class COMPASData(object):
         # By default, we mask for BBHs that merge within a Hubble time, assumming
         # the pessimistic CEE prescription (HG donors cannot survive a CEE) and
         # not allowing immediate RLOF post-CEE
-        Data = h5.File(self.path + self.fileName, "r")
-        fDCO = Data["DoubleCompactObjects"]
-        fCEE = Data["CommonEnvelopes"]
+        stellar_type_1, stellar_type_2, hubble_flag, dco_seeds = \
+            self.get_COMPAS_variables("DoubleCompactObjects", ["Stellar_Type(1)", "Stellar_Type(2)", "Merges_Hubble_Time", "SEED"])
 
-        # Masks for DCO type
-        maskBBH = (fDCO["Stellar_Type_1"][()] == 14) & (fDCO["Stellar_Type_2"][()] == 14)
-        maskDNS = (fDCO["Stellar_Type_1"][()] == 13) & (fDCO["Stellar_Type_2"][()] == 13)
-        maskBHNS = ((fDCO["Stellar_Type_1"][()] == 14) & (fDCO["Stellar_Type_2"][()] == 13)) \
-                    |((fDCO["Stellar_Type_1"][()] == 13) & (fDCO["Stellar_Type_2"][()] == 14))
-        maskAllTypes = maskBBH | maskDNS | maskBHNS
+        # if user wants to mask on Hubble time use the flag, otherwise just set all to True
+        hubble_mask = hubble_flag if withinHubbleTime else True
 
-        if types == "BBH":
-            maskTypes = maskBBH
-        elif types == "BNS":
-            maskTypes = maskDNS
-        elif types == "BHNS":
-            maskTypes = maskBHNS
-        elif types == "all":
-            maskTypes = maskAllTypes
+        # mask on stellar types (where 14=BH and 13=NS), BHNS can be BHNS or NSBH
+        type_masks = {
+            "all": True,
+            "BBH": np.logical_and(stellar_type_1 == 14, stellar_type_2 == 14),
+            "BHNS": np.logical_or(np.logical_and(stellar_type_1 == 14, stellar_type_2 == 13), np.logical_and(stellar_type_1 == 13, stellar_type_2 == 14)),
+            "BNS": np.logical_and(stellar_type_1 == 13, stellar_type_2 == 13),
+        }
+
+        # if the user wants to make RLOF or optimistic CEs
+        if noRLOFafterCEE or pessimistic:
+
+            # get the flags and unique seeds from the Common Envelopes file
+            ce_seeds = self.get_COMPAS_variables("CommonEnvelopes", "SEED")
+            dco_from_ce = np.in1d(ce_seeds, dco_seeds)
+            dco_ce_seeds = ce_seeds[dco_from_ce]
+
+            # if masking on RLOF, get flag and match seeds to dco seeds
+            if noRLOFafterCEE:
+                rlof_flag = self.get_COMPAS_variables("CommonEnvelopes", "Immediate_RLOF>CE")[dco_from_ce]
+                rlof_seeds = np.unique(dco_ce_seeds[rlof_flag])
+                rlof_mask = np.logical_not(np.in1d(dco_seeds, rlof_seeds))
+            else:
+                rlof_mask = True
+
+            # if masking on pessimistic CE, get flag and match seeds to dco seeds
+            if pessimistic:
+                pessimistic_flag = self.get_COMPAS_variables("CommonEnvelopes", "Optimistic_CE")[dco_from_ce]
+                pessimistic_seeds = np.unique(dco_ce_seeds[pessimistic_flag])
+                pessimistic_mask = np.logical_not(np.in1d(dco_seeds, pessimistic_seeds))
+            else:
+                pessimistic_mask = True
         else:
-            raise ValueError("type=%s not one of 'BBH', 'BNS', 'BHNS', 'all'" % (types))
+            rlof_mask = True
+            pessimistic_mask = True
 
-        # Mask DCOs merging within Hubble time
-        if withinHubbleTime:
-            maskHubble = fDCO["Merges_Hubble_Time"][()] == True
-        else:
-            maskHubble = np.ones(len(fDCO["Merges_Hubble_Time"][()]), dtype=bool)
-
-        # Masks related to CEEs
-        CEEseeds = fCEE["SEED"][()]
-        DCOseeds = fDCO["SEED"][()]
-
-        if (pessimistic or noRLOFafterCEE):
-            maskDCOCEEs = np.in1d(CEEseeds, DCOseeds) # Mask for CEEs involved in forming DCOs
-            DCOCEEseeds = CEEseeds[maskDCOCEEs] # Seeds of CEEs involved in forming DCO
-
-        # Mask for DCOs formed assumming pessimistic CEE
-        if pessimistic:
-            optimisticFlagForDCOCEEs = fCEE["Optimistic_CE"][()][maskDCOCEEs]
-            # Seeds of DCOs that have optimistic CEE
-            optimisticCEEseeds = np.unique(DCOCEEseeds[optimisticFlagForDCOCEEs])
-            maskOptimistic = np.in1d(DCOseeds,optimisticCEEseeds)
-            maskPessimistic = np.logical_not(maskOptimistic)
-        else:
-            maskPessimistic = np.ones(len(fDCO["ID"][()]), dtype=bool)
-
-        # Mask for DCOs formed without RLOF immediately after CEE
-        if noRLOFafterCEE:
-            immediateRLOFflagforDCOCEEs = fCEE["Immediate_RLOF>CE"][()][maskDCOCEEs]
-            # Seeds of DCOs that have immediate RLOF post-CEE
-            immediateRLOFCEEseeds = np.unique(DCOCEEseeds[immediateRLOFflagforDCOCEEs])
-            maskRLOFafterCEE = np.in1d(DCOseeds,immediateRLOFCEEseeds)
-            maskNoRLOFafterCEE = np.logical_not(maskRLOFafterCEE)
-        else:
-            maskNoRLOFafterCEE = np.ones(len(fDCO["ID"][()]), dtype=bool)
-
-        # Combine all the masks
-        self.DCOmask = maskTypes & maskHubble & maskPessimistic & maskNoRLOFafterCEE
-        self.BBHmask = maskBBH & maskHubble & maskPessimistic & maskNoRLOFafterCEE
-        self.DNSmask = maskDNS & maskHubble & maskPessimistic & maskNoRLOFafterCEE
-        self.BHNSmask = maskBHNS & maskHubble & maskPessimistic & maskNoRLOFafterCEE
-        self.allTypesMask = maskAllTypes & maskHubble & maskPessimistic & maskNoRLOFafterCEE
-        self.optimisticmask = maskPessimistic
-        Data.close()
+        # create a mask for each dco type supplied
+        self.DCOmask = type_masks[types] * hubble_mask * rlof_mask * pessimistic_mask
+        self.BBHmask = type_masks["BBH"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.BHNSmask = type_masks["BHNS"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.DNSmask = type_masks["BNS"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.allTypesMask = type_masks["all"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.optimisticmask = pessimistic_mask
 
     def setGridAndMassEvolved(self):
         # The COMPAS simulation does not evolve all stars
@@ -152,6 +136,9 @@ class COMPASData(object):
         Data.close()
 
     def setCOMPASData(self):
+        
+
+
         Data = h5.File(self.path + self.fileName, "r")
         fDCO = Data["DoubleCompactObjects"]
         # sorry not the prettiest line is a boolean slice of seeds
