@@ -33,50 +33,53 @@ endif
 CXXFLAGS := -g -std=c++11 -Wall $(OPTFLAGS)
 ICFLAGS := -I$(BOOST)/include -I.
 LFLAGS :=  -L$(BOOST)/lib -lgsl -lgslcblas -lstdc++ -lm -lz -ldl -lboost_filesystem -lboost_program_options -lboost_system -Xlinker -rpath -Xlinker $(BOOST)/lib
-SOURCES :=                                                               \
-            profiling.cpp               \
-            utils.cpp                   \
-            vector3d.cpp                \
-                                        \
-            Rand.cpp                    \
-            Options.cpp                 \
-            Log.cpp                     \
-            Errors.cpp                  \
-                                        \
-            BaseStar.cpp                \
-                                        \
-            Star.cpp                    \
-                                        \
-            MainSequence.cpp            \
-            MS_lte_07.cpp               \
-            MS_gt_07.cpp                \
-                                        \
-            CH.cpp                      \
-                                        \
-            GiantBranch.cpp             \
-            HG.cpp                      \
-            FGB.cpp                     \
-            CHeB.cpp                    \
-            EAGB.cpp                    \
-            TPAGB.cpp                   \
-                                        \
-            HeMS.cpp                    \
-            HeHG.cpp                    \
-            HeGB.cpp                    \
-                                        \
-            HeWD.cpp                    \
-            COWD.cpp                    \
-            ONeWD.cpp                   \
-                                        \
-            NS.cpp                      \
-            BH.cpp                      \
-            MR.cpp                      \
-                                        \
-            BinaryConstituentStar.cpp   \
-            BaseBinaryStar.cpp          \
-            BinaryStar.cpp              \
-                                        \
-            main.cpp
+SOURCES :=						\
+	profiling.cpp               \
+	utils.cpp                   \
+	vector3d.cpp                \
+								\
+	Rand.cpp                    \
+	Options.cpp                 \
+	Log.cpp                     \
+	Errors.cpp                  \
+								\
+	BaseStar.cpp                \
+								\
+	Star.cpp                    \
+								\
+	MainSequence.cpp            \
+	MS_lte_07.cpp               \
+	MS_gt_07.cpp                \
+								\
+	CH.cpp                      \
+								\
+	GiantBranch.cpp             \
+	HG.cpp                      \
+	FGB.cpp                     \
+	CHeB.cpp                    \
+	EAGB.cpp                    \
+	TPAGB.cpp                   \
+								\
+	HeMS.cpp                    \
+	HeHG.cpp                    \
+	HeGB.cpp					\
+								\
+	Remnants.cpp				\
+								\
+	WhiteDwarfs.cpp				\
+	HeWD.cpp					\
+	COWD.cpp                    \
+	ONeWD.cpp                   \
+								\
+	NS.cpp                      \
+	BH.cpp                      \
+	MR.cpp                      \
+								\
+	BinaryConstituentStar.cpp   \
+	BaseBinaryStar.cpp          \
+	BinaryStar.cpp              \
+								\
+	main.cpp
 
 OBJI := $(SOURCES:.cpp=.o)
 

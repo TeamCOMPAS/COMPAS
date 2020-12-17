@@ -184,7 +184,7 @@ double HeMS::CalculateRadiusAtPhaseEnd_Static(const double p_Mass) {
  *
  * @return                                      Rejuvenation factor
  */
-double HeMS::CalculateMassTransferRejuvenationFactor() {
+double HeMS::CalculateMassTransferRejuvenationFactor() const {
 
     double fRej = 1.0;                                                                              // default value
 
@@ -216,7 +216,24 @@ double HeMS::CalculateMassTransferRejuvenationFactor() {
  * @return                                      Mass loss rate in Msol per year
  */
 double HeMS::CalculateMassLossRateHurley() {
-    return std::max(CalculateMassLossRateKudritzkiReimers(), CalculateMassLossRateWolfRayetLike(0.0));
+    double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
+    double rateKR = CalculateMassLossRateKudritzkiReimers();
+    double rateWR = CalculateMassLossRateWolfRayet(0.0); // use mu=0.0 for Helium stars
+    double dominantRate;
+
+    if (utils::Compare(rateNJ, rateKR) > 0) {
+        dominantRate = rateNJ;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::NIEUWENHUIJZEN_DE_JAGER;
+    } else {
+        dominantRate = rateKR;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::KUDRITZKI_REIMERS;
+    }
+    if (utils::Compare(rateWR, dominantRate) > 0) {
+        dominantRate = rateWR;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
+    }
+
+    return dominantRate;
 }
 
 
@@ -230,7 +247,8 @@ double HeMS::CalculateMassLossRateHurley() {
  * @return                                      Mass loss rate in Msol per year
  */
 double HeMS::CalculateMassLossRateVink() {
-    return CalculateMassLossRateWolfRayet2(0.0);
+    m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
+    return CalculateMassLossRateWolfRayetZDependent(0.0);
 }
 
 
@@ -248,7 +266,7 @@ double HeMS::CalculateMassLossRateVink() {
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
  * @return                                      Boolean indicating stability of mass transfer (true = unstable)
  */
-bool HeMS::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) {
+bool HeMS::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const {
 
     bool result = false;                                                                                                    // default is stable
 
@@ -330,7 +348,7 @@ void HeMS::UpdateAgeAfterMassLoss() {
  * @param   [IN]    p_Time                      Current age of star in Myr
  * @return                                      Suggested timestep (dt)
  */
-double HeMS::ChooseTimestep(const double p_Time) {
+double HeMS::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     double dtk = 0.05 * timescales(tHeMS);

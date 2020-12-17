@@ -1002,14 +1002,14 @@ namespace utils {
 
                 do {                                                                                            // JR: todo: catch non-convergence?
                     q = 0.42 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.23;
-                } while (q < p_Min || q > p_Max);                                                                   // JR: don't use utils::Compare() here
+                } while (q < p_Min || q > p_Max);                                                               // JR: don't use utils::Compare() here
                 break;
 
-            case MASS_RATIO_DISTRIBUTION::SANA2012:                                                                                     // Sana et al 2012 (http://science.sciencemag.org/content/sci/337/6093/444.full.pdf) distribution of eccentricities.
+            case MASS_RATIO_DISTRIBUTION::SANA2012:                                                             // Sana et al 2012 (http://science.sciencemag.org/content/sci/337/6093/444.full.pdf) distribution of eccentricities.
                 // Taken from table S3 in http://science.sciencemag.org/content/sci/suppl/2012/07/25/337.6093.444.DC1/1223344.Sana.SM.pdf
                 // See also de Mink and Belczynski 2015 http://arxiv.org/pdf/1506.03573v2.pdf
 
-                q = utils::InverseSampleFromPowerLaw(-0.1, p_Max, p_Min);   // de Mink and Belczynski use min = 0.1, max = 1.0
+                q = utils::InverseSampleFromPowerLaw(-0.1, p_Max, p_Min);                                       // de Mink and Belczynski use min = 0.1, max = 1.0
                 break;
 
             default:                                                                                            // unknown q-distribution

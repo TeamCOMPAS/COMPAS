@@ -353,6 +353,7 @@ private:
         // Serena
         //"be-binaries",
 
+        "check-photon-tiring-limit",
         "circularise-binary-during-mass-transfer",
         "common-envelope-allow-main-sequence-survive",
 
@@ -663,6 +664,7 @@ public:
 
             // Mass loss options
             bool                                                m_UseMassLoss;                                                  // Whether to activate mass loss (default = True)
+            bool                                                m_CheckPhotonTiringLimit;                                       // Whether to check the photon tiring limit for wind mass loss
 
             // Can also have options for modifying strength of winds etc here
 
@@ -956,8 +958,8 @@ public:
 
 
 
-    int             AdvanceCmdLineOptionValues()    { return AdvanceOptionVariation(m_CmdLine); }
-    int             AdvanceGridLineOptionValues()   { return AdvanceOptionVariation(m_GridLine); }
+    int             AdvanceCmdLineOptionValues()            { return AdvanceOptionVariation(m_CmdLine); }
+    int             AdvanceGridLineOptionValues()           { return AdvanceOptionVariation(m_GridLine); }
     int             ApplyNextGridLine();
 
     void            CloseGridFile() { m_Gridfile.handle.close(); m_Gridfile.filename = ""; m_Gridfile.error = ERROR::EMPTY_FILENAME; }
@@ -975,7 +977,6 @@ public:
 
     void            RewindGridFile() { m_Gridfile.handle.clear(); m_Gridfile.handle.seekg(0); }
 
-
     // getters
 
     bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return OPT_VALUE("common-envelope-allow-main-sequence-survive", m_AllowMainSequenceStarToSurviveCommonEnvelope, true); }
@@ -992,6 +993,8 @@ public:
     
     CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return OPT_VALUE("case-bb-stability-prescription", m_CaseBBStabilityPrescription.type, true); }
     
+    bool                                        CheckPhotonTiringLimit() const                                          { return OPT_VALUE("check-photon-tiring-limit", m_CheckPhotonTiringLimit, true); }
+
     CHE_MODE                                    CHEMode() const                                                         { return OPT_VALUE("chemically-homogeneous-evolution", m_CheMode.type, true); }
 
     bool                                        CirculariseBinaryDuringMassTransfer() const                             { return OPT_VALUE("circularise-binary-during-mass-transfer", m_CirculariseBinaryDuringMassTransfer, true); }

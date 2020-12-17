@@ -90,11 +90,11 @@ void CHeB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
  *
  * @return                                      Dewi lambda for use in common envelope
  */
-double CHeB::CalculateLambdaDewi() {
+double CHeB::CalculateLambdaDewi() const {
 
     double lambda3 = std::min(-0.9, 0.58 + (0.75 * log10(m_Mass))) - (0.08 * log10(m_Luminosity));                          // (A.4) Claeys+2014
     double lambda1 = std::min(lambda3, std::min(0.8, 1.25 - (0.15 * log10(m_Luminosity))));                                 // (A.5) Top, Claeys+2014
-	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                   // (A.2) Claeys+2014
+	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014
 	double envMass = utils::Compare(m_CoreMass, 0.0) > 0 && utils::Compare(m_Mass, m_CoreMass) > 0 ? m_Mass - m_CoreMass : 0.0;
 
     double lambdaCE;
@@ -128,7 +128,7 @@ double CHeB::CalculateLambdaDewi() {
  *
  * @return                                      Nanjing lambda for use in common envelope
  */
-double CHeB::CalculateLambdaNanjing() {
+double CHeB::CalculateLambdaNanjing() const {
 
 	DBL_VECTOR maxBG    = {};                                                       // [0] = maxB, [1] = maxG
 	DBL_VECTOR lambdaBG = {};                                                       // [0] = lambdaB, [1] = lambdaG
@@ -480,7 +480,7 @@ double CHeB::CalculateMinimumLuminosityOnPhase(const double      p_Mass,
                                                const double      p_Alpha1,
                                                const double      p_MHeF,
                                                const double      p_MFGB,
-                                               const DBL_VECTOR &p_BnCoefficients) {
+                                               const DBL_VECTOR &p_BnCoefficients) const {
 #define b p_BnCoefficients  // for convenience and readability - undefined at end of function
 
     double LHeI = GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, p_Alpha1, p_MHeF, p_BnCoefficients);
@@ -503,7 +503,7 @@ double CHeB::CalculateMinimumLuminosityOnPhase(const double      p_Mass,
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Luminosity at the start of the blue phase of core helium burning in Lsol
  */
-double CHeB::CalculateLuminosityAtBluePhaseStart(const double p_Mass) {
+double CHeB::CalculateLuminosityAtBluePhaseStart(const double p_Mass) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     double Lx;
@@ -534,7 +534,7 @@ double CHeB::CalculateLuminosityAtBluePhaseStart(const double p_Mass) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Luminosity at the end of the blue phase of Core Helium Burning in Lsol
  */
-double CHeB::CalculateLuminosityAtBluePhaseEnd(const double p_Mass) {
+double CHeB::CalculateLuminosityAtBluePhaseEnd(const double p_Mass) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
@@ -578,7 +578,7 @@ double CHeB::CalculateLuminosityAtBluePhaseEnd(const double p_Mass) {
  * @param   [IN]    p_Tau                       CHeB relative age
  * @return                                      Luminosity during Core Helium Burning in Lsol
  */
-double CHeB::CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau) {
+double CHeB::CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
@@ -620,7 +620,7 @@ double CHeB::CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau)
  *
  * @return                                      Luminosity of remnant core in Lsol
  */
-double CHeB::CalculateRemnantLuminosity() {
+double CHeB::CalculateRemnantLuminosity() const {
     return HeMS::CalculateLuminosityOnPhase_Static(m_CoreMass, CalculateTauOnPhase());
 }
 
@@ -632,11 +632,9 @@ double CHeB::CalculateRemnantLuminosity() {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-double CHeB::CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_Luminosity) {
+double CHeB::CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_Luminosity) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
-
     return EAGB::CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity, massCutoffs(MHeF), m_BnCoefficients);
-
 #undef massCutoffs
 }
 
@@ -708,7 +706,7 @@ double CHeB::CalculateMinimumRadiusOnPhase_Static(const double      p_Mass,
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Radius at the start of the blue phase of Core Helium Burning in Rsol
  */
-double CHeB::CalculateRadiusAtBluePhaseStart(const double p_Mass) {
+double CHeB::CalculateRadiusAtBluePhaseStart(const double p_Mass) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     double Rx;
@@ -741,7 +739,7 @@ double CHeB::CalculateRadiusAtBluePhaseStart(const double p_Mass) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Radius at the end of the blue phase of Core Helium Burning in Rsol
  */
-double CHeB::CalculateRadiusAtBluePhaseEnd(const double p_Mass) {
+double CHeB::CalculateRadiusAtBluePhaseEnd(const double p_Mass) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     // JR: in all cases in the original code (function radiusCHeBY):
@@ -766,7 +764,7 @@ double CHeB::CalculateRadiusAtBluePhaseEnd(const double p_Mass) {
  * @param   [IN]    p_Tau                       CHeB relative age
  * @return                                      Rho
  */
-double CHeB::CalculateRadiusRho(const double p_Mass, const double p_Tau) {
+double CHeB::CalculateRadiusRho(const double p_Mass, const double p_Tau) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
@@ -804,7 +802,7 @@ double CHeB::CalculateRadiusRho(const double p_Mass, const double p_Tau) {
  * @param   [IN]    p_Tau                       CHeB relative age
  * @return                                      Radius during Core Helium Burning in Rsol
  */
-double CHeB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity, const double p_Tau) {
+double CHeB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity, const double p_Tau) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
@@ -847,7 +845,7 @@ double CHeB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosi
  *
  * @return                                      Radius of remnant core in Rsol
  */
-double CHeB::CalculateRemnantRadius() {
+double CHeB::CalculateRemnantRadius() const {
     return HeMS::CalculateRadiusOnPhase_Static(m_CoreMass, CalculateTauOnPhase());
 }
 
@@ -871,7 +869,7 @@ double CHeB::CalculateRemnantRadius() {
  * @param   [IN]    p_Tau                       Relative age on phase
  * @return                                      Core mass on the First Giant Branch in Msol
  */
-double CHeB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Tau) {
+double CHeB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Tau) const {
     return std::min(((1.0 - p_Tau) * CalculateCoreMassAtHeIgnition(p_Mass)) + (p_Tau * CalculateCoreMassAtBAGB(p_Mass)), m_Mass);               //He mass capped at total mass (should become HeMS star)
 }
 
@@ -895,11 +893,9 @@ double CHeB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Tau) {
  * @return                                      CHeB relative age, clamped to [0, 1]
  */
 
-double CHeB::CalculateTauOnPhase() {
+double CHeB::CalculateTauOnPhase() const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-
     return std::max(0.0, std::min(1.0, (m_Age - timescales(tHeI)) / timescales(tHe)));
-
 #undef timescales
 }
 
@@ -1027,7 +1023,7 @@ double CHeB::CalculateLifetimeOnBluePhase(const double p_Mass) {
  * @return         true if evolution should continue on phase, false otherwise
  */
 
-bool CHeB::ShouldEvolveOnPhase() {
+bool CHeB::ShouldEvolveOnPhase() const {
     bool afterHeIgnition = (m_Age >= m_Timescales[static_cast<int>(TIMESCALE::tHeI)]);
     bool beforeEndOfHeBurning = (m_Age < (m_Timescales[static_cast<int>(TIMESCALE::tHeI)] + m_Timescales[static_cast<int>(TIMESCALE::tHe)]));
     bool coreIsNotTooMassive = (m_HeCoreMass < m_Mass);
@@ -1051,11 +1047,11 @@ bool CHeB::ShouldEvolveOnPhase() {
  *
  * @return                                      ENVELOPE::{ RADIATIVE, CONVECTIVE, REMNANT }
  */
-ENVELOPE CHeB::DetermineEnvelopeType() {
+ENVELOPE CHeB::DetermineEnvelopeType() const {
     
-    ENVELOPE envelope = ENVELOPE::CONVECTIVE;                                                        // default envelope type  is CONVECTIVE
+    ENVELOPE envelope = ENVELOPE::CONVECTIVE;                                                       // default envelope type  is CONVECTIVE
     
-    switch (OPTIONS->EnvelopeStatePrescription()) {                                         // which envelope prescription?
+    switch (OPTIONS->EnvelopeStatePrescription()) {                                                 // which envelope prescription?
             
         case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
         case ENVELOPE_STATE_PRESCRIPTION::HURLEY:
@@ -1063,7 +1059,7 @@ ENVELOPE CHeB::DetermineEnvelopeType() {
             break;
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
-            envelope =  utils::Compare(Temperature()*TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            envelope =  utils::Compare(Temperature() * TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             break;
             
         default:                                                                                    // unknown prescription - use default envelope type
@@ -1086,7 +1082,7 @@ ENVELOPE CHeB::DetermineEnvelopeType() {
  * @param   [IN]    p_Time                      Current age of star in Myr
  * @return                                      Suggested timestep (dt)
  */
-double CHeB::ChooseTimestep(const double p_Time) {
+double CHeB::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     double dtk = 2.0E-3 * timescales(tHe);
