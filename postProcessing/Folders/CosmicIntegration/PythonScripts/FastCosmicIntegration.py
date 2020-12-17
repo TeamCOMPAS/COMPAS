@@ -180,18 +180,18 @@ def compute_snr_and_detection_grids(sensitivity="O1", snr_threshold=8.0, Mc_max=
         if runtime was not important.
 
         Args:
-            sensitivity                --> [string]         Which detector sensitivity to use: one of ["design", "O1", "O3"]
-            snr_threshold              --> [float]          What SNR threshold required for a detection
-            Mc_max                     --> [float]          Maximum chirp mass in grid
-            Mc_step                    --> [float]          Step in chirp mass to use in grid
-            eta_max                    --> [float]          Maximum symmetric mass ratio in grid
-            eta_step                   --> [float]          Step in symmetric mass ratio to use in grid
-            snr_max                    --> [float]          Maximum snr in grid
-            snr_step                   --> [float]          Step in snr to use in grid
+            sensitivity                    --> [string]         Which detector sensitivity to use: one of ["design", "O1", "O3"]
+            snr_threshold                  --> [float]          What SNR threshold required for a detection
+            Mc_max                         --> [float]          Maximum chirp mass in grid
+            Mc_step                        --> [float]          Step in chirp mass to use in grid
+            eta_max                        --> [float]          Maximum symmetric mass ratio in grid
+            eta_step                       --> [float]          Step in symmetric mass ratio to use in grid
+            snr_max                        --> [float]          Maximum snr in grid
+            snr_step                       --> [float]          Step in snr to use in grid
 
         Returns:
-            snr_grid_at_1Mpc           --> [2D float array] The snr of a binary with masses (Mc, eta) at a distance of 1 Mpc
-            detection_probability_grid --> [list of floats] A grid of detection probabilities for different SNRs
+            snr_grid_at_1Mpc               --> [2D float array] The snr of a binary with masses (Mc, eta) at a distance of 1 Mpc
+            detection_probability_from_snr --> [list of floats] A list of detection probabilities for different SNRs
     """
     # get interpolator given sensitivity
     interpolator = selection_effects.SNRinterpolator(sensitivity)
@@ -210,27 +210,27 @@ def compute_snr_and_detection_grids(sensitivity="O1", snr_threshold=8.0, Mc_max=
 
     # precompute a grid of detection probabilities as a function of snr
     snr_array = np.arange(snr_step, snr_max + snr_step, snr_step)
-    detection_probability_grid = selection_effects.detection_probability_from_snr(snr_array, snr_threshold)
+    detection_probability_from_snr = selection_effects.detection_probability_from_snr(snr_array, snr_threshold)
 
-    return snr_grid_at_1Mpc, detection_probability_grid
+    return snr_grid_at_1Mpc, detection_probability_from_snr
 
-def find_detection_probability(Mc, eta, redshifts, distances, n_redshifts_detection, n_binaries, snr_grid_at_1Mpc, detection_probability_grid,
+def find_detection_probability(Mc, eta, redshifts, distances, n_redshifts_detection, n_binaries, snr_grid_at_1Mpc, detection_probability_from_snr,
                                 Mc_step=0.1, eta_step=0.01, snr_step=0.1):
     """
         Compute the detection probability given a grid of SNRs and detection probabilities with masses
 
         Args:
-            Mc                         --> [list of floats] Chirp mass of binaries in COMPAS
-            eta                        --> [list of floats] Symmetric mass ratios of binaries in COMPAS
-            redshifts                  --> [list of floats] List of redshifts
-            distances                  --> [list of floats] List of distances corresponding to redshifts
-            n_redshifts_detection      --> [int]            Index (in redshifts) to which we evaluate detection probability
-            n_binaries                 --> [int]            Number of merging binaries in the COMPAS file
-            snr_grid_at_1Mpc           --> [2D float array] The snr of a binary with masses (Mc, eta) at a distance of 1 Mpc
-            detection_probability_grid --> [list of floats] A grid of detection probabilities for different SNRs
-            Mc_step                    --> [float]          Step in chirp mass to use in grid
-            eta_step                   --> [float]          Step in symmetric mass ratio to use in grid
-            snr_step                   --> [float]          Step in snr to use in grid
+            Mc                             --> [list of floats] Chirp mass of binaries in COMPAS
+            eta                            --> [list of floats] Symmetric mass ratios of binaries in COMPAS
+            redshifts                      --> [list of floats] List of redshifts
+            distances                      --> [list of floats] List of distances corresponding to redshifts
+            n_redshifts_detection          --> [int]            Index (in redshifts) to which we evaluate detection probability
+            n_binaries                     --> [int]            Number of merging binaries in the COMPAS file
+            snr_grid_at_1Mpc               --> [2D float array] The snr of a binary with masses (Mc, eta) at a distance of 1 Mpc
+            detection_probability_from_snr --> [list of floats] A list of detection probabilities for different SNRs
+            Mc_step                        --> [float]          Step in chirp mass to use in grid
+            eta_step                       --> [float]          Step in symmetric mass ratio to use in grid
+            snr_step                       --> [float]          Step in snr to use in grid
     """
     # by default, set detection probability to one
     detection_probability = np.ones(shape=(n_binaries, n_redshifts_detection))
@@ -253,12 +253,12 @@ def find_detection_probability(Mc, eta, redshifts, distances, n_redshifts_detect
         snrs = snrs / distances[:n_redshifts_detection]
 
         # lookup values for the detection probability (but make sure you don't go over the top of the array)
-        detection_grid_index = np.round(snrs / snr_step).astype(int) - 1
-        snr_below_max = detection_grid_index < len(detection_probability_grid)
+        detection_list_index = np.round(snrs / snr_step).astype(int) - 1
+        snr_below_max = detection_list_index < len(detection_probability_from_snr)
 
         # remember we set probability = 1 by default? Because if we don't set it here, we have snr > max snr
         # which is 1000 by default, meaning very detectable
-        detection_probability[i, snr_below_max] = detection_probability_grid[detection_grid_index[snr_below_max]]
+        detection_probability[i, snr_below_max] = detection_probability_from_snr[detection_list_index[snr_below_max]]
 
     return detection_probability
 
@@ -386,12 +386,12 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
                                                                     COMPAS.delayTimes, COMPAS.sw_weights)
 
     # create lookup tables for the SNR at 1Mpc as a function of the masses and the probability of detection as a function of SNR
-    snr_grid_at_1Mpc, detection_probability_grid = compute_snr_and_detection_grids(sensitivity, snr_threshold, Mc_max, Mc_step,
+    snr_grid_at_1Mpc, detection_probability_from_snr = compute_snr_and_detection_grids(sensitivity, snr_threshold, Mc_max, Mc_step,
                                                                                     eta_max, eta_step, snr_max, snr_step)
 
     # use lookup tables to find the probability of detecting each binary at each redshift
     detection_probability = find_detection_probability(chirp_masses, etas, redshifts, distances, n_redshifts_detection, n_binaries,
-                                                        snr_grid_at_1Mpc, detection_probability_grid, Mc_step, eta_step, snr_step)
+                                                        snr_grid_at_1Mpc, detection_probability_from_snr, Mc_step, eta_step, snr_step)
 
     # finally, compute the detection rate using Neijssel+19 Eq. 2
     detection_rate = np.zeros(shape=(n_binaries, n_redshifts_detection))
