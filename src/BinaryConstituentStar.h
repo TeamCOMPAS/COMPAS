@@ -70,7 +70,6 @@ public:
         m_OrbitalEnergyPostSN                        = DEFAULT_INITIAL_DOUBLE_VALUE;
 
         m_FirstMassTransferEpisode                   = false;
-        m_MassTransferCaseInitial                    = MT_CASE::NONE;
 
         m_OmegaTidesIndividualDiff                   = DEFAULT_INITIAL_DOUBLE_VALUE;
 
@@ -101,7 +100,6 @@ public:
         m_OrbitalEnergyPostSN      = p_Star.m_OrbitalEnergyPostSN;
 
         m_FirstMassTransferEpisode = p_Star.m_FirstMassTransferEpisode;
-        m_MassTransferCaseInitial  = p_Star.m_MassTransferCaseInitial;
 
         m_OmegaTidesIndividualDiff = p_Star.m_OmegaTidesIndividualDiff;
 
@@ -132,7 +130,6 @@ public:
             m_OrbitalEnergyPostSN      = p_Star.m_OrbitalEnergyPostSN;
 
             m_FirstMassTransferEpisode = p_Star.m_FirstMassTransferEpisode;
-            m_MassTransferCaseInitial  = p_Star.m_MassTransferCaseInitial;
 
             m_OmegaTidesIndividualDiff = p_Star.m_OmegaTidesIndividualDiff;
 
@@ -176,7 +173,6 @@ public:
     double          MassLossDiff() const                                                { return m_MassLossDiff; }
     double          MassPostCEE() const                                                 { return m_CEDetails.postCEE.mass; }
     double          MassPreCEE() const                                                  { return m_CEDetails.preCEE.mass; }
-    MT_CASE         MassTransferCaseInitial() const                                     { return m_MassTransferCaseInitial; }
     double          MassTransferDiff() const                                            { return m_MassTransferDiff; }
 
     double          NuclearTimescalePostCEE() const                                     { return m_CEDetails.postCEE.nuclearTimescale; }
@@ -229,8 +225,6 @@ public:
 
     double          CalculateSynchronisationTimescale(const double p_SemiMajorAxis);
 
-    void            DetermineInitialMassTransferCase();
-
     void            InitialiseMassTransfer(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity);
 
     void            ResolveCommonEnvelopeAccretion(const double p_FinalMass);
@@ -269,7 +263,6 @@ private:
     }                       m_Flags;
 
     double                  m_MassLossDiff;
-    MT_CASE                 m_MassTransferCaseInitial;              // Indicator of which Mass Transfer occures when first RLOF, if any
     double                  m_MassTransferDiff;
 
     double                  m_OmegaTidesIndividualDiff;
@@ -285,8 +278,6 @@ private:
 
 
 	// member functions - alphabetically
-    void                CalculateInitialMassTransferCase();
-
     double              CalculateMassAccretedForNS(const double p_CompanionMass, const double p_CompanionRadius);
 
     void                SetRocheLobeFlags(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity);

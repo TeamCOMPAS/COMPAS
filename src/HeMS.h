@@ -114,8 +114,6 @@ protected:
 
             double          ChooseTimestep(const double p_Time) const;
 
-            MT_CASE         DetermineMassTransferCase() const                                           { return MT_CASE::A; }                                                  // Mass Transfer Case A for HeMS stars
-
             STELLAR_TYPE    EvolveToNextPhase();
 
             ENVELOPE        DetermineEnvelopeType() const                                               { return ENVELOPE::RADIATIVE; }                                         // Always RADIATIVE
