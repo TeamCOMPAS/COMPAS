@@ -15,6 +15,7 @@ class COMPASData(object):
         Mupper=None,
         m2_min=None,
         binaryFraction=None,
+        suppress_reminder=False,
     ):
         self.path = path
         self.fileName = fileName
@@ -57,9 +58,10 @@ class COMPASData(object):
         self.totalMassEvolvedPerZ = None  # Msun
         self.mass_evolved_per_binary = None # Msun
 
-        print("ClassCOMPAS: Remember to self.setGridAndMassEvolved() [optional]")
-        print("                   then  self.setCOMPASDCOmask()")
-        print("                   then  self.setCOMPASData()")
+        if not suppress_reminder:
+            print("ClassCOMPAS: Remember to self.setGridAndMassEvolved() [optional]")
+            print("                    then self.setCOMPASDCOmask()")
+            print("                    then self.setCOMPASData()")
 
     def setCOMPASDCOmask(
         self, types="BBH", withinHubbleTime=True, pessimistic=True, noRLOFafterCEE=True
