@@ -6,6 +6,7 @@ from astropy.cosmology import WMAP9 as cosmology
 from scipy.interpolate import interp1d
 import ClassCOMPAS
 import selection_effects
+import warnings
 
 import astropy.units as u
 
@@ -25,9 +26,6 @@ def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=
             distances              --> [list of floats] Equivalent of redshifts but converted to luminosity distances
             shell_volumes          --> [list of floats] Equivalent of redshifts but converted to shell volumes
     """
-    # ensure that max_redshift_detection is below max_redshift
-    assert max_redshift_detection <= max_redshift, "Maximum redshift must be greater than maximum detection redshift!"
-
     # create a list of redshifts and record lengths
     redshifts = np.arange(0, max_redshift + redshift_step, redshift_step)
     n_redshifts_detection = int(max_redshift_detection / redshift_step)
@@ -310,9 +308,9 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
             =======================================================================
             == Arguments for creating metallicity distribution and probabilities ==
             =======================================================================
-            Z0                     --> [float]  Parameter used for calculating mean metallicity
-            alpha                  --> [float]  Parameter used for calculating mean metallicity
-            sigma                  --> [float]  Parameter used for calculating mean metallicity
+            Z0                     --> [float]  Parameter used for calculating mean metallicity (see Neijssel+19 Eq.7-9)
+            alpha                  --> [float]  Parameter used for calculating mean metallicity (see Neijssel+19 Eq.7-9)
+            sigma                  --> [float]  Parameter used for calculating mean metallicity (see Neijssel+19 Eq.7-9)
             step_logZ              --> [float]  Size of logZ steps to take in finding a Z range
 
             =======================================================
@@ -335,8 +333,32 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
             COMPAS                 --> [Object]         Relevant COMPAS data in COMPASData Class
     """
 
+    # assert that input will not produce errors
+    assert max_redshift_detection <= max_redshift, "Maximum detection redshift cannot be below maximum redshift"
+    assert m1_min <= m1_max, "Minimum sampled primary mass cannot be above maximum sampled primary mass"
+    assert np.logical_and(fbin >= 0.0, fbin <= 1.0), "Binary fraction must be between 0 and 1"
+    assert Mc_step < Mc_max, "Chirp mass step size must be less than maximum chirp mass"
+    assert eta_step < eta_max, "Symmetric mass ratio step size must be less than maximum symmetric mass ratio"
+    assert snr_step < snr_max, "SNR step size must be less than maximum SNR"
+
+    nonnegative_args = [(max_redshift, "max_redshift"), (max_redshift_detection, "max_redshift_detection"), (m1_min.value, "m1_min"), (m1_max.value, "m1_max"),
+                        (m2_min.value, "m2_min"), (Z0, "Z0"), (sigma, "sigma"), (step_logZ, "step_logZ"), (snr_threshold, "snr_threshold"), (Mc_max, "Mc_max"),
+                        (Mc_step, "Mc_step"), (eta_max, "eta_max"), (eta_step, "eta_step"), (snr_max, "snr_max"), (snr_step, "snr_step")]
+    for arg, arg_str in nonnegative_args:
+        assert arg >= 0.0, "{} must be nonnegative".format(arg_str)
+
+    # warn if input is not advisable
+    if redshift_step > max_redshift_detection:
+        warnings.warn("Redshift step is greater than maximum detection redshift", stacklevel=2)
+    if Mc_step > 1.0:
+        warnings.warn("Chirp mass step is greater than 1.0, large step sizes can produce unpredictable results", stacklevel=2)
+    if eta_step > 0.1:
+        warnings.warn("Symmetric mass ratio step is greater than 0.1, large step sizes can produce unpredictable results", stacklevel=2)
+    if snr_step > 1.0:
+        warnings.warn("SNR step is greater than 1.0, large step sizes can produce unpredictable results", stacklevel=2)
+
     # start by getting the necessary data from the COMPAS file
-    COMPAS = ClassCOMPAS.COMPASData(path, fileName=filename, Mlower=m1_min, Mupper=m1_max, m2_min=m2_min, binaryFraction=fbin)
+    COMPAS = ClassCOMPAS.COMPASData(path, fileName=filename, Mlower=m1_min, Mupper=m1_max, m2_min=m2_min, binaryFraction=fbin, suppress_reminder=True)
     COMPAS.setCOMPASDCOmask(types=dco_type, withinHubbleTime=merges_hubble_time, pessimistic=pessimistic_CEE, noRLOFafterCEE=no_RLOF_after_CEE)
     COMPAS.setCOMPASData()
     COMPAS.set_sw_weights(weight_column)
