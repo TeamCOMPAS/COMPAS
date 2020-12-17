@@ -91,8 +91,6 @@ protected:
 
     ENVELOPE        DetermineEnvelopeType() const;
 
-    MT_CASE         DetermineMassTransferCase() const                               { return MT_CASE::B; }                                                                      // Mass Transfer Case B for HG stars
-
     void            EvolveOneTimestepPreamble()                                     { BaseStar::EvolveOneTimestepPreamble(); }                                                  // Skip MainSequence
     STELLAR_TYPE    EvolveToNextPhase();
 

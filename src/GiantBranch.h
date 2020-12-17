@@ -114,8 +114,6 @@ protected:
 
             double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)			            { return 0.0; }
 
-            MT_CASE         DetermineMassTransferCase() const                                               { return MT_CASE::C; }                                              // Mass Transfer Case C for GiamtBranch stars
-
             bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
 
     virtual void            PerturbLuminosityAndRadius();

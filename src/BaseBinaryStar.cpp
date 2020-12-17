@@ -1840,8 +1840,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     }
     else {
 
-        m_Donor->DetermineInitialMassTransferCase();                                                                            // record first mass transfer event type (case A, B or C)
-
 		// Begin Mass Transfer
         double thermalRateDonor    = m_Donor->CalculateThermalMassLossRate();
         double thermalRateAccretor = OPTIONS->MassTransferThermallyLimitedVariation() == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE
