@@ -4,16 +4,16 @@
 #include "constants.h"
 #include "typedefs.h"
 
-#include "BH.h"
+#include "Remnants.h"
 
 class BaseStar;
-class BH;
+class Remnants;
 
-class MR: virtual public BaseStar, public BH {
+class MR: virtual public BaseStar, public Remnants {
 
 public:
 
-    MR(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), BH(p_BaseStar, false) {
+    MR(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), Remnants(p_BaseStar, false) {
         if (p_Initialise) Initialise();
     }
 
@@ -27,7 +27,7 @@ public:
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::MASSLESS_REMNANT;                                             // Set stellar type
+        m_StellarType = STELLAR_TYPE::MASSLESS_REMNANT;                                                     // Set stellar type
 
         // ensure it's a massless remnant...
         m_Age         = 0.0;
@@ -44,13 +44,13 @@ protected:
 
 
     // member functions
-   	 double CalculateMomentOfInertia(const double p_RemnantRadius = 0.0)        { return 0.0; }     // no moment of inertia for massless remnants - use 0.0
-   	 double CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0)      { return 0.0; }     // no moment of inertia for massless remnants - use 0.0
+   	 double     CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const      { return 0.0; }     // No moment of inertia for massless remnants - use 0.0
+   	 double     CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const    { return 0.0; }     // No moment of inertia for massless remnants - use 0.0
 
-     void   SetPulsarParameters() { }                                                               // NO-OP
+     void       SetPulsarParameters() const { }                                                             // NO-OP
 
-     bool   ShouldEvolveOnPhase()                                               { return true; }    // Always
-     bool   ShouldSkipPhase()                                                   { return false; }   // Don't skip
+     bool       ShouldEvolveOnPhase() const                                             { return true; }    // Always
+     bool       ShouldSkipPhase() const                                                 { return false; }   // Don't skip
 };
 
 #endif // __MR_h__

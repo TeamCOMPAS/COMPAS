@@ -283,7 +283,7 @@ double NS::CalculateSpinDownRate_Static(const double p_Omega, const double p_Mom
 /*
  * Calculates and sets pulsar parameters
  *
- * 
+ * JR: todo: description?
  *
  *
  *
@@ -291,59 +291,16 @@ double NS::CalculateSpinDownRate_Static(const double p_Omega, const double p_Mom
  */
 void NS::CalculateAndSetPulsarParameters() {
 
-    m_PulsarDetails.magneticField = PPOW(10.0, CalculatePulsarBirthMagneticField_Static()) * GAUSS_TO_TESLA ;                                                                        // magnetic field in Gauss -> convert to Tesla
+    m_PulsarDetails.magneticField = PPOW(10.0, CalculatePulsarBirthMagneticField_Static()) * GAUSS_TO_TESLA ;                                                                       // magnetic field in Gauss -> convert to Tesla
     m_PulsarDetails.spinPeriod    = CalculatePulsarBirthSpinPeriod_Static();                                                                                                        // spin period in ms
     m_PulsarDetails.spinFrequency = _2_PI / (m_PulsarDetails.spinPeriod * SECONDS_IN_MS);
 
-    m_MomentOfInertia      = CalculateMomentOfInertia_Static(m_Mass, m_Radius * RSOL_TO_KM) ;                                                                                       // in CGS g cm^2
+    m_MomentOfInertia             = CalculateMomentOfInertia_Static(m_Mass, m_Radius * RSOL_TO_KM) ;                                                                                // in CGS g cm^2
 
 	// Note we convert neutronStarMomentOfInertia from CGS to SI here
-	constexpr double factor = G_TO_KG * CM_TO_M * CM_TO_M;
-    m_PulsarDetails.spinDownRate   = CalculateSpinDownRate_Static(m_PulsarDetails.spinFrequency, m_MomentOfInertia * factor, m_PulsarDetails.magneticField, m_Radius * RSOL, 1.0);  // alpha = 1.0
-    m_AngularMomentum       = _2_PI * m_MomentOfInertia / (m_PulsarDetails.spinPeriod * SECONDS_IN_MS) * factor;                                                                    // in kg m^2 sec^-1
-}
-
-
-/*
- * Calculate:
- *
- *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
- *     (b) the accretion efficiency parameter
- *
- *
- * The maximum acceptance rate of the accretor star during mass transfer is based on stellar type: this function
- * is for compact remnants (NS, BH).
- *
- * Mass transfer is assumed Eddington limited for BHs and NSs.  The formalism of Nomoto/Claeys is used for WDs.
- *
- * For non compact objects:
- *
- *    1) Kelvin-Helmholtz (thermal) timescale if THERMAL (thermally limited) mass transfer efficiency
- *    2) Choose a fraction of the mass rate that will be effectively accreted for FIXED fraction mass transfer (as in StarTrack)
- *
- *
- * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)
- *
- * @param   [IN]    p_DonorMassRate             Mass transfer rate of the donor
- * @param   [IN]    p_AccretorMassRate          Thermal mass loss rate of the accretor (this star) - ignored here
- * @return                                      Tuple containing the Maximum Mass Acceptance Rate and the Accretion Efficiency Parameter
- */
-DBL_DBL NS::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
-
-    double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
-    double fractionAccreted = 0.0;                                                          // accretion fraction - default=0.0
-
-    if (utils::Compare(OPTIONS->EddingtonAccretionFactor(), 0.0) < 0) {
-        m_Error = ERROR::INVALID_EDDINGTION_FACTOR;                                         // set error value
-        SHOW_WARN(m_Error);                                                                 // warn that an error occurred
-    }
-
-    double thisMassRate = CalculateEddingtonCriticalRate() * OPTIONS->EddingtonAccretionFactor();
-
-    acceptanceRate   = std::min(thisMassRate, p_DonorMassRate);
-    fractionAccreted = acceptanceRate / p_DonorMassRate;
-
-    return std::make_tuple(acceptanceRate, fractionAccreted);
+	constexpr double factor       = G_TO_KG * CM_TO_M * CM_TO_M;
+    m_PulsarDetails.spinDownRate  = CalculateSpinDownRate_Static(m_PulsarDetails.spinFrequency, m_MomentOfInertia * factor, m_PulsarDetails.magneticField, m_Radius * RSOL, 1.0);   // alpha = 1.0
+    m_AngularMomentum             = _2_PI * m_MomentOfInertia / (m_PulsarDetails.spinPeriod * SECONDS_IN_MS) * factor;                                                              // in kg m^2 sec^-1
 }
 
 
@@ -380,13 +337,13 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
     constexpr double MU_0_3_C_3    = 3.0 * MU_0 * C * C * C;
     constexpr double unitsMoI      = G_TO_KG * CM_TO_M * CM_TO_M;
 
-    double mass                 = m_Mass * MSOL_TO_KG;
-    double radius               = m_Radius * RSOL;
-    double initialMagField      = m_PulsarDetails.magneticField;
-    double magFieldLowerLimit   = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA;                                       
-    double momentOfInertia      = m_MomentOfInertia * unitsMoI;
-    double tau                  = OPTIONS->PulsarMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR;                                 
-    double kappa                = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_KG;                                                          
+    double mass               = m_Mass * MSOL_TO_KG;
+    double radius             = m_Radius * RSOL;
+    double initialMagField    = m_PulsarDetails.magneticField;
+    double magFieldLowerLimit = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA;                                       
+    double momentOfInertia    = m_MomentOfInertia * unitsMoI;
+    double tau                = OPTIONS->PulsarMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR;                                 
+    double kappa              = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_KG;                                                          
 
     if ((!p_RecycledNS && !p_CommonEnvelope) || (!p_RecycledNS && utils::Compare(p_MassGainPerTimeStep, 0.0) == 0 )) {
 
@@ -434,4 +391,3 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         m_PulsarDetails.spinDownRate  = (deltaAngularMomentum / p_Stepsize) / momentOfInertia;                                                  // pulsar spin down rate
     }
 }
-

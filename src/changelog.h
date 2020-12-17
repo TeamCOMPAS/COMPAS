@@ -612,7 +612,7 @@
 //                                      - Consolidated checks of luminosity for NJ winds within function
 //                                      - NOTE: the above makes sure luminosity is checked before applying NJ winds for MS stars, this was not previously the case but I think it should be
 // 02.17.08     JR - Nov 19, 2020   - Enhancements, code cleanup
-//                                      - Added orbital-period-distribution option (see not in Options.cpp re orbital period option)
+//                                      - Added orbital-period-distribution option (see note in Options.cpp re orbital period option)
 //                                      - Added mass-ratio option
 //                                      - Updated default pythonSubmit to reflect new options, plus some previous omissions (by me...)
 //                                      - Minor typo/formatting changes throughout
@@ -623,11 +623,36 @@
 //                                      - Cleaned up Schneider remnant mass function (now uses PPOW), and set the HeCore mass as an upper limit to the remnant mass
 // 02.17.11     LVS - Nov 27, 2020  - Enhancements:
 //                                      - Added option to vary all winds with OverallWindMassLossMultiplier
-// 02.17.11     LVS - Nov 28, 2020  - Enhancements:
-//										- Added option to vary winds of cool stars with CoolWindMassLossMultiplier
-//
-//
+// 02.17.12     TW - Dec 9, 2020    - Enhancement, code cleanup, bug fix
+//                                      - Issue #463
+//                                          - Changed variable names from dml, dms etc. to rate_XX where XX is the mass loss recipe
+//                                          - No longer overwrite variables with next mass loss recipe for clarity
+//                                      - Added a new option to check the photon tiring limit during mass loss (default false for now)
+//                                      - Added a new class variable to track the dominant mass loss rate at each timestep
+// 02.17.13     JR - Dec 11, 2020   - Defect repair
+//                                      - uncomment initialisations of mass transfer critical mass ratios in Options.cpp (erroneously commented in v02.16.00)
+// 02.17.14     TW - Dec 16, 2020   - Bug fix
+//                                      - fix behaviour at fLBV=0 (had been including other winds but should just ignore them)
+// 02.17.15     JR - Dec 17, 2020   - Code and architecture cleanup
+//                                      - Architecture changes:
+//                                          - Added Remnants class    - inherits from HeGB class
+//                                          - Added WhiteDwarfs class - inherits from Remnants class; most of the WD code moved from HeWD, COWD and ONeWD to WhiteDwarfs class
+//                                          - Changed HeWD class      - inherits from WhiteDwarfs class (COWD still inherits from HeWD; ONeWD from COWD)
+//                                          - Change NS class         - inherits from Remnants class; code added/moved as necessary
+//                                          - Change BH class         - inherits from Remnants class; code added/moved as necessary
+//                                          - Change MR class         - inherits from Remnants class; code added/moved as necessary
+//                                      - Code cleanup:
+//                                          - added "const" to many functions (mostly SSE code) that dont modify class variables ("this") (still much to do, but this is a start)
+//                                          - added "virtual" to GiantBranch::CalculateCoreMassAtBAGB() and BaseStar::CalculateTemperatureAtPhaseEnd()
+//                                              - will have no impact given where they are called, but the keyword should be there (in case of future changes)
+//                                          - changed hard-coded header suffixes from _1 -> (1), _2 -> (2)
+//                                      - Added call to main() to seed random number generator with seed = 0 before options are processed (and user specified seed is know).  Ensures repeatability.
+//                                      - Changed "timestep below minimum" warnings in Star.cpp to be displayed only if --enable-warnings is specified
+// 02.17.16     LVS - Nov 28, 2020  - Enhancements:
+//                                      - Added option to vary winds of cool stars with CoolWindMassLossMultiplier
+// 
+// 
 
-const std::string VERSION_STRING = "02.17.11";
+const std::string VERSION_STRING = "02.17.15";
 
 # endif // __changelog_h__

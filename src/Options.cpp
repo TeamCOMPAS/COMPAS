@@ -312,7 +312,8 @@ void Options::OptionValues::Initialise() {
     
 
     // Mass loss options
-    m_UseMassLoss                                                   = false;
+    m_UseMassLoss                                                   = false; // TW - shouldn't this be true by default? It says so in options.h
+    m_CheckPhotonTiringLimit                                        = false;
 
     m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::VINK;
     m_MassLossPrescription.typeString                               = MASS_LOSS_PRESCRIPTION_LABEL.at(m_MassLossPrescription.type);
@@ -362,8 +363,6 @@ void Options::OptionValues::Initialise() {
     m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor   = 1.44;                                                 // Claeys+ 2014 = 1.44
     m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor      = 1.0;                                                  // Claeys+ 2014 = 1.0
 
-    // AVG
-    /*
     m_MassTransferCriticalMassRatioMSHighMass                       = false;
     m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor  = 0.625;                                                // Claeys+ 2014 = 0.625
     m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor     = 0.0;
@@ -391,7 +390,6 @@ void Options::OptionValues::Initialise() {
     m_MassTransferCriticalMassRatioWhiteDwarf                       = false;
 	m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor  = 0.0;
     m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor     = 1.6;                                                  // Claeys+ 2014 = 1.6
-    */
 
     // Common Envelope options
     m_CommonEnvelopeAlpha                                           = 1.0;
@@ -600,7 +598,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Enable Be Binaries study (default = " + std::string(p_Options->m_BeBinaries ? "TRUE" : "FALSE") + ")").c_str()
         )
         */
-
+        (
+            "check-photon-tiring-limit",
+            po::value<bool>(&p_Options->m_CheckPhotonTiringLimit)->default_value(p_Options->m_CheckPhotonTiringLimit)->implicit_value(true),                            
+            ("Check the photon tiring limit hasn't been exceeded by wind mass loss (default = " + std::string(p_Options->m_CheckPhotonTiringLimit ? "TRUE" : "FALSE") + ")").c_str()
+        )
         (
             "circularise-binary-during-mass-transfer",                         
             po::value<bool>(&p_Options->m_CirculariseBinaryDuringMassTransfer)->default_value(p_Options->m_CirculariseBinaryDuringMassTransfer)->implicit_value(true),                            
@@ -1664,7 +1666,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
  * Note this is a class OptionValues function.
  * 
  * 
- * std::string Options::OptionValues::CheckAndSetOptions(const po::variables_map p_VM)
+ * std::string Options::OptionValues::CheckAndSetOptions()
  * 
  * @return                                      String containing an error string
  *                                              If no error occurred the return string will be the empty string 
@@ -1682,7 +1684,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         m_FixedRandomSeed  = !DEFAULTED("random-seed");                                                                             // use random seed if it is provided by the user
         m_UseFixedUK       = !DEFAULTED("fix-dimensionless-kick-magnitude") && (m_FixedUK >= 0.0);                                  // determine if user supplied a valid kick magnitude
-
 
         if (!DEFAULTED("black-hole-kicks")) {                                                                                       // black hole kicks
             std::tie(found, m_BlackHoleKicks.type) = utils::GetMapKey(m_BlackHoleKicks.typeString, BLACK_HOLE_KICKS_LABEL, m_BlackHoleKicks.type);
@@ -3378,6 +3379,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
     
         case PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION                 : value = static_cast<int>(CaseBBStabilityPrescription());                      break;
     
+        case PROGRAM_OPTION::CHECK_PHOTON_TIRING_LIMIT                      : value = CheckPhotonTiringLimit();                                             break;
+
         case PROGRAM_OPTION::CHE_MODE                                       : value = static_cast<int>(CHEMode());                                          break;
 
         case PROGRAM_OPTION::CIRCULARISE_BINARY_DURING_MT                   : value = CirculariseBinaryDuringMassTransfer();                                break;

@@ -37,12 +37,12 @@ protected:
 
 
     // member functions - alphabetically
-    double   CalculateMassLossRateHurley();
-    double   CalculateMassTransferRejuvenationFactor();
+    double      CalculateMassLossRateHurley();
+    double      CalculateMassTransferRejuvenationFactor() const;
 
-    ENVELOPE DetermineEnvelopeType();
+    ENVELOPE    DetermineEnvelopeType() const;
 
-    bool     IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate);
+    bool        IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
 };
 
 #endif // __MS_gt_07_h__

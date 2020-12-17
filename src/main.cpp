@@ -419,7 +419,7 @@ std::tuple<int, int> EvolveBinaryStars() {
 
                 EVOLUTION_STATUS binaryStatus = binary->Evolve();                                               // evolve the binary
 
-                if (binaryStatus == EVOLUTION_STATUS::ERROR ||binaryStatus == EVOLUTION_STATUS::SSE_ERROR) {    // ok?
+                if (binaryStatus == EVOLUTION_STATUS::ERROR || binaryStatus == EVOLUTION_STATUS::SSE_ERROR) {   // ok?
                     SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED, EVOLUTION_STATUS_LABEL.at(binaryStatus));       // no - show error
                 }
                 
@@ -543,6 +543,7 @@ int main(int argc, char * argv[]) {
     PROGRAM_STATUS programStatus = PROGRAM_STATUS::CONTINUE;                                        // status - initially ok
 
     RAND->Initialise();                                                                             // initialise the random number service
+    RAND->Seed(0l);                                                                                 // set see to 0 - ensures repeatable results
 
     bool ok = OPTIONS->Initialise(argc, argv);                                                      // get the program options from the commandline
     if (!ok) {                                                                                      // have commandline options ok?
@@ -558,7 +559,6 @@ int main(int argc, char * argv[]) {
             (void)utils::SplashScreen();                                                            // yes - show splash screen
             programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
         }
-    
 
         if (programStatus == PROGRAM_STATUS::CONTINUE) {
 
