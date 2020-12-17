@@ -184,13 +184,10 @@ def compute_snr_and_detection_grids(sensitivity="O1", snr_threshold=8.0, Mc_max=
         Args:
             sensitivity                --> [string]         Which detector sensitivity to use: one of ["design", "O1", "O3"]
             snr_threshold              --> [float]          What SNR threshold required for a detection
-            Mc_min                     --> [float]          Minimum chirp mass in grid
             Mc_max                     --> [float]          Maximum chirp mass in grid
             Mc_step                    --> [float]          Step in chirp mass to use in grid
-            eta_min                    --> [float]          Minimum symmetric mass ratio in grid
             eta_max                    --> [float]          Maximum symmetric mass ratio in grid
             eta_step                   --> [float]          Step in symmetric mass ratio to use in grid
-            snr_min                    --> [float]          Minimum snr in grid
             snr_max                    --> [float]          Maximum snr in grid
             snr_step                   --> [float]          Step in snr to use in grid
 
@@ -198,17 +195,12 @@ def compute_snr_and_detection_grids(sensitivity="O1", snr_threshold=8.0, Mc_max=
             snr_grid_at_1Mpc           --> [2D float array] The snr of a binary with masses (Mc, eta) at a distance of 1 Mpc
             detection_probability_grid --> [list of floats] A grid of detection probabilities for different SNRs
     """
-    # set minimum values
-    Mc_min = 0.1
-    eta_min = 0.01
-    snr_min = 0.1
-
     # get interpolator given sensitivity
     interpolator = selection_effects.SNRinterpolator(sensitivity)
 
     # create chirp mass and eta arrays
-    Mc_array = np.arange(Mc_min, Mc_max + Mc_step, Mc_step)
-    eta_array = np.arange(eta_min, eta_max + eta_step, eta_step)
+    Mc_array = np.arange(Mc_step, Mc_max + Mc_step, Mc_step)
+    eta_array = np.arange(eta_step, eta_max + eta_step, eta_step)
 
     # convert to total, primary and secondary mass arrays
     Mt_array = Mc_array / eta_array[:,np.newaxis]**0.6
@@ -219,7 +211,7 @@ def compute_snr_and_detection_grids(sensitivity="O1", snr_threshold=8.0, Mc_max=
     snr_grid_at_1Mpc = interpolator(M1_array, M2_array)
 
     # precompute a grid of detection probabilities as a function of snr
-    snr_array = np.arange(snr_min, snr_max + snr_step, snr_step)
+    snr_array = np.arange(snr_step, snr_max + snr_step, snr_step)
     detection_probability_grid = selection_effects.detection_probability_from_snr(snr_array, snr_threshold)
 
     return snr_grid_at_1Mpc, detection_probability_grid
@@ -272,7 +264,8 @@ def find_detection_probability(Mc, eta, redshifts, distances, n_redshifts_detect
 
     return detection_probability
 
-def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BHBH", weight_column=None,
+def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weight_column=None,
+                        merges_hubble_time=True, pessimistic_CEE=True, no_RLOF_after_CEE=True,
                         max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001,
                         m1_min=5 * u.Msun, m1_max=150 * u.Msun, m2_min=0.1 * u.Msun, fbin=0.7,
                         Z0=0.035, alpha=-0.23, sigma=0.39, step_logZ=0.01,
@@ -292,9 +285,12 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BHBH", weig
             ===================================================
             path                   --> [string] Path to the COMPAS file that contains the output
             filename               --> [string] Name of the COMPAS file
-            dco_type               --> [string] Which DCO type to calculate rates for: one of ["ALL", "BHBH", "BHNS", "NSNS"]
+            dco_type               --> [string] Which DCO type to calculate rates for: one of ["all", "BBH", "BHNS", "BNS"]
             weight_column          --> [string] Name of column in "DoubleCompactObjects" file that contains adaptive sampling weights
                                                     (Leave this as None if you have unweighted samples)
+            merges_in_hubble_time  --> [bool]   whether to mask binaries that don't merge in a Hubble time
+            no_RLOF_after_CEE      --> [bool]   whether to mask binaries that have immediate RLOF after a CCE
+            pessimistic_CEE        --> [bool]   whether to mask binaries that go through Optimistic CE scenario
 
             ===========================================
             == Arguments for creating redshift array ==
@@ -341,7 +337,7 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BHBH", weig
 
     # start by getting the necessary data from the COMPAS file
     COMPAS = ClassCOMPAS.COMPASData(path, fileName=filename, Mlower=m1_min, Mupper=m1_max, m2_min=m2_min, binaryFraction=fbin)
-    COMPAS.setCOMPASDCOmask()
+    COMPAS.setCOMPASDCOmask(types=dco_type, withinHubbleTime=merges_hubble_time, pessimistic=pessimistic_CEE, noRLOFafterCEE=no_RLOF_after_CEE)
     COMPAS.setCOMPASData()
     COMPAS.set_sw_weights(weight_column)
     COMPAS.find_star_forming_mass_per_binary_sampling()
@@ -356,7 +352,7 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BHBH", weig
 
     # find the star forming mass per year per Gpc^3 and convert to total number formed per year per Gpc^3
     sfr = find_sfr(redshifts)
-    n_formed = sfr / (COMPAS.mass_evolved_per_binary * COMPAS.n_systems)
+    n_formed = sfr / (COMPAS.mass_evolved_per_binary.value * COMPAS.n_systems)
 
     # work out the metallicity distribution at each redshift and probability of drawing each metallicity in COMPAS
     dPdlogZ, metallicities, p_draw_metallicity = find_metallicity_distribution(redshifts, np.log(np.min(COMPAS.initialZ)),
