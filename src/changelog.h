@@ -648,7 +648,9 @@
 //                                          - changed hard-coded header suffixes from _1 -> (1), _2 -> (2)
 //                                      - Added call to main() to seed random number generator with seed = 0 before options are processed (and user specified seed is know).  Ensures repeatability.
 //                                      - Changed "timestep below minimum" warnings in Star.cpp to be displayed only if --enable-warnings is specified
+// 02.17.16     RTW - Dec 17, 2020  - Code cleanup
+//                                      - Removed MassTransferCase related variables in favor of MassTransferDonorHist
 
-const std::string VERSION_STRING = "02.17.15";
+const std::string VERSION_STRING = "02.17.16";
 
 # endif // __changelog_h__
