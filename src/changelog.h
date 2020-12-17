@@ -648,7 +648,11 @@
 //                                          - changed hard-coded header suffixes from _1 -> (1), _2 -> (2)
 //                                      - Added call to main() to seed random number generator with seed = 0 before options are processed (and user specified seed is know).  Ensures repeatability.
 //                                      - Changed "timestep below minimum" warnings in Star.cpp to be displayed only if --enable-warnings is specified
+// 02.17.16     JR - Dec 17, 2020   - Code cleanup
+//                                      - Removed "virtual" from GiantBranch::CalculateCoreMassAtBAGB() (incorrectly added in v02.17.15 - I was right the first time)
+//                                      - Removed "const" from Remnants::ResolveMassLoss() (inadvertently added in v02.17.15)
+//                                      - Removed declarations of variables m_ReducedMass, m_ReducedMassPrev, m_TotalMass, and m_TotalMassPrevfrom BaseBinaryStar.h (cleanup begun in v02.15.10 - these declarations were missed)
 
-const std::string VERSION_STRING = "02.17.15";
+const std::string VERSION_STRING = "02.17.16";
 
 # endif // __changelog_h__
