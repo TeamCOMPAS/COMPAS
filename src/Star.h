@@ -179,8 +179,6 @@ public:
 
     ENVELOPE        DetermineEnvelopeType() const                                                                   { return m_Star->DetermineEnvelopeType(); }
 
-    MT_CASE         DetermineMassTransferCase() const                                                               { return m_Star->DetermineMassTransferCase(); }
-
     EVOLUTION_STATUS Evolve(const long int p_Id);
 
     double          EvolveOneTimestep(const double p_Dt);
