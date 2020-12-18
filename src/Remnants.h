@@ -81,8 +81,6 @@ protected:
 
     ENVELOPE        DetermineEnvelopeType() const                                                               { return ENVELOPE::REMNANT; }                                           // Always REMNANT
 
-    MT_CASE         DetermineMassTransferCase() const                                                           { return MT_CASE::NONE; }                                               // No Mass Transfer Case for remnants
-
     void            EvolveOneTimestepPreamble()                                                                 { BaseStar::EvolveOneTimestepPreamble(); }                              // Default to BaseStar
 
     STELLAR_TYPE    EvolveToNextPhase()                                                                         { return BaseStar::EvolveToNextPhase(); }                               // Default to BaseStar
