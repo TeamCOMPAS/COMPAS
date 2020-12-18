@@ -652,9 +652,11 @@
 //                                      - Removed "virtual" from GiantBranch::CalculateCoreMassAtBAGB() (incorrectly added in v02.17.15 - I was right the first time)
 //                                      - Removed "const" from Remnants::ResolveMassLoss() (inadvertently added in v02.17.15)
 //                                      - Removed declarations of variables m_ReducedMass, m_ReducedMassPrev, m_TotalMass, and m_TotalMassPrevfrom BaseBinaryStar.h (cleanup begun in v02.15.10 - these declarations were missed)
-// 02.17.17     RTW - Dec 17, 2020  - Code cleanup
+// 02.17.17     RTW - Dec 18, 2020  - Code cleanup
 //                                      - Removed MassTransferCase related variables in favor of MassTransferDonorHist
+// 02.17.18     JR - Dec 18, 2020   - Defect repair
+//                                      - Typo in options code for option --switch-log: "switchlog" was incorrectly used instead of "switch-log"
 
-const std::string VERSION_STRING = "02.17.17";
+const std::string VERSION_STRING = "02.17.18";
 
 # endif // __changelog_h__
