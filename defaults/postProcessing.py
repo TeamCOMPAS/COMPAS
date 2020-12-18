@@ -17,17 +17,16 @@ be removed afterwards.
 ### User-defined parameters
 def setDefaults():
 
-    prefix         = 'BSE_'             # Prefix of the data files                   # defaults to 'BSE_'  
+    prefix         = 'BSE_'  			# Prefix of the data files                   # defaults to 'BSE_'  
     delimiter      = ','                # Delimeter used in the output csv files     # defaults to ','        
     extension      = 'csv'              # Extension of the data files                # defaults to 'csv'
-    h5Name         = 'COMPAS_Output.h5' # Name of the output h5 file                 # defaults to 'COMPAS_Output.h5' 
+    h5Name         = 'COMPAS_Output.h5' # Name of the output h5 file				 # defaults to 'COMPAS_Output.h5' 
 
-    ### To run the postprocessing from a different directory, simply enter the directory as an argument when running the file, e.g `python postProcessing.py path/to/data`
-    if len(sys.argv) > 1:
-        dataRootDir = str(sys.argv[1])
+    # Location of root directory of the data can be specified as a command line argument    
+    if len(sys.argv) > 1:                   
+        dataRootDir = str(sys.argv[1])      # data directory specified on command line
     else:
-        dataRootDir    = '.'                # Location of root directory of the data     # defaults to '.'            
-
+        dataRootDir    = '.'                # defaults to '.'            
     
     # To only combine a subset of the data files, specify them here    
     filesToCombine = None    # default None means to use all of them (apologies if that's counterintuitive...)
