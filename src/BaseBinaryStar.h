@@ -341,12 +341,6 @@ private:
 
     MT_TRACKING         m_MassTransferTrackerHistory;
 
-    double              m_ReducedMassPrev;
-    double              m_ReducedMass;
-
-    double              m_TotalMassPrev;
-    double              m_TotalMass;
-
     double              m_OrbitalVelocityPreSN;
 
     bool                m_PrintExtraDetailedOutput;                                         // Flag to ensure that detailed output only gets printed once per timestep

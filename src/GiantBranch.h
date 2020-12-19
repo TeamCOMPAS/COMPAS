@@ -26,7 +26,7 @@ protected:
 
     // member functions - alphabetically (sort of - some are grouped by functionality)
     static  double          CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB);
-    virtual double          CalculateCoreMassAtBAGB(const double p_Mass) const;
+            double          CalculateCoreMassAtBAGB(const double p_Mass) const;
     static  double          CalculateCoreMassAtBAGB_Static(const double p_Mass, const DBL_VECTOR &p_BnCoefficients);
             double          CalculateCoreMassAtBGB(const double p_Mass, const DBL_VECTOR &p_GBParams);
     static  double          CalculateCoreMassAtBGB_Static(const double p_Mass, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_GBParams);
@@ -113,8 +113,6 @@ protected:
             void            CalculateTimescales()                                                           { CalculateTimescales(m_Mass0, m_Timescales); }                     // Use class member variables
 
             double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)			            { return 0.0; }
-
-            MT_CASE         DetermineMassTransferCase() const                                               { return MT_CASE::C; }                                              // Mass Transfer Case C for GiamtBranch stars
 
             bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
 

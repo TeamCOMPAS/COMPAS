@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import h5py  as h5      # for reading and writing h5 format
 import numpy as np      # for handling arrays
-import os               # for directory walking
+import os, sys          # for directory walking
 import subprocess as sp # for executing terminal command from python
 
 """
@@ -17,11 +17,16 @@ be removed afterwards.
 ### User-defined parameters
 def setDefaults():
 
-    dataRootDir    = '.'                # Location of root directory of the data     # defaults to '.'            
     prefix         = 'BSE_'  			# Prefix of the data files                   # defaults to 'BSE_'  
     delimiter      = ','                # Delimeter used in the output csv files     # defaults to ','        
     extension      = 'csv'              # Extension of the data files                # defaults to 'csv'
     h5Name         = 'COMPAS_Output.h5' # Name of the output h5 file				 # defaults to 'COMPAS_Output.h5' 
+
+    # Location of root directory of the data can be specified as a command line argument    
+    if len(sys.argv) > 1:                   
+        dataRootDir = str(sys.argv[1])      # data directory specified on command line
+    else:
+        dataRootDir    = '.'                # defaults to '.'            
     
     # To only combine a subset of the data files, specify them here    
     filesToCombine = None    # default None means to use all of them (apologies if that's counterintuitive...)
