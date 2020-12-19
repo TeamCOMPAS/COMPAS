@@ -1493,7 +1493,6 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     MASS,                                            \
     MASS_0,                                          \
     MASS_LOSS_DIFF,                                  \
-    MASS_TRANSFER_CASE_INITIAL,                      \
     MASS_TRANSFER_DIFF,                              \
     MASS_TRANSFER_DONOR_HISTORY,                     \
     MDOT,                                            \
@@ -1634,7 +1633,6 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::MASS,                                            "MASS" },
     { STAR_PROPERTY::MASS_0,                                          "MASS_0" },
     { STAR_PROPERTY::MASS_LOSS_DIFF,                                  "MASS_LOSS_DIFF" },
-    { STAR_PROPERTY::MASS_TRANSFER_CASE_INITIAL,                      "MASS_TRANSFER_CASE_INITIAL" },
     { STAR_PROPERTY::MASS_TRANSFER_DIFF,                              "MASS_TRANSFER_DIFF" },
     { STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY,                     "MASS_TRANSFER_DONOR_HISTORY" },
     { STAR_PROPERTY::MDOT,                                            "MDOT" },
@@ -2470,7 +2468,6 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::MASS,                                              { TYPENAME::DOUBLE,         "Mass",                 "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::MASS_0,                                            { TYPENAME::DOUBLE,         "Mass_0",               "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::MASS_LOSS_DIFF,                                    { TYPENAME::DOUBLE,         "dmWinds",              "Msol",             14, 6 }},
-    { ANY_STAR_PROPERTY::MASS_TRANSFER_CASE_INITIAL,                        { TYPENAME::STELLAR_TYPE,   "MT_Case_Initial",      "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::MASS_TRANSFER_DIFF,                                { TYPENAME::DOUBLE,         "dmMT",                 "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY,                       { TYPENAME::STRING,         "MT_Donor_Hist",        "-",                16, 16}}, 
     { ANY_STAR_PROPERTY::MDOT,                                              { TYPENAME::DOUBLE,         "Mdot",                 "Msol yr^-1",       14, 6 }},
@@ -3040,8 +3037,6 @@ const ANY_PROPERTY_VECTOR BSE_DOUBLE_COMPACT_OBJECTS_REC = {
     STAR_2_PROPERTY::STELLAR_TYPE,
     BINARY_PROPERTY::TIME_TO_COALESCENCE,
     BINARY_PROPERTY::TIME,
-    STAR_1_PROPERTY::MASS_TRANSFER_CASE_INITIAL, 
-    STAR_2_PROPERTY::MASS_TRANSFER_CASE_INITIAL, 
     BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME, 
     STAR_1_PROPERTY::RECYCLED_NEUTRON_STAR,  
     STAR_2_PROPERTY::RECYCLED_NEUTRON_STAR

@@ -78,8 +78,6 @@ protected:
 
     double          ChooseTimestep(const double p_Time) const;
 
-    MT_CASE         DetermineMassTransferCase() const                                       { return MT_CASE::A; }                                                  // Mass Transfer Case A for MS stars
-
     void            EvolveOneTimestepPreamble();
     STELLAR_TYPE    EvolveToNextPhase()                                                     { return STELLAR_TYPE::HERTZSPRUNG_GAP; }
 

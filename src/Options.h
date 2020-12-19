@@ -157,7 +157,7 @@ private:
         "population-data-printing",
         "print-bool-as-string",
         "rlof-printing",
-        "switchlog",
+        "switch-log",
         "grid",
         "mode",
         "number-of-systems",
@@ -426,7 +426,7 @@ private:
         "population-data-printing",
         "print-bool-as-string",
         "rlof-printing",
-        "switchlog",
+        "switch-log",
         "grid",
         "mode",
 
@@ -468,7 +468,7 @@ private:
         "population-data-printing",
         "print-bool-as-string",
         "rlof-printing",
-        "switchlog",
+        "switch-log",
         "grid",
         "mode",
 
@@ -1240,7 +1240,7 @@ public:
     bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
     bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }
 
-    bool                                        SwitchLog() const                                                       { return OPT_VALUE("switchlog", m_SwitchLog, true); }
+    bool                                        SwitchLog() const                                                       { return OPT_VALUE("switch-log", m_SwitchLog, true); }
 
     ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
 

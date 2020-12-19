@@ -648,11 +648,19 @@
 //                                          - changed hard-coded header suffixes from _1 -> (1), _2 -> (2)
 //                                      - Added call to main() to seed random number generator with seed = 0 before options are processed (and user specified seed is know).  Ensures repeatability.
 //                                      - Changed "timestep below minimum" warnings in Star.cpp to be displayed only if --enable-warnings is specified
-// 02.17.16     LVS - Nov 28, 2020  - Enhancements:
+// 02.17.16     JR - Dec 17, 2020   - Code cleanup
+//                                      - Removed "virtual" from GiantBranch::CalculateCoreMassAtBAGB() (incorrectly added in v02.17.15 - I was right the first time)
+//                                      - Removed "const" from Remnants::ResolveMassLoss() (inadvertently added in v02.17.15)
+//                                      - Removed declarations of variables m_ReducedMass, m_ReducedMassPrev, m_TotalMass, and m_TotalMassPrevfrom BaseBinaryStar.h (cleanup begun in v02.15.10 - these declarations were missed)
+// 02.17.17     RTW - Dec 17, 2020  - Code cleanup
+//                                      - Removed MassTransferCase related variables in favor of MassTransferDonorHist
+// 02.17.18     JR - Dec 18, 2020   - Defect repair
+//                                      - Typo in options code for option --switch-log: "switchlog" was incorrectly used instead of "switch-log"
+// 02.17.19     LVS - Dec 19, 2020  - Enhancements:
 //                                      - Added option to vary winds of cool stars with CoolWindMassLossMultiplier
-// 
+//  
 // 
 
-const std::string VERSION_STRING = "02.17.15";
+const std::string VERSION_STRING = "02.17.18";
 
 # endif // __changelog_h__

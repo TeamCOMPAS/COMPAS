@@ -81,8 +81,6 @@ protected:
 
     ENVELOPE        DetermineEnvelopeType() const                                                               { return ENVELOPE::REMNANT; }                                           // Always REMNANT
 
-    MT_CASE         DetermineMassTransferCase() const                                                           { return MT_CASE::NONE; }                                               // No Mass Transfer Case for remnants
-
     void            EvolveOneTimestepPreamble()                                                                 { BaseStar::EvolveOneTimestepPreamble(); }                              // Default to BaseStar
 
     STELLAR_TYPE    EvolveToNextPhase()                                                                         { return BaseStar::EvolveToNextPhase(); }                               // Default to BaseStar
@@ -102,7 +100,7 @@ protected:
     void            ResolveEnvelopeMassAtPhaseEnd(const double p_Tau) const                                     { ResolveEnvelopeMassOnPhase(p_Tau); }                                  // Same as on phase
     void            ResolveEnvelopeMassOnPhase(const double p_Tau) const { }                                                                                                            // NO-OP
 
-    void            ResolveMassLoss() const { }                                                                                                                                         // NO-OP
+    void            ResolveMassLoss() { }                                                                                                                                         // NO-OP
 
     STELLAR_TYPE    ResolveRemnantAfterEnvelopeLoss()                                                           { return BaseStar::ResolveRemnantAfterEnvelopeLoss(); }                 // Default to BaseStar
 
