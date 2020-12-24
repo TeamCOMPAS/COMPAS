@@ -657,7 +657,7 @@
 // 02.17.18     JR - Dec 18, 2020   - Defect repair
 //                                      - Typo in options code for option --switch-log: "switchlog" was incorrectly used instead of "switch-log"
 // 02.17.19     LVS - Dec 19, 2020  - Enhancements:
-//                                      - Added option to vary winds of cool stars with CoolWindMassLossMultiplier
+//                                      - Added option to vary winds of cool stars (with T < VINK_MASS_LOSS_MINIMUM_TEMP) via a CoolWindMassLossMultiplier
 //  
 // 
 
