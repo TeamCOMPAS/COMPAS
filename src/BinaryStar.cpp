@@ -64,16 +64,23 @@ bool BinaryStar::RevertState() {
  * appropriate parameters to print the log file record.
  * 
  * BinaryStar::PrintSwitchLog()
+ *
+ * @return                                      Boolean flag indicating success/failure (true = success)
  */
-void BinaryStar::PrintSwitchLog() { 
+bool BinaryStar::PrintSwitchLog() { 
     
+    bool result = true;
+
     OBJECT_ID primaryObjectId   = m_BinaryStar->Star1()->StarObjectId();
     OBJECT_ID secondaryObjectId = m_BinaryStar->Star2()->StarObjectId();
     OBJECT_ID objectIdSwitching = LOGGING->ObjectIdSwitching();
 
-         if (objectIdSwitching == primaryObjectId  ) m_BinaryStar->PrintSwitchLog(m_BinaryStar->Id(), true);    // primary
-    else if (objectIdSwitching == secondaryObjectId) m_BinaryStar->PrintSwitchLog(m_BinaryStar->Id(), false);   // secondary
-    else {                                                                                                      // otherwise...
-        SHOW_ERROR(ERROR::OUT_OF_BOUNDS, "Expected primary or secondary for BSE Switch Log");                   // announce error
+         if (objectIdSwitching == primaryObjectId  ) result = m_BinaryStar->PrintSwitchLog(m_BinaryStar->Id(), true);   // primary
+    else if (objectIdSwitching == secondaryObjectId) result = m_BinaryStar->PrintSwitchLog(m_BinaryStar->Id(), false);  // secondary
+    else {                                                                                                              // otherwise...
+        SHOW_ERROR(ERROR::OUT_OF_BOUNDS, "Expected primary or secondary for BSE Switch Log");                           // announce error
+        result = false;
     }
+
+    return result;
 }

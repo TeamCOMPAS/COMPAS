@@ -6,11 +6,23 @@
 // JR: todo: clean this up and document it better
 
 
-typedef std::tuple<bool, COMPAS_VARIABLE_TYPE>                                      COMPAS_VARIABLE;
-typedef std::initializer_list<STELLAR_TYPE>                                         STELLAR_TYPE_LIST;
-typedef std::initializer_list<SN_EVENT>                                             SN_EVENT_LIST;
-typedef std::tuple<int, std::string, ANY_PROPERTY_VECTOR, std::vector<std::string>> LOGFILE_DETAILS;
-typedef std::vector<STELLAR_TYPE>                                                   STYPE_VECTOR;
+typedef std::tuple<bool, COMPAS_VARIABLE_TYPE> COMPAS_VARIABLE;
+typedef std::initializer_list<STELLAR_TYPE>    STELLAR_TYPE_LIST;
+typedef std::initializer_list<SN_EVENT>        SN_EVENT_LIST;
+typedef std::vector<STELLAR_TYPE>              STYPE_VECTOR;
+
+
+// Log file details
+typedef struct LogfileDetails {
+    int                      id;
+    std::string              filename;
+    ANY_PROPERTY_VECTOR      recordProperties;
+    std::vector<TYPENAME>    propertyTypes;
+    std::vector<std::string> hdrStrings;
+    std::vector<std::string> unitsStrings;
+    std::vector<std::string> typeStrings;
+    std::vector<std::string> fmtStrings;
+} LogfileDetailsT;
 
 
 // Grid file details

@@ -7,8 +7,15 @@
 # (note uppercase 'CPP' and no whitespace around '=')
 
 CPP = g++
-BOOST :=
 
+# boost directories
+BOOSTINC := /include
+BOOSTLIB := /lib
+
+# hdf5 directories
+
+HDF5INC := /usr/include/hdf5/serial
+HDF5LIB := /usr/lib/x86_64-linux-gnu
 
 EXE := COMPAS
 
@@ -30,9 +37,9 @@ ifneq ($(filter staticfast,$(MAKECMDGOALS)),)
 endif
 
 
-CXXFLAGS := -g -std=c++11 -Wall $(OPTFLAGS)
-ICFLAGS := -I$(BOOST)/include -I.
-LFLAGS :=  -L$(BOOST)/lib -lgsl -lgslcblas -lstdc++ -lm -lz -ldl -lboost_filesystem -lboost_program_options -lboost_system -Xlinker -rpath -Xlinker $(BOOST)/lib
+CXXFLAGS := -std=c++11 -Wall $(OPTFLAGS) --param=max-vartrack-size=0 -echo
+ICFLAGS := -I$(BOOSTINC) -I$(HDF5INC) -I.
+LFLAGS :=  -L$(BOOSTLIB) -L$(HDF5LIB) -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_serial_hl -lhdf5_serial -lgsl -lgslcblas -lstdc++ -lm -lz -ldl -lboost_filesystem -lboost_program_options -lboost_system -Xlinker -rpath -Xlinker $(BOOSTLIB)
 SOURCES :=						\
 	profiling.cpp               \
 	utils.cpp                   \

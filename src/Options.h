@@ -175,8 +175,8 @@ private:
         "logfile-switch-log",
 
         "logfile-definitions",
-        "logfile-delimiter",
         "logfile-name-prefix",
+        "logfile-type",
 
         "output-container", "c",
         "outputPath", "o"
@@ -443,8 +443,8 @@ private:
         "logfile-switch-log",
 
         "logfile-definitions",
-        "logfile-delimiter",
         "logfile-name-prefix",
+        "logfile-type",
 
         "output-container", "c",
         "outputPath", "o"
@@ -485,8 +485,8 @@ private:
         "logfile-switch-log",
 
         "logfile-definitions",
-        "logfile-delimiter",
         "logfile-name-prefix",
+        "logfile-type",
 
         "output-container", "c",
         "outputPath", "o"
@@ -813,8 +813,8 @@ public:
 
             // Logfiles
             string                                              m_LogfileDefinitionsFilename;                                   // Filename for the logfile record definitions
-            ENUM_OPT<DELIMITER>                                 m_LogfileDelimiter;                                             // Field delimiter for log file records
             string                                              m_LogfileNamePrefix;                                            // Prefix for log file names
+            ENUM_OPT<LOGFILETYPE>                               m_LogfileType;                                                  // File type log files
 
             string                                              m_LogfileSystemParameters;                                      // output file name: system parameters
             string                                              m_LogfileDetailedOutput;                                        // output file name: detailed output
@@ -1075,8 +1075,6 @@ public:
     string                                      LogfileBeBinaries() const                                               { return m_CmdLine.optionValues.m_LogfileBeBinaries; }
     string                                      LogfileCommonEnvelopes() const                                          { return m_CmdLine.optionValues.m_LogfileCommonEnvelopes; }
     string                                      LogfileDefinitionsFilename() const                                      { return m_CmdLine.optionValues.m_LogfileDefinitionsFilename; }
-    DELIMITER                                   LogfileDelimiter() const                                                { return m_CmdLine.optionValues.m_LogfileDelimiter.type; }
-    string                                      LogfileDelimiterString() const                                          { return m_CmdLine.optionValues.m_LogfileDelimiter.typeString; }
     string                                      LogfileDetailedOutput() const                                           { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-detailed-output"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileDetailedOutput
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
@@ -1109,6 +1107,8 @@ public:
                                                                                                                                         : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS))
                                                                                                                                       );
                                                                                                                         }
+    LOGFILETYPE                                 LogfileType() const                                                     { return m_CmdLine.optionValues.m_LogfileType.type; }
+    string                                      LogfileTypeString() const                                               { return m_CmdLine.optionValues.m_LogfileType.typeString; }
     int                                         LogLevel() const                                                        { return m_CmdLine.optionValues.m_LogLevel; }
 
     double                                      LuminousBlueVariableFactor() const                                      { return OPT_VALUE("luminous-blue-variable-multiplier", m_LuminousBlueVariableFactor, true); }
