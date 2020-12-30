@@ -142,6 +142,7 @@ class pythonProgramOptions:
     luminous_blue_variable_multiplier = 1.5
     overall_wind_mass_loss_multiplier = 1.0
     wolf_rayet_multiplier = 1.0
+    cool_wind_mass_loss_multiplier = 1.0
     check_photon_tiring_limit = False
 
     circularise_binary_during_mass_transfer = False
@@ -364,6 +365,7 @@ class pythonProgramOptions:
             self.luminous_blue_variable_multiplier,
             self.overall_wind_mass_loss_multiplier,
             self.wolf_rayet_multiplier,
+            self.cool_wind_mass_loss_multiplier,
             self.mass_transfer_fa,
             self.mass_transfer_jloss,
             self.maximum_evolution_time,
@@ -451,6 +453,7 @@ class pythonProgramOptions:
             '--luminous-blue-variable-multiplier',
             '--overall-wind-mass-loss-multiplier',
             '--wolf-rayet-multiplier',
+            '--cool-wind-mass-loss-multiplier',
             '--mass-transfer-fa',
             '--mass-transfer-jloss',
             '--maximum-evolution-time',
