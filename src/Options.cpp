@@ -322,6 +322,7 @@ void Options::OptionValues::Initialise() {
     m_LuminousBlueVariablePrescription.typeString                   = LBV_PRESCRIPTION_LABEL.at(m_LuminousBlueVariablePrescription.type);
 
     // Wind mass loss multiplicitive constants
+    m_CoolWindMassLossMultiplier                                    = 1.0;
     m_LuminousBlueVariableFactor                                    = 1.5;
     m_OverallWindMassLossMultiplier                                 = 1.0;
     m_WolfRayetFactor                                               = 1.0;
@@ -611,6 +612,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "common-envelope-allow-main-sequence-survive",                 
             po::value<bool>(&p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope)->default_value(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope)->implicit_value(true),          
             ("Allow main sequence stars to survive common envelope evolution (default = " + std::string(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "cool-wind-mass-loss-multiplier",                           
+            po::value<double>(&p_Options->m_CoolWindMassLossMultiplier)->default_value(p_Options->m_CoolWindMassLossMultiplier),                                                                  
+            ("Multiplicative constant for wind mass loss of cool stars (default = " + std::to_string(p_Options->m_CoolWindMassLossMultiplier)+ ")").c_str()
         )
         (
             "debug-to-file",                                               
@@ -1845,6 +1851,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_CommonEnvelopeMassAccretionConstant < 0.0, "CE mass accretion constant (--common-envelope-mass-accretion-constant) < 0");
         COMPLAIN_IF(m_CommonEnvelopeMassAccretionMax < 0.0, "Maximum accreted mass (--common-envelope-mass-accretion-max) < 0");
         COMPLAIN_IF(m_CommonEnvelopeMassAccretionMin < 0.0, "Minimum accreted mass (--common-envelope-mass-accretion-min) < 0");
+
+        COMPLAIN_IF(m_CoolWindMassLossMultiplier < 0.0, "Wind mass loss multiplier for cool stars (--cool-wind-mass-loss-multiplier) < 0.0");
 
         COMPLAIN_IF(m_DebugLevel < 0, "Debug level (--debug-level) < 0");
 
@@ -3388,6 +3396,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION    : value = static_cast<int>(CommonEnvelopeMassAccretionPrescription());          break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY   : value = CommonEnvelopeRecombinationEnergyDensity();                           break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW                  : value = CommonEnvelopeSlopeKruckow();                                         break;
+
+        case PROGRAM_OPTION::COOL_WIND_MASS_LOSS_MULTIPLIER                 : value = CoolWindMassLossMultiplier();                                      break;
 
         case PROGRAM_OPTION::ECCENTRICITY                                   : value = Eccentricity();                                                       break;
         case PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION                      : value = static_cast<int>(EccentricityDistribution());                         break;
