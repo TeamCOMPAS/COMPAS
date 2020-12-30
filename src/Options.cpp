@@ -481,9 +481,9 @@ void Options::OptionValues::Initialise() {
 
     // Logfiles    
     m_LogfileDefinitionsFilename                                    = "";
-    m_LogfileDelimiter.type                                         = DELIMITER::COMMA;
-    m_LogfileDelimiter.typeString                                   = DELIMITERLabel.at(m_LogfileDelimiter.type);
     m_LogfileNamePrefix                                             = "";
+    m_LogfileType.type                                              = LOGFILETYPE::HDF5;
+    m_LogfileType.typeString                                        = LOGFILETYPELabel.at(m_LogfileType.type);
 
     m_LogfileBeBinaries                                             = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));
     m_LogfileCommonEnvelopes                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));
@@ -1353,11 +1353,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Filename for logfile record definitions (default = " + p_Options->m_LogfileDefinitionsFilename + ")").c_str()
         )
         (
-            "logfile-delimiter",                                           
-            po::value<std::string>(&p_Options->m_LogfileDelimiter.typeString)->default_value(p_Options->m_LogfileDelimiter.typeString),                                                                          
-            ("Field delimiter for logfile records (options: [TAB, SPACE, COMMA], default = " + p_Options->m_LogfileDelimiter.typeString + ")").c_str()
-        )
-        (
             "logfile-name-prefix",                                         
             po::value<std::string>(&p_Options->m_LogfileNamePrefix)->default_value(p_Options->m_LogfileNamePrefix)->implicit_value(""),                                                                
             ("Prefix for logfile names (default = " + p_Options->m_LogfileNamePrefix + ")").c_str()
@@ -1366,6 +1361,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "logfile-switch-log",                                      
             po::value<std::string>(&p_Options->m_LogfileSwitchLog)->default_value(p_Options->m_LogfileSwitchLog),                                                                                
             ("Filename for Switch Log logfile (default = " + p_Options->m_LogfileSwitchLog + ")").c_str()
+        )
+        (
+            "logfile-type",                                           
+            po::value<std::string>(&p_Options->m_LogfileType.typeString)->default_value(p_Options->m_LogfileType.typeString),                                                                          
+            ("File type for logfiles (options: [HDF5, CSV, TSV, TXT], default = " + p_Options->m_LogfileType.typeString + ")").c_str()
         )
 
         (
@@ -1734,9 +1734,9 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Kick Magnitude Distribution");
         }
 
-        if (!DEFAULTED("logfile-delimiter")) {                                                                                      // logfile field delimiter
-            std::tie(found, m_LogfileDelimiter.type) = utils::GetMapKey(m_LogfileDelimiter.typeString, DELIMITERLabel, m_LogfileDelimiter.type);
-            COMPLAIN_IF(!found, "Unknown Logfile Delimiter");
+        if (!DEFAULTED("logfile-type")) {                                                                                           // logfile type
+            std::tie(found, m_LogfileType.type) = utils::GetMapKey(m_LogfileType.typeString, LOGFILETYPELabel, m_LogfileType.type);
+            COMPLAIN_IF(!found, "Unknown Logfile Type");
         }
 
         if (!DEFAULTED("luminous-blue-variable-prescription")) {                                                                    // LBV mass loss prescription

@@ -167,7 +167,7 @@ STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialT
                 raise(SIGUSR1);                                                             // signal to BSE that switch is occurring
             }
             else {                                                                          // SSE
-                m_Star->PrintSwitchLog(m_Id);                                               // no need for the BSE signal shenaningans - just call the function
+                (void)m_Star->PrintSwitchLog(m_Id);                                         // no need for the BSE signal shenaningans - just call the function
             }
         }
     }
@@ -450,7 +450,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
 
     // take the timestep
 
-    m_Star->PrintStashedSupernovaDetails();                                                                     // print stashed SSE Supernova log record if necessary
+    (void)m_Star->PrintStashedSupernovaDetails();                                                               // print stashed SSE Supernova log record if necessary
 
     (void)SwitchTo(stellarType);                                                                                // switch phase if required  JR: whether this goes before or after the log record is a little problematic, but in the end probably doesn't matter too much
 
@@ -504,11 +504,11 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
             stepNum++;                                                          // increment step number                                                      
             dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();   // calculate new timestep
             EvolveOneTimestep(dt);                                              // evolve for timestep
-            m_Star->PrintDetailedOutput(m_Id);                                  // log record  JR: this should probably be before the star switches type, but this way matches the original code
+            (void)m_Star->PrintDetailedOutput(m_Id);                            // log record  JR: this should probably be before the star switches type, but this way matches the original code
         }
     }
 
-    m_Star->PrintSystemParameters();                                            // log system parameters
+    (void)m_Star->PrintSystemParameters();                                      // log system parameters
 
     return status;
 }

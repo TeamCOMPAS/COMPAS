@@ -89,7 +89,7 @@ bool        evolvingBinaryStarValid = false;            // flag to indicate whet
 void sigHandler(int p_Sig) {   
     if (p_Sig == SIGUSR1) {                                         // SIGUSR1?  Just silently ignore anything else...
         if (evolvingBinaryStarValid && OPTIONS->SwitchLog()) {      // yes - do we have a valid binary star, and are we logging switches?
-            evolvingBinaryStar->PrintSwitchLog();                   // yes - assume SIGUSR1 is a binary constituent star switching...
+            (void)evolvingBinaryStar->PrintSwitchLog();             // yes - assume SIGUSR1 is a binary constituent star switching...
         }
     }
 }
@@ -574,7 +574,7 @@ int main(int argc, char * argv[]) {
                            OPTIONS->DebugClasses(),                                                 // debug classes - determines (in part) what debug information is displayed
                            OPTIONS->DebugToFile(),                                                  // should debug statements also be written to logfile?
                            OPTIONS->ErrorsToFile(),                                                 // should error messages also be written to logfile?
-                           DELIMITERValue.at(OPTIONS->LogfileDelimiter()));                         // log record field delimiter
+                           OPTIONS->LogfileType());                                                 // log file type
 
             (void)utils::SplashScreen();                                                            // announce ourselves
 

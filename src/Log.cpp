@@ -39,7 +39,7 @@ Log* Log::Instance() {
  *       const std::vector<string> p_DbgClasses,
  *       const bool                p_DbgToFile,
  *       const bool                p_ErrToFile,
- *       const string              p_Delimiter)
+ *       const string              p_LogfileType)
  *
  * @param   [IN]    p_LogBasePath               The path at which log files should be created
  * @param   [IN]    p_LogContainerName          The name of the directory that should be created at p_LogBasePath to hold all log files
@@ -50,7 +50,7 @@ Log* Log::Instance() {
  * @param   [IN]    p_DbgClasses                List of classes enabled for debugging (vector<string>)
  * @param   [IN]    p_DbgToFile                 Boolean indicating whether debug records should also be written to a log file
  * @param   [IN]    p_ErrorsToFile              Boolean indicating whether error records should also be written to a log file
- * @param   [IN]    p_Delimiter                 Log record field delimiter
+ * @param   [IN]    p_LogfileType               Log file type
  */
 void Log::Start(const string              p_LogBasePath,
                 const string              p_LogContainerName,
@@ -61,9 +61,12 @@ void Log::Start(const string              p_LogBasePath,
                 const std::vector<string> p_DbgClasses,
                 const bool                p_DbgToLogfile,
                 const bool                p_ErrorsToLogfile,
-                const string              p_Delimiter) {
+                const LOGFILETYPE         p_LogfileType) {
+
+    H5Eset_auto (0, NULL, NULL);
 
     if (!m_Enabled) {
+
         m_Enabled       = true;                                                                                     // logging enabled;
         m_LogBasePath   = p_LogBasePath;                                                                            // set base path
         m_LogNamePrefix = p_LogNamePrefix;                                                                          // set log file name prefix
@@ -73,7 +76,7 @@ void Log::Start(const string              p_LogBasePath,
         m_DbgClasses    = p_DbgClasses;                                                                             // set enagled debug classes
         m_DbgToLogfile  = p_DbgToLogfile;                                                                           // write debug records to logfile?
         m_ErrToLogfile  = p_ErrorsToLogfile;                                                                        // write error records to logfile?
-        m_Delimiter     = p_Delimiter;                                                                              // set field delimiter
+        m_LogfileType   = p_LogfileType;                                                                            // set log file type
 
         m_Logfiles.clear();                                                                                         // clear all entries
 
@@ -84,22 +87,22 @@ void Log::Start(const string              p_LogBasePath,
             // first create the container at p_LogBasePath
             // use boost filesystem here - easier...
         
-            string containerName = m_LogBasePath + "/" + p_LogContainerName;                                        // container name with path ("/" works on Uni*x and Windows)
+            string containerName = p_LogContainerName;                                                              // container name with path ("/" works on Uni*x and Windows)
             string dirName       = containerName;                                                                   // directory name to create
 
             int version = 0;                                                                                        // container version number if required - start at 1
-            while (boost::filesystem::exists(dirName)) {                                                            // container already exists?
+            while (boost::filesystem::exists(m_LogBasePath + "/" + dirName)) {                                      // container already exists?
                 dirName = containerName + "_" + std::to_string(++version);                                          // yes - add a version number and generate new container name
             }
             m_LogContainerName = dirName;                                                                           // record actual container directory name
 
             boost::system::error_code err;
             try {
-                boost::filesystem::create_directory(m_LogContainerName, err);                                       // create container - let boost throw an exception if it fails
+                boost::filesystem::create_directory(m_LogBasePath + "/" + m_LogContainerName, err);                 // create container - let boost throw an exception if it fails
                 if (err.value() == 0) {                                                                             // ok?
 
                     if (m_DbgToLogfile) {                                                                           // write dubug output to a logfile?
-                        string filename = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::DEBUG_LOG));                        // extract filename from descriptor
+                        string filename = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::DEBUG_LOG));                   // extract filename from descriptor
                         int id = Open(filename, false, true, false);                                                // open the log file - new file, timestamps, no record labels, space delimited
                         if (id >= 0) {                                                                              // success
                             m_DbgLogfileId = id;                                                                    // record the file id
@@ -111,7 +114,7 @@ void Log::Start(const string              p_LogBasePath,
                     }
 
                     if (m_ErrToLogfile) {                                                                           // write dubug output to a logfile?
-                        string filename = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::ERROR_LOG));                        // extract filename from descriptor
+                        string filename = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::ERROR_LOG));                   // extract filename from descriptor
                         int id = Open(filename, false, true, false);                                                // open the log file - new file, timestamps, no record labels, space delimited
                         if (id >= 0) {                                                                              // success
                             m_ErrLogfileId = id;                                                                    // record the file id
@@ -142,7 +145,7 @@ void Log::Start(const string              p_LogBasePath,
                 m_WallStart = std::chrono::system_clock::now();                                                     // start wall timer
                 m_ClockStart = clock();                                                                             // start CPU timer
 
-                string filename = m_LogContainerName + "/" + RUN_DETAILS_FILE_NAME;                                 // run details filename with container name
+                string filename = m_LogBasePath + "/" + m_LogContainerName + "/" + RUN_DETAILS_FILE_NAME;           // run details filename with container name
                 try {
                     m_RunDetailsFile.open(filename, std::ios::out);                                                 // create run details file
                     m_RunDetailsFile.exceptions(std::ofstream::failbit | std::ofstream::badbit);                    // enable exceptions on run details file
@@ -211,7 +214,7 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
         }
 
         // update run details file
-        string filename = m_LogContainerName + "/" + RUN_DETAILS_FILE_NAME;                                     // run details filename with container name
+        string filename = m_LogBasePath + "/" + m_LogContainerName + "/" + RUN_DETAILS_FILE_NAME;               // run details filename with container name
         try {  
             double cpuSeconds = (clock() - m_ClockStart) / (double) CLOCKS_PER_SEC;                             // stop CPU timer and calculate seconds
 
@@ -274,96 +277,163 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
  *     - if the delimiter is TAB   the file extension is ".tsv" (Tab Separated Variables)
  *     - if the delimiter is COMMA the file extension is ".csv" (Comma Separated Variables)
  *     - if the delimiter is SPACE the file extension is ".txt"
+ * JR FIX DESCRIOTION ABOVE <<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  *
- *
- * int Open(const string p_LogFileName, const bool p_Append, const bool p_TimeStamp, const bool p_Label)
+ * int Open(const string p_LogFileName, const bool p_Append, const bool p_TimeStamp, const bool p_Label, const LOGFILE p_StandardLogfile)
  *
  * @param   [IN]    p_LogFileName               The name of the logfile to be created and opened - filename only - path, prefix and extension are added
- * @param   [IN]    p_Append                    Boolean indicating whether an existing file of the same name should be opened and appended to (or whether a new (versioned) file should be opened)
+ * @param   [IN]    p_Append                    Boolean indicating whether an existing file of the same name should be opened and appended to
+ *                                              (or whether a new (versioned) file should be opened).
  * @param   [IN]    p_Timestamp                 Boolean indicating whether a timestamp should be written with each log record
  * @param   [IN]    p_Label                     Boolean indicating whether a record label should be written with each log record
- * @param   [IN]    p_Delimiter                 String to be used as field delimiter for this file - optional (if not passed, global value is used)
+ * @param   [IN]    p_StandardLogfile           If Standard logfile, which (optional, default = LOGFILE::NONE)
  * @return                                      Logfile id (integer index into m_Logfiles vector).  A value of -1 indicates log file not opened successfully.
  */
-int Log::Open(const string p_LogFileName, const bool p_Append, const bool p_Timestamp, const bool p_Label, const string p_Delimiter) {
+int Log::Open(const string p_LogFileName, const bool p_Append, const bool p_Timestamp, const bool p_Label, const LOGFILE p_StandardLogfile) {
 
-    int id = -1;
+    bool ok = true;
+    int id  = -1;  
 
-    if (m_Enabled) {                                                                                            // logging enabled?
+    if (m_Enabled) {                                                                                            // logging enabled?   
 
-        // find, or create, an empty slot in m_Logfiles vector
-        // this way is a bit slower for opening logfile, but faster for writing to them
-
-        for(unsigned int index = 0; index < m_Logfiles.size(); index++) {
-            if (!m_Logfiles[index].active) {                                                                    // empty slot?
-                id = index;                                                                                     // yes - use it
-
-                // check if file is open - shouldn't be
-                if (m_Logfiles[id].file.is_open()) {                                                            // open file?
-                    Squawk("ERROR: Inactive log file with name " + m_Logfiles[id].name + " is open");           // yes - that's an issue... announce error
-
-                    try {
-                        m_Logfiles[id].file.flush();                                                            // flush output and
-                        m_Logfiles[id].file.close();                                                            // close it
-                    }
-                    catch (const std::ofstream::failure &e) {                                                   // fs problem...
-                        Squawk("ERROR: Unable to close log file with file name " + m_Logfiles[id].name);        // announce error
-                        Squawk(e.what());                                                                       // plus details
-                        throw("");                                                                              // catch this later
-                    }
-                }
-            }
-        }
-
-        if (id < 0) {                                                                                           // have empty slot?
-            id = m_Logfiles.size();                                                                             // no - create one at end of vector
-
-            logfileAttr attr;                                                                                   // new attributes
-            m_Logfiles.push_back(std::move(attr));                                                              // new empty slot
-        }
-
-        // have empty slot - open new logfile
-
-        m_Logfiles[id].active    = true;                                                                        // this entry now active
-        m_Logfiles[id].timestamp = p_Timestamp;                                                                 // set timestamp flag for this log file
-        m_Logfiles[id].label     = p_Label;                                                                     // set label flag for this log file
-        m_Logfiles[id].delimiter = (p_Delimiter.empty()) ? m_Delimiter : p_Delimiter;                           // set field delimiter for this log file
-
-        string basename = m_LogContainerName + "/" + m_LogNamePrefix + p_LogFileName;                           // base filename with path and container ("/" works on Uni*x and Windows)
-
-        string fileext;                                                                                         // file extension
-             if (m_Logfiles[id].delimiter == DELIMITERValue.at(DELIMITER::COMMA)) fileext = ".csv";             // .csv for delimite = COMMA
-        else if (m_Logfiles[id].delimiter == DELIMITERValue.at(DELIMITER::TAB  )) fileext = ".tsv";             // .tsv for delimite = TAB
-        else                                                                      fileext = ".txt";             // .txt otherwise
-
-        string filename = basename + fileext;                                                                   // full filename
+        string basename = m_LogBasePath + "/" + m_LogContainerName + "/" + m_LogNamePrefix + p_LogFileName;     // base filename with path and container ("/" works on Uni*x and Windows)
+        string fileext  = LOGFILETYPEFileExt.at(OPTIONS->LogfileType());                                        // file extension
+        string filename = basename + "." + fileext;                                                             // full filename
 
         int version = 0;                                                                                        // logfile version number if required - start at 1
         while (utils::FileExists(filename) && !p_Append) {                                                      // file already exists - and we don't want to append?
-            filename = basename + "_" + std::to_string(++version) + fileext;                                    // yes - add a version number and generate new filename
+            filename = basename + "_" + std::to_string(++version) + "." + fileext;                              // yes - add a version number and generate new filename
         }
-        m_Logfiles[id].name = filename;                                                                         // log file name
 
-        try {
-            m_Logfiles[id].file.open(filename, std::ios::out | std::ios::app);                                  // create log file
-            m_Logfiles[id].file.exceptions(std::ofstream::failbit | std::ofstream::badbit);                     // enable exceptions on log file
+        if (m_LogfileType == LOGFILETYPE::HDF5) {                                                               // HDF5 file?
+                                                                                                                // yes
+            // if we're logging to HDF5 files we should have a containing HDF5 file open.
+            //
+            // for log files other than detailed output files (SSE and BSE) that is a container
+            // file to which all regular log files are written as groups in the container file.
+            // The datasets (columns) are then written to each group.  The container file should
+            // not already contain a group corresponding to this logfile - that is created here.
+            //
+            // for detailed output files (SSE and BSE) the containing HDF5 file is a separate
+            // HDF5 file for each detailed output file.  Detailed output HDF5 files do not 
+            // contain groups - the datasets (columns) are written directly to the file.
+
+            hid_t  h5FileId = -1;                                                                                   // HDF5 file id
+            hid_t  h5GroupId = -1;                                                                                  // HDF5 file group id
+            string h5GroupName = "";                                                                                // HDF5 group name
+
+            if (p_StandardLogfile == LOGFILE::SSE_DETAILED_OUTPUT || p_StandardLogfile == LOGFILE::BSE_DETAILED_OUTPUT) { // detailed output file?
+                h5FileId  = m_HDF5DetailedId;                                                                       // yes - use detailed file id
+                h5GroupId = h5FileId;                                                                               // no group for detailed file - just use the file id
+            }
+            else {                                                                                                  // no, not detailed ouput file
+                h5FileId    = m_HDF5ContainerId;                                                                    // container file id
+                h5GroupName = m_LogNamePrefix + p_LogFileName;                                                      // HDF5 file group name
+
+                if (m_HDF5ContainerId >= 0) {                                                                       // yes - have HDF5 container file?
+                    h5GroupId = H5Gopen(m_HDF5ContainerId, h5GroupName.c_str(), H5P_DEFAULT);                       // yes - open the group
+                    if (h5GroupId < 0) {                                                                            // group open (and therefore already exists)?
+                        h5GroupId = H5Gcreate(m_HDF5ContainerId, h5GroupName.c_str(), 0, H5P_DEFAULT, H5P_DEFAULT); // no - create the group
+                        if (h5GroupId < 0) {                                                                        // group created ok?
+                            Squawk("ERROR: Error creating HDF5 group with name " + h5GroupName);                    // announce error
+                            ok = false;                                                                             // fail
+                        }
+                    }
+                    else {                                                                                          // yes - group exists and is open               
+                        if (p_Append) {                                                                             // that's ok if we're appending - are we appending?
+                            if (H5Gclose(h5GroupId) < 0) {                                                          // group closed ok?
+                                Squawk("ERROR: Error closing HDF5 group with name " + h5GroupName);                 // no - announce error
+                                ok = false;                                                                         // fail
+                            }
+                        }
+                        else {                                                                                      // not appending - that's not ok...
+                            Squawk("ERROR: HDF5 group with name " + h5GroupName + " already exists");               // announce error
+                            (void)H5Gclose(h5GroupId);                                                              // close the group
+                            ok = false;                                                                             // fail
+                        }
+                    }
+                }
+                else {                                                                                              // no - don't have HDF5 container file
+                    Squawk("ERROR: HDF5 container file does not exist");                                            // that's an issue... announce error
+                    ok = false;                                                                                     // fail
+                }
+            }
+
+            if (ok) {                                                                                           // still ok?
+
+                // record attributes
+                // find an empty slot in m_Logfiles vector if there is one
+                // this way is a bit slower for opening logfiles, but faster for writing to them
+                id = -1;  
+                for(unsigned int index = 0; index < m_Logfiles.size(); index++) {
+                    if (!m_Logfiles[index].active) {                                                            // empty slot?
+                        id = index;                                                                             // yes - use it
+                        break;                                                                                  // and stop looking
+                    }
+                }
+
+                if (id < 0) {                                                                                   // have empty slot?
+                    logfileAttrT attr;                                                                          // no - create new attributes struct
+                    id = m_Logfiles.size();                                                                     // set new id
+                    m_Logfiles.push_back(std::move(attr));                                                      // append to vector
+                }
+
+                m_Logfiles[id].active           = true;                                                         // this entry now active
+                m_Logfiles[id].logfiletype      = p_StandardLogfile;                                            // standard logfile type
+                m_Logfiles[id].filetype         = m_LogfileType;                                                // set filetype for this log file
+                m_Logfiles[id].name             = h5GroupName;                                                  // log file name (HDF5 group name)
+                m_Logfiles[id].timestamp        = p_Timestamp;                                                  // set timestamp flag for this log file
+                m_Logfiles[id].label            = p_Label;                                                      // set label flag for this log file
+                m_Logfiles[id].h5file.fileId    = h5FileId;                                                     // HDF5 file id
+                m_Logfiles[id].h5file.groupId   = h5GroupId;                                                    // HDF5 group id
+                m_Logfiles[id].h5file.dataSets  = {};                                                           // HDF5 data sets
+                m_Logfiles[id].h5file.dataTypes = {};                                                           // HDF5 data types
+            }
         }
-        catch (const std::ofstream::failure &e) {                                                               // fs problem...
-            Squawk("ERROR: Unable to create log file with file name " + m_Logfiles[id].name);                   // announce error
-            Squawk(e.what());                                                                                   // plus details
+        else {                                                                                                  // no - not HDF5
+            // record attributes
 
-            ClearEntry(id);                                                                                     // clear entry
-            id = -1;                                                                                            // not valid
-        }
-        catch (...) {                                                                                           // unhandled problem...
-            Squawk("ERROR: Unable to create log file with file name " + m_Logfiles[id].name);                   // announce error
+            // find an empty slot in m_Logfiles vector if there is one
+            // this way is a bit slower for opening logfiles, but faster for writing to them
+            for(unsigned int index = 0; index < m_Logfiles.size(); index++) {
+                if (!m_Logfiles[index].active) {                                                                // empty slot?
+                    id = index;                                                                                 // yes - use it
+                    break;                                                                                      // and stop looking
+                }
+            }
 
-            ClearEntry(id);                                                                                     // clear entry
-            id = -1;                                                                                            // not valid
+            if (id < 0) {                                                                                       // have empty slot?
+                id = m_Logfiles.size();                                                                         // no - set new id
+                logfileAttrT attr;                                                                              // create new attributes struct
+                attr.active = false;                                                                            // for now...
+                m_Logfiles.push_back(std::move(attr));                                                          // append to vector
+            }
+               
+            try {
+                m_Logfiles[id].file.open(filename, std::ios::out | std::ios::app);                              // create fs log file
+                m_Logfiles[id].file.exceptions(std::ofstream::failbit | std::ofstream::badbit);                 // enable exceptions on log file
+
+                m_Logfiles[id].active         = true;                                                           // this entry now active
+                m_Logfiles[id].logfiletype    = p_StandardLogfile;                                              // standard logfile type
+                m_Logfiles[id].filetype       = m_LogfileType;                                                  // set filetype for this log file
+                m_Logfiles[id].name           = filename;                                                       // log file name
+                m_Logfiles[id].timestamp      = p_Timestamp;                                                    // set timestamp flag for this log file
+                m_Logfiles[id].label          = p_Label;                                                        // set label flag for this log file
+                m_Logfiles[id].h5file.fileId  = -1;                                                             // not HDF5 file
+                m_Logfiles[id].h5file.groupId = -1;                                                             // not HDF5 file
+            }
+            catch (const std::ofstream::failure &e) {                                                           // fs problem...
+                Squawk("ERROR: Unable to create fs log file with file name " + m_Logfiles[id].name);            // announce error
+                Squawk(e.what());                                                                               // plus details
+
+                // it's possible this m_Logfiles entry was just appended - it can be used next time
+                if (id >= 0) ClearEntry(id);                                                                    // clear entry
+                ok = false;                                                                                     // fail
+            }
         }
     }
 
-    return id;                                                                                                  // return log file id
+    return ok ? id : -1;                                                                                        // return log file id
 }
 
 
@@ -382,21 +452,21 @@ bool Log::Close(const int p_LogfileId) {
 
     if (m_Enabled) {                                                                                            // logging enabled?
                                                                                                                 // yes
-        int fileId = p_LogfileId;                                                                               // file id to close
+        int id = p_LogfileId;                                                                                   // file id to close
                                                                                                                 // check if the file is an open standard file
         bool standardFile;
         LOGFILE logfile;
-        std::tie(standardFile, logfile) = GetStandardLogfileKey(p_LogfileId);                                   // look in open standard file map
+        std::tie(standardFile, logfile) = GetStandardLogfileKey(id);                                            // look in open standard file map
         if (standardFile) {                                                                                     // file is an open standard file
-            COMPASUnorderedMap<LOGFILE, LOGFILE_DETAILS>::const_iterator iter;                                  // iterator
+            COMPASUnorderedMap<LOGFILE, LogfileDetailsT>::const_iterator iter;                                  // iterator
             iter = m_OpenStandardLogFileIds.find(logfile);                                                      // get the details
             if (iter != m_OpenStandardLogFileIds.end()) {                                                       // found
-                LOGFILE_DETAILS fileDetails = iter->second;                                                     // existing file details
-                fileId = get<0>(fileDetails);                                                                   // file id
+                LogfileDetailsT fileDetails = iter->second;                                                     // existing file details
+                id = fileDetails.id;                                                                            // standard file id
             }
         }
 
-        result = Close_(fileId);                                                                                // close the file
+        result = Close_(id);                                                                                    // close the file
 
         if (result && standardFile) {                                                                           // if it was a standard file...
             m_OpenStandardLogFileIds.erase(logfile);                                                            // ...remove it from the map
@@ -420,23 +490,50 @@ bool Log::Close_(const int p_LogfileId) {
 
     bool result = true;
 
-    if (m_Enabled && IsActiveId(p_LogfileId)) {                                                             // logging enabled and logfile active?
-        if (m_Logfiles[p_LogfileId].file.is_open()) {                                                       // yes - check if log file open
-            try {                                                                                           // log file open
-                m_Logfiles[p_LogfileId].file.flush();                                                       // flush output and
-                m_Logfiles[p_LogfileId].file.close();                                                       // close it
+    if (m_Enabled && IsActiveId(p_LogfileId)) {                                                                     // logging enabled and logfile active?
+        if (m_Logfiles[p_LogfileId].filetype == LOGFILETYPE::HDF5) {                                                // yes - HDF5 logfile?
 
-                result = true;                                                                              // set result
-            }
-            catch (const std::ofstream::failure &e) {                                                       // problem...
-                Squawk("ERROR: Unable to close log file with file name " + m_Logfiles[p_LogfileId].name);   // announce error
-                Squawk(e.what());                                                                           // plus details
-
-                result = false;                                                                             // set result
+            // first, close all open datasets
+            for (auto &dataSet : m_Logfiles[p_LogfileId].h5file.dataSets) {                                         // for each open dataset
+                if (H5Dclose(dataSet) < 0) {                                                                        // closed ok?
+                    Squawk("ERROR: Unable to close HDF5 dataset for log file " + m_Logfiles[p_LogfileId].name);     // no - announce error
+                    result = false;                                                                                 // fail
+                }
             }
 
-            ClearEntry(p_LogfileId);                                                                        // clear entry whether the close succeeded or not
+            // try closing the group - even if closing datasets failed
+            if (m_Logfiles[p_LogfileId].logfiletype != LOGFILE::SSE_DETAILED_OUTPUT && 
+                m_Logfiles[p_LogfileId].logfiletype != LOGFILE::BSE_DETAILED_OUTPUT) {                              // detailed output file?
+
+                if (m_Logfiles[p_LogfileId].h5file.groupId >= 0) {                                                  // no - HDF5 group open?
+                    if (H5Gclose(m_Logfiles[p_LogfileId].h5file.groupId) < 0) {                                     // yes - closed ok?
+                        Squawk("ERROR: Unable to close HDF5 group for log file " + m_Logfiles[p_LogfileId].name);   // no - announce error
+                        result = false;                                                                             // fail
+                    }
+                }
+            }
+            else {                                                                                                  // yes - detailed output file
+                if (H5Fclose(m_Logfiles[p_LogfileId].h5file.fileId) < 0) {                                          // HDF5 file closed ok?
+                    Squawk("ERROR: Unable to close HDF5 file " + m_Logfiles[p_LogfileId].name);                     // no - announce error
+                    result = false;                                                                                 // fail
+                }
+                m_HDF5DetailedId = -1;                                                                              // (should have) no open detailed output file
+            }
         }
+        else {                                                                                                      // no, FS logfile
+            if (m_Logfiles[p_LogfileId].file.is_open()) {                                                           // log file open?
+                try {                                                                                               // yes
+                    m_Logfiles[p_LogfileId].file.flush();                                                           // flush output and
+                    m_Logfiles[p_LogfileId].file.close();                                                           // close it
+                }
+                catch (const std::ofstream::failure &e) {                                                           // problem...
+                    Squawk("ERROR: Unable to close log file with file name " + m_Logfiles[p_LogfileId].name);       // announce error
+                    Squawk(e.what());                                                                               // plus details
+                    result = false;                                                                                 // fail
+                }
+            }
+        }
+        ClearEntry(p_LogfileId);                                                                                    // clear entry whether the close succeeded or not
     }
 
     return result;
@@ -554,10 +651,9 @@ bool Log::Write(const int p_LogfileId, const string p_LogClass, const int p_LogL
 
 
 /*
- * Write() to specified log file with no class or level check - internal use only
- *
- * This is where the work is done
- *
+ * Write a string record to specified log file with no class or level check - internal use only
+ * Used for CSV, TSV, and TXT files
+ * 
  * Disable the specified log file if errors occur.
  *
  *
@@ -572,7 +668,7 @@ bool Log::Write_(const int p_LogfileId, const string p_LogStr) {
     bool result = false;
 
     if (m_Enabled && IsActiveId(p_LogfileId)) {                                                                     // logging service enabled and specified log file active?
-        try {                                                                                                       // yes
+        try {
             m_Logfiles[p_LogfileId].file << p_LogStr << std::endl;                                                  // write string to log file
             m_Logfiles[p_LogfileId].file.flush();                                                                   // flush data to log file
 
@@ -591,6 +687,185 @@ bool Log::Write_(const int p_LogfileId, const string p_LogStr) {
     }
 
     return result;
+}
+
+
+/*
+ * Write a multi-value record to specified log file with no class or level check - internal use only
+ * Used for HDF5 files
+ * 
+ * This is where the work is done
+ *
+ * Disable the specified log file if errors occur.
+ *
+ *
+ * bool Write_(const id p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const std::vector<TYPENAME> p_LogRecordTypes)
+ *
+ * @param   [IN]    p_LogfileId                 The id of the log file to which the multi-value record should be written
+ * @param   [IN]    p_LogRecordValues           Vector of COMPAS_VARIABLE_TYPE values to be written
+ * @param   [IN]    p_LogRecordTypes            Vector of TYPENAME values indicating the COMPAS data types of the values to be written
+ * @return                                      Boolean indicating whether record was written successfully
+ */
+bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const std::vector<TYPENAME> p_LogRecordTypes) {
+
+    herr_t ok = -1;
+
+    if (m_Enabled && IsActiveId(p_LogfileId)) {                                                                     // logging service enabled and specified log file active?
+
+
+// JR CHECK ALL POINTS OF FAILURE HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    // CHECK IF HDF5 FILE EXISTS
+    // HOW TO HANDLE DETAILED OUTPUT FILES
+
+// m_HDF5ContainerId
+
+
+        if (m_Logfiles[p_LogfileId].h5file.groupId >= 0) {                                                      // HDF5 group open?
+            for (size_t idx = 0; idx < p_LogRecordValues.size(); idx++) {                 // for each property
+
+                hid_t dSet  = m_Logfiles[p_LogfileId].h5file.dataSets[idx];
+
+                hid_t dType = m_Logfiles[p_LogfileId].h5file.dataTypes[idx];
+
+
+
+
+                // create a 1-d HDF5 dataspace
+
+                
+//hsize_t size = H5Dget_storage_size(dSet) + H5Tget_size(dType);
+
+
+                hsize_t currentSize = H5Dget_storage_size(dSet) / H5Tget_size(dType);
+                hsize_t h5Dims[1] = {1};
+//                h5Dims[0] = currentSize + 1;   // chunk size is 1
+                hid_t   h5Dspace  = H5Screate_simple(1, h5Dims, NULL);                                                  // create the dataspace
+        if (h5Dspace < 0) {
+Squawk("Create simple failed!");
+ok = -1;
+        }
+
+
+    // Extend dataset
+    h5Dims[0] = currentSize + 1;   // chunk size is 1
+    ok = H5Dset_extent(dSet, h5Dims);
+    if (ok < 0) {
+Squawk("Extend failed!");
+    }
+
+
+        // create file space
+        hid_t   h5FSpace = H5Dget_space(dSet);
+        if (h5FSpace < 0) {
+Squawk("Get space failed!");
+ok = -1;
+        }
+
+    // Select hyperslab on file space
+    hsize_t h5Start[1] = {0};
+    h5Start[0] = currentSize;
+    hsize_t h5Count[1] = {1};
+    ok = H5Sselect_hyperslab(h5FSpace, H5S_SELECT_SET, h5Start, NULL, h5Count, NULL);
+    if (ok < 0) {
+Squawk("Hyperslab failed!");
+    }
+
+
+
+    if (ok >= 0) {
+
+                // can't use switch here...
+
+                if (dType == H5T_NATIVE_UCHAR) {
+                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<bool>(p_LogRecordValues[idx]));
+                }
+                else if (dType == H5T_NATIVE_SHORT) {
+                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<short int>(p_LogRecordValues[idx]));
+                }
+                else if (dType == H5T_NATIVE_INT) {
+
+                    int v = 0;
+                    switch (p_LogRecordTypes[idx]) {
+                        case TYPENAME::INT: v = static_cast<int>(boost::get<int>(p_LogRecordValues[idx])); break;
+                        case TYPENAME::ERROR: v = static_cast<int>(boost::get<ERROR>(p_LogRecordValues[idx])); break;
+                        case TYPENAME::STELLAR_TYPE: v = static_cast<int>(boost::get<STELLAR_TYPE>(p_LogRecordValues[idx])); break;
+                        case TYPENAME::MT_CASE: v = static_cast<int>(boost::get<MT_CASE>(p_LogRecordValues[idx])); break;
+                        case TYPENAME::MT_TRACKING: v = static_cast<int>(boost::get<MT_TRACKING>(p_LogRecordValues[idx])); break;
+                        case TYPENAME::SN_EVENT: v = static_cast<int>(boost::get<SN_EVENT>(p_LogRecordValues[idx])); break;
+                        case TYPENAME::SN_STATE: v = static_cast<int>(boost::get<SN_STATE>(p_LogRecordValues[idx])); break;
+                        default: 
+                            Squawk("ERROR: Unable to format data to write to HDF5 group for log file " + m_Logfiles[p_LogfileId].name);            // announce error
+                            v = 0;
+                    }
+
+                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&v);
+                }
+                else if (dType == H5T_NATIVE_LONG) {
+                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<long int>(p_LogRecordValues[idx]));
+                }
+                else if (dType == H5T_NATIVE_USHORT) {
+                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<unsigned short int>(p_LogRecordValues[idx]));
+                }
+                else if (dType == H5T_NATIVE_UINT) {
+                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<unsigned int>(p_LogRecordValues[idx]));
+                }
+                else if (dType == H5T_NATIVE_ULONG) {
+                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<unsigned long int>(p_LogRecordValues[idx]));
+                }
+                else if (dType == H5T_NATIVE_FLOAT) {
+                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<float>(p_LogRecordValues[idx]));
+                }
+                else if (dType == H5T_NATIVE_DOUBLE) {
+                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<double>(p_LogRecordValues[idx]));
+                }
+                else if (dType == H5T_NATIVE_LDOUBLE) {
+                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<long double>(p_LogRecordValues[idx]));
+                }
+                else if (dType == H5T_C_S1) {
+                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)boost::get<string>(p_LogRecordValues[idx]).c_str());
+                }
+                else { // assume custom string type
+                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)boost::get<string>(p_LogRecordValues[idx]).c_str());
+                }
+
+    }
+
+    (void)H5Sclose(h5FSpace);                                                                                       // close filespace
+    (void)H5Sclose(h5Dspace);                                                                                       // close dataspace
+//    (void)H5DClose(h5Dset);                                                                                     // close dataset
+
+//H5Dwrite (dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, dd);
+
+
+//             herr_t H5Dwrite (hid_t dataset_id, hid_t mem_type_id, hid_t mem_space_id, hid_t file_space_id, hid_t xfer_plist_id, const void *buf)
+
+////                            m_Logfiles[id].h5file.dataTypes[idx] = fileDetails.typeStrings[idx] == "BOOL"  ? H5T_NATIVE_UCHAR  :                // COMPAS BOOL datatype
+////                                                                  (fileDetails.typeStrings[idx] == "INT"   ? H5T_NATIVE_INT    :                // COMPAS INT datatype
+////                                                                  (fileDetails.typeStrings[idx] == "FLOAT" ? H5T_NATIVE_DOUBLE :                // COMPAS FLOAT datatype
+////                                                                                                             H5T_C_S1));    
+
+if (ok < 0) {
+    break;
+}
+            }
+
+        }
+        else {                                                                                                  // no, HDF5 group not open
+            Squawk("ERROR: Unable to write to HDF5 group for log file " + m_Logfiles[p_LogfileId].name);            // announce error
+            ClearEntry(p_LogfileId);                                                                                // clear entry
+        }
+    }
+    else {                                                                                                          // not enabled or not active
+//        Squawk(p_LogStr);                                                                                           // show log record on stderr
+
+//                            boost::variant<string> fmtStr(fileDetails.fmtStrings[index++]);                                             // get format string
+//                            valueStr = boost::apply_visitor(FormatVariantValue(), value, fmtStr);                                       // format value
+//                            logRecord += valueStr + delimiter;                                                                          // add value string to log record - with delimiter
+        ok = 0;
+    }
+
+    return (ok >= 0);
 }
 
 
@@ -631,14 +906,15 @@ bool Log::Put(const int p_LogfileId, const string p_LogClass, const int p_LogLev
 
 
 /*
- * Put() to specified log file with no class or level check - internal use only
+ * Put() a string record to specified log file with no class or level check - internal use only
+ * Used for CSV, TSV, and TXT files
  *
- * This is where the work is done
+ * Timestamps and labels are added here if required.
  *
  * Disable the specified log file if errors occur.
  *
  *
- * bool Put_(const string p_LogStr, const string p_Label)
+ * bool Put_(const int p_LogfileId, const string p_LogStr, const string p_Label)
  *
  * @param   [IN]    p_LogfileId                 The id of the log file to which the log string should be written
  * @param   [IN]    p_LogStr                    The string to be written
@@ -651,7 +927,14 @@ bool Log::Put_(const int p_LogfileId, const string p_LogStr, const string p_Labe
 
     if (m_Enabled && IsActiveId(p_LogfileId)) {                                                                     // logging service enabled and specified log file active?
 
-        string delimiter = m_Logfiles[p_LogfileId].delimiter;                                                       // field delimiter
+        string delimiter = "";                                                                                      // field delimiter
+        switch (m_Logfiles[p_LogfileId].filetype) {
+            case LOGFILETYPE::HDF5: delimiter = ""; break;                                                          // HDF5
+            case LOGFILETYPE::CSV : delimiter = DELIMITERValue.at(DELIMITER::COMMA); break;                         // CSV
+            case LOGFILETYPE::TSV : delimiter = DELIMITERValue.at(DELIMITER::TAB); break;                           // TSV
+            case LOGFILETYPE::TXT : delimiter = DELIMITERValue.at(DELIMITER::SPACE); break;                         // TXT
+            default               : delimiter = ""; break;                                                          // default
+        }
 
         string timestamp;
         if (m_Logfiles[p_LogfileId].timestamp) {                                                                    // timestamp enabled?
@@ -669,10 +952,38 @@ bool Log::Put_(const int p_LogfileId, const string p_LogStr, const string p_Labe
 
         string logStr = "";                                                                                         // initialise the output string
                logStr += m_Logfiles[p_LogfileId].timestamp ? timestamp + delimiter : "";                            // add timestamp if required
-               logStr += m_Logfiles[p_LogfileId].label && p_Label.length() > 0 ? p_Label   + delimiter : "";        // add record label if required (may be blank)
+               logStr += m_Logfiles[p_LogfileId].label && p_Label.length() > 0 ? p_Label + delimiter : "";          // add record label if required (may be blank)
                logStr += p_LogStr;                                                                                  // add the log string
 
         return Write_(p_LogfileId, logStr);                                                                         // log it
+    }
+
+    return result;
+}
+
+
+/*
+ * Put() a multi-value record to specified log file with no class or level check - internal use only
+ * Used for HDF5 files
+ *
+ * Timestamps and labels should be passed in the p_LogRecordValues vector - they will not be added here.
+ *
+ * Disable the specified log file if errors occur.
+ *
+ *
+ * bool Put_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const std::vector<TYPENAME> p_LogRecordTypes)
+ *
+ * @param   [IN]    p_LogfileId                 The id of the log file to which the log string should be written
+ * @param   [IN]    p_LogRecordValues           Vector of COMPAS_VARIABLE_TYPE values to be written
+ * @param   [IN]    p_LogRecordTypes            Vector of TYPENAME values indicating the COMPAS data types of the values to be written
+ * @return                                      Boolean indicating whether record was written successfully
+ */
+bool Log::Put_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const std::vector<TYPENAME> p_LogRecordTypes) {
+
+    bool result = false;
+
+    if (m_Enabled && IsActiveId(p_LogfileId)) {                             // logging service enabled and specified log file active?
+        return Write_(p_LogfileId, p_LogRecordValues, p_LogRecordTypes);    // yes - log it
     }
 
     return result;
@@ -897,7 +1208,7 @@ PROPERTY_DETAILS Log::ProgramOptionDetails(PROGRAM_OPTION p_Property) {
  *    Header - The header string is the title of the field: it describes the contents (e.g. "Metallicity")
  *             The header string will have the header suffix string appended to it.  The suffix string
  *             provides differentiation for the constituent stars of a binary.  For example, the suffix
- *             could be "_1" or "_2" to indicate the primary and secondary stars, or "_SN" oe "CN" to
+ *             could be "(1)" or "(2)" to indicate the primary and secondary stars, or "(SN)" or "(CN)" to
  *             indicated the supernova or companion stars in a supernova event.
  *
  *    Units  - the units string indicates the units of the property.  This string is taken directly from
@@ -920,17 +1231,17 @@ PROPERTY_DETAILS Log::ProgramOptionDetails(PROGRAM_OPTION p_Property) {
  */
 STR_STR_STR_STR Log::FormatFieldHeaders(PROPERTY_DETAILS p_PropertyDetails, string p_HeaderSuffix) {
 
-    TYPENAME typeName = get<0>(p_PropertyDetails);                                                                  // data type
+    TYPENAME typeName = std::get<0>(p_PropertyDetails);                                                             // data type
     if (typeName == TYPENAME::NONE) {                                                                               // valid data type?
         return std::make_tuple("ERROR!", "ERROR!", "ERROR!", "ERROR!");                                             // return error values
     }
 
-    string headerStr = get<1>(p_PropertyDetails) + p_HeaderSuffix;                                                  // header string
-    string unitsStr  = get<2>(p_PropertyDetails);                                                                   // units string
-    string typeStr   = get<1>(TYPENAME_LABEL.at(typeName));                                                         // type will be one of "BOOL", "INT", "FLOAT" and "STRING" (non-primitive types coerced to INT)
+    string headerStr = std::get<1>(p_PropertyDetails) + p_HeaderSuffix;                                             // header string
+    string unitsStr  = std::get<2>(p_PropertyDetails);                                                              // units string
+    string typeStr   = std::get<1>(TYPENAME_LABEL.at(typeName));                                                    // type will be one of "BOOL", "INT", "FLOAT" and "STRING" (non-primitive types coerced to INT)
 
-    int fieldWidth     = get<3>(p_PropertyDetails);
-    int fieldPrecision = get<4>(p_PropertyDetails);                                                                 // field precision (for double and int)
+    int fieldWidth     = std::get<3>(p_PropertyDetails);
+    int fieldPrecision = std::get<4>(p_PropertyDetails);                                                            // field precision (for double and int)
 
     fieldWidth = std::max(fieldWidth, std::max((int)headerStr.length(), std::max((int)unitsStr.length(), 6)));      // field width - maximum of requested width, header width, units width and type width ("STRING" is max type)
 
@@ -954,13 +1265,13 @@ STR_STR_STR_STR Log::FormatFieldHeaders(PROPERTY_DETAILS p_PropertyDetails, stri
  * The string comparison is case-insensitive.
  *
  *
- * static std::tuple<bool, LOGFILE> GetLogfileDescriptorKey(const std::string p_Value)
+ * static std::tuple<bool, LOGFILE> GetLogfileDescriptorKey(const string p_Value)
  *
  * @param   [IN]    p_Value                     The value to be located in the LOGFILE_DESCRIPTOR map
  * @return                                      Tuple containing a boolean result (true if value found, else false), and the key
  *                                              corresponding to the value found, or LOGFILE::NONE if the value was not found
  */
-std::tuple<bool, LOGFILE> Log::GetLogfileDescriptorKey(const std::string p_Value) {
+std::tuple<bool, LOGFILE> Log::GetLogfileDescriptorKey(const string p_Value) {
     for (auto& it: LOGFILE_DESCRIPTOR)
         if (utils::Equals(std::get<3>(it.second), p_Value)) return std::make_tuple(true, it.first);
     return std::make_tuple(false, LOGFILE::NONE);
@@ -978,13 +1289,12 @@ std::tuple<bool, LOGFILE> Log::GetLogfileDescriptorKey(const std::string p_Value
  * static std::tuple<bool, LOGFILE> GetStandardLogfileKey(const int p_FileId)
  *
  * @param   [IN]    p_Value                     The value to be located in the LOGFILE_DESCRIPTOR map
- * @return                                      Key corresponding to the value found, or LOGFILE::NONE if the value was not found
  * @return                                      Tuple containing a boolean result (true if id found, else false), and the key
  *                                              corresponding to the id found, or LOGFILE::NONE if the value was not found
  */
 std::tuple<bool, LOGFILE> Log::GetStandardLogfileKey(const int p_FileId) {
     for (auto& it: m_OpenStandardLogFileIds)
-        if (std::get<0>(it.second) == p_FileId) return std::make_tuple(true, it.first);
+        if (it.second.id == p_FileId) return std::make_tuple(true, it.first);
     return std::make_tuple(false, LOGFILE::NONE);
 }
 
@@ -1022,6 +1332,10 @@ std::tuple<bool, LOGFILE> Log::GetStandardLogfileKey(const int p_FileId) {
  *
  * std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> StandardLogFileRecordDetails(const LOGFILE p_Logfile)
  *
+ * @param   [IN]    p_Logfile                   Logfile for which details are to be retrieved (see enum class LOGFILE in constants.h)
+ * @return                                      Tuple containing:
+ *                                                 - a vector of logfile record properties
+ *                                                 - a vector of format strings
  */
 std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> Log::GetStandardLogFileRecordDetails(const LOGFILE p_Logfile) {
 
@@ -1191,81 +1505,79 @@ std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> Log::GetStandardLogFileReco
  * The logfile details are returned.
  *
  *
- * LOGFILE_DETAILS StandardLogFileDetails(const LOGFILE p_Logfile, const string p_FileSuffix)
+ * LogfileDetailsT StandardLogFileDetails(const LOGFILE p_Logfile, const string p_FileSuffix)
  *
+ * @param   [IN]    p_Logfile                   Logfile for which details are to be retrieved (see enum class LOGFILE in constants.h)
+ * @param   [IN]    p_Suffix                    String suffix to be appended to the logfile name
+ * @return                                      Struct with logfile details - see typedefs.h
  */
-LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const string p_FileSuffix) {
+LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const string p_FileSuffix) {
 
-    int                  id = -1;                                                                                                               // default is failed to open
-    ANY_PROPERTY_VECTOR  recordProperties = {};                                                                                                 // default is empty
-    std::vector<string>  fmtVector = {};                                                                                                        // default is empty
-    LOGFILE_DETAILS      fileDetails = std::make_tuple(id, "", recordProperties, fmtVector);                                                    // default logfile details
+    bool                 ok = true;
+    LogfileDetailsT      retVal = {-1, "", {}, {}, {}, {}, {}, {}};                                                                             // default return value
+
+    LogfileDetailsT      fileDetails = retVal;                                                                                                  // logfile details
     LOGFILE_DESCRIPTOR_T fileDescriptor;                                                                                                        // logfile descriptor
 
-    COMPASUnorderedMap<LOGFILE, LOGFILE_DETAILS>::const_iterator logfile;                                                                       // iterator
+    COMPASUnorderedMap<LOGFILE, LogfileDetailsT>::const_iterator logfile;                                                                       // iterator
     logfile = m_OpenStandardLogFileIds.find(p_Logfile);                                                                                         // look for open logfile
     if (logfile == m_OpenStandardLogFileIds.end()) {                                                                                            // doesn't exist
-
-        try {
-            string filename;                                                                                                                    // filename for logfile
-
-            // get record properties for this file
-
+        try {                                                                                                                                   // get record properties for this file
             switch (p_Logfile) {                                                                                                                // which logfile?
 
                 case LOGFILE::BSE_BE_BINARIES:                                                                                                  // BSE_BE_BINARIES
-                    filename         = OPTIONS->LogfileBeBinaries();
-                    recordProperties = m_BSE_BE_Binaries_Rec;
+                    fileDetails.filename         = OPTIONS->LogfileBeBinaries();
+                    fileDetails.recordProperties = m_BSE_BE_Binaries_Rec;
                     break;
 
                 case LOGFILE::BSE_COMMON_ENVELOPES:                                                                                             // BSE_COMMON_ENVELOPES
-                    filename         = OPTIONS->LogfileCommonEnvelopes();
-                    recordProperties = m_BSE_CEE_Rec;
+                    fileDetails.filename         = OPTIONS->LogfileCommonEnvelopes();
+                    fileDetails.recordProperties = m_BSE_CEE_Rec;
                     break;
 
                 case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS:                                                                                       // BSE_DOUBLE_COMPACT_OBJECTS
-                    filename         = OPTIONS->LogfileDoubleCompactObjects();
-                    recordProperties = m_BSE_DCO_Rec;
+                    fileDetails.filename         = OPTIONS->LogfileDoubleCompactObjects();
+                    fileDetails.recordProperties = m_BSE_DCO_Rec;
                     break;
                
                 case LOGFILE::BSE_PULSAR_EVOLUTION:                                                                                             // BSE_PULSAR_EVOLUTION
-                    filename         = OPTIONS->LogfilePulsarEvolution();
-                    recordProperties = m_BSE_Pulsars_Rec;
+                    fileDetails.filename         = OPTIONS->LogfilePulsarEvolution();
+                    fileDetails.recordProperties = m_BSE_Pulsars_Rec;
                     break;
 
                 case LOGFILE::BSE_RLOF_PARAMETERS:                                                                                              // BSE_RLOF_PARAMETERS
-                    filename         = OPTIONS->LogfileRLOFParameters();
-                    recordProperties = m_BSE_RLOF_Rec;
+                    fileDetails.filename         = OPTIONS->LogfileRLOFParameters();
+                    fileDetails.recordProperties = m_BSE_RLOF_Rec;
                     break;
 
                 case LOGFILE::BSE_SUPERNOVAE:                                                                                                   // BSE_SUPERNOVAE
-                    filename         = OPTIONS->LogfileSupernovae();
-                    recordProperties = m_BSE_SNE_Rec;
+                    fileDetails.filename         = OPTIONS->LogfileSupernovae();
+                    fileDetails.recordProperties = m_BSE_SNE_Rec;
                     break;
 
                 case LOGFILE::BSE_SWITCH_LOG:                                                                                                   // BSE_SWITCH_LOG
-                    filename         = OPTIONS->LogfileSwitchLog();
-                    recordProperties = m_BSE_Switch_Rec;
+                    fileDetails.filename         = OPTIONS->LogfileSwitchLog();
+                    fileDetails.recordProperties = m_BSE_Switch_Rec;
                     break;
 
                 case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                            // BSE_SYSTEM_PARAMETERS
-                    filename         = OPTIONS->LogfileSystemParameters();
-                    recordProperties = m_BSE_SysParms_Rec;
+                    fileDetails.filename         = OPTIONS->LogfileSystemParameters();
+                    fileDetails.recordProperties = m_BSE_SysParms_Rec;
                     break;
 
                 case LOGFILE::SSE_SUPERNOVAE:                                                                                                   // SSE_SUPERNOVAE
-                    filename         = OPTIONS->LogfileSupernovae();
-                    recordProperties = m_SSE_SNE_Rec;
+                    fileDetails.filename         = OPTIONS->LogfileSupernovae();
+                    fileDetails.recordProperties = m_SSE_SNE_Rec;
                     break;
 
                 case LOGFILE::SSE_SWITCH_LOG:                                                                                                   // SSE_SWITCH_LOG
-                    filename         = OPTIONS->LogfileSwitchLog();
-                    recordProperties = m_SSE_Switch_Rec;
+                    fileDetails.filename         = OPTIONS->LogfileSwitchLog();
+                    fileDetails.recordProperties = m_SSE_Switch_Rec;
                     break;
 
                 case LOGFILE::SSE_SYSTEM_PARAMETERS:                                                                                            // SSE_SYSTEM_PARAMETERS
-                    filename         = OPTIONS->LogfileSystemParameters();
-                    recordProperties = m_SSE_SysParms_Rec;
+                    fileDetails.filename         = OPTIONS->LogfileSystemParameters();
+                    fileDetails.recordProperties = m_SSE_SysParms_Rec;
                     break;
 
                 case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                              // SSE_DETAILED_OUTPUT
@@ -1276,7 +1588,7 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
                     bool detailedOutputDirectoryExists = false;                                                                                 // detailed output directory exists?  Start with no
 
-                    string detailedDirName = m_LogContainerName + "/" + DETAILED_OUTPUT_DIRECTORY_NAME;                                         // directory name with path ("/" works on Uni*x and Windows)
+                    string detailedDirName = m_LogBasePath + "/" + m_LogContainerName + "/" + DETAILED_OUTPUT_DIRECTORY_NAME;                   // directory name with path ("/" works on Uni*x and Windows)
 
                     if (boost::filesystem::exists(detailedDirName)) {                                                                           // directory already exists?
                         detailedOutputDirectoryExists = true;                                                                                   // yes
@@ -1305,13 +1617,13 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                         switch (p_Logfile) {                                                                                                    // which logfile?
 
                             case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                  // SSE_DETAILED_OUTPUT
-                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileDetailedOutput();                     // logfile filename with directory
-                                recordProperties = m_SSE_Detailed_Rec;                                                                          // record properties
+                                fileDetails.filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileDetailedOutput();         // logfile filename with directory
+                                fileDetails.recordProperties = m_SSE_Detailed_Rec;                                                              // record properties
                                 break;
 
                             case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                  // BSE_DETAILED_OUTPUT
-                                filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileDetailedOutput();                     // logfile filename with directory
-                                recordProperties = m_BSE_Detailed_Rec;                                                                          // record properties
+                                fileDetails.filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileDetailedOutput();         // logfile filename with directory
+                                fileDetails.recordProperties = m_BSE_Detailed_Rec;                                                              // record properties
                                 break;
 
                             default: break;
@@ -1319,28 +1631,75 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     }
                     } break;
 
-                default:                                                                                                                        // unknown logfile
-                    recordProperties = {};                                                                                                      // no record properties
-                    DBG_WARN(ERR_MSG(ERROR::UNKNOWN_LOGFILE) + ": Logging disabled for this file");                                             // show warning
+                default:                                                                                                                        // unknown logfile      
+                    fileDetails.filename = ""; 
+                    fileDetails.recordProperties = {};
+                    Squawk(ERR_MSG(ERROR::UNKNOWN_LOGFILE) + ": Logging disabled for this file");                                               // announce error
             }
 
-            if (!filename.empty() && !recordProperties.empty()) {                                                                               // have filename and properties?
+            if (!fileDetails.filename.empty() && !fileDetails.recordProperties.empty()) {                                                       // have filename and properties?
 
-                filename += p_FileSuffix;                                                                                                       // add suffix to filename
-                id = Open(filename, false, false, false);                                                                                       // open the log file - new file, no timestamps, no record labels (all same type here)
-                if (id >= 0) {                                                                                                                  // success
+                fileDetails.filename += p_FileSuffix;                                                                                           // add suffix to filename
+
+                // if we're logging to HDF5 files:
+                //    - all logfiles except detailed output files are included in a single HDF5 file
+                //    - detailed output files are created individually as HDF5 files inside their containing directory
+                if (m_LogfileType == LOGFILETYPE::HDF5) {                                                                                       // logging to HDF5 files?
+                                                                                                                                                // yes
+                    string fileExt = "." + LOGFILETYPEFileExt.at(OPTIONS->LogfileType());                                                       // file extension for HDF5 files
+
+                    if (p_Logfile == LOGFILE::SSE_DETAILED_OUTPUT || p_Logfile == LOGFILE::BSE_DETAILED_OUTPUT) {                               // yes - detailed output file (SSE or BSE)?
+                        if (m_HDF5DetailedId < 0) {                                                                                             // have HDF5 detailed file?
+                                                                                                                                                // no - create it
+                            string h5Filename = m_LogBasePath + "/" + m_LogContainerName + "/" + fileDetails.filename + fileExt;                // full filename with path, container, and extension ("/" works on Uni*x and Windows)
+                            m_HDF5DetailedId = H5Fcreate(h5Filename.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT);                           // create HDF5 detailed file
+                            if (m_HDF5DetailedId < 0) {                                                                                         // created ok?                        
+                                Squawk("ERROR: Unable to create HDF5 detailed file with file name " + h5Filename);                              // no - announce error
+                                Squawk("Logging disabled");                                                                                     // show disabled warning
+                                m_Enabled = false;                                                                                              // disable logging
+                                ok = false;                                                                                                     // fail
+                            }
+                        }
+                    }
+                    else {                                                                                                                      // no - not detailed output file
+                        if (m_HDF5ContainerId < 0) {                                                                                            // have HDF5 container?
+                                                                                                                                                // no - create it
+                            string h5Filename = m_LogBasePath + "/" + m_LogContainerName + "/" + m_LogContainerName + fileExt;                  // full filename with path, container, and extension ("/" works on Uni*x and Windows)
+                            m_HDF5ContainerId = H5Fcreate(h5Filename.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT);                          // create HDF5 container file
+                            if (m_HDF5ContainerId < 0) {                                                                                        // created ok?                        
+                                Squawk("ERROR: Unable to create HDF5 container file with file name " + h5Filename);                             // no - announce error
+                                Squawk("Logging disabled");                                                                                     // show disabled warning
+                                m_Enabled = false;                                                                                              // disable logging
+                                ok = false;                                                                                                     // fail
+                            }
+                        }
+                    }
+                }
+
+                // open the specific logfile - if logging is enabled
+                // (may have been disabled by HDF5 container open fail)
+                if (m_Enabled && ok) {                                                                                                          // logging enabled?
+                    if ((fileDetails.id = Open(fileDetails.filename, false, false, false, p_Logfile)) < 0) {                                    // yes - open the log file - new file, no timestamps, no record labels (all same type here)
+                        Squawk(ERR_MSG(ERROR::FILE_OPEN_ERROR) + ": Logging disabled for this file");                                           // announce error if open failed
+                        ok = false;                                                                                                             // fail
+                    }
+                }
+
+                if (ok) {                                                                                                                       // ok?
+                                                                                                                                                // yes
+                    string delimiter = "";                                                                                                      // field delimiter
+                    switch (m_Logfiles[fileDetails.id].filetype) {
+                        case LOGFILETYPE::HDF5: delimiter = ""; break;                                                                          // HDF5
+                        case LOGFILETYPE::CSV : delimiter = DELIMITERValue.at(DELIMITER::COMMA); break;                                         // CSV
+                        case LOGFILETYPE::TSV : delimiter = DELIMITERValue.at(DELIMITER::TAB); break;                                           // TSV
+                        case LOGFILETYPE::TXT : delimiter = DELIMITERValue.at(DELIMITER::SPACE); break;                                         // TXT
+                        default               : delimiter = ""; break;                                                                          // default
+                    }
 
                     // get and format field headers for printing; get field format strings
+                    if (!fileDetails.recordProperties.empty()) {
 
-                    fmtVector = {};
-
-                    string fullHeaderStr     = "";
-                    string fullUnitsStr      = "";
-                    string fullTypeStr       = "";
-
-                    if (!recordProperties.empty()) {
-
-                        for (auto &property : recordProperties) {                                                                               // for each property to be included in the log record
+                        for (auto &property : fileDetails.recordProperties) {                                                                   // for each property to be included in the log record
 
                             string headerStr = "";
                             string unitsStr  = "";
@@ -1350,62 +1709,63 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             bool ok = true;
 
                             ANY_PROPERTY_TYPE propertyType = boost::apply_visitor(VariantPropertyType(), property);                             // property type
+                            PROPERTY_DETAILS  details;                                                                                          // property details
 
                             switch (propertyType) {                                                                                             // which property type?
 
                                 case ANY_PROPERTY_TYPE::T_STAR_PROPERTY: {                                                                      // single star
                                     ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<STAR_PROPERTY>(property));        // property
-                                    PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
+                                    details = StellarPropertyDetails(anyStarProp);                                                              // property details
                                     std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details);                               // format the headers
                                     } break;
 
                                 case ANY_PROPERTY_TYPE::T_STAR_1_PROPERTY: {                                                                    // star 1 of binary
                                     ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<STAR_1_PROPERTY>(property));      // property
-                                    PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
+                                    details = StellarPropertyDetails(anyStarProp);                                                              // property details
                                     std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details, "(1)");                        // format the headers
                                     } break;
 
                                 case ANY_PROPERTY_TYPE::T_STAR_2_PROPERTY: {                                                                    // star 2 of binary
                                     ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<STAR_2_PROPERTY>(property));      // property
-                                    PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
+                                    details = StellarPropertyDetails(anyStarProp);                                                              // property details
                                     std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details, "(2)");                        // format the headers
                                     } break;
 
                                 case ANY_PROPERTY_TYPE::T_SUPERNOVA_PROPERTY: {                                                                 // supernova star of binary that contains a supernova
                                     ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<SUPERNOVA_PROPERTY>(property));   // property
-                                    PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
+                                    details = StellarPropertyDetails(anyStarProp);                                                              // property details
                                     std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details, "(SN)");                       // format the headers
                                     } break;
 
                                 case ANY_PROPERTY_TYPE::T_COMPANION_PROPERTY: {                                                                 // companion star of binary that contains a supernova
                                     ANY_STAR_PROPERTY anyStarProp = static_cast<ANY_STAR_PROPERTY>(boost::get<COMPANION_PROPERTY>(property));   // property
-                                    PROPERTY_DETAILS details = StellarPropertyDetails(anyStarProp);                                             // property details
+                                    details = StellarPropertyDetails(anyStarProp);                                                              // property details
                                     std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details, "(CP)");                       // format the headers
                                     } break;
 
                                 case ANY_PROPERTY_TYPE::T_BINARY_PROPERTY: {                                                                    // binary
                                     BINARY_PROPERTY binaryProp = boost::get<BINARY_PROPERTY>(property);                                         // property
-                                    PROPERTY_DETAILS details = BinaryPropertyDetails(binaryProp);                                               // property details
+                                    details = BinaryPropertyDetails(binaryProp);                                                                // property details
                                     std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details);                               // format the headers
                                     } break;
 
                                 case ANY_PROPERTY_TYPE::T_PROGRAM_OPTION: {                                                                     // program option
                                     PROGRAM_OPTION programOption = boost::get<PROGRAM_OPTION>(property);                                        // property
-                                    PROPERTY_DETAILS details = ProgramOptionDetails(programOption);                                             // property details
+                                    details = ProgramOptionDetails(programOption);                                                              // property details
                                     std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details);                               // format the headers
                                     } break;
 
                                 default:                                                                                                        // unknown property type
                                     ok = false;                                                                                                 // that's not ok...
-                                    DBG_WARN(ERR_MSG(ERROR::UNKNOWN_PROPERTY_TYPE));                                                            // show warning
+                                    Squawk(ERR_MSG(ERROR::UNKNOWN_PROPERTY_TYPE));                                                              // show warning
                             }
 
                             if (ok) {
-                                fmtVector.push_back(fmtStr);                                                                                    // record format string for field
-
-                                fullHeaderStr += headerStr + m_Logfiles[id].delimiter;                                                          // append field header string to full header string
-                                fullUnitsStr  += unitsStr + m_Logfiles[id].delimiter;                                                           // append field units string to full units string
-                                fullTypeStr   += typeStr + m_Logfiles[id].delimiter;                                                            // append field type string to full type string
+                                fileDetails.propertyTypes.push_back(std::get<0>(details));                                                      // append property typename
+                                fileDetails.hdrStrings.push_back(headerStr);                                                                    // append header string for field
+                                fileDetails.unitsStrings.push_back(unitsStr);                                                                   // append units string for field
+                                fileDetails.typeStrings.push_back(typeStr);                                                                     // append type string for field
+                                fileDetails.fmtStrings.push_back(fmtStr);                                                                       // append format string for field
                             }
                         }
 
@@ -1414,18 +1774,7 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                         //
                         // ( i) the steller type from which the star is switching
                         // (ii) the stellar type to which the star is switching
-
-                        if (p_Logfile == LOGFILE::SSE_SWITCH_LOG) {                                                                             // SSE Switch Log
-                            fullHeaderStr += "SWITCHING_FROM" + m_Logfiles[id].delimiter;                                                       // append field header string to full header string
-                            fullHeaderStr += "SWITCHING_TO" + m_Logfiles[id].delimiter;                                                         // append field header string to full header string
-
-                            fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
-                            fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
-
-                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
-                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
-                        }
-
+                        //
                         // if we are writing to the BSE Switch file we add three pre-defined columns
                         // to the end of the log record.  These are:
                         //
@@ -1433,49 +1782,179 @@ LOGFILE_DETAILS Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                         // ( ii) the steller type from which the star is switching
                         // (iii) the stellar type to which the star is switching
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// JR FIX THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
                         if (p_Logfile == LOGFILE::BSE_SWITCH_LOG) {                                                                             // BSE Switch Log
-                            fullHeaderStr += "STAR_SWITCHING" + m_Logfiles[id].delimiter;                                                       // append field header string to full header string
-                            fullHeaderStr += "SWITCHING_FROM" + m_Logfiles[id].delimiter;                                                       // append field header string to full header string
-                            fullHeaderStr += "SWITCHING_TO" + m_Logfiles[id].delimiter;                                                         // append field header string to full header string
-
-                            fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
-                            fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
-                            fullUnitsStr  += "-" + m_Logfiles[id].delimiter;                                                                    // append field units string to full units string
-
-                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
-                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
-                            fullTypeStr   += "INT" + m_Logfiles[id].delimiter;                                                                  // append field type string to full type string                            
+                            fileDetails.hdrStrings.push_back("STAR_SWITCHING");                                                                 // append header string for field
+                            fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
+                            fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append fromat string for field
                         }
 
-                        if (!fullHeaderStr.empty()) fullHeaderStr.pop_back();                                                                   // remove the trailing delimiter from the header string
-                        if (!fullUnitsStr.empty())  fullUnitsStr.pop_back();                                                                    // remove the trailing delimiter from the units string
-                        if (!fullTypeStr.empty())   fullTypeStr.pop_back();                                                                     // remove the trailing delimiter from the type string
+                        if (p_Logfile == LOGFILE::BSE_SWITCH_LOG || p_Logfile == LOGFILE::SSE_SWITCH_LOG) {                                     // BSE Switch Log or SSE Switch Log
+                            fileDetails.hdrStrings.push_back("SWITCHING_FROM");                                                                 // append header string for field
+                            fileDetails.hdrStrings.push_back("SWITCHING_TO");                                                                   // append header string for field
+
+                            fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
+                            fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
+
+                            fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
+                            fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
+
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append fromat string for field
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field
+                        }
                     }
-
+                    
                     // record new open file details
-                    fileDetails = std::make_tuple(id, filename, recordProperties, fmtVector);                                                   // new file details - file id, filename, properties vector and format vector
-                    m_OpenStandardLogFileIds.insert({ p_Logfile, fileDetails});                                                                 // record the new file details and format strings
+                    m_OpenStandardLogFileIds.insert({p_Logfile, fileDetails});                                                                  // record the new file details and format strings
 
-                    // write headers to file
-                    if (!Put_(id, fullTypeStr))   DBG_WARN(ERR_MSG(ERROR::FILE_WRITE_ERROR) + ": Type String");                                 // type string first
-                    if (!Put_(id, fullUnitsStr))  DBG_WARN(ERR_MSG(ERROR::FILE_WRITE_ERROR) + ": Units String");                                // units string next
-                    if (!Put_(id, fullHeaderStr)) DBG_WARN(ERR_MSG(ERROR::FILE_WRITE_ERROR) + ": Header String");                               // header string last - this order helps with python processing later
-                }
-                else {                                                                                                                          // open failed
-                    DBG_WARN(ERR_MSG(ERROR::FILE_OPEN_ERROR) + ": Logging disabled for this file");                                             // show warning
+                    // initialise files:
+                    //    - create datasets for HDF5 files
+                    //    - write header/units/types strings for CSV/TSV/TXT files
+                    if (OPTIONS->LogfileType() == LOGFILETYPE::HDF5) {                                                                          // logging to HDF5 files?
+                        for (size_t idx = 0; idx < fileDetails.hdrStrings.size(); idx++) {                                                      // for each property
+                            // set HDF5 datatype
+                            switch (fileDetails.propertyTypes[idx]) {                                                                           // which type?
+                                case TYPENAME::BOOL        : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_UCHAR); break;
+                                case TYPENAME::SHORTINT    : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_SHORT); break;
+                                case TYPENAME::INT         : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_INT); break;
+                                case TYPENAME::LONGINT     : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_LONG); break;
+                                case TYPENAME::USHORTINT   : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_USHORT); break;
+                                case TYPENAME::UINT        : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_UINT); break;
+                                case TYPENAME::ULONGINT    : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_ULONG); break;
+                                case TYPENAME::FLOAT       : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_FLOAT); break;
+                                case TYPENAME::DOUBLE      : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_DOUBLE); break;
+                                case TYPENAME::LONGDOUBLE  : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_LDOUBLE); break;
+                                case TYPENAME::OBJECT_ID   : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_ULONG); break;
+                                case TYPENAME::ERROR       : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_INT); break;
+                                case TYPENAME::STELLAR_TYPE: m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_INT); break;
+                                case TYPENAME::MT_CASE     : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_INT); break;
+                                case TYPENAME::MT_TRACKING : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_INT); break;
+                                case TYPENAME::SN_EVENT    : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_INT); break;
+                                case TYPENAME::SN_STATE    : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_INT); break;
+                                case TYPENAME::STRING      : {
+                                        hid_t h5DType = H5Tcopy(H5T_C_S1);                                                                      // HDF5 c-string datatype
+                                        (void)H5Tset_size(h5DType, (int)std::stod(fileDetails.fmtStrings[idx]) + 1);                            // size is field width + 1 (for NULL terminator)
+                                        (void)H5Tset_cset(h5DType, H5T_CSET_ASCII);                                                             // ASCII (rather than UTF-8)
+                                        m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(h5DType);
+                                    } break;
+                                default:                                                                                                        // unknown property type
+Squawk(ERR_MSG(ERROR::UNKNOWN_DATA_TYPE));                                                                  // announce error
+ok = false; // fail
+                                    ok = false;                                                                                                 // that's not ok...
+                            }
+
+                            if (ok) {
+                                // create HDF5 dataset
+
+                                herr_t h5Result;
+
+                                // create a 1-d HDF5 dataspace
+                                hsize_t h5Dims[1]    = {0};                                                                                     // initially 0, but...
+                                hsize_t h5MaxDims[1] = {H5S_UNLIMITED};                                                                         // ... unlimited
+                                hid_t   h5Dspace     = H5Screate_simple(1, h5Dims, h5MaxDims);                                                  // create the dataspace
+                                hid_t   h5CPlist     = H5Pcreate(H5P_DATASET_CREATE);                                                           // create the dataset creation property list
+                                (void)H5Pset_alloc_time(h5CPlist, H5D_ALLOC_TIME_INCR);                                                         // allocate space on disk incrementally
+                                (void)H5Pset_layout(h5CPlist, H5D_CHUNKED);                                                                     // must be chunked when using unlimited dimensions
+
+                                hsize_t h5ChunkDims[1] = {1};                                                                                   // chunk size affects performance - here just 1 value, 1-d
+                                h5Result = H5Pset_chunk(h5CPlist, 1, h5ChunkDims);                                                              // set chunk size
+                                if (h5Result < 0) {                                                                                             // ok?
+Squawk("set chunk size failed");   // no - announce error
+ok = false; // fail
+                                }
+                                else {                                                                                                          // yes - chunk size set ok
+                                    // create HDF5 dataset
+                                    string h5DsetName = utils::trim(fileDetails.hdrStrings[idx]);                                               // dataset name is just the header string
+                                    hid_t  h5Dset     = H5Dcreate(m_Logfiles[fileDetails.id].h5file.groupId,                                    // create the dataset
+                                                                  h5DsetName.c_str(),                                                           // dataset name
+                                                                  m_Logfiles[fileDetails.id].h5file.dataTypes[idx],                             // datatype
+                                                                  h5Dspace,                                                                     // dataspace
+                                                                  H5P_DEFAULT,                                                                  // dataset link property list                                                                     
+                                                                  h5CPlist,                                                                     // dataset creation property list
+                                                                  H5P_DEFAULT);                                                                 // dataset access property list
+                                    if (h5Dset < 0) {                                                                                           // dataset created ok?
+Squawk("ERROR: Unable to create HDF5 dataSet " + h5DsetName);   // no - announce error
+ok = false; // fail
+                                    }
+                                    else {                                                                                                      // yes - dataset created ok
+
+                                        m_Logfiles[fileDetails.id].h5file.dataSets.push_back(h5Dset);                                           // dataset id
+
+                                        // create attribute for units
+                                        hid_t h5Dspace = H5Screate(H5S_SCALAR);                                                                 // HDF5 scalar dataspace
+                                        hid_t h5DType  = H5Tcopy(H5T_C_S1);                                                                     // HDF5 c-string datatype
+
+                                        string h5UnitsStr = utils::trim(fileDetails.unitsStrings[idx]);                                         // units string
+                                        (void)H5Tset_size(h5DType, h5UnitsStr.length() + 1);                                                    // size is strlen + 1 (for NULL terminator)
+                                        (void)H5Tset_cset(h5DType, H5T_CSET_ASCII);                                                             // ASCII (rather than UTF-8)
+                                        hid_t h5Attr = H5Acreate(h5Dset, "units", h5DType, h5Dspace, H5P_DEFAULT, H5P_DEFAULT);                 // create attribute for units
+                                        if (h5Attr < 0) {                                                                                       // attribute created ok?
+Squawk("ERROR: Unable to create HDF5 attribute " + h5UnitsStr + " for HDF5 dataSet " + h5DsetName);   // no - announce error
+ok = false; // fail
+                                        }
+                                        else {
+                                            if (H5Awrite(h5Attr, h5DType, (const void *)h5UnitsStr.c_str()) < 0) {                              // write units attributes to file - ok?
+Squawk("ERROR: Unable to write HDF5 attribute " + h5UnitsStr + " for HDF5 dataSet " + h5DsetName);   // no - announce error
+ok = false; // fail
+                                            }
+                                        }
+                                        (void)H5Aclose(h5Attr);                                                                                 // close attribute 
+                                    }
+//                                    (void)H5DClose(h5Dset);                                                                                     // close dataset
+                                }
+                                (void)H5Sclose(h5CPlist);                                                                                       // close creation property list
+                                (void)H5Sclose(h5Dspace);                                                                                       // close scalar dataspace
+                            }
+                        }
+                    }
+                    else {                                                                                                                      // no - FS file
+                        string fullHdrsStr  = "";                                                                                               // initialise full headers string
+                        string fullUnitsStr = "";                                                                                               // initialise full units string
+                        string fullTypesStr = "";                                                                                               // initialise full types string
+                        for (size_t idx = 0; idx < fileDetails.hdrStrings.size(); idx++) {                                                      // for each property
+                            fullHdrsStr += fileDetails.hdrStrings[idx] + delimiter;                                                             // append field header string to full header string
+                            fullUnitsStr  += fileDetails.unitsStrings[idx] + delimiter;                                                         // append field units string to full units string
+                            fullTypesStr   += fileDetails.typeStrings[idx] + delimiter;                                                         // append field type string to full type string
+                        }
+
+                        if (!fullHdrsStr.empty())  fullHdrsStr.pop_back();                                                                      // remove the trailing delimiter from the header string
+                        if (!fullUnitsStr.empty()) fullUnitsStr.pop_back();                                                                     // remove the trailing delimiter from the units string
+                        if (!fullTypesStr.empty()) fullTypesStr.pop_back();                                                                     // remove the trailing delimiter from the type string
+
+                        // write the headers to file
+                        if (!(ok = Put_(fileDetails.id, fullTypesStr))) {                                                                       // types string written ok?
+                            Squawk(ERR_MSG(ERROR::FILE_WRITE_ERROR) + ": Type String");                                                         // no - show warning
+                        }
+                        else {                                                                                                                  // yes - ok
+                            if (!(ok = Put_(fileDetails.id, fullUnitsStr))) {                                                                   // units string written ok?
+                                Squawk(ERR_MSG(ERROR::FILE_WRITE_ERROR) + ": Units String");                                                    // no - show warning
+                            }
+                            else {                        
+                                if (!(ok = Put_(fileDetails.id, fullHdrsStr))) {                                                                // header string written ok?
+                                    Squawk(ERR_MSG(ERROR::FILE_WRITE_ERROR) + ": Header String");                                               // no - show warning
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
         catch (const std::exception& e) {                                                                                                       // unknown logfile
-            recordProperties = {};                                                                                                              // no record properties
-            DBG_WARN(ERR_MSG(ERROR::UNKNOWN_LOGFILE) + ": Logging disabled for this file");                                                     // show warning
+            fileDetails.recordProperties = {};                                                                                                  // no record properties
+            Squawk(ERR_MSG(ERROR::UNKNOWN_LOGFILE) + ": Logging disabled for this file");                                                       // show warning
         }
     }
     else {                                                                                                                                      // already exists
         fileDetails = logfile->second;                                                                                                          // get existing file details
     }
 
-    return fileDetails;
+    return ok ? fileDetails : retVal;
 }
 
 
@@ -1496,14 +1975,10 @@ bool Log::CloseStandardFile(const LOGFILE p_Logfile, const bool p_Erase) {
 
     bool result = true;                                                                                             // default is success
 
-    LOGFILE_DETAILS fileDetails;                                                                                    // file details
-
-    COMPASUnorderedMap<LOGFILE, LOGFILE_DETAILS>::const_iterator logfile;                                           // iterator
+    COMPASUnorderedMap<LOGFILE, LogfileDetailsT>::const_iterator logfile;                                           // iterator
     logfile = m_OpenStandardLogFileIds.find(p_Logfile);                                                             // look for open logfile
     if (logfile != m_OpenStandardLogFileIds.end()) {                                                                // found
-        fileDetails = logfile->second;                                                                              // existing file details
-        int id = get<0>(fileDetails);                                                                               // file id
-        result = Close_(id);                                                                                        // close the file
+        result = Close_(logfile->second.id);                                                                        // close the file
         if (result && p_Erase) {                                                                                    // closed ok and erase required?
             m_OpenStandardLogFileIds.erase(logfile);                                                                // yes - remove from map
         }
@@ -1531,6 +2006,22 @@ bool Log::CloseAllStandardFiles() {
         if (!CloseStandardFile(iter.first, false)) result = false;                                                  // close it - flag if fail
     }
     if (result) m_OpenStandardLogFileIds.clear();                                                                   // remove all entries
+
+    // close any open detailed output HDF5 container
+    if (m_HDF5DetailedId >= 0) {                                                                                    // have open HDF5 detailed output file?
+        if (H5Fclose(m_HDF5DetailedId) < 0) {                                                                       // yes - closed ok?
+            result = false;                                                                                         // no - fail
+        }
+        m_HDF5DetailedId = -1;                                                                                      // (should have) no open HDF5 detailed output file
+    }
+
+    // close any open HDF5 container
+    if (m_HDF5ContainerId >= 0) {                                                                                   // have open HDF5 detailed output file?
+        if (H5Fclose(m_HDF5ContainerId) < 0) {                                                                      // yes - closed ok?
+            result = false;                                                                                         // no - fail
+        }
+        m_HDF5ContainerId = -1;                                                                                     // (should have) no open HDF5 container file
+    }
 
     return result;
 }
@@ -1778,7 +2269,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *                  "BSE_BE_BINARIES_REC"    |				# BSE only
  *                  "BSE_PULSARS_REC"        |				# BSE only
  *                  "BSE_DETAILED_REC"	     |				# BSE only
- *                  "BSE_SWITCH_REC"		   			   # BSE only
+ *                  "BSE_SWITCH_REC"		   			    # BSE only
  *
  * <op>         ::= "=" | "+=" | "-="
  *
@@ -1884,7 +2375,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
 
         parseRec = recIn;                                                                                                       // copy the record just read
         size_t hashPos = parseRec.find("#");                                                                                    // find first occurrence of "#"
-        if (hashPos != std::string::npos) parseRec.erase(hashPos, parseRec.size() - hashPos);                                   // if "#" found, prune it and everything after it (ignore comments)
+        if (hashPos != string::npos) parseRec.erase(hashPos, parseRec.size() - hashPos);                                        // if "#" found, prune it and everything after it (ignore comments)
 
         if (parseRec.empty()) continue;                                                                                         // ignore empty records
 
@@ -1897,7 +2388,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
 
         std::size_t prev = 0;                                                                                                   // previous position in the input record (token start)
         std::size_t pos  = 0;                                                                                                   // current position in the input record (delimiter position)
-        while ((pos = parseRec.find_first_of(" ,+-={}", prev)) != std::string::npos) {                                          // find the next delimiter
+        while ((pos = parseRec.find_first_of(" ,+-={}", prev)) != string::npos) {                                               // find the next delimiter
 
             if (pos > prev) {                                                                                                   // found - token string before delimiter?
                 string tokStr = parseRec.substr(prev, pos - prev);                                                              // yes - extract token string
@@ -2020,7 +2511,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                         string      propNameStr;                                                                                // second part of property specifier - property name
                         std::size_t propTypeLen;                                                                                // length of the property type string
 
-                        if ((propTypeLen = tokStr.find("::")) != std::string::npos) {                                           // find :: separator
+                        if ((propTypeLen = tokStr.find("::")) != string::npos) {                                                // find :: separator
                             if (propTypeLen > 0) {                                                                              // :: separator found - have property type?
                                 propTypeStr = tokStr.substr(0, propTypeLen);                                                    // yes - extract property type from token
 
@@ -2195,7 +2686,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
             error = ERROR::UNEXPECTED_END_OF_FILE;                                                                              // set error
             SAY(ERR_MSG(error));                                                                                                // announce error
             size_t hashPos = recParsed.find("#");                                                                               // find first occurrence of "#" in the last record parsed
-            errorPos = hashPos == std::string::npos ? recParsed.size() : hashPos;                                               // set location for caret indicator ("^")
+            errorPos = hashPos == string::npos ? recParsed.size() : hashPos;                                                    // set location for caret indicator ("^")
             error = ERROR::EXPECTED_LOGFILE_RECORD_NAME;                                                                        // set error
         }
 
