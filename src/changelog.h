@@ -658,9 +658,12 @@
 //                                      - Typo in options code for option --switch-log: "switchlog" was incorrectly used instead of "switch-log"
 // 02.17.19     LVS - Dec 19, 2020  - Enhancements:
 //                                      - Added option to vary winds of cool stars (with T < VINK_MASS_LOSS_MINIMUM_TEMP) via a CoolWindMassLossMultiplier
-//  
-// 
+// 02.18.00     JR - Jan 01, 2020   - Enhancement:
+//                                      - Added support for HDF5 logfiles
+//                                      - Added 'logfile-type' option; allowe values are HDF5, CSV, TSV, TXT; default is HDF5
+//                                      - Removed 'logfile-delimiter' option - delimiter now set by logfile type
+//                                      - Changed header strings containging '/' character: '/' replaced by '|' (header strings become dataset names in HDF5 files, and '/' is a path delimiter...)
 
-const std::string VERSION_STRING = "02.17.18";
+const std::string VERSION_STRING = "02.18.00";
 
 # endif // __changelog_h__

@@ -6,14 +6,13 @@
 # e.g. make CPP=clang will use clang instaed of g++
 # (note uppercase 'CPP' and no whitespace around '=')
 
-CPP = g++
+CPP := g++
 
 # boost directories
 BOOSTINC := /include
 BOOSTLIB := /lib
 
 # hdf5 directories
-
 HDF5INC := /usr/include/hdf5/serial
 HDF5LIB := /usr/lib/x86_64-linux-gnu
 

@@ -297,6 +297,7 @@ const std::string DEFAULT_OUTPUT_CONTAINER_NAME         = "COMPAS_Output";      
 const std::string DETAILED_OUTPUT_DIRECTORY_NAME        = "Detailed_Output";                                        // Name for detailed output directory within output container
 const std::string RUN_DETAILS_FILE_NAME                 = "Run_Details";                                            // Name for run details output file within output container
 
+constexpr size_t  HDF5_CHUNK_SIZE                       = 100;                                                      // HDF5 chunck size
 
 // option constraints
 // Use these constant to specify constraints that should be applied to program option values
@@ -2025,6 +2026,9 @@ enum class PROGRAM_OPTION: int {
     EDDINGTON_ACCRETION_FACTOR,
     ENVELOPE_STATE_PRESCRIPTION,
 
+    EVOLVE_PULSARS,
+    EVOLVE_UNBOUND_SYSTEMS,
+
     FRYER_SUPERNOVA_ENGINE,
 
     INITIAL_MASS,
@@ -2172,6 +2176,14 @@ enum class PROGRAM_OPTION: int {
 
     STELLAR_ZETA_PRESCRIPTION,
 
+    TIMESTEP_MULTIPLIER,
+
+    USE_MASS_LOSS,
+    USE_MASS_TRANSFER,
+
+    USE_PAIR_INSTABILITY,
+    USE_PULSATIONAL_PAIR_INSTABILITY,
+    
     WR_FACTOR,
 
     ZETA_ADIABATIC_ARBITRARY,
@@ -2224,6 +2236,9 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION,                      "ENVELOPE_STATE_PRESCRIPTION" },
 
     { PROGRAM_OPTION::EVOLUTION_MODE,                                   "EVOLUTION_MODE" },
+
+    { PROGRAM_OPTION::EVOLVE_PULSARS,                                   "EVOLVE_PULSARS" },
+    { PROGRAM_OPTION::EVOLVE_UNBOUND_SYSTEMS,                           "EVOLVE_UNBOUND_SYSTEMS" },
 
     { PROGRAM_OPTION::FRYER_SUPERNOVA_ENGINE,                           "FRYER_SUPERNOVA_ENGINE" },
 
@@ -2371,6 +2386,13 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_POWER,               "SEMI_MAJOR_AXIS_DISTRIBUTION_POWER" },
 
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                        "STELLAR_ZETA_PRESCRIPTION" },
+
+    { PROGRAM_OPTION::TIMESTEP_MULTIPLIER,                              "TIMESTEP_MULTIPLIER" },
+
+    { PROGRAM_OPTION::USE_MASS_LOSS,                                    "USE_MASS_LOSS" },
+    { PROGRAM_OPTION::USE_MASS_TRANSFER,                                "USE_MASS_TRANSFER" },
+    { PROGRAM_OPTION::USE_PAIR_INSTABILITY,                             "USE_PAIR_INSTABILITY" },
+    { PROGRAM_OPTION::USE_PULSATIONAL_PAIR_INSTABILITY,                 "USE_PULSATIONAL_PAIR_INSTABILITY" },
 
     { PROGRAM_OPTION::WR_FACTOR,                                        "WR_FACTOR" },
 
