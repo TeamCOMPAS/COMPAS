@@ -104,7 +104,8 @@ namespace utils {
 
 
     std::string                         PadLeadingZeros(const std::string p_Str, const std::size_t p_MaxLength);
-
+    std::string                         PadTrailingSpaces(const std::string p_Str, const std::size_t p_MaxLength);
+    
     std::string&                        ltrim(std::string& p_Str);
     std::string&                        rtrim(std::string& p_Str);
     std::string&                        trim(std::string& p_Str);

@@ -263,7 +263,7 @@ class pythonProgramOptions:
     debug_classes       = []
 
     logfile_name_prefix = None
-    logfile_delimiter   = 'COMMA'
+    logfile_type        = 'HDF5'
 
     # set the logfile names here
     #
@@ -557,7 +557,7 @@ class pythonProgramOptions:
             self.common_envelope_mass_accretion_prescription,
             self.envelope_state_prescription,
             self.logfile_name_prefix,
-            self.logfile_delimiter,
+            self.logfile_type,
             self.logfile_definitions,
             self.grid_filename,
             self.logfile_common_envelopes,
@@ -606,7 +606,7 @@ class pythonProgramOptions:
             '--common-envelope-mass-accretion-prescription',
             '--envelope-state-prescription',
             '--logfile-name-prefix',
-            '--logfile-delimiter',
+            '--logfile-type',
             '--logfile-definitions',
             '--grid',
             '--logfile-common-envelopes',

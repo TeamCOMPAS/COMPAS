@@ -3,6 +3,8 @@
 // This is where all logging and debugging is performed.
 //
 // JR: todo: complete this documentation
+// JR: todo: move error/warning strings to error catalogue in constants.h
+// JR: todo: clean up use of Squawk() vs SAY() etc
 
 #include "Log.h"
 
@@ -87,7 +89,8 @@ void Log::Start(const string              p_LogBasePath,
             // first create the container at p_LogBasePath
             // use boost filesystem here - easier...
         
-            string containerName = p_LogContainerName;                                                              // container name with path ("/" works on Uni*x and Windows)
+            string containerName = p_LogContainerName;                                                              // container name
+            m_HDF5ContainerName  = p_LogContainerName;                                                              // HDF5 container name
             string dirName       = containerName;                                                                   // directory name to create
 
             int version = 0;                                                                                        // container version number if required - start at 1
@@ -242,7 +245,7 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
             m_RunDetailsFile << "Wall time  = " << 
                                 std::setfill('0') << std::setw(2) << wallHH << ":" << 
                                 std::setfill('0') << std::setw(2) << wallMM << ":" << 
-                                std::setfill('0') << std::setw(2) << wallSS << " (hh:mm:ss)" << std::endl;      // Include 0 buffer 
+                                std::setfill('0') << std::setw(2) << wallSS << " (hh:mm:ss)" << std::endl;      // include 0 buffer 
 
             m_RunDetailsFile << "\n\n" << OPTIONS->CmdLineOptionsDetails();                                     // record the commandline options details string
             m_RunDetailsFile << "Actual random seed = " << (OPTIONS->FixedRandomSeedCmdLine() ? OPTIONS->RandomSeedCmdLine() : RAND->DefaultSeed()) << ", CALCULATED, UNSIGNED_LONG" << std::endl;    // actual random seed
@@ -273,12 +276,13 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
  *
  * New log file is created at path m_LogBasePath
  *
- * The file extension is based on the parameter p_Delimiter:
- *     - if the delimiter is TAB   the file extension is ".tsv" (Tab Separated Variables)
- *     - if the delimiter is COMMA the file extension is ".csv" (Comma Separated Variables)
- *     - if the delimiter is SPACE the file extension is ".txt"
- * JR FIX DESCRIOTION ABOVE <<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ * The file extension anmd delimier are based on the file type of the logfile:
+ *     - CSV : the file extension is "csv" (Comma Separated Variables), and the delimiter is the COMMA character (",")
+ *     - TSV : the file extension is "tsv" (Tab Separated Variables), and the delimiter is the TAB character ("\t")
+ *     - TXT : the file extension is "txt" (Plain text file), and the delimiter is the SPACE character (" ")
+ *     - HDF5: the file extension is "h5"  (Hierarchical Data Format, version 5).  HDF5 files are not delimited.
  *
+ * 
  * int Open(const string p_LogFileName, const bool p_Append, const bool p_TimeStamp, const bool p_Label, const LOGFILE p_StandardLogfile)
  *
  * @param   [IN]    p_LogFileName               The name of the logfile to be created and opened - filename only - path, prefix and extension are added
@@ -384,10 +388,9 @@ int Log::Open(const string p_LogFileName, const bool p_Append, const bool p_Time
                 m_Logfiles[id].name             = h5GroupName;                                                  // log file name (HDF5 group name)
                 m_Logfiles[id].timestamp        = p_Timestamp;                                                  // set timestamp flag for this log file
                 m_Logfiles[id].label            = p_Label;                                                      // set label flag for this log file
-                m_Logfiles[id].h5file.fileId    = h5FileId;                                                     // HDF5 file id
-                m_Logfiles[id].h5file.groupId   = h5GroupId;                                                    // HDF5 group id
-                m_Logfiles[id].h5file.dataSets  = {};                                                           // HDF5 data sets
-                m_Logfiles[id].h5file.dataTypes = {};                                                           // HDF5 data types
+                m_Logfiles[id].h5File.fileId    = h5FileId;                                                     // HDF5 file id
+                m_Logfiles[id].h5File.groupId   = h5GroupId;                                                    // HDF5 group id
+                m_Logfiles[id].h5File.dataSets  = {};                                                           // HDF5 data sets
             }
         }
         else {                                                                                                  // no - not HDF5
@@ -419,8 +422,8 @@ int Log::Open(const string p_LogFileName, const bool p_Append, const bool p_Time
                 m_Logfiles[id].name           = filename;                                                       // log file name
                 m_Logfiles[id].timestamp      = p_Timestamp;                                                    // set timestamp flag for this log file
                 m_Logfiles[id].label          = p_Label;                                                        // set label flag for this log file
-                m_Logfiles[id].h5file.fileId  = -1;                                                             // not HDF5 file
-                m_Logfiles[id].h5file.groupId = -1;                                                             // not HDF5 file
+                m_Logfiles[id].h5File.fileId  = -1;                                                             // not HDF5 file
+                m_Logfiles[id].h5File.groupId = -1;                                                             // not HDF5 file
             }
             catch (const std::ofstream::failure &e) {                                                           // fs problem...
                 Squawk("ERROR: Unable to create fs log file with file name " + m_Logfiles[id].name);            // announce error
@@ -493,11 +496,16 @@ bool Log::Close_(const int p_LogfileId) {
     if (m_Enabled && IsActiveId(p_LogfileId)) {                                                                     // logging enabled and logfile active?
         if (m_Logfiles[p_LogfileId].filetype == LOGFILETYPE::HDF5) {                                                // yes - HDF5 logfile?
 
-            // first, close all open datasets
-            for (auto &dataSet : m_Logfiles[p_LogfileId].h5file.dataSets) {                                         // for each open dataset
-                if (H5Dclose(dataSet) < 0) {                                                                        // closed ok?
-                    Squawk("ERROR: Unable to close HDF5 dataset for log file " + m_Logfiles[p_LogfileId].name);     // no - announce error
-                    result = false;                                                                                 // fail
+            Flush_(p_LogfileId);                                                                                    // first, flush any unwritten data
+
+            // close all open datasets
+            for (auto &dataSet : m_Logfiles[p_LogfileId].h5File.dataSets) {                                         // for each dataset
+                if (dataSet.dataSetId >= 0) {                                                                       // dataset open?
+                                                                                                                    // yes - close it
+                    if (H5Dclose(dataSet.dataSetId) < 0) {                                                          // closed ok?
+                        Squawk("ERROR: Unable to close HDF5 dataset for log file " + m_Logfiles[p_LogfileId].name); // no - announce error
+                        result = false;                                                                             // fail
+                    }
                 }
             }
 
@@ -505,15 +513,15 @@ bool Log::Close_(const int p_LogfileId) {
             if (m_Logfiles[p_LogfileId].logfiletype != LOGFILE::SSE_DETAILED_OUTPUT && 
                 m_Logfiles[p_LogfileId].logfiletype != LOGFILE::BSE_DETAILED_OUTPUT) {                              // detailed output file?
 
-                if (m_Logfiles[p_LogfileId].h5file.groupId >= 0) {                                                  // no - HDF5 group open?
-                    if (H5Gclose(m_Logfiles[p_LogfileId].h5file.groupId) < 0) {                                     // yes - closed ok?
+                if (m_Logfiles[p_LogfileId].h5File.groupId >= 0) {                                                  // no - HDF5 group open?
+                    if (H5Gclose(m_Logfiles[p_LogfileId].h5File.groupId) < 0) {                                     // yes - closed ok?
                         Squawk("ERROR: Unable to close HDF5 group for log file " + m_Logfiles[p_LogfileId].name);   // no - announce error
                         result = false;                                                                             // fail
                     }
                 }
             }
             else {                                                                                                  // yes - detailed output file
-                if (H5Fclose(m_Logfiles[p_LogfileId].h5file.fileId) < 0) {                                          // HDF5 file closed ok?
+                if (H5Fclose(m_Logfiles[p_LogfileId].h5File.fileId) < 0) {                                          // HDF5 file closed ok?
                     Squawk("ERROR: Unable to close HDF5 file " + m_Logfiles[p_LogfileId].name);                     // no - announce error
                     result = false;                                                                                 // fail
                 }
@@ -699,170 +707,252 @@ bool Log::Write_(const int p_LogfileId, const string p_LogStr) {
  * Disable the specified log file if errors occur.
  *
  *
- * bool Write_(const id p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const std::vector<TYPENAME> p_LogRecordTypes)
+ * bool Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const bool p_Flush)
  *
  * @param   [IN]    p_LogfileId                 The id of the log file to which the multi-value record should be written
  * @param   [IN]    p_LogRecordValues           Vector of COMPAS_VARIABLE_TYPE values to be written
- * @param   [IN]    p_LogRecordTypes            Vector of TYPENAME values indicating the COMPAS data types of the values to be written
+ * @param   [IN]    p_Flush                     Boolean indicating whether the writebuffer should be flushed regardless of chunk size (optional, default = false)
+ *                                              If p_Flush is true, no data is added to the write buffer, and the entire write buffer is written to the file
  * @return                                      Boolean indicating whether record was written successfully
  */
-bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const std::vector<TYPENAME> p_LogRecordTypes) {
+bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const bool p_Flush) {
 
-    herr_t ok = -1;
+    herr_t ok = 0;
 
-    if (m_Enabled && IsActiveId(p_LogfileId)) {                                                                     // logging service enabled and specified log file active?
+    if (m_Logfiles[p_LogfileId].filetype != LOGFILETYPE::HDF5) return ok;                                                               // shouldn't be here if not HDF5 logfile
 
-
-// JR CHECK ALL POINTS OF FAILURE HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    // CHECK IF HDF5 FILE EXISTS
-    // HOW TO HANDLE DETAILED OUTPUT FILES
-
-// m_HDF5ContainerId
-
-
-        if (m_Logfiles[p_LogfileId].h5file.groupId >= 0) {                                                      // HDF5 group open?
-            for (size_t idx = 0; idx < p_LogRecordValues.size(); idx++) {                 // for each property
-
-                hid_t dSet  = m_Logfiles[p_LogfileId].h5file.dataSets[idx];
-
-                hid_t dType = m_Logfiles[p_LogfileId].h5file.dataTypes[idx];
-
-
-
-
-                // create a 1-d HDF5 dataspace
-
-                
-//hsize_t size = H5Dget_storage_size(dSet) + H5Tget_size(dType);
-
-
-                hsize_t currentSize = H5Dget_storage_size(dSet) / H5Tget_size(dType);
-                hsize_t h5Dims[1] = {1};
-//                h5Dims[0] = currentSize + 1;   // chunk size is 1
-                hid_t   h5Dspace  = H5Screate_simple(1, h5Dims, NULL);                                                  // create the dataspace
-        if (h5Dspace < 0) {
-Squawk("Create simple failed!");
-ok = -1;
+    if (m_Enabled && IsActiveId(p_LogfileId)) {                                                                                         // logging service enabled and specified log file active?
+        if ((ok = m_Logfiles[p_LogfileId].h5File.fileId) < 0) {                                                                         // HDF5 file open?
+            Squawk("ERROR: Unable to write to HDF5 log file " + m_Logfiles[p_LogfileId].name);                                          // no - announce error
         }
-
-
-    // Extend dataset
-    h5Dims[0] = currentSize + 1;   // chunk size is 1
-    ok = H5Dset_extent(dSet, h5Dims);
-    if (ok < 0) {
-Squawk("Extend failed!");
-    }
-
-
-        // create file space
-        hid_t   h5FSpace = H5Dget_space(dSet);
-        if (h5FSpace < 0) {
-Squawk("Get space failed!");
-ok = -1;
-        }
-
-    // Select hyperslab on file space
-    hsize_t h5Start[1] = {0};
-    h5Start[0] = currentSize;
-    hsize_t h5Count[1] = {1};
-    ok = H5Sselect_hyperslab(h5FSpace, H5S_SELECT_SET, h5Start, NULL, h5Count, NULL);
-    if (ok < 0) {
-Squawk("Hyperslab failed!");
-    }
-
-
-
-    if (ok >= 0) {
-
-                // can't use switch here...
-
-                if (dType == H5T_NATIVE_UCHAR) {
-                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<bool>(p_LogRecordValues[idx]));
-                }
-                else if (dType == H5T_NATIVE_SHORT) {
-                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<short int>(p_LogRecordValues[idx]));
-                }
-                else if (dType == H5T_NATIVE_INT) {
-
-                    int v = 0;
-                    switch (p_LogRecordTypes[idx]) {
-                        case TYPENAME::INT: v = static_cast<int>(boost::get<int>(p_LogRecordValues[idx])); break;
-                        case TYPENAME::ERROR: v = static_cast<int>(boost::get<ERROR>(p_LogRecordValues[idx])); break;
-                        case TYPENAME::STELLAR_TYPE: v = static_cast<int>(boost::get<STELLAR_TYPE>(p_LogRecordValues[idx])); break;
-                        case TYPENAME::MT_CASE: v = static_cast<int>(boost::get<MT_CASE>(p_LogRecordValues[idx])); break;
-                        case TYPENAME::MT_TRACKING: v = static_cast<int>(boost::get<MT_TRACKING>(p_LogRecordValues[idx])); break;
-                        case TYPENAME::SN_EVENT: v = static_cast<int>(boost::get<SN_EVENT>(p_LogRecordValues[idx])); break;
-                        case TYPENAME::SN_STATE: v = static_cast<int>(boost::get<SN_STATE>(p_LogRecordValues[idx])); break;
-                        default: 
-                            Squawk("ERROR: Unable to format data to write to HDF5 group for log file " + m_Logfiles[p_LogfileId].name);            // announce error
-                            v = 0;
-                    }
-
-                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&v);
-                }
-                else if (dType == H5T_NATIVE_LONG) {
-                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<long int>(p_LogRecordValues[idx]));
-                }
-                else if (dType == H5T_NATIVE_USHORT) {
-                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<unsigned short int>(p_LogRecordValues[idx]));
-                }
-                else if (dType == H5T_NATIVE_UINT) {
-                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<unsigned int>(p_LogRecordValues[idx]));
-                }
-                else if (dType == H5T_NATIVE_ULONG) {
-                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<unsigned long int>(p_LogRecordValues[idx]));
-                }
-                else if (dType == H5T_NATIVE_FLOAT) {
-                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<float>(p_LogRecordValues[idx]));
-                }
-                else if (dType == H5T_NATIVE_DOUBLE) {
-                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<double>(p_LogRecordValues[idx]));
-                }
-                else if (dType == H5T_NATIVE_LDOUBLE) {
-                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&boost::get<long double>(p_LogRecordValues[idx]));
-                }
-                else if (dType == H5T_C_S1) {
-                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)boost::get<string>(p_LogRecordValues[idx]).c_str());
-                }
-                else { // assume custom string type
-                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)boost::get<string>(p_LogRecordValues[idx]).c_str());
-                }
-
-    }
-
-    (void)H5Sclose(h5FSpace);                                                                                       // close filespace
-    (void)H5Sclose(h5Dspace);                                                                                       // close dataspace
-//    (void)H5DClose(h5Dset);                                                                                     // close dataset
-
-//H5Dwrite (dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, dd);
-
-
-//             herr_t H5Dwrite (hid_t dataset_id, hid_t mem_type_id, hid_t mem_space_id, hid_t file_space_id, hid_t xfer_plist_id, const void *buf)
-
-////                            m_Logfiles[id].h5file.dataTypes[idx] = fileDetails.typeStrings[idx] == "BOOL"  ? H5T_NATIVE_UCHAR  :                // COMPAS BOOL datatype
-////                                                                  (fileDetails.typeStrings[idx] == "INT"   ? H5T_NATIVE_INT    :                // COMPAS INT datatype
-////                                                                  (fileDetails.typeStrings[idx] == "FLOAT" ? H5T_NATIVE_DOUBLE :                // COMPAS FLOAT datatype
-////                                                                                                             H5T_C_S1));    
-
-if (ok < 0) {
-    break;
-}
+        else {
+            if (m_Logfiles[p_LogfileId].h5File.groupId < 0) {                                                                           // HDF5 group open?
+                Squawk("ERROR: Unable to write to HDF5 group for log file " + m_Logfiles[p_LogfileId].name);                            // no - announce error
             }
+            else {
 
-        }
-        else {                                                                                                  // no, HDF5 group not open
-            Squawk("ERROR: Unable to write to HDF5 group for log file " + m_Logfiles[p_LogfileId].name);            // announce error
-            ClearEntry(p_LogfileId);                                                                                // clear entry
+                for (size_t idx = 0; idx < m_Logfiles[p_LogfileId].h5File.dataSets.size(); idx++) {                                     // for each dataset
+
+                    hid_t dSet  = m_Logfiles[p_LogfileId].h5File.dataSets[idx].dataSetId;                                               // dataset id
+
+                    if (dSet >= 0) {                                                                                                    // dataset open?
+                                                                                                                                        // yes
+                        if (!p_Flush) {                                                                                                 // flush only?
+                            m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.push_back(p_LogRecordValues[idx]);                         // no - add write data to buffer
+                        }
+
+                        size_t bufSize   = m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.size();                                     // size of write buffer
+                        size_t chunkSize = p_Flush ? bufSize : HDF5_CHUNK_SIZE;                                                         // HDF5 chunk size
+
+                        if (bufSize >= chunkSize) {                                                                                     // need to write?
+                                                                                                                                        // yes
+                            // setup write:                                                                                 
+                            //    - create dataspaces
+                            //    - extend dataset
+                            //    - setup hyperslab
+
+                            hid_t   dType           = m_Logfiles[p_LogfileId].h5File.dataSets[idx].h5DataType;                          // HDF5 datatye
+                            hsize_t dSetCurrentSize = H5Dget_storage_size(dSet) / H5Tget_size(dType);                                   // current size (entries) of HDF5 dataset
+                            hsize_t h5Dims[1]       = {chunkSize};                                                                      // HDF5 chunk size
+                            hid_t   h5Dspace        = H5Screate_simple(1, h5Dims, NULL);                                                // create memory dataspace for write
+                            hid_t   h5FSpace;                                                                                           // filespace for write - allocated later
+                            if (h5Dspace < 0) {                                                                                         // created ok?
+                                Squawk("ERROR: Unable to allocate memory to write to HDF5 group for log file " + m_Logfiles[p_LogfileId].name); // no - announce error
+                                ok = -1;                                                                                                // fail
+                            }
+                            else {                                                                                                      // yes - memory dataspace created ok                           
+                                h5Dims[0] = dSetCurrentSize + chunkSize;                                                                // new size for dataset
+                                if ((ok = H5Dset_extent(dSet, h5Dims)) < 0) {                                                           // extend dataset - ok?
+                                    Squawk("ERROR: Unable to extend file to write to HDF5 group for log file " + m_Logfiles[p_LogfileId].name); // no - announce error
+                                }
+                                else {                                                                                                  // yes - dataset extended ok
+                                    h5FSpace = H5Dget_space(dSet);                                                                      // allocate filespace
+                                    if (h5FSpace < 0) {                                                                                 // allocated ok?
+                                        Squawk("ERROR: Unable to allocate filespace to write to HDF5 group for log file " + m_Logfiles[p_LogfileId].name); // no - announce error
+                                        ok = -1;                                                                                        // fail
+                                    }
+                                    else {                                                                                              // yes - filespace allocated ok
+
+                                        // setup hyperslab on file space
+                                        // the hyperslab mirrors the dataset:
+                                        //    - start is the start position in the hyperslab of the write
+                                        //    - count is the number of entries to write (the chunk size)
+                                        hsize_t h5Start[1] = {dSetCurrentSize};
+                                        hsize_t h5Count[1] = {chunkSize};
+                                        if ((ok = H5Sselect_hyperslab(h5FSpace, H5S_SELECT_SET, h5Start, NULL, h5Count, NULL)) < 0) {   // hyperslab setup ok?
+                                            Squawk("ERROR: Unable to set location to write to HDF5 group for log file " + m_Logfiles[p_LogfileId].name); // no - announce error
+                                        }
+                                    }                                    
+                                }
+                            }
+
+                            // setup done - if no errors, write the data to the file
+
+                            if (ok >= 0) {                                                                                              // good to write?
+                                                                                                                                        // yes
+                                // can't use switch here - the HDF5 constants are not really constants...
+                                // for each datatype:
+                                //   - create a buffer of correct C++
+                                //   - extract the boost variant values from the write buffer and populate the C++-typed buffer
+                                //   - clear the write buffer
+                                //   - write the C++-typed buffer to the file
+
+                                if (dType == H5T_NATIVE_UCHAR) {
+                                    bool buf[bufSize];
+                                    for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<bool>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
+                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
+                                }
+                                else if (dType == H5T_NATIVE_SHORT) {
+                                    short int buf[bufSize];
+                                    for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<short int>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
+                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
+                                }
+                                else if (dType == H5T_NATIVE_INT) {
+                                    // enum classes are cast to type int - need to cast and extract here
+                                    int buf[bufSize];
+                                    for (size_t i = 0; i < bufSize; i++) {
+                                        int v = 0;
+                                        switch (m_Logfiles[p_LogfileId].h5File.dataSets[idx].dataType) {
+                                            case TYPENAME::INT         : v = static_cast<int>(boost::get<int>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i])); break;
+                                            case TYPENAME::ERROR       : v = static_cast<int>(boost::get<ERROR>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i])); break;
+                                            case TYPENAME::STELLAR_TYPE: v = static_cast<int>(boost::get<STELLAR_TYPE>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i])); break;
+                                            case TYPENAME::MT_CASE     : v = static_cast<int>(boost::get<MT_CASE>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i])); break;
+                                            case TYPENAME::MT_TRACKING : v = static_cast<int>(boost::get<MT_TRACKING>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i])); break;
+                                            case TYPENAME::SN_EVENT    : v = static_cast<int>(boost::get<SN_EVENT>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i])); break;
+                                            case TYPENAME::SN_STATE    : v = static_cast<int>(boost::get<SN_STATE>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i])); break;
+                                            default: 
+                                                Squawk("ERROR: Unable to format data to write to HDF5 group for log file " + m_Logfiles[p_LogfileId].name); // announce error
+                                                ok = -1;                                                                                // fail
+                                        }
+                                        buf[i] = v;
+                                    }
+                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    if (ok >=0) {                                                                                       // data formatted ok?
+                                        ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);                // yes - write it
+                                    }
+                                }
+                                else if (dType == H5T_NATIVE_LONG) {
+                                    long int buf[bufSize];
+                                    for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<long int>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
+                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
+                                }
+                                else if (dType == H5T_NATIVE_USHORT) {
+                                    unsigned short int buf[bufSize];
+                                    for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<unsigned short int>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
+                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
+                                }
+                                else if (dType == H5T_NATIVE_UINT) {
+                                    unsigned int buf[bufSize];
+                                    for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<unsigned int>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
+                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
+                                }
+                                else if (dType == H5T_NATIVE_ULONG) {
+                                    unsigned long int buf[bufSize];
+                                    for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<unsigned long int>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
+                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
+                                }
+                                else if (dType == H5T_NATIVE_FLOAT) {
+                                    float buf[bufSize];
+                                    for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<float>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
+                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
+                                }
+                                else if (dType == H5T_NATIVE_DOUBLE) {
+                                    double buf[bufSize];
+                                    for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<double>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
+                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
+                                }
+                                else if (dType == H5T_NATIVE_LDOUBLE) {
+                                    long double buf[bufSize];
+                                    for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<long double>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
+                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
+                                }
+                                else if (dType == H5T_C_S1) {
+
+                                    // string type - we use fixed length strings
+                                    // HDF5 functions don't know about std::string - they need c-style char arrays
+                                    // string length is determined by the length of the datatype +1 for the null terminator (for c-style)
+
+                                    string buf[bufSize];
+                                    size_t elemLen = H5Tget_size(dType) - 1;        // -1 for null terminator
+                                    size_t bufLen  = bufSize * (elemLen + 1);       // +1 for null terminator
+
+                                    for (size_t i = 0; i < bufSize; i++) {
+                                        buf[i] = utils::PadTrailingSpaces(boost::get<string>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]), elemLen);
+                                    }
+                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+
+                                    char* cBuf = new char[bufLen];                  // char array to hold strings with null terminators
+                                    size_t pos = 0;
+                                    for (size_t i = 0; i < bufSize; i++) {
+                                        strcpy(cBuf + pos, buf[i].c_str());         // copy chars + null terminator
+                                        pos += buf[i].length() + 1;
+                                    }
+                                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)cBuf);
+                                    delete[] cBuf;
+                                }
+                                else { // assume custom string type
+
+                                    // string type - we use fixed length strings
+                                    // HDF5 functions don't know about std::string - they need c-style char arrays
+                                    // string length is determined by the length of the datatype +1 for the null terminator (for c-style)
+                                    
+                                    string buf[bufSize];
+                                    size_t elemLen = H5Tget_size(dType) - 1;        // -1 for null terminator
+                                    size_t bufLen  = bufSize * (elemLen + 1);       // +1 for null terminator
+
+                                    for (size_t i = 0; i < bufSize; i++) {
+                                        // if user specified "print-bool-as-string" option, need to translate bool value to "TRUE" or "FALSE"
+                                        string v = m_Logfiles[p_LogfileId].h5File.dataSets[idx].dataType == TYPENAME::BOOL                                      // bool variable (printing as string "TRUE" or "FALSE")?
+                                                    ? boost::get<bool>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]) ? string("TRUE") : string("FALSE")  // yes
+                                                    : boost::get<string>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);                                  // no, regular STRING variable
+                        
+                                        buf[i]   = utils::PadTrailingSpaces(v, elemLen);
+                                    }
+                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+
+                                    char* cBuf = new char[bufLen];              // char array to hold strings with null terminators
+                                    size_t pos = 0;
+                                    for (size_t i = 0; i < bufSize; i++) {
+                                        strcpy(cBuf + pos, buf[i].c_str());     // copy chars + null terminator
+                                        pos += buf[i].length() + 1;
+                                    }
+                                    ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)cBuf);
+                                    delete[] cBuf;
+                                }
+
+                                // write done
+
+                                (void)H5Sclose(h5FSpace);                                                                               // close filespace
+                                (void)H5Sclose(h5Dspace);                                                                               // close dataspace
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
-    else {                                                                                                          // not enabled or not active
-//        Squawk(p_LogStr);                                                                                           // show log record on stderr
+    else {                                                                                                                              // logging not enabled or not active          
 
-//                            boost::variant<string> fmtStr(fileDetails.fmtStrings[index++]);                                             // get format string
-//                            valueStr = boost::apply_visitor(FormatVariantValue(), value, fmtStr);                                       // format value
-//                            logRecord += valueStr + delimiter;                                                                          // add value string to log record - with delimiter
-        ok = 0;
+        // construct a log record and siplay it on stderr
+        string logRecord = "";        
+
+        for (auto &value : p_LogRecordValues) {
+            string valueStr = boost::apply_visitor(FormatVariantValueDefault(), value);                                                 // format value
+            logRecord += valueStr + ",";                                                                                                // append to output string + delimiter
+        }
+        logRecord = logRecord.substr(0, logRecord.size()-1);                                                                            // remove the last character - extraneous delimiter
+
+        Squawk(logRecord);                                                                                                              // show log record on stderr
+        ok = -1;                                                                                                                        // fail
     }
 
     return (ok >= 0);
@@ -971,19 +1061,18 @@ bool Log::Put_(const int p_LogfileId, const string p_LogStr, const string p_Labe
  * Disable the specified log file if errors occur.
  *
  *
- * bool Put_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const std::vector<TYPENAME> p_LogRecordTypes)
+ * bool Put_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues)
  *
  * @param   [IN]    p_LogfileId                 The id of the log file to which the log string should be written
  * @param   [IN]    p_LogRecordValues           Vector of COMPAS_VARIABLE_TYPE values to be written
- * @param   [IN]    p_LogRecordTypes            Vector of TYPENAME values indicating the COMPAS data types of the values to be written
  * @return                                      Boolean indicating whether record was written successfully
  */
-bool Log::Put_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const std::vector<TYPENAME> p_LogRecordTypes) {
+bool Log::Put_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues) {
 
     bool result = false;
 
-    if (m_Enabled && IsActiveId(p_LogfileId)) {                             // logging service enabled and specified log file active?
-        return Write_(p_LogfileId, p_LogRecordValues, p_LogRecordTypes);    // yes - log it
+    if (m_Enabled && IsActiveId(p_LogfileId)) {             // logging service enabled and specified log file active?
+        return Write_(p_LogfileId, p_LogRecordValues);      // yes - log it
     }
 
     return result;
@@ -1664,7 +1753,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     else {                                                                                                                      // no - not detailed output file
                         if (m_HDF5ContainerId < 0) {                                                                                            // have HDF5 container?
                                                                                                                                                 // no - create it
-                            string h5Filename = m_LogBasePath + "/" + m_LogContainerName + "/" + m_LogContainerName + fileExt;                  // full filename with path, container, and extension ("/" works on Uni*x and Windows)
+                            string h5Filename = m_LogBasePath + "/" + m_LogContainerName + "/" + m_HDF5ContainerName + fileExt;                 // full filename with path, container, and extension ("/" works on Uni*x and Windows)
                             m_HDF5ContainerId = H5Fcreate(h5Filename.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT);                          // create HDF5 container file
                             if (m_HDF5ContainerId < 0) {                                                                                        // created ok?                        
                                 Squawk("ERROR: Unable to create HDF5 container file with file name " + h5Filename);                             // no - announce error
@@ -1781,18 +1870,17 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                         // (  i) the star switching - 1 = primary, 2 = secondary
                         // ( ii) the steller type from which the star is switching
                         // (iii) the stellar type to which the star is switching
-
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// JR FIX THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        //
+                        // These are hard-coded here rather than in the *_PROPERTY_DETAIL maps in
+                        // constants.h so that they will always be present in the switch file -
+                        // this way users can't add or remove them at runtime via the logfile-definitions
+                        // option.
 
                         if (p_Logfile == LOGFILE::BSE_SWITCH_LOG) {                                                                             // BSE Switch Log
                             fileDetails.hdrStrings.push_back("STAR_SWITCHING");                                                                 // append header string for field
                             fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
-                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append fromat string for field
+                            fileDetails.fmtStrings.push_back("14.1");                                                                           // append format string for field (size accomodates header string)
                         }
 
                         if (p_Logfile == LOGFILE::BSE_SWITCH_LOG || p_Logfile == LOGFILE::SSE_SWITCH_LOG) {                                     // BSE Switch Log or SSE Switch Log
@@ -1805,8 +1893,8 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
 
-                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append fromat string for field
-                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field
+                            fileDetails.fmtStrings.push_back("14.1");                                                                            // append fromat string for field (size accomodates header string)
+                            fileDetails.fmtStrings.push_back("12.1");                                                                            // append format string for field (size accomodates header string)
                         }
                     }
                     
@@ -1818,38 +1906,54 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     //    - write header/units/types strings for CSV/TSV/TXT files
                     if (OPTIONS->LogfileType() == LOGFILETYPE::HDF5) {                                                                          // logging to HDF5 files?
                         for (size_t idx = 0; idx < fileDetails.hdrStrings.size(); idx++) {                                                      // for each property
-                            // set HDF5 datatype
+                            
+                            m_Logfiles[fileDetails.id].h5File.dataSets.push_back({-1, -1, {}});                                                 // create new dataset
+
+                            // set datatypes
+                            hid_t h5DataType;
                             switch (fileDetails.propertyTypes[idx]) {                                                                           // which type?
-                                case TYPENAME::BOOL        : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_UCHAR); break;
-                                case TYPENAME::SHORTINT    : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_SHORT); break;
-                                case TYPENAME::INT         : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_INT); break;
-                                case TYPENAME::LONGINT     : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_LONG); break;
-                                case TYPENAME::USHORTINT   : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_USHORT); break;
-                                case TYPENAME::UINT        : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_UINT); break;
-                                case TYPENAME::ULONGINT    : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_ULONG); break;
-                                case TYPENAME::FLOAT       : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_FLOAT); break;
-                                case TYPENAME::DOUBLE      : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_DOUBLE); break;
-                                case TYPENAME::LONGDOUBLE  : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_LDOUBLE); break;
-                                case TYPENAME::OBJECT_ID   : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_ULONG); break;
-                                case TYPENAME::ERROR       : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_INT); break;
-                                case TYPENAME::STELLAR_TYPE: m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_INT); break;
-                                case TYPENAME::MT_CASE     : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_INT); break;
-                                case TYPENAME::MT_TRACKING : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_INT); break;
-                                case TYPENAME::SN_EVENT    : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_INT); break;
-                                case TYPENAME::SN_STATE    : m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(H5T_NATIVE_INT); break;
-                                case TYPENAME::STRING      : {
-                                        hid_t h5DType = H5Tcopy(H5T_C_S1);                                                                      // HDF5 c-string datatype
-                                        (void)H5Tset_size(h5DType, (int)std::stod(fileDetails.fmtStrings[idx]) + 1);                            // size is field width + 1 (for NULL terminator)
+                                case TYPENAME::SHORTINT    : h5DataType = H5T_NATIVE_SHORT; break;
+                                case TYPENAME::INT         : h5DataType = H5T_NATIVE_INT; break;
+                                case TYPENAME::LONGINT     : h5DataType = H5T_NATIVE_LONG; break;
+                                case TYPENAME::USHORTINT   : h5DataType = H5T_NATIVE_USHORT; break;
+                                case TYPENAME::UINT        : h5DataType = H5T_NATIVE_UINT; break;
+                                case TYPENAME::ULONGINT    : h5DataType = H5T_NATIVE_ULONG; break;
+                                case TYPENAME::FLOAT       : h5DataType = H5T_NATIVE_FLOAT; break;
+                                case TYPENAME::DOUBLE      : h5DataType = H5T_NATIVE_DOUBLE; break;
+                                case TYPENAME::LONGDOUBLE  : h5DataType = H5T_NATIVE_LDOUBLE; break;
+                                case TYPENAME::OBJECT_ID   : h5DataType = H5T_NATIVE_ULONG; break;
+                                case TYPENAME::ERROR       : h5DataType = H5T_NATIVE_INT; break;
+                                case TYPENAME::STELLAR_TYPE: h5DataType = H5T_NATIVE_INT; break;
+                                case TYPENAME::MT_CASE     : h5DataType = H5T_NATIVE_INT; break;
+                                case TYPENAME::MT_TRACKING : h5DataType = H5T_NATIVE_INT; break;
+                                case TYPENAME::SN_EVENT    : h5DataType = H5T_NATIVE_INT; break;
+                                case TYPENAME::SN_STATE    : h5DataType = H5T_NATIVE_INT; break;
+                                case TYPENAME::STRING: {
+                                    hid_t h5DType = H5Tcopy(H5T_C_S1);                                                                          // HDF5 c-string datatype
+                                    (void)H5Tset_size(h5DType, (int)std::stod(fileDetails.fmtStrings[idx]) + 1);                                // size is field width + 1 (for NULL terminator)
+                                    (void)H5Tset_cset(h5DType, H5T_CSET_ASCII);                                                                 // ASCII (rather than UTF-8)
+                                    h5DataType = h5DType;
+                                    } break;
+                                case TYPENAME::BOOL: {
+                                    if (OPTIONS->PrintBoolAsString()) {                                                                         // print bool values as strings "TRUE" or "FALSE"?
+                                        hid_t h5DType = H5Tcopy(H5T_C_S1);                                                                      // yes - HDF5 c-string datatype
+                                        (void)H5Tset_size(h5DType, 6);                                                                          // len("FALSE") + 1 (for NULL terminator)
                                         (void)H5Tset_cset(h5DType, H5T_CSET_ASCII);                                                             // ASCII (rather than UTF-8)
-                                        m_Logfiles[fileDetails.id].h5file.dataTypes.push_back(h5DType);
+                                        h5DataType = h5DType;
+                                    }
+                                    else {                                                                                                      // no - print bool values as 1 or 0
+                                        h5DataType = H5T_NATIVE_UCHAR;
+                                    }
                                     } break;
                                 default:                                                                                                        // unknown property type
-Squawk(ERR_MSG(ERROR::UNKNOWN_DATA_TYPE));                                                                  // announce error
-ok = false; // fail
+                                    Squawk(ERR_MSG(ERROR::UNKNOWN_DATA_TYPE));                                                                  // announce error
                                     ok = false;                                                                                                 // that's not ok...
                             }
 
                             if (ok) {
+                                m_Logfiles[fileDetails.id].h5File.dataSets[idx].dataType   = fileDetails.propertyTypes[idx];                    // COMPAS data type
+                                m_Logfiles[fileDetails.id].h5File.dataSets[idx].h5DataType = h5DataType;                                        // HDF5 data type
+
                                 // create HDF5 dataset
 
                                 herr_t h5Result;
@@ -1862,29 +1966,29 @@ ok = false; // fail
                                 (void)H5Pset_alloc_time(h5CPlist, H5D_ALLOC_TIME_INCR);                                                         // allocate space on disk incrementally
                                 (void)H5Pset_layout(h5CPlist, H5D_CHUNKED);                                                                     // must be chunked when using unlimited dimensions
 
-                                hsize_t h5ChunkDims[1] = {1};                                                                                   // chunk size affects performance - here just 1 value, 1-d
+                                hsize_t h5ChunkDims[1] = {HDF5_CHUNK_SIZE};                                                                     // chunk size - ffects performance
                                 h5Result = H5Pset_chunk(h5CPlist, 1, h5ChunkDims);                                                              // set chunk size
                                 if (h5Result < 0) {                                                                                             // ok?
-Squawk("set chunk size failed");   // no - announce error
-ok = false; // fail
+                                    Squawk("ERROR: Unable to set chunk size for HDF5 container file " + fileDetails.filename);                  // no - announce error
+                                    ok = false;                                                                                                 // fail
                                 }
                                 else {                                                                                                          // yes - chunk size set ok
                                     // create HDF5 dataset
                                     string h5DsetName = utils::trim(fileDetails.hdrStrings[idx]);                                               // dataset name is just the header string
-                                    hid_t  h5Dset     = H5Dcreate(m_Logfiles[fileDetails.id].h5file.groupId,                                    // create the dataset
+                                    hid_t  h5Dset     = H5Dcreate(m_Logfiles[fileDetails.id].h5File.groupId,                                    // create the dataset
                                                                   h5DsetName.c_str(),                                                           // dataset name
-                                                                  m_Logfiles[fileDetails.id].h5file.dataTypes[idx],                             // datatype
+                                                                  m_Logfiles[fileDetails.id].h5File.dataSets[idx].h5DataType,                   // datatype
                                                                   h5Dspace,                                                                     // dataspace
                                                                   H5P_DEFAULT,                                                                  // dataset link property list                                                                     
                                                                   h5CPlist,                                                                     // dataset creation property list
                                                                   H5P_DEFAULT);                                                                 // dataset access property list
                                     if (h5Dset < 0) {                                                                                           // dataset created ok?
-Squawk("ERROR: Unable to create HDF5 dataSet " + h5DsetName);   // no - announce error
-ok = false; // fail
+                                        Squawk("ERROR: Unable to create HDF5 dataSet " + h5DsetName + " for file " + fileDetails.filename);     // no - announce error
+                                        ok = false;                                                                                             // fail
                                     }
                                     else {                                                                                                      // yes - dataset created ok
 
-                                        m_Logfiles[fileDetails.id].h5file.dataSets.push_back(h5Dset);                                           // dataset id
+                                        m_Logfiles[fileDetails.id].h5File.dataSets[idx].dataSetId = h5Dset;                                     // dataset id
 
                                         // create attribute for units
                                         hid_t h5Dspace = H5Screate(H5S_SCALAR);                                                                 // HDF5 scalar dataspace
@@ -1895,18 +1999,17 @@ ok = false; // fail
                                         (void)H5Tset_cset(h5DType, H5T_CSET_ASCII);                                                             // ASCII (rather than UTF-8)
                                         hid_t h5Attr = H5Acreate(h5Dset, "units", h5DType, h5Dspace, H5P_DEFAULT, H5P_DEFAULT);                 // create attribute for units
                                         if (h5Attr < 0) {                                                                                       // attribute created ok?
-Squawk("ERROR: Unable to create HDF5 attribute " + h5UnitsStr + " for HDF5 dataSet " + h5DsetName);   // no - announce error
-ok = false; // fail
+                                            Squawk("ERROR: Unable to create HDF5 attribute " + h5UnitsStr + " for dataSet " + h5DsetName);      // no - announce error
+                                            ok = false;                                                                                         // fail
                                         }
-                                        else {
+                                        else {                                                                                                  // yes - attribute created ok
                                             if (H5Awrite(h5Attr, h5DType, (const void *)h5UnitsStr.c_str()) < 0) {                              // write units attributes to file - ok?
-Squawk("ERROR: Unable to write HDF5 attribute " + h5UnitsStr + " for HDF5 dataSet " + h5DsetName);   // no - announce error
-ok = false; // fail
+                                                Squawk("ERROR: Unable to write HDF5 attribute " + h5UnitsStr + " for dataSet " + h5DsetName);   // no - announce error
+                                                ok = false;                                                                                     // fail
                                             }
                                         }
                                         (void)H5Aclose(h5Attr);                                                                                 // close attribute 
                                     }
-//                                    (void)H5DClose(h5Dset);                                                                                     // close dataset
                                 }
                                 (void)H5Sclose(h5CPlist);                                                                                       // close creation property list
                                 (void)H5Sclose(h5Dspace);                                                                                       // close scalar dataspace
@@ -1972,7 +2075,6 @@ ok = false; // fail
  * @return                                      True if the logfile was closed successfully, false if not
  */
 bool Log::CloseStandardFile(const LOGFILE p_Logfile, const bool p_Erase) {
-
     bool result = true;                                                                                             // default is success
 
     COMPASUnorderedMap<LOGFILE, LogfileDetailsT>::const_iterator logfile;                                           // iterator

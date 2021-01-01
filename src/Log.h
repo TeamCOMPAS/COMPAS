@@ -65,10 +65,10 @@ using std::string;
   * assuming separate files for each of the log file (system parameters, DCOs, SNe, etc.).  That
   * existing functionality has been maintained, and HDF5 added as an option available to the user.
   * HDF5 support in the code has been shoe-horned into the existing functionality, so although
-  * there is only a single HDF5 output file, each of the groups within the HDF5 file is treated
-  * in the logging code as a separate file - because that's how it was originally written, and we
-  * just use the existing infrastructure and fit the HDF5 support into that framework.  That makes
-  * the HDF5 logging code a bit awkward at times, but it works...
+  * there is only a single HDF5 output file (except for detailed output files), each of the groups
+  * within the HDF5 file is treated in the logging code as a separate file - because that's how it 
+  * was originally written, and we just use the existing infrastructure and fit the HDF5 support 
+  * into that framework.  That makes the HDF5 logging code a bit awkward at times, but it works...
   * 
   * JR, December 2020
   */
@@ -76,10 +76,10 @@ using std::string;
 
 
 /*
- * Format a boost::variant value
+ * Format a boost::variant value using a format specification passed as a parameter
  *
  * This is defined as a class for use with boost::apply_visitor().
- * It is only ever used by the Log class, hence the reason it is define here.
+ * It is only ever used by the Log class, hence the reason it is defined here.
  *
  * This function is applied to a boost::variant value via the boost::apply_visitor() function.
  * The function extracts the underlying primitive value stored in the boost::variant value and formats
@@ -112,13 +112,42 @@ public:
 };
 
 
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// JR FIX PRINTBOOLASSTRING FOR HDF5 FILES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/*
+ * Format a boost::variant value using a type-based default format specification
+ *
+ * This is defined as a class for use with boost::apply_visitor().
+ * It is only ever used by the Log class, hence the reason it is defined here.
+ *
+ * This function is applied to a boost::variant value via the boost::apply_visitor() function.
+ * The function extracts the underlying primitive value stored in the boost::variant value and formats
+ * it using a type-based default format specification.
+ *
+ */
+class FormatVariantValueDefault: public boost::static_visitor<string> {
+public:
+    string operator()(const bool               v) const {
+                                                    string fmt = OPTIONS->PrintBoolAsString() ? "%5s" : "%1s";
+                                                    string vS  = OPTIONS->PrintBoolAsString() ? (v ? "TRUE " : "FALSE") : (v ? "1" : "0");
+                                                    return utils::vFormat(fmt.c_str(), vS.c_str());
+                                                  }
+    string operator()(const int                v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const short int          v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const long int           v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const unsigned int       v) const { string fmt = "%14.1u"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const unsigned short int v) const { string fmt = "%14.1u"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const unsigned long int  v) const { string fmt = "%14.1u"; return utils::vFormat(fmt.c_str(), v); } // also handles OBJECT_ID (typedef)
+    string operator()(const float              v) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const double             v) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const long double        v) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const string             v) const { string fmt = "%-30s";  return utils::vFormat(fmt.c_str(), v.c_str()); }
+    string operator()(const ERROR              v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const STELLAR_TYPE       v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const MT_CASE            v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const MT_TRACKING        v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const SN_EVENT           v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const SN_STATE           v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+};
+
 
 class Log {
 
@@ -160,6 +189,7 @@ private:
     // member variables
     bool                 m_Enabled;                                                 // is logging enabled?
 
+    string               m_HDF5ContainerName;                                       // HDF5 container name
     hid_t                m_HDF5ContainerId;                                         // HDF5 container id
     hid_t                m_HDF5DetailedId;                                          // HDF5 detailed output id
 
@@ -192,13 +222,20 @@ private:
         std::ofstream file;                                                         // file pointer for CSV, TSV, TXT files
 
         struct h5AttrT {                                                            // attributes of HDF5 files
-            hid_t              fileId;                                              //    - file id
-            hid_t              groupId;                                             //    - group id
-            std::vector<hid_t> dataSets;                                            //    - datasets
-            std::vector<hid_t> dataTypes;                                           //    - HDF5 datatypes (1:1 for datasets)
+            hid_t fileId;                                                           //    - file id
+            hid_t groupId;                                                          //    - group id
+
+            struct h5DataSetsT {                                                    // attributes of HDF5 datasets
+                hid_t    dataSetId;                                                 //    - HDF5 dataset id
+                hid_t    h5DataType;                                                //    - HDF5 datatype
+                TYPENAME dataType;                                                  //    - COMPAS data type
+                std::vector<COMPAS_VARIABLE_TYPE> buf;                              //    - write buffer - for chunking
+            };
+
+            std::vector<h5DataSetsT> dataSets;                                      // details of datasets
         };
 
-        h5AttrT          h5file;                                                    // file details for HDF5 files
+        h5AttrT h5File;                                                             // file details for HDF5 files
     };
 
     std::vector<logfileAttrT> m_Logfiles;                                           // logfiles - in use and not
@@ -256,25 +293,25 @@ private:
 
     void ClearEntry(const int p_LogfileId) {
         if (IsValidId(p_LogfileId)) {
-            m_Logfiles[p_LogfileId].active           = false;                       // not active
-            m_Logfiles[p_LogfileId].logfiletype      = LOGFILE::NONE;
-            m_Logfiles[p_LogfileId].filetype         = LOGFILETYPE::NONE;
-            m_Logfiles[p_LogfileId].name             = "";
-            m_Logfiles[p_LogfileId].timestamp        = false;
-            m_Logfiles[p_LogfileId].label            = false;
-            m_Logfiles[p_LogfileId].h5file.fileId    = -1;
-            m_Logfiles[p_LogfileId].h5file.groupId   = -1;
-            m_Logfiles[p_LogfileId].h5file.dataSets  = {};
-            m_Logfiles[p_LogfileId].h5file.dataTypes = {};
+            m_Logfiles[p_LogfileId].active          = false;                       // not active
+            m_Logfiles[p_LogfileId].logfiletype     = LOGFILE::NONE;
+            m_Logfiles[p_LogfileId].filetype        = LOGFILETYPE::NONE;
+            m_Logfiles[p_LogfileId].name            = "";
+            m_Logfiles[p_LogfileId].timestamp       = false;
+            m_Logfiles[p_LogfileId].label           = false;
+            m_Logfiles[p_LogfileId].h5File.fileId   = -1;
+            m_Logfiles[p_LogfileId].h5File.groupId  = -1;
+            m_Logfiles[p_LogfileId].h5File.dataSets = {};
         }
     }
 
     bool DoIt(const string p_Class, const int p_Level, const std::vector<string> p_EnabledClasses, const int p_EnabledLevel);
     void Say_(const string p_SayStr);
     bool Write_(const int p_LogfileId, const string p_LogStr);
-    bool Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const std::vector<TYPENAME> p_LogRecordTypes);
+    bool Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const bool p_Flush = false);
+    bool Flush_(const int p_LogfileId) { return Write_(p_LogfileId, {}, true); }
     bool Put_(const int p_LogfileId, const string p_LogStr, const string p_Label = "");
-    bool Put_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const std::vector<TYPENAME> p_LogRecordTypes);
+    bool Put_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues);
     bool Debug_(const string p_DbgStr);
     bool Close_(const int p_LogfileId);
 
@@ -412,15 +449,22 @@ private:
             // (  i) the star switching - 1 = primary, 2 = secondary
             // ( ii) the stellar type from which the star is switching
             // (iii) the stellar type to which the star is switching
+            //
+            // These are hard-coded here rather than in the *_PROPERTY_DETAIL maps in
+            // constants.h so that they will always be present in the switch file -
+            // this way users can't add or remove them at runtime via the logfile-definitions
+            // option.
 
-            string fmt = "%4.1d";                                                           // format - all integers here
             if (p_LogFile == LOGFILE::BSE_SWITCH_LOG) {
                 int starSwitching = m_PrimarySwitching ? 1 : 2;                             // primary (1) or secondary (2)
+                string fmt        = "%14.1d";                                               // format specifier
                 logRecord += utils::vFormat(fmt.c_str(), starSwitching) + delimiter;        // star switching
             }
 
             if (p_LogFile == LOGFILE::BSE_SWITCH_LOG || p_LogFile == LOGFILE::SSE_SWITCH_LOG) {
+                string fmt = "%14.1d";                                                      // format specifier
                 logRecord += utils::vFormat(fmt.c_str(), m_TypeSwitchingFrom) + delimiter;  // switching from
+                fmt        = "%12.1d";                                                      // format specifier
                 logRecord += utils::vFormat(fmt.c_str(), m_TypeSwitchingTo) + delimiter;    // switching to
             }
 
@@ -597,7 +641,7 @@ private:
 
             if (ok) {                                                                                                                   // if all ok, write the record
                 if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                                         // HDF5 file?
-                    ok = Put_(fileDetails.id, logRecordValues, fileDetails.propertyTypes);                                              // yes - write the record
+                    ok = Put_(fileDetails.id, logRecordValues);                                                                         // yes - write the record
                 }
                 else {                                                                                                                  // no - CSV, TSV, or TXT file
                     ok = Put_(fileDetails.id, logRecord);                                                                               // write the record
