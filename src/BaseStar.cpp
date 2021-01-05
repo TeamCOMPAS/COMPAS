@@ -1094,15 +1094,15 @@ double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing() {
     double lambda;
     double minZ = 0.0;
     double maxZ = 1.0;
-    const DBL_VECTOR metallicityBins = {minZ, LAMBDA_NANJING_POPI_Z, LAMBDA_NANJING_POPII_Z, maxZ};
+    const DBL_VECTOR metallicityBins = {minZ, LAMBDA_NANJING_POPII_Z, LAMBDA_NANJING_POPI_Z, maxZ};
 
-    if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPI_Z) < 0) {
-        // Metallicity is not between the two metallicities calculated by Xu & Li (2010)
-        return lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(LAMBDA_NANJING_POPI_Z);
-    }
-    else if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPII_Z) > 0) {
+    if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPII_Z) < 0) {
         // Metallicity is not between the two metallicities calculated by Xu & Li (2010)
         return lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(LAMBDA_NANJING_POPII_Z);
+    }
+    else if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPI_Z) > 0) {
+        // Metallicity is not between the two metallicities calculated by Xu & Li (2010)
+        return lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(LAMBDA_NANJING_POPI_Z);
     }
     else {
         // Linear interpolation in logZ between upper and lower metallicity bins
