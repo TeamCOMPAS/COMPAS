@@ -661,6 +661,6 @@
 //  
 // 
 
-const std::string VERSION_STRING = "02.17.18";
+const std::string VERSION_STRING = "02.17.19";
 
 # endif // __changelog_h__
