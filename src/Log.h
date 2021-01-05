@@ -37,41 +37,170 @@ using std::string;
  */
 
 
- /*
-  * Note: I wrote this class when I refactored the SSE code, without reference to the BSE code.
-  * While refactoring the BSE code (later) I realised that the logging I had implemented for SSE
-  * wasn't sufficient for the logging requirements of the BSE code.  To provide for the logging
-  * needs of the BSE code I added new functionality almost as a wrapper around the original, SSE,
-  * logging functionality.  Some of the original SSE logging functionality has almost been
-  * rendered redundant by the new BSE code, but I have left it here (almost) in its entirety
-  * because it may still be useful.  We'll see.
-  *
-  * When I wrote the SSE logging functionality I provided debugging functionality with it, as
-  * well as a set of macros to make debugging and the issuing of warning messages easier.  I
-  * also wrote a set of logging macros to make logging easier.  The debug macros are still
-  * useful, and I would encourage their use.  As well as writing the BSE logging code, I also
-  * wrote the Errors class, which is my attempt at making error handling easier.  Some of the
-  * functionality in the Errors class supersedes the DBG_WARN* macros provided here, but the
-  * DBG_WARN* macros are still useful in some circumstances (and in fact are still used in
-  * various places in the code).  The LOG* macros are somewhat less useful, but are left here
-  * in case the original SSE logging functionality (that which underlies the BSE logging
-  * functionality) is used in the future (as mentioned above, it could still be useful in
-  * some circumstances).
-  *
-  * JR, September 2019
-  * 
-  * 
-  * Further note: support for HDF5 was added to the exiting log functionality, which was written
-  * assuming separate files for each of the log file (system parameters, DCOs, SNe, etc.).  That
-  * existing functionality has been maintained, and HDF5 added as an option available to the user.
-  * HDF5 support in the code has been shoe-horned into the existing functionality, so although
-  * there is only a single HDF5 output file (except for detailed output files), each of the groups
-  * within the HDF5 file is treated in the logging code as a separate file - because that's how it 
-  * was originally written, and we just use the existing infrastructure and fit the HDF5 support 
-  * into that framework.  That makes the HDF5 logging code a bit awkward at times, but it works...
-  * 
-  * JR, December 2020
-  */
+/*
+ * Note: I wrote this class when I refactored the SSE code, without reference to the BSE code.
+ * While refactoring the BSE code (later) I realised that the logging I had implemented for SSE
+ * wasn't sufficient for the logging requirements of the BSE code.  To provide for the logging
+ * needs of the BSE code I added new functionality almost as a wrapper around the original, SSE,
+ * logging functionality.  Some of the original SSE logging functionality has almost been
+ * rendered redundant by the new BSE code, but I have left it here (almost) in its entirety
+ * because it may still be useful.  We'll see.
+ *
+ * When I wrote the SSE logging functionality I provided debugging functionality with it, as
+ * well as a set of macros to make debugging and the issuing of warning messages easier.  I
+ * also wrote a set of logging macros to make logging easier.  The debug macros are still
+ * useful, and I would encourage their use.  As well as writing the BSE logging code, I also
+ * wrote the Errors class, which is my attempt at making error handling easier.  Some of the
+ * functionality in the Errors class supersedes the DBG_WARN* macros provided here, but the
+ * DBG_WARN* macros are still useful in some circumstances (and in fact are still used in
+ * various places in the code).  The LOG* macros are somewhat less useful, but are left here
+ * in case the original SSE logging functionality (that which underlies the BSE logging
+ * functionality) is used in the future (as mentioned above, it could still be useful in
+ * some circumstances).
+ *
+ * JR, September 2019
+ * 
+ * 
+ * 
+ * HDF5 File Support
+ * =================
+ * 
+ * Further note: support for HDF5 was added to the exiting log functionality, which was written
+ * assuming separate files for each of the log file (system parameters, DCOs, SNe, etc.).  That
+ * existing functionality has been maintained, and HDF5 added as an option available to the user.
+ * HDF5 support in the code has been shoe-horned into the existing functionality, so although
+ * there is only a single HDF5 output file (except for detailed output files), each of the groups
+ * within the HDF5 file is treated in the logging code as a separate file - because that's how it 
+ * was originally written, and we just use the existing infrastructure and fit the HDF5 support 
+ * into that framework.  That makes the HDF5 logging code a bit awkward at times, but it works...
+ *
+ *
+ * A brief description of HDF5 files and chunking, in the COMPAS context:
+ * (With the caveat that all I know about HDF5 I learned so that I could write this code - it is
+ * very likely that there are better ways to do things, so if anyone knows a better way, please
+ * either change the code or tell me how to improve it and I'll change it.  Most of what follows
+ * is just a brain dump of my reading/research over the past week or so.)
+ * 
+ *
+ * Data in HDF5 files are arranged in groups and datasets.
+ *
+ *     A COMPAS output file (e.g. BSE_System_Parameters, BSE_RLOF, etc.) maps to an HDF5 group,
+ *     where the group name is the name of the COMPAS output file.
+ *
+ *     A column in a COMPAS output file (e.g. SEED, Mass(1), Radius(2), etc.) maps to an HDF5 dataset,
+ *     where the dataset name is the column heading string.
+ *
+ *     COMPAS column datatype strings are encoded in the dataset meta-details (dataset.dtype).
+ *     COMPAS column units strings are attached to HDF5 datasets as attributes.
+ *
+ * Each dataset in an HDF5 files is broken into "chunks", where a chunk is defined as a number of dataset
+ * entries.  In COMPAS, all datasets are 1-d arrays (columns), so a chunk is defined as a number of values
+ * in the 1-d array (or column).  Chunking can be enabled or not, but if chunking is not* enabled a dataset
+ * cannot be resized - so if chunking is not enabled the size of the dataset must be known at the time of
+ * creation, and the entire datset created in one go.  That doesn't work for COMPAS - even though we know
+ * the number of systems being evolved, we don't know the number of entries we'll have in each of the output
+ * log files (and therefore the HDF5 datasests if we're logging to HDF5 files).  So, we enable chunking.
+ * 
+ * Chunking can improve, or degrade, performance depending upon how it is implemented - mostly related to
+ * the chunk size chosen.
+ * 
+ * Datasets are stored inside an HDF5 file as a number of chunks - the chunks are not guaranteed (not even
+ * likely) to be contiguous in the file or on the storage media (HDD, SSD etc.).  Chunks are mapped/indexed
+ * in the HDF5 file using a B-tree, and the size of the B-tree, and therefore the traversal time, depends 
+ * directly upon the number of chunks allocated for a dataset - so the access time for a chunk increases as
+ * the number of chunks in the dataset increases.  So many small chunks will degrade performance.
+ * 
+ * Chunks are the unit of IO for HDF5 files - all IO to HDF5 is performed on the basis of chunks.  This means
+ * that whenever dataset values are accessed (read or written (i.e. changed)), if the value is not already in
+ * memory, the entire chunck containing the value must be read from, or written to, the storage media - even
+ * if the dataset value being accessed is the only value in the chunk.  So few large chunks could cause 
+ * empty, "wasted", space in the HDF5 files (at the end of datasets) - but they could also adversely affect
+ * performance by causing unecessary IO traffic (although probably not much in the way we access data in COMPAS
+ * files).
+ * 
+ * HDF5 files implement a chunk cache on a per-dataset basis.  The default size of the chunk cache is 1MB, and
+ * its maximum size is 32MB.  The purpose of the chunk cache is to reduce storage media IO - even with SSDs,
+ * memory access is way faster than storage media access, so the more of the file data that can be kept in
+ * memory and maipulated there, the better.  Assuming the datatype of a particular dataset is DOUBLE, and
+ * therefore consumes 8 bytes of storage space, at its maximum size the chunk cache for that dataset could hold
+ * 4,000,000 values - so a single chuck with 4,000,000 values, two chunks with 2,000,000 values, four with 
+ * 1,000,000, and so on.  Caching a single chunk defeats the purpose of the cache, so chunk sizes somewhat less
+ * that 4,000,000 would be most appropriate if the chunk cache is to be utilised.  Chunks too big to fit in the
+ * cache simply bypass the cache and are read from, or written to, the storage media directly.
+ * 
+ * However, the chunk cache is really only useful for random access of the dataset.  Most, if not all, of the
+ * access in the COMPAS context (including post-creation analyses) is serial - the COMPAS code writes the
+ * datasets from top to bottom, and later analyses (generally) read the datasets the same way.  Caching the
+ * chunks for serial access just introduces overhead that costs memory (not much, to be sure: up to 32MB per 
+ * open dataset), and degrades performace (albeit it a tiny bit).  For that reason I disable the chunk cache
+ * in COMPAS - so all IO to/from an HDF5 file in COMPAS is directly to/from the storage media.  (To be clear,
+ * post-creation analysis software can disable the cache or not when accessing HDF5 files created by COMPAS - 
+ * disabling the cache here does not affect how other software accesses the files post-creation).
+ * 
+ * So many small chunks is not so good, and neither is just a few very large chunks.  So what's the optimum
+ * chunk size?  It depends upon several things, and probably the most important of those are the final size
+ * of the dataset and the access pattern.
+ * 
+ * As mentioned above, we tend to access datasets serially, and generally from to to bottom, so larger chunks 
+ * would seem appropriate, but not so large that we generate HDF5 files with lots of unused space.  However, 
+ * disk space, even SSD space, is cheap, so trading space against performance is probably a good trade.
+ * 
+ * Also as mentioned above, we don't know the final size of (most of) the datasets when creating the HDF5 in
+ * COMPAS - though we do know the number of systems being generated, which allows us to determine an upper
+ * bound for at least some of the datasets (though not for groups such as BSE_RLOF).
+ * 
+ * One thing we need to keep in mind is that when we create the HDF5 file we write each dataset of a group
+ * in the same iteration - this is analagous to writing a single record in (e.g.) a CSV log file (the HDF5
+ * group corresponds to the CSV file, and the HDF5 datasets in the group correspond to the columns in the
+ * CSV file).  So for each iteration - typically each system evolved (though each timestep for detailed
+ * output files) we do as many IOs to the HDF5 file as there are datasets in the group (columns in the file).
+ * We are not bound to reading or writing a single chunk at a time - but we are bound to reading or writing
+ * an integral multiple of whole chunks at a time.
+ * 
+ * We want to reduce the number of storage media accesses when writing (or later reading) the HDF5 files, so
+ * larger chunk sizes are appropriate, but not so large that we create excessively large HDF5 files that have
+ * lots of unused space (bearing in mind the trade-off mentioned above), especially when were evolving just
+ * a few systems (rather than millions).
+ * 
+ * To really optimise IO performance for HDF5 files we'd choose chunk sizes that are close to multiples of
+ * storage media block sizes, but I chose not to go down that rathole...
+ * 
+ * Based on everything written above, and some tests, I've chosen a fixed chunk size of 1000 (dataset entries)
+ * for all datasets.  I've made that a constant in constants.h (HDF5_CHUNK_SIZE), but not a program option.
+ * 
+ * One caveat: if the number of systems being evolved is >= HDF5_CHUNK_SIZE the chunk size used will be 
+ * HDF5_CHUNK_SIZE, but if the number of systems being evolved is < HDF5_CHUNK_SIZE the chunk size used will
+ * be equal to the number of systems being evolved.  I thought about imposing a minimum (of, say, 100), but
+ * decided against that - on the basis that if fewer than 1000 systems were being evolved it was probably
+ * a test of a single system, or possibly just a few, so imposing a (higher) minimum would just waste time
+ * and space.
+ * 
+ * 
+ * String values stored in HDF5 files
+ * ==================================
+ *
+ * COMPAS writes string data to HDF5 output files as C-type strings.  Python interprets C-type
+ * strings in HDF5 files as byte arrays - regardless of the specified datatype when written (COMPAS
+ * writes the strings as ASCII data (as can be seen with h5dump), but Python ignores that).  Note that
+ * this affects the values in datasets (and attributes) only, not the dataset names (or group names,
+ * attribute names, etc.).
+ * 
+ * The only real impact of this is that if the byte array is printed by Python, it will be displayed
+ * as (e.g.) "b'abcde'" rather than just "abcde".  All operations on the data work as expected - it
+ * is just the output that is impacted.  If that's an issue, use .decode('utf-8') to decode the byte
+ * array as a Python string variable.  E.g.
+ * 
+ *     str = h5File[Group][Dataset][0]
+ *     str is a byte array and print(str) will display (e.g.) b'abcde'
+ * 
+ *     but
+ * 
+ *     str = h5File[Group][Dataset][0].decode('utf-8')
+ *     str is a Python string and print(str) will display (e.g.) abcde
+ *
+ * 
+ * JR, January 2021
+ */
 
 
 
@@ -157,6 +286,7 @@ private:
         m_Enabled = false;                                                          // logging disabled initially
         m_HDF5ContainerId = -1;                                                     // no HDF5 container file open initially
         m_HDF5DetailedId = -1;                                                      // no HDF5 detailed file open initially
+        m_HDF5ChunkSize = HDF5_CHUNK_SIZE;                                          // initially just the defined constant
         m_LogBasePath = ".";                                                        // default log file base path
         m_LogContainerName = DEFAULT_OUTPUT_CONTAINER_NAME;                         // default log file container name                        
         m_LogNamePrefix = "";                                                       // default log file name prefix
@@ -192,6 +322,7 @@ private:
     string               m_HDF5ContainerName;                                       // HDF5 container name
     hid_t                m_HDF5ContainerId;                                         // HDF5 container id
     hid_t                m_HDF5DetailedId;                                          // HDF5 detailed output id
+    size_t               m_HDF5ChunkSize;                                           // HDF5 chunk size
 
     string               m_LogBasePath;                                             // base path for log files
     string               m_LogContainerName;                                        // container (directory) name for log files

@@ -297,7 +297,8 @@ const std::string DEFAULT_OUTPUT_CONTAINER_NAME         = "COMPAS_Output";      
 const std::string DETAILED_OUTPUT_DIRECTORY_NAME        = "Detailed_Output";                                        // Name for detailed output directory within output container
 const std::string RUN_DETAILS_FILE_NAME                 = "Run_Details";                                            // Name for run details output file within output container
 
-constexpr size_t  HDF5_CHUNK_SIZE                       = 100;                                                      // HDF5 chunck size
+constexpr size_t  HDF5_CHUNK_SIZE                       = 1000;                                                     // HDF5 chunk size
+constexpr size_t  HDF5_IO_BUFFER_SIZE                   = 10;                                                       // number of HDF5 chunks to buffer for IO (per open dataset)
 
 // option constraints
 // Use these constant to specify constraints that should be applied to program option values
@@ -2183,7 +2184,7 @@ enum class PROGRAM_OPTION: int {
 
     USE_PAIR_INSTABILITY,
     USE_PULSATIONAL_PAIR_INSTABILITY,
-    
+
     WR_FACTOR,
 
     ZETA_ADIABATIC_ARBITRARY,
