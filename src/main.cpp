@@ -115,9 +115,9 @@ std::tuple<int, int> EvolveSingleStars() {
 
     // generate and evolve stars
 
-    Star* star     = nullptr;
-    bool usingGrid = !OPTIONS->GridFilename().empty();                                                              // using grid file?
-    int  index     = 0;                                                                                             // which star
+    Star*  star      = nullptr;
+    bool   usingGrid = !OPTIONS->GridFilename().empty();                                                            // using grid file?
+    size_t index     = 0;                                                                                           // which star
 
     // The options specified by the user at the commandline are set to their initial values.
     // OPTIONS->AdvanceCmdLineOptionValues(), called at the end of the loop, advances the
@@ -358,9 +358,9 @@ std::tuple<int, int> EvolveBinaryStars() {
     std::time_t timeStart = std::chrono::system_clock::to_time_t(wallStart);
     SAY("Start generating binaries at " << std::ctime(&timeStart));
 
-    BinaryStar *binary = nullptr;
-    bool usingGrid     = !OPTIONS->GridFilename().empty();                                                      // using grid file?
-    int  index         = 0;                                                                                     // which binary
+    BinaryStar* binary    = nullptr;
+    bool        usingGrid = !OPTIONS->GridFilename().empty();                                                   // using grid file?
+    size_t      index     = 0;                                                                                  // which binary
 
     // The options specified by the user at the commandline are set to their initial values.
     // OPTIONS->AdvanceCmdLineOptionValues(), called at the end of the loop, advances the

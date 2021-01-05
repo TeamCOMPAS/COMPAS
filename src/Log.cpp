@@ -79,7 +79,7 @@ void Log::Start(const string              p_LogBasePath,
         m_DbgToLogfile  = p_DbgToLogfile;                                                                           // write debug records to logfile?
         m_ErrToLogfile  = p_ErrorsToLogfile;                                                                        // write error records to logfile?
         m_LogfileType   = p_LogfileType;                                                                            // set log file type
-
+        m_HDF5ChunkSize = OPTIONS->nObjectsToEvolve() < HDF5_CHUNK_SIZE ? OPTIONS->nObjectsToEvolve() : HDF5_CHUNK_SIZE; // set HDF5 chunk size
         m_Logfiles.clear();                                                                                         // clear all entries
 
         m_Enabled = UpdateAllLogfileRecordSpecs();                                                                  // update all logfile record specifications - disable logging upon failure
@@ -742,9 +742,9 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
                         }
 
                         size_t bufSize   = m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.size();                                     // size of write buffer
-                        size_t chunkSize = p_Flush ? bufSize : HDF5_CHUNK_SIZE;                                                         // HDF5 chunk size
+                        size_t IObufSize = p_Flush ? bufSize : HDF5_IO_BUFFER_SIZE * m_HDF5ChunkSize;                                   // HDF5 IO buffer size
 
-                        if (bufSize >= chunkSize) {                                                                                     // need to write?
+                        if (bufSize >= IObufSize) {                                                                                     // need to write?
                                                                                                                                         // yes
                             // setup write:                                                                                 
                             //    - create dataspaces
@@ -753,7 +753,7 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
 
                             hid_t   dType           = m_Logfiles[p_LogfileId].h5File.dataSets[idx].h5DataType;                          // HDF5 datatye
                             hsize_t dSetCurrentSize = H5Dget_storage_size(dSet) / H5Tget_size(dType);                                   // current size (entries) of HDF5 dataset
-                            hsize_t h5Dims[1]       = {chunkSize};                                                                      // HDF5 chunk size
+                            hsize_t h5Dims[1]       = {IObufSize};                                                                      // HDF5 chunk size
                             hid_t   h5Dspace        = H5Screate_simple(1, h5Dims, NULL);                                                // create memory dataspace for write
                             hid_t   h5FSpace;                                                                                           // filespace for write - allocated later
                             if (h5Dspace < 0) {                                                                                         // created ok?
@@ -761,7 +761,7 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
                                 ok = -1;                                                                                                // fail
                             }
                             else {                                                                                                      // yes - memory dataspace created ok                           
-                                h5Dims[0] = dSetCurrentSize + chunkSize;                                                                // new size for dataset
+                                h5Dims[0] = dSetCurrentSize + IObufSize;                                                                // new size for dataset
                                 if ((ok = H5Dset_extent(dSet, h5Dims)) < 0) {                                                           // extend dataset - ok?
                                     Squawk("ERROR: Unable to extend file to write to HDF5 group for log file " + m_Logfiles[p_LogfileId].name); // no - announce error
                                 }
@@ -778,7 +778,7 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
                                         //    - start is the start position in the hyperslab of the write
                                         //    - count is the number of entries to write (the chunk size)
                                         hsize_t h5Start[1] = {dSetCurrentSize};
-                                        hsize_t h5Count[1] = {chunkSize};
+                                        hsize_t h5Count[1] = {IObufSize};
                                         if ((ok = H5Sselect_hyperslab(h5FSpace, H5S_SELECT_SET, h5Start, NULL, h5Count, NULL)) < 0) {   // hyperslab setup ok?
                                             Squawk("ERROR: Unable to set location to write to HDF5 group for log file " + m_Logfiles[p_LogfileId].name); // no - announce error
                                         }
@@ -1966,7 +1966,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                                 (void)H5Pset_alloc_time(h5CPlist, H5D_ALLOC_TIME_INCR);                                                         // allocate space on disk incrementally
                                 (void)H5Pset_layout(h5CPlist, H5D_CHUNKED);                                                                     // must be chunked when using unlimited dimensions
 
-                                hsize_t h5ChunkDims[1] = {HDF5_CHUNK_SIZE};                                                                     // chunk size - ffects performance
+                                hsize_t h5ChunkDims[1] = {m_HDF5ChunkSize};                                                                     // chunk size - affects performance
                                 h5Result = H5Pset_chunk(h5CPlist, 1, h5ChunkDims);                                                              // set chunk size
                                 if (h5Result < 0) {                                                                                             // ok?
                                     Squawk("ERROR: Unable to set chunk size for HDF5 container file " + fileDetails.filename);                  // no - announce error
