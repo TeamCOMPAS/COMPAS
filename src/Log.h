@@ -79,7 +79,9 @@ using std::string;
  * (With the caveat that all I know about HDF5 I learned so that I could write this code - it is
  * very likely that there are better ways to do things, so if anyone knows a better way, please
  * either change the code or tell me how to improve it and I'll change it.  Most of what follows
- * is just a brain dump of my reading/research over the past week or so.)
+ * is just a brain dump of my reading/research over the past week or so, and it could very well
+ * be based on my misunderstanding of what I have read - so uf anyone notices something I've
+ * misunderstood please let me know so I can improve the code.)
  * 
  *
  * Data in HDF5 files are arranged in groups and datasets.
@@ -94,12 +96,13 @@ using std::string;
  *     COMPAS column units strings are attached to HDF5 datasets as attributes.
  *
  * Each dataset in an HDF5 files is broken into "chunks", where a chunk is defined as a number of dataset
- * entries.  In COMPAS, all datasets are 1-d arrays (columns), so a chunk is defined as a number of values
- * in the 1-d array (or column).  Chunking can be enabled or not, but if chunking is not* enabled a dataset
- * cannot be resized - so if chunking is not enabled the size of the dataset must be known at the time of
- * creation, and the entire datset created in one go.  That doesn't work for COMPAS - even though we know
- * the number of systems being evolved, we don't know the number of entries we'll have in each of the output
- * log files (and therefore the HDF5 datasests if we're logging to HDF5 files).  So, we enable chunking.
+ * entries ("chunks" and "chunking" are HDF5 terms).  In COMPAS, all datasets are 1-d arrays (columns), so
+ * a chunk is defined as a number of values in the 1-d array (or column).  Chunking can be enabled or not, 
+ * but if chunking is not* enabled a dataset cannot be resized - so if chunking is not enabled the size of 
+ * the dataset must be known at the time of creation, and the entire datset created in one go.  That doesn't 
+ * work for COMPAS - even though we know the number of systems being evolved, we don't know the number of 
+ * entries we'll have in each of the output log files (and therefore the HDF5 datasests if we're logging to 
+ * HDF5 files).  So, we enable chunking.
  * 
  * Chunking can improve, or degrade, performance depending upon how it is implemented - mostly related to
  * the chunk size chosen.
@@ -165,15 +168,40 @@ using std::string;
  * To really optimise IO performance for HDF5 files we'd choose chunk sizes that are close to multiples of
  * storage media block sizes, but I chose not to go down that rathole...
  * 
- * Based on everything written above, and some tests, I've chosen a fixed chunk size of 1000 (dataset entries)
- * for all datasets.  I've made that a constant in constants.h (HDF5_CHUNK_SIZE), but not a program option.
+ * Based on everything written above, and some tests, I've chosen a default chunk size of 100,000 (dataset
+ * entries) for all datasets (HDF5_DEFAULT_CHUNK_SIZE in constants.h).  This clearly trades performance against
+ * storage space.  For the (current) default logfile record specifications, per-binary logfile space is about
+ * 1K bytes, so in the very worst case we will waste some space at the end of an HDF5 output file, but the 
+ * performance gain, especially for post-creation analyses, is significant.  Ensuring the number of systems 
+ * evolved is an integral multiple of this fixed chunk size will minimise storage space waste.
  * 
- * One caveat: if the number of systems being evolved is >= HDF5_CHUNK_SIZE the chunk size used will be 
- * HDF5_CHUNK_SIZE, but if the number of systems being evolved is < HDF5_CHUNK_SIZE the chunk size used will
- * be equal to the number of systems being evolved.  I thought about imposing a minimum (of, say, 100), but
- * decided against that - on the basis that if fewer than 1000 systems were being evolved it was probably
- * a test of a single system, or possibly just a few, so imposing a (higher) minimum would just waste time
- * and space.
+ * I have added the program option --hdf5-chunk-size to allow users to specify the chunk size - the option
+ * value defaults to HDF5_DEFAULT_CHUNK_SIZE.
+ * 
+ * I have chosen a minimum chunk size of 1000 (HDF5_MINIMUM_CHUNK_SIZE in constants.h).  If the number of
+ * systems being evolved is >= HDF5_MINIMUM_CHUNK_SIZE the chunk size used will be the value of the hdf5-chunk-size
+ * program option (either HDF5_DEFAULT_CHUNK_SIZE or a value specified by the user), but if the number of 
+ * systems being evolved is < HDF5_MINIMUM_CHUNK_SIZE the chunk size used will be HDF5_MINIMUM_CHUNK_SIZE.
+ * This is just so we don't waste too much storage space when running small tests - and if they are that small
+ * performance is probably not going to be much of an issue, so no real trade-off against storage space.  
+ * 
+ * IO to HDF5 files is buffered in COMPAS - we buffer a number of chunks for each open dataset and write the
+ * buffer to the file when the buffer fills (or a partial buffer upon file close if the buffer is not full).
+ * This IO buffering is not HDF5 or filesystem buffering - this is a COMPAS-internal implementation to improve
+ * performance.  We could do the same for the outher logfile types one day, but I suspect HDF5 is mostly
+ * what people will use - and since each record written to a logfile of type other than HDF5 includes values
+ * for all columns in the file, there are fewer IO operations to logfiles of type other than HDF5 (1 per system
+ * being evolved) and so IO to logfiles of type other than HDF5 has a far less significant impact on performance
+ * than does IO to HDF5 logfiles (where column (dataset) data is written individually).
+ * 
+ * The default HDF5 IO buffer size is defined in constants.h - HDF5_DEFAULT_IO_BUFFER_SIZE - and I have set it
+ * to just 1 - so by default no buffering happens.  I have added the program option --hdf5-buffer-size to allow 
+ * users to specify the buffer size - the option value defaults to HDF5_DEFAULT_IO_BUFFER_SIZE.  The HDF5 IO 
+ * buffer size is specified as a number of chunks.  Users should increase the buffer size for better performance
+ * if memory space allows it.
+ * 
+ * Users should bear in mind that the combination of HDF5 chunk size and HDF5 IO buffer size affect performance,
+ * storage space, and memory usage - so they may need to experiment to find a balance that suits their needs.
  * 
  * 
  * String values stored in HDF5 files
@@ -286,7 +314,8 @@ private:
         m_Enabled = false;                                                          // logging disabled initially
         m_HDF5ContainerId = -1;                                                     // no HDF5 container file open initially
         m_HDF5DetailedId = -1;                                                      // no HDF5 detailed file open initially
-        m_HDF5ChunkSize = HDF5_CHUNK_SIZE;                                          // initially just the defined constant
+        m_HDF5ChunkSize = HDF5_DEFAULT_CHUNK_SIZE;                                  // initially just the defined constant
+        m_HDF5IOBufSize = HDF5_DEFAULT_IO_BUFFER_SIZE * HDF5_DEFAULT_CHUNK_SIZE;    // initially just the defined constant (scaled)
         m_LogBasePath = ".";                                                        // default log file base path
         m_LogContainerName = DEFAULT_OUTPUT_CONTAINER_NAME;                         // default log file container name                        
         m_LogNamePrefix = "";                                                       // default log file name prefix
@@ -323,6 +352,7 @@ private:
     hid_t                m_HDF5ContainerId;                                         // HDF5 container id
     hid_t                m_HDF5DetailedId;                                          // HDF5 detailed output id
     size_t               m_HDF5ChunkSize;                                           // HDF5 chunk size
+    size_t               m_HDF5IOBufSize;                                           // HDF5 IO buffer size
 
     string               m_LogBasePath;                                             // base path for log files
     string               m_LogContainerName;                                        // container (directory) name for log files

@@ -79,7 +79,8 @@ void Log::Start(const string              p_LogBasePath,
         m_DbgToLogfile  = p_DbgToLogfile;                                                                           // write debug records to logfile?
         m_ErrToLogfile  = p_ErrorsToLogfile;                                                                        // write error records to logfile?
         m_LogfileType   = p_LogfileType;                                                                            // set log file type
-        m_HDF5ChunkSize = OPTIONS->nObjectsToEvolve() < HDF5_CHUNK_SIZE ? OPTIONS->nObjectsToEvolve() : HDF5_CHUNK_SIZE; // set HDF5 chunk size
+        m_HDF5ChunkSize = OPTIONS->nObjectsToEvolve() < HDF5_MINIMUM_CHUNK_SIZE ? HDF5_MINIMUM_CHUNK_SIZE : OPTIONS->HDF5ChunkSize(); // set HDF5 chunk size
+        m_HDF5IOBufSize = OPTIONS->HDF5BufferSize() * m_HDF5ChunkSize;                                              // set HDF5 IO buffer size
         m_Logfiles.clear();                                                                                         // clear all entries
 
         m_Enabled = UpdateAllLogfileRecordSpecs();                                                                  // update all logfile record specifications - disable logging upon failure
@@ -740,12 +741,10 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
                         if (!p_Flush) {                                                                                                 // flush only?
                             m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.push_back(p_LogRecordValues[idx]);                         // no - add write data to buffer
                         }
+                        size_t bufSize = m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.size();                                       // size of write buffer
 
-                        size_t bufSize   = m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.size();                                     // size of write buffer
-                        size_t IObufSize = p_Flush ? bufSize : HDF5_IO_BUFFER_SIZE * m_HDF5ChunkSize;                                   // HDF5 IO buffer size
+                        if ((bufSize >= m_HDF5IOBufSize) || p_Flush) {                                                                  // need to write?
 
-                        if (bufSize >= IObufSize) {                                                                                     // need to write?
-                                                                                                                                        // yes
                             // setup write:                                                                                 
                             //    - create dataspaces
                             //    - extend dataset
@@ -753,7 +752,7 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
 
                             hid_t   dType           = m_Logfiles[p_LogfileId].h5File.dataSets[idx].h5DataType;                          // HDF5 datatye
                             hsize_t dSetCurrentSize = H5Dget_storage_size(dSet) / H5Tget_size(dType);                                   // current size (entries) of HDF5 dataset
-                            hsize_t h5Dims[1]       = {IObufSize};                                                                      // HDF5 chunk size
+                            hsize_t h5Dims[1]       = {bufSize};                                                                        // size of buffer to be written
                             hid_t   h5Dspace        = H5Screate_simple(1, h5Dims, NULL);                                                // create memory dataspace for write
                             hid_t   h5FSpace;                                                                                           // filespace for write - allocated later
                             if (h5Dspace < 0) {                                                                                         // created ok?
@@ -761,7 +760,7 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
                                 ok = -1;                                                                                                // fail
                             }
                             else {                                                                                                      // yes - memory dataspace created ok                           
-                                h5Dims[0] = dSetCurrentSize + IObufSize;                                                                // new size for dataset
+                                h5Dims[0] = dSetCurrentSize + bufSize;                                                                  // new size for dataset
                                 if ((ok = H5Dset_extent(dSet, h5Dims)) < 0) {                                                           // extend dataset - ok?
                                     Squawk("ERROR: Unable to extend file to write to HDF5 group for log file " + m_Logfiles[p_LogfileId].name); // no - announce error
                                 }
@@ -778,7 +777,7 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
                                         //    - start is the start position in the hyperslab of the write
                                         //    - count is the number of entries to write (the chunk size)
                                         hsize_t h5Start[1] = {dSetCurrentSize};
-                                        hsize_t h5Count[1] = {IObufSize};
+                                        hsize_t h5Count[1] = {bufSize};
                                         if ((ok = H5Sselect_hyperslab(h5FSpace, H5S_SELECT_SET, h5Start, NULL, h5Count, NULL)) < 0) {   // hyperslab setup ok?
                                             Squawk("ERROR: Unable to set location to write to HDF5 group for log file " + m_Logfiles[p_LogfileId].name); // no - announce error
                                         }
@@ -800,13 +799,13 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
                                 if (dType == H5T_NATIVE_UCHAR) {
                                     bool buf[bufSize];
                                     for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<bool>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
-                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    std::vector<COMPAS_VARIABLE_TYPE>().swap(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf);         // guaranteed to release memory
                                     ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
                                 }
                                 else if (dType == H5T_NATIVE_SHORT) {
                                     short int buf[bufSize];
                                     for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<short int>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
-                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    std::vector<COMPAS_VARIABLE_TYPE>().swap(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf);
                                     ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
                                 }
                                 else if (dType == H5T_NATIVE_INT) {
@@ -828,7 +827,7 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
                                         }
                                         buf[i] = v;
                                     }
-                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    std::vector<COMPAS_VARIABLE_TYPE>().swap(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf);
                                     if (ok >=0) {                                                                                       // data formatted ok?
                                         ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);                // yes - write it
                                     }
@@ -836,43 +835,43 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
                                 else if (dType == H5T_NATIVE_LONG) {
                                     long int buf[bufSize];
                                     for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<long int>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
-                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    std::vector<COMPAS_VARIABLE_TYPE>().swap(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf);
                                     ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
                                 }
                                 else if (dType == H5T_NATIVE_USHORT) {
                                     unsigned short int buf[bufSize];
                                     for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<unsigned short int>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
-                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    std::vector<COMPAS_VARIABLE_TYPE>().swap(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf);
                                     ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
                                 }
                                 else if (dType == H5T_NATIVE_UINT) {
                                     unsigned int buf[bufSize];
                                     for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<unsigned int>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
-                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    std::vector<COMPAS_VARIABLE_TYPE>().swap(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf);
                                     ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
                                 }
                                 else if (dType == H5T_NATIVE_ULONG) {
                                     unsigned long int buf[bufSize];
                                     for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<unsigned long int>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
-                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    std::vector<COMPAS_VARIABLE_TYPE>().swap(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf);
                                     ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
                                 }
                                 else if (dType == H5T_NATIVE_FLOAT) {
                                     float buf[bufSize];
                                     for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<float>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
-                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    std::vector<COMPAS_VARIABLE_TYPE>().swap(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf);
                                     ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
                                 }
                                 else if (dType == H5T_NATIVE_DOUBLE) {
                                     double buf[bufSize];
                                     for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<double>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
-                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    std::vector<COMPAS_VARIABLE_TYPE>().swap(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf);
                                     ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
                                 }
                                 else if (dType == H5T_NATIVE_LDOUBLE) {
                                     long double buf[bufSize];
                                     for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<long double>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]);
-                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    std::vector<COMPAS_VARIABLE_TYPE>().swap(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf);
                                     ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
                                 }
                                 else if (dType == H5T_C_S1) {
@@ -888,7 +887,7 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
                                     for (size_t i = 0; i < bufSize; i++) {
                                         buf[i] = utils::PadTrailingSpaces(boost::get<string>(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf[i]), elemLen);
                                     }
-                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    std::vector<COMPAS_VARIABLE_TYPE>().swap(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf);
 
                                     char* cBuf = new char[bufLen];                  // char array to hold strings with null terminators
                                     size_t pos = 0;
@@ -917,7 +916,7 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
                         
                                         buf[i]   = utils::PadTrailingSpaces(v, elemLen);
                                     }
-                                    m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.clear();
+                                    std::vector<COMPAS_VARIABLE_TYPE>().swap(m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf);
 
                                     char* cBuf = new char[bufLen];              // char array to hold strings with null terminators
                                     size_t pos = 0;

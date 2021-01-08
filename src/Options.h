@@ -161,6 +161,8 @@ private:
         "grid",
         "mode",
         "number-of-systems",
+        "hdf5-chunk-size",
+        "hdf5-buffer-size",
 
         // Serena
         //"logfile-be-binaries",
@@ -429,6 +431,8 @@ private:
         "switch-log",
         "grid",
         "mode",
+        "hdf5-chunk-size",
+        "hdf5-buffer-size",
 
         // Serena
         //"logfile-be-binaries",
@@ -471,6 +475,8 @@ private:
         "switch-log",
         "grid",
         "mode",
+        "hdf5-chunk-size",
+        "hdf5-buffer-size",
 
         // Serena
         //"logfile-be-binaries",
@@ -827,6 +833,9 @@ public:
             string                                              m_LogfilePulsarEvolution;                                       // output file name: pulsar evolution
             string                                              m_LogfileSwitchLog;                                             // output file name: switch log
 
+            int                                                 m_HDF5BufferSize;                                               // HDF5 file IO buffer size (number of chunks)
+            int                                                 m_HDF5ChunkSize;                                                // HDF5 file chunk size (number of dataset entries)
+
 
             // the boost variables map
             // this holds information on the options as specified by the user
@@ -1036,6 +1045,9 @@ public:
     SN_ENGINE                                   FryerSupernovaEngine() const                                            { return OPT_VALUE("fryer-supernova-engine", m_FryerSupernovaEngine.type, true); }
 
     string                                      GridFilename() const                                                    { return m_CmdLine.optionValues.m_GridFilename; }
+
+    size_t                                      HDF5ChunkSize() const                                                   { return m_CmdLine.optionValues.m_HDF5ChunkSize; }
+    size_t                                      HDF5BufferSize() const                                                  { return m_CmdLine.optionValues.m_HDF5BufferSize; }
 
     double                                      InitialMass() const                                                     { return OPT_VALUE("initial-mass", m_InitialMass, true); }
     double                                      InitialMass1() const                                                    { return OPT_VALUE("initial-mass-1", m_InitialMass1, true); }
