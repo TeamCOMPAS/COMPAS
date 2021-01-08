@@ -32,23 +32,24 @@ COMPAS requires a C++ compiler, and the libraries gsl and boost. We include inst
 ### 1.1 Instructions for Linux
 You will need to install the following packages (and their prerequisites) using your package manager:
 
-| Package | Ubuntu (apt)     | Fedora (dnf)<br />CentOS (yum)<br />RHEL (yum) |
-|---------|------------------|---------------|
-| g++     | g++              | gcc           |
-| Boost   | libboost-all-dev | boost-devel   |
-| GSL     | libgsl-dev       | gsl gsl-devel |
+| Package | Ubuntu (apt)       | Fedora (dnf)<br />CentOS (yum)<br />RHEL (yum) |
+|---------|--------------------|---------------|
+| g++     | g++                | gcc           |
+| Boost   | libboost-all-dev   | boost-devel   |
+| GSL     | libgsl-dev         | gsl gsl-devel |
+| hdf5    | libhdf5-serial-dev | hdf5-devel    |
 
 So, in Ubuntu, type
 
-    sudo apt-get install g++ libboost-all-dev libgsl-dev
+    sudo apt-get install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev
 
 In Fedora,
 
-    sudo dnf install gcc boost-devel gsl gsl-devel
+    sudo dnf install gcc boost-devel gsl gsl-devel hdf5-devel
 
 In RHEL or CentOS,
 
-    sudo yum install gcc boost-devel gsl gsl-devel
+    sudo yum install gcc boost-devel gsl gsl-devel hdf5-devel
 
 ### 1.2 Instructions for macOS
 We suggest you first update to the latest version of macOS through the App Store. You can find what macOS version you are using by clicking on the Apple symbol on the top left of your screen and clicking "About This Mac".
@@ -67,10 +68,11 @@ Next, you need to install several extra libraries and python modules. Popular wa
 
     brew --version
 
-Now install gsl and boost using Homebrew by running
+Now install gsl, boost, and hdf5 using Homebrew by running
 
     brew install gsl
     brew install boost
+	brew install hdf5
 
 ### 1.3 Setting up the Makefile and Compiling
 Time to actually install COMPAS. We first need to define an environment variable for the root directory of COMPAS in your shell start-up file for COMPAS to run properly. For example, if you use bash as your shell, open `~/.bashrc` with a text editor and put in the following:
@@ -89,7 +91,10 @@ Now go to the COMPAS source code directory:
 
     cd $COMPAS_ROOT_DIR/src
 
-In this directory you will find the file `Makefile`, which you need to edit to point to your boost library. If you installed boost using Homebrew, find the path to the boost libraries using
+In this directory you will find the file `Makefile`, which you need to edit to point to your gsl, boost, and hdf5 include files and libraries. 
+
+If you installed the packages with Homebrew, the package files are likely to be found in /usr/local/opt (in directories gsl, boost, and hdf5 respectively),
+but if they are not found there you will need to use Homebrew to locate the files:
 
     $ brew info boost
     boost: stable 1.72.0 (bottled), HEAD
@@ -98,9 +103,10 @@ In this directory you will find the file `Makefile`, which you need to edit to p
     /usr/local/Cellar/boost/1.72.0 (14,466 files, 648.5MB) *
     ...
 
-Copy the path, which in this case is `/usr/local/Cellar/boost/1.72.0`, and add it to the appropriate line of the Makefile:
+Copy the path, which in this case is `/usr/local/Cellar/boost/1.72.0`, and add it to the appropriate lines of the Makefile:
 
-    BOOST = /usr/local/Cellar/boost/1.72.0
+    BOOSTINCDIR = /usr/local/Cellar/boost/1.72.0/include
+    BOOSTLIBDIR = /usr/local/Cellar/boost/1.72.0/lib
  
 Then, compile again by running `make -f Makefile`.
 
@@ -132,12 +138,10 @@ An example grid file, `Grid_demo.txt`, has been included in the `demo` directory
 
     # Demo BSE Grid file
   
-    Mass_1, Mass_2, Metallicity_1, Metallicity_2, Eccentricity, Separation
-
-    63.6,   27.8,   0.001,         0.001,         0.0,          3.40
+    --initial-mass-1 35.4 --initial-mass-2 29.3 --metallicity 0.001  --eccentricity 0.000000e+00 --semi-major-axis 1.02
 
 
-It should be clear that this grid file specifies a binary of zero-age main sequence stars with primary mass 63.6 Msol, secondary mass 27.8 Msol, primary metallicity 0.001, secondary metallicity 0.001, zero eccentricity, and semi-major axis of 3.40 AU. For more detailed documentation of COMPAS's grid functionality for both single and binary stars, please see [Specifications](./COMPAS_Doc.pdf).
+It should be clear that this grid file specifies a binary of zero-age main sequence stars with primary mass 35.4 Msol, secondary mass 29.3 Msol, metallicity 0.001, zero eccentricity, and semi-major axis of 1.02 AU. For more detailed documentation of COMPAS's grid functionality for both single and binary stars, please see [Specifications](./COMPAS_Doc.pdf).
 
 We now have to tell our python submit to take its input from this grid file. To do this, open `pythonSubmit.py` with a text editor, and specify the grid filename:
 
@@ -147,24 +151,32 @@ To print the time evolution of binary properties, we need to turn on detailed ou
 
     detailed_output = True                         # WARNING: this creates a data heavy file
 
+COMPAS can produce logfiles of different types: HDF5, CSV, TSV, and TXT.  The default type is HDF5.  Change the logfile type in the python submit file:
+
+    logfile_type = 'HDF5'
+
+
+
 Now let's run COMPAS!
 
     $ python3 pythonSubmit.py
     ...
-    COMPAS v02.08.01
+    COMPAS v02.18.00
 
     Compact Object Mergers: Population Astrophysics and Statistics 
     by Team COMPAS (http://compas.science/index.html)
     A binary star simulator
 
-    Start generating binaries at Mon Sep 14 15:09:14 2020
+    Start generating binaries at Fri Jan  8 13:25:33 2021
 
     Evolution of current binary stopped: Double compact object
     0: Evolution stopped: Black_Hole + Black_Hole
 
+    Generated 1 of 1 binaries requested
+
     Simulation completed
 
-    End generating binaries at Mon Sep 14 15:09:14 2020
+    End generating binaries at Fri Jan  8 13:25:33 2021
 
     Clock time = 0.168678 CPU seconds
     Wall time  = 0:0:0 (hh:mm:ss)
@@ -173,9 +185,9 @@ Congratulations! You just made a binary black hole. And it didn't even take a se
 
 
 ### 2.2 Examining detailed output
-The COMPAS run just now produces a new directory `COMPAS_Output`, inside which you will find the following files/directories:
+The COMPAS run just now produces a new directory `COMPAS_Output`, inside which you will find the following files/directories (here we assume `logfile_type = 'CSV'` in the python submit file):
 
-* `Detailed_Output`: This directory contains `BSE_Detailed_Output_0.csv`, which records the detailed time evolution of binary. This is only produced if `detailed_output = True` in the python submit. 
+* `Detailed_Output`: This directory contains the detailed output file, `BSE_Detailed_Output_0.csv`, which records the detailed time evolution of binary.  This file, and directory, is only produced if `detailed_output = True` in the python submit.
 * `BSE_Double_Compact_Objects.csv`: Record of binaries that formed double compact objects (in our example, we evolved one binary that became a binary black hole, which was recorded in this file.)
 * `BSE_Supernovae.csv`: Record of supernovae.
 * `BSE_System_Parameters.csv`: Record of all evolved binaries.

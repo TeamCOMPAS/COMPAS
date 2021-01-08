@@ -221,11 +221,11 @@ public:
                                                        const double p_Epsilon) { }                                                                                                  // Default is NO-OP
 
     // printing functions
-            void            PrintDetailedOutput(const int p_Id) const                                           { if (OPTIONS->DetailedOutput()) LOGGING->LogSSEDetailedOutput(this, p_Id, ""); } // Write record to SSE Detailed Output log file
-            void            PrintSupernovaDetails() const                                                       { LOGGING->LogSSESupernovaDetails(this, ""); }                      // Write record to SSE Supernovae log file
-            void            PrintStashedSupernovaDetails()                                                      { LOGGING->LogStashedSSESupernovaDetails(this); }                   // Write record to SSE Supernovae log file
-            void            PrintSwitchLog(const long int p_Id) const                                           { if (OPTIONS->SwitchLog()) LOGGING->LogSSESwitchLog(this, p_Id, ""); } // Write record to SSE Switchlog log file
-            void            PrintSystemParameters(const string p_Rec = "") const                                { LOGGING->LogSSESystemParameters(this, p_Rec); }                   // Write record to SSE System Parameters file
+            bool            PrintDetailedOutput(const int p_Id) const                                           { return OPTIONS->DetailedOutput() ? LOGGING->LogSSEDetailedOutput(this, p_Id, "") : true; } // Write record to SSE Detailed Output log file
+            bool            PrintSupernovaDetails() const                                                       { return LOGGING->LogSSESupernovaDetails(this, ""); }                      // Write record to SSE Supernovae log file
+            bool            PrintStashedSupernovaDetails()                                                      { return LOGGING->LogStashedSSESupernovaDetails(this); }                   // Write record to SSE Supernovae log file
+            bool            PrintSwitchLog(const long int p_Id) const                                           { return OPTIONS->SwitchLog() ? LOGGING->LogSSESwitchLog(this, p_Id, "") : true; } // Write record to SSE Switchlog log file
+            bool            PrintSystemParameters(const string p_Rec = "") const                                { return LOGGING->LogSSESystemParameters(this, p_Rec); }                   // Write record to SSE System Parameters file
 
 protected:
 
