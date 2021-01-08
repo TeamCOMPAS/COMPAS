@@ -93,7 +93,8 @@ Now go to the COMPAS source code directory:
 
 In this directory you will find the file `Makefile`, which you need to edit to point to your gsl, boost, and hdf5 include files and libraries. 
 
-For example, if you installed boost using Homebrew, find the path to the boost libraries using
+If you installed the packages with Homebrew, the package files are likely to be found in /usr/local/opt (in directories gsl, boost, and hdf5 respectively),
+but if they are not found there you will need to use Homebrew to locate the files:
 
     $ brew info boost
     boost: stable 1.72.0 (bottled), HEAD

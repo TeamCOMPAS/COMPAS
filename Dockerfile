@@ -4,6 +4,7 @@ WORKDIR /app/COMPAS
 
 RUN apt-get update && apt-get install -y \
     g++ \
+    libhdf5-serial-dev \
     libboost-all-dev \
     libgsl-dev \
     python3 \
