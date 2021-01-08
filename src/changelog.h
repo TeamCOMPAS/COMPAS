@@ -658,9 +658,9 @@
 //                                      - Typo in options code for option --switch-log: "switchlog" was incorrectly used instead of "switch-log"
 // 02.17.19     LVS - Dec 19, 2020  - Enhancements:
 //                                      - Added option to vary winds of cool stars (with T < VINK_MASS_LOSS_MINIMUM_TEMP) via a CoolWindMassLossMultiplier
-// 02.18.00     JR - Jan 06, 2020   - Enhancement:
+// 02.18.00     JR - Jan 08, 2020   - Enhancement:
 //                                      - Added support for HDF5 logfiles (see notes at top of log.h)
-//                                      - Added 'logfile-type' option; allowed values are HDF5, CSV, TSV, TXT; default is HDF5 in the COMPAS C++ code, but left at CSV in default pythonSubmit (because Getting Started examples all refer to CSV files...)
+//                                      - Added 'logfile-type' option; allowed values are HDF5, CSV, TSV, TXT; default is HDF5
 //                                      - Added 'hdf5-chunk-size' option - specifies the HDF5 chunk size (number of dataset entries)
 //                                      - Added 'hdf5-buffer-size' option - specifies the HDF5 IO buffer size (number of chunks)
 //                                      - Removed 'logfile-delimiter' option - delimiter now set by logfile type (--logfile-type option described above)

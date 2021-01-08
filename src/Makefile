@@ -40,7 +40,7 @@ ifneq ($(filter staticfast,$(MAKECMDGOALS)),)
 endif
 
 
-CXXFLAGS := -std=c++11 -Wall $(OPTFLAGS) --param=max-vartrack-size=0
+CXXFLAGS := -std=c++11 -Wall $(OPTFLAGS)
 ICFLAGS := -I$(GSLINCDIR) -I$(BOOSTINCDIR) -I$(HDF5INCDIR) -I.
 
 LIBS := -lm -lz -ldl -lsz -lpthread
