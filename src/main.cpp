@@ -89,7 +89,7 @@ bool        evolvingBinaryStarValid = false;            // flag to indicate whet
 void sigHandler(int p_Sig) {   
     if (p_Sig == SIGUSR1) {                                         // SIGUSR1?  Just silently ignore anything else...
         if (evolvingBinaryStarValid && OPTIONS->SwitchLog()) {      // yes - do we have a valid binary star, and are we logging switches?
-            evolvingBinaryStar->PrintSwitchLog();                   // yes - assume SIGUSR1 is a binary constituent star switching...
+            (void)evolvingBinaryStar->PrintSwitchLog();             // yes - assume SIGUSR1 is a binary constituent star switching...
         }
     }
 }
@@ -115,9 +115,9 @@ std::tuple<int, int> EvolveSingleStars() {
 
     // generate and evolve stars
 
-    Star* star     = nullptr;
-    bool usingGrid = !OPTIONS->GridFilename().empty();                                                              // using grid file?
-    int  index     = 0;                                                                                             // which star
+    Star*  star      = nullptr;
+    bool   usingGrid = !OPTIONS->GridFilename().empty();                                                            // using grid file?
+    size_t index     = 0;                                                                                           // which star
 
     // The options specified by the user at the commandline are set to their initial values.
     // OPTIONS->AdvanceCmdLineOptionValues(), called at the end of the loop, advances the
@@ -358,9 +358,9 @@ std::tuple<int, int> EvolveBinaryStars() {
     std::time_t timeStart = std::chrono::system_clock::to_time_t(wallStart);
     SAY("Start generating binaries at " << std::ctime(&timeStart));
 
-    BinaryStar *binary = nullptr;
-    bool usingGrid     = !OPTIONS->GridFilename().empty();                                                      // using grid file?
-    int  index         = 0;                                                                                     // which binary
+    BinaryStar* binary    = nullptr;
+    bool        usingGrid = !OPTIONS->GridFilename().empty();                                                   // using grid file?
+    size_t      index     = 0;                                                                                  // which binary
 
     // The options specified by the user at the commandline are set to their initial values.
     // OPTIONS->AdvanceCmdLineOptionValues(), called at the end of the loop, advances the
@@ -574,7 +574,7 @@ int main(int argc, char * argv[]) {
                            OPTIONS->DebugClasses(),                                                 // debug classes - determines (in part) what debug information is displayed
                            OPTIONS->DebugToFile(),                                                  // should debug statements also be written to logfile?
                            OPTIONS->ErrorsToFile(),                                                 // should error messages also be written to logfile?
-                           DELIMITERValue.at(OPTIONS->LogfileDelimiter()));                         // log record field delimiter
+                           OPTIONS->LogfileType());                                                 // log file type
 
             (void)utils::SplashScreen();                                                            // announce ourselves
 

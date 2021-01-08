@@ -3,12 +3,22 @@
 #
 # can be overridden with CPP parameter
 #
-# e.g. make CPP=clang will use clang instaed of g++
+# e.g. make CPP=clang will use clang instead of g++
 # (note uppercase 'CPP' and no whitespace around '=')
 
-CPP = g++
-BOOST :=
+CPP := g++
 
+# gsl directories
+GSLINCDIR := /include
+GSLLIBDIR := /lib
+
+# boost directories
+BOOSTINCDIR := /include
+BOOSTLIBDIR := /lib
+
+# hdf5 directories
+HDF5INCDIR := /usr/include/hdf5/serial
+HDF5LIBDIR := /usr/lib/x86_64-linux-gnu/hdf5/serial
 
 EXE := COMPAS
 
@@ -30,9 +40,15 @@ ifneq ($(filter staticfast,$(MAKECMDGOALS)),)
 endif
 
 
-CXXFLAGS := -g -std=c++11 -Wall $(OPTFLAGS)
-ICFLAGS := -I$(BOOST)/include -I.
-LFLAGS :=  -L$(BOOST)/lib -lgsl -lgslcblas -lstdc++ -lm -lz -ldl -lboost_filesystem -lboost_program_options -lboost_system -Xlinker -rpath -Xlinker $(BOOST)/lib
+CXXFLAGS := -std=c++11 -Wall $(OPTFLAGS)
+ICFLAGS := -I$(GSLINCDIR) -I$(BOOSTINCDIR) -I$(HDF5INCDIR) -I.
+
+LIBS := -lm -lz -ldl -lsz -lpthread
+GSLLIBS := -lgsl -lgslcblas
+BOOSTLIBS := -lboost_filesystem -lboost_program_options -lboost_system
+HDF5LIBS := -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5
+LFLAGS := -L$(GSLLIBDIR) -L$(BOOSTLIBDIR) -L$(HDF5LIBDIR) -Xlinker -rpath -Xlinker $(BOOSTLIBDIR) $(HDF5LIBS) $(LIBS) $(GSLLIBS) $(BOOSTLIBS)
+
 SOURCES :=						\
 	profiling.cpp               \
 	utils.cpp                   \

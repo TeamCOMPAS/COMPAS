@@ -427,7 +427,7 @@ COMPAS_VARIABLE BaseStar::PropertyValue(const T_ANY_PROPERTY p_Property) const {
         default:                                                                                                                // unknown property type
             ok    = false;                                                                                                      // that's not ok...
             value = "UNKNOWN";                                                                                                  // default value
-            SHOW_WARN(ERROR::UNKNOWN_PROPERTY_TYPE  );                                                                          // show warning
+            SHOW_WARN(ERROR::UNKNOWN_PROPERTY_TYPE);                                                                            // show warning
     }
 
     return std::make_tuple(ok, value);
