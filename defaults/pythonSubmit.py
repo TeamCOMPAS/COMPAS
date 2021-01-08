@@ -265,6 +265,10 @@ class pythonProgramOptions:
     logfile_name_prefix = None
     logfile_type        = 'HDF5'
 
+    hdf5_chunk_size     = 5000
+    hdf5_buffer_size    = 1
+
+
     # set the logfile names here
     #
     # set to None (e.g. logfile_BSE_supernovae = None) to use the default filename
@@ -430,7 +434,9 @@ class pythonProgramOptions:
             self.muller_mandel_kick_multiplier_BH,
             self.muller_mandel_kick_multiplier_NS,
             self.log_level,
-            self.debug_level
+            self.debug_level,
+            self.hdf5_chunk_size,
+            self.hdf5_buffer_size
         ]
 
         return numericalChoices
@@ -518,7 +524,9 @@ class pythonProgramOptions:
             '--muller-mandel-kick-multiplier-BH',
             '--muller-mandel-kick-multiplier-NS',
             '--log-level',
-            '--debug-level'
+            '--debug-level',
+            '--hdf5-chunk-size',
+            '--hdf5-buffer-size'
         ]
 
         return numericalCommands

@@ -63,7 +63,9 @@
 /*    what they are for and where the new option should go.                               */
 /*                                                                                        */
 /* 10. Add the new option to Options::OptionValue() - this enables selection of the       */
-/*     option value for printing in the output (log) files.                               */
+/*     option value for printing in the output (log) files.  Only required if the option  */
+/*     is required to be available for printing in the logfiles.                          */
+/*                                                                                        */
 /******************************************************************************************/
 
 
@@ -496,6 +498,8 @@ void Options::OptionValues::Initialise() {
     m_LogfileSwitchLog                                              = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));       // assume BSE - get real answer when we know mode
     m_LogfileSystemParameters                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));
     
+    m_HDF5BufferSize                                                = HDF5_DEFAULT_IO_BUFFER_SIZE;
+    m_HDF5ChunkSize                                                 = HDF5_DEFAULT_CHUNK_SIZE;
 
     po::variables_map vm;
     m_VM = vm;
@@ -720,6 +724,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Determines which print statements are displayed for debugging (default = " + std::to_string(p_Options->m_DebugLevel) + ")").c_str()
         )
         (
+            "hdf5-chunk-size",                                                 
+            po::value<int>(&p_Options->m_HDF5ChunkSize)->default_value(p_Options->m_HDF5ChunkSize),                                                                                                     
+            ("HDF5 file dataset chunk size (number of dataset entries, default = " + std::to_string(p_Options->m_HDF5ChunkSize) + ")").c_str()
+        )
+        (
+            "hdf5-buffer-size",                                                 
+            po::value<int>(&p_Options->m_HDF5BufferSize)->default_value(p_Options->m_HDF5BufferSize),                                                                                                     
+            ("HDF5 file dataset IO buffer size (number of chunks, default = " + std::to_string(p_Options->m_HDF5BufferSize) + ")").c_str()
+        )
+        (
             "log-level",                                                   
             po::value<int>(&p_Options->m_LogLevel)->default_value(p_Options->m_LogLevel),                                                                                                         
             ("Determines which print statements are included in the logfile (default = " + std::to_string(p_Options->m_LogLevel) + ")").c_str()
@@ -729,7 +743,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<int>(&p_Options->m_MaxNumberOfTimestepIterations)->default_value(p_Options->m_MaxNumberOfTimestepIterations),                                                               
             ("Maximum number of timesteps to evolve binary before giving up (default = " + std::to_string(p_Options->m_MaxNumberOfTimestepIterations) + ")").c_str()
         )
-
         (
             "number-of-systems,n",                                        
             po::value<int>(&p_Options->m_ObjectsToEvolve)->default_value(p_Options->m_ObjectsToEvolve),                                                                                                       
@@ -1860,6 +1873,9 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_EccentricityDistributionMin < 0.0 || m_EccentricityDistributionMin > 1.0, "Minimum eccentricity (--eccentricity-min) must be between 0 and 1");
         COMPLAIN_IF(m_EccentricityDistributionMax < 0.0 || m_EccentricityDistributionMax > 1.0, "Maximum eccentricity (--eccentricity-max) must be between 0 and 1");
         COMPLAIN_IF(m_EccentricityDistributionMax <= m_EccentricityDistributionMin, "Maximum eccentricity (--eccentricity-max) must be > Minimum eccentricity (--eccentricity-min)");
+
+        COMPLAIN_IF(m_HDF5BufferSize < 1, "HDF5 IO buffer size (--hdf5-buffer-size) must be >= 1");
+        COMPLAIN_IF(m_HDF5ChunkSize < HDF5_MINIMUM_CHUNK_SIZE, "HDF5 file dataset chunk size (--hdf5-chunk-size) must be >= minimum chunk size of " + std::to_string(HDF5_MINIMUM_CHUNK_SIZE));
 
         COMPLAIN_IF(m_InitialMass < MINIMUM_INITIAL_MASS || m_InitialMass > MAXIMUM_INITIAL_MASS, "Initial mass (--initial-mass) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
         COMPLAIN_IF(m_InitialMass1 < MINIMUM_INITIAL_MASS || m_InitialMass1 > MAXIMUM_INITIAL_MASS, "Primary initial mass (--initial-mass-1) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");

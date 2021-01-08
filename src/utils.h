@@ -87,7 +87,6 @@ namespace utils {
         return std::make_tuple(false, p_Default);
     }
 
-
     double                              intPow(const double p_Base, const int p_Exponent);
 
     double                              InverseSampleFromPowerLaw(const double p_Power, const double p_Xmax, const double p_Xmin);

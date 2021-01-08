@@ -658,11 +658,13 @@
 //                                      - Typo in options code for option --switch-log: "switchlog" was incorrectly used instead of "switch-log"
 // 02.17.19     LVS - Dec 19, 2020  - Enhancements:
 //                                      - Added option to vary winds of cool stars (with T < VINK_MASS_LOSS_MINIMUM_TEMP) via a CoolWindMassLossMultiplier
-// 02.18.00     JR - Jan 01, 2020   - Enhancement:
-//                                      - Added support for HDF5 logfiles
-//                                      - Added 'logfile-type' option; allowe values are HDF5, CSV, TSV, TXT; default is HDF5
-//                                      - Removed 'logfile-delimiter' option - delimiter now set by logfile type
-//                                      - Changed header strings containging '/' character: '/' replaced by '|' (header strings become dataset names in HDF5 files, and '/' is a path delimiter...)
+// 02.18.00     JR - Jan 06, 2020   - Enhancement:
+//                                      - Added support for HDF5 logfiles (see notes at top of log.h)
+//                                      - Added 'logfile-type' option; allowed values are HDF5, CSV, TSV, TXT; default is HDF5 in the COMPAS C++ code, but left at CSV in default pythonSubmit (because Getting Started examples all refer to CSV files...)
+//                                      - Added 'hdf5-chunk-size' option - specifies the HDF5 chunk size (number of dataset entries)
+//                                      - Added 'hdf5-buffer-size' option - specifies the HDF5 IO buffer size (number of chunks)
+//                                      - Removed 'logfile-delimiter' option - delimiter now set by logfile type (--logfile-type option described above)
+//                                      - Changed header strings containing '/' character: '/' replaced by '|' (header strings become dataset names in HDF5 files, and '/' is a path delimiter...)
 
 const std::string VERSION_STRING = "02.18.00";
 
