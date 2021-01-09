@@ -622,17 +622,33 @@ namespace utils {
      * Pads string to specified length by prepending the string with "0"
      *
      * This only works with ASCII data, but I think that's all we need
-     * Note that std::string has an == operator to test for equality (actually calls std::strcmp)
      *
      *
      * std::string PadLeadingZeros(const std::string p_Str, const std::size_t p_MaxLength)
      *
      * @param   [IN]    p_Str                       String to be padded with leading "0"s
-     * @param   [IN]    p_MaxLength                 The required length of the resultant string compared
+     * @param   [IN]    p_MaxLength                 The required length of the resultant string
      * @return                                      String padded with leading "0"s - will be unchanged from input string if length alread >= required length
      */
     std::string PadLeadingZeros(const std::string p_Str, const std::size_t p_MaxLength) {
         return (p_Str.length() < p_MaxLength) ? std::string(p_MaxLength - p_Str.length(), '0') + p_Str : p_Str;
+    }
+
+
+    /*
+     * Pads string to specified length by appending the string with " "
+     *
+     * This only works with ASCII data, but I think that's all we need
+     *
+     *
+     * std::string PadTrailingSpaces(const std::string p_Str, const std::size_t p_MaxLength)
+     *
+     * @param   [IN]    p_Str                       String to be padded with trailing " "s
+     * @param   [IN]    p_MaxLength                 The required length of the resultant string
+     * @return                                      String padded with leading "0"s - will be unchanged from input string if length alread >= required length
+     */
+    std::string PadTrailingSpaces(const std::string p_Str, const std::size_t p_MaxLength) {
+        return (p_Str.length() < p_MaxLength) ? p_Str + std::string(p_MaxLength - p_Str.length(), ' ') : p_Str;
     }
 
 

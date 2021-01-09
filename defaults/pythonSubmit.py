@@ -263,7 +263,11 @@ class pythonProgramOptions:
     debug_classes       = []
 
     logfile_name_prefix = None
-    logfile_delimiter   = 'COMMA'
+    logfile_type        = 'HDF5'
+
+    hdf5_chunk_size     = 5000
+    hdf5_buffer_size    = 1
+
 
     # set the logfile names here
     #
@@ -430,7 +434,9 @@ class pythonProgramOptions:
             self.muller_mandel_kick_multiplier_BH,
             self.muller_mandel_kick_multiplier_NS,
             self.log_level,
-            self.debug_level
+            self.debug_level,
+            self.hdf5_chunk_size,
+            self.hdf5_buffer_size
         ]
 
         return numericalChoices
@@ -518,7 +524,9 @@ class pythonProgramOptions:
             '--muller-mandel-kick-multiplier-BH',
             '--muller-mandel-kick-multiplier-NS',
             '--log-level',
-            '--debug-level'
+            '--debug-level',
+            '--hdf5-chunk-size',
+            '--hdf5-buffer-size'
         ]
 
         return numericalCommands
@@ -557,7 +565,7 @@ class pythonProgramOptions:
             self.common_envelope_mass_accretion_prescription,
             self.envelope_state_prescription,
             self.logfile_name_prefix,
-            self.logfile_delimiter,
+            self.logfile_type,
             self.logfile_definitions,
             self.grid_filename,
             self.logfile_common_envelopes,
@@ -606,7 +614,7 @@ class pythonProgramOptions:
             '--common-envelope-mass-accretion-prescription',
             '--envelope-state-prescription',
             '--logfile-name-prefix',
-            '--logfile-delimiter',
+            '--logfile-type',
             '--logfile-definitions',
             '--grid',
             '--logfile-common-envelopes',

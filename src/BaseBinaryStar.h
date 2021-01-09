@@ -271,7 +271,7 @@ public:
 
             EVOLUTION_STATUS    Evolve();
 
-            void                PrintSwitchLog(const long int p_Id, const bool p_PrimarySwitching) { if (OPTIONS->SwitchLog()) LOGGING->LogBSESwitchLog(this, p_Id, p_PrimarySwitching); }
+            bool                PrintSwitchLog(const long int p_Id, const bool p_PrimarySwitching) { return OPTIONS->SwitchLog() ? LOGGING->LogBSESwitchLog(this, p_Id, p_PrimarySwitching) : true; }
 
             COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
 
@@ -506,21 +506,21 @@ private:
     void    UpdateSystemicVelocity(Vector3d p_newVelocity);
 
     // printing functions
-    void PrintRLOFParameters(const string p_Rec = "");
-    void PrintBinarySystemParameters(const string p_Rec = "") const              {                                   LOGGING->LogBSESystemParameters(this, p_Rec); }
-    void PrintDetailedOutput(const long int p_Id, const string p_Rec = "") const { if (OPTIONS->DetailedOutput())    LOGGING->LogBSEDetailedOutput(this, p_Id, p_Rec); }
-    void PrintDoubleCompactObjects(const string p_Rec = "") const                {                                   LOGGING->LogDoubleCompactObject(this, p_Rec); }
-    void PrintCommonEnvelope(const string p_Rec = "") const                      {                                   LOGGING->LogCommonEnvelope(this, p_Rec); }
-    void PrintBeBinary(const string p_Rec = "");
-    void PrintPulsarEvolutionParameters(const string p_Rec = "") const           { if (OPTIONS->EvolvePulsars())     LOGGING->LogBSEPulsarEvolutionParameters(this, p_Rec); }
-    void PrintSupernovaDetails(const string p_Rec = "") const                    {                                   LOGGING->LogBSESupernovaDetails(this, p_Rec); }
+    bool PrintRLOFParameters(const string p_Rec = "");
+    bool PrintBinarySystemParameters(const string p_Rec = "") const              { return LOGGING->LogBSESystemParameters(this, p_Rec); }
+    bool PrintDetailedOutput(const long int p_Id, const string p_Rec = "") const { return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id, p_Rec) : true; }
+    bool PrintDoubleCompactObjects(const string p_Rec = "") const                { return LOGGING->LogDoubleCompactObject(this, p_Rec); }
+    bool PrintCommonEnvelope(const string p_Rec = "") const                      { return LOGGING->LogCommonEnvelope(this, p_Rec); }
+    bool PrintBeBinary(const string p_Rec = "");
+    bool PrintPulsarEvolutionParameters(const string p_Rec = "") const           { return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this, p_Rec) : true; }
+    bool PrintSupernovaDetails(const string p_Rec = "") const                    { return LOGGING->LogBSESupernovaDetails(this, p_Rec); }
 
     
     //Functor for the boost root finder to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
     template <class T>
     struct RadiusEqualsRocheLobeFunctor
     {
-        RadiusEqualsRocheLobeFunctor(BaseBinaryStar * p_Binary, BinaryConstituentStar * p_Donor, BinaryConstituentStar * p_Accretor, ERROR * p_Error, double p_FractionAccreted)
+        RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, ERROR *p_Error, double p_FractionAccreted)
         {
             m_Binary           = p_Binary;
             m_Donor            = p_Donor;

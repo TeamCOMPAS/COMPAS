@@ -775,7 +775,7 @@ COMPAS_VARIABLE BaseBinaryStar::PropertyValue(const T_ANY_PROPERTY p_Property) c
             break;
 
         default:                                                                                                        // unknown property type
-            SHOW_WARN(ERROR::UNKNOWN_PROPERTY_TYPE  );                                                                  // show warning
+            SHOW_WARN(ERROR::UNKNOWN_PROPERTY_TYPE);                                                                    // show warning
     }
 
     return std::make_tuple(ok, value);
@@ -823,39 +823,45 @@ bool BaseBinaryStar::HasTwoOf(STELLAR_TYPE_LIST p_List) const {
  * Write RLOF parameters to RLOF logfile if RLOF printing is enabled and at least one of the stars is in RLOF
  *
  *
- * void PrintRLOFParameters(const string p_Rec)
+ * bool PrintRLOFParameters(const string p_Rec)
  * 
  * @param   [IN]    p_Rec                       pre-formatted record to be written to file (default is empty string)
+ * @return                                      Boolean status (true = success, false = failure)
  * 
  */
-void BaseBinaryStar::PrintRLOFParameters(const string p_Rec) {
+bool BaseBinaryStar::PrintRLOFParameters(const string p_Rec) {
 
-    if (!OPTIONS->RLOFPrinting()) return;                       // do not print if printing option off
+    bool ok = true;
+
+    if (!OPTIONS->RLOFPrinting()) return ok;                    // do not print if printing option off
 
     StashRLOFProperties();                                      // stash properties so that previous step is available for next printing
 
     if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {               // print if either star is in RLOF
         m_RLOFDetails.currentProps->eventCounter += 1;          // every time we print a MT event happened, increment counter
-        LOGGING->LogRLOFParameters(this, p_Rec);                // yes - write to log file
+        ok = LOGGING->LogRLOFParameters(this, p_Rec);           // yes - write to log file
     }
+
+    return ok;
 }
 
 /*
  * Write Be binary parameters to logfile if required
  *
  *
- * void PrintBeBinary(const string p_Rec)
+ * bool PrintBeBinary(const string p_Rec)
  * 
  * @param   [IN]    p_Rec                       pre-formatted record to be written to file (default is empty string)
+ * @return                                      Boolean status (true = success, false = failure)
  * 
  */
-void BaseBinaryStar::PrintBeBinary(const string p_Rec) {
+bool BaseBinaryStar::PrintBeBinary(const string p_Rec) {
     
-    if (!OPTIONS->BeBinaries()) return;                         // do not print if printing option off
+    if (!OPTIONS->BeBinaries()) return true;                    // do not print if printing option off
     
     StashBeBinaryProperties();                                  // stash Be binary properties
     
-    LOGGING->LogBeBinary(this, p_Rec);
+    return LOGGING->LogBeBinary(this, p_Rec);                   // write to log file
 }
 
 
@@ -1098,7 +1104,7 @@ void BaseBinaryStar::ResolveCoalescence() {
     }
 
     if (!IsUnbound())
-        PrintDoubleCompactObjects();                                                                                                            // print (log) double compact object details
+        (void)PrintDoubleCompactObjects();                                                                                                      // print (log) double compact object details
 }
 
 
@@ -1399,7 +1405,7 @@ bool BaseBinaryStar::ResolveSupernova() {
     m_IPrime    = m_ThetaE;                                                                                             // Inclination angle between preSN and postSN orbital planes 
     m_CosIPrime = cos(m_IPrime);
 
-    PrintSupernovaDetails();                                                                                            // Log record to supernovae logfile
+    (void)PrintSupernovaDetails();                                                                                      // Log record to supernovae logfile
     m_Supernova->ClearCurrentSNEvent();
 
     return true;
@@ -1599,7 +1605,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     m_Star1->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 1
     m_Star2->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 2
     SetPostCEEValues(aFinalRsol, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                                       // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
-    PrintCommonEnvelope();
+    (void)PrintCommonEnvelope();
     
 }
 
@@ -2235,7 +2241,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         }
     }
 
-    if (m_PrintExtraDetailedOutput == true && !StellarMerger()) { PrintDetailedOutput(m_Id); }                          // print detailed output record if stellar type changed (except on merger, when detailed output is meaningless)
+    if (m_PrintExtraDetailedOutput == true && !StellarMerger()) { (void)PrintDetailedOutput(m_Id); }                    // print detailed output record if stellar type changed (except on merger, when detailed output is meaningless)
     m_PrintExtraDetailedOutput = false;                                                                                 // reset detailed output printing flag for the next timestep
 
     if ((m_Star1->IsSNevent() || m_Star2->IsSNevent())) {
@@ -2320,7 +2326,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
         evolutionStatus              = EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH;                                                           // binary components are touching - merger at birth
     }
 
-    PrintDetailedOutput(m_Id);                                                                                                              // print (log) detailed output for binary
+    (void)PrintDetailedOutput(m_Id);                                                                                                        // print (log) detailed output for binary
 
     if (OPTIONS->PopulationDataPrinting()) {
         SAY("\nGenerating a new binary - " << m_Id);
@@ -2356,11 +2362,11 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             }
             else {                                                                                                                          // continue evolution
 
-                PrintDetailedOutput(m_Id);                                                                                                  // print (log) detailed output for binary
+                (void)PrintDetailedOutput(m_Id);                                                                                            // print (log) detailed output for binary
 
                 EvaluateBinary(dt);                                                                                                         // evaluate the binary at this timestep
 
-                PrintRLOFParameters();                                                                                                      // print (log) RLOF parameters
+                (void)PrintRLOFParameters();                                                                                                // print (log) RLOF parameters
                 
                 // check for problems
                 if (StellarMerger()) {                                                                                                      // have stars merged?
@@ -2377,9 +2383,9 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                        // continue evolution?
 
-                    if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) PrintPulsarEvolutionParameters();                                         // print (log) pulsar evolution parameters 
+                    if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) (void)PrintPulsarEvolutionParameters();                                   // print (log) pulsar evolution parameters 
 
-                    PrintBeBinary();                                                                                                        // print (log) BeBinary properties
+                    (void)PrintBeBinary();                                                                                                  // print (log) BeBinary properties
                         
                     if (IsDCO() && !IsUnbound()) {                                                                                          // bound double compact object?
                         if (m_DCOFormationTime == DEFAULT_INITIAL_DOUBLE_VALUE) {                                                           // DCO not yet evaluated -- to ensure that the coalescence is only resolved once
@@ -2414,14 +2420,14 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             }
         }
         if (!StellarMerger())
-            PrintDetailedOutput(m_Id);                                                                                                      // print (log) detailed output for binary
+            (void)PrintDetailedOutput(m_Id);                                                                                                // print (log) detailed output for binary
 
         if (evolutionStatus == EVOLUTION_STATUS::STEPS_UP) {                                                                                // stopped because max timesteps reached?
             SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED);                                                                                    // show error
         }
     }
 
-    PrintBinarySystemParameters();                                                                                                          // print (log) binary system parameters
+    (void)PrintBinarySystemParameters();                                                                                                    // print (log) binary system parameters
 
     return evolutionStatus;
 }
