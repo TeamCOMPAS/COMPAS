@@ -181,13 +181,16 @@ Note that neither of those circumstances will cause a parse error for the defini
 \newpage
 \subsubsection{Standard Log File Format}\label{sec:StandardLogFileFormat}
 
-Each standard log file consists of three header records followed by data records.  Header records and data records are delimiter separated fields, with the delimiter being that specified by the \textit{\texttt{-{}-}logfile-delimiter} program option (COMMA, TAB or SPACE), and the fields as specified by the log file record specifier.
+COMPAS can produce log files in several formats: \ac{HDF5}\footnote{\url{https://www.hdfgroup.org/}}, \ac{CSV}, \ac{TSV}, and \ac{TXT}. The log file type is set using the \textit{\texttt{-{}-}logfile-type} program option.
 
-The header records for all files are:
+Standard \ac{CSV}, \ac{TSV}, and \ac{TXT} log files are human-readable files, and formatted in a similar fashion. Each standard \ac{CSV}, \ac{TSV}, and \ac{TXT} log file consists of three header records followed by data records.  Header records and data records are delimiter separated fields, and the fields as specified by the log file record specifier.
+
+The header records for all standard \ac{CSV}, \ac{TSV}, and \ac{TXT} log files are:
 
 \tabto{3em}Header record 1: Column Data Type Names\par
 \tabto{3em}Header record 2: Column Units (where applicable)\par
 \tabto{3em}Header record 3: Column Headings
+
 
 \bigskip
 Column Data Type Names are taken from the set \lcb{\ BOOL, INT, FLOAT, STRING\ \rcb}, where
@@ -222,14 +225,21 @@ Column Headings are string labels that describe the corresponding data values. T
 \hfill
 \begin{minipage}{\dimexpr\textwidth-3em}
 \medskip
-STAR\_1\_PROPERTY::\textit{properties} will have '\textbf{\_1}' appended
+STAR\_1\_PROPERTY::\textit{properties} will have '\textbf{(1)}' appended
 
 \medskip
-STAR\_2\_PROPERTY::\textit{properties} will have '\textbf{\_2}' appended
+STAR\_2\_PROPERTY::\textit{properties} will have '\textbf{(2)}' appended
 
 \medskip
-SUPERNOVA\_PROPERTY::\textit{properties} will have '\textbf{\_SN}' appended
+SUPERNOVA\_PROPERTY::\textit{properties} will have '\textbf{(SN)}' appended
 
 \medskip
-COMPANION\_PROPERTY::\textit{properties} will have '\textbf{\_CP}' appended
+COMPANION\_PROPERTY::\textit{properties} will have '\textbf{(CP)}' appended
 \end{minipage}
+
+\bigskip
+\ac{HDF5} files are not human-readable. The \ac{HDF5} file format supports large, complex, heterogeneous data, enabling the data to be stored in a structured way in a single file. When the \ac{HDF5} format is specified for COMPAS log files, a single \ac{HDF5} file is produced for non-detailed output log files, containing all non-detailed output log files described above. Detailed output files are created, as for other logfile types, as individual files (in this case, HDF5 files), in the 'Detailed\_Output' container directory.
+
+Each file described above is created as a "group" within the \ac{HDF5} file, with the name of the group set to the name of the file (e.g. "BSE\_System\_Parameters). Each column in the files described above is created as a "dataset" within its corresponding group in the \ac{HDF5} file, with the name of the datset set to the column header as described above (e.g. "Mass(1)"). Each dataset in an \ac{HDF5} file is typed, and the dataset data types are set to the column data types as described above. The column units described above are attached to their corresponding datasets in the \ac{HDF5} file as "attributes".
+
+

@@ -82,7 +82,7 @@ public:
     STELLAR_TYPE        Star2InitialType()          { return m_BinaryStar->InitialStellarType2(); }
     STELLAR_TYPE        Star2Type()                 { return m_BinaryStar->StellarType2(); }
 
-    void                PrintSwitchLog();
+    bool                PrintSwitchLog();
 
 private:
 
