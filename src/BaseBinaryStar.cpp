@@ -2330,8 +2330,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
     if (OPTIONS->PopulationDataPrinting()) {
         SAY("\nGenerating a new binary - " << m_Id);
-        SAY("Binary has masses " << m_Star1->Mass() << " & " << m_Star2->Mass());
-        SAY("Binary has initial semiMajorAxis" << m_SemiMajorAxis);
+        SAY("Binary has masses " << m_Star1->Mass() << " & " << m_Star2->Mass() << " Msol");
+        SAY("Binary has initial semiMajorAxis " << m_SemiMajorAxis << " AU");
         SAY("RandomSeed " << m_RandomSeed);
     }
 
@@ -2403,7 +2403,9 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                     if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
                              if (m_Error != ERROR::NONE)                                       evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR; // error in binary evolution
                         else if (IsWDandWD())                                                  evolutionStatus = EVOLUTION_STATUS::WD_WD;   // do not evolve double WD systems for now
-                        else if (IsDCO() && m_Time>(m_DCOFormationTime + m_TimeToCoalescence)) evolutionStatus = EVOLUTION_STATUS::STOPPED; // evolution time exceeds DCO merger time
+                        else if (IsDCO() && m_Time>(m_DCOFormationTime + m_TimeToCoalescence) && !IsUnbound()){
+                            evolutionStatus = EVOLUTION_STATUS::STOPPED; // evolution time exceeds DCO merger time
+                        } 
                         else if (m_Time > OPTIONS->MaxEvolutionTime())                         evolutionStatus = EVOLUTION_STATUS::TIMES_UP;// evolution time exceeds maximum
                     }
                 }
