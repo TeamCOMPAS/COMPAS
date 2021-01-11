@@ -665,7 +665,10 @@
 //                                      - Added 'hdf5-buffer-size' option - specifies the HDF5 IO buffer size (number of chunks)
 //                                      - Removed 'logfile-delimiter' option - delimiter now set by logfile type (--logfile-type option described above)
 //                                      - Changed header strings containing '/' character: '/' replaced by '|' (header strings become dataset names in HDF5 files, and '/' is a path delimiter...)
+// 02.18.01     SS - Jan 11, 2021 - Defect repair
+//                                      - Added check if binary is bound when evolving unbound binaries
+//
 
-const std::string VERSION_STRING = "02.18.00";
+const std::string VERSION_STRING = "02.18.01";
 
 # endif // __changelog_h__
