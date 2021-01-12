@@ -265,7 +265,7 @@ class pythonProgramOptions:
     logfile_name_prefix = None
     logfile_type        = 'HDF5'
 
-    hdf5_chunk_size     = 5000
+    hdf5_chunk_size     = 100000
     hdf5_buffer_size    = 1
 
 
