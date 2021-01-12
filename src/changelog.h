@@ -658,7 +658,7 @@
 //                                      - Typo in options code for option --switch-log: "switchlog" was incorrectly used instead of "switch-log"
 // 02.17.19     LVS - Dec 19, 2020  - Enhancements:
 //                                      - Added option to vary winds of cool stars (with T < VINK_MASS_LOSS_MINIMUM_TEMP) via a CoolWindMassLossMultiplier
-// 02.18.00     JR - Jan 08, 2020   - Enhancement:
+// 02.18.00     JR - Jan 08, 2021   - Enhancement:
 //                                      - Added support for HDF5 logfiles (see notes at top of log.h)
 //                                      - Added 'logfile-type' option; allowed values are HDF5, CSV, TSV, TXT; default is HDF5
 //                                      - Added 'hdf5-chunk-size' option - specifies the HDF5 chunk size (number of dataset entries)
@@ -667,8 +667,10 @@
 //                                      - Changed header strings containing '/' character: '/' replaced by '|' (header strings become dataset names in HDF5 files, and '/' is a path delimiter...)
 // 02.18.01     SS - Jan 11, 2021 - Defect repair
 //                                      - Added check if binary is bound when evolving unbound binaries
+// 02.18.02     JR - Jan 12, 2021   - Defect repair:
+//                                      - Changed "hdf5_chunk_size = 5000" to "hdf5_chunk_size = 100000" in default pythonSubmit (inadvertently left at 5000 after some tests...)
 //
 
-const std::string VERSION_STRING = "02.18.01";
+const std::string VERSION_STRING = "02.18.02";
 
 # endif // __changelog_h__
