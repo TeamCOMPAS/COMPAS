@@ -7,6 +7,7 @@
 #include "utils.h"
 
 #include "Remnants.h"
+#include "BH.h"
 
 
 class BaseStar;
@@ -75,6 +76,9 @@ protected:
                                                          const double p_MagField,
                                                          const double p_Radius,
                                                          double const p_Alpha);
+            STELLAR_TYPE    EvolveToNextPhase()                                     { m_Mass = BH::CalculateNeutrinoMassLoss_Static(m_Mass); return STELLAR_TYPE::BLACK_HOLE; }
+    
+            bool            ShouldEvolveOnPhase() const                             { return (m_Mass <= OPTIONS->MaximumNeutronStarMass()); }                       // Evolve as a neutron star unless mass > maximum neutron star mass (e.g. through accretion)
 
             void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
                                                        const bool   p_RecycledNS,
