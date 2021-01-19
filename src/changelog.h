@@ -669,8 +669,11 @@
 //                                      - Added check if binary is bound when evolving unbound binaries
 // 02.18.02     JR - Jan 12, 2021   - Defect repair:
 //                                      - Changed "hdf5_chunk_size = 5000" to "hdf5_chunk_size = 100000" in default pythonSubmit (inadvertently left at 5000 after some tests...)
-//
+// 02.18.03     SS - Jan 19, 2021 - Enhancement:
+// 										- Added check for neutron star mass against maximum neutron star mass. 
+//										If a neutron star exceeds this mass it should collapse to a black hole. This can be relevant for neutron stars accreting, e.g. during common envelope evolution
+// 
 
-const std::string VERSION_STRING = "02.18.02";
+const std::string VERSION_STRING = "02.18.03";
 
 # endif // __changelog_h__
