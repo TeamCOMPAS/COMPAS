@@ -672,10 +672,8 @@
 // 02.18.03     SS - Jan 19, 2021   - Enhancement:
 // 										- Added check for neutron star mass against maximum neutron star mass. 
 //										If a neutron star exceeds this mass it should collapse to a black hole. This can be relevant for neutron stars accreting, e.g. during common envelope evolution
-// 02.18.04     TW - Jan 24, 2021   - Defect repair:
-//                                      - Fix hubble time mask so that it is cast to booleans instead of used as ints
-//                                      - update hdf5 file group names to new ones
 
-const std::string VERSION_STRING = "02.18.04";
+
+const std::string VERSION_STRING = "02.18.03";
 
 # endif // __changelog_h__
