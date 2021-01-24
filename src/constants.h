@@ -3731,7 +3731,7 @@ const std::vector<DBL_VECTOR> LOVERIDGE_LM1_LM2_CUTOFFS = {
 // vector LOVERIDGE_COEFFICIENTS
 // Multi-dimensional vector of struct LoveridgeCoefficients, indexed by
 // metallicity (LOVERIDGE_METALLICITY) and evolutionary stage (LOVERIDGE_GROUP)
-// This vector records the coefficients (m, r, alpha(m,r) used in Loveridge et al. 20001, eq 5
+// This vector records the coefficients (m, r, alpha(m,r) used in Loveridge et al. 2001, eq 5
 // Using a vector indexed by metallicity and evolutionary stage because it's faster than a map, and
 // the lambdas could be calculated at every timestep.
 const std::vector<std::vector<std::vector<LoveridgeCoefficients>>> LOVERIDGE_COEFFICIENTS = {
