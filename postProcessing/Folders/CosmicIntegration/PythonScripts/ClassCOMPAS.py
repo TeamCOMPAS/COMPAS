@@ -59,9 +59,9 @@ class COMPASData(object):
         self.mass_evolved_per_binary = None # Msun
 
         if not suppress_reminder:
-            print("ClassCOMPAS: Remember to self.setGridAndMassEvolved() [optional]")
-            print("                    then self.setCOMPASDCOmask()")
+            print("ClassCOMPAS: Remember to self.setCOMPASDCOmask()")
             print("                    then self.setCOMPASData()")
+            print("          and optionally self.setGridAndMassEvolved() if using a metallicity grid")
 
     def setCOMPASDCOmask(
         self, types="BBH", withinHubbleTime=True, pessimistic=True, noRLOFafterCEE=True
@@ -70,14 +70,14 @@ class COMPASData(object):
         # the pessimistic CEE prescription (HG donors cannot survive a CEE) and
         # not allowing immediate RLOF post-CEE
         stellar_type_1, stellar_type_2, hubble_flag, dco_seeds = \
-            self.get_COMPAS_variables("DoubleCompactObjects", ["Stellar_Type(1)", "Stellar_Type(2)", "Merges_Hubble_Time", "SEED"])
+            self.get_COMPAS_variables("BSE_Double_Compact_Objects", ["Stellar_Type(1)", "Stellar_Type(2)", "Merges_Hubble_Time", "SEED"])
 
         # if user wants to mask on Hubble time use the flag, otherwise just set all to True
-        hubble_mask = hubble_flag if withinHubbleTime else True
+        hubble_mask = hubble_flag.astype(bool) if withinHubbleTime else np.repeat(True, len(dco_seeds))
 
         # mask on stellar types (where 14=BH and 13=NS), BHNS can be BHNS or NSBH
         type_masks = {
-            "all": True,
+            "all": np.repeat(True, len(dco_seeds)),
             "BBH": np.logical_and(stellar_type_1 == 14, stellar_type_2 == 14),
             "BHNS": np.logical_or(np.logical_and(stellar_type_1 == 14, stellar_type_2 == 13), np.logical_and(stellar_type_1 == 13, stellar_type_2 == 14)),
             "BNS": np.logical_and(stellar_type_1 == 13, stellar_type_2 == 13),
@@ -87,28 +87,28 @@ class COMPASData(object):
         if noRLOFafterCEE or pessimistic:
 
             # get the flags and unique seeds from the Common Envelopes file
-            ce_seeds = self.get_COMPAS_variables("CommonEnvelopes", "SEED")
+            ce_seeds = self.get_COMPAS_variables("BSE_Common_Envelopes", "SEED")
             dco_from_ce = np.in1d(ce_seeds, dco_seeds)
             dco_ce_seeds = ce_seeds[dco_from_ce]
 
             # if masking on RLOF, get flag and match seeds to dco seeds
             if noRLOFafterCEE:
-                rlof_flag = self.get_COMPAS_variables("CommonEnvelopes", "Immediate_RLOF>CE")[dco_from_ce]
+                rlof_flag = self.get_COMPAS_variables("BSE_Common_Envelopes", "Immediate_RLOF>CE")[dco_from_ce]
                 rlof_seeds = np.unique(dco_ce_seeds[rlof_flag])
                 rlof_mask = np.logical_not(np.in1d(dco_seeds, rlof_seeds))
             else:
-                rlof_mask = True
+                rlof_mask = np.repeat(True, len(dco_seeds))
 
             # if masking on pessimistic CE, get flag and match seeds to dco seeds
             if pessimistic:
-                pessimistic_flag = self.get_COMPAS_variables("CommonEnvelopes", "Optimistic_CE")[dco_from_ce]
+                pessimistic_flag = self.get_COMPAS_variables("BSE_Common_Envelopes", "Optimistic_CE")[dco_from_ce]
                 pessimistic_seeds = np.unique(dco_ce_seeds[pessimistic_flag])
                 pessimistic_mask = np.logical_not(np.in1d(dco_seeds, pessimistic_seeds))
             else:
-                pessimistic_mask = True
+                pessimistic_mask = np.repeat(True, len(dco_seeds))
         else:
-            rlof_mask = True
-            pessimistic_mask = True
+            rlof_mask = np.repeat(True, len(dco_seeds))
+            pessimistic_mask = np.repeat(True, len(dco_seeds))
 
         # create a mask for each dco type supplied
         self.DCOmask = type_masks[types] * hubble_mask * rlof_mask * pessimistic_mask
@@ -137,16 +137,16 @@ class COMPASData(object):
         # so dont redo if we reset the data
         Data = h5.File(self.path + self.fileName, "r")
         if self.initialZ is None:
-            self.initialZ = Data["SystemParameters"]["Metallicity@ZAMS_1"][()]
+            self.initialZ = Data["BSE_System_Parameters"]["Metallicity@ZAMS(1)"][()]
         self.metallicityGrid = np.unique(self.initialZ)
         Data.close()
 
     def setCOMPASData(self):
         
         primary_masses, secondary_masses, formation_times, coalescence_times, dco_seeds = \
-            self.get_COMPAS_variables("DoubleCompactObjects", ["Mass(1)", "Mass(2)", "Time", "Coalescence_Time", "SEED"])
+            self.get_COMPAS_variables("BSE_Double_Compact_Objects", ["Mass(1)", "Mass(2)", "Time", "Coalescence_Time", "SEED"])
 
-        initial_seeds, initial_Z = self.get_COMPAS_variables("SystemParameters", ["SEED", "Metallicity@ZAMS(1)"])
+        initial_seeds, initial_Z = self.get_COMPAS_variables("BSE_System_Parameters", ["SEED", "Metallicity@ZAMS(1)"])
 
         # Get metallicity grid of DCOs
         self.seedsDCO = dco_seeds[self.DCOmask]
@@ -171,7 +171,7 @@ class COMPASData(object):
                 (np.multiply(self.mass2, self.mass1) ** (3.0 / 5.0)),
                 (np.add(self.mass2, self.mass1) ** (1.0 / 5.0)),
             )
-            self.Hubble = self.get_COMPAS_variables("DoubleCompactObjects", "Merges_Hubble_Time")[self.DCOmask]
+            self.Hubble = self.get_COMPAS_variables("BSE_Double_Compact_Objects", "Merges_Hubble_Time")[self.DCOmask]
 
     def recalculateTrueSolarMassEvolved(self, Mlower, Mupper, binaryFraction):
         # Possibility to test assumptions of True solar mass evolved
@@ -190,7 +190,7 @@ class COMPASData(object):
             Get a variable or variables from a COMPAS file
 
             Args:
-                hdf5_file --> [string]                Name of HDF5 subfile (e.g. "DoubleCompactObjects")
+                hdf5_file --> [string]                Name of HDF5 subfile (e.g. "BSE_Double_Compact_Objects")
                 var_names --> [string or string list] A variable name or list of variables names to return
 
             Returns:
@@ -206,9 +206,9 @@ class COMPASData(object):
                 return [compas_file[hdf5_file][var_name][...].squeeze() for var_name in var_names]
 
     def set_sw_weights(self, column_name):
-        """ Set STROOPWAFEL adaptive sampling weights given a column name in the DoubleCompactObjects file """
+        """ Set STROOPWAFEL adaptive sampling weights given a column name in the BSE_Double_Compact_Objects file """
         if column_name is not None:
-            self.sw_weights = self.get_COMPAS_variables("DoubleCompactObjects", column_name)[self.DCOmask]
+            self.sw_weights = self.get_COMPAS_variables("BSE_Double_Compact_Objects", column_name)[self.DCOmask]
 
     def find_star_forming_mass_per_binary_sampling(self, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3,
             primary_mass_inverse_CDF=None, mass_ratio_inverse_CDF=None, SAMPLES=20000000):
