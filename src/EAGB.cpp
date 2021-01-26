@@ -86,7 +86,8 @@ double EAGB::CalculateLambdaNanjing(double mass, double metallicity) {
         if (utils::Compare(mass, 1.5) < 0) {
             maxBG = { 2.5, 1.5 };
             Rmax = 200.0;
-            double tmp = 0.1 - (m_Radius * 3.57E-04);
+            double R_in = std::min(Rmax, m_Radius);
+            double tmp = 0.1 - ( R_in * 3.57E-04);
             lambdaBG   = { tmp, tmp };
         }
         else if (utils::Compare(mass, 2.5) < 0) {
@@ -146,11 +147,12 @@ double EAGB::CalculateLambdaNanjing(double mass, double metallicity) {
         else if (utils::Compare(mass, 13.0) < 0) {
             maxBG = { 1.5, 1.0 };
             Rmax = 850.0;
-            if (utils::Compare(m_Radius, 0.0) > 0 && utils::Compare(m_Radius, 350.0) <= 0) {
+            double R_in = std::min(Rmax, m_Radius);
+            if (utils::Compare(R_in, 0.0) > 0 && utils::Compare(R_in, 350.0) <= 0) {
                 a = { 1.28593, -0.02209, 1.79764E-04, -6.21556E-07, 7.59444E-10, 0.0 };
                 b = { 0.68544, -0.01394, 1.20845E-04, -4.29071E-07, 5.29169E-10, 0.0 };
             }
-            else if (utils::Compare(m_Radius, 350.0) > 0 && utils::Compare(m_Radius, 600.0) <= 0) {
+            else if (utils::Compare(R_in, 350.0) > 0 && utils::Compare(R_in, 600.0) <= 0) {
                 a = { -11.99537,  0.0992, -2.8981E-04,  3.62751E-07, -1.65585E-10, 0.0 };
                 b = {   0.46156, -0.0066,  3.9625E-05, -9.98667E-08, -8.84134E-11, 0.0 };
             }
@@ -204,7 +206,8 @@ double EAGB::CalculateLambdaNanjing(double mass, double metallicity) {
         else if (utils::Compare(mass, 3.5) < 0) {
             maxBG = { 600.0, 2.0 };
             Rmax = 400.0;
-            if (utils::Compare(m_Radius, 36.0) > 0 && utils::Compare(m_Radius, 53.0) < 0) lambdaBG = { 1.0, 1.0 };
+            double R_in = std::min(Rmax, m_Radius);
+            if (utils::Compare(R_in, 36.0) > 0 && utils::Compare(R_in, 53.0) < 0) lambdaBG = { 1.0, 1.0 };
             else {
                 a = { -0.475  , -0.00328, 1.31101E-04, -6.03669E-07, 8.49549E-10, 0.0 };
                 b = {  0.05434,  0.0039 , 9.44609E-06, -3.87278E-08, 0.0        , 0.0 };
@@ -255,7 +258,8 @@ double EAGB::CalculateLambdaNanjing(double mass, double metallicity) {
         else if (utils::Compare(mass, 13.0) < 0) {
             maxBG = { 1.6, 1.0 };
             Rmax = 600.0;
-            if (utils::Compare(m_Radius, 390.0) > 0 && utils::Compare(m_Radius, 460.0) < 0) lambdaBG = { 0.08, 0.05 };
+            double R_in = std::min(Rmax, m_Radius);
+            if (utils::Compare(R_in, 390.0) > 0 && utils::Compare(R_in, 460.0) < 0) lambdaBG = { 0.08, 0.05 };
             else {
                 a = { -51.15252, 0.30238, -5.95397E-04, 3.91798E-07, 0.0, 0.0 };
                 b = { -13.44   , 0.08141, -1.641E-04  , 1.106E-07  , 0.0, 0.0 };
@@ -264,8 +268,11 @@ double EAGB::CalculateLambdaNanjing(double mass, double metallicity) {
         else if (mass < 15.0) {
             maxBG = { 1.6, 1.0 };
             Rmax = 650.0;
-            if (utils::Compare(m_Radius, 480.0) >  0 && utils::Compare(m_Radius, 540.0) <  0) lambdaBG = { 0.06, 0.05 };
-            else if (utils::Compare(m_Radius, 540.0) >= 0 && utils::Compare(m_Radius, 650.0) <= 0) lambdaBG = { (m_Radius * 1.8E-03) - 0.88, (m_Radius * 9.1E-04) - 0.43 };   // JR: todo: inserted "=" in both cases here
+            double R_in = std::min(Rmax, m_Radius);
+            if (utils::Compare(R_in, 480.0) >  0 && utils::Compare(R_in, 540.0) <  0) lambdaBG = { 0.06, 0.05 };
+            else if (utils::Compare(R_in, 540.0) >= 0 && utils::Compare(R_in, 650.0) <= 0) {
+                lambdaBG = { (R_in * 1.8E-03) - 0.88, (R_in* 9.1E-04) - 0.43 };   // JR: todo: inserted "=" in both cases here
+            }
             else {
                 a = { -140.0   , 0.7126 , -0.00121    , 6.846E-07  , 0.0, 0.0 };
                 b = {  -44.1964, 0.22592, -3.85124E-04, 2.19324E-07, 0.0, 0.0 };
@@ -274,8 +281,11 @@ double EAGB::CalculateLambdaNanjing(double mass, double metallicity) {
         else if (utils::Compare(mass, 18.0) < 0) {
             maxBG = { 1.5, 1.0 };
             Rmax = 750.0;
-            if (utils::Compare(m_Radius, 560.0) >  0 && utils::Compare(m_Radius, 650.0) <  0) lambdaBG = { 0.1, 0.05 };
-            else if (utils::Compare(m_Radius, 650.0) >= 0 && utils::Compare(m_Radius, 750.0) <= 0) lambdaBG = { (m_Radius * 4.0E-03) - 2.5, (m_Radius * 1.5E-03) - 0.93 };    // JR: todo: inserted "=" in both cases here
+            double R_in = std::min(Rmax, m_Radius);
+            if (utils::Compare(R_in, 560.0) >  0 && utils::Compare(R_in, 650.0) <  0) lambdaBG = { 0.1, 0.05 };
+            else if (utils::Compare(R_in, 650.0) >= 0 && utils::Compare(R_in, 750.0) <= 0) {
+                lambdaBG = { (R_in * 4.0E-03) - 2.5, (R_in * 1.5E-03) - 0.93 };    // JR: todo: inserted "=" in both cases here
+            }
             else {
                 a = { -358.4    , 1.599  , -0.00238   , 1.178E-06  , 0.0, 0.0 };
                 b = { -118.13757, 0.52737, -7.8479E-04, 3.89585E-07, 0.0, 0.0 };
@@ -284,8 +294,11 @@ double EAGB::CalculateLambdaNanjing(double mass, double metallicity) {
         else if (utils::Compare(mass, 35.0) < 0) {
             maxBG = { 1.5, 1.0 };
             Rmax = 900.0;
-            if (utils::Compare(m_Radius, 725.0) >  0 && utils::Compare(m_Radius, 850.0) <  0) lambdaBG = { 0.1, 0.05 };
-            else if (utils::Compare(m_Radius, 850.0) >= 0 && utils::Compare(m_Radius, 900.0) <= 0) lambdaBG = { (m_Radius * 2.0E-03) - 1.6, (m_Radius * 1.0E-03) - 0.8 };    // JR: todo: inserted "=" in both cases here
+            double R_in = std::min(Rmax, m_Radius);
+            if (utils::Compare(R_in, 725.0) >  0 && utils::Compare(R_in, 850.0) <  0) lambdaBG = { 0.1, 0.05 };
+            else if (utils::Compare(R_in, 850.0) >= 0 && utils::Compare(R_in, 900.0) <= 0) {
+                lambdaBG = { (R_in * 2.0E-03) - 1.6, (R_in * 1.0E-03) - 0.8 };    // JR: todo: inserted "=" in both cases here
+            }
             else {
                 a = { -436.00777, 1.41375, -0.00153    , 5.47573E-07, 0.0, 0.0 };
                 b = { -144.53456, 0.46579, -4.99197E-04, 1.78027E-07, 0.0, 0.0 };

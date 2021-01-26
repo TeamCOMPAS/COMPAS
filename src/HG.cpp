@@ -101,7 +101,10 @@ double HG::CalculateLambdaNanjing(double mass, double metallicity) {
         if (utils::Compare(mass, 1.5) < 0) {
             maxBG = { 2.5, 1.5 };
             Rmax = 200.0;
-            if (utils::Compare(m_Radius, 2.7  ) > 0) lambdaBG = { 2.33 - (m_Radius * 9.18E-03), 1.12 - (m_Radius * 4.59E-03) };
+            double R_in = std::min(Rmax, m_Radius);
+            if (utils::Compare(R_in, 2.7  ) > 0) {
+                lambdaBG = { 2.33 - (R_in * 9.18E-03), 1.12 - (R_in * 4.59E-03) };
+            }
             else {
                 a = {  8.35897, -18.89048, 10.47651, 0.99352, 0.0, 0.0 };
                 b = { 17.58328, -34.84355, 10.70536, 8.49042, 0.0, 0.0 };
@@ -164,11 +167,12 @@ double HG::CalculateLambdaNanjing(double mass, double metallicity) {
         else if (utils::Compare(mass, 13.0) < 0) {
             maxBG = { 1.5, 1.0 };
             Rmax = 850.0;
-            if (utils::Compare(m_Radius, 0.0) > 0 && utils::Compare(m_Radius, 350.0) <= 0) {
+            double R_in = std::min(Rmax, m_Radius);
+            if (utils::Compare(R_in, 0.0) > 0 && utils::Compare(R_in, 350.0) <= 0) {
                 a = { 1.28593, -0.02209, 1.79764E-04, -6.21556E-07, 7.59444E-10, 0.0 };
                 b = { 0.68544, -0.01394, 1.20845E-04, -4.29071E-07, 5.29169E-10, 0.0 };
             }
-            else if (utils::Compare(m_Radius, 350.0) > 0 && utils::Compare(m_Radius, 600.0) <= 0) {
+            else if (utils::Compare(R_in, 350.0) > 0 && utils::Compare(R_in, 600.0) <= 0) {
                 a = { -11.99537,  0.0992, -2.8981E-04,  3.62751E-07, -1.65585E-10, 0.0 };
                 b = {   0.46156, -0.0066,  3.9625E-05, -9.98667E-08, -8.84134E-11, 0.0 };
             }
@@ -180,7 +184,8 @@ double HG::CalculateLambdaNanjing(double mass, double metallicity) {
         else if (utils::Compare(mass, 15.0) < 0) {
             maxBG = { 1.5, 1.0 };
             Rmax = 1000.0;
-            if (utils::Compare(m_Radius, 190.0) > 0 && utils::Compare(m_Radius, 600.0) < 0) lambdaBG = { 0.15, 0.15 };
+            double R_in = std::min(Rmax, m_Radius);
+            if (utils::Compare(R_in, 190.0) > 0 && utils::Compare(R_in, 600.0) < 0) lambdaBG = { 0.15, 0.15 };
             else {
                 a = { 1.39332, -0.0318 , 3.95917E-04, -2.23132E-06, 4.50831E-09, 0.0 };
                 b = { 0.78215, -0.02326, 3.25984E-04, -1.94991E-06, 4.08044E-09, 0.0 };
@@ -189,7 +194,8 @@ double HG::CalculateLambdaNanjing(double mass, double metallicity) {
         else if (utils::Compare(mass, 18.0) < 0) {
             maxBG = { 1.5, 1.0 };
             Rmax = 1050.0;
-            if (utils::Compare(m_Radius, 120.0) > 0 && utils::Compare(m_Radius, 170.0) < 0) lambdaBG = { 0.2, 0.2 };
+            double R_in = std::min(Rmax, m_Radius);
+            if (utils::Compare(R_in, 120.0) > 0 && utils::Compare(R_in, 170.0) < 0) lambdaBG = { 0.2, 0.2 };
             else {
                 a = { 1.43177, -0.03533, 5.11128E-04, -3.57633E-06, 9.36778E-09, 0.0 };
                 b = { 0.85384, -0.03086, 5.50878E-04, -4.37671E-06, 1.25075E-08, 0.0 };
@@ -198,7 +204,8 @@ double HG::CalculateLambdaNanjing(double mass, double metallicity) {
         else if (utils::Compare(mass, 35.0) < 0) {
             maxBG = { 1.5, 1.0 };
             Rmax = 1200.0;
-            lambdaBG = { 1.2 * exp(-m_Radius / 90.0), 0.55 * exp(-m_Radius / 160.0) };
+            double R_in = std::min(Rmax, m_Radius);
+            lambdaBG = { 1.2 * exp(-R_in / 90.0), 0.55 * exp(-R_in / 160.0) };
         }
         else if (utils::Compare(mass, 75.0) < 0) {
             maxBG = { 1.0, 0.5 };
@@ -215,7 +222,10 @@ double HG::CalculateLambdaNanjing(double mass, double metallicity) {
         if (utils::Compare(mass, 1.5) < 0) {
             maxBG = { 2.0, 1.5 };
             Rmax = 160.0;
-            if (utils::Compare(m_Radius, 12.0)  > 0) lambdaBG = { 1.8 * exp(-m_Radius / 80.0), exp(-m_Radius / 45.0) };
+            double R_in = std::min(Rmax, m_Radius);
+            if (utils::Compare(R_in, 12.0)  > 0) {
+                lambdaBG = { 1.8 * exp(-R_in / 80.0), exp(-R_in / 45.0) };
+            }
             else {
                 a = { 0.24012, -0.01907, 6.09529E-04, -8.17819E-06, 4.83789E-08, -1.04568E-10 };
                 b = { 0.15504, -0.01238, 3.96633E-04, -5.3329E-06 , 3.16052E-08, -6.84288E-11 };
@@ -224,7 +234,8 @@ double HG::CalculateLambdaNanjing(double mass, double metallicity) {
         else if (utils::Compare(mass, 2.5) < 0) {
             maxBG = { 4.0, 2.0 };
             Rmax = 350.0;
-            if (utils::Compare(m_Radius, 22.0) > 0 && utils::Compare(m_Radius, 87.0) < 0) lambdaBG = { 1.95, 0.85 };
+            double R_in = std::min(Rmax, m_Radius);
+            if (utils::Compare(R_in, 22.0) > 0 && utils::Compare(R_in, 87.0) < 0) lambdaBG = { 1.95, 0.85 };
             else {
                 a = { 2.56108, -0.75562, 0.1027 , -0.00495, 8.05436E-05, 0.0 };
                 b = { 1.41896, -0.4266 , 0.05792, -0.00281, 4.61E-05   , 0.0 };
@@ -275,7 +286,8 @@ double HG::CalculateLambdaNanjing(double mass, double metallicity) {
         else if (utils::Compare(mass, 11.0) < 0) {
             maxBG = { 1.6, 1.0 };
             Rmax = 500.0;
-            lambdaBG = { 1.75 * exp(-m_Radius / 35.0), 0.9 * exp(-m_Radius /35.0) };
+            double R_in = std::min(Rmax, m_Radius);
+            lambdaBG = { 1.75 * exp(-R_in / 35.0), 0.9 * exp(-R_in /35.0) };
         }
         else if (utils::Compare(mass, 13.0) < 0) {
             maxBG = { 1.6, 1.0 };
