@@ -306,11 +306,11 @@ constexpr int    HDF5_MINIMUM_CHUNK_SIZE                = 1000;                 
 // The values specified here should be checked in Options::OptionValues::CheckAndSetOptions()
 // and in any relevant sampling functions
 
-constexpr double MINIMUM_INITIAL_MASS                   = 0.5;                                                  // Minimum initial mass (Msol)
-constexpr double MAXIMUM_INITIAL_MASS                   = 150.0;                                                    // Maximum initial mass (Msol) (
+constexpr double MINIMUM_INITIAL_MASS                   = 0.00007;                                                  // Minimum initial mass (Msol) (~theoretical minimum? How low does COMPAS actually tolerate?)
+constexpr double MAXIMUM_INITIAL_MASS                   = 150.0;                                                    // Maximum initial mass (Msol) (should actually be 100Msol?)
 
 constexpr double MINIMUM_METALLICITY                    = 0.0001;                                                   // Minimum metallicity - Hurley equations known to fail for Z < 0.0001
-constexpr double MAXIMUM_METALLICITY                    = 0.03;                                                     // Maximum metallicity
+constexpr double MAXIMUM_METALLICITY                    = 0.03;                                                     // Maximum metallicity (~> super-metal-rich?)
 
 
 // IMF constants
