@@ -360,8 +360,8 @@ double TPAGB::CalculateLambdaNanjing(double mass, double metallicity) {
     }
 
     // Limit lambda to some 'reasonable' range
-    lambdaBG[0] = std::min(std::max(0.05, lambdaBG[0]), maxBG[0]);                  // clamp lambda B to [0.05, maxB]
-    lambdaBG[1] = std::min(std::max(0.05, lambdaBG[1]), maxBG[1]);                  // clamp lambda G to [0.05, maxG]
+    lambdaBG[1] = std::min( std::max(0.05, lambdaBG[1]), std::min(1.0, maxBG[1]) );         // clamp lambda G to [0.05, min(1,maxG)]
+    lambdaBG[0] = std::max( std::min(lambdaBG[0],maxBG[0]), std::max(0.05, lambdaBG[1]) );  // clamp lambda B to [ max(0.05,lambdaG), maxB]
 
     // Calculate lambda as some combination of lambda_b and lambda_g by
     // lambda = alpha_th • lambda_b    +  (1-alpha_th) • lambda_g
