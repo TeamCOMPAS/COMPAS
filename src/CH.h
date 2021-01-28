@@ -30,19 +30,19 @@ public:
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS;                                                                                                                   // Set stellar type
-        CalculateTimescales();                                                                                                                                                  // Initialise timescales
-        m_Age = 0.0;                                                                                                                                                            // Set age appropriately
-        m_CHE = true;                                                                                                                                                           // initially for CH stars                                                                                                                                                            // Set age appropriately
+        m_StellarType = STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS;                                                                                                                       // Set stellar type
+        CalculateTimescales();                                                                                                                                                      // Initialise timescales
+        m_Age = 0.0;                                                                                                                                                                // Set age appropriately
+        m_CHE = true;                                                                                                                                                               // initially for CH stars                                                                                                                                                            // Set age appropriately
     }
 
     // member functions
-    double          CalculateRadiusOnPhase()        { return m_RZAMS; }                                                                                                         // Constant from birth
-    double          CalculateRadiusAtPhaseEnd()     { return CalculateRadiusOnPhase(); }                                                                                        // Same as on phase
+    double          CalculateRadiusOnPhase() const      { return m_RZAMS; }                                                                                                         // Constant from birth
+    double          CalculateRadiusAtPhaseEnd() const   { return CalculateRadiusOnPhase(); }                                                                                        // Same as on phase
 
     STELLAR_TYPE    EvolveToNextPhase();
 
-    bool            ShouldEvolveOnPhase()           { return m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)] && (OPTIONS->OptimisticCHE() || m_Omega >= m_OmegaCHE); }   // Evolve on CHE phase if age in MS timescale and spinning at least as fast as CHE threshold
+    bool            ShouldEvolveOnPhase() const         { return m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)] && (OPTIONS->OptimisticCHE() || m_Omega >= m_OmegaCHE); }   // Evolve on CHE phase if age in MS timescale and spinning at least as fast as CHE threshold
 
 };
 

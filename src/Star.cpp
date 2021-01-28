@@ -12,7 +12,7 @@ Star::Star() : m_Star(new BaseStar()) {
 }
 
 
-// Regular constructor - with parameters for RandomSeed, MZAMS, Metallicity, LBVFactor and WolfRayetFactor
+// Regular constructor - with parameters for RandomSeed, MZAMS, Metallicity, and KickParameters
 Star::Star(const unsigned long int p_RandomSeed,
            const double            p_MZAMS,
            const double            p_Metallicity, 
@@ -167,7 +167,7 @@ STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialT
                 raise(SIGUSR1);                                                             // signal to BSE that switch is occurring
             }
             else {                                                                          // SSE
-                m_Star->PrintSwitchLog(m_Id);                                               // no need for the BSE signal shenaningans - just call the function
+                (void)m_Star->PrintSwitchLog(m_Id);                                         // no need for the BSE signal shenaningans - just call the function
             }
         }
     }
@@ -426,13 +426,13 @@ double Star::EvolveOneTimestep(const double p_Dt) {
         if (utils::Compare(m_Star->CalculateRadialChange(), MAXIMUM_RADIAL_CHANGE) >= 0) {                      // too much change?
             if (utils::Compare(dt, minTimestep) <= 0) {                                                         // yes - already at or below minimum timestep?
                 takeTimestep = true;                                                                            // yes - just take the last timestep
-                if (!OPTIONS->Quiet()) SAY("WARNING: Timestep below minimum - timestep taken!");                // announce the problem if required and plough on regardless...
+                SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                                       // announce the problem if required and plough on regardless...
             }
             else {                                                                                              // not at or below dynamical - reduce timestep and try again
                 retryCount++;                                                                                   // increment retry count
                 if (retryCount > MAX_TIMESTEP_RETRIES) {                                                        // too many retries?
                     takeTimestep = true;                                                                        // yes - take the last timestep anyway
-                    if (!OPTIONS->Quiet()) SAY("WARNING: Too many retries finding timestep - timestep taken!"); // announce the problem if required and plough on regardless...
+                    SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                                   // announce the problem if required and plough on regardless...
                 }
                 else {                                                                                          // not too many retries - retry with smaller timestep
                     if (RevertState()) {                                                                        // revert to last state ok?
@@ -441,7 +441,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
                     }
                     else {                                                                                      // revert failed
                         takeTimestep = true;                                                                    // take the last timestep anyway
-                       if (!OPTIONS->Quiet()) SAY("Revert of star failed - timestep taken!");                  // announce the problem if required and plough on regardless...
+                        SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                               // announce the problem if required and plough on regardless...
                     }
                 }
             }
@@ -450,7 +450,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
 
     // take the timestep
 
-    m_Star->PrintStashedSupernovaDetails();                                                                     // print stashed SSE Supernova log record if necessary
+    (void)m_Star->PrintStashedSupernovaDetails();                                                               // print stashed SSE Supernova log record if necessary
 
     (void)SwitchTo(stellarType);                                                                                // switch phase if required  JR: whether this goes before or after the log record is a little problematic, but in the end probably doesn't matter too much
 
@@ -504,9 +504,11 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
             stepNum++;                                                          // increment step number                                                      
             dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();   // calculate new timestep
             EvolveOneTimestep(dt);                                              // evolve for timestep
-            m_Star->PrintDetailedOutput(m_Id);                                  // log record  JR: this should probably be before the star switches type, but this way matches the original code
+            (void)m_Star->PrintDetailedOutput(m_Id);                            // log record  JR: this should probably be before the star switches type, but this way matches the original code
         }
     }
+
+    (void)m_Star->PrintSystemParameters();                                      // log system parameters
 
     return status;
 }

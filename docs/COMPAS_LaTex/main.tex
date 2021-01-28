@@ -23,7 +23,7 @@
 \usepackage{xstring}
 \usepackage{xspace}
 \usepackage{hyperref}
-
+\usepackage{acronym}
 
 \makeatletter
 \newcommand\xpar{
@@ -33,6 +33,7 @@
     {\normalfont\normalsize\bfseries}
 }
 \makeatother
+
 
 \newcommand{\minus}{\scalebox{0.75}[1.0]{$-$}}
 \newcommand{\Msun}{\ensuremath{\,\rm{M}_{\odot}}\xspace}
@@ -50,6 +51,13 @@
 \newcommand{\lsb}{$\mathrm{[}$}         % left bracket
 \newcommand{\rsb}{$\mathrm{]}$}         % right bracket
 \newcommand{\rarr}{$\mathrm{\to}$}      % right arrow (implication, to...)
+
+\acrodef{HDF5}{Hierarchical Data Format version 5}
+\acrodef{CSV}{Comma Separated Values}
+\acrodef{TSV}{Tab Separated Values}
+\acrodef{TXT}{Plain text: space separated values}
+
+
 
 % JR: I am not happy with the method of crossreferencing sections/headers
 % I don't know why the appendices don't get a number/letter, but I'm a 
@@ -155,10 +163,10 @@
         \begin{minipage}[t][][b]{\dimexpr\textwidth-8.75em}
             \raggedright
             \nobreak{#5,\ }
-            \nobreak{#5{\_1,\ }}
-            \nobreak{#5{\_2,\ }}
-            \nobreak{#5{\_SN,\ }}
-            \nobreak{#5{\_CP}}
+            \nobreak{#5{(1),\ }}
+            \nobreak{#5{(2),\ }}
+            \nobreak{#5{(SN),\ }}
+            \nobreak{#5{(CP)}}
         \end{minipage}\vfill
         \duplicateHeader{#6}
     \end{minipage}
@@ -186,10 +194,10 @@
         \begin{minipage}[t][][b]{8.25em}Header Strings:\end{minipage}
         \begin{minipage}[t][][b]{\dimexpr\textwidth-8.75em}
             \raggedright
-            \nobreak{#5{\_1,\ }}
-            \nobreak{#5{\_2,\ }}
-            \nobreak{#5{\_SN,\ }}
-            \nobreak{#5{\_CP}}
+            \nobreak{#5{(1),\ }}
+            \nobreak{#5{(2),\ }}
+            \nobreak{#5{(SN),\ }}
+            \nobreak{#5{(CP)}}
         \end{minipage}\vfill
         \duplicateHeader{#6}
     \end{minipage}

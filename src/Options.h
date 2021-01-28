@@ -145,18 +145,6 @@ private:
         "help", "h",
         "version", "v",
 
-        // Floor
-        /*
-        "ais-dcotype",
-        "ais-exploratory-phase",
-        "ais-hubble",
-        "ais-pessimistic",
-        "ais-refinement-phase",
-        "ais-rlof",
-        "kappa-gaussians",
-        "nbatches-used",
-        */
-
         "quiet", 
         "log-level", 
         "log-classes",
@@ -169,10 +157,12 @@ private:
         "population-data-printing",
         "print-bool-as-string",
         "rlof-printing",
-        "switchlog",
+        "switch-log",
         "grid",
         "mode",
         "number-of-systems",
+        "hdf5-chunk-size",
+        "hdf5-buffer-size",
 
         // Serena
         //"logfile-be-binaries",
@@ -187,8 +177,8 @@ private:
         "logfile-switch-log",
 
         "logfile-definitions",
-        "logfile-delimiter",
         "logfile-name-prefix",
+        "logfile-type",
 
         "output-container", "c",
         "outputPath", "o"
@@ -238,18 +228,6 @@ private:
         "initial-mass-2",
         "semi-major-axis", "a",
         "orbital-period",
-
-        // Floor
-        /*
-        "ais-dcotype",
-        "ais-exploratory-phase",
-        "ais-hubble",
-        "ais-pessimistic",
-        "ais-refinement-phase",
-        "ais-rlof",
-        "kappa-gaussians",
-        "nbatches-used",
-        */
 
         "allow-rlof-at-birth",
         "allow-touching-at-birth",
@@ -302,6 +280,7 @@ private:
         "kick-theta-1",
         "kick-theta-2",
 
+        "mass-ratio", "q",
         "mass-ratio-max",
         "mass-ratio-min",
 
@@ -312,10 +291,13 @@ private:
 
         "minimum-secondary-mass",
 
+        "orbital-period",
+        "orbital-period-distribution",
         "orbital-period-max",
         "orbital-period-min",
 
         "semi-major-axis", "a",
+        "semi-major-axis-dsitribution",
         "semi-major-axis-max",
         "semi-major-axis-min",
 
@@ -324,9 +306,12 @@ private:
         "common-envelope-lambda-prescription",
         "common-envelope-mass-accretion-prescription",
 
+        "eccentricity", "e",
         "eccentricity-distribution",
+        "eccentricity-max",
+        "eccentricity-min",
 
-        "mass-ratio-distribution", "q",
+        "mass-ratio-distribution",
 
         "mass-transfer-accretion-efficiency-prescription",
         "mass-transfer-angular-momentum-loss-prescription",
@@ -363,18 +348,6 @@ private:
         "help", "h",
         "version", "v",
 
-        // Floor
-        /*
-        "ais-dcotype",
-        "ais-exploratory-phase",
-        "ais-hubble",
-        "ais-pessimistic",
-        "ais-refinement-phase",
-        "ais-rlof",
-        "kappa-gaussians",
-        "nbatches-used",
-        */
-
         "allow-rlof-at-birth",
         "allow-touching-at-birth",
         "angular-momentum-conservation-during-circularisation",
@@ -382,6 +355,7 @@ private:
         // Serena
         //"be-binaries",
 
+        "check-photon-tiring-limit",
         "circularise-binary-during-mass-transfer",
         "common-envelope-allow-main-sequence-survive",
 
@@ -414,16 +388,22 @@ private:
         "kick-direction",
         "kick-magnitude-distribution", 
 
+        "luminous-blue-variable-prescription",
+
         "mass-loss-prescription",
-        "mass-ratio-distribution", "q",
+        "mass-ratio-distribution",
 
         "mass-transfer-accretion-efficiency-prescription",
         "mass-transfer-angular-momentum-loss-prescription",
         "mass-transfer-rejuvenation-prescription",
         "mass-transfer-thermal-limit-accretor",
 
+        "metallicity-distribution",
+
         "neutrino-mass-loss-bh-formation",
         "neutron-star-equation-of-state",
+
+        "orbital-period-distribution",
 
         "pulsar-birth-magnetic-field-distribution",
         "pulsar-birth-spin-period-distribution",
@@ -448,9 +428,11 @@ private:
         "population-data-printing",
         "print-bool-as-string",
         "rlof-printing",
-        "switchlog",
+        "switch-log",
         "grid",
         "mode",
+        "hdf5-chunk-size",
+        "hdf5-buffer-size",
 
         // Serena
         //"logfile-be-binaries",
@@ -465,8 +447,8 @@ private:
         "logfile-switch-log",
 
         "logfile-definitions",
-        "logfile-delimiter",
         "logfile-name-prefix",
+        "logfile-type",
 
         "output-container", "c",
         "outputPath", "o"
@@ -475,18 +457,6 @@ private:
     std::vector<std::string> m_SetExcluded = {
         "help", "h",
         "version", "v",
-
-        // Floor
-        /*
-        "ais-dcotype",
-        "ais-exploratory-phase",
-        "ais-hubble",
-        "ais-pessimistic",
-        "ais-refinement-phase",
-        "ais-rlof",
-        "kappa-gaussians",
-        "nbatches-used",
-        */
 
         "random-seed",
 
@@ -502,9 +472,11 @@ private:
         "population-data-printing",
         "print-bool-as-string",
         "rlof-printing",
-        "switchlog",
+        "switch-log",
         "grid",
         "mode",
+        "hdf5-chunk-size",
+        "hdf5-buffer-size",
 
         // Serena
         //"logfile-be-binaries",
@@ -519,8 +491,8 @@ private:
         "logfile-switch-log",
 
         "logfile-definitions",
-        "logfile-delimiter",
         "logfile-name-prefix",
+        "logfile-type",
 
         "output-container", "c",
         "outputPath", "o"
@@ -574,8 +546,6 @@ public:
 
             bool                                                m_SwitchLog;                                                    // Print switch log details to file (default = false)
 
-            int                                                 m_nBatchesUsed;                                                 // Number of batches used, only needed for STROOPWAFEL (AIS) (default = -1, not needed)
-
 
             // Miscellaneous evolution variables
 
@@ -601,6 +571,7 @@ public:
             double                                              m_InitialMassFunctionPower;                                     // single IMF power law set manually
 
             // Mass ratio
+            double                                              m_MassRatio;                                                    // Mass ratio for BSE
             ENUM_OPT<MASS_RATIO_DISTRIBUTION>                   m_MassRatioDistribution;                                        // Which mass ratio distribution
             double                                              m_MassRatioDistributionMin;                                     // Minimum initial mass ratio when using a distribution
             double                                              m_MassRatioDistributionMax;                                     // Maximum initial mass ratio when using a distribution
@@ -614,10 +585,15 @@ public:
             double                                              m_SemiMajorAxisDistributionMax;                                 // Maximum a in AU
             double                                              m_SemiMajorAxisDistributionPower;                               // Set semi-major axis distribution power law slope by hand     ** JR: there is no option for this....
 
-            // Period
+            // Orbital period
             double                                              m_OrbitalPeriod;                                                // Orbital period in days
-            double                                              m_PeriodDistributionMin;                                        // Minimum initial period in days
-            double                                              m_PeriodDistributionMax;                                        // Maximum initial period in days
+            ENUM_OPT<ORBITAL_PERIOD_DISTRIBUTION>               m_OrbitalPeriodDistribution;                                    // Which orbital period distribution
+            double                                              m_OrbitalPeriodDistributionMin;                                 // Minimum initial period in days
+            double                                              m_OrbitalPeriodDistributionMax;                                 // Maximum initial period in days
+
+            // Wind mass loss
+            double                                              m_CoolWindMassLossMultiplier;                                   // Multiplication factor to reduce cool wind mass loss rate at each timestep
+            double                                              m_OverallWindMassLossMultiplier;                                // Multiplication factor to reduce the overall wind mass loss rate at each timestep
 
             // Eccentricity
             double                                              m_Eccentricity;                                                 // Eccentricity
@@ -694,12 +670,14 @@ public:
 
             // Mass loss options
             bool                                                m_UseMassLoss;                                                  // Whether to activate mass loss (default = True)
+            bool                                                m_CheckPhotonTiringLimit;                                       // Whether to check the photon tiring limit for wind mass loss
 
             // Can also have options for modifying strength of winds etc here
 
             ENUM_OPT<MASS_LOSS_PRESCRIPTION>                    m_MassLossPrescription;                                         // Which mass loss prescription
 
-            double                                              m_LuminousBlueVariableFactor;                                   // Multiplicitive factor for luminous blue variable (LBV) mass loss rates
+            ENUM_OPT<LBV_PRESCRIPTION>                          m_LuminousBlueVariablePrescription;                             // Which LBV mass loss prescription to use
+            double                                              m_LuminousBlueVariableFactor;                                   // Multiplicitive factor for luminous blue variable (LBV) mass loss rates when using Belczynski’s prescription
             double                                              m_WolfRayetFactor;                                              // Multiplicitive factor for Wolf-Rayet (WR) wind mass loss rates
 
             // Mass transfer options
@@ -786,16 +764,6 @@ public:
 	        double                                              m_CommonEnvelopeRecombinationEnergyDensity;					    // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 erg/g)
 
 
-            // Adaptive Importance Sampling options
-            bool                                                m_AISexploratoryPhase;                                          // Flag if we want to run Exploratory phase of Adaptive Importance Sampling // Floor
-            ENUM_OPT<AIS_DCO>                                   m_AISDCOtype;                                                   // Which prescription for DCO type
-            bool                                                m_AIShubble;                                                    // Whether to exclude DCOs that not merge within Hubble
-            bool                                                m_AISpessimistic;                                               // Whether to exclude Optimistic binaries
-            bool                                                m_AISrefinementPhase;                                           // Flag if we want to run refinement phase of Adaptive Importance Sampling
-            bool                                                m_AISrlof;                                                      // Whether to exclude binaries that have RLOFSecondaryZAMS
-            double                                              m_KappaGaussians;                                               // Scaling factor for the width of the Gaussian distributions in AIS main sampling phase [should be in [0,1]]
-
-
             // Zetas
             ENUM_OPT<ZETA_PRESCRIPTION>                         m_StellarZetaPrescription;                                 	    // Which prescription to use for calculating stellar zetas (default = SOBERMAN)
 
@@ -806,6 +774,9 @@ public:
 
             // Metallicity options
             double                                              m_Metallicity;                                                  // Metallicity
+            ENUM_OPT<METALLICITY_DISTRIBUTION>                  m_MetallicityDistribution;                                      // Which metallicity distribution
+            double                                              m_MetallicityDistributionMin;                                   // Minimum initial metallicity when using a distribution
+            double                                              m_MetallicityDistributionMax;                                   // Maximum initial metallicity when using a distribution
 
             double                                              m_mCBUR1;                                                       // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation
 
@@ -849,8 +820,8 @@ public:
 
             // Logfiles
             string                                              m_LogfileDefinitionsFilename;                                   // Filename for the logfile record definitions
-            ENUM_OPT<DELIMITER>                                 m_LogfileDelimiter;                                             // Field delimiter for log file records
             string                                              m_LogfileNamePrefix;                                            // Prefix for log file names
+            ENUM_OPT<LOGFILETYPE>                               m_LogfileType;                                                  // File type log files
 
             string                                              m_LogfileSystemParameters;                                      // output file name: system parameters
             string                                              m_LogfileDetailedOutput;                                        // output file name: detailed output
@@ -861,6 +832,9 @@ public:
             string                                              m_LogfileBeBinaries;                                            // output file name: Be Binaries
             string                                              m_LogfilePulsarEvolution;                                       // output file name: pulsar evolution
             string                                              m_LogfileSwitchLog;                                             // output file name: switch log
+
+            int                                                 m_HDF5BufferSize;                                               // HDF5 file IO buffer size (number of chunks)
+            int                                                 m_HDF5ChunkSize;                                                // HDF5 file chunk size (number of dataset entries)
 
 
             // the boost variables map
@@ -993,8 +967,8 @@ public:
 
 
 
-    int             AdvanceCmdLineOptionValues()    { return AdvanceOptionVariation(m_CmdLine); }
-    int             AdvanceGridLineOptionValues()   { return AdvanceOptionVariation(m_GridLine); }
+    int             AdvanceCmdLineOptionValues()            { return AdvanceOptionVariation(m_CmdLine); }
+    int             AdvanceGridLineOptionValues()           { return AdvanceOptionVariation(m_GridLine); }
     int             ApplyNextGridLine();
 
     void            CloseGridFile() { m_Gridfile.handle.close(); m_Gridfile.filename = ""; m_Gridfile.error = ERROR::EMPTY_FILENAME; }
@@ -1012,16 +986,7 @@ public:
 
     void            RewindGridFile() { m_Gridfile.handle.clear(); m_Gridfile.handle.seekg(0); }
 
-
     // getters
-
-    AIS_DCO                                     AIS_DCOType() const                                                     { return m_CmdLine.optionValues.m_AISDCOtype.type; }
-    string                                      AIS_DCOTypeString() const                                               { return m_CmdLine.optionValues.m_AISDCOtype.typeString; }
-    bool                                        AIS_ExploratoryPhase() const                                            { return m_CmdLine.optionValues.m_AISexploratoryPhase; }
-    bool                                        AIS_Hubble() const                                                      { return m_CmdLine.optionValues.m_AIShubble; }
-    bool                                        AIS_Pessimistic() const                                                 { return m_CmdLine.optionValues.m_AISpessimistic; }
-    bool                                        AIS_RefinementPhase() const                                             { return m_CmdLine.optionValues.m_AISrefinementPhase; }
-    bool                                        AIS_RLOF() const                                                        { return m_CmdLine.optionValues.m_AISrlof; }
 
     bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return OPT_VALUE("common-envelope-allow-main-sequence-survive", m_AllowMainSequenceStarToSurviveCommonEnvelope, true); }
     bool                                        AllowRLOFAtBirth() const                                                { return OPT_VALUE("allow-rlof-at-birth", m_AllowRLOFAtBirth, true); }
@@ -1032,11 +997,11 @@ public:
     bool                                        BeBinaries() const                                                      { return OPT_VALUE("be-binaries", m_BeBinaries, true); }
 
     BLACK_HOLE_KICKS                            BlackHoleKicks() const                                                  { return OPT_VALUE("black-hole-kicks", m_BlackHoleKicks.type, true); }
-
-    EVOLUTION_MODE                              EvolutionMode() const                                                   { return m_CmdLine.optionValues.m_EvolutionMode.type; }
     
     CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return OPT_VALUE("case-bb-stability-prescription", m_CaseBBStabilityPrescription.type, true); }
     
+    bool                                        CheckPhotonTiringLimit() const                                          { return OPT_VALUE("check-photon-tiring-limit", m_CheckPhotonTiringLimit, true); }
+
     CHE_MODE                                    CHEMode() const                                                         { return OPT_VALUE("chemically-homogeneous-evolution", m_CheMode.type, true); }
 
     bool                                        CirculariseBinaryDuringMassTransfer() const                             { return OPT_VALUE("circularise-binary-during-mass-transfer", m_CirculariseBinaryDuringMassTransfer, true); }
@@ -1055,6 +1020,8 @@ public:
     double                                      CommonEnvelopeRecombinationEnergyDensity() const                        { return OPT_VALUE("common-envelope-recombination-energy-density", m_CommonEnvelopeRecombinationEnergyDensity, true); }
     double                                      CommonEnvelopeSlopeKruckow() const                                      { return OPT_VALUE("common-envelope-slope-kruckow", m_CommonEnvelopeSlopeKruckow, true); }
 
+    double                                      CoolWindMassLossMultiplier() const                                      { return OPT_VALUE("cool-wind-mass-loss-multiplier", m_CoolWindMassLossMultiplier, true); }
+
     vector<string>                              DebugClasses() const                                                    { return m_CmdLine.optionValues.m_DebugClasses; }
     int                                         DebugLevel() const                                                      { return m_CmdLine.optionValues.m_DebugLevel; }
     bool                                        DebugToFile() const                                                     { return m_CmdLine.optionValues.m_DebugToFile; }
@@ -1068,6 +1035,7 @@ public:
     double                                      EccentricityDistributionMin() const                                     { return OPT_VALUE("eccentricity-distribution-min", m_EccentricityDistributionMin, true); }
     double                                      EddingtonAccretionFactor() const                                        { return OPT_VALUE("eddington-accretion-factor", m_EddingtonAccretionFactor, true); }
     ENVELOPE_STATE_PRESCRIPTION                 EnvelopeStatePrescription() const                                       { return OPT_VALUE("envelope-state-prescription", m_EnvelopeStatePrescription.type, true); }
+    EVOLUTION_MODE                              EvolutionMode() const                                                   { return m_CmdLine.optionValues.m_EvolutionMode.type; }
     bool                                        EvolvePulsars() const                                                   { return m_CmdLine.optionValues.m_EvolvePulsars; }
     bool                                        EvolveUnboundSystems() const                                            { return m_CmdLine.optionValues.m_EvolveUnboundSystems; }
 
@@ -1077,6 +1045,9 @@ public:
     SN_ENGINE                                   FryerSupernovaEngine() const                                            { return OPT_VALUE("fryer-supernova-engine", m_FryerSupernovaEngine.type, true); }
 
     string                                      GridFilename() const                                                    { return m_CmdLine.optionValues.m_GridFilename; }
+
+    size_t                                      HDF5ChunkSize() const                                                   { return m_CmdLine.optionValues.m_HDF5ChunkSize; }
+    size_t                                      HDF5BufferSize() const                                                  { return m_CmdLine.optionValues.m_HDF5BufferSize; }
 
     double                                      InitialMass() const                                                     { return OPT_VALUE("initial-mass", m_InitialMass, true); }
     double                                      InitialMass1() const                                                    { return OPT_VALUE("initial-mass-1", m_InitialMass1, true); }
@@ -1118,8 +1089,6 @@ public:
     string                                      LogfileBeBinaries() const                                               { return m_CmdLine.optionValues.m_LogfileBeBinaries; }
     string                                      LogfileCommonEnvelopes() const                                          { return m_CmdLine.optionValues.m_LogfileCommonEnvelopes; }
     string                                      LogfileDefinitionsFilename() const                                      { return m_CmdLine.optionValues.m_LogfileDefinitionsFilename; }
-    DELIMITER                                   LogfileDelimiter() const                                                { return m_CmdLine.optionValues.m_LogfileDelimiter.type; }
-    string                                      LogfileDelimiterString() const                                          { return m_CmdLine.optionValues.m_LogfileDelimiter.typeString; }
     string                                      LogfileDetailedOutput() const                                           { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-detailed-output"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileDetailedOutput
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
@@ -1139,19 +1108,29 @@ public:
                                                                                                                                       );
                                                                                                                         }
     string                                      LogfileSwitchLog() const                                                { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-switch-log"].defaulted()
-                                                                                                                                    ? m_CmdLine.optionValues.m_LogfileSupernovae
+                                                                                                                                    ? m_CmdLine.optionValues.m_LogfileSwitchLog
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
                                                                                                                                         ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG))
                                                                                                                                         : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG))
                                                                                                                                       );
                                                                                                                         }
-    string                                      LogfileSystemParameters() const                                         { return m_CmdLine.optionValues.m_LogfileSystemParameters; }
+    string                                      LogfileSystemParameters() const                                         { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-system-parameters"].defaulted()
+                                                                                                                                    ? m_CmdLine.optionValues.m_LogfileSystemParameters
+                                                                                                                                    : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
+                                                                                                                                        ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS))
+                                                                                                                                        : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS))
+                                                                                                                                      );
+                                                                                                                        }
+    LOGFILETYPE                                 LogfileType() const                                                     { return m_CmdLine.optionValues.m_LogfileType.type; }
+    string                                      LogfileTypeString() const                                               { return m_CmdLine.optionValues.m_LogfileType.typeString; }
     int                                         LogLevel() const                                                        { return m_CmdLine.optionValues.m_LogLevel; }
 
     double                                      LuminousBlueVariableFactor() const                                      { return OPT_VALUE("luminous-blue-variable-multiplier", m_LuminousBlueVariableFactor, true); }
-
+    LBV_PRESCRIPTION                            LuminousBlueVariablePrescription() const                                { return OPT_VALUE("luminous-blue-variable-prescription", m_LuminousBlueVariablePrescription.type, true); }
+    
     MASS_LOSS_PRESCRIPTION                      MassLossPrescription() const                                            { return OPT_VALUE("mass-loss-prescription", m_MassLossPrescription.type, true); }
 
+    double                                      MassRatio() const                                                       { return OPT_VALUE("mass-ratio", m_MassRatio, true); }
     MASS_RATIO_DISTRIBUTION                     MassRatioDistribution() const                                           { return OPT_VALUE("mass-ratio-distribution", m_MassRatioDistribution.type, true); }
     double                                      MassRatioDistributionMax() const                                        { return OPT_VALUE("mass-ratio-max", m_MassRatioDistributionMax, true); }
     double                                      MassRatioDistributionMin() const                                        { return OPT_VALUE("mass-ratio-min", m_MassRatioDistributionMin, true); }
@@ -1197,34 +1176,37 @@ public:
     double                                      MCBUR1() const                                                          { return OPT_VALUE("mcbur1", m_mCBUR1, true); }
 
     double                                      Metallicity() const                                                     { return OPT_VALUE("metallicity", m_Metallicity, true); }
+    METALLICITY_DISTRIBUTION                    MetallicityDistribution() const                                         { return OPT_VALUE("metallicity-distribution", m_MetallicityDistribution.type, true); }
+    double                                      MetallicityDistributionMax() const                                      { return OPT_VALUE("metallicity-distribution-max", m_MetallicityDistributionMax, true); }
+    double                                      MetallicityDistributionMin() const                                      { return OPT_VALUE("metallicity-distribution-min", m_MetallicityDistributionMin, true); }
 
     double                                      MinimumMassSecondary() const                                            { return OPT_VALUE("minimum-secondary-mass", m_MinimumMassSecondary, true); }
 
     double                                      MullerMandelKickMultiplierBH() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-bh", m_MullerMandelKickBH, true); }
     double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-ns", m_MullerMandelKickNS, true); }
 
-    int                                         nBatchesUsed() const                                                    { return m_CmdLine.optionValues.m_nBatchesUsed; }
-
     NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-bh-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
     double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-bh-formation-value", m_NeutrinoMassLossValueBH, true); }
 
     NS_EOS                                      NeutronStarEquationOfState() const                                      { return OPT_VALUE("neutron-star-equation-of-state", m_NeutronStarEquationOfState.type, true); }
 
-    int                                         nObjectsToEvolve() const                                                { return m_CmdLine.optionValues.m_ObjectsToEvolve; }
+    size_t                                      nObjectsToEvolve() const                                                { return m_CmdLine.optionValues.m_ObjectsToEvolve; }
     bool                                        OptimisticCHE() const                                                   { CHE_MODE che = OPT_VALUE("chemically-homogeneous-evolution", m_CheMode.type, true); return che == CHE_MODE::OPTIMISTIC; }
 
     string                                      CmdLineOptionsDetails() const                                           { return m_CmdLineOptionsDetails; }
 
     double                                      OrbitalPeriod() const                                                   { return OPT_VALUE("orbital-period", m_OrbitalPeriod, true); }
+    ORBITAL_PERIOD_DISTRIBUTION                 OrbitalPeriodDistribution() const                                       { return OPT_VALUE("orbital-period-distribution", m_OrbitalPeriodDistribution.type, true); }
+    double                                      OrbitalPeriodDistributionMax() const                                    { return OPT_VALUE("orbital-period-max", m_OrbitalPeriodDistributionMax, true); }
+    double                                      OrbitalPeriodDistributionMin() const                                    { return OPT_VALUE("orbital-period-min", m_OrbitalPeriodDistributionMin, true); }
 
     string                                      OutputContainerName() const                                             { return m_CmdLine.optionValues.m_OutputContainerName; }
     string                                      OutputPathString() const                                                { return m_CmdLine.optionValues.m_OutputPath.string(); }
 
+    double                                      OverallWindMassLossMultiplier() const                                   { return OPT_VALUE("overall-wind-mass-loss-multiplier", m_OverallWindMassLossMultiplier, true); }
+
     double                                      PairInstabilityLowerLimit() const                                       { return OPT_VALUE("pisn-lower-limit", m_PairInstabilityLowerLimit, true); }
     double                                      PairInstabilityUpperLimit() const                                       { return OPT_VALUE("pisn-upper-limit", m_PairInstabilityUpperLimit, true); }
-
-    double                                      PeriodDistributionMax() const                                           { return OPT_VALUE("orbital-period-max", m_PeriodDistributionMax, true); }
-    double                                      PeriodDistributionMin() const                                           { return OPT_VALUE("orbital-period-min", m_PeriodDistributionMin, true); }
 
     bool                                        PopulationDataPrinting() const                                          { return m_CmdLine.optionValues.m_PopulationDataPrinting; }
     bool                                        PrintBoolAsString() const                                               { return m_CmdLine.optionValues.m_PrintBoolAsString; }
@@ -1268,7 +1250,7 @@ public:
     bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
     bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }
 
-    bool                                        SwitchLog() const                                                       { return OPT_VALUE("switchlog", m_SwitchLog, true); }
+    bool                                        SwitchLog() const                                                       { return OPT_VALUE("switch-log", m_SwitchLog, true); }
 
     ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
 

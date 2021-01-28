@@ -62,6 +62,10 @@
 /*    Read the explanations for each of the vectors in Options.h to get a better idea of  */
 /*    what they are for and where the new option should go.                               */
 /*                                                                                        */
+/* 10. Add the new option to Options::OptionValue() - this enables selection of the       */
+/*     option value for printing in the output (log) files.  Only required if the option  */
+/*     is required to be available for printing in the logfiles.                          */
+/*                                                                                        */
 /******************************************************************************************/
 
 
@@ -140,8 +144,6 @@ void Options::OptionValues::Initialise() {
 
     m_SwitchLog                                                     = false;
 
-    m_nBatchesUsed                                                  = -1;
-
 
     // Evolution mode: SSE or BSE
     m_EvolutionMode.type                                            = EVOLUTION_MODE::BSE;
@@ -170,10 +172,11 @@ void Options::OptionValues::Initialise() {
     m_InitialMassFunctionPower                                      = -2.3;
 
 
-    // Initial mass ratios
+    // Initial mass ratio
+    m_MassRatio                                                     = 1.0;
     m_MassRatioDistribution.type                                    = MASS_RATIO_DISTRIBUTION::FLAT;                        // Most likely want FLAT or SANA2012
     m_MassRatioDistribution.typeString                              = MASS_RATIO_DISTRIBUTION_LABEL.at(m_MassRatioDistribution.type);
-    m_MassRatioDistributionMin                                      = 0.0;
+    m_MassRatioDistributionMin                                      = 0.01;
     m_MassRatioDistributionMax                                      = 1.0;
 
     m_MinimumMassSecondary                                          = MINIMUM_INITIAL_MASS;                                 // actual value set later
@@ -190,8 +193,27 @@ void Options::OptionValues::Initialise() {
 
     // Initial orbital period
     m_OrbitalPeriod                                                 = 0.1;                                                  // Only used if user specified and semi-major axis not specified
-    m_PeriodDistributionMin                                         = 1.1;
-    m_PeriodDistributionMax                                         = 1000.0;
+
+    // There is a single distribution available for orbital period (and actually,
+    // eventually, it will be the case for all initial attributes that we have a 
+    // single "convenience" distribution available in the C++ code - we expect 
+    // users will sample outside the C++ code (with Stroopwafel etc.) so that we
+    // don't have to code and maintain everybody's favourite distribution inside
+    // the C++ code).
+    //
+    // The orbital period distribution will only used if it is specified by the
+    // user AND semi-major axis (--semi-major-axis), orbital period (--orbital-period),
+    // and semi-major axis distribution (--semi-major-axis-distribution) are NOT 
+    // specified by the user.
+    //
+    // This --orbital-period-distribution option exists even though there is no real
+    // choice (there is a single distribution available) so that users can specify
+    // the distribution, and so it will be used according to the rule stated above.
+
+    m_OrbitalPeriodDistribution.type                                = ORBITAL_PERIOD_DISTRIBUTION::FLATINLOG;
+    m_OrbitalPeriodDistribution.typeString                          = ORBITAL_PERIOD_DISTRIBUTION_LABEL.at(m_OrbitalPeriodDistribution.type);
+    m_OrbitalPeriodDistributionMin                                  = 1.1;
+    m_OrbitalPeriodDistributionMax                                  = 1000.0;
 
     // Eccentricity
     m_Eccentricity                                                  = 0.0;
@@ -292,14 +314,19 @@ void Options::OptionValues::Initialise() {
     
 
     // Mass loss options
-    m_UseMassLoss                                                   = false;
+    m_UseMassLoss                                                   = false; // TW - shouldn't this be true by default? It says so in options.h
+    m_CheckPhotonTiringLimit                                        = false;
 
     m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::VINK;
     m_MassLossPrescription.typeString                               = MASS_LOSS_PRESCRIPTION_LABEL.at(m_MassLossPrescription.type);
 
+    m_LuminousBlueVariablePrescription.type                         = LBV_PRESCRIPTION::BELCZYNSKI;
+    m_LuminousBlueVariablePrescription.typeString                   = LBV_PRESCRIPTION_LABEL.at(m_LuminousBlueVariablePrescription.type);
 
     // Wind mass loss multiplicitive constants
+    m_CoolWindMassLossMultiplier                                    = 1.0;
     m_LuminousBlueVariableFactor                                    = 1.5;
+    m_OverallWindMassLossMultiplier                                 = 1.0;
     m_WolfRayetFactor                                               = 1.0;
 
 
@@ -338,8 +365,6 @@ void Options::OptionValues::Initialise() {
     m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor   = 1.44;                                                 // Claeys+ 2014 = 1.44
     m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor      = 1.0;                                                  // Claeys+ 2014 = 1.0
 
-    // AVG
-    /*
     m_MassTransferCriticalMassRatioMSHighMass                       = false;
     m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor  = 0.625;                                                // Claeys+ 2014 = 0.625
     m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor     = 0.0;
@@ -367,7 +392,6 @@ void Options::OptionValues::Initialise() {
     m_MassTransferCriticalMassRatioWhiteDwarf                       = false;
 	m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor  = 0.0;
     m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor     = 1.6;                                                  // Claeys+ 2014 = 1.6
-    */
 
     // Common Envelope options
     m_CommonEnvelopeAlpha                                           = 1.0;
@@ -399,17 +423,6 @@ void Options::OptionValues::Initialise() {
 	m_CommonEnvelopeRecombinationEnergyDensity                      = 1.5E13;
 
 
-    // Adaptive Importance Sampling options
-    m_AISexploratoryPhase                                           = false;
-    m_AISDCOtype.type                                               = AIS_DCO::ALL;
-    m_AISDCOtype.typeString                                         = AIS_DCO_LABEL.at(m_AISDCOtype.type);
-    m_AIShubble                                                     = false;
-    m_AISpessimistic                                                = false;
-    m_AISrefinementPhase                                            = false;
-    m_AISrlof                                                       = false;
-    m_KappaGaussians                                                = 2;
-
-
 	// Zetas
 	m_StellarZetaPrescription.type                                  = ZETA_PRESCRIPTION::SOBERMAN;
 	m_StellarZetaPrescription.typeString                            = ZETA_PRESCRIPTION_LABEL.at(m_StellarZetaPrescription.type);
@@ -421,6 +434,10 @@ void Options::OptionValues::Initialise() {
 
     // Metallicity options
     m_Metallicity                                                   = ZSOL;
+    m_MetallicityDistribution.type                                  = METALLICITY_DISTRIBUTION::ZSOLAR; 
+    m_MetallicityDistribution.typeString                            = METALLICITY_DISTRIBUTION_LABEL.at(m_MetallicityDistribution.type);
+    m_MetallicityDistributionMin                                    = MINIMUM_METALLICITY;
+    m_MetallicityDistributionMax                                    = MAXIMUM_METALLICITY;
 
 
     // Neutron star equation of state
@@ -467,9 +484,9 @@ void Options::OptionValues::Initialise() {
 
     // Logfiles    
     m_LogfileDefinitionsFilename                                    = "";
-    m_LogfileDelimiter.type                                         = DELIMITER::COMMA;
-    m_LogfileDelimiter.typeString                                   = DELIMITERLabel.at(m_LogfileDelimiter.type);
     m_LogfileNamePrefix                                             = "";
+    m_LogfileType.type                                              = LOGFILETYPE::HDF5;
+    m_LogfileType.typeString                                        = LOGFILETYPELabel.at(m_LogfileType.type);
 
     m_LogfileBeBinaries                                             = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));
     m_LogfileCommonEnvelopes                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));
@@ -481,6 +498,8 @@ void Options::OptionValues::Initialise() {
     m_LogfileSwitchLog                                              = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));       // assume BSE - get real answer when we know mode
     m_LogfileSystemParameters                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));
     
+    m_HDF5BufferSize                                                = HDF5_DEFAULT_IO_BUFFER_SIZE;
+    m_HDF5ChunkSize                                                 = HDF5_DEFAULT_CHUNK_SIZE;
 
     po::variables_map vm;
     m_VM = vm;
@@ -559,35 +578,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         // boolean options - alphabetically
 
-        // Floor
-        /*
-        (
-            "ais-exploratory-phase",                                       
-            po::value<bool>(&p_Options->m_AISexploratoryPhase)->default_value(p_Options->m_AISexploratoryPhase)->implicit_value(true),                                                            
-            ("Run exploratory phase of STROOPWAFEL (default = " + std::string(p_Options->m_AISexploratoryPhase ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "ais-hubble",                                                  
-            po::value<bool>(&p_Options->m_AIShubble)->default_value(p_Options->m_AIShubble)->implicit_value(true),                                                                                
-            ("Excluding not in Hubble time mergers selection in exploratory phase of STROOPWAFEL (default = " + std::string(p_Options->m_AIShubble ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "ais-pessimistic",                                             
-            po::value<bool>(&p_Options->m_AISpessimistic)->default_value(p_Options->m_AISpessimistic)->implicit_value(true),                                                                      
-            ("Optimistic or Pessimistic selection in exploratory phase of STROOPWAFEL (default = " + std::string(p_Options->m_AISpessimistic ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "ais-refinement-phase",                                        
-            po::value<bool>(&p_Options->m_AISrefinementPhase)->default_value(p_Options->m_AISrefinementPhase)->implicit_value(true),                                                              
-            ("Run main sampling phase (step2) of STROOPWAFEL (default = " + std::string(p_Options->m_AISrefinementPhase ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "ais-rlof",                                                    
-            po::value<bool>(&p_Options->m_AISrlof)->default_value(p_Options->m_AISrlof)->implicit_value(true),                                                                                    
-            ("RLOFSecondaryZAMS selection in exploratory phase of STROOPWAFEL (default = " + std::string(p_Options->m_AISrlof ? "TRUE" : "FALSE") + ")").c_str()
-       )
-        */
-
         (
             "allow-rlof-at-birth",                                         
             po::value<bool>(&p_Options->m_AllowRLOFAtBirth)->default_value(p_Options->m_AllowRLOFAtBirth)->implicit_value(true),                                                                  
@@ -612,7 +602,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Enable Be Binaries study (default = " + std::string(p_Options->m_BeBinaries ? "TRUE" : "FALSE") + ")").c_str()
         )
         */
-
+        (
+            "check-photon-tiring-limit",
+            po::value<bool>(&p_Options->m_CheckPhotonTiringLimit)->default_value(p_Options->m_CheckPhotonTiringLimit)->implicit_value(true),                            
+            ("Check the photon tiring limit hasn't been exceeded by wind mass loss (default = " + std::string(p_Options->m_CheckPhotonTiringLimit ? "TRUE" : "FALSE") + ")").c_str()
+        )
         (
             "circularise-binary-during-mass-transfer",                         
             po::value<bool>(&p_Options->m_CirculariseBinaryDuringMassTransfer)->default_value(p_Options->m_CirculariseBinaryDuringMassTransfer)->implicit_value(true),                            
@@ -622,6 +616,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "common-envelope-allow-main-sequence-survive",                 
             po::value<bool>(&p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope)->default_value(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope)->implicit_value(true),          
             ("Allow main sequence stars to survive common envelope evolution (default = " + std::string(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "cool-wind-mass-loss-multiplier",                           
+            po::value<double>(&p_Options->m_CoolWindMassLossMultiplier)->default_value(p_Options->m_CoolWindMassLossMultiplier),                                                                  
+            ("Multiplicative constant for wind mass loss of cool stars (default = " + std::to_string(p_Options->m_CoolWindMassLossMultiplier)+ ")").c_str()
         )
         (
             "debug-to-file",                                               
@@ -725,6 +724,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Determines which print statements are displayed for debugging (default = " + std::to_string(p_Options->m_DebugLevel) + ")").c_str()
         )
         (
+            "hdf5-chunk-size",                                                 
+            po::value<int>(&p_Options->m_HDF5ChunkSize)->default_value(p_Options->m_HDF5ChunkSize),                                                                                                     
+            ("HDF5 file dataset chunk size (number of dataset entries, default = " + std::to_string(p_Options->m_HDF5ChunkSize) + ")").c_str()
+        )
+        (
+            "hdf5-buffer-size",                                                 
+            po::value<int>(&p_Options->m_HDF5BufferSize)->default_value(p_Options->m_HDF5BufferSize),                                                                                                     
+            ("HDF5 file dataset IO buffer size (number of chunks, default = " + std::to_string(p_Options->m_HDF5BufferSize) + ")").c_str()
+        )
+        (
             "log-level",                                                   
             po::value<int>(&p_Options->m_LogLevel)->default_value(p_Options->m_LogLevel),                                                                                                         
             ("Determines which print statements are included in the logfile (default = " + std::to_string(p_Options->m_LogLevel) + ")").c_str()
@@ -734,16 +743,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<int>(&p_Options->m_MaxNumberOfTimestepIterations)->default_value(p_Options->m_MaxNumberOfTimestepIterations),                                                               
             ("Maximum number of timesteps to evolve binary before giving up (default = " + std::to_string(p_Options->m_MaxNumberOfTimestepIterations) + ")").c_str()
         )
-
-        // Floor
-        /*
-        (
-            "nbatches-used",                                               
-            po::value<int>(&p_Options->m_nBatchesUsed)->default_value(p_Options->m_nBatchesUsed),                                                                                                 
-            ("Number of batches used, for STROOPWAFEL (AIS), -1 = not required (default = " + std::to_string(p_Options->m_nBatchesUsed) + ")").c_str()
-        )
-        */
-
         (
             "number-of-systems,n",                                        
             po::value<int>(&p_Options->m_ObjectsToEvolve)->default_value(p_Options->m_ObjectsToEvolve),                                                                                                       
@@ -941,15 +940,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Single power law power to generate primary mass using given IMF (default = " + std::to_string(p_Options->m_InitialMassFunctionPower) + ")").c_str()
         )
 
-        // Floor
-        /*
-        (
-            "kappa-gaussians",                                             
-            po::value<double>(&p_Options->m_KappaGaussians)->default_value(p_Options->m_KappaGaussians),                                                                                          
-            ("Scaling factor for the width of the Gaussian distributions in STROOPWAFEL main sampling phase (default = " + std::to_string(p_Options->m_KappaGaussians) + ")").c_str()
-        )
-        */
-
         (
             "kick-direction-power",                                        
             po::value<double>(&p_Options->m_KickDirectionPower)->default_value(p_Options->m_KickDirectionPower),                                                                                  
@@ -1053,6 +1043,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
+            "mass-ratio,q",                                              
+            po::value<double>(&p_Options->m_MassRatio)->default_value(p_Options->m_MassRatio),                                                                      
+            ("Mass ratio m2/m1 used to determine secondary mass if not specified (default = " + std::to_string(p_Options->m_MassRatio) + ")").c_str()
+        )
+        (
             "mass-ratio-max",                                              
             po::value<double>(&p_Options->m_MassRatioDistributionMax)->default_value(p_Options->m_MassRatioDistributionMax),                                                                      
             ("Maximum mass ratio m2/m1 to generate (default = " + std::to_string(p_Options->m_MassRatioDistributionMax) + ")").c_str()
@@ -1103,6 +1098,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Metallicity to use (default " + std::to_string(p_Options->m_Metallicity) + " Zsol)").c_str()
         )
         (
+            "metallicity-max",                                            
+            po::value<double>(&p_Options->m_MetallicityDistributionMax)->default_value(p_Options->m_MetallicityDistributionMax),                                                                
+            ("Maximum metallicity to generate (default = " + std::to_string(p_Options->m_MetallicityDistributionMax) + ")").c_str()
+        )
+        (
+            "metallicity-min",                                            
+            po::value<double>(&p_Options->m_MetallicityDistributionMin)->default_value(p_Options->m_MetallicityDistributionMin),                                                                
+            ("Minimum metallicity to generate (default = " + std::to_string(p_Options->m_MetallicityDistributionMin) + ")").c_str()
+        )
+        (
             "minimum-secondary-mass",                                      
             po::value<double>(&p_Options->m_MinimumMassSecondary)->default_value(p_Options->m_MinimumMassSecondary),                                                                              
             ("Minimum mass of secondary to generate in Msol (default = " + std::to_string(p_Options->m_MinimumMassSecondary) + ")").c_str()
@@ -1131,14 +1136,21 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
         (
             "orbital-period-max",                                          
-            po::value<double>(&p_Options->m_PeriodDistributionMax)->default_value(p_Options->m_PeriodDistributionMax),                                                                            
-            ("Maximum period in days to generate (default = " + std::to_string(p_Options->m_PeriodDistributionMax) + ")").c_str()
+            po::value<double>(&p_Options->m_OrbitalPeriodDistributionMax)->default_value(p_Options->m_OrbitalPeriodDistributionMax),                                                                            
+            ("Maximum period in days to generate (default = " + std::to_string(p_Options->m_OrbitalPeriodDistributionMax) + ")").c_str()
         )
         (
             "orbital-period-min",                                          
-            po::value<double>(&p_Options->m_PeriodDistributionMin)->default_value(p_Options->m_PeriodDistributionMin),                                                                            
-            ("Minimum period in days to generate (default = " + std::to_string(p_Options->m_PeriodDistributionMin) + ")").c_str()
+            po::value<double>(&p_Options->m_OrbitalPeriodDistributionMin)->default_value(p_Options->m_OrbitalPeriodDistributionMin),                                                                            
+            ("Minimum period in days to generate (default = " + std::to_string(p_Options->m_OrbitalPeriodDistributionMin) + ")").c_str()
         )
+
+        (
+            "overall-wind-mass-loss-multiplier",                           
+            po::value<double>(&p_Options->m_OverallWindMassLossMultiplier)->default_value(p_Options->m_OverallWindMassLossMultiplier),                                                                  
+            ("Multiplicitive constant for overall wind mass loss (default = " + std::to_string(p_Options->m_OverallWindMassLossMultiplier)+ ")").c_str()
+        )
+
 
         (
             "PISN-lower-limit",                                            
@@ -1243,15 +1255,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         // string options - alphabetically
 
-        // Floor
-        /*
-        (
-            "ais-dcotype",                                                 
-            po::value<std::string>(&p_Options->m_AISDCOtype.typeString)->default_value(p_Options->m_AISDCOtype.typeString),                                                                                      
-            ("DCO type selection in exploratory phase of STROOPWAFEL, (options: [ALL, BBH, BNS, BHNS], default = " + p_Options->m_AISDCOtype.typeString + ")").c_str()
-        )
-        */
-
         (
             "black-hole-kicks",                                            
             po::value<std::string>(&p_Options->m_BlackHoleKicks.typeString)->default_value(p_Options->m_BlackHoleKicks.typeString),                                                                              
@@ -1282,7 +1285,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "eccentricity-distribution",                                 
             po::value<std::string>(&p_Options->m_EccentricityDistribution.typeString)->default_value(p_Options->m_EccentricityDistribution.typeString),                                                          
-            ("Initial eccentricity distribution (options: [ZERO, FIXED, FLAT, THERMALISED, GELLER+2013], default = " + p_Options->m_EccentricityDistribution.typeString + ")").c_str()
+            ("Initial eccentricity distribution (options: [ZERO, FLAT, THERMAL, GELLER+2013, DUQUENNOYMAYOR1991, SANA2012], default = " + p_Options->m_EccentricityDistribution.typeString + ")").c_str()
         )
         (
             "envelope-state-prescription",                                 
@@ -1369,11 +1372,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Filename for logfile record definitions (default = " + p_Options->m_LogfileDefinitionsFilename + ")").c_str()
         )
         (
-            "logfile-delimiter",                                           
-            po::value<std::string>(&p_Options->m_LogfileDelimiter.typeString)->default_value(p_Options->m_LogfileDelimiter.typeString),                                                                          
-            ("Field delimiter for logfile records (options: [TAB, SPACE, COMMA], default = " + p_Options->m_LogfileDelimiter.typeString + ")").c_str()
-        )
-        (
             "logfile-name-prefix",                                         
             po::value<std::string>(&p_Options->m_LogfileNamePrefix)->default_value(p_Options->m_LogfileNamePrefix)->implicit_value(""),                                                                
             ("Prefix for logfile names (default = " + p_Options->m_LogfileNamePrefix + ")").c_str()
@@ -1383,14 +1381,24 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_LogfileSwitchLog)->default_value(p_Options->m_LogfileSwitchLog),                                                                                
             ("Filename for Switch Log logfile (default = " + p_Options->m_LogfileSwitchLog + ")").c_str()
         )
+        (
+            "logfile-type",                                           
+            po::value<std::string>(&p_Options->m_LogfileType.typeString)->default_value(p_Options->m_LogfileType.typeString),                                                                          
+            ("File type for logfiles (options: [HDF5, CSV, TSV, TXT], default = " + p_Options->m_LogfileType.typeString + ")").c_str()
+        )
 
+        (
+            "luminous-blue-variable-prescription",                                      
+            po::value<std::string>(&p_Options->m_LuminousBlueVariablePrescription.typeString)->default_value(p_Options->m_LuminousBlueVariablePrescription.typeString),                                                                  
+            ("LBV Mass loss prescription (options: [NONE, HURLEY_ADD, HURLEY, BELCZYNSKI], default = " + p_Options->m_LuminousBlueVariablePrescription.typeString + ")").c_str()
+        )
         (
             "mass-loss-prescription",                                      
             po::value<std::string>(&p_Options->m_MassLossPrescription.typeString)->default_value(p_Options->m_MassLossPrescription.typeString),                                                                  
             ("Mass loss prescription (options: [NONE, HURLEY, VINK], default = " + p_Options->m_MassLossPrescription.typeString + ")").c_str()
         )
         (
-            "mass-ratio-distribution,q",                                   
+            "mass-ratio-distribution",                                   
             po::value<std::string>(&p_Options->m_MassRatioDistribution.typeString)->default_value(p_Options->m_MassRatioDistribution.typeString),                                                                
             ("Initial mass ratio distribution for q=m2/m1 (options: [FLAT, DUQUENNOYMAYOR1991, SANA2012], default = " + p_Options->m_MassRatioDistribution.typeString + ")").c_str()
         )
@@ -1414,7 +1422,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_MassTransferThermallyLimitedVariation.typeString)->default_value(p_Options->m_MassTransferThermallyLimitedVariation.typeString),                                
             ("Mass Transfer Thermal Accretion limit (options: [CFACTOR, ROCHELOBE], default = " + p_Options->m_MassTransferThermallyLimitedVariation.typeString + ")").c_str()
         )
-
+        (
+            "metallicity-distribution",                                 
+            po::value<std::string>(&p_Options->m_MetallicityDistribution.typeString)->default_value(p_Options->m_MetallicityDistribution.typeString),                                                          
+            ("Metallicity distribution (options: [ZSOLAR, LOGUNIFORM], default = " + p_Options->m_MetallicityDistribution.typeString + ")").c_str()
+        )
         (
             "mode",                                                 
             po::value<std::string>(&p_Options->m_EvolutionMode.typeString)->default_value(p_Options->m_EvolutionMode.typeString),                                                                              
@@ -1432,6 +1444,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Neutron star equation of state to use (options: [SSE, ARP3], default = " + p_Options->m_NeutronStarEquationOfState.typeString + ")").c_str()
         )
 
+        (
+            "orbital-period-distribution",                              
+            po::value<std::string>(&p_Options->m_OrbitalPeriodDistribution.typeString)->default_value(p_Options->m_OrbitalPeriodDistribution.typeString),                                                        
+            ("Initial orbital period distribution (options: [FLATINLOG], default = " + p_Options->m_OrbitalPeriodDistribution.typeString + ")").c_str()
+        )        
         (
             "output-container,c",                                          
             po::value<std::string>(&p_Options->m_OutputContainerName)->default_value(p_Options->m_OutputContainerName)->implicit_value(""),                                                            
@@ -1462,7 +1479,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "remnant-mass-prescription",                                   
             po::value<std::string>(&p_Options->m_RemnantMassPrescription.typeString)->default_value(p_Options->m_RemnantMassPrescription.typeString),                                                            
-            ("Choose remnant mass prescription (options: [HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL], default = " + p_Options->m_RemnantMassPrescription.typeString + ")").c_str()
+            ("Choose remnant mass prescription (options: [HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT], default = " + p_Options->m_RemnantMassPrescription.typeString + ")").c_str()
         )
         (
             "rotational-velocity-distribution",                            
@@ -1662,7 +1679,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
  * Note this is a class OptionValues function.
  * 
  * 
- * std::string Options::OptionValues::CheckAndSetOptions(const po::variables_map p_VM)
+ * std::string Options::OptionValues::CheckAndSetOptions()
  * 
  * @return                                      String containing an error string
  *                                              If no error occurred the return string will be the empty string 
@@ -1680,15 +1697,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         m_FixedRandomSeed  = !DEFAULTED("random-seed");                                                                             // use random seed if it is provided by the user
         m_UseFixedUK       = !DEFAULTED("fix-dimensionless-kick-magnitude") && (m_FixedUK >= 0.0);                                  // determine if user supplied a valid kick magnitude
-
-
-        // Floor
-        /*
-        if (!DEFAULTED("ais-dcotype")) {                                                                                            // Adaptive Importance Sampling DCO type
-            std::tie(found, p_OptionValues->m_AISDCOtype.type) = utils::GetMapKey(p_OptionValues->m_AISDCOtype.typeString, AIS_DCO_LABEL, p_OptionValues->m_AISDCOtype.type);
-            return "Unknown AIS DCO Type";
-        }
-        */
 
         if (!DEFAULTED("black-hole-kicks")) {                                                                                       // black hole kicks
             std::tie(found, m_BlackHoleKicks.type) = utils::GetMapKey(m_BlackHoleKicks.typeString, BLACK_HOLE_KICKS_LABEL, m_BlackHoleKicks.type);
@@ -1745,9 +1753,14 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Kick Magnitude Distribution");
         }
 
-        if (!DEFAULTED("logfile-delimiter")) {                                                                                      // logfile field delimiter
-            std::tie(found, m_LogfileDelimiter.type) = utils::GetMapKey(m_LogfileDelimiter.typeString, DELIMITERLabel, m_LogfileDelimiter.type);
-            COMPLAIN_IF(!found, "Unknown Logfile Delimiter");
+        if (!DEFAULTED("logfile-type")) {                                                                                           // logfile type
+            std::tie(found, m_LogfileType.type) = utils::GetMapKey(m_LogfileType.typeString, LOGFILETYPELabel, m_LogfileType.type);
+            COMPLAIN_IF(!found, "Unknown Logfile Type");
+        }
+
+        if (!DEFAULTED("luminous-blue-variable-prescription")) {                                                                    // LBV mass loss prescription
+            std::tie(found, m_LuminousBlueVariablePrescription.type) = utils::GetMapKey(m_LuminousBlueVariablePrescription.typeString, LBV_PRESCRIPTION_LABEL, m_LuminousBlueVariablePrescription.type);
+            COMPLAIN_IF(!found, "Unknown LBV Mass Loss Prescription");
         }
 
         if (!DEFAULTED("mass-loss-prescription")) {                                                                                 // mass loss prescription
@@ -1786,6 +1799,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             if (m_MassTransferThermallyLimitedVariation.type == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE) {
                 m_MassTransferCParameter = DEFAULTED("mass-transfer-thermal-limit-C") ? 1.0 : m_MassTransferCParameter;
             }
+        }
+
+        if (!DEFAULTED("metallicity-distribution")) {                                                                               // metallicity distribution
+            std::tie(found, m_MetallicityDistribution.type) = utils::GetMapKey(m_MetallicityDistribution.typeString, METALLICITY_DISTRIBUTION_LABEL, m_MetallicityDistribution.type);
+            COMPLAIN_IF(!found, "Unknown Metallicity Distribution");
         }
 
         if (!DEFAULTED("mode")) {                                                                                                   // mode
@@ -1847,12 +1865,17 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_CommonEnvelopeMassAccretionMax < 0.0, "Maximum accreted mass (--common-envelope-mass-accretion-max) < 0");
         COMPLAIN_IF(m_CommonEnvelopeMassAccretionMin < 0.0, "Minimum accreted mass (--common-envelope-mass-accretion-min) < 0");
 
+        COMPLAIN_IF(m_CoolWindMassLossMultiplier < 0.0, "Wind mass loss multiplier for cool stars (--cool-wind-mass-loss-multiplier) < 0.0");
+
         COMPLAIN_IF(m_DebugLevel < 0, "Debug level (--debug-level) < 0");
 
         COMPLAIN_IF(m_Eccentricity < 0.0 || m_Eccentricity > 1.0, "Eccentricity (--eccentricity) must be between 0 and 1");
         COMPLAIN_IF(m_EccentricityDistributionMin < 0.0 || m_EccentricityDistributionMin > 1.0, "Minimum eccentricity (--eccentricity-min) must be between 0 and 1");
         COMPLAIN_IF(m_EccentricityDistributionMax < 0.0 || m_EccentricityDistributionMax > 1.0, "Maximum eccentricity (--eccentricity-max) must be between 0 and 1");
         COMPLAIN_IF(m_EccentricityDistributionMax <= m_EccentricityDistributionMin, "Maximum eccentricity (--eccentricity-max) must be > Minimum eccentricity (--eccentricity-min)");
+
+        COMPLAIN_IF(m_HDF5BufferSize < 1, "HDF5 IO buffer size (--hdf5-buffer-size) must be >= 1");
+        COMPLAIN_IF(m_HDF5ChunkSize < HDF5_MINIMUM_CHUNK_SIZE, "HDF5 file dataset chunk size (--hdf5-chunk-size) must be >= minimum chunk size of " + std::to_string(HDF5_MINIMUM_CHUNK_SIZE));
 
         COMPLAIN_IF(m_InitialMass < MINIMUM_INITIAL_MASS || m_InitialMass > MAXIMUM_INITIAL_MASS, "Initial mass (--initial-mass) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
         COMPLAIN_IF(m_InitialMass1 < MINIMUM_INITIAL_MASS || m_InitialMass1 > MAXIMUM_INITIAL_MASS, "Primary initial mass (--initial-mass-1) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
@@ -1870,28 +1893,19 @@ std::string Options::OptionValues::CheckAndSetOptions() {
  
         COMPLAIN_IF(m_LuminousBlueVariableFactor < 0.0, "LBV multiplier (--luminous-blue-variable-multiplier) < 0");
 
-        COMPLAIN_IF(m_MassRatioDistributionMin < 0.0 || m_MassRatioDistributionMin > 1.0, "Minimum mass ratio (--mass-ratio-min) must be between 0 and 1");
-        COMPLAIN_IF(m_MassRatioDistributionMax < 0.0 || m_MassRatioDistributionMax > 1.0, "Maximum mass ratio (--mass-ratio-max) must be between 0 and 1");
+        COMPLAIN_IF(m_MassRatio <= 0.0 || m_MassRatio > 1.0, "Mass ratio (--mass-ratio) must be greater than 0 and less than or equal to 1");
+
+        COMPLAIN_IF(m_MassRatioDistributionMin <= 0.0 || m_MassRatioDistributionMin > 1.0, "Minimum mass ratio (--mass-ratio-min) must be greater than 0 and less than or equal to 1");
+        COMPLAIN_IF(m_MassRatioDistributionMax <= 0.0 || m_MassRatioDistributionMax > 1.0, "Maximum mass ratio (--mass-ratio-max) must be greater than 0 and less than or equal to 1");
         COMPLAIN_IF(m_MassRatioDistributionMax <= m_MassRatioDistributionMin, "Maximum mass ratio (--mass-ratio-max) must be > Minimum mass ratio (--mass-ratio-min)");
 
         COMPLAIN_IF(m_MaxEvolutionTime <= 0.0, "Maximum evolution time in Myr (--maxEvolutionTime) must be > 0");
 
         COMPLAIN_IF(m_Metallicity < MINIMUM_METALLICITY || m_Metallicity > MAXIMUM_METALLICITY, "Metallicity (--metallicity) should be absolute metallicity and must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
+        COMPLAIN_IF(m_MetallicityDistributionMin < MINIMUM_METALLICITY || m_MetallicityDistributionMin > MAXIMUM_METALLICITY, "Minimum metallicity (--metallicity-min) must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
+        COMPLAIN_IF(m_MetallicityDistributionMax < MINIMUM_METALLICITY || m_MetallicityDistributionMax > MAXIMUM_METALLICITY, "Maximum metallicity (--metallicity-max) must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
+        COMPLAIN_IF(m_MetallicityDistributionMax <= m_MetallicityDistributionMin, "Maximum metallicity (--metallicity-max) must be > Minimum metallicity (--metallicity-min)");
 
-// commenting this until I figure out the best way of handling minimum secondary mass wrt initial mass limits
-//        if (DEFAULTED("minimum-secondary-mass")) {
-//            m_MinimumMassSecondary = DEFAULTED("initial-mass-2") ? m_InitialMassFunctionMin : MINIMUM_INITIAL_MASS;
-//        }
-//
-//        if (DEFAULTED("initial-mass-2")) {
-//            COMPLAIN_IF(m_MinimumMassSecondary < m_InitialMassFunctionMin, "Seconday minimum mass (--minimum-secondary-mass) must be >= IMF minimum (--initial-mass-min) of " + std::to_string(m_InitialMassFunctionMin) + " Msol");
-//            COMPLAIN_IF(m_MinimumMassSecondary > m_InitialMassFunctionMax, "Seconday minimum mass (--minimum-secondary-mass) must be <= IMF maximum (--initial-mass-max) of " + std::to_string(m_InitialMassFunctionMax) + " Msol");
-//        }
-//        else {
-//            COMPLAIN_IF(m_MinimumMassSecondary < MINIMUM_INITIAL_MASS, "Seconday minimum mass (--minimum-secondary-mass) must be >= minimum initial mass of " + std::to_string(MINIMUM_INITIAL_MASS) + " Msol");
-//            COMPLAIN_IF(m_MinimumMassSecondary > MAXIMUM_INITIAL_MASS, "Seconday minimum mass (--minimum-secondary-mass) must be <= maximum initial mass of " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
-//        }
-// just use this for now
         COMPLAIN_IF(m_MinimumMassSecondary < MINIMUM_INITIAL_MASS, "Seconday minimum mass (--minimum-secondary-mass) must be >= minimum initial mass of " + std::to_string(MINIMUM_INITIAL_MASS) + " Msol");
         COMPLAIN_IF(m_MinimumMassSecondary > MAXIMUM_INITIAL_MASS, "Seconday minimum mass (--minimum-secondary-mass) must be <= maximum initial mass of " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
 
@@ -1916,8 +1930,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             }
         }
 
-        COMPLAIN_IF(m_PeriodDistributionMin < 0.0, "Minimum orbital period (--orbital-period-min) < 0");
-        COMPLAIN_IF(m_PeriodDistributionMax < 0.0, "Maximum orbital period (--orbital-period-max) < 0");
+        COMPLAIN_IF(m_OrbitalPeriodDistributionMin < 0.0, "Minimum orbital period (--orbital-period-min) < 0");
+        COMPLAIN_IF(m_OrbitalPeriodDistributionMax < 0.0, "Maximum orbital period (--orbital-period-max) < 0");
+        COMPLAIN_IF(m_OrbitalPeriodDistributionMax <= m_OrbitalPeriodDistributionMin, "Maximum orbital period (--orbital-period-max) must be > Minimum orbital period (--orbital-period-min)");
+
+        COMPLAIN_IF(m_OverallWindMassLossMultiplier < 0.0, "Overall wind mass loss multiplier (--overall-wind-mass-loss-multiplier) < 0.0");
 
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale") && m_PulsarMagneticFieldDecayTimescale <= 0.0, "Pulsar magnetic field decay timescale (--pulsar-magnetic-field-decay-timescale) <= 0");
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar Magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
@@ -3364,16 +3381,6 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
                                                                                                                         // get property value
     switch (property) {
 
-        // Floor
-        /*
-        case PROGRAM_OPTION::AIS_DCO_TYPE                                   : value = static_cast<int>(AIS_DCOType());                                      break;
-        case PROGRAM_OPTION::AIS_EXPLORATORY_PHASE                          : value = AIS_ExploratoryPhase();                                               break;
-        case PROGRAM_OPTION::AIS_HUBBLE                                     : value = AIS_Hubble();                                                         break;
-        case PROGRAM_OPTION::AIS_PESSIMISTIC                                : value = AIS_Pessimistic();                                                    break;
-        case PROGRAM_OPTION::AIS_REFINEMENT_PHASE                           : value = AIS_RefinementPhase();                                                break;
-        case PROGRAM_OPTION::AIS_RLOF                                       : value = AIS_RLOF();                                                           break;
-        */
-
         case PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE       : value = AllowMainSequenceStarToSurviveCommonEnvelope();                       break;
         case PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH                            : value = AllowRLOFAtBirth();                                                   break;
         case PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH                        : value = AllowTouchingAtBirth();                                               break;
@@ -3388,6 +3395,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
     
         case PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION                 : value = static_cast<int>(CaseBBStabilityPrescription());                      break;
     
+        case PROGRAM_OPTION::CHECK_PHOTON_TIRING_LIMIT                      : value = CheckPhotonTiringLimit();                                             break;
+
         case PROGRAM_OPTION::CHE_MODE                                       : value = static_cast<int>(CHEMode());                                          break;
 
         case PROGRAM_OPTION::CIRCULARISE_BINARY_DURING_MT                   : value = CirculariseBinaryDuringMassTransfer();                                break;
@@ -3403,6 +3412,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION    : value = static_cast<int>(CommonEnvelopeMassAccretionPrescription());          break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY   : value = CommonEnvelopeRecombinationEnergyDensity();                           break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW                  : value = CommonEnvelopeSlopeKruckow();                                         break;
+
+        case PROGRAM_OPTION::COOL_WIND_MASS_LOSS_MULTIPLIER                 : value = CoolWindMassLossMultiplier();                                      break;
 
         case PROGRAM_OPTION::ECCENTRICITY                                   : value = Eccentricity();                                                       break;
         case PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION                      : value = static_cast<int>(EccentricityDistribution());                         break;
@@ -3449,9 +3460,11 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::KICK_THETA_2                                   : value = SN_Theta2();                                                          break;
 
         case PROGRAM_OPTION::LBV_FACTOR                                     : value = LuminousBlueVariableFactor();                                         break;
+        case PROGRAM_OPTION::LBV_PRESCRIPTION                               : value = static_cast<int>(LuminousBlueVariablePrescription());                 break;
 
         case PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION                         : value = static_cast<int>(MassLossPrescription());                             break;
 
+        case PROGRAM_OPTION::MASS_RATIO                                     : value = MassRatio();                                                          break;                     
         case PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION                        : value = static_cast<int>(MassRatioDistribution());                            break;
         case PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MAX                    : value = MassRatioDistributionMax();                                           break;
         case PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MIN                    : value = MassRatioDistributionMin();                                           break;
@@ -3464,6 +3477,9 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::MCBUR1                                         : value = MCBUR1();                                                             break;
 
         case PROGRAM_OPTION::METALLICITY                                    : value = Metallicity();                                                        break;
+        case PROGRAM_OPTION::METALLICITY_DISTRIBUTION                       : value = static_cast<int>(MetallicityDistribution());                          break;
+        case PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MAX                   : value = MetallicityDistributionMax();                                         break;
+        case PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN                   : value = MetallicityDistributionMin();                                         break;
 
         case PROGRAM_OPTION::MINIMUM_MASS_SECONDARY                         : value = MinimumMassSecondary();                                               break;
 
@@ -3512,11 +3528,14 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::NS_EOS                                         : value = static_cast<int>(NeutronStarEquationOfState());                       break;
 
+        case PROGRAM_OPTION::ORBITAL_PERIOD                                 : value = static_cast<int>(OrbitalPeriodDistribution());                        break;
+        case PROGRAM_OPTION::ORBITAL_PERIOD_DISTRIBUTION_MAX                : value = OrbitalPeriodDistributionMax();                                       break;
+        case PROGRAM_OPTION::ORBITAL_PERIOD_DISTRIBUTION_MIN                : value = OrbitalPeriodDistributionMin();                                       break;
+
+        case PROGRAM_OPTION::OVERALL_WIND_MASS_LOSS_MULTIPLIER              : value = OverallWindMassLossMultiplier();                                      break;
+
         case PROGRAM_OPTION::PISN_LOWER_LIMIT                               : value = PairInstabilityLowerLimit();                                          break;
         case PROGRAM_OPTION::PISN_UPPER_LIMIT                               : value = PairInstabilityUpperLimit();                                          break;
-
-        case PROGRAM_OPTION::PERIOD_DISTRIBUTION_MAX                        : value = PeriodDistributionMax();                                              break;
-        case PROGRAM_OPTION::PERIOD_DISTRIBUTION_MIN                        : value = PeriodDistributionMin();                                              break;
 
         case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION             : value = static_cast<int>(PulsarBirthMagneticFieldDistribution());             break;
         case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MAX         : value = PulsarBirthMagneticFieldDistributionMax();                            break;
