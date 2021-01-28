@@ -1004,7 +1004,7 @@ void BaseBinaryStar::SetPostCEEValues(const double p_SemiMajorAxis,
 	m_CEDetails.postCEE.rocheLobe1to2 = p_RocheLobe1to2;
 	m_CEDetails.postCEE.rocheLobe2to1 = p_RocheLobe2to1;
 
-    if (utils::Compare(m_Star1->RadiusPostCEE(), m_CEDetails.postCEE.rocheLobe1to2) >= 0 ||         // Check for RLOF immediatedly after the CEE
+    if (utils::Compare(m_Star1->RadiusPostCEE(), m_CEDetails.postCEE.rocheLobe1to2) >= 0 ||         // Check for RLOF immediately after the CEE
         utils::Compare(m_Star2->RadiusPostCEE(), m_CEDetails.postCEE.rocheLobe2to1) >= 0) {
         m_RLOFDetails.immediateRLOFPostCEE = true;
     }

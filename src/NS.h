@@ -76,7 +76,7 @@ protected:
                                                          const double p_MagField,
                                                          const double p_Radius,
                                                          double const p_Alpha);
-            STELLAR_TYPE    EvolveToNextPhase()                                     { m_Mass = BH::CalculateNeutrinoMassLoss_Static(m_Mass); return STELLAR_TYPE::BLACK_HOLE; }
+            STELLAR_TYPE    EvolveToNextPhase()                                     { return STELLAR_TYPE::BLACK_HOLE; }
     
             bool            ShouldEvolveOnPhase() const                             { return (m_Mass <= OPTIONS->MaximumNeutronStarMass()); }                       // Evolve as a neutron star unless mass > maximum neutron star mass (e.g. through accretion)
 
