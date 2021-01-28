@@ -12,9 +12,9 @@
 
 # SSE Parameters
 
-sse_parms_rec += { STAR_PROPERTY::ENV_MASS }                            # start with the default SSE Parameters specification and add ENV_MASS
-sse_parms_rec += { STAR_PROPERTY::ANGULAR_MOMENTUM }                    # take the updated SSE Parameters specification and add ANGULAR_MOMENTUM
-sse_parms_rec -= { STAR_PROPERTY::MASS_0, STAR_PROPERTY::MDOT }         # take the updated SSE Parameters specification and subtract MASS_0 and MDOT
+sse_sysparms_rec += { STAR_PROPERTY::ENV_MASS }                            # start with the default SSE Parameters specification and add ENV_MASS
+sse_sysparms_rec += { STAR_PROPERTY::ANGULAR_MOMENTUM }                    # take the updated SSE Parameters specification and add ANGULAR_MOMENTUM
+sse_sysparms_rec -= { STAR_PROPERTY::MASS_0, STAR_PROPERTY::MDOT }         # take the updated SSE Parameters specification and subtract MASS_0 and MDOT
 
 
 # BSE System Parameters

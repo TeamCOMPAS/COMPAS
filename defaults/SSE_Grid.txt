@@ -1,15 +1,10 @@
-# sample SSE Grid file
-
-# note the order of the columns is not significant
-
-
-Mass, Metallicity, Kick_Magnitude_Random, Kick_Magnitude
-
-
-10.0						# default metallicity (OPTIONS->Metallicity()) will be used, 0.0 will be used for kick values
-
-25.5, 0.001, 0.375, 12.3    # all parameters specified
-
-35.0, 0.02                  # 0.0 will be used for kick values
-
-145.75,,0.7					# default metallicity (OPTIONS->Metallicity()) will be used
+--initial-mass  36.32588335986214  --kick-magnitude-random  0.22624909470693577  --metallicity  0.0142  
+--initial-mass  5.606575612328568  --kick-magnitude-random  0.3689824639824618   --metallicity  0.0142  
+--initial-mass  11.20691874884929  --kick-magnitude-random  0.3792907803464646   --metallicity  0.0142  
+--initial-mass  5.059278281829125  --kick-magnitude-random  0.6770037129805918   --metallicity  0.0142  
+--initial-mass  6.990165346854218  --kick-magnitude-random  0.486502081144464    --metallicity  0.0142  
+--initial-mass  20.112545900751257 --kick-magnitude-random  0.17673562339298687  --metallicity  0.0142  
+--initial-mass  16.554960129185865 --kick-magnitude-random  0.12963901371350428  --metallicity  0.0142  
+--initial-mass  19.16010622218186  --kick-magnitude-random  0.8774916458475752   --metallicity  0.0142  
+--initial-mass  7.212376129897965  --kick-magnitude-random  0.5009827094374167   --metallicity  0.0142  
+--initial-mass  17.67092839103423  --kick-magnitude-random  0.4027250560739488   --metallicity  0.0142  

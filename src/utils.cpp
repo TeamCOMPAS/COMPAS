@@ -622,17 +622,33 @@ namespace utils {
      * Pads string to specified length by prepending the string with "0"
      *
      * This only works with ASCII data, but I think that's all we need
-     * Note that std::string has an == operator to test for equality (actually calls std::strcmp)
      *
      *
      * std::string PadLeadingZeros(const std::string p_Str, const std::size_t p_MaxLength)
      *
      * @param   [IN]    p_Str                       String to be padded with leading "0"s
-     * @param   [IN]    p_MaxLength                 The required length of the resultant string compared
+     * @param   [IN]    p_MaxLength                 The required length of the resultant string
      * @return                                      String padded with leading "0"s - will be unchanged from input string if length alread >= required length
      */
     std::string PadLeadingZeros(const std::string p_Str, const std::size_t p_MaxLength) {
         return (p_Str.length() < p_MaxLength) ? std::string(p_MaxLength - p_Str.length(), '0') + p_Str : p_Str;
+    }
+
+
+    /*
+     * Pads string to specified length by appending the string with " "
+     *
+     * This only works with ASCII data, but I think that's all we need
+     *
+     *
+     * std::string PadTrailingSpaces(const std::string p_Str, const std::size_t p_MaxLength)
+     *
+     * @param   [IN]    p_Str                       String to be padded with trailing " "s
+     * @param   [IN]    p_MaxLength                 The required length of the resultant string
+     * @return                                      String padded with leading "0"s - will be unchanged from input string if length alread >= required length
+     */
+    std::string PadTrailingSpaces(const std::string p_Str, const std::size_t p_MaxLength) {
+        return (p_Str.length() < p_MaxLength) ? p_Str + std::string(p_MaxLength - p_Str.length(), ' ') : p_Str;
     }
 
 
@@ -753,18 +769,18 @@ namespace utils {
      * Draw eccentricity from the distribution specified by the user
      *
      *
-     * double SampleEccentricityDistribution()
+     * double SampleEccentricity()
      *
      * @param   [IN]    p_Edist                     The eccentricity distribution to use to draw the eccentricity
      * @param   [IN]    p_Max                       Distribution maximum
      * @param   [IN]    p_Min                       Distribution minimum
      * @return                                      Eccentricity
      */
-    double SampleEccentricityDistribution(const ECCENTRICITY_DISTRIBUTION p_Edist, const double p_Max, const double p_Min) {
+    double SampleEccentricity(const ECCENTRICITY_DISTRIBUTION p_Edist, const double p_Max, const double p_Min) {
 
         double eccentricity;
 
-        switch (p_Edist) {                                                  // which distribution?
+        switch (p_Edist) {                                                                              // which distribution?
 
             case ECCENTRICITY_DISTRIBUTION::ZERO:                                                       // ZERO - all systems are initially circular i.e. have zero eccentricity
                 eccentricity = 0.0;
@@ -774,8 +790,7 @@ namespace utils {
                 eccentricity = utils::InverseSampleFromPowerLaw(0.0, p_Max, p_Min);
                 break;
 
-            case ECCENTRICITY_DISTRIBUTION::THERMALISED:                                                // THERMAL eccentricity distribution p(e) = 2e
-            case ECCENTRICITY_DISTRIBUTION::THERMAL:
+            case ECCENTRICITY_DISTRIBUTION::THERMAL:                                                    // THERMAL eccentricity distribution p(e) = 2e
                 eccentricity = utils::InverseSampleFromPowerLaw(1.0, p_Max, p_Min);
                 break;
 
@@ -784,18 +799,18 @@ namespace utils {
                 // http://iopscience.iop.org/article/10.1088/0004-6256/145/1/8/pdf
                 // Sampling function taken from binpop.f in NBODY6
 
-                do {                                                                                    // JR: todo: catch non-convergence?
+                do {
                     eccentricity = 0.23 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.38;
-                } while(eccentricity < 0.0 || eccentricity > 1.0);                                      // JR: don't use utils::Compare() here
+                } while (eccentricity < p_Min || eccentricity > p_Max);                                 // JR: don't use utils::Compare() here
                 break;
 
             case ECCENTRICITY_DISTRIBUTION::DUQUENNOYMAYOR1991:                                        // eccentricity distribution from Duquennoy & Mayor (1991)
                 // http://adsabs.harvard.edu/abs/1991A%26A...248..485D
                 // Sampling function taken from binpop.f in NBODY6
 
-                do {                                                                                    // JR: todo: catch non-convergence?
+                do {
                     eccentricity = 0.15 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.3;
-                } while(eccentricity < 0.0 or eccentricity > 1.0);                                      // JR: don't use utils::Compare() here
+                } while (eccentricity < p_Min or eccentricity > p_Max);                                 // JR: don't use utils::Compare() here
                 break;
 
             case ECCENTRICITY_DISTRIBUTION::SANA2012:                                                   // Sana et al 2012
@@ -806,9 +821,7 @@ namespace utils {
                 eccentricity = utils::InverseSampleFromPowerLaw(-0.42, p_Max, p_Min);
                 break;
 
-            case ECCENTRICITY_DISTRIBUTION::FIXED:                                                      // FIXED - all systems have same initial eccentricity - not implemented
-            case ECCENTRICITY_DISTRIBUTION::IMPORTANCE:                                                 // IMPORTANCE - not implemented
-            default:                                                                                    // unknown distribution
+            default:                                                                                    // unknown distribution - should not be possible (options code should prevent this)
                 eccentricity = 0.0;
         }
 
@@ -872,7 +885,7 @@ namespace utils {
      * Draw mass from the distribution specified by the user
      *
      *
-     * double SampleInitialMassDistribution(const INITIAL_MASS_FUNCTION p_IMF, const double p_Max, const double p_Min, const double p_Power)
+     * double SampleInitialMass(const INITIAL_MASS_FUNCTION p_IMF, const double p_Max, const double p_Min, const double p_Power)
      *
      * @param   [IN]    p_IMF                       The IMF to use to draw the mass
      * @param   [IN]    p_Max                       IMF maximum
@@ -880,7 +893,7 @@ namespace utils {
      * @param   [IN]    p_Power                     IMF power (for IMF::POWERLAW)
      * @return                                      Mass
      */
-    double SampleInitialMassDistribution(const INITIAL_MASS_FUNCTION p_IMF, const double p_Max, const double p_Min, const double p_Power) {
+    double SampleInitialMass(const INITIAL_MASS_FUNCTION p_IMF, const double p_Max, const double p_Min, const double p_Power) {
 
         double thisMass = 0.0;
 
@@ -981,35 +994,17 @@ namespace utils {
 
 
     /*
-     * Placeholder for function to sample metallicity
-     *
-     * For now we just return the default (Zsolar).  If we ever decide to sample metallicity
-     * we should only sample if the user wants it to be sampled (perhaps by specifying which 
-     * distribution), and return the default if the user doesn't ask for sampling (or doesn't
-     * specify a distribution)
-     *
-     *
-     * double SampleMetallicity()
-     *
-     * @return                                      Sampled metallicity
-     */
-    double SampleMetallicity() {
-        return ZSOL;
-    }
-
-
-    /*
      * Draw mass ratio q from the distribution specified by the user
      *
      *
-     * double SampleQDistribution(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min)
+     * double SampleMassRatio(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min)
      *
      * @param   [IN]    p_IMF                       The distribution to use to draw the ratio
      * @param   [IN]    p_Max                       Distribution maximum
      * @param   [IN]    p_Min                       Distribution minimum
      * @return                                      Mass ratio q
      */
-    double SampleQDistribution(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min) {
+    double SampleMassRatio(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min) {
 
         double q;
 
@@ -1023,14 +1018,14 @@ namespace utils {
 
                 do {                                                                                            // JR: todo: catch non-convergence?
                     q = 0.42 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.23;
-                } while (q < 0.0 || q > 1.0);                                                                   // JR: don't use utils::Compare() here
+                } while (q < p_Min || q > p_Max);                                                               // JR: don't use utils::Compare() here
                 break;
 
-            case MASS_RATIO_DISTRIBUTION::SANA2012:                                                                                     // Sana et al 2012 (http://science.sciencemag.org/content/sci/337/6093/444.full.pdf) distribution of eccentricities.
+            case MASS_RATIO_DISTRIBUTION::SANA2012:                                                             // Sana et al 2012 (http://science.sciencemag.org/content/sci/337/6093/444.full.pdf) distribution of eccentricities.
                 // Taken from table S3 in http://science.sciencemag.org/content/sci/suppl/2012/07/25/337.6093.444.DC1/1223344.Sana.SM.pdf
                 // See also de Mink and Belczynski 2015 http://arxiv.org/pdf/1506.03573v2.pdf
 
-                q = utils::InverseSampleFromPowerLaw(-0.1, p_Max, p_Min);   // de Mink and Belczynski use min = 0.1, max = 1.0
+                q = utils::InverseSampleFromPowerLaw(-0.1, p_Max, p_Min);                                       // de Mink and Belczynski use min = 0.1, max = 1.0
                 break;
 
             default:                                                                                            // unknown q-distribution
@@ -1042,36 +1037,105 @@ namespace utils {
 
 
     /*
+     * Draw eccentricity from the distribution specified by the user
+     *
+     *
+     * double SampleMetallicity()
+     *
+     * @param   [IN]    p_Zdist                     The metallicity distribution to use to draw the metallicity
+     * @param   [IN]    p_Max                       Distribution maximum
+     * @param   [IN]    p_Min                       Distribution minimum
+     * @return                                      Metallicity
+     */
+    double SampleMetallicity(const METALLICITY_DISTRIBUTION p_Zdist, const double p_Max, const double p_Min) {
+
+        double metallicity;
+
+        switch (p_Zdist) {                                                                              // which distribution?
+
+            case METALLICITY_DISTRIBUTION::ZSOLAR:                                                      // ZSOLAR - all systems have Z = ZSOLAR
+                metallicity = ZSOL;
+                break;
+
+            case METALLICITY_DISTRIBUTION::LOGUNIFORM: {                                                // LOGUNIFORM - sample Z uniformly in the log
+                double logMin = log10(p_Min);
+                double logMax = log10(p_Max);
+                metallicity = PPOW(10, (logMin + ((logMax - logMin) * RAND->Random())));
+            } break;
+
+            default:                                                                                    // unknown distribution - should not be possible (options code should prevent this)
+                metallicity = 0.0;
+        }
+
+        return metallicity;
+    }
+
+
+    /*
+     * Draw orbital period from the distribution specified by the user
+     * 
+     * 
+     * double SampleOrbitalPeriodDistribution(const ORBITAL_PERIOD_DISTRIBUTION p_Pdist, 
+     *                                        const double                      p_PdistMax, 
+     *                                        const double                      p_PdistMin)
+     *
+     * @param   [IN]    p_Pdist                     The distribution to use to draw orbital period
+     * @param   [IN]    p_PdistMax                  Orbital period distribution maximum
+     * @param   [IN]    p_PdistMin                  Orbital period distribution minimum
+     * @return                                      Orbital period in days
+     */
+    double SampleOrbitalPeriod(const ORBITAL_PERIOD_DISTRIBUTION p_Pdist, 
+                               const double                      p_PdistMax, 
+                               const double                      p_PdistMin) {
+
+        double orbitalPeriod;
+
+        switch (p_Pdist) {                                                                                              // which distribution?
+
+            case ORBITAL_PERIOD_DISTRIBUTION::FLATINLOG:                                                                // FLAT IN LOG
+
+                orbitalPeriod = utils::InverseSampleFromPowerLaw(-1.0, p_PdistMax, p_PdistMin);
+                break;
+
+            default:                                                                                                    // unknown distribution
+                orbitalPeriod = utils::InverseSampleFromPowerLaw(-1.0, 1000.0, 1.1);                                    // calculate orbitalPeriod using power law with default values
+        }
+
+        return orbitalPeriod;
+    }
+
+
+    /*
      * Draw semi-major axis from the distribution specified by the user
      * 
      * 
      * double SampleSemiMajorAxisDistribution(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
-     *                                        const double p_AdistMax, 
-     *                                        const double p_AdistMin, 
-     *                                        const double p_AdistPower, 
-     *                                        const double p_PdistMax, 
-     *                                        const double p_PdistMin, 
-     *                                        const double p_Mass1, 
-     *                                        const double p_Mass2)
+     *                                        const double                       p_AdistMax, 
+     *                                        const double                       p_AdistMin, 
+     *                                        const double                       p_AdistPower, 
+     *                                        const double                       p_PdistMax, 
+     *                                        const double                       p_PdistMin, 
+     *                                        const double                       p_Mass1, 
+     *                                        const double                       p_Mass2)
      *
      * @param   [IN]    p_Adist                     The distribution to use to draw semi-major axis
      * @param   [IN]    p_AdistMax                  Semi-major axis distribution maximum
      * @param   [IN]    p_AdistMin                  Semi-major axis distribution minimum
-     * @param   [IN]    p_Power                     Semi-major axis distribution power (for CUSTOM distribution)
+     * @param   [IN]    p_AdistPower                Semi-major axis distribution power (for CUSTOM distribution)
      * @param   [IN]    p_PdistMax                  Period distribution maximum (for SANA2012 distribution)
      * @param   [IN]    p_PdistMin                  Period distribution minimum (for SANA2012 distribution)
      * @param   [IN]    p_Mass1                     Mass of the primary
      * @param   [IN]    p_Mass2                     Mass of the secondary
      * @return                                      Semi-major axis in AU
      */
-    double SampleSemiMajorAxisDistribution(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
-                                           const double p_AdistMax, 
-                                           const double p_AdistMin, 
-                                           const double p_AdistPower, 
-                                           const double p_PdistMax, 
-                                           const double p_PdistMin, 
-                                           const double p_Mass1, 
-                                           const double p_Mass2) {
+    double SampleSemiMajorAxis(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
+                               const double                       p_AdistMax, 
+                               const double                       p_AdistMin, 
+                               const double                       p_AdistPower, 
+                               const double                       p_PdistMax, 
+                               const double                       p_PdistMin, 
+                               const double                       p_Mass1, 
+                               const double                       p_Mass2) {
 
         double semiMajorAxis;
 

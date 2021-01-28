@@ -46,11 +46,11 @@ class pythonProgramOptions:
     else:
         random_seed = 0 # If you want a random seed, use: np.random.randint(2,2**63-1)
 
-    # environment variable COMPAS_LOGS_OUTPUT_DIR_PATH is used for docker runs
-    # if COMPAS_LOGS_OUTPUT_DIR_PATH is not set (== None) we assume this is an
-    # interactive run with python3
-    # if COMPAS_LOGS_OUTPUT_DIR_PATH is set (!= None) we assume this is a run
-    # inside a docker container and set the output path appropriately
+    # environment variable COMPAS_LOGS_OUTPUT_DIR_PATH is used primarily for docker runs
+    # if COMPAS_LOGS_OUTPUT_DIR_PATH is set (!= None) it is used as the value for the
+    # --output-path option
+    # if COMPAS_LOGS_OUTPUT_DIR_PATH is not set (== None) the current working directory
+    # is used as the value for the --output-path option
     compas_logs_output_override = os.environ.get('COMPAS_LOGS_OUTPUT_DIR_PATH')
     
     if (compas_logs_output_override is None):
@@ -60,6 +60,13 @@ class pythonProgramOptions:
         output = compas_logs_output_override
         output_container = None
 
+    # environment variable COMPAS_INPUT_DIR_PATH is used primarily for docker runs
+    # if COMPAS_INPUT_DIR_PATH is set (!= None) it is prepended to input filenames
+    # (such as grid_filename and logfile_definitions)
+    # if COMPAS_INPUT_DIR_PATH is not set (== None) the current working directory
+    # is prepended to input filenames
+    compas_input_path_override = os.environ.get('COMPAS_INPUT_DIR_PATH')
+    
     #-- option to make a grid of hyperparameter values at which to produce populations.
     #-- If this is set to true, it will divide the number_of_binaries parameter equally
     #-- amoungst the grid points (as closely as possible). See the hyperparameterGrid method below
@@ -69,17 +76,33 @@ class pythonProgramOptions:
     hyperparameterList = False
     shareSeeds = False
 
-
     mode = 'BSE'                                                # evolving single stars (SSE) or binaries (BSE)?
 
     grid_filename = None                                        # grid file name (e.g. 'mygrid.txt')
+
+    if grid_filename != None:
+        if compas_input_path_override == None:
+            grid_filename = os.getcwd() + '/' + grid_filename
+        else:
+            grid_filename = compas_input_path_override + '/' + grid_filename
+
+    logfile_definitions = None                                  # logfile record definitions file name (e.g. 'logdefs.txt')
+
+    if logfile_definitions != None:
+        if compas_input_path_override == None:
+            logfile_definitions = os.getcwd() + '/' + logfile_definitions
+        else:
+            logfile_definitions = compas_input_path_override + '/' + logfile_definitions
 
     initial_mass    = None                                      # initial mass for SSE
     initial_mass_1  = None                                      # primary initial mass for BSE
     initial_mass_2  = None                                      # secondary initial mass for BSE
 
+    mass_ratio      = None
+
     eccentricity    = None                                      # eccentricity for BSE
     semi_major_axis = None                                      # semi-major axis for BSE
+    orbital_period  = None                                      # orbital period for BSE
 
 
     use_mass_loss = True
@@ -89,7 +112,7 @@ class pythonProgramOptions:
     evolve_unbound_systems = False
     quiet = False
 
-    metallicity = 0.0142                                        # Solar metallicity Asplund+2010
+    metallicity = 0.0142                                        # metallicity for both SSE and BSE - Solar metallicity Asplund+2010
 
     allow_rlof_at_birth = True                                  # allow binaries that have one or both stars in RLOF at birth to evolve?
     allow_touching_at_birth = False                             # record binaries that have stars touching at birth in output files?
@@ -115,8 +138,12 @@ class pythonProgramOptions:
     envelope_state_prescription = 'LEGACY'
 
     mass_loss_prescription = 'VINK'
+    luminous_blue_variable_prescription = 'BELCZYNSKI'
     luminous_blue_variable_multiplier = 1.5
+    overall_wind_mass_loss_multiplier = 1.0
     wolf_rayet_multiplier = 1.0
+    cool_wind_mass_loss_multiplier = 1.0
+    check_photon_tiring_limit = False
 
     circularise_binary_during_mass_transfer = False
     angular_momentum_conservation_during_circularisation = False
@@ -147,8 +174,12 @@ class pythonProgramOptions:
     semi_major_axis_min = 0.01                                  # [AU]
     semi_major_axis_max = 1000.0                                # [AU]
 
+    orbital_period_distribution = 'FLATINLOG'
+    orbital_period_min = 1.1                                    # [days]
+    orbital_period_max = 1000                                   # [days]
+
     mass_ratio_distribution = 'FLAT'
-    mass_ratio_min = 0.0
+    mass_ratio_min = 0.01
     mass_ratio_max = 1.0
 
     minimum_secondary_mass = 0.1                                # Brown dwarf limit  [Msol]
@@ -156,6 +187,10 @@ class pythonProgramOptions:
     eccentricity_distribution = 'ZERO'
     eccentricity_min = 0.0
     eccentricity_max = 1.0
+
+    metallicity_distribution = 'ZSOLAR'
+    metallicity_min = 0.0001
+    metallicity_max = 0.03
 
     pulsar_birth_magnetic_field_distribution = 'ZERO'
     pulsar_birth_magnetic_field_min = 11.0                      # [log10(B/G)]
@@ -174,9 +209,6 @@ class pythonProgramOptions:
     rotational_velocity_distribution = 'ZERO'
 
     neutron_star_equation_of_state = 'SSE'
-
-    orbital_period_min = 1.1
-    orbital_period_max = 1000
 
     remnant_mass_prescription   = 'FRYER2012'
     fryer_supernova_engine      = 'DELAYED'
@@ -230,10 +262,12 @@ class pythonProgramOptions:
     debug_level         = 0
     debug_classes       = []
 
-    logfile_definitions = None
-
     logfile_name_prefix = None
-    logfile_delimiter   = 'COMMA'
+    logfile_type        = 'HDF5'
+
+    hdf5_chunk_size     = 100000
+    hdf5_buffer_size    = 1
+
 
     # set the logfile names here
     #
@@ -285,7 +319,8 @@ class pythonProgramOptions:
             self.errors_to_file,
             self.allow_rlof_at_birth,
             self.allow_touching_at_birth,
-            self.switch_log
+            self.switch_log,
+            self.check_photon_tiring_limit
         ]
 
         return booleanChoices
@@ -310,7 +345,8 @@ class pythonProgramOptions:
             '--errors-to-file',
             '--allow-rlof-at-birth',
             '--allow-touching-at-birth',
-            '--switch-log'
+            '--switch-log',
+            '--check-photon-tiring-limit'
         ]
 
         return booleanCommands
@@ -323,6 +359,7 @@ class pythonProgramOptions:
             self.initial_mass_2,
             self.eccentricity,
             self.semi_major_axis,
+            self.orbital_period,
             self.metallicity,
             self.common_envelope_alpha,
             self.common_envelope_lambda,
@@ -330,7 +367,9 @@ class pythonProgramOptions:
             self.common_envelope_alpha_thermal,
             self.common_envelope_lambda_multiplier,
             self.luminous_blue_variable_multiplier,
+            self.overall_wind_mass_loss_multiplier,
             self.wolf_rayet_multiplier,
+            self.cool_wind_mass_loss_multiplier,
             self.mass_transfer_fa,
             self.mass_transfer_jloss,
             self.maximum_evolution_time,
@@ -341,11 +380,14 @@ class pythonProgramOptions:
             self.initial_mass_power,
             self.semi_major_axis_min,
             self.semi_major_axis_max,
+            self.mass_ratio,
             self.mass_ratio_min,
             self.mass_ratio_max,
             self.minimum_secondary_mass,
             self.eccentricity_min,
             self.eccentricity_max,
+            self.metallicity_min,
+            self.metallicity_max,
             self.pulsar_birth_magnetic_field_min,
             self.pulsar_birth_magnetic_field_max,
             self.pulsar_birth_spin_period_min,
@@ -392,7 +434,9 @@ class pythonProgramOptions:
             self.muller_mandel_kick_multiplier_BH,
             self.muller_mandel_kick_multiplier_NS,
             self.log_level,
-            self.debug_level
+            self.debug_level,
+            self.hdf5_chunk_size,
+            self.hdf5_buffer_size
         ]
 
         return numericalChoices
@@ -405,6 +449,7 @@ class pythonProgramOptions:
             '--initial-mass-2',
             '--eccentricity',
             '--semi-major-axis',
+            '--orbital-period',
             '--metallicity',
             '--common-envelope-alpha',
             '--common-envelope-lambda',
@@ -412,7 +457,9 @@ class pythonProgramOptions:
             '--common-envelope-alpha-thermal',
             '--common-envelope-lambda-multiplier',
             '--luminous-blue-variable-multiplier',
+            '--overall-wind-mass-loss-multiplier',
             '--wolf-rayet-multiplier',
+            '--cool-wind-mass-loss-multiplier',
             '--mass-transfer-fa',
             '--mass-transfer-jloss',
             '--maximum-evolution-time',
@@ -423,11 +470,14 @@ class pythonProgramOptions:
             '--initial-mass-power',
             '--semi-major-axis-min',
             '--semi-major-axis-max',
+            '--mass-ratio',
             '--mass-ratio-min',
             '--mass-ratio-max',
             '--minimum-secondary-mass',
             '--eccentricity-min',
             '--eccentricity-max',
+            '--metallicity-min',
+            '--metallicity-max',
             '--pulsar-birth-magnetic-field-distribution-min',
             '--pulsar-birth-magnetic-field-distribution-max',
             '--pulsar-birth-spin-period-distribution-min',
@@ -474,7 +524,9 @@ class pythonProgramOptions:
             '--muller-mandel-kick-multiplier-BH',
             '--muller-mandel-kick-multiplier-NS',
             '--log-level',
-            '--debug-level'
+            '--debug-level',
+            '--hdf5-chunk-size',
+            '--hdf5-buffer-size'
         ]
 
         return numericalCommands
@@ -484,14 +536,17 @@ class pythonProgramOptions:
             self.mode,
             self.case_BB_stability_prescription,
             self.chemically_homogeneous_evolution,
+            self.luminous_blue_variable_prescription,
             self.mass_loss_prescription,
             self.mass_transfer_angular_momentum_loss_prescription,
             self.mass_transfer_accretion_efficiency_prescription,
             self.mass_transfer_rejuvenation_prescription,
             self.initial_mass_function,
             self.semi_major_axis_distribution,
+            self.orbital_period_distribution,
             self.mass_ratio_distribution,
             self.eccentricity_distribution,
+            self.metallicity_distribution,
             self.rotational_velocity_distribution,
             self.remnant_mass_prescription,
             self.fryer_supernova_engine,
@@ -510,7 +565,7 @@ class pythonProgramOptions:
             self.common_envelope_mass_accretion_prescription,
             self.envelope_state_prescription,
             self.logfile_name_prefix,
-            self.logfile_delimiter,
+            self.logfile_type,
             self.logfile_definitions,
             self.grid_filename,
             self.logfile_common_envelopes,
@@ -530,14 +585,17 @@ class pythonProgramOptions:
             '--mode',
             '--case-BB-stability-prescription',
             '--chemically-homogeneous-evolution',
+            '--luminous-blue-variable-prescription',
             '--mass-loss-prescription',
             '--mass-transfer-angular-momentum-loss-prescription',
             '--mass-transfer-accretion-efficiency-prescription',
             '--mass-transfer-rejuvenation-prescription',
             '--initial-mass-function',
             '--semi-major-axis-distribution',
+            '--orbital-period-distribution',
             '--mass-ratio-distribution',
             '--eccentricity-distribution',
+            '--metallicity-distribution',
             '--rotational-velocity-distribution',
             '--remnant-mass-prescription',
             '--fryer-supernova-engine',
@@ -556,7 +614,7 @@ class pythonProgramOptions:
             '--common-envelope-mass-accretion-prescription',
             '--envelope-state-prescription',
             '--logfile-name-prefix',
-            '--logfile-delimiter',
+            '--logfile-type',
             '--logfile-definitions',
             '--grid',
             '--logfile-common-envelopes',

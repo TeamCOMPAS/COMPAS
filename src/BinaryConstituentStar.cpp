@@ -78,7 +78,6 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
             case ANY_STAR_PROPERTY::LUMINOSITY_POST_COMMON_ENVELOPE:                    value = LuminosityPostCEE();                            break;
             case ANY_STAR_PROPERTY::LUMINOSITY_PRE_COMMON_ENVELOPE:                     value = LuminosityPreCEE();                             break;
             case ANY_STAR_PROPERTY::MASS_LOSS_DIFF:                                     value = MassLossDiff();                                 break;
-            case ANY_STAR_PROPERTY::MASS_TRANSFER_CASE_INITIAL:                         value = static_cast<int>(MassTransferCaseInitial());    break;
             case ANY_STAR_PROPERTY::MASS_TRANSFER_DIFF:                                 value = MassTransferDiff();                             break;
             case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE:             value = NuclearTimescalePostCEE();                      break;
             case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE:              value = NuclearTimescalePreCEE();                       break;
@@ -384,8 +383,8 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
 
         case ENVELOPE::RADIATIVE: {                                             // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
 
-            double coeff2          = PPOW(52.0, 5.0 / 3.0);                      // JR: todo: replace this with a constant (calculated) value?
-            double e2              = 1.592E-9 * PPOW(Mass(), 2.84);              // second order tidal coefficient (a.k.a. E_2)
+            double coeff2          = 5.0 * PPOW(2.0, 5.0 / 3.0);                // JR: todo: replace this with a constant (calculated) value?
+            double e2              = 1.592E-9 * PPOW(Mass(), 2.84);             // second order tidal coefficient (a.k.a. E_2)
             double rAU             = Radius() * RSOL_TO_AU;
             double rAU_3           = rAU * rAU * rAU;
             double freeFallFactor  = sqrt(G1 * Mass() / rAU_3);
@@ -438,31 +437,11 @@ void BinaryConstituentStar::SetRocheLobeFlags(const bool p_CommonEnvelope, const
  * @return                              Ratio of stars radius to its Roche lobe radius
  */
 double  BinaryConstituentStar::RocheLobeTracker(const double p_SemiMajorAxis, const double p_Eccentricity) {
-    if((utils::Compare(p_SemiMajorAxis, 0.0) <= 0) || (utils::Compare(p_Eccentricity, 1.0) > 0))
+    if ((utils::Compare(p_SemiMajorAxis, 0.0) <= 0) || (utils::Compare(p_Eccentricity, 1.0) > 0))
         return 0.0;         // binary is unbound, so not in RLOF
     
     double rocheLobeRadius = BaseBinaryStar::CalculateRocheLobeRadius_Static(Mass(), m_Companion->Mass());
     return (Radius() * RSOL_TO_AU) / (rocheLobeRadius * p_SemiMajorAxis * (1.0 - p_Eccentricity));
-}
-
-
-
-/*
- * Determine initial mass transfer case
- *
- * Three cases:
- *
- *    Case A: mass transfer while donor is on main sequence
- *    Case B: donor star is in (or evolving to) Red Giant phase
- *    Case C: SuperGiant phase
- *
- * Modifies class member variables m_MassTransferCaseInitial and m_FirstMassTransferEpisode
- *
- * void DetermineInitialMassTransferCase()
- */
-void BinaryConstituentStar::DetermineInitialMassTransferCase() {
-    if (!m_FirstMassTransferEpisode) m_MassTransferCaseInitial = DetermineMassTransferCase();
-    m_FirstMassTransferEpisode = true;                                                              
 }
 
 

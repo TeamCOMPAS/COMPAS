@@ -22,7 +22,6 @@
 #include "Rand.h"
 #include "Log.h"
 
-#include "AIS.h"
 #include "Star.h"
 #include "BinaryStar.h"
 
@@ -30,7 +29,6 @@ OBJECT_ID globalObjectId = 1;                                   // used to uniqu
 OBJECT_ID m_ObjectId     = 0;                                   // object id for main - always 0
 
 
-class AIS;
 class Star;
 class BinaryStar;
 
@@ -91,7 +89,7 @@ bool        evolvingBinaryStarValid = false;            // flag to indicate whet
 void sigHandler(int p_Sig) {   
     if (p_Sig == SIGUSR1) {                                         // SIGUSR1?  Just silently ignore anything else...
         if (evolvingBinaryStarValid && OPTIONS->SwitchLog()) {      // yes - do we have a valid binary star, and are we logging switches?
-            evolvingBinaryStar->PrintSwitchLog();                   // yes - assume SIGUSR1 is a binary constituent star switching...
+            (void)evolvingBinaryStar->PrintSwitchLog();             // yes - assume SIGUSR1 is a binary constituent star switching...
         }
     }
 }
@@ -117,9 +115,9 @@ std::tuple<int, int> EvolveSingleStars() {
 
     // generate and evolve stars
 
-    Star* star     = nullptr;
-    bool usingGrid = !OPTIONS->GridFilename().empty();                                                              // using grid file?
-    int  index     = 0;                                                                                             // which star
+    Star*  star      = nullptr;
+    bool   usingGrid = !OPTIONS->GridFilename().empty();                                                            // using grid file?
+    size_t index     = 0;                                                                                           // which star
 
     // The options specified by the user at the commandline are set to their initial values.
     // OPTIONS->AdvanceCmdLineOptionValues(), called at the end of the loop, advances the
@@ -202,10 +200,10 @@ std::tuple<int, int> EvolveSingleStars() {
 
                 double initialMass = OPTIONS->OptionSpecified("initial-mass") == 1                                  // user specified mass?
                                         ? OPTIONS->InitialMass()                                                    // yes, use it
-                                        : utils::SampleInitialMassDistribution(OPTIONS->InitialMassFunction(),      // no, sample it
-                                                                               OPTIONS->InitialMassFunctionMax(), 
-                                                                               OPTIONS->InitialMassFunctionMin(), 
-                                                                               OPTIONS->InitialMassFunctionPower());
+                                        : utils::SampleInitialMass(OPTIONS->InitialMassFunction(),                  // no, sample it
+                                                                   OPTIONS->InitialMassFunctionMax(), 
+                                                                   OPTIONS->InitialMassFunctionMin(), 
+                                                                   OPTIONS->InitialMassFunctionPower());
 
                 // the metallicity of the star is supplied - this is to allow binary stars to initialise
                 // the metallicity of their constituent stars (rather than have the constituent stars sample 
@@ -214,7 +212,10 @@ std::tuple<int, int> EvolveSingleStars() {
 
                 double metallicity = OPTIONS->OptionSpecified("metallicity") == 1                                   // user specified metallicity?
                                         ? OPTIONS->Metallicity()                                                    // yes, use it
-                                        : utils::SampleMetallicity();                                               // no, sample it
+                                        : utils::SampleMetallicity(OPTIONS->MetallicityDistribution(), 
+                                                                   OPTIONS->MetallicityDistributionMax(), 
+                                                                   OPTIONS->MetallicityDistributionMin());          // no, sample it
+
 
 
                 // Single stars (in SSE) are provided with a kick structure that specifies the 
@@ -357,14 +358,9 @@ std::tuple<int, int> EvolveBinaryStars() {
     std::time_t timeStart = std::chrono::system_clock::to_time_t(wallStart);
     SAY("Start generating binaries at " << std::ctime(&timeStart));
 
-    AIS ais;                                                                                                    // Adaptive Importance Sampling (AIS)
-
-    if (OPTIONS->AIS_ExploratoryPhase()) ais.PrintExploratorySettings();                                        // print the selected options for AIS Exploratory phase in the beginning of the run
-    if (OPTIONS->AIS_RefinementPhase() ) ais.DefineGaussians();                                                 // if we are sampling using AIS (step 2):read in gaussians
-
-    BinaryStar *binary = nullptr;
-    bool usingGrid     = !OPTIONS->GridFilename().empty();                                                      // using grid file?
-    int  index         = 0;                                                                                     // which binary
+    BinaryStar* binary    = nullptr;
+    bool        usingGrid = !OPTIONS->GridFilename().empty();                                                   // using grid file?
+    size_t      index     = 0;                                                                                  // which binary
 
     // The options specified by the user at the commandline are set to their initial values.
     // OPTIONS->AdvanceCmdLineOptionValues(), called at the end of the loop, advances the
@@ -409,22 +405,24 @@ std::tuple<int, int> EvolveBinaryStars() {
 
             while (!doneGridLine && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                            // while all ok and not done
 
-                // we only need to pass the AIS structure and the index number to the binary - we let the 
-                // BinaryStar class do the work wrt setting the parameters for each of the constituent stars
+                // we only need to pass the index number to the binary - we let the BinaryStar class do the work 
+                // wrt setting the parameters for each of the constituent stars
                 // (The index is really only needed for legacy comparison, so can probably be removed at any time)
-                //
-                // Note: the AIS structure will probably go away when Stroopwafel is completeley moved to outside COMPAS.
 
                 // create the binary
                 long int thisId = OPTIONS->FixedRandomSeedGridLine() ? gridLineVariation : index;               // set the id for the binary
                 delete binary; binary = nullptr;                                                                // so we don't leak
-                binary = new BinaryStar(ais, thisId);                                                           // generate binary according to the user options
+                binary = new BinaryStar(thisId);                                                                // generate binary according to the user options
 
                 evolvingBinaryStar      = binary;                                                               // set global pointer to evolving binary (for BSE Switch Log)
                 evolvingBinaryStarValid = true;                                                                 // indicate that the global pointer is now valid (for BSE Switch Log)
 
                 EVOLUTION_STATUS binaryStatus = binary->Evolve();                                               // evolve the binary
 
+                if (binaryStatus == EVOLUTION_STATUS::ERROR || binaryStatus == EVOLUTION_STATUS::SSE_ERROR) {   // ok?
+                    SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED, EVOLUTION_STATUS_LABEL.at(binaryStatus));       // no - show error
+                }
+                
                 // announce result of evolving the binary
                 if (!OPTIONS->Quiet()) {                                                                        // quiet mode?
                                                                                                                 // no - announce result of evolving the binary
@@ -444,10 +442,6 @@ std::tuple<int, int> EvolveBinaryStars() {
                             STELLAR_TYPE_LABEL.at(binary->Star2Type())        <<  ")"
                         );
                     }
-                }
-
-                if (OPTIONS->AIS_ExploratoryPhase() && ais.ShouldStopExploratoryPhase(index)) {                 // AIS says should stop simulation?
-                    evolutionStatus = EVOLUTION_STATUS::AIS_EXPLORATORY;                                        // ... and stop
                 }
 
                 if (!LOGGING->CloseStandardFile(LOGFILE::BSE_DETAILED_OUTPUT)) {                                // close detailed output file if necessary
@@ -492,11 +486,6 @@ std::tuple<int, int> EvolveBinaryStars() {
     int nBinariesRequested = evolutionStatus == EVOLUTION_STATUS::DONE ? index : -1;
 
     SAY("\nGenerated " << std::to_string(index) << " of " << (nBinariesRequested < 0 ? "<INCOMPLETE GRID>" : std::to_string(nBinariesRequested)) << " binaries requested");
-
-    if (evolutionStatus == EVOLUTION_STATUS::AIS_EXPLORATORY) {                                                 // AIS said stop?
-        SHOW_WARN(ERROR::BINARY_SIMULATION_STOPPED, EVOLUTION_STATUS_LABEL.at(evolutionStatus));                // yes - show warning
-        evolutionStatus = EVOLUTION_STATUS::DONE;                                                               // set done
-    }
 
     // announce result
     if (!OPTIONS->Quiet()) {
@@ -554,6 +543,7 @@ int main(int argc, char * argv[]) {
     PROGRAM_STATUS programStatus = PROGRAM_STATUS::CONTINUE;                                        // status - initially ok
 
     RAND->Initialise();                                                                             // initialise the random number service
+    RAND->Seed(0l);                                                                                 // set see to 0 - ensures repeatable results
 
     bool ok = OPTIONS->Initialise(argc, argv);                                                      // get the program options from the commandline
     if (!ok) {                                                                                      // have commandline options ok?
@@ -569,7 +559,6 @@ int main(int argc, char * argv[]) {
             (void)utils::SplashScreen();                                                            // yes - show splash screen
             programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
         }
-    
 
         if (programStatus == PROGRAM_STATUS::CONTINUE) {
 
@@ -585,7 +574,7 @@ int main(int argc, char * argv[]) {
                            OPTIONS->DebugClasses(),                                                 // debug classes - determines (in part) what debug information is displayed
                            OPTIONS->DebugToFile(),                                                  // should debug statements also be written to logfile?
                            OPTIONS->ErrorsToFile(),                                                 // should error messages also be written to logfile?
-                           DELIMITERValue.at(OPTIONS->LogfileDelimiter()));                         // log record field delimiter
+                           OPTIONS->LogfileType());                                                 // log file type
 
             (void)utils::SplashScreen();                                                            // announce ourselves
 
@@ -604,7 +593,7 @@ int main(int argc, char * argv[]) {
 
                 if (programStatus == PROGRAM_STATUS::CONTINUE) {                                    // all ok?
 
-                    if(OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {                           // SSE?
+                    if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {                          // SSE?
                         std::tie(objectsRequested, objectsCreated) = EvolveSingleStars();           // yes - evolve single stars
                     }
                     else {                                                                          // no - BSE

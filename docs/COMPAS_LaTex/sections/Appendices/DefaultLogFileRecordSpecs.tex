@@ -4,9 +4,34 @@
 Following are the default log file record specifications for each of the standard log files.  These specifications can be overridden by the use of a log file specifications file via the logfile-definitions program option.
 
 
-\subsection{SSE Parameters}\label{sec:SSEParameters}
+\subsection{SSE System Parameters}\label{sec:SSESystemParameters}
 
-const ANY\_PROPERTY\_VECTOR SSE\_PARAMETERS\_REC = \lcb
+const ANY\_PROPERTY\_VECTOR SSE\_SYSTEM\_PARAMETERS\_REC = \lcb
+
+\hfill
+\begin{minipage}{\dimexpr\textwidth-2em}
+    STAR\_PROPERTY::RANDOM\_SEED, \\
+    STAR\_PROPERTY::MZAMS, \\
+    STAR\_PROPERTY::RZAMS, \\
+    STAR\_PROPERTY::METALLICITY, \\
+    STAR\_PROPERTY::OMEGA\_ZAMS, \\
+    STAR\_PROPERTY::INITIAL\_STELLAR\_TYPE, \\
+    STAR\_PROPERTY::STELLAR\_TYPE, \\
+    STAR\_PROPERTY::SUPERNOVA\_KICK\_MAGNITUDE\_RANDOM\_NUMBER, \\
+    STAR\_PROPERTY::MASS, \\
+    PROGRAM\_OPTION::KICK\_MAGNITUDE\_DISTRIBUTION\_SIGMA\_CCSN\_NS, \\
+    PROGRAM\_OPTION::KICK\_MAGNITUDE\_DISTRIBUTION\_SIGMA\_CCSN\_BH, \\
+    PROGRAM\_OPTION::KICK\_MAGNITUDE\_DISTRIBUTION\_SIGMA\_FOR\_ECSN, \\
+    PROGRAM\_OPTION::KICK\_MAGNITUDE\_DISTRIBUTION\_SIGMA\_FOR\_USSN, \\
+    PROGRAM\_OPTION::LBV\_FACTOR, \\
+    PROGRAM\_OPTION::WR\_FACTOR
+\end{minipage}
+\par\rcb{;}
+
+\newpage
+\subsection{SSE Detailed Output}\label{sec:SSEParameters}
+
+const ANY\_PROPERTY\_VECTOR SSE\_DETAILED\_OUTPUT\_REC = \lcb
 
 \hfill
 \begin{minipage}{\dimexpr\textwidth-2em}
@@ -25,12 +50,13 @@ const ANY\_PROPERTY\_VECTOR SSE\_PARAMETERS\_REC = \lcb
     STAR\_PROPERTY::CO\_CORE\_MASS, \\
     STAR\_PROPERTY::HE\_CORE\_MASS, \\
     STAR\_PROPERTY::MDOT, \\
+    STAR\_PROPERTY::DOMINANT\_MASS\_LOSS\_RATE, \\
     STAR\_PROPERTY::TIMESCALE\_MS
 \end{minipage}
 \par\rcb{;}
 
 \newpage
-\subsection{SSE Supernova}\label{sec:SSESupernova}
+\subsection{SSE Supernovae}\label{sec:SSESupernovae}
 
 const ANY\_PROPERTY\_VECTOR SSE\_SUPERNOVA\_REC = \lcb
 
@@ -67,6 +93,7 @@ const ANY\_PROPERTY\_VECTOR SSE\_SWITCH\_LOG\_REC = \lcb
     STAR\_PROPERTY::TIME
 \end{minipage}
 \par\rcb{;}
+
 
 \bigskip
 The default record specification can be modified at runtime via a logfile record spcifications file (program option \textit{\texttt{-{}-}logfile-definitions}).
@@ -135,9 +162,9 @@ const ANY\_PROPERTY\_VECTOR BSE\_SYSTEM\_PARAMETERS\_REC = \lcb
     PROGRAM\_OPTION::KICK\_MAGNITUDE\_DISTRIBUTION\_SIGMA\_CCSN\_BH, \\
     PROGRAM\_OPTION::KICK\_MAGNITUDE\_DISTRIBUTION\_SIGMA\_FOR\_ECSN, \\
     PROGRAM\_OPTION::KICK\_MAGNITUDE\_DISTRIBUTION\_SIGMA\_FOR\_USSN, \\
-    BINARY\_PROPERTY::LUMINOUS\_BLUE\_VARIABLE\_FACTOR, \\
-    BINARY\_PROPERTY::WOLF\_RAYET\_FACTOR, \\
-    BINARY\_PROPERTY::COMMON\_ENVELOPE\_ALPHA, \\
+    PROGRAM\_OPTION::LBV\_FACTOR, \\
+    PROGRAM\_OPTION::WR\_FACTOR, \\
+    PROGRAM\_OPTION::COMMON\_ENVELOPE\_ALPHA, \\
     STAR\_1\_PROPERTY::METALLICITY, \\
     STAR\_2\_PROPERTY::METALLICITY, \\
     BINARY\_PROPERTY::UNBOUND, \\
@@ -219,6 +246,8 @@ const ANY\_PROPERTY\_VECTOR BSE\_DETAILED\_OUTPUT\_REC = \lcb
     STAR\_2\_PROPERTY::ZETA\_HURLEY\_HE, \\
     STAR\_1\_PROPERTY::MASS\_LOSS\_DIFF, \\
     STAR\_2\_PROPERTY::MASS\_LOSS\_DIFF, \\
+    STAR\_1\_PROPERTY::DOMINANT\_MASS\_LOSS\_RATE, \\
+    STAR\_2\_PROPERTY::DOMINANT\_MASS\_LOSS\_RATE, \\
     STAR\_1\_PROPERTY::MASS\_TRANSFER\_DIFF, \\
     STAR\_2\_PROPERTY::MASS\_TRANSFER\_DIFF, \\
     BINARY\_PROPERTY::TOTAL\_ANGULAR\_MOMENTUM, \\
@@ -253,8 +282,6 @@ const ANY\_PROPERTY\_VECTOR BSE\_DOUBLE\_COMPACT\_OBJECTS\_REC = \lcb
     STAR\_2\_PROPERTY::STELLAR\_TYPE, \\
     BINARY\_PROPERTY::TIME\_TO\_COALESCENCE, \\
     BINARY\_PROPERTY::TIME, \\
-    STAR\_1\_PROPERTY::MASS\_TRANSFER\_CASE\_INITIAL, \\
-    STAR\_2\_PROPERTY::MASS\_TRANSFER\_CASE\_INITIAL, \\
     BINARY\_PROPERTY::MERGES\_IN\_HUBBLE\_TIME, \\
     STAR\_1\_PROPERTY::RECYCLED\_NEUTRON\_STAR, \\
     STAR\_2\_PROPERTY::RECYCLED\_NEUTRON\_STAR

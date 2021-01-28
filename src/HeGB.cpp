@@ -27,7 +27,7 @@ double HeGB::CalculateLuminosityOnPhase_Static(const double p_CoreMass, const do
 /*
  * Calculate the giant branch radius for a helium star
  *
- * Hurley at al. 2000, eqs 85, 86, 87 & 88
+ * Hurley et al. 2000, eqs 85, 86, 87 & 88
  *
  * Calculates and returns R1 and R2 - the caller can then choose the radius and the
  * resultant stellar type based on the radius chosen
@@ -67,7 +67,7 @@ std::tuple<double, double> HeGB::CalculateRadiusOnPhase_Static(const double p_Ma
 /*
  * Calculate the giant branch radius for a helium star
  *
- * Hurley at al. 2000, eqs 85, 86, 87 & 88
+ * Hurley et al. 2000, eqs 85, 86, 87 & 88
  *
  * Calls CalculateRadiusOnPhase_Static() and returns the minimum of R1 and R2.
  *
@@ -78,7 +78,7 @@ std::tuple<double, double> HeGB::CalculateRadiusOnPhase_Static(const double p_Ma
  * @param   [IN]    p_Luminosity                Luminosity in Lsol
  * @return                                      Radius on the helium giant branch / post-HeMs
  */
-double HeGB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) {
+double HeGB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const {
     double R1, R2;
     std::tie(R1, R2) = CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity);
 
@@ -89,7 +89,7 @@ double HeGB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosi
 /*
  * Calculate the giant branch radius for a helium star and determine new stellar type
  *
- * Hurley at al. 2000, eqs 85, 86, 87 & 88
+ * Hurley et al. 2000, eqs 85, 86, 87 & 88
  *
  * Calls CalculateRadiusOnPhase_Static() and returns the minimum of R1 and R2.  
  * Returns stellr type to which star should evolve based on radius calculated.
@@ -101,7 +101,7 @@ double HeGB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosi
  * @param   [IN]    p_Luminosity                Luminosity in Lsol
  * @return                                      Radius on the helium giant branch / post-HeMs
  */
-std::tuple <double, STELLAR_TYPE> HeGB::CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity) {
+std::tuple <double, STELLAR_TYPE> HeGB::CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity) const {
 
     double       radius;
     STELLAR_TYPE stellarType = m_StellarType;
@@ -234,7 +234,7 @@ double HeGB::CalculateCoreMassOnPhase_Static(const double      p_Mass,
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
  * @return                                      Boolean indicating stability of mass transfer (true = unstable)
  */
-bool HeGB::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) {
+bool HeGB::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const {
 
     bool result = false;                                                                                                    // default is stable
 

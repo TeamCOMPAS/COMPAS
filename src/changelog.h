@@ -572,11 +572,111 @@
 //                                          - removed SN_THETA and SN_PHI from default SSE_SUPERNOVAE_REC (don't apply to SSE)
 //                                      - Fixed defect that caused semi-major axis to be drawn from distribution rather than calculated from supplied orbital period
 //                                        (moved check and calculation from options.cpp to BaseBinaryStar.cpp)
-// 02.16.04     RTW - Nov 10, 2020   - Enhancement:
+// 02.17.00     JR - Nov 10, 2020   - Enhancement, defect repairs, code cleanup
+//                                      - Added SSE System Parameters file
+//                                          - records initial parameters and result (final stellar type) 
+//                                          - useful when detailed output is not required
+//                                      - Fix for Issue #439
+//                                      - Fixed typo in LogfileSwitchLog() in Options.h - only affected situation where user specified switchlog filename (overriding default filename)
+//                                      - Removed m_LBVfactor variable from BaseBinaryStar - never used in BSE code
+//                                      - Removed m_LBVfactor variable from BaseStar - use OPTIONS->LuminousBlueVariableFactor()
+//                                      - Removed m_WolfRayetFactor variable from BaseBinaryStar - never used in BSE code
+//                                      - Removed m_LBVfactor variable from BaseStar - use OPTIONS->WolfRayetFactor()
+// 02.17.01     RTW - Nov 10, 2020  - Enhancement:
 //                                      - Added in Schneider 2020 remnant mass prescriptions (standard and alternative)
 //                                      - Added parameter MassTransferDonorHistory, as required for above prescription, which tracks the MT donor type (from which the MT Case can be established)
-//                                      - Tweaks to allowed parameter ranges for binary evolution
+// 02.17.02     RTW - Nov 13, 2020  - Enhancement:
+//                                      - Cleaned up the demo plotting routine so that the plot produced is the plot we use in the methods paper
+// 02.17.03     JR - Nov 13, 2020   - Enhancements, code cleanup
+//                                      - Added metallicity-distribution option: available distributions are ZSOLAR and LOGUNIFORM (see documentation)
+//                                          - Added metallicity-min and metallicity-max options (for metallicity-distribution option)
+//                                          - Metallicity is sampled if not explicitly specified via the --metallicity option - this was existing functionality, but
+//                                            no distribution was implemented: sampling always returned ZSOLAR.  This change adds the LOGUNIFORM distribution, and 'formalises' the ZSOLAR 'distribution'.
+//                                      - Added MASS to default SSE_SYSTEM_PARAMETERS_REC
+//                                      - Removed AIS code
+//                                      - Removed variable 'alpha' from BinaryCEDetails struct - use OPTIONS->CommonEnvelopeAlpha()
+//                                          - Removed BINARY_PROPERTY::COMMON_ENVELOPE_ALPHA - use PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA
+//                                      - Issue #443: removed eccentricity distribution options FIXED, IMPORTANCE & THERMALISE (THERMALISE = THERMAL, which remains) 
+// 02.17.04     JR - Nov 14, 2020   - Defect repairs
+//                                      - Added CalculateRadiusOnPhase() and CalculateLuminosityOnPhase() to class BH (increases DNS yield)
+//                                      - Added metallicity to sampling conditions in BaseBinaryStar constructor (should have been done when LOGUNIFORM metallicity distribution added)
+// 02.17.05     TW - Nov 16, 2020   - Defect repairs
+//                                      - Issue #444
+//                                          - Fixed typo in synchronisation timescale
+// 02.17.06     RTW - Nov 17, 2020  - Bug fix:
+//                                      - Fixed Schneider remnant mass inversion from logRemnantMass^10 to 10^logRemnantMass, added some comments in the same section
+// 02.17.07     TW - Nov 17, 2020   - Enhancements, code cleanup
+//                                      - Issue #431
+//                                          - Added option to change LBV wind prescription: choices are NONE, HURLEY_ADD, HURLEY and BELCYZNSKI
+//                                      - Replaced numbers with constants for luminosity and temperature limits in mass loss
+//                                      - Consolidated checks of luminosity for NJ winds within function
+//                                      - NOTE: the above makes sure luminosity is checked before applying NJ winds for MS stars, this was not previously the case but I think it should be
+// 02.17.08     JR - Nov 19, 2020   - Enhancements, code cleanup
+//                                      - Added orbital-period-distribution option (see note in Options.cpp re orbital period option)
+//                                      - Added mass-ratio option
+//                                      - Updated default pythonSubmit to reflect new options, plus some previous omissions (by me...)
+//                                      - Minor typo/formatting changes throughout
+//                                      - Updated docs for new options, plus some typos/fixes/previous omissions
+// 02.17.09     RTW - Nov 20, 2020  - Bug fix:
+//                                      - Removed corner case for MT_hist=8 stars in the Schneider prescription (these should be considered Ultra-stripped)
+// 02.17.10     RTW - Nov 25, 2020  - Enhancement:
+//                                      - Cleaned up Schneider remnant mass function (now uses PPOW), and set the HeCore mass as an upper limit to the remnant mass
+// 02.17.11     LVS - Nov 27, 2020  - Enhancements:
+//                                      - Added option to vary all winds with OverallWindMassLossMultiplier
+// 02.17.12     TW - Dec 9, 2020    - Enhancement, code cleanup, bug fix
+//                                      - Issue #463
+//                                          - Changed variable names from dml, dms etc. to rate_XX where XX is the mass loss recipe
+//                                          - No longer overwrite variables with next mass loss recipe for clarity
+//                                      - Added a new option to check the photon tiring limit during mass loss (default false for now)
+//                                      - Added a new class variable to track the dominant mass loss rate at each timestep
+// 02.17.13     JR - Dec 11, 2020   - Defect repair
+//                                      - uncomment initialisations of mass transfer critical mass ratios in Options.cpp (erroneously commented in v02.16.00)
+// 02.17.14     TW - Dec 16, 2020   - Bug fix
+//                                      - fix behaviour at fLBV=0 (had been including other winds but should just ignore them)
+// 02.17.15     JR - Dec 17, 2020   - Code and architecture cleanup
+//                                      - Architecture changes:
+//                                          - Added Remnants class    - inherits from HeGB class
+//                                          - Added WhiteDwarfs class - inherits from Remnants class; most of the WD code moved from HeWD, COWD and ONeWD to WhiteDwarfs class
+//                                          - Changed HeWD class      - inherits from WhiteDwarfs class (COWD still inherits from HeWD; ONeWD from COWD)
+//                                          - Change NS class         - inherits from Remnants class; code added/moved as necessary
+//                                          - Change BH class         - inherits from Remnants class; code added/moved as necessary
+//                                          - Change MR class         - inherits from Remnants class; code added/moved as necessary
+//                                      - Code cleanup:
+//                                          - added "const" to many functions (mostly SSE code) that dont modify class variables ("this") (still much to do, but this is a start)
+//                                          - added "virtual" to GiantBranch::CalculateCoreMassAtBAGB() and BaseStar::CalculateTemperatureAtPhaseEnd()
+//                                              - will have no impact given where they are called, but the keyword should be there (in case of future changes)
+//                                          - changed hard-coded header suffixes from _1 -> (1), _2 -> (2)
+//                                      - Added call to main() to seed random number generator with seed = 0 before options are processed (and user specified seed is know).  Ensures repeatability.
+//                                      - Changed "timestep below minimum" warnings in Star.cpp to be displayed only if --enable-warnings is specified
+// 02.17.16     JR - Dec 17, 2020   - Code cleanup
+//                                      - Removed "virtual" from GiantBranch::CalculateCoreMassAtBAGB() (incorrectly added in v02.17.15 - I was right the first time)
+//                                      - Removed "const" from Remnants::ResolveMassLoss() (inadvertently added in v02.17.15)
+//                                      - Removed declarations of variables m_ReducedMass, m_ReducedMassPrev, m_TotalMass, and m_TotalMassPrevfrom BaseBinaryStar.h (cleanup begun in v02.15.10 - these declarations were missed)
+// 02.17.17     RTW - Dec 17, 2020  - Code cleanup
+//                                      - Removed MassTransferCase related variables in favor of MassTransferDonorHist
+// 02.17.18     JR - Dec 18, 2020   - Defect repair
+//                                      - Typo in options code for option --switch-log: "switchlog" was incorrectly used instead of "switch-log"
+// 02.17.19     LVS - Dec 19, 2020  - Enhancements:
+//                                      - Added option to vary winds of cool stars (with T < VINK_MASS_LOSS_MINIMUM_TEMP) via a CoolWindMassLossMultiplier
+// 02.18.00     JR - Jan 08, 2021   - Enhancement:
+//                                      - Added support for HDF5 logfiles (see notes at top of log.h)
+//                                      - Added 'logfile-type' option; allowed values are HDF5, CSV, TSV, TXT; default is HDF5
+//                                      - Added 'hdf5-chunk-size' option - specifies the HDF5 chunk size (number of dataset entries)
+//                                      - Added 'hdf5-buffer-size' option - specifies the HDF5 IO buffer size (number of chunks)
+//                                      - Removed 'logfile-delimiter' option - delimiter now set by logfile type (--logfile-type option described above)
+//                                      - Changed header strings containing '/' character: '/' replaced by '|' (header strings become dataset names in HDF5 files, and '/' is a path delimiter...)
+// 02.18.01     SS - Jan 11, 2021   - Defect repair
+//                                      - Added check if binary is bound when evolving unbound binaries
+// 02.18.02     JR - Jan 12, 2021   - Defect repair:
+//                                      - Changed "hdf5_chunk_size = 5000" to "hdf5_chunk_size = 100000" in default pythonSubmit (inadvertently left at 5000 after some tests...)
+// 02.18.03     SS - Jan 19, 2021   - Enhancement:
+// 										- Added check for neutron star mass against maximum neutron star mass. 
+//										If a neutron star exceeds this mass it should collapse to a black hole. This can be relevant for neutron stars accreting, e.g. during common envelope evolution
+// 02.18.04     IM - Jan 28, 2021   - Enhancement:
+//                                      - NS to BH collapse preserves mass (see discussion in #514)
+//                                      - Fixed comment typo
 
-const std::string VERSION_STRING = "02.16.04";
+
+const std::string VERSION_STRING = "02.18.04";
 
 # endif // __changelog_h__
