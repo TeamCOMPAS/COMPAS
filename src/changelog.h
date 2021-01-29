@@ -675,8 +675,12 @@
 // 02.18.04     IM - Jan 28, 2021   - Enhancement:
 //                                      - NS to BH collapse preserves mass (see discussion in #514)
 //                                      - Fixed comment typo
+// 02.18.05     JR - Jan 29, 2021   - Defect repair:
+//                                      - Honour '--evolve-unbound-systems' option when specified in a grid file (see issue #519)
+//                                      - Honour '--evolve-pulsars' option when specified in a grid file (same as issue #519)
+//                                      - Added "maximum-evolution-time", "maximum-number-timestep-iterations", and "timestep-multiplier" to m_GridLineExcluded vector in Options.h (previous oversight)
 
 
-const std::string VERSION_STRING = "02.18.04";
+const std::string VERSION_STRING = "02.18.05";
 
 # endif // __changelog_h__
