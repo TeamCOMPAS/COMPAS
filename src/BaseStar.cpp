@@ -1092,33 +1092,24 @@ double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass,
 double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing() {
 
     double lambda;
-    double minZ = 0.0;
-    double maxZ = 1.0;
-    const DBL_VECTOR metallicityBins = {minZ, LAMBDA_NANJING_POPII_Z, LAMBDA_NANJING_POPI_Z, maxZ};
+    double minlogZ = -10000.0;
+    double maxlogZ =  0.0;
+    const DBL_VECTOR logZbins = {minlogZ, LAMBDA_NANJING_POPII_LOGZ, LAMBDA_NANJING_POPI_LOGZ, maxlogZ};
+    double logZ = log(m_Metallicity);
 
-    if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPII_Z) < 0) {
+    if (utils::Compare(logZ, LAMBDA_NANJING_POPII_LOGZ) < 0) {
         // Metallicity is not between the two metallicities calculated by Xu & Li (2010)
         return lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(LAMBDA_NANJING_POPII_Z);
     }
-    else if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPI_Z) > 0) {
+    else if (utils::Compare(logZ, LAMBDA_NANJING_POPI_LOGZ) > 0) {
         // Metallicity is not between the two metallicities calculated by Xu & Li (2010)
         return lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(LAMBDA_NANJING_POPI_Z);
     }
     else {
         // Linear interpolation in logZ between upper and lower metallicity bins
-        double lowerZbin = minZ;
-        double upperZbin = maxZ;
-        for (long unsigned int i = 0; i < metallicityBins.size(); i++) {
-            if (metallicityBins[i] > m_Metallicity) {
-                lowerZbin = metallicityBins[i-1];
-                upperZbin = metallicityBins[i];
-                break;
-            }
-        }
-
-        double lambda_low = BaseStar::CalculateMassInterpolatedLambdaNanjing(lowerZbin);
-        double lambda_up  = BaseStar::CalculateMassInterpolatedLambdaNanjing(upperZbin);
-        return lambda     = lambda_low + (log(m_Metallicity) - log(lowerZbin)) / (log(upperZbin) - log(lowerZbin)) * (lambda_up - lambda_low);
+        double lambda_low = BaseStar::CalculateMassInterpolatedLambdaNanjing(LAMBDA_NANJING_POPII_Z);
+        double lambda_up  = BaseStar::CalculateMassInterpolatedLambdaNanjing(LAMBDA_NANJING_POPI_Z);
+        return lambda     = lambda_low + (logZ - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambda_up - lambda_low);
     }   
 }
 
@@ -1137,7 +1128,7 @@ double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double metallicity
     double lambda;
     double maxMass = 1000000.0;
     double minMass = 0.0;
-    const DBL_VECTOR massBins = {minMass,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,11.0,13.0,15.0,18.0,35.0,75.0,maxMass};
+    const DBL_VECTOR massBins = {minMass,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,12.0,14.0,16.0,20.0,50.0,100.0,maxMass};
 
     if (utils::Compare(m_Mass0, LAMBDA_NANJING_MIN_MASS) < 0) {
         // Mass outside range calculated by Xu & Li (2010)
