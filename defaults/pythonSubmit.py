@@ -210,9 +210,9 @@ class pythonProgramOptions:
 
     neutron_star_equation_of_state = 'SSE'
 
-    neutrino_mass_loss_BH_formation = "FIXED_FRACTION"          # "FIXED_MASS"
+    neutrino_mass_loss_BH_formation = "FIXED_MASS"              # "FIXED_FRACTION"
     neutrino_mass_loss_BH_formation_value = 0.1                 # Either fraction or mass (Msol) to lose
-
+    
     remnant_mass_prescription   = 'FRYER2012'
     fryer_supernova_engine      = 'DELAYED'
     black_hole_kicks            = 'FALLBACK'
