@@ -665,15 +665,22 @@
 //                                      - Added 'hdf5-buffer-size' option - specifies the HDF5 IO buffer size (number of chunks)
 //                                      - Removed 'logfile-delimiter' option - delimiter now set by logfile type (--logfile-type option described above)
 //                                      - Changed header strings containing '/' character: '/' replaced by '|' (header strings become dataset names in HDF5 files, and '/' is a path delimiter...)
-// 02.18.01     SS - Jan 11, 2021 - Defect repair
+// 02.18.01     SS - Jan 11, 2021   - Defect repair
 //                                      - Added check if binary is bound when evolving unbound binaries
 // 02.18.02     JR - Jan 12, 2021   - Defect repair:
 //                                      - Changed "hdf5_chunk_size = 5000" to "hdf5_chunk_size = 100000" in default pythonSubmit (inadvertently left at 5000 after some tests...)
-// 02.18.03     SS - Jan 19, 2021 - Enhancement:
+// 02.18.03     SS - Jan 19, 2021   - Enhancement:
 // 										- Added check for neutron star mass against maximum neutron star mass. 
 //										If a neutron star exceeds this mass it should collapse to a black hole. This can be relevant for neutron stars accreting, e.g. during common envelope evolution
-// 
+// 02.18.04     IM - Jan 28, 2021   - Enhancement:
+//                                      - NS to BH collapse preserves mass (see discussion in #514)
+//                                      - Fixed comment typo
+// 02.18.05     JR - Jan 29, 2021   - Defect repair:
+//                                      - Honour '--evolve-unbound-systems' option when specified in a grid file (see issue #519)
+//                                      - Honour '--evolve-pulsars' option when specified in a grid file (same as issue #519)
+//                                      - Added "maximum-evolution-time", "maximum-number-timestep-iterations", and "timestep-multiplier" to m_GridLineExcluded vector in Options.h (previous oversight)
 
-const std::string VERSION_STRING = "02.18.03";
+
+const std::string VERSION_STRING = "02.18.05";
 
 # endif // __changelog_h__

@@ -161,6 +161,9 @@ private:
         "grid",
         "mode",
         "number-of-systems",
+        "maximum-evolution-time",
+        "maximum-number-timestep-iterations",
+        "timestep-multiplier",      
         "hdf5-chunk-size",
         "hdf5-buffer-size",
 
@@ -1036,8 +1039,8 @@ public:
     double                                      EddingtonAccretionFactor() const                                        { return OPT_VALUE("eddington-accretion-factor", m_EddingtonAccretionFactor, true); }
     ENVELOPE_STATE_PRESCRIPTION                 EnvelopeStatePrescription() const                                       { return OPT_VALUE("envelope-state-prescription", m_EnvelopeStatePrescription.type, true); }
     EVOLUTION_MODE                              EvolutionMode() const                                                   { return m_CmdLine.optionValues.m_EvolutionMode.type; }
-    bool                                        EvolvePulsars() const                                                   { return m_CmdLine.optionValues.m_EvolvePulsars; }
-    bool                                        EvolveUnboundSystems() const                                            { return m_CmdLine.optionValues.m_EvolveUnboundSystems; }
+    bool                                        EvolvePulsars() const                                                   { return OPT_VALUE("evolve-pulsars", m_EvolvePulsars, true); }
+    bool                                        EvolveUnboundSystems() const                                            { return OPT_VALUE("evolve-unbound-systems", m_EvolveUnboundSystems, true); }
 
     bool                                        FixedRandomSeedCmdLine() const                                          { return m_CmdLine.optionValues.m_FixedRandomSeed; }
     bool                                        FixedRandomSeedGridLine() const                                         { return m_GridLine.optionValues.m_FixedRandomSeed; }
