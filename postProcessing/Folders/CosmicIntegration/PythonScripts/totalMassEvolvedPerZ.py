@@ -146,10 +146,10 @@ def retrieveMassEvolvedPerZ(path, fileName):
     path = os.path.join(path, fileName) 
     f = h5.File(path, 'r') # open in read-only
 
-    allSystems = f['SystemParameters']
-    metals = (allSystems['Metallicity@ZAMS_1'])[()]
-    m1s = (allSystems['Mass@ZAMS_1'])[()]
-    m2s = (allSystems['Mass@ZAMS_2'])[()]
+    allSystems = f['BSE_System_Parameters']
+    metals = (allSystems['Metallicity@ZAMS(1)'])[()]
+    m1s = (allSystems['Mass@ZAMS(1)'])[()]
+    m2s = (allSystems['Mass@ZAMS(2)'])[()]
     total = []
     for Z in np.unique(metals):
         mask = metals == Z
