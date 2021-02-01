@@ -210,6 +210,9 @@ class pythonProgramOptions:
 
     neutron_star_equation_of_state = 'SSE'
 
+    neutrino_mass_loss_BH_formation = "FIXED_MASS"              # "FIXED_FRACTION"
+    neutrino_mass_loss_BH_formation_value = 0.1                 # Either fraction or mass (Msol) to lose
+    
     remnant_mass_prescription   = 'FRYER2012'
     fryer_supernova_engine      = 'DELAYED'
     black_hole_kicks            = 'FALLBACK'
@@ -436,7 +439,8 @@ class pythonProgramOptions:
             self.log_level,
             self.debug_level,
             self.hdf5_chunk_size,
-            self.hdf5_buffer_size
+            self.hdf5_buffer_size,
+            self.neutrino_mass_loss_BH_formation_value
         ]
 
         return numericalChoices
@@ -526,7 +530,8 @@ class pythonProgramOptions:
             '--log-level',
             '--debug-level',
             '--hdf5-chunk-size',
-            '--hdf5-buffer-size'
+            '--hdf5-buffer-size',
+            '--neutrino-mass-loss-BH-formation-value'
         ]
 
         return numericalCommands
@@ -575,7 +580,8 @@ class pythonProgramOptions:
             self.logfile_rlof_parameters,
             self.logfile_supernovae,
             self.logfile_switch_log,
-            self.logfile_system_parameters
+            self.logfile_system_parameters,
+            self.neutrino_mass_loss_BH_formation
         ]
 
         return stringChoices
@@ -624,7 +630,8 @@ class pythonProgramOptions:
             '--logfile-rlof-parameters',
             '--logfile-supernovae',
             '--logfile-switch-log',
-            '--logfile-system-parameters'
+            '--logfile-system-parameters',
+            '--neutrino-mass-loss-BH-formation'
         ]
 
         return stringCommands
