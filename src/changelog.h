@@ -670,8 +670,9 @@
 // 02.18.02     JR - Jan 12, 2021   - Defect repair:
 //                                      - Changed "hdf5_chunk_size = 5000" to "hdf5_chunk_size = 100000" in default pythonSubmit (inadvertently left at 5000 after some tests...)
 // 02.18.03     SS - Jan 19, 2021   - Enhancement:
-// 										- Added check for neutron star mass against maximum neutron star mass. 
-//										If a neutron star exceeds this mass it should collapse to a black hole. This can be relevant for neutron stars accreting, e.g. during common envelope evolution
+// 									- Added check for neutron star mass against maximum neutron star mass. 
+//									If a neutron star exceeds this mass it should collapse to a black hole. 
+//                                  This can be relevant for neutron stars accreting, e.g. during common envelope evolution
 // 02.18.04     IM - Jan 28, 2021   - Enhancement:
 //                                      - NS to BH collapse preserves mass (see discussion in #514)
 //                                      - Fixed comment typo
@@ -679,8 +680,10 @@
 //                                      - Honour '--evolve-unbound-systems' option when specified in a grid file (see issue #519)
 //                                      - Honour '--evolve-pulsars' option when specified in a grid file (same as issue #519)
 //                                      - Added "maximum-evolution-time", "maximum-number-timestep-iterations", and "timestep-multiplier" to m_GridLineExcluded vector in Options.h (previous oversight)
+// 02.18.06     SS - Feb 1, 2021    - Defect repair:
+//                                      - Make COMPAS use --neutrino-mass-loss-BH-formation options (resolves issue #453)
+//
 
-
-const std::string VERSION_STRING = "02.18.05";
+const std::string VERSION_STRING = "02.18.06";
 
 # endif // __changelog_h__

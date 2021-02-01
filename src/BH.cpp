@@ -25,9 +25,10 @@ double BH::CalculateNeutrinoMassLoss_Static(const double p_BaryonicMass) {
 
         default:                                                                            // unknown assumption
             SHOW_WARN_STATIC(ERROR::UNKNOWN_NEUTRINO_MASS_LOSS_PRESCRIPTION,                // show warning
-                             "Using mass = 0.0",
+                             "Using gravitational mass = baryonic mass = " + std::to_string(p_BaryonicMass),
                              OBJECT_TYPE::BASE_STAR,
                              STELLAR_TYPE::BLACK_HOLE);
+            gravitationalMass = p_BaryonicMass;
     }
 
     return gravitationalMass;
