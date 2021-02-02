@@ -50,7 +50,7 @@ protected:
             double          CalculateHeCoreMassOnPhase()                                                     { return m_CoreMass; }                                                                        // NO-OP
 
             double          CalculateLambdaDewi();
-            double          CalculateLambdaNanjing(double mass, double metallicity);
+            double          CalculateLambdaNanjing(const double p_Mass, const double p_Metallicity);
 
             double          CalculateLuminosityOnPhase(const double p_Time);
             double          CalculateLuminosityOnPhase()                                                     { return CalculateLuminosityOnPhase(m_Age); }                                                   // Use class member variables
