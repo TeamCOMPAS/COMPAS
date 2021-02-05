@@ -135,6 +135,15 @@ public:
 
             void                UpdateMassTransferDonorHistory();
 
+            void                UpdateTotalMassForECSN()                                        {
+                // Reset the preSN mass to be a fully stripped star
+                double newStrippedMass = m_SupernovaDetails.COCoreMassAtCOFormation; 
+                m_SupernovaDetails.totalMassAtCOFormation  = newStrippedMass;
+                m_SupernovaDetails.HeCoreMassAtCOFormation = newStrippedMass;
+                m_SupernovaDetails.COCoreMassAtCOFormation = newStrippedMass;
+                m_SupernovaDetails.coreMassAtCOFormation   = newStrippedMass;
+            }
+
 
 
 

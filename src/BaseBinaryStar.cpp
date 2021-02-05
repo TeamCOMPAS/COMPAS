@@ -1161,6 +1161,18 @@ bool BaseBinaryStar::ResolveSupernova() {
         return false;                                                                                                   // not a supernova event - bail out 
     }
 
+    // RTW hack for ECSN - update the orbit and mass preSN
+    if (m_Supernova->SN_Type() == SN_EVENT::ECSN) {
+        std::cout << "Here's ECSN, should check for something..." << std::endl;
+        std::cout << "Here's ECSN, should check for something..." << std::endl;
+        double m1pre = m_Supernova->SN_TotalMassAtCOFormation();
+        double m2pre = m_Companion->SN_TotalMassAtCOFormation();
+        double m1stripped = m_Supernova->SN_COCoreMassAtCOFormation();
+
+        m_SemiMajorAxis *= (m1pre+m2pre)/(m1stripped+m2pre);
+        m_Supernova->UpdateTotalMassForECSN();
+    }
+
     // Set relevant preSN parameters 
     m_EccentricityPreSN = m_Eccentricity;                                                 
     m_SemiMajorAxisPreSN = m_SemiMajorAxis;                                               
