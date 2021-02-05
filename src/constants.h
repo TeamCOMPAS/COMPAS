@@ -3670,6 +3670,11 @@ const std::map<double, double> ARP3MassRadiusRelation = {
 };
 
 
+// vector NANJING_MASSES
+// Mass / Msun of stellar models computed by Xu & Li (2010), with additional unpublished 50 and 100 Msun models
+const DBL_VECTOR NANJING_MASSES = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 20.0, 50.0, 100.0 };
+
+
 // Coefficients for calculating binding and recombination energy as described in Loveridge et al. 2011
 // Electronic tables, program and further information in: http://astro.ru.nl/~sluys/index.php?title=BE
 

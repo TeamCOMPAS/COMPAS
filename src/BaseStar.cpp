@@ -1091,25 +1091,17 @@ double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass,
  */ 
 double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing() {
 
-    double lambda;
-    const double minLogZ = -std::numeric_limits<double>::max();
-    const double maxLogZ =  0.0;
-    const DBL_VECTOR logZbins = {minLogZ, LAMBDA_NANJING_POPII_LOGZ, LAMBDA_NANJING_POPI_LOGZ, maxLogZ};
-    const double logZ = log(m_Metallicity);
-
-    if (utils::Compare(logZ, LAMBDA_NANJING_POPII_LOGZ) < 0) {
-        // Metallicity is not between the two metallicities calculated by Xu & Li (2010)
-        return lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(LAMBDA_NANJING_POPII_Z);
+    if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPII_Z) < 0) {
+        return BaseStar::CalculateMassInterpolatedLambdaNanjing(LAMBDA_NANJING_POPII_Z);        // Use lambda for pop II metallicity
     }
-    else if (utils::Compare(logZ, LAMBDA_NANJING_POPI_LOGZ) > 0) {
-        // Metallicity is not between the two metallicities calculated by Xu & Li (2010)
-        return lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(LAMBDA_NANJING_POPI_Z);
+    else if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPI_Z) > 0) {
+        return BaseStar::CalculateMassInterpolatedLambdaNanjing(LAMBDA_NANJING_POPI_Z);         // Use lambda for pop I metallicity
     }
-    else {
-        // Linear interpolation in logZ between upper and lower metallicity bins
+    else {                                                                                      // Linear interpolation in logZ between upper and lower metallicity bins
+        const double logZ = log(m_Metallicity);
         double lambdaLow = BaseStar::CalculateMassInterpolatedLambdaNanjing(LAMBDA_NANJING_POPII_Z);
         double lambdaUp  = BaseStar::CalculateMassInterpolatedLambdaNanjing(LAMBDA_NANJING_POPI_Z);
-        return lambda     = lambdaLow + (logZ - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
+        return lambdaLow + (logZ - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
     }   
 }
 
@@ -1125,34 +1117,22 @@ double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing() {
  */ 
 double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double p_Metallicity) {
 
-    double lambda;
-    const double maxMass = std::numeric_limits<double>::max();
-    const double minMass = 0.0;
-    const DBL_VECTOR massBins = {minMass,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,12.0,14.0,16.0,20.0,50.0,100.0,maxMass};
-
-    if (utils::Compare(m_Mass0, LAMBDA_NANJING_MIN_MASS) < 0) {
-        // Mass outside range calculated by Xu & Li (2010)
-        return lambda = CalculateLambdaNanjing(LAMBDA_NANJING_MIN_MASS, p_Metallicity);
+    std::vector<int> ind = utils::binarySearch(NANJING_MASSES, m_Mass0);
+    int low = ind[0];
+    int up = ind[1];
+    if ( (low < 0)  && (up >= 0) ) {                                                            // Mass below range calculated by Xu & Li (2010)
+        return CalculateLambdaNanjing(LAMBDA_NANJING_MIN_MASS, p_Metallicity);                  // Use lambda for minimum mass
     }
-    else if (utils::Compare(m_Mass0, LAMBDA_NANJING_MAX_MASS) > 0) {
-        // Mass outside range calculated by Xu & Li (2010)
-        return lambda = CalculateLambdaNanjing(LAMBDA_NANJING_MAX_MASS, p_Metallicity);
+    else if ( (low >= 0) && (up < 0) ) {                                                        // Mass above range calculated by Xu & Li (2010)
+        return CalculateLambdaNanjing(LAMBDA_NANJING_MAX_MASS, p_Metallicity);                  // Use lambda for maximum mass
     }
-    else {
-        // Linear interpolation between upper and lower mass bins
-        double lowerMassBin = minMass;
-        double upperMassBin = maxMass;
-        for (long unsigned int i = 0; i < massBins.size(); i++) {
-            if (massBins[i] > m_Mass0) {
-                lowerMassBin = massBins[i-1];
-                upperMassBin = massBins[i];
-                break;
-            }
-        }
-
-        double lambdaLow = CalculateLambdaNanjing(lowerMassBin, p_Metallicity);
-        double lambdaUp  = CalculateLambdaNanjing(upperMassBin, p_Metallicity);
-        return lambda     = lambdaLow + (m_Mass0 - lowerMassBin) / (upperMassBin - lowerMassBin) * (lambdaUp - lambdaLow);
+    else if (low == up) {                                                                       // Mass is exactly equal to the mass of a model evolved by Xu & Li (2010)
+        return CalculateLambdaNanjing(NANJING_MASSES[low], p_Metallicity);
+    }
+    else {                                                                                      // Linear interpolation between upper and lower mass bins
+        double lambdaLow = CalculateLambdaNanjing(NANJING_MASSES[low], p_Metallicity);
+        double lambdaUp  = CalculateLambdaNanjing(NANJING_MASSES[up], p_Metallicity);
+        return lambdaLow + (m_Mass0 - NANJING_MASSES[low]) / (NANJING_MASSES[up] - NANJING_MASSES[low]) * (lambdaUp - lambdaLow);
     }
 }
 
