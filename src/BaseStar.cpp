@@ -1121,17 +1121,17 @@ double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double p_Metallici
     int low = ind[0];
     int up = ind[1];
     if ( (low < 0)  && (up >= 0) ) {                                                            // Mass below range calculated by Xu & Li (2010)
-        return CalculateLambdaNanjing(LAMBDA_NANJING_MIN_MASS, p_Metallicity);                  // Use lambda for minimum mass
+        return CalculateLambdaNanjing(0, p_Metallicity);                                        // Use lambda for minimum mass
     }
     else if ( (low >= 0) && (up < 0) ) {                                                        // Mass above range calculated by Xu & Li (2010)
-        return CalculateLambdaNanjing(LAMBDA_NANJING_MAX_MASS, p_Metallicity);                  // Use lambda for maximum mass
+        return CalculateLambdaNanjing(NANJING_MASSES.size() - 1, p_Metallicity);                // Use lambda for maximum mass
     }
     else if (low == up) {                                                                       // Mass is exactly equal to the mass of a model evolved by Xu & Li (2010)
-        return CalculateLambdaNanjing(NANJING_MASSES[low], p_Metallicity);
+        return CalculateLambdaNanjing(low, p_Metallicity);
     }
     else {                                                                                      // Linear interpolation between upper and lower mass bins
-        double lambdaLow = CalculateLambdaNanjing(NANJING_MASSES[low], p_Metallicity);
-        double lambdaUp  = CalculateLambdaNanjing(NANJING_MASSES[up], p_Metallicity);
+        double lambdaLow = CalculateLambdaNanjing(low, p_Metallicity);
+        double lambdaUp  = CalculateLambdaNanjing(up, p_Metallicity);
         return lambdaLow + (m_Mass0 - NANJING_MASSES[low]) / (NANJING_MASSES[up] - NANJING_MASSES[low]) * (lambdaUp - lambdaLow);
     }
 }
