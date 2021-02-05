@@ -18,28 +18,29 @@ namespace utils {
 
      /*
      * Iterative binary search
-     * 
-     * For a given number x and an array arr, return the lower and upper bin edges of x in arr.
+     *
+     * For a given number x and a sorted array arr, return the lower and upper bin edges of x in arr.
      *
      *
      * std::vector<int> binarySearch(const std::vector<double> p_Arr, const double p_x)
-     * 
-     * @param   [IN]    p_Array             Array to search over
+     *
+     * @param   [IN]    p_Array             Sorted array to search over
      * @param   [IN]    p_x                 Value to search for
 
      * @return                              Vector containing indices of the lower and upper
-                                            bin edges containing x. If x is not within limits
-                                            of array, return {-1, -1}. If x is equal to an
-                                            array element, return index of that element.
+                                            bin edges containing x. If x < min(Arr), return
+                                            {-1, 0}. If x > max(Arr), return {0, -1}. If x
+                                            is equal to an array element, return index of that
+                                            element.
      */
     std::vector<int> binarySearch(const std::vector<double> p_Arr, const double p_x) {
         int low = 0;
         int up = p_Arr.size() - 1;
         int mid = 0;
 
-        if ( (p_x < p_Arr[low]) || (p_x > p_Arr[up]) ) {             // x is not within array limits
-            return {-1, -1};
-        }
+        // If x is not within array limits...
+        if      (p_x < p_Arr[low]) { return {-1, 0}; }
+        else if (p_x > p_Arr[up])  { return {0, -1}; }
 
         while(1) {
             mid = roundl( 0.5*(up + low) );
