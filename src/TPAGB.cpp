@@ -310,7 +310,7 @@ double TPAGB::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
         }
 
     if (lambdaBG.empty()) {
-        if ( (p_Zind == 1) && (p_MassInd == 0) ) {                        // Pop. I metallicity and M = 1.5 Msun
+        if ( (p_Zind == 1) && (p_MassInd == 0) ) {                        // Pop. I metallicity and M = 1 Msun
             double x  = (m_Mass - m_CoreMass) / m_Mass;
             double x2 = x * x;
             double x3 = x2 * x;
