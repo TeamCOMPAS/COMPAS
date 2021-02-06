@@ -61,15 +61,15 @@ protected:
             double          CalculateCoreMassAtPhaseEnd()                                        { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
             double          CalculateCoreMassOnPhase()                                           { return m_COCoreMass; }                                                // Mc(HeMS) = McCOMass
 
-            double          CalculateGyrationRadius() const                                           { return 0.1; }                                                         // JR: todo: Nobody seems sure about this...
+            double          CalculateGyrationRadius() const                                      { return 0.1; }                                                         // JR: todo: Nobody seems sure about this...
 
-            double          CalculateHeCoreMassOnPhase()                                        { return m_Mass; }                                                     // McHe(HeMS) = Mass
+            double          CalculateHeCoreMassOnPhase()                                         { return m_Mass; }                                                      // McHe(HeMS) = Mass
             double          CalculateHeCoreMassAtPhaseEnd()                                      { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
 
             double          CalculateInitialSupernovaMass()                                      { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch
 
             double          CalculateLambdaDewi()                                                { return 0.5; }
-            double          CalculateLambdaNanjing(double mass, double metallicity)              { return BaseStar::CalculateLambdaNanjing(mass, metallicity); }   // Not supported - use BaseStar
+            double          CalculateLambdaNanjing(const int p_MassInd, const int p_Zind)        { return BaseStar::CalculateLambdaNanjing(p_MassInd, p_Zind); }         // Not supported - use BaseStar
 
             double          CalculateLuminosityAtPhaseEnd(const double p_Mass)                   { return CalculateLuminosityAtPhaseEnd_Static(p_Mass); }
             double          CalculateLuminosityAtPhaseEnd()                                      { return CalculateLuminosityAtPhaseEnd(m_Mass); }                       // Use class member variables
