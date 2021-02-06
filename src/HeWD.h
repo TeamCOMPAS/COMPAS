@@ -54,13 +54,13 @@ protected:
 
     void            CalculateGBParams()                                                                 { GiantBranch::CalculateGBParams(); }                                           // Default to GiantBranch
 
-    double          CalculateGyrationRadius() const                                                          { return 0.21; }                                                                // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
+    double          CalculateGyrationRadius() const                                                     { return 0.21; }                                                                // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 
 
     double          CalculateHeCoreMassOnPhase()                                                        { return m_HeCoreMass; }                                                        // NO-OP
 
     double          CalculateLambdaDewi()                                                               { return BaseStar::CalculateLambdaDewi(); }                                     // Not supported - use BaseStar
-    double          CalculateLambdaNanjing(double mass, double metallicity)                             { return BaseStar::CalculateLambdaNanjing(mass, metallicity); }                                  // Not supported - use BaseStar     JR: todo: check this (type 10 not mentioned as not supported in original code)
+    double          CalculateLambdaNanjing(const int p_MassInd, const int p_Zind)                       { return BaseStar::CalculateLambdaNanjing(p_MassInd, p_Zind); }                 // Not supported - use BaseStar     JR: todo: check this (type 10 not mentioned as not supported in original code)
 
     double          CalculateLuminosityOnPhase(const double p_Mass,
                                                const double p_Time,

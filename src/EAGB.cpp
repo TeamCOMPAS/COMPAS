@@ -86,12 +86,13 @@ double EAGB::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
         // Pop. II metallicity
         case 0:
             switch(p_MassInd) {
-                case 0:
+                case 0: {
                     maxBG = { 2.5, 1.5 };
                     Rmax = 200.0;
                     double R_in = std::min(Rmax, m_Radius);
                     double tmp = 0.1 - ( R_in * 3.57E-04);
                     lambdaBG   = { tmp, tmp };
+                }
                 case 1:
                     maxBG = { 4.0, 2.0 };
                     Rmax = 340.0;
@@ -137,7 +138,7 @@ double EAGB::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
                     Rmax = 600.0;
                     a = { 0.3707 ,  2.67221E-04, -9.86464E-06, 2.26185E-08, 0.0, 0.0 };
                     b = { 0.25549, -0.00152    ,  3.35239E-06, 2.24224E-10, 0.0, 0.0 };
-                case 10:
+                case 10: {
                     maxBG = { 1.5, 1.0 };
                     Rmax = 850.0;
                     double R_in = std::min(Rmax, m_Radius);
@@ -153,6 +154,7 @@ double EAGB::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
                         a = { -58.03732, 0.23633, -3.20535E-04, 1.45129E-07, 0.0, 0.0 };
                         b = { -15.11672, 0.06331, -8.81542E-05, 4.0982E-08 , 0.0, 0.0 };
                     }
+                }
                 case 11:
                     maxBG = { 1.5, 1.0 };
                     Rmax = 1000.0;
@@ -191,7 +193,7 @@ double EAGB::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
                     Rmax = 350.0;
                     a = { 0.5452 ,  0.00212    , 6.42941E-05, -1.46783E-07, 0.0       ,  0.0 };
                     b = { 0.30594, -9.58858E-04, 1.12174E-04, -1.04079E-06, 3.4564E-09, -3.91536e-12 };
-                case 2:
+                case 2: {
                     maxBG = { 600.0, 2.0 };
                     Rmax = 400.0;
                     double R_in = std::min(Rmax, m_Radius);
@@ -200,6 +202,7 @@ double EAGB::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
                         a = { -0.475  , -0.00328, 1.31101E-04, -6.03669E-07, 8.49549E-10, 0.0 };
                         b = {  0.05434,  0.0039 , 9.44609E-06, -3.87278E-08, 0.0        , 0.0 };
                     }
+                }
                 case 3:
                     maxBG = { 600.0, 2.0 };
                     Rmax = 410.0;
@@ -235,7 +238,7 @@ double EAGB::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
                     Rmax = 500.0;
                     a = { -9.26519,  0.08064, -2.30952E-04, 2.21986E-07, 0.0, 0.0 };
                     b = {  0.81491, -0.00161, -8.13352E-06, 1.95775E-08, 0.0, 0.0 };
-                case 10:
+                case 10: {
                     maxBG = { 1.6, 1.0 };
                     Rmax = 600.0;
                     double R_in = std::min(Rmax, m_Radius);
@@ -244,7 +247,8 @@ double EAGB::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
                         a = { -51.15252, 0.30238, -5.95397E-04, 3.91798E-07, 0.0, 0.0 };
                         b = { -13.44   , 0.08141, -1.641E-04  , 1.106E-07  , 0.0, 0.0 };
                     }
-                case 11:
+                }
+                case 11: {
                     maxBG = { 1.6, 1.0 };
                     Rmax = 650.0;
                     double R_in = std::min(Rmax, m_Radius);
@@ -256,7 +260,8 @@ double EAGB::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
                         a = { -140.0   , 0.7126 , -0.00121    , 6.846E-07  , 0.0, 0.0 };
                         b = {  -44.1964, 0.22592, -3.85124E-04, 2.19324E-07, 0.0, 0.0 };
                     }
-                case 12:
+                }
+                case 12: {
                     maxBG = { 1.5, 1.0 };
                     Rmax = 750.0;
                     double R_in = std::min(Rmax, m_Radius);
@@ -268,7 +273,8 @@ double EAGB::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
                         a = { -358.4    , 1.599  , -0.00238   , 1.178E-06  , 0.0, 0.0 };
                         b = { -118.13757, 0.52737, -7.8479E-04, 3.89585E-07, 0.0, 0.0 };
                     }
-                case 13:
+                }
+                case 13: {
                     maxBG = { 1.5, 1.0 };
                     Rmax = 900.0;
                     double R_in = std::min(Rmax, m_Radius);
@@ -280,6 +286,7 @@ double EAGB::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
                         a = { -436.00777, 1.41375, -0.00153    , 5.47573E-07, 0.0, 0.0 };
                         b = { -144.53456, 0.46579, -4.99197E-04, 1.78027E-07, 0.0, 0.0 };
                     }
+                }
                 case 14:
                     maxBG = { 20.0, 3.0 };
                     a     = { 0.821  , -0.00669, 1.57665E-05, -1.3427E-08 , 3.74204E-12, 0.0 };
