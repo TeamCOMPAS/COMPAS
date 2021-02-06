@@ -138,15 +138,14 @@ double EAGB::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
                     Rmax = 600.0;
                     a = { 0.3707 ,  2.67221E-04, -9.86464E-06, 2.26185E-08, 0.0, 0.0 };
                     b = { 0.25549, -0.00152    ,  3.35239E-06, 2.24224E-10, 0.0, 0.0 };
-                case 10: {
+                case 10:
                     maxBG = { 1.5, 1.0 };
                     Rmax = 850.0;
-                    double R_in = std::min(Rmax, m_Radius);
-                    if (utils::Compare(R_in, 0.0) > 0 && utils::Compare(R_in, 350.0) <= 0) {
+                    if (utils::Compare(m_Radius, 0.0) > 0 && utils::Compare(m_Radius, 350.0) <= 0) {
                         a = { 1.28593, -0.02209, 1.79764E-04, -6.21556E-07, 7.59444E-10, 0.0 };
                         b = { 0.68544, -0.01394, 1.20845E-04, -4.29071E-07, 5.29169E-10, 0.0 };
                     }
-                    else if (utils::Compare(R_in, 350.0) > 0 && utils::Compare(R_in, 600.0) <= 0) {
+                    else if (utils::Compare(m_Radius, 350.0) > 0 && utils::Compare(m_Radius, 600.0) <= 0) {
                         a = { -11.99537,  0.0992, -2.8981E-04,  3.62751E-07, -1.65585E-10, 0.0 };
                         b = {   0.46156, -0.0066,  3.9625E-05, -9.98667E-08, -8.84134E-11, 0.0 };
                     }
@@ -154,7 +153,6 @@ double EAGB::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
                         a = { -58.03732, 0.23633, -3.20535E-04, 1.45129E-07, 0.0, 0.0 };
                         b = { -15.11672, 0.06331, -8.81542E-05, 4.0982E-08 , 0.0, 0.0 };
                     }
-                }
                 case 11:
                     maxBG = { 1.5, 1.0 };
                     Rmax = 1000.0;
@@ -193,16 +191,14 @@ double EAGB::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
                     Rmax = 350.0;
                     a = { 0.5452 ,  0.00212    , 6.42941E-05, -1.46783E-07, 0.0       ,  0.0 };
                     b = { 0.30594, -9.58858E-04, 1.12174E-04, -1.04079E-06, 3.4564E-09, -3.91536e-12 };
-                case 2: {
+                case 2:
                     maxBG = { 600.0, 2.0 };
                     Rmax = 400.0;
-                    double R_in = std::min(Rmax, m_Radius);
-                    if (utils::Compare(R_in, 36.0) > 0 && utils::Compare(R_in, 53.0) < 0) lambdaBG = { 1.0, 1.0 };
+                    if (utils::Compare(m_Radius, 36.0) > 0 && utils::Compare(m_Radius, 53.0) < 0) lambdaBG = { 1.0, 1.0 };
                     else {
                         a = { -0.475  , -0.00328, 1.31101E-04, -6.03669E-07, 8.49549E-10, 0.0 };
                         b = {  0.05434,  0.0039 , 9.44609E-06, -3.87278E-08, 0.0        , 0.0 };
                     }
-                }
                 case 3:
                     maxBG = { 600.0, 2.0 };
                     Rmax = 410.0;
@@ -238,16 +234,14 @@ double EAGB::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
                     Rmax = 500.0;
                     a = { -9.26519,  0.08064, -2.30952E-04, 2.21986E-07, 0.0, 0.0 };
                     b = {  0.81491, -0.00161, -8.13352E-06, 1.95775E-08, 0.0, 0.0 };
-                case 10: {
+                case 10:
                     maxBG = { 1.6, 1.0 };
                     Rmax = 600.0;
-                    double R_in = std::min(Rmax, m_Radius);
-                    if (utils::Compare(R_in, 390.0) > 0 && utils::Compare(R_in, 460.0) < 0) lambdaBG = { 0.08, 0.05 };
+                    if (utils::Compare(m_Radius, 390.0) > 0 && utils::Compare(m_Radius, 460.0) < 0) lambdaBG = { 0.08, 0.05 };
                     else {
                         a = { -51.15252, 0.30238, -5.95397E-04, 3.91798E-07, 0.0, 0.0 };
                         b = { -13.44   , 0.08141, -1.641E-04  , 1.106E-07  , 0.0, 0.0 };
                     }
-                }
                 case 11: {
                     maxBG = { 1.6, 1.0 };
                     Rmax = 650.0;
@@ -299,7 +293,7 @@ double EAGB::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
         }
 
     if (lambdaBG.empty()) {
-        if ( (p_Zind == 1) && (p_MassInd == 0) ) {                        // Pop. I metallicity and M = 1.5 Msun
+        if ( (p_Zind == 1) && (p_MassInd == 0) ) {                        // Pop. I metallicity and M = 1 Msun
             double x  = (m_Mass - m_CoreMass) / m_Mass;
             double x2 = x * x;
             double x3 = x2 * x;
