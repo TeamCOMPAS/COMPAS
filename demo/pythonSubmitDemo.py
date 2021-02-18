@@ -148,6 +148,8 @@ class pythonProgramOptions:
     luminous_blue_variable_multiplier = 1.5
     overall_wind_mass_loss_multiplier = 1.0
     wolf_rayet_multiplier = 1.0
+    cool_wind_mass_loss_multiplier = 1.0
+    check_photon_tiring_limit = False
 
     circularise_binary_during_mass_transfer = False
     angular_momentum_conservation_during_circularisation = False
@@ -214,6 +216,9 @@ class pythonProgramOptions:
 
     neutron_star_equation_of_state = 'SSE'
 
+    neutrino_mass_loss_BH_formation = "FIXED_MASS"              # "FIXED_FRACTION"
+    neutrino_mass_loss_BH_formation_value = 0.1                 # Either fraction or mass (Msol) to lose
+    
     remnant_mass_prescription   = 'FRYER2012'
     fryer_supernova_engine      = 'DELAYED'
     black_hole_kicks            = 'FALLBACK'
@@ -267,7 +272,11 @@ class pythonProgramOptions:
     debug_classes       = []
 
     logfile_name_prefix = None
-    logfile_delimiter   = 'COMMA'
+    logfile_type        = 'HDF5'
+
+    hdf5_chunk_size     = 100000
+    hdf5_buffer_size    = 1
+
 
     # set the logfile names here
     #
@@ -319,7 +328,8 @@ class pythonProgramOptions:
             self.errors_to_file,
             self.allow_rlof_at_birth,
             self.allow_touching_at_birth,
-            self.switch_log
+            self.switch_log,
+            self.check_photon_tiring_limit
         ]
 
         return booleanChoices
@@ -344,7 +354,8 @@ class pythonProgramOptions:
             '--errors-to-file',
             '--allow-rlof-at-birth',
             '--allow-touching-at-birth',
-            '--switch-log'
+            '--switch-log',
+            '--check-photon-tiring-limit'
         ]
 
         return booleanCommands
@@ -367,6 +378,7 @@ class pythonProgramOptions:
             self.luminous_blue_variable_multiplier,
             self.overall_wind_mass_loss_multiplier,
             self.wolf_rayet_multiplier,
+            self.cool_wind_mass_loss_multiplier,
             self.mass_transfer_fa,
             self.mass_transfer_jloss,
             self.maximum_evolution_time,
@@ -431,7 +443,10 @@ class pythonProgramOptions:
             self.muller_mandel_kick_multiplier_BH,
             self.muller_mandel_kick_multiplier_NS,
             self.log_level,
-            self.debug_level
+            self.debug_level,
+            self.hdf5_chunk_size,
+            self.hdf5_buffer_size,
+            self.neutrino_mass_loss_BH_formation_value
         ]
 
         return numericalChoices
@@ -454,6 +469,7 @@ class pythonProgramOptions:
             '--luminous-blue-variable-multiplier',
             '--overall-wind-mass-loss-multiplier',
             '--wolf-rayet-multiplier',
+            '--cool-wind-mass-loss-multiplier',
             '--mass-transfer-fa',
             '--mass-transfer-jloss',
             '--maximum-evolution-time',
@@ -518,7 +534,10 @@ class pythonProgramOptions:
             '--muller-mandel-kick-multiplier-BH',
             '--muller-mandel-kick-multiplier-NS',
             '--log-level',
-            '--debug-level'
+            '--debug-level',
+            '--hdf5-chunk-size',
+            '--hdf5-buffer-size',
+            '--neutrino-mass-loss-BH-formation-value'
         ]
 
         return numericalCommands
@@ -557,7 +576,7 @@ class pythonProgramOptions:
             self.common_envelope_mass_accretion_prescription,
             self.envelope_state_prescription,
             self.logfile_name_prefix,
-            self.logfile_delimiter,
+            self.logfile_type,
             self.logfile_definitions,
             self.grid_filename,
             self.logfile_common_envelopes,
@@ -567,7 +586,8 @@ class pythonProgramOptions:
             self.logfile_rlof_parameters,
             self.logfile_supernovae,
             self.logfile_switch_log,
-            self.logfile_system_parameters
+            self.logfile_system_parameters,
+            self.neutrino_mass_loss_BH_formation
         ]
 
         return stringChoices
@@ -606,7 +626,7 @@ class pythonProgramOptions:
             '--common-envelope-mass-accretion-prescription',
             '--envelope-state-prescription',
             '--logfile-name-prefix',
-            '--logfile-delimiter',
+            '--logfile-type',
             '--logfile-definitions',
             '--grid',
             '--logfile-common-envelopes',
@@ -616,7 +636,8 @@ class pythonProgramOptions:
             '--logfile-rlof-parameters',
             '--logfile-supernovae',
             '--logfile-switch-log',
-            '--logfile-system-parameters'
+            '--logfile-system-parameters',
+            '--neutrino-mass-loss-BH-formation'
         ]
 
         return stringCommands
