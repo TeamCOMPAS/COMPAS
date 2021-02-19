@@ -22,11 +22,11 @@ public:
         m_ObjectType = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;
     };
 
-
-    BinaryConstituentStar(const unsigned long int p_RandomSeed,
-                          const double            p_Mass,
+    BinaryConstituentStar(const unsigned long int p_RandomSeed, 
+                          const double            p_Mass, 
                           const double            p_Metallicity, 
-                          const KickParameters    p_KickParameters) : Star(p_RandomSeed, p_Mass, p_Metallicity, p_KickParameters) {
+                          const KickParameters    p_KickParameters,
+                          const double            p_RotationalVelocity = -1.0) : Star(p_RandomSeed, p_Mass, p_Metallicity, p_KickParameters, p_RotationalVelocity) {
 
         m_ObjectId                 = globalObjectId++;
         m_ObjectType               = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;
