@@ -13,15 +13,17 @@ Star::Star() : m_Star(new BaseStar()) {
 
 
 // Regular constructor - with parameters for RandomSeed, MZAMS, Metallicity, and KickParameters
+
 Star::Star(const unsigned long int p_RandomSeed,
            const double            p_MZAMS,
            const double            p_Metallicity, 
-           const KickParameters    p_KickParameters) {
+           const KickParameters    p_KickParameters,
+           const double            p_RotationalVelocity) {
 
     m_ObjectId   = globalObjectId++;                                                                                // set object id
     m_ObjectType = OBJECT_TYPE::STAR;                                                                               // set object type
 
-    m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_Metallicity, p_KickParameters);                                  // create underlying BaseStar object
+    m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_Metallicity, p_KickParameters, p_RotationalVelocity);            // create underlying BaseStar object
 
     // star begins life as a main sequence star, unless it is
     // spinning fast enough for it to be chemically homogeneous
@@ -494,7 +496,7 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
         else if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) {
             status = EVOLUTION_STATUS::STEPS_UP;                                // out of steps...
         }
-        else if (!m_Star->IsOneOf({ STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07, STELLAR_TYPE::HERTZSPRUNG_GAP,
+        else if (!m_Star->IsOneOf({ STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07, STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, STELLAR_TYPE::HERTZSPRUNG_GAP,
                                     STELLAR_TYPE::FIRST_GIANT_BRANCH, STELLAR_TYPE::CORE_HELIUM_BURNING, STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH, STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,
                                     STELLAR_TYPE::NAKED_HELIUM_STAR_MS, STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH })) {
 
