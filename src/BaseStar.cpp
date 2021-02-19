@@ -1980,7 +1980,7 @@ double BaseStar::CalculateTemperatureKelvinOnPhase(const double p_Luminosity, co
  * Uses the Boost library
  *
  *
- * double CalculateOStarRotationalFrequencyVelocityAnalyticCDF_Static(const double p_Ve)
+ * double CalculateOStarRotationalVelocityAnalyticCDF_Static(const double p_Ve)
  * @param   [IN]    p_vE                        Rotational velocity (in km s^-1) at which to calculate CDF
  * @return                                      The CDF for the rotational velocity
  */
