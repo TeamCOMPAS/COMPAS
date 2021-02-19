@@ -33,10 +33,10 @@ BaseBinaryStar::BaseBinaryStar(const long int p_Id) {
     // check that the constituent stars are not touching
     // also check m2 > m2min
 
-    bool done                                   = false;
-    bool merger                                 = false;
-    bool rlof                                   = false;
-    bool secondarySmallerThanMinimumMass        = false;
+    bool done                            = false;
+    bool merger                          = false;
+    bool rlof                            = false;
+    bool secondarySmallerThanMinimumMass = false;
 
     // determine if any if the initial conditions are sampled
     // we consider eccentricity distribution = ECCENTRICITY_DISTRIBUTION::ZERO to be not sampled!
@@ -159,8 +159,13 @@ BaseBinaryStar::BaseBinaryStar(const long int p_Id) {
 
         // binary star contains two instances of star to hold masses, radii and luminosities.
         // star 1 initially more massive
-        m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity, kickParameters1);
-        m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity, kickParameters2);
+        m_Star1 = OPTIONS->OptionSpecified("rotational-frequency-1") == 1                                                               // user specified primary rotational frequency?
+                    ? new BinaryConstituentStar(m_RandomSeed, mass1, metallicity, kickParameters1, OPTIONS->RotationalFrequency1() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
+                    : new BinaryConstituentStar(m_RandomSeed, mass1, metallicity, kickParameters1);                                     // no - let it be calculated
+
+        m_Star2 = OPTIONS->OptionSpecified("rotational-frequency-2") == 1                                                               // user specified secondary rotational frequency?
+                    ? new BinaryConstituentStar(m_RandomSeed, mass2, metallicity, kickParameters2, OPTIONS->RotationalFrequency2() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
+                    : new BinaryConstituentStar(m_RandomSeed, mass2, metallicity, kickParameters2);                                     // no - let it be calculated
 
         double rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * (1.0 - m_Eccentricity) * CalculateRocheLobeRadius_Static(mass1, mass2));
         double rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * (1.0 - m_Eccentricity) * CalculateRocheLobeRadius_Static(mass2, mass1));
@@ -180,13 +185,18 @@ BaseBinaryStar::BaseBinaryStar(const long int p_Id) {
             double m1m2      = mass1 * mass2;
             m_SemiMajorAxis *= 16.0 * m1m2 * m1m2 / (M * M * M * M) * (1.0 - (m_Eccentricity * m_Eccentricity));                        // circularise; conserve angular momentum
 
-            m_Eccentricity   = 0.0;                                                                                                      // now circular
+            m_Eccentricity   = 0.0;                                                                                                     // now circular
 
             // create new stars with equal masses - all other ZAMS values recalculated
             delete m_Star1;
-            m_Star1 = new BinaryConstituentStar(m_RandomSeed, mass1, metallicity, kickParameters1);
+            m_Star1 = OPTIONS->OptionSpecified("rotational-frequency-1") == 1                                                           // user specified primary rotational frequency?
+                        ? new BinaryConstituentStar(m_RandomSeed, mass1, metallicity, kickParameters1, OPTIONS->RotationalFrequency1() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
+                        : new BinaryConstituentStar(m_RandomSeed, mass1, metallicity, kickParameters1);                                 // no - let it be calculated
+
             delete m_Star2;
-            m_Star2 = new BinaryConstituentStar(m_RandomSeed, mass2, metallicity, kickParameters2);
+            m_Star2 = OPTIONS->OptionSpecified("rotational-frequency-2") == 1                                                           // user specified secondary rotational frequency?
+                        ? new BinaryConstituentStar(m_RandomSeed, mass2, metallicity, kickParameters2, OPTIONS->RotationalFrequency2() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
+                        : new BinaryConstituentStar(m_RandomSeed, mass2, metallicity, kickParameters2);                                 // no - let it be calculated
         
             rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass1, mass2));   //eccentricity already zero
             rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass2, mass1));
@@ -299,6 +309,7 @@ void BaseBinaryStar::SetRemainingValues() {
     m_EccentricityAtDCOFormation  = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
+
     if (OPTIONS->CHEMode() != CHE_MODE::NONE) {
 
         m_Star1->SetOmega(OrbitalAngularVelocity());

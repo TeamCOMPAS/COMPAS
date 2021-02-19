@@ -223,7 +223,8 @@ private:
     std::vector<std::string> m_SSEOnly = {
         "initial-mass",
         "kick-magnitude",
-        "kick-magnitude-random"
+        "kick-magnitude-random",
+        "rotational-frequency"
     };
 
     std::vector<std::string> m_BSEOnly = {
@@ -231,6 +232,8 @@ private:
         "initial-mass-2",
         "semi-major-axis", "a",
         "orbital-period",
+        "rotational-frequency-1",
+        "rotational-frequency-2"
 
         "allow-rlof-at-birth",
         "allow-touching-at-birth",
@@ -805,7 +808,9 @@ public:
 
             // Rotational Velocity distribution options
             ENUM_OPT<ROTATIONAL_VELOCITY_DISTRIBUTION>          m_RotationalVelocityDistribution;                               // Rotational velocity distribution
-
+            double                                              m_RotationalFrequency;                                          // Rotational frequency for single star (SSE)
+            double                                              m_RotationalFrequency1;                                         // Rotational frequency for primary (BSE)
+            double                                              m_RotationalFrequency2;                                         // Rotational frequency for secondary (BSE)
 
 	        // grids
 
@@ -1241,6 +1246,9 @@ public:
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
 
     ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return OPT_VALUE("rotational-velocity-distribution", m_RotationalVelocityDistribution.type, true); }
+    double                                      RotationalFrequency() const                                             { return OPT_VALUE("rotational-frequency", m_RotationalFrequency, true); }
+    double                                      RotationalFrequency1() const                                            { return OPT_VALUE("rotational-frequency-1", m_RotationalFrequency1, true); }
+    double                                      RotationalFrequency2() const                                            { return OPT_VALUE("rotational-frequency-2", m_RotationalFrequency2, true); }
    
     double                                      SemiMajorAxis() const                                                   { return OPT_VALUE("semi-major-axis", m_SemiMajorAxis, true); }
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return OPT_VALUE("semi-major-axis-distribution", m_SemiMajorAxisDistribution.type, true); }
