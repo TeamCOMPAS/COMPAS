@@ -240,7 +240,9 @@ std::tuple<int, int> EvolveSingleStars() {
                        
                 // create the star
                 delete star; star = nullptr;                                                                        // so we don't leak...
-                star = new Star(randomSeed, initialMass, metallicity, kickParameters);                              // create star according to the user-specified options
+                star = OPTIONS->OptionSpecified("rotational-frequency") == 1                                        // user specified rotational frequency?
+                    ? new Star(randomSeed, initialMass, metallicity, kickParameters, OPTIONS->RotationalFrequency() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
+                    : new Star(randomSeed, initialMass, metallicity, kickParameters);                               // no - let it be calculated
 
                 EVOLUTION_STATUS thisStatus = star->Evolve(index);                                                  // evolve the star
 
