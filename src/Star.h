@@ -133,7 +133,7 @@ public:
 
     void                UpdateMassTransferDonorHistory()                                                            { m_Star->UpdateMassTransferDonorHistory(); }
 
-    void                UpdateTotalMassForECSN()                                                                    { m_Star->UpdateTotalMassForECSN(); }                               
+    void                UpdateTotalMassForECSN(double p_newMass)                                     { m_Star->UpdateTotalMassForECSN(p_newMass); }                               
 
 
     // member functions - alphabetically
