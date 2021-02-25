@@ -115,7 +115,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
                                                     ? p_RotationalFrequency                             // yes - use it
                                                     : CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
 
-std::cout << "JRPRINT, m_OmegaZAMS = " << m_OmegaZAMS << ", " << p_RotationalFrequency << "\n";
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
     m_RZAMS0                                   = m_RZAMS;
     m_LZAMS0                                   = m_LZAMS;

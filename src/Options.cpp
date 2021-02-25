@@ -1731,7 +1731,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Black Hole Kicks Option");
         }
 
-        if (!DEFAULTED("case-bb-stability-prescription")) {                                                                         //case BB/BC mass transfer stability prescription
+        if (!DEFAULTED("case-BB-stability-prescription")) {                                                                         //case BB/BC mass transfer stability prescription
             std::tie(found, m_CaseBBStabilityPrescription.type) = utils::GetMapKey(m_CaseBBStabilityPrescription.typeString, CASE_BB_STABILITY_PRESCRIPTION_LABEL, m_CaseBBStabilityPrescription.type);
             COMPLAIN_IF(!found, "Unknown Case BB/BC Mass Transfer Stability Prescription");
         }
@@ -1839,7 +1839,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Mode");
         }
 
-        if (!DEFAULTED("neutrino-mass-loss-bh-formation")) {                                                                        // neutrino mass loss assumption
+        if (!DEFAULTED("neutrino-mass-loss-BH-formation")) {                                                                        // neutrino mass loss assumption
             std::tie(found, m_NeutrinoMassLossAssumptionBH.type) = utils::GetMapKey(m_NeutrinoMassLossAssumptionBH.typeString, NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL, m_NeutrinoMassLossAssumptionBH.type);
             COMPLAIN_IF(!found, "Unknown Neutrino Mass Loss Assumption");
         }
