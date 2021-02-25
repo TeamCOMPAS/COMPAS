@@ -28,8 +28,9 @@ BaseStar::BaseStar() {
 
 BaseStar::BaseStar(const unsigned long int p_RandomSeed, 
                    const double            p_MZAMS,
-                   const double            p_Metallicity, 
-                   const KickParameters    p_KickParameters) {
+                   const double            p_Metallicity,
+                   const KickParameters    p_KickParameters,
+                   const double            p_RotationalFrequency) {
 
     // initialise member variables
 
@@ -110,8 +111,11 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_TZAMS                                    = CalculateTemperatureOnPhase_Static(m_LZAMS, m_RZAMS);
 
     m_OmegaCHE                                 = CalculateOmegaCHE(m_MZAMS, m_Metallicity);
-    m_OmegaZAMS                                = CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);
+    m_OmegaZAMS                                = p_RotationalFrequency >= 0.0                           // valid rotational frequency passed in?
+                                                    ? p_RotationalFrequency                             // yes - use it
+                                                    : CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
 
+std::cout << "JRPRINT, m_OmegaZAMS = " << m_OmegaZAMS << ", " << p_RotationalFrequency << "\n";
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
     m_RZAMS0                                   = m_RZAMS;
     m_LZAMS0                                   = m_LZAMS;
@@ -134,7 +138,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Mu                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_CoreRadius                               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Mdot                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_DominantMassLossRate                                     = MASS_LOSS_TYPE::NONE;
+    m_DominantMassLossRate                     = MASS_LOSS_TYPE::NONE;
 
     m_Omega                                    = m_OmegaZAMS;
 
@@ -334,9 +338,9 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::METALLICITY:                                        value = Metallicity();                                          break;
             case ANY_STAR_PROPERTY::MZAMS:                                              value = MZAMS();                                                break;
             case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE:                                  value = CalculateNuclearTimescale();                            break;
-            case ANY_STAR_PROPERTY::OMEGA:                                              value = Omega();                                                break;
-            case ANY_STAR_PROPERTY::OMEGA_BREAK:                                        value = OmegaBreak();                                           break;
-            case ANY_STAR_PROPERTY::OMEGA_ZAMS:                                         value = OmegaZAMS();                                            break;
+            case ANY_STAR_PROPERTY::OMEGA:                                              value = Omega() / SECONDS_IN_YEAR;                              break;
+            case ANY_STAR_PROPERTY::OMEGA_BREAK:                                        value = OmegaBreak() / SECONDS_IN_YEAR;                         break;
+            case ANY_STAR_PROPERTY::OMEGA_ZAMS:                                         value = OmegaZAMS() / SECONDS_IN_YEAR;                          break;
             case ANY_STAR_PROPERTY::PULSAR_MAGNETIC_FIELD:                              value = Pulsar_MagneticField();                                 break;
             case ANY_STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE:                              value = Pulsar_SpinDownRate();                                  break;
             case ANY_STAR_PROPERTY::PULSAR_SPIN_FREQUENCY:                              value = Pulsar_SpinFrequency();                                 break;
