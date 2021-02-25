@@ -687,7 +687,9 @@
 //                                      - Added 'rotational-frequency-1' and 'rotational-frequency-2' options so users can specify initial rotational frequency of both BSE stars
 //                                      - Changed units of rotational frequencies written to logfiles (omega, omega_break, omega_ZAMS) from rotations per year to Hz
 //                                      - Changed program option header strings containing '_1' and '_2' to '(1)' and '(2)' for consistency
+// 02.18.08     JR - Feb 26, 2021   - Defect repair:
+//                                      - Remove stray diagnostic print from BaseStar constructor in BaseStar.cpp
 
-const std::string VERSION_STRING = "02.18.07";
+const std::string VERSION_STRING = "02.18.08";
 
 # endif // __changelog_h__
