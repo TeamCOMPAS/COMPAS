@@ -1164,7 +1164,6 @@ bool BaseBinaryStar::ResolveSupernova() {
     // RTW hack for ECSN - update the orbit and mass preSN - // For No Mass Loss Model, comment all this out!
     if (m_Supernova->SN_Type() == SN_EVENT::ECSN) {
         std::cout << "Here's ECSN, should check for something..." << std::endl;
-        std::cout << "Here's ECSN, should check for something..." << std::endl;
         double m1pre = m_Supernova->SN_TotalMassAtCOFormation();
         double m2pre = m_Companion->SN_TotalMassAtCOFormation();
         double p_MassEnvRemaining = 0.0;
