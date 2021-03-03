@@ -20,10 +20,12 @@ class BaseStar {
 public:
 
     BaseStar();
+
     BaseStar(const unsigned long int p_RandomSeed, 
              const double            p_MZAMS, 
              const double            p_Metallicity, 
-             const KickParameters    p_KickParameters);
+             const KickParameters    p_KickParameters,
+             const double            p_RotationalVelocity = -1.0); 
 
     virtual ~BaseStar() {}
 

@@ -223,7 +223,8 @@ private:
     std::vector<std::string> m_SSEOnly = {
         "initial-mass",
         "kick-magnitude",
-        "kick-magnitude-random"
+        "kick-magnitude-random",
+        "rotational-frequency"
     };
 
     std::vector<std::string> m_BSEOnly = {
@@ -231,6 +232,8 @@ private:
         "initial-mass-2",
         "semi-major-axis", "a",
         "orbital-period",
+        "rotational-frequency-1",
+        "rotational-frequency-2"
 
         "allow-rlof-at-birth",
         "allow-touching-at-birth",
@@ -289,7 +292,7 @@ private:
 
         "mass-transfer-fa",
         "mass-transfer-jloss",
-        "mass-transfer-thermal-limit-c",
+        "mass-transfer-thermal-limit-C",
         "maximum-mass-donor-nandez-ivanova",
 
         "minimum-secondary-mass",
@@ -304,7 +307,7 @@ private:
         "semi-major-axis-max",
         "semi-major-axis-min",
 
-        "case-bb-stability-prescription",
+        "case-BB-stability-prescription",
 
         "common-envelope-lambda-prescription",
         "common-envelope-mass-accretion-prescription",
@@ -376,7 +379,7 @@ private:
 
         "black-hole-kicks",
 
-        "case-bb-stability-prescription",
+        "case-BB-stability-prescription",
         "chemically-homogeneous-evolution",
         "common-envelope-lambda-prescription",
         "common-envelope-mass-accretion-prescription",
@@ -403,7 +406,7 @@ private:
 
         "metallicity-distribution",
 
-        "neutrino-mass-loss-bh-formation",
+        "neutrino-mass-loss-BH-formation",
         "neutron-star-equation-of-state",
 
         "orbital-period-distribution",
@@ -805,7 +808,9 @@ public:
 
             // Rotational Velocity distribution options
             ENUM_OPT<ROTATIONAL_VELOCITY_DISTRIBUTION>          m_RotationalVelocityDistribution;                               // Rotational velocity distribution
-
+            double                                              m_RotationalFrequency;                                          // Rotational frequency for single star (SSE)
+            double                                              m_RotationalFrequency1;                                         // Rotational frequency for primary (BSE)
+            double                                              m_RotationalFrequency2;                                         // Rotational frequency for secondary (BSE)
 
 	        // grids
 
@@ -1001,7 +1006,7 @@ public:
 
     BLACK_HOLE_KICKS                            BlackHoleKicks() const                                                  { return OPT_VALUE("black-hole-kicks", m_BlackHoleKicks.type, true); }
     
-    CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return OPT_VALUE("case-bb-stability-prescription", m_CaseBBStabilityPrescription.type, true); }
+    CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return OPT_VALUE("case-BB-stability-prescription", m_CaseBBStabilityPrescription.type, true); }
     
     bool                                        CheckPhotonTiringLimit() const                                          { return OPT_VALUE("check-photon-tiring-limit", m_CheckPhotonTiringLimit, true); }
 
@@ -1068,10 +1073,10 @@ public:
 
     double                                      KickMagnitudeDistributionMaximum() const                                { return OPT_VALUE("kick-magnitude-max", m_KickMagnitudeDistributionMaximum, true); }
 
-    double                                      KickMagnitudeDistributionSigmaCCSN_BH() const                           { return OPT_VALUE("kick-magnitude-sigma-ccsn-bh", m_KickMagnitudeDistributionSigmaCCSN_BH, true); }
-    double                                      KickMagnitudeDistributionSigmaCCSN_NS() const                           { return OPT_VALUE("kick-magnitude-sigma-ccsn-ns", m_KickMagnitudeDistributionSigmaCCSN_NS, true); }
-    double                                      KickMagnitudeDistributionSigmaForECSN() const                           { return OPT_VALUE("kick-magnitude-sigma-ecsn", m_KickMagnitudeDistributionSigmaForECSN, true); }
-    double                                      KickMagnitudeDistributionSigmaForUSSN() const                           { return OPT_VALUE("kick-magnitude-sigma-ussn", m_KickMagnitudeDistributionSigmaForUSSN, true); }
+    double                                      KickMagnitudeDistributionSigmaCCSN_BH() const                           { return OPT_VALUE("kick-magnitude-sigma-CCSN-BH", m_KickMagnitudeDistributionSigmaCCSN_BH, true); }
+    double                                      KickMagnitudeDistributionSigmaCCSN_NS() const                           { return OPT_VALUE("kick-magnitude-sigma-CCSN-NS", m_KickMagnitudeDistributionSigmaCCSN_NS, true); }
+    double                                      KickMagnitudeDistributionSigmaForECSN() const                           { return OPT_VALUE("kick-magnitude-sigma-ECSN", m_KickMagnitudeDistributionSigmaForECSN, true); }
+    double                                      KickMagnitudeDistributionSigmaForUSSN() const                           { return OPT_VALUE("kick-magnitude-sigma-USSN", m_KickMagnitudeDistributionSigmaForUSSN, true); }
 
     double                                      KickMagnitude() const                                                   { return OPT_VALUE("kick-magnitude", m_KickMagnitude, true); }
     double                                      KickMagnitude1() const                                                  { return OPT_VALUE("kick-magnitude-1", m_KickMagnitude1, true); }
@@ -1140,7 +1145,7 @@ public:
 
     MT_ACCRETION_EFFICIENCY_PRESCRIPTION        MassTransferAccretionEfficiencyPrescription() const                     { return OPT_VALUE("mass-transfer-accretion-efficiency-prescription", m_MassTransferAccretionEfficiencyPrescription.type, true); }
     MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION       MassTransferAngularMomentumLossPrescription() const                     { return OPT_VALUE("mass-transfer-angular-momentum-loss-prescription", m_MassTransferAngularMomentumLossPrescription.type, true); }
-    double                                      MassTransferCParameter() const                                          { return OPT_VALUE("mass-transfer-thermal-limit-c", m_MassTransferCParameter, true); }
+    double                                      MassTransferCParameter() const                                          { return OPT_VALUE("mass-transfer-thermal-limit-C", m_MassTransferCParameter, true); }
 
     // AVG
     bool                                        MassTransferCriticalMassRatioMSLowMass() const                          { return m_CmdLine.optionValues.m_MassTransferCriticalMassRatioMSLowMass; }     // JR: no option implemented - always FALSE
@@ -1185,11 +1190,11 @@ public:
 
     double                                      MinimumMassSecondary() const                                            { return OPT_VALUE("minimum-secondary-mass", m_MinimumMassSecondary, true); }
 
-    double                                      MullerMandelKickMultiplierBH() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-bh", m_MullerMandelKickBH, true); }
-    double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-ns", m_MullerMandelKickNS, true); }
+    double                                      MullerMandelKickMultiplierBH() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-BH", m_MullerMandelKickBH, true); }
+    double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-NS", m_MullerMandelKickNS, true); }
 
-    NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-bh-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
-    double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-bh-formation-value", m_NeutrinoMassLossValueBH, true); }
+    NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-BH-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
+    double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-BH-formation-value", m_NeutrinoMassLossValueBH, true); }
 
     NS_EOS                                      NeutronStarEquationOfState() const                                      { return OPT_VALUE("neutron-star-equation-of-state", m_NeutronStarEquationOfState.type, true); }
 
@@ -1208,8 +1213,8 @@ public:
 
     double                                      OverallWindMassLossMultiplier() const                                   { return OPT_VALUE("overall-wind-mass-loss-multiplier", m_OverallWindMassLossMultiplier, true); }
 
-    double                                      PairInstabilityLowerLimit() const                                       { return OPT_VALUE("pisn-lower-limit", m_PairInstabilityLowerLimit, true); }
-    double                                      PairInstabilityUpperLimit() const                                       { return OPT_VALUE("pisn-upper-limit", m_PairInstabilityUpperLimit, true); }
+    double                                      PairInstabilityLowerLimit() const                                       { return OPT_VALUE("PISN-lower-limit", m_PairInstabilityLowerLimit, true); }
+    double                                      PairInstabilityUpperLimit() const                                       { return OPT_VALUE("PISN-upper-limit", m_PairInstabilityUpperLimit, true); }
 
     bool                                        PopulationDataPrinting() const                                          { return m_CmdLine.optionValues.m_PopulationDataPrinting; }
     bool                                        PrintBoolAsString() const                                               { return m_CmdLine.optionValues.m_PrintBoolAsString; }
@@ -1228,8 +1233,8 @@ public:
     double                                      PulsarMagneticFieldDecayTimescale() const                               { return OPT_VALUE("pulsar-magnetic-field-decay-timescale", m_PulsarMagneticFieldDecayTimescale, true); }
 
     PPI_PRESCRIPTION                            PulsationalPairInstabilityPrescription() const                          { return OPT_VALUE("pulsational-pair-instability-prescription", m_PulsationalPairInstabilityPrescription.type, true); }
-    double                                      PulsationalPairInstabilityLowerLimit() const                            { return OPT_VALUE("ppi-lower-limit", m_PulsationalPairInstabilityLowerLimit, true); }
-    double                                      PulsationalPairInstabilityUpperLimit() const                            { return OPT_VALUE("ppi-upper-limit", m_PulsationalPairInstabilityUpperLimit, true); }
+    double                                      PulsationalPairInstabilityLowerLimit() const                            { return OPT_VALUE("PPI-lower-limit", m_PulsationalPairInstabilityLowerLimit, true); }
+    double                                      PulsationalPairInstabilityUpperLimit() const                            { return OPT_VALUE("PPI-upper-limit", m_PulsationalPairInstabilityUpperLimit, true); }
 
     bool                                        Quiet() const                                                           { return m_CmdLine.optionValues.m_Quiet; }
 
@@ -1241,6 +1246,9 @@ public:
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
 
     ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return OPT_VALUE("rotational-velocity-distribution", m_RotationalVelocityDistribution.type, true); }
+    double                                      RotationalFrequency() const                                             { return OPT_VALUE("rotational-frequency", m_RotationalFrequency, true); }
+    double                                      RotationalFrequency1() const                                            { return OPT_VALUE("rotational-frequency-1", m_RotationalFrequency1, true); }
+    double                                      RotationalFrequency2() const                                            { return OPT_VALUE("rotational-frequency-2", m_RotationalFrequency2, true); }
    
     double                                      SemiMajorAxis() const                                                   { return OPT_VALUE("semi-major-axis", m_SemiMajorAxis, true); }
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return OPT_VALUE("semi-major-axis-distribution", m_SemiMajorAxisDistribution.type, true); }

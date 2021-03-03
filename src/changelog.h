@@ -670,9 +670,9 @@
 // 02.18.02     JR - Jan 12, 2021   - Defect repair:
 //                                      - Changed "hdf5_chunk_size = 5000" to "hdf5_chunk_size = 100000" in default pythonSubmit (inadvertently left at 5000 after some tests...)
 // 02.18.03     SS - Jan 19, 2021   - Enhancement:
-// 									- Added check for neutron star mass against maximum neutron star mass. 
-//									If a neutron star exceeds this mass it should collapse to a black hole. 
-//                                  This can be relevant for neutron stars accreting, e.g. during common envelope evolution
+// 									    - Added check for neutron star mass against maximum neutron star mass. 
+//									      If a neutron star exceeds this mass it should collapse to a black hole. 
+//                                        This can be relevant for neutron stars accreting, e.g. during common envelope evolution
 // 02.18.04     IM - Jan 28, 2021   - Enhancement:
 //                                      - NS to BH collapse preserves mass (see discussion in #514)
 //                                      - Fixed comment typo
@@ -682,8 +682,33 @@
 //                                      - Added "maximum-evolution-time", "maximum-number-timestep-iterations", and "timestep-multiplier" to m_GridLineExcluded vector in Options.h (previous oversight)
 // 02.18.06     SS - Feb 1, 2021    - Defect repair:
 //                                      - Make COMPAS use --neutrino-mass-loss-BH-formation options (resolves issue #453)
+// 02.18.07     JR - Feb 18, 2021   - Enhancement:
+//                                      - Added 'rotational-frequency' option so users can specify initial rotational frequency of SSE star
+//                                      - Added 'rotational-frequency-1' and 'rotational-frequency-2' options so users can specify initial rotational frequency of both BSE stars
+//                                      - Changed units of rotational frequencies written to logfiles (omega, omega_break, omega_ZAMS) from rotations per year to Hz
+//                                      - Changed program option header strings containing '_1' and '_2' to '(1)' and '(2)' for consistency
+// 02.18.08     JR - Feb 26, 2021   - Defect repairs:
+//                                      - Remove stray diagnostic print from BaseStar constructor in BaseStar.cpp
+//                                      - Fix for issue #530 - some commandline options ignored when a grid file is used
+//                                          - the issue here was case-sensitive vs case-insensitive matches (asking BOOST to do case-insensitive matches for option names doesn't propagate to all matches BOOST does...)
+//                                          - the options affected were all options that have mixed-case names:
 //
+//                                              - case-BB-stability-prescription
+//                                              - kick-magnitude-sigma-CCSN-BH
+//                                              - kick-magnitude-sigma-CCSN-NS
+//                                              - kick-magnitude-sigma-ECSN
+//                                              - kick-magnitude-sigma-USSN
+//                                              - mass-transfer-thermal-limit-C
+//                                              - muller-mandel-kick-multiplier-BH
+//                                              - muller-mandel-kick-multiplier-NS
+//                                              - neutrino-mass-loss-BH-formation
+//                                              - neutrino-mass-loss-BH-formation-value
+//                                              - PISN-lower-limit
+//                                              - PISN-upper-limit
+//                                              - PPI-lower-limit
+//                                              - PPI-upper-limit
 
-const std::string VERSION_STRING = "02.18.06";
+
+const std::string VERSION_STRING = "02.18.08";
 
 # endif // __changelog_h__
