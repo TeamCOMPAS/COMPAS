@@ -1177,7 +1177,7 @@ bool BaseBinaryStar::ResolveSupernova() {
         std::cout << "Here's ECSN, should check for something..." << std::endl;
         double m1pre = m_Supernova->SN_TotalMassAtCOFormation();
         double m2pre = m_Companion->SN_TotalMassAtCOFormation();
-        double p_MassEnvRemaining = 0.0;
+        double p_MassEnvRemaining = 2.0;
         double m1stripped = m_Supernova->SN_COCoreMassAtCOFormation() + p_MassEnvRemaining;   
         // 0.0 for Complete Mass Loss Model
         // 5.0 for Intermediate Mass Loss Model
