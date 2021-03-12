@@ -1173,19 +1173,19 @@ bool BaseBinaryStar::ResolveSupernova() {
     }
 
     // RTW hack for ECSN - update the orbit and mass preSN - // For No Mass Loss Model, comment all this out!
-    /*
     if (m_Supernova->SN_Type() == SN_EVENT::ECSN) {
-        double m1pre = m_Supernova->SN_TotalMassAtCOFormation();
-        double m1core = m_Supernova->SN_COCoreMassAtCOFormation();
-        double m1env = m1pre - m1core;
-        double m2pre = m_Companion->SN_TotalMassAtCOFormation();
-        double massEnvLimit = OPTIONS->KickMagnitude(); // this variable shouldn't get used otherwise, so it should be open season
-        double m1stripped = m1core + ((m1env > massEnvLimit) ? massEnvLimit : m1env);
+        if (OPTIONS->KickMagnitude() != -1) { // set to -1 if you want to use this compiled branch, but not run the ecsn env mass loss
+            double m1pre = m_Supernova->SN_TotalMassAtCOFormation();
+            double m1core = m_Supernova->SN_COCoreMassAtCOFormation();
+            double m1env = m1pre - m1core;
+            double m2pre = m_Companion->SN_TotalMassAtCOFormation();
+            double massEnvLimit = OPTIONS->KickMagnitude(); // this variable shouldn't get used otherwise, so it should be open season
+            double m1stripped = m1core + ((m1env > massEnvLimit) ? massEnvLimit : m1env);
 
-        m_SemiMajorAxis *= (m1pre+m2pre)/(m1stripped+m2pre);
-        m_Supernova->UpdateTotalMassForECSN(m1stripped);
+            m_SemiMajorAxis *= (m1pre+m2pre)/(m1stripped+m2pre);
+            m_Supernova->UpdateTotalMassForECSN(m1stripped);
+        }
     }
-    */
 
     // Set relevant preSN parameters 
     m_EccentricityPreSN = m_Eccentricity;                                                 

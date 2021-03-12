@@ -3,6 +3,7 @@
 #include "WhiteDwarfs.h"
 #include "NS.h"
 #include "BH.h"
+#include <gsl/gsl_cdf.h>
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1843,6 +1844,123 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         // can't print it now because we may revert state (in Star::EvolveOneTimestep())
         // will be printed in Star::EvolveOneTimestep() after timestep is accepted (i.e. we don't revert state)
         // need to record the stellar type to which the star will switch if we don't revert state
+        
+
+
+        /////////////////////////////////////////////////////////////////////////////////////////
+        //
+        // RTW hack - hard code the natal kick, remnant mass, and remnant type as needed 
+        //
+        /////////////////////////////////////////////////////////////////////////////////////////
+
+        // Uncomment the appropriate section to hard code the kick/remnant mass as needed
+        if (m_SupernovaDetails.events.current == SN_EVENT::CCSN ||
+            m_SupernovaDetails.events.current == SN_EVENT::USSN ||
+            m_SupernovaDetails.events.current == SN_EVENT::ECSN) {  // Only fuck with these SN types, not e.g PISN
+
+            ///////////////////////////////////////////////////////////////////////////////////////////////////
+            // Use input value for CCSN - these come from Deller
+            // Use Maxw drawn values for USSN and ECSN - these are important to vary
+            if (m_SupernovaDetails.events.current == SN_EVENT::CCSN) {
+                m_SupernovaDetails.kickMagnitude = m_SupernovaDetails.drawnKickMagnitude;
+            }
+            else {
+                double sigma;
+                if (m_SupernovaDetails.events.current == SN_EVENT::USSN) {
+    		    	sigma = OPTIONS->KickMagnitudeDistributionSigmaForUSSN();
+                }
+                else { // if (m_SupernovaDetails.events.current == SN_EVENT::ECSN) {
+        			sigma = OPTIONS->KickMagnitudeDistributionSigmaForECSN();
+                }
+
+                m_SupernovaDetails.kickMagnitude = sigma * sqrt(gsl_cdf_chisq_Pinv(RAND->Random(0, 1), 3)); // source code for maxw
+            }
+
+
+
+            ///////////////////////////////////////////////////////////////////////////////////////////////////
+            /*
+             * // Simply hard code the remnant unconditionally
+             * //stellarType = STELLAR_TYPE::NEUTRON_STAR; 
+             * stellarType = STELLAR_TYPE::BLACK_HOLE; 
+             * m_Mass = 6.00;
+             * m_SupernovaDetails.kickMagnitude = 0.0;                                                     
+             */
+
+
+            ///////////////////////////////////////////////////////////////////////////////////////////////////
+            /*
+             * // Assign kicks based on whether SN was hydrogen poor or not (whether it has H envelope
+             *if (m_SupernovaDetails.isHydrogenPoor) {
+             *    m_SupernovaDetails.kickMagnitude = 0.0;
+             *} else { // no fallback
+             *    m_SupernovaDetails.kickMagnitude = m_SupernovaDetails.drawnKickMagnitude;
+             *}
+             */
+
+
+
+            ///////////////////////////////////////////////////////////////////////////////////////////////////
+            /* // Assign kicks based on remnant type
+             * if (utils::IsOneOf(stellarType, { STELLAR_TYPE::NEUTRON_STAR})) { 
+             *     m_SupernovaDetails.kickMagnitude = m_SupernovaDetails.drawnKickMagnitude; 
+             *     //m_Mass = m_SupernovaDetails.totalMassAtCOFormation;
+             * }
+             */
+
+            
+            ///////////////////////////////////////////////////////////////////////////////////////////////////
+            /* // Assign based on Case B or C MT history
+             * // If so, set kick to 0, otherwise draw from higher distribution
+             * // Determine if there was a history of Case B or C MT
+             * STYPE_VECTOR mtHist = MassTransferDonorHistory();
+             * MT_CASE mtCase = MT_CASE::OTHER;
+
+             * if (mtHist.size() == 0) {                                                                                           // No history of MT - effectively single star
+             *     mtCase = MT_CASE::NONE;
+             * }
+             * else { // (mtHist.size() > 0)                                                                                       // Star was MT donor at least once
+
+             *     STELLAR_TYPE mostRecentDonorType = mtHist[mtHist.size()-1];
+
+             *     if (utils::IsOneOf(mostRecentDonorType, { STELLAR_TYPE::MS_LTE_07, 
+             *                                               STELLAR_TYPE::MS_GT_07 })) {                                          // CASE A Mass Transfer - from MS
+             *         mtCase = MT_CASE::A;
+             *     }
+             *     else if (utils::IsOneOf(mostRecentDonorType, { STELLAR_TYPE::HERTZSPRUNG_GAP, 
+             *                                                    STELLAR_TYPE::FIRST_GIANT_BRANCH, 
+             *                                                    STELLAR_TYPE::CORE_HELIUM_BURNING })) {                          // CASE B Mass Transfer - from HG, FGB, or CHeB 
+             *         mtCase = MT_CASE::B;
+             *     }
+             *     else if (utils::IsOneOf(mostRecentDonorType, { STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,            
+             *                                                    STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH, })) {   // CASE C Mass Transfer - from EAGB or TPAGB 
+             *         mtCase = MT_CASE::C;
+             *     }
+             * }
+
+             * // If Case B or C MT history, set kick to 0, otherwise draw from higher distribution
+             * switch (mtCase) {                                                                                // Which MT Case prescription to use
+             *     case MT_CASE::NONE: case MT_CASE::A: case MT_CASE::OTHER:                                                           
+             *         m_SupernovaDetails.kickMagnitude = m_SupernovaDetails.drawnKickMagnitude;
+             *         break;
+             *     case MT_CASE::B: case MT_CASE::C: 
+             *         m_SupernovaDetails.kickMagnitude = 0.0;
+             *         break;
+             *     default:                                                                                                        // Probably MT_CASE::OTHER, i.e ultra-stripped
+             *         std::cout << "Forgot some MT case!" << std::endl;
+             * }
+             */
+
+        } // Leave this close bracket
+
+        /////////////////////////////////////////////////////////////////////////////////////////
+        //
+        // END RTW hack 
+        //
+        /////////////////////////////////////////////////////////////////////////////////////////
+        
+
+
 
         if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {                                      // only if SSE (BSE does its own SN printing)
             StashSupernovaDetails(stellarType);
