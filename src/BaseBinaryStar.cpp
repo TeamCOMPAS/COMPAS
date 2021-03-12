@@ -1173,6 +1173,7 @@ bool BaseBinaryStar::ResolveSupernova() {
     }
 
     // RTW hack for ECSN - update the orbit and mass preSN - // For No Mass Loss Model, comment all this out!
+    /*
     if (m_Supernova->SN_Type() == SN_EVENT::ECSN) {
         double m1pre = m_Supernova->SN_TotalMassAtCOFormation();
         double m1core = m_Supernova->SN_COCoreMassAtCOFormation();
@@ -1184,6 +1185,7 @@ bool BaseBinaryStar::ResolveSupernova() {
         m_SemiMajorAxis *= (m1pre+m2pre)/(m1stripped+m2pre);
         m_Supernova->UpdateTotalMassForECSN(m1stripped);
     }
+    */
 
     // Set relevant preSN parameters 
     m_EccentricityPreSN = m_Eccentricity;                                                 
