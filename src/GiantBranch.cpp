@@ -1868,12 +1868,21 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
                 double sigma;
                 if (m_SupernovaDetails.events.current == SN_EVENT::USSN) {
     		    	sigma = OPTIONS->KickMagnitudeDistributionSigmaForUSSN();
+                    m_SupernovaDetails.kickMagnitude = sigma * sqrt(gsl_cdf_chisq_Pinv(RAND->Random(0, 1), 3)); // source code for maxw
                 }
                 else { // if (m_SupernovaDetails.events.current == SN_EVENT::ECSN) {
         			sigma = OPTIONS->KickMagnitudeDistributionSigmaForECSN();
+
+                    double ecsnKickReductionFactor = 1;
+                    if (mtHist.size() != 0) {                                                                                           // No history of MT - effectively single star
+                        ecsnKickReductionFactor = 0.25; 
+                    }
+                    m_SupernovaDetails.kickMagnitude = sigma*ecsnKickReductionFactor; // Just use raw value
+
+
                 }
 
-                m_SupernovaDetails.kickMagnitude = sigma * sqrt(gsl_cdf_chisq_Pinv(RAND->Random(0, 1), 3)); // source code for maxw
+                //m_SupernovaDetails.kickMagnitude = sigma * sqrt(gsl_cdf_chisq_Pinv(RAND->Random(0, 1), 3)); // source code for maxw
             }
 
 
