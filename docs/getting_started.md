@@ -173,16 +173,13 @@ Congratulations! You've just made a binary black hole. And it didn't even take a
 
 
 ### 2.2 Examining detailed output
-The COMPAS run just now produces a new directory `COMPAS_Output`, inside which you will find the following files/directories (here we assume `logfile_type = 'CSV'` in the python submit file):
+The COMPAS run just now produces a new directory `COMPAS_Output`, inside which you will find the following files/directories (here we assume `logfile_type = 'h5'` in the python submit file):
 
-* `Detailed_Output`: This directory contains the detailed output file, `BSE_Detailed_Output_0.csv`, which records the detailed time evolution of binary.  This file, and directory, is only produced if `detailed_output = True` in the python submit.
-* `BSE_Double_Compact_Objects.csv`: Record of binaries that formed double compact objects (in our example, we evolved one binary that became a binary black hole, which was recorded in this file.)
-* `BSE_Supernovae.csv`: Record of supernovae.
-* `BSE_System_Parameters.csv`: Record of all evolved binaries.
-* `BSE_Common_Envelopes.csv`: Record of common envelope events.
-* `Run_Details`: Record of run details.
+* `COMPAS_Output.h5`: The primary output file, containing hdf5 data groups for the relevant output physics. By default, and for a sufficiently large simulation, this will include `BSE_Common_Envelopes`, `BSE_Double_Compact_Objects`, `BSE_Supernovae`, and `BSE_System_Parameters`. 
+* `Detailed_Output`: This directory contains the detailed output file, `BSE_Detailed_Output_0.h5`, which records the detailed time evolution of binary.  This file, and directory, is only produced if `detailed_output = True` in the python submit.
+* `Run_Details`: An overview of the COMPAS flags used in this particular simulation. 
 
-We examine `BSE_Detailed_Output_0.csv` to look at the evolution of the two stars. A default python plotting script has been included to visualise the data. Let's run the script:
+We examine `BSE_Detailed_Output_0.h5` to look at the evolution of the two stars. A default python plotting script has been included to visualise the data. Let's run the script:
 
     python3 $COMPAS_ROOT_DIR/demo/single_sys_plotter.py
 
