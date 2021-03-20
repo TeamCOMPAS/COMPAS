@@ -396,6 +396,7 @@ void Options::OptionValues::Initialise() {
 	m_CommonEnvelopeSlopeKruckow                                    = -4.0 / 5.0;
 	m_CommonEnvelopeAlphaThermal                                    = 1.0;
     m_CommonEnvelopeLambdaMultiplier                                = 1.0;
+    m_CommonEnvelopeContinuousLambdaNanjing                         = false;
     m_AllowMainSequenceStarToSurviveCommonEnvelope                  = false;
 
     // Prescription for envelope state (radiative or convective)
@@ -611,6 +612,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "common-envelope-allow-main-sequence-survive",                 
             po::value<bool>(&p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope)->default_value(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope)->implicit_value(true),          
             ("Allow main sequence stars to survive common envelope evolution (default = " + std::string(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "common-envelope-continuous-lambda-nanjing",
+            po::value<bool>(&p_Options->m_CommonEnvelopeContinuousLambdaNanjing)->default_value(p_Options->m_CommonEnvelopeContinuousLambdaNanjing)->implicit_value(true),
+            ("Use continuously extrapolated Nanjing lambda's (default = " + std::string(p_Options->m_CommonEnvelopeContinuousLambdaNanjing ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "debug-to-file",                                               
