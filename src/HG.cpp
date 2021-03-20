@@ -98,8 +98,8 @@ double HG::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
     double     Rmax     = std::numeric_limits<double>::max();                           // Upper R limit to applicability of Nanjing polynomials.
 
     switch(p_Zind) {
-        // Pop. II metallicity
-        case 0:
+        // Pop. I metallicity
+        case 1:
             switch(p_MassInd) {
                 case 0: {
                     maxBG = { 2.5, 1.5 };
@@ -222,8 +222,8 @@ double HG::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) {
                 }
                 break;
 
-        // Pop. I metallicity
-        case 1:                                                       
+        // Pop. II metallicity
+        case 0:
             switch(p_MassInd) {
                 case 0: {
                     maxBG = { 2.0, 1.5 };
