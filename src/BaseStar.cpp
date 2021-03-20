@@ -220,7 +220,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
 
 /*
- * Determine the value of the requested property of the constitusnt star (parameter p_Property)
+ * Determine the value of the requested property of the constituent star (parameter p_Property)
  *
  * The property is a boost variant variable, and is one of the following types:
  *
@@ -1091,18 +1091,40 @@ double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass,
  */ 
 double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing() {
 
-    if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPII_Z) < 0) {
-        return BaseStar::CalculateMassInterpolatedLambdaNanjing(0);                             // Use lambda for pop. II metallicity
+    if (OPTIONS->CommonEnvelopeContinuousLambdaNanjing()) {                                         // Use continuously extrapolated Nanjing lambda prescription
+        if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPII_Z) < 0) {
+            return BaseStar::CalculateMassInterpolatedLambdaNanjing(0);                             // Use lambda for pop. II metallicity
+        }
+        else if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPI_Z) > 0) {
+            return BaseStar::CalculateMassInterpolatedLambdaNanjing(1);                             // Use lambda for pop. I metallicity
+        }
+        else {                                                                                      // Linear interpolation in logZ between pop. I and pop. II metallicities
+            const double logZ = log(m_Metallicity);
+            double lambdaLow = BaseStar::CalculateMassInterpolatedLambdaNanjing(0);
+            double lambdaUp  = BaseStar::CalculateMassInterpolatedLambdaNanjing(1);
+            return lambdaLow + (logZ - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
+        }
     }
-    else if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPI_Z) > 0) {
-        return BaseStar::CalculateMassInterpolatedLambdaNanjing(1);                             // Use lambda for pop. I metallicity
+    else {
+        const double lambdaNanjingZlimit = 0.0105;
+        int Zind = 0;
+        if (utils::Compare(m_Metallicity, lambdaNanjingZlimit) < 0) { Zind = 0; }                   // Use lambda for pop. II metallicity
+        else                                                        { Zind = 1; }                   // Use lambda for pop. I metallicity
+
+        std::vector<int> ind = utils::binarySearch(NANJING_MASSES_OLD, m_Mass0);                    // Search for upper and lower mass bin edges
+        int low = ind[0];
+        int up = ind[1];
+        if ( (low < 0)  && (up >= 0) ) {                                                            // Mass below 1 Msun
+            return CalculateLambdaNanjing(0, Zind);                                                 // Use lambda for minimum mass
+        }
+        else if ( (low >= 0) && (up < 0) ) {                                                        // Mass above 75 Msun
+            return CalculateLambdaNanjing(NANJING_MASSES_OLD.size() - 1, Zind);                     // Use lambda for maximum mass
+        }
+        else {                                                                                      // Use the upper mass bin edge
+            return CalculateLambdaNanjing(up, Zind);
+        }
     }
-    else {                                                                                      // Linear interpolation in logZ between pop. I and pop. II metallicities
-        const double logZ = log(m_Metallicity);
-        double lambdaLow = BaseStar::CalculateMassInterpolatedLambdaNanjing(0);
-        double lambdaUp  = BaseStar::CalculateMassInterpolatedLambdaNanjing(1);
-        return lambdaLow + (logZ - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
-    }   
+
 }
 
 

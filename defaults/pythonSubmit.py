@@ -132,6 +132,7 @@ class pythonProgramOptions:
     common_envelope_alpha_thermal = 1.0                         # lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
     common_envelope_lambda_multiplier = 1.0                     # Multiply common envelope lambda by some constant
     common_envelope_allow_main_sequence_survive = True          # Allow main sequence stars to survive CE. Was previously False by default
+    common-envelope-continuous-lambda-nanjing = False
     common_envelope_mass_accretion_prescription = 'ZERO'
     common_envelope_mass_accretion_min = 0.04                   # For 'MACLEOD+2014' [Msol]
     common_envelope_mass_accretion_max = 0.10                   # For 'MACLEOD+2014' [Msol]
@@ -309,6 +310,7 @@ class pythonProgramOptions:
             self.pulsation_pair_instability,
             self.quiet,
             self.common_envelope_allow_main_sequence_survive,
+            self.common-envelope-continuous-lambda-nanjing,
             self.evolvePulsars,
             self.debug_to_file,
             self.errors_to_file,
@@ -335,6 +337,7 @@ class pythonProgramOptions:
             '--pulsational-pair-instability',
             '--quiet',
             '--common-envelope-allow-main-sequence-survive',
+            '--common-envelope-continuous-lambda-nanjing',
             '--evolve-pulsars',
             '--debug-to-file',
             '--errors-to-file',
