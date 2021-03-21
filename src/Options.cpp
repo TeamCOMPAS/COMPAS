@@ -397,6 +397,7 @@ void Options::OptionValues::Initialise() {
 	m_CommonEnvelopeAlphaThermal                                    = 1.0;
     m_CommonEnvelopeLambdaMultiplier                                = 1.0;
     m_CommonEnvelopeContinuousLambdaNanjing                         = false;
+    m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass                 = false;
     m_AllowMainSequenceStarToSurviveCommonEnvelope                  = false;
 
     // Prescription for envelope state (radiative or convective)
@@ -617,6 +618,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "common-envelope-continuous-lambda-nanjing",
             po::value<bool>(&p_Options->m_CommonEnvelopeContinuousLambdaNanjing)->default_value(p_Options->m_CommonEnvelopeContinuousLambdaNanjing)->implicit_value(true),
             ("Use continuously extrapolated Nanjing lambda's (default = " + std::string(p_Options->m_CommonEnvelopeContinuousLambdaNanjing ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "common-envelope-lambda-nanjing-use-rejuvenated-mass",
+            po::value<bool>(&p_Options->m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass)->default_value(p_Options->m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass)->implicit_value(true),
+            ("Use rejuvenated mass to calculate Nanjing lambda's (default = " + std::string(p_Options->m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "debug-to-file",                                               
