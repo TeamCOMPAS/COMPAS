@@ -133,6 +133,7 @@ class pythonProgramOptions:
     common_envelope_lambda_multiplier = 1.0                     # Multiply common envelope lambda by some constant
     common_envelope_allow_main_sequence_survive = True          # Allow main sequence stars to survive CE. Was previously False by default
     common_envelope_continuous_lambda_nanjing = False
+    common_envelope_lambda_nanjing_use_rejuvenated_mass = False
     common_envelope_mass_accretion_prescription = 'ZERO'
     common_envelope_mass_accretion_min = 0.04                   # For 'MACLEOD+2014' [Msol]
     common_envelope_mass_accretion_max = 0.10                   # For 'MACLEOD+2014' [Msol]
@@ -311,6 +312,7 @@ class pythonProgramOptions:
             self.quiet,
             self.common_envelope_allow_main_sequence_survive,
             self.common_envelope_continuous_lambda_nanjing,
+            self.common_envelope_lambda_nanjing_use_rejuvenated_mass,
             self.evolvePulsars,
             self.debug_to_file,
             self.errors_to_file,
@@ -338,6 +340,7 @@ class pythonProgramOptions:
             '--quiet',
             '--common-envelope-allow-main-sequence-survive',
             '--common-envelope-continuous-lambda-nanjing',
+            '--common-envelope-lambda-nanjing-use-rejuvenated-mass',
             '--evolve-pulsars',
             '--debug-to-file',
             '--errors-to-file',
