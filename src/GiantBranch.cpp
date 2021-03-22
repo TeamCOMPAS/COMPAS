@@ -1876,7 +1876,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
                     double ecsnKickReductionFactor = 1;
                     STYPE_VECTOR mtHist = MassTransferDonorHistory();
                     if (mtHist.size() != 0) {                                                                                           // No history of MT - effectively single star
-                        ecsnKickReductionFactor = 0.25; 
+                        ecsnKickReductionFactor = 0.0; 
                     }
                     m_SupernovaDetails.kickMagnitude = sigma*ecsnKickReductionFactor; // Just use raw value
 
