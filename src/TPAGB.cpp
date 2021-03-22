@@ -381,7 +381,8 @@ double TPAGB::CalculateLambdaNanjing() const {
     }
 
     if (lambdaBG.empty()) {                                                         // calculate lambda B & G - not approximated by hand
-        if (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0 && utils::Compare(m_MZAMS, 1.5) < 0) {
+         if (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0 &&
+            (utils::Compare(m_MZAMS, 1.5) < 0 || (utils::Compare(m_MZAMS, 25.0) < 0 && utils::Compare(m_MZAMS, 18.0) >= 0)) ) {
             double x  = (m_Mass - m_CoreMass) / m_Mass;
             double x2 = x * x;
             double x3 = x2 * x;
@@ -392,6 +393,19 @@ double TPAGB::CalculateLambdaNanjing() const {
             double y2 = b[0] + (b[1] * x) + (b[2] * x2) + (b[3] * x3) + (b[4] * x4) + (b[5] * x5);
 
             lambdaBG = { 1.0 / y1, 1.0 / y2 };
+        }
+        else if ( (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0  && utils::Compare(m_MZAMS, 2.5) >= 0 && utils::Compare(m_MZAMS, 5.5) < 0) ||
+                  (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) <= 0 && utils::Compare(m_MZAMS, 2.5) >= 0 && utils::Compare(m_MZAMS, 4.5) < 0)) {
+            double x  = m_Radius;
+            double x2 = x * x;
+            double x3 = x2 * x;
+            double x4 = x2 * x2;
+            double x5 = x3 * x2;
+
+            double y1 = a[0] + (a[1] * x) + (a[2] * x2) + (a[3] * x3) + (a[4] * x4) + (a[5] * x5);
+            double y2 = b[0] + (b[1] * x) + (b[2] * x2) + (b[3] * x3) + (b[4] * x4) + (b[5] * x5);
+
+            lambdaBG = { pow(10.0, y1), y2 };
         }
         else {
             double x  = m_Radius;

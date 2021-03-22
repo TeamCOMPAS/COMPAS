@@ -707,8 +707,9 @@
 //                                              - PISN-upper-limit
 //                                              - PPI-lower-limit
 //                                              - PPI-upper-limit
+// 02.18.09     ML - Mar 22, 2021   - Defect repair:
+//                                      - Correct polynomial evaluation of Nanjing lambda's for EAGB and TPAGB stellar types.
 
-
-const std::string VERSION_STRING = "02.18.08";
+const std::string VERSION_STRING = "02.18.09";
 
 # endif // __changelog_h__
