@@ -1513,6 +1513,104 @@ double GiantBranch::CalculateRemnantMassByBelczynski2002(const double p_Mass, co
 
 
 /*
+ * Calculate remnant mass given COCoreMass and HeCoreMass
+ *
+ * Farmer, 2019
+ *
+ *
+ * double CalculateRemnantMassByFarmer (const double p_COCoreMass, const double p_HeCoreMass)
+ *
+ * @param   [IN]    p_COCoreMass                COCoreMass in Msol
+ * @param   [IN]    p_HeCoreMass                HeCoreMass in Msol
+ * @return                                      Remnant mass in Msol
+ */
+double GiantBranch::CalculateRemnantMassByFarmer(const double p_COCoreMass, const double p_HeCoreMass) {
+
+    double remnantMass       = 0.0;   
+    double pBH               = 0.0;
+    double pCompleteCollapse = 0.0;
+    
+    //Use the Fryer delayed prescription for the low mass end
+    fb = FryerFallbackDelayed(*Mass, Mproto, p_COCoreMass);
+    Mfb = FryerMassFallbackGeneral(*Mass, Mproto, fb);
+
+    if (p_COCoreMass < 30.0){
+        // print statement for debugging 
+        std::cout<<"Using Fryer engine = DELAYED"<<std::endl;
+        // Calculate Mproto
+        Mproto = FryerCOCoreToProtoMassDelayed(p_COCoreMass);
+        // Calculate fb, Mfb
+        fb = FryerFallbackDelayed(*Mass, Mproto, p_COCoreMass);
+        Mfb = FryerMassFallbackGeneral(*Mass, Mproto, fb);
+        // Calculate Mremnant, baryonic, Mremnant, gravitational
+        Mrem_bary = FryerBaryonicRemnantMassGeneral(Mproto, Mfb);
+        Mrem_grav = FryerGravitationalRemnantMassGeneral(Mrem_bary, options);
+        remnantMass = Mrem_grav;
+        if(debugging){
+            std::cout << "using Fryer delayed, p_COCoreMass ="<< p_COCoreMass <<"\n"<< std::endl;
+            std::cout << "fb = "<< fb << " Mfb =  " << Mfb<< " remnantMass= " << remnantMass <<"\n"<< std::endl;
+            std::cout << "remnantMass = "<< remnantMass <<"\n"<< std::endl;
+            }
+        } 
+
+      else if (p_COCoreMass >=30.0 and p_COCoreMass < 38.0){
+          remnantMass = HeCoreMass;
+          // print statement for debugging 
+            std::cout << "using Farmer COcore < 38 , p_COCoreMass = "<< p_COCoreMass <<std::endl;
+            std::cout << "HeCoreMass = "<< HeCoreMass <<std::endl;
+            std::cout << "remnantMass = "<< remnantMass <<"\n"<< std::endl;
+        }
+
+        
+    else if (p_COCoreMass >=38.0 and p_COCoreMass < 60.0){
+      double a1             = -0.1027;
+      double a2             = 9.1355;
+      double a3             = -2.1588;
+      double a4             = -166.1884;
+        remnantMass = a1*pow(p_COCoreMass, 2.0)  + a2 *p_COCoreMass + a3 *  log10(options.metallicity) + a4  ;
+      if(debugging){
+        std::cout <<" Seed: " << randomSeed << " using Farmer 38 < COcore < 60 , p_COCoreMass = "<< p_COCoreMass << std::endl;
+        std::cout << "remnantMass = "<< remnantMass <<"\n"<< std::endl;
+        }
+      }
+
+    else if (p_COCoreMass >= 60.0 and p_COCoreMass < 135.0){
+      remnantMass = 0;
+      if(debugging){
+        std::cout <<" Seed: " << randomSeed << " using Farmer+19, core is in PISN range p_COCoreMass = "<< p_COCoreMass <<"\n"<< std::endl;
+        }
+      }
+    else if (p_COCoreMass >= 135.0){
+      remnantMass = p_COCoreMass;
+      if(debugging){
+        std::cout <<" Seed: " << randomSeed << " using Farmer+19 high end, p_COCoreMass = "<< p_COCoreMass <<"\n"<< std::endl;
+        }
+      }
+    else{
+        std::cerr << randomSeed << "\tError in FarmerRemnantMass function. Shouldn't get here." << std::endl;
+    }
+
+    // printng stuff for debugging
+
+    std::cout << "MpreSN = " << *Mass << std::endl;
+    std::cout << "COCore pre SN "<< p_COCoreMass <<std::endl;
+    std::cout << "Mproto = " << Mproto << std::endl;
+    std::cout << "Mfb = " << Mfb << std::endl;
+    std::cout << "Mbary = " << Mrem_bary << std::endl;
+    std::cout << "Mgrav = " << Mrem_grav << std::endl;
+    std::cout << "remnantMass = " << remnantMass << std::endl;
+    std::cout << "exit - FarmerRemnant()\n -----" << std::endl;
+
+
+    return remnantMass;
+}
+
+
+
+
+
+
+/*
  * Driver function for Core Collapse Supernovas
  *
  * This function determines which prescription is used for the core collapse SN (via program options)
@@ -1575,6 +1673,12 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
 
             m_Mass = CalculateRemnantMassBySchneider2020Alt(m_COCoreMass);
             m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0
+            break;
+
+        case REMNANT_MASS_PRESCRIPTION::FARMER2019:                                                         // Farmer 2020, 
+
+            m_Mass = CalculateRemnantMassByFarmer2019(m_COCoreMass);
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // Lieke TODO: fallback - probably 0 , but then what about the kick?
             break;
 
         default:                                                                                            // unknown prescription
