@@ -1501,7 +1501,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "pulsational-pair-instability-prescription",                   
             po::value<std::string>(&p_Options->m_PulsationalPairInstabilityPrescription.typeString)->default_value(p_Options->m_PulsationalPairInstabilityPrescription.typeString),                              
-            ("Pulsational Pair Instability prescription (options: [COMPAS, STARTRACK, MARCHANT], default = " + p_Options->m_PulsationalPairInstabilityPrescription.typeString + ")").c_str()
+            ("Pulsational Pair Instability prescription (options: [COMPAS, STARTRACK, MARCHANT, FARMER], default = " + p_Options->m_PulsationalPairInstabilityPrescription.typeString + ")").c_str()
         )
 
         (
