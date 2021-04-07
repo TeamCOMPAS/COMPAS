@@ -709,7 +709,9 @@
 //                                              - PPI-upper-limit
 // 02.18.09     ML - Mar 22, 2021   - Defect repair:
 //                                      - Correct polynomial evaluation of Nanjing lambda's for EAGB and TPAGB stellar types.
+// 02.18.10     LVS - Apr 06, 2021   - Enhancement:
+//                                      - Added PPISN prescription option - Farmer 2019
 
-const std::string VERSION_STRING = "02.18.09";
+const std::string VERSION_STRING = "02.18.10";
 
 # endif // __changelog_h__
