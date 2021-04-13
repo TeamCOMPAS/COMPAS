@@ -4,7 +4,7 @@
 /*                                                                                        */
 /* 1. Decide on a string for the option - this is the string the user will use on the     */
 /*    commandline or in the grid file (e.g. "random-seed")                                */
-/*    The convention I've settle on is hyphenated lower case - I don't mind what          */
+/*    The convention I've settled on is hyphenated lower case - I don't mind what         */
 /*    convention we settle on, as long as it's just one.                                  */
 /*                                                                                        */
 /* 2. Decide on a class member variable name for the option (e.g. m_RandomSeed).          */
@@ -491,7 +491,6 @@ void Options::OptionValues::Initialise() {
     m_LogLevel                                                      = 0;
     m_LogClasses.clear();
 
-
     // Logfiles    
     m_LogfileDefinitionsFilename                                    = "";
     m_LogfileNamePrefix                                             = "";
@@ -507,6 +506,9 @@ void Options::OptionValues::Initialise() {
     m_LogfileSupernovae                                             = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));       // assume BSE - get real answer when we know mode
     m_LogfileSwitchLog                                              = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));       // assume BSE - get real answer when we know mode
     m_LogfileSystemParameters                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));
+
+    m_AddOptionsToSysParms.type                                     = ADD_OPTIONS_TO_SYSPARMS::NEVER;
+    m_AddOptionsToSysParms.typeString                               = ADD_OPTIONS_TO_SYSPARMS_LABEL.at(m_AddOptionsToSysParms.type);
     
     m_HDF5BufferSize                                                = HDF5_DEFAULT_IO_BUFFER_SIZE;
     m_HDF5ChunkSize                                                 = HDF5_DEFAULT_CHUNK_SIZE;
@@ -1161,7 +1163,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Multiplicitive constant for overall wind mass loss (default = " + std::to_string(p_Options->m_OverallWindMassLossMultiplier)+ ")").c_str()
         )
 
-
         (
             "PISN-lower-limit",                                            
             po::value<double>(&p_Options->m_PairInstabilityLowerLimit)->default_value(p_Options->m_PairInstabilityLowerLimit),                                                                    
@@ -1282,6 +1283,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
 
         // string options - alphabetically
+
+        (
+            "add-options-to-sysparms",                                            
+            po::value<std::string>(&p_Options->m_AddOptionsToSysParms.typeString)->default_value(p_Options->m_AddOptionsToSysParms.typeString),                                                                              
+            ("Add program options columns to BSE/SSE SysParms file (options: [ALWAYS, GRID, NEVER], default = " + p_Options->m_AddOptionsToSysParms.typeString + ")").c_str()
+        )
 
         (
             "black-hole-kicks",                                            
@@ -1725,6 +1732,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         m_FixedRandomSeed  = !DEFAULTED("random-seed");                                                                             // use random seed if it is provided by the user
         m_UseFixedUK       = !DEFAULTED("fix-dimensionless-kick-magnitude") && (m_FixedUK >= 0.0);                                  // determine if user supplied a valid kick magnitude
+
+        if (!DEFAULTED("add-options_to-sysparms")) {                                                                                // add program options to BSE/SSE sysparms
+            std::tie(found, m_AddOptionsToSysParms.type) = utils::GetMapKey(m_AddOptionsToSysParms.typeString, ADD_OPTIONS_TO_SYSPARMS_LABEL, m_AddOptionsToSysParms.type);
+            COMPLAIN_IF(!found, "Unknown Add Options to SysParms Option");
+        }
 
         if (!DEFAULTED("black-hole-kicks")) {                                                                                       // black hole kicks
             std::tie(found, m_BlackHoleKicks.type) = utils::GetMapKey(m_BlackHoleKicks.typeString, BLACK_HOLE_KICKS_LABEL, m_BlackHoleKicks.type);
@@ -2186,7 +2198,16 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
             else if (elems.size() == 2) elems.erase(elems.size() - 1);
             elems += " }";
 
-            dataType = TYPENAME::NONE;                                                  // not supported by COMPAS as an option data type            
+            // vector<string> is not supported as a data type by COMPAS, but...
+            // it is used.  Options debug-classes and log-classes are stored as
+            // vectors or strings.  This doesn't affect anything unless we want
+            // to print the values of the options (as we do sometimes), so the
+            // vector of strings is just formatted as a string here - with braces
+            // sourrounding comma-separated values.
+            //
+            // we return dateType = TYPENAME::STRING, but typeStr  = "VECTOR<STRING>"
+
+            dataType = TYPENAME::STRING;                                                // not supported by COMPAS as an option data type            
             typeStr  = "VECTOR<STRING>";                                                // ... but we know what type it is, and
             valueStr = elems;                                                           // ... we can still format the value
         }
@@ -2202,49 +2223,45 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
 
 
 /*
- * Build the output string for the Run_Details file
- * The parameter passed is the opstions descriptor - the grid line options, or
+ * Get option details for the Run_Details file
+ * The parameter passed is the options descriptor - the grid line options, or
  * the commandline options.  Ordinarily we would build the Run_Details contents
  * from the commandline options, but the flexibility exists to use a set of
  * grid line options (maybe one day we will want to (optionally) produce a
  * per star/binary Run_Details file)
  * 
  * 
- * std::string OptionDetails(const OptionsDescriptorT &p_Options)
+ * std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPENAME>> Options::OptionDetails(const OptionsDescriptorT &p_Options)
  * 
  * @param   [IN]    p_Options                   The options descriptor to use to build the output string
- * @return                                      String containing the Run_Details file contents
+ * @return                                      Vector containing the option details for Run_Details
  */
-std::string Options::OptionDetails(const OptionsDescriptorT &p_Options) {
-            
+std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPENAME>> Options::OptionDetails(const OptionsDescriptorT &p_Options) {
+
+    std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPENAME>> optionDetails = {};
+
     TYPENAME    dataType  = TYPENAME::NONE;
     std::string typeStr   = "";
     bool        defaulted = false;
     std::string valueStr  = "";
 
-    std::ostringstream ss;                                                                                                              // output string
+    for (po::variables_map::const_iterator it = p_Options.optionValues.m_VM.begin(); it != p_Options.optionValues.m_VM.end(); it++) {                                   // for all options in the variable map
 
-    ss << "COMMAND LINE OPTIONS\n-------------------\n\n";
+        std::tie(dataType, defaulted, typeStr, valueStr) = OptionAttributes(p_Options.optionValues.m_VM, it);                                                           // get option attributes
 
-    for (po::variables_map::const_iterator it = p_Options.optionValues.m_VM.begin(); it != p_Options.optionValues.m_VM.end(); it++) {   // for all options in the variable map
-  
-        ss << it->first << " = ";                                                                                                       // add option name to output string
-
-        std::tie(dataType, defaulted, typeStr, valueStr) = OptionAttributes(p_Options.optionValues.m_VM, it);                           // get option attributes
-
-        if (valueStr == "")                                                                                                             // empty option?
-            ss << "<EMPTY_OPTION>\n";                                                                                                   // yes - say so
-        else                                                                                                                            // no
-            ss << valueStr + ", " << (defaulted ? "DEFAULT_USED, " : "USER_SUPPLIED, ") << typeStr << "\n";                             // add option details to output string
+        if (valueStr == "")                                                                                                                                             // empty option?
+            optionDetails.push_back(std::make_tuple(it->first, "<EMPTY_OPTION>", "<EMPTY_OPTION>", "<EMPTY_OPTION>", TYPENAME::NONE));                                  // yes - say so
+        else                                                                                                                                                            // no
+            optionDetails.push_back(std::make_tuple(it->first, valueStr, (defaulted ? "DEFAULT_USED" : "USER_SUPPLIED"), typeStr, dataType));                           // add option details to return vector
     }
   
-    ss << "\n\nOTHER PARAMETERS\n----------------\n\n";
+    // add other (calculated) options
 
-    ss << "useFixedUK         = " << (p_Options.optionValues.m_UseFixedUK ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";                // useFixedUK
-    ss << "output-path        = " <<  p_Options.optionValues.m_OutputPath.string() << ", CALCULATED, STRING\n";                         // outputPath (fully qualified)
-    ss << "fixedRandomSeed    = " << (p_Options.optionValues.m_FixedRandomSeed ? "TRUE" : "FALSE") << ", CALCULATED, BOOL\n";           // fixedRandomSeed
+    optionDetails.push_back(std::make_tuple("useFixedUK", (p_Options.optionValues.m_UseFixedUK ? "TRUE" : "FALSE"), "CALCULATED", "BOOL", TYPENAME::BOOL));             // useFixedUK
+    optionDetails.push_back(std::make_tuple("actual-output-path", p_Options.optionValues.m_OutputPath.string(), "CALCULATED", "STRING", TYPENAME::STRING));             // output-path
+    optionDetails.push_back(std::make_tuple("fixedRandomSeed", (p_Options.optionValues.m_FixedRandomSeed ? "TRUE" : "FALSE"), "CALCULATED", "BOOL", TYPENAME::BOOL));   // fixedRandomSeed
 
-    return ss.str();
+    return optionDetails;
 }
 
 
@@ -3413,6 +3430,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
                                                                                                                         // get property value
     switch (property) {
 
+        case PROGRAM_OPTION::ADD_OPTIONS_TO_SYSPARMS                        : value = static_cast<int>(AddOptionsToSysParms());                             break;
+
         case PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE       : value = AllowMainSequenceStarToSurviveCommonEnvelope();                       break;
         case PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH                            : value = AllowRLOFAtBirth();                                                   break;
         case PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH                        : value = AllowTouchingAtBirth();                                               break;
@@ -3422,8 +3441,6 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         //case PROGRAM_OPTION::BE_BINARIES                                    : value = BeBinaries();                                                         break;
 
         case PROGRAM_OPTION::BLACK_HOLE_KICKS                               : value = static_cast<int>(BlackHoleKicks());                                   break;
-
-        case PROGRAM_OPTION::EVOLUTION_MODE                                 : value = static_cast<int>(EvolutionMode());                                    break;
     
         case PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION                 : value = static_cast<int>(CaseBBStabilityPrescription());                      break;
     
@@ -3445,7 +3462,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY   : value = CommonEnvelopeRecombinationEnergyDensity();                           break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW                  : value = CommonEnvelopeSlopeKruckow();                                         break;
 
-        case PROGRAM_OPTION::COOL_WIND_MASS_LOSS_MULTIPLIER                 : value = CoolWindMassLossMultiplier();                                      break;
+        case PROGRAM_OPTION::COOL_WIND_MASS_LOSS_MULTIPLIER                 : value = CoolWindMassLossMultiplier();                                         break;
 
         case PROGRAM_OPTION::ECCENTRICITY                                   : value = Eccentricity();                                                       break;
         case PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION                      : value = static_cast<int>(EccentricityDistribution());                         break;
@@ -3453,6 +3470,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MIN                  : value = EccentricityDistributionMin();                                        break;
         case PROGRAM_OPTION::EDDINGTON_ACCRETION_FACTOR                     : value = EddingtonAccretionFactor();                                           break;
         case PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION                    : value = static_cast<int>(EnvelopeStatePrescription());                        break;
+        case PROGRAM_OPTION::EVOLUTION_MODE                                 : value = static_cast<int>(EvolutionMode());                                    break;
 
         case PROGRAM_OPTION::FRYER_SUPERNOVA_ENGINE                         : value = static_cast<int>(FryerSupernovaEngine());                             break;
 
@@ -3560,7 +3578,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::NS_EOS                                         : value = static_cast<int>(NeutronStarEquationOfState());                       break;
 
-        case PROGRAM_OPTION::ORBITAL_PERIOD                                 : value = static_cast<int>(OrbitalPeriodDistribution());                        break;
+        case PROGRAM_OPTION::ORBITAL_PERIOD                                 : value = OrbitalPeriod();                                                      break;
+        case PROGRAM_OPTION::ORBITAL_PERIOD_DISTRIBUTION                    : value = static_cast<int>(OrbitalPeriodDistribution());                        break;
         case PROGRAM_OPTION::ORBITAL_PERIOD_DISTRIBUTION_MAX                : value = OrbitalPeriodDistributionMax();                                       break;
         case PROGRAM_OPTION::ORBITAL_PERIOD_DISTRIBUTION_MIN                : value = OrbitalPeriodDistributionMin();                                       break;
 

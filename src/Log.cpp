@@ -30,6 +30,8 @@ Log* Log::Instance() {
  * be ignored.  In this way logging and, in particular, debugging statements can be made throughout the code and activated
  * or deactivated at runtime by specifying the enabled classes and application logging and debugging levels (via commandline
  * parameters).
+ * 
+ * Any error here disables logging.
  *
  *
  * Start(const string              p_LogBasePath,
@@ -69,120 +71,312 @@ void Log::Start(const string              p_LogBasePath,
 
     if (!m_Enabled) {
 
-        m_Enabled       = true;                                                                                     // logging enabled;
-        m_LogBasePath   = p_LogBasePath;                                                                            // set base path
-        m_LogNamePrefix = p_LogNamePrefix;                                                                          // set log file name prefix
-        m_LogLevel      = p_LogLevel;                                                                               // set log level
-        m_LogClasses    = p_LogClasses;                                                                             // set enabled log classes
-        m_DbgLevel      = p_DbgLevel;                                                                               // set debug level
-        m_DbgClasses    = p_DbgClasses;                                                                             // set enagled debug classes
-        m_DbgToLogfile  = p_DbgToLogfile;                                                                           // write debug records to logfile?
-        m_ErrToLogfile  = p_ErrorsToLogfile;                                                                        // write error records to logfile?
-        m_LogfileType   = p_LogfileType;                                                                            // set log file type
+        m_Enabled       = true;                                                                                             // logging enabled;
+        m_LogBasePath   = p_LogBasePath;                                                                                    // set base path
+        m_LogNamePrefix = p_LogNamePrefix;                                                                                  // set log file name prefix
+        m_LogLevel      = p_LogLevel;                                                                                       // set log level
+        m_LogClasses    = p_LogClasses;                                                                                     // set enabled log classes
+        m_DbgLevel      = p_DbgLevel;                                                                                       // set debug level
+        m_DbgClasses    = p_DbgClasses;                                                                                     // set enagled debug classes
+        m_DbgToLogfile  = p_DbgToLogfile;                                                                                   // write debug records to logfile?
+        m_ErrToLogfile  = p_ErrorsToLogfile;                                                                                // write error records to logfile?
+        m_LogfileType   = p_LogfileType;                                                                                    // set log file type
         m_HDF5ChunkSize = OPTIONS->nObjectsToEvolve() < HDF5_MINIMUM_CHUNK_SIZE ? HDF5_MINIMUM_CHUNK_SIZE : OPTIONS->HDF5ChunkSize(); // set HDF5 chunk size
-        m_HDF5IOBufSize = OPTIONS->HDF5BufferSize() * m_HDF5ChunkSize;                                              // set HDF5 IO buffer size
-        m_Logfiles.clear();                                                                                         // clear all entries
+        m_HDF5IOBufSize = OPTIONS->HDF5BufferSize() * m_HDF5ChunkSize;                                                      // set HDF5 IO buffer size
+        m_Logfiles.clear();                                                                                                 // clear all entries
 
-        m_Enabled = UpdateAllLogfileRecordSpecs();                                                                  // update all logfile record specifications - disable logging upon failure
+        m_Enabled = UpdateAllLogfileRecordSpecs();                                                                          // update all logfile record specifications - disable logging upon failure
 
         if (m_Enabled) {
 
             // first create the container at p_LogBasePath
             // use boost filesystem here - easier...
         
-            string containerName = p_LogContainerName;                                                              // container name
-            m_HDF5ContainerName  = p_LogContainerName;                                                              // HDF5 container name
-            string dirName       = containerName;                                                                   // directory name to create
+            string containerName = p_LogContainerName;                                                                      // container name
+            m_HDF5ContainerName  = p_LogContainerName;                                                                      // HDF5 container name
+            string dirName       = containerName;                                                                           // directory name to create
 
-            int version = 0;                                                                                        // container version number if required - start at 1
-            while (boost::filesystem::exists(m_LogBasePath + "/" + dirName)) {                                      // container already exists?
-                dirName = containerName + "_" + std::to_string(++version);                                          // yes - add a version number and generate new container name
+            int version = 0;                                                                                                // container version number if required - start at 1
+            while (boost::filesystem::exists(m_LogBasePath + "/" + dirName)) {                                              // container already exists?
+                dirName = containerName + "_" + std::to_string(++version);                                                  // yes - add a version number and generate new container name
             }
-            m_LogContainerName = dirName;                                                                           // record actual container directory name
+            m_LogContainerName = dirName;                                                                                   // record actual container directory name
 
             boost::system::error_code err;
             try {
-                boost::filesystem::create_directory(m_LogBasePath + "/" + m_LogContainerName, err);                 // create container - let boost throw an exception if it fails
-                if (err.value() == 0) {                                                                             // ok?
+                boost::filesystem::create_directory(m_LogBasePath + "/" + m_LogContainerName, err);                         // create container - let boost throw an exception if it fails
+                if (err.value() == 0) {                                                                                     // ok?
 
-                    if (m_DbgToLogfile) {                                                                           // write dubug output to a logfile?
-                        string filename = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::DEBUG_LOG));                   // extract filename from descriptor
-                        int id = Open(filename, false, true, false);                                                // open the log file - new file, timestamps, no record labels, space delimited
-                        if (id >= 0) {                                                                              // success
-                            m_DbgLogfileId = id;                                                                    // record the file id
+                    if (m_DbgToLogfile) {                                                                                   // write dubug output to a logfile?
+                        string filename = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::DEBUG_LOG));                           // extract filename from descriptor
+                        int id = Open(filename, false, true, false);                                                        // open the log file - new file, timestamps, no record labels, space delimited
+                        if (id >= 0) {                                                                                      // success
+                            m_DbgLogfileId = id;                                                                            // record the file id
                         }
-                        else {                                                                                      // failure
-                            Squawk("ERROR: Unable to create log file for debug output with file name " + filename); // announce error
-                            Squawk("Debug output logging disabled");                                                // show disabled warning
+                        else {                                                                                              // failure
+                            Squawk("ERROR: Unable to create log file for debug output with file name " + filename);         // announce error
+                            Squawk("Debug output logging disabled");                                                        // show disabled warning
                         }
                     }
 
-                    if (m_ErrToLogfile) {                                                                           // write dubug output to a logfile?
-                        string filename = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::ERROR_LOG));                   // extract filename from descriptor
-                        int id = Open(filename, false, true, false);                                                // open the log file - new file, timestamps, no record labels, space delimited
-                        if (id >= 0) {                                                                              // success
-                            m_ErrLogfileId = id;                                                                    // record the file id
+                    if (m_ErrToLogfile) {                                                                                   // write dubug output to a logfile?
+                        string filename = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::ERROR_LOG));                           // extract filename from descriptor
+                        int id = Open(filename, false, true, false);                                                        // open the log file - new file, timestamps, no record labels, space delimited
+                        if (id >= 0) {                                                                                      // success
+                            m_ErrLogfileId = id;                                                                            // record the file id
                         }
-                        else {                                                                                      // failure
-                            Squawk("ERROR: Unable to create log file for error output with file name " + filename); // announce error
-                            Squawk("Error output logging disabled");                                                // show disabled warning
+                        else {                                                                                              // failure
+                            Squawk("ERROR: Unable to create log file for error output with file name " + filename);         // announce error
+                            Squawk("Error output logging disabled");                                                        // show disabled warning
                         }
                     }
                 }
-                else  {                                                                                             // not ok...
-                    Squawk("ERROR: Unable to create log file container with name " + dirName);                      // announce error
-                    Squawk("Boost filesystem error = " + err.message());                                            // plus details
-                    Squawk("Logging disabled");                                                                     // show disabled warning
-                    m_Enabled = false;                                                                              // disable
+                else  {                                                                                                     // not ok...
+                    Squawk("ERROR: Unable to create log file container with name " + dirName);                              // announce error
+                    Squawk("Boost filesystem error = " + err.message());                                                    // plus details
+                    Squawk("Logging disabled");                                                                             // show disabled warning
+                    m_Enabled = false;                                                                                      // disable
                 }
             
             }
-            catch (...) {                                                                                           // unhandled problem...
-                Squawk("ERROR: Unable to create log file container with name " + dirName);                          // announce error
-                Squawk("Logging disabled");                                                                         // show disabled warning
-                m_Enabled = false;                                                                                  // disable
+            catch (...) {                                                                                                   // unhandled problem...
+                Squawk("ERROR: Unable to create log file container with name " + dirName);                                  // announce error
+                Squawk("Logging disabled");                                                                                 // show disabled warning
+                m_Enabled = false;                                                                                          // disable
             }
 
             // create run details file if all ok
-            if (m_Enabled) {                                                                                        // ok?
-                                                                                                                    // yes
-                m_WallStart = std::chrono::system_clock::now();                                                     // start wall timer
-                m_ClockStart = clock();                                                                             // start CPU timer
+            if (m_Enabled) {                                                                                                // ok?
 
-                string filename = m_LogBasePath + "/" + m_LogContainerName + "/" + RUN_DETAILS_FILE_NAME;           // run details filename with container name
-                try {
-                    m_RunDetailsFile.open(filename, std::ios::out);                                                 // create run details file
-                    m_RunDetailsFile.exceptions(std::ofstream::failbit | std::ofstream::badbit);                    // enable exceptions on run details file
+                m_OptionDetails = OPTIONS->CmdLineOptionsDetails(); // get the commandline options details
+                // We put a copy of  the Run_Details file in HDF5 file if we're logging to HDF5 files, so
+                // need to create HDF5 container file here if we are in fact logging to HDF5 files.
+                //
+                // The Run_Details file is not treated as a standard logfile - so need to open manually here...
+                //
+                // !!!!!!!!!!!!!!!!!!!!!!!!!!! FIX THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                // This code pulled in from Log::StandardLogFileDetails().  It still exists there -
+                // maybe a bit redundant but not a big issue (no real performance hit)
 
-                    // file should be open - write the run details
-
-                    try {                                                                                             
-
-                        m_RunDetailsFile << utils::SplashScreen(false) << std::endl;                                // write splash string with version number to file
-
-                        std::time_t timeStart = std::chrono::system_clock::to_time_t(m_WallStart);                  // record start time
-
-                        // record start time and whether evolving single stars or binaries   
-                        if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE)
-                            m_RunDetailsFile << "Start generating stars at " << std::ctime(&timeStart) << std::endl;
-                        else
-                            m_RunDetailsFile << "Start generating binaries at " << std::ctime(&timeStart) << std::endl;
-
-                        // run details file will be updated and closed in Log::Stop()
+                if (m_LogfileType == LOGFILETYPE::HDF5) {                                                                   // logging to HDF5 files?
+                                                                                                                            // yes
+                    string fileExt = "." + LOGFILETYPEFileExt.at(OPTIONS->LogfileType());                                   // file extension for HDF5 files
+                    string h5Filename = m_LogBasePath + "/" + m_LogContainerName + "/" + m_HDF5ContainerName + fileExt;     // full filename with path, container, and extension ("/" works on Uni*x and Windows)
+                    m_HDF5ContainerId = H5Fcreate(h5Filename.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT);              // create HDF5 container file
+                    if (m_HDF5ContainerId < 0) {                                                                            // created ok?                        
+                        Squawk("ERROR: Unable to create HDF5 container file with file name " + h5Filename);                 // no - announce error
+                        Squawk("Logging disabled");                                                                         // show disabled warning
+                        m_Enabled = false;                                                                                  // disable logging
                     }
-                    catch (const std::ofstream::failure &e) {                                                       // problem...
-                        Squawk("ERROR: Unable to write to run details file with name " + filename);                 // announce error
-                        Squawk(e.what());                                                                           // plus details
+                    else {                                                                                                  // HDF5 container file open
+                        m_Run_Details_H5_File.fileId = m_HDF5ContainerId;                                                   // record run details HDF5 fileid - just the HDF5 container id
+
+                        // open the Run_Details file inside the HDF5 container
+                        string h5GroupName = "Run_Details";                                                                 // HDF5 group name for run details file
+                        hid_t h5GroupId = H5Gopen(m_HDF5ContainerId, h5GroupName.c_str(), H5P_DEFAULT);                     // open the group
+                        if (h5GroupId >= 0) {                                                                               // group open (and therefore already exists)?
+                            Squawk("ERROR: HDF5 group with name " + h5GroupName + " already exists");                       // that's not ok - announce error
+                            (void)H5Gclose(h5GroupId);                                                                      // close the group
+                            m_Enabled = false;                                                                              // fail
+                        }
+                        else {                                                                                              // group does not exist/is not open               
+                            h5GroupId = H5Gcreate(m_HDF5ContainerId, h5GroupName.c_str(), 0, H5P_DEFAULT, H5P_DEFAULT);     // create the group
+                            if (h5GroupId < 0) {                                                                            // group created ok?
+                                Squawk("ERROR: Error creating HDF5 group with name " + h5GroupName);                        // no - announce error
+                                m_Enabled = false;                                                                          // fail
+                            }
+                            else {                                                                                          // group created ok
+                                m_Run_Details_H5_File.groupId = h5GroupId;                                                  // record group id for run details file
+
+
+
+
+
+                                // create HDF5 datasets for run details
+                                // want columns for:
+                                //      - COMPAS version (STRING)
+                                //      - run start time (STRING)
+                                //      - run end time (STRING)
+                                //      - object requested (UNSIGNED INT)
+                                //      - objects created (UNSIGNED INT)
+                                //      - clock (CPU) time (DOUBLE)
+                                //      - wall (elapsed) time (STRING - formatted "hh:mm:ss")
+                                //
+                                //      - for each program option:
+                                //          - dataset/column name = option name
+                                //          - datatype (dataset attr)
+                                //          - value (datatype dependent)
+                                //          - second column (option name + "-derivation"): one of {"DEFAULT_USED", "USER_SUPPLIED", "CALCULATED"}
+
+                                // allow for "<EMPTY_OPTION>" for all three values (value, derivation, datatype)
+                                                                                                         // yes - chunk size set ok
+
+
+
+
+
+
+                                // create fixed columns
+
+                                // first, create some HDF5 datatypes
+                                hid_t h5String8DataType = GetHDF5DataType(TYPENAME::STRING, 8);     // HDF5 data type for COMPAS data type STRING (8 chars - version string, wall time)
+                                hid_t h5String24DataType = GetHDF5DataType(TYPENAME::STRING, 24);     // HDF5 data type for COMPAS data type STRING (24 chars - run start/end times)
+                                hid_t h5IntDataType = GetHDF5DataType(TYPENAME::INT);                                                 // HDF5 data type from COMPAS data type INT
+                                hid_t h5DoubleDataType = GetHDF5DataType(TYPENAME::DOUBLE);                                        // HDF5 data type from COMPAS data type DOUBLE
+
+                                // now create the datasets
+                                if (m_Enabled) {                                                                                                            // still ok?
+                                    hid_t h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, "COMPAS-Version", h5String8DataType, "-");                            // "COMPAS_Version"
+                                    if (h5Dset < 0) m_Enabled = false;                                                                                      // fail (error already announced in CreateHDF5Dataset())
+                                    else {
+                                        m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String8DataType, TYPENAME::STRING, {}});                         // record dataset details
+
+                                        h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, "Run-Start", h5String24DataType, "-");                                   // "Run_Start"
+                                        if (h5Dset < 0) m_Enabled = false;                                                                                  // fail (error already announced in CreateHDF5Dataset())
+                                        else {
+                                            m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String24DataType, TYPENAME::STRING, {}});                     // record dataset details
+                                        
+                                            h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, "Run-End", h5String24DataType, "-");                                 // "Run_End"
+                                            if (h5Dset < 0) m_Enabled = false;                                                                              // fail (error already announced in CreateHDF5Dataset())
+                                            else {
+                                                m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String24DataType, TYPENAME::STRING, {}});                 // record dataset details
+                                        
+                                                h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, "Objects-Requested", h5IntDataType, "Count");                      // "Objects_Requested"
+                                                if (h5Dset < 0) m_Enabled = false;                                                                          // fail (error already announced in CreateHDF5Dataset())
+                                                else {
+                                                    m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5IntDataType, TYPENAME::INT, {}});                   // record dataset details
+                                        
+                                                    h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, "Objects-Created", h5IntDataType, "Count");                    // "Objects_Created"
+                                                    if (h5Dset < 0)  m_Enabled = false;                                                                     // fail (error already announced in CreateHDF5Dataset())
+                                                    else {
+                                                        m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5IntDataType, TYPENAME::INT, {}});               // record dataset details
+                                        
+                                                        h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, "CPU-Time", h5DoubleDataType, "Seconds");                    // "CPU_Time"
+                                                        if (h5Dset < 0)  m_Enabled = false;                                                                 // fail (error already announced in CreateHDF5Dataset())
+                                                        else {
+                                                            m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5DoubleDataType, TYPENAME::DOUBLE, {}});     // record dataset details
+                                        
+                                                            h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, "Wall-Time", h5String8DataType, "hh:mm:ss");               // "Wall_Time"
+                                                            if (h5Dset < 0)  m_Enabled = false;                                                             // fail (error already announced in CreateHDF5Dataset())
+                                                            else {
+                                                                m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String8DataType, TYPENAME::STRING, {}}); // record dataset details
+                                                            }
+                                                        }       
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+
+
+
+
+
+                                if (m_Enabled) {
+                                    // add commandline options
+                                    // MENTION ORDER HERE  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                    // have to add a small kludge here to get it to look the same (someone might be relying on format)  GET IN S
+                                    // (run through twice - first time specified options, second time calculated options - only need to do once per run, so not a disaster...)
+
+                                    for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {
+
+                                        hid_t h5DataType = GetHDF5DataType(std::get<4>(m_OptionDetails[idx]), (std::get<1>(m_OptionDetails[idx])).length());          // HDF5 data type for COMPAS data type
+                                        std::string optionName = std::get<0>(m_OptionDetails[idx]);
+                                        hid_t h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, optionName, h5DataType, "-");
+                                        if (h5Dset < 0) m_Enabled = false;                                                             // fail (error already announced in CreateHDF5Dataset())
+                                        else {
+                                            m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5DataType, std::get<4>(m_OptionDetails[idx]), {}}); // record dataset details
+
+                                            hid_t h5String13DataType = GetHDF5DataType(TYPENAME::STRING, 13);     // HDF5 data type for COMPAS data type STRING (13 chars - option value derivation)
+                                            h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, optionName + "-derivation", h5String13DataType, "-");      // DERIVATION COLUMN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                            if (h5Dset < 0) m_Enabled = false;                                                             // fail (error already announced in CreateHDF5Dataset())
+                                            else {
+                                                m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String13DataType, TYPENAME::STRING, {}}); // record dataset details
+                                            }
+                                        }
+                                    }
+          
+                                    // actual random seed
+                                    if (m_Enabled) {                                                                                    // still ok?
+                                        hid_t h5DataType = GetHDF5DataType(TYPENAME::ULONGINT);                               // HDF5 data type for COMPAS data type
+                                        hid_t h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, "Actual-Random-Seed", h5DataType, "-");
+                                        if (h5Dset < 0)  m_Enabled = false;                                                             // fail (error already announced in CreateHDF5Dataset())
+                                        else {
+                                            m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5DataType, TYPENAME::ULONGINT, {}}); // record dataset details
+                                        }
+                                    }
+
+                                }
+                            }   
+
+                        }    
                     }
+
                 }
-                catch (const std::ofstream::failure &e) {                                                           // fs problem...
-                    Squawk("ERROR: Unable to create run details file with file name " + filename);                  // announce error
-                    Squawk(e.what());                                                                               // plus details
-                    Squawk("Run details will not be recorded");                                                     // show warning
-                }
-                catch (...) {                                                                                       // unhandled problem...
-                    Squawk("ERROR: Unable to create log file with file name " + filename);                          // announce error
-                    Squawk("Run details will not be recorded");                                                     // show warning
+
+
+
+
+
+                // if logging is still enabled then if we are logging to HDF5 files we
+                // have an open HDF5 container with an open group for the Run_Details file
+                // If we're not logging to HDF5 files we just proceed.
+                //
+                // Add preamble to Run_Details file
+                if (m_Enabled) {                                                                                            // still ok?
+                                                                                                                            // yes
+                    m_WallStart = std::chrono::system_clock::now();                                                         // start wall timer
+                    m_ClockStart = clock();                                                                                 // start CPU timer
+
+                    string filename = m_LogBasePath + "/" + m_LogContainerName + "/" + RUN_DETAILS_FILE_NAME;               // run details filename with container name
+                    try {
+                        m_RunDetailsFile.open(filename, std::ios::out);                                                     // create run details file
+                        m_RunDetailsFile.exceptions(std::ofstream::failbit | std::ofstream::badbit);                        // enable exceptions on run details file
+
+                        // file should be open - write the run details
+
+                        try {                                                                                             
+
+                            m_RunDetailsFile << utils::SplashScreen(false) << std::endl;                                    // write splash string with version number to file
+
+                            std::time_t timeStart = std::chrono::system_clock::to_time_t(m_WallStart);                      // record start time
+
+                            // record start time and whether evolving single stars or binaries   
+                            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE)
+                                m_RunDetailsFile << "Start generating stars at " << std::ctime(&timeStart) << std::endl;
+                            else
+                                m_RunDetailsFile << "Start generating binaries at " << std::ctime(&timeStart) << std::endl;
+
+                            if (m_LogfileType == LOGFILETYPE::HDF5) {                                                                   // logging to HDF5 files?
+
+
+
+// WHATE HERE ????????????????????????????????????????????
+
+
+
+
+                            }
+
+                            // run details file will be updated and closed in Log::Stop()
+                        }
+                        catch (const std::ofstream::failure &e) {                                                           // problem...
+                            Squawk("ERROR: Unable to write to run details file with name " + filename);                     // announce error
+                            Squawk(e.what());                                                                               // plus details
+                            m_Enabled = false;                                                                              // fail
+                        }
+                    }
+                    catch (const std::ofstream::failure &e) {                                                               // fs problem...
+                        Squawk("ERROR: Unable to create run details file with file name " + filename);                      // announce error
+                        Squawk(e.what());                                                                                   // plus details
+                        m_Enabled = false;                                                                                  // fail
+                    }
+                    catch (...) {                                                                                           // unhandled problem...
+                        Squawk("ERROR: Unable to create log file with file name " + filename);                              // announce error
+                        m_Enabled = false;                                                                                  // fail
+                    }
                 }
             }
         }
@@ -248,8 +442,54 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
                                 std::setfill('0') << std::setw(2) << wallMM << ":" << 
                                 std::setfill('0') << std::setw(2) << wallSS << " (hh:mm:ss)" << std::endl;      // include 0 buffer 
 
-            m_RunDetailsFile << "\n\n" << OPTIONS->CmdLineOptionsDetails();                                     // record the commandline options details string
-            m_RunDetailsFile << "Actual random seed = " << (OPTIONS->FixedRandomSeedCmdLine() ? OPTIONS->RandomSeedCmdLine() : RAND->DefaultSeed()) << ", CALCULATED, UNSIGNED_LONG" << std::endl;    // actual random seed
+            // add commandline options
+            // moved this code here from Options.cpp
+            // have to add a small kludge here to get it to look the same (someone might be relying on format)
+            // (run through twice - first time specified options, second time calculated options - only need to do once per run, so not a disaster...)
+
+// already have option details in m_OptionDetails  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+// HAVE TO POPULATE H5 RUN DETAILS HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+            // first, specified options
+
+            m_RunDetailsFile << "\n\nCOMMAND LINE OPTIONS\n--------------------\n\n";                           // add commandline options
+            for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                      // and add them to the run details file
+
+                if (utils::Equals(std::get<2>(m_OptionDetails[idx]), "CALCULATED")) continue;                     // CALCULATED later
+
+                m_RunDetailsFile << std::get<0>(m_OptionDetails[idx]) << " = ";                                   // option name
+
+                if (std::get<1>(m_OptionDetails[idx]) == "")                                                      // empty option?
+                    m_RunDetailsFile << "<EMPTY_OPTION>\n";                                                     // yes - say so
+                else                                                                                            // no - add option details
+                    m_RunDetailsFile << std::get<1>(m_OptionDetails[idx]) + ", "                                  // value
+                                     << std::get<2>(m_OptionDetails[idx]) + ", "                                  // defaulted
+                                     << std::get<3>(m_OptionDetails[idx]) << "\n";                                // datatype
+            }
+
+            // next, calculated options
+
+            m_RunDetailsFile << "\n\nOTHER PARAMETERS\n----------------\n\n";
+            for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                      // and add them to the run details file
+
+                if (!utils::Equals(std::get<2>(m_OptionDetails[idx]), "CALCULATED")) continue;                    // only CALCULATED here
+
+                m_RunDetailsFile << std::get<0>(m_OptionDetails[idx]) << " = ";                                   // option name
+
+                if (std::get<1>(m_OptionDetails[idx]) == "")                                                      // empty option?
+                    m_RunDetailsFile << "<EMPTY_OPTION>\n";                                                     // yes - say so
+                else                                                                                            // no - add option details
+                    m_RunDetailsFile << std::get<1>(m_OptionDetails[idx]) + ", "                                  // value
+                                     << std::get<2>(m_OptionDetails[idx]) + ", "                                  // defaulted
+                                     << std::get<3>(m_OptionDetails[idx]) << "\n";                                // datatype
+            }
+
+            m_RunDetailsFile << "Actual random seed = "
+                             << (OPTIONS->FixedRandomSeedCmdLine() ? OPTIONS->RandomSeedCmdLine() : RAND->DefaultSeed()) 
+                             << ", CALCULATED, UNSIGNED_LONG" << std::endl;                                     // actual random seed
+
         }
         catch (const std::ofstream::failure &e) {                                                               // problem...
             Squawk("ERROR: Unable to update run details file with file name " + filename);                      // announce error
@@ -364,80 +604,80 @@ int Log::Open(const string p_LogFileName, const bool p_Append, const bool p_Time
                 }
             }
 
-            if (ok) {                                                                                           // still ok?
+            if (ok) {                                                                                               // still ok?
 
                 // record attributes
                 // find an empty slot in m_Logfiles vector if there is one
                 // this way is a bit slower for opening logfiles, but faster for writing to them
                 id = -1;  
                 for(unsigned int index = 0; index < m_Logfiles.size(); index++) {
-                    if (!m_Logfiles[index].active) {                                                            // empty slot?
-                        id = index;                                                                             // yes - use it
-                        break;                                                                                  // and stop looking
+                    if (!m_Logfiles[index].active) {                                                                // empty slot?
+                        id = index;                                                                                 // yes - use it
+                        break;                                                                                      // and stop looking
                     }
                 }
 
-                if (id < 0) {                                                                                   // have empty slot?
-                    logfileAttrT attr;                                                                          // no - create new attributes struct
-                    id = m_Logfiles.size();                                                                     // set new id
-                    m_Logfiles.push_back(std::move(attr));                                                      // append to vector
+                if (id < 0) {                                                                                       // have empty slot?
+                    logfileAttrT attr;                                                                              // no - create new attributes struct
+                    id = m_Logfiles.size();                                                                         // set new id
+                    m_Logfiles.push_back(std::move(attr));                                                          // append to vector
                 }
 
-                m_Logfiles[id].active           = true;                                                         // this entry now active
-                m_Logfiles[id].logfiletype      = p_StandardLogfile;                                            // standard logfile type
-                m_Logfiles[id].filetype         = m_LogfileType;                                                // set filetype for this log file
-                m_Logfiles[id].name             = h5GroupName;                                                  // log file name (HDF5 group name)
-                m_Logfiles[id].timestamp        = p_Timestamp;                                                  // set timestamp flag for this log file
-                m_Logfiles[id].label            = p_Label;                                                      // set label flag for this log file
-                m_Logfiles[id].h5File.fileId    = h5FileId;                                                     // HDF5 file id
-                m_Logfiles[id].h5File.groupId   = h5GroupId;                                                    // HDF5 group id
-                m_Logfiles[id].h5File.dataSets  = {};                                                           // HDF5 data sets
+                m_Logfiles[id].active           = true;                                                             // this entry now active
+                m_Logfiles[id].logfiletype      = p_StandardLogfile;                                                // standard logfile type
+                m_Logfiles[id].filetype         = m_LogfileType;                                                    // set filetype for this log file
+                m_Logfiles[id].name             = h5GroupName;                                                      // log file name (HDF5 group name)
+                m_Logfiles[id].timestamp        = p_Timestamp;                                                      // set timestamp flag for this log file
+                m_Logfiles[id].label            = p_Label;                                                          // set label flag for this log file
+                m_Logfiles[id].h5File.fileId    = h5FileId;                                                         // HDF5 file id
+                m_Logfiles[id].h5File.groupId   = h5GroupId;                                                        // HDF5 group id
+                m_Logfiles[id].h5File.dataSets  = {};                                                               // HDF5 data sets
             }
         }
-        else {                                                                                                  // no - not HDF5
+        else {                                                                                                      // no - not HDF5
             // record attributes
 
             // find an empty slot in m_Logfiles vector if there is one
             // this way is a bit slower for opening logfiles, but faster for writing to them
             for(unsigned int index = 0; index < m_Logfiles.size(); index++) {
-                if (!m_Logfiles[index].active) {                                                                // empty slot?
-                    id = index;                                                                                 // yes - use it
-                    break;                                                                                      // and stop looking
+                if (!m_Logfiles[index].active) {                                                                    // empty slot?
+                    id = index;                                                                                     // yes - use it
+                    break;                                                                                          // and stop looking
                 }
             }
 
-            if (id < 0) {                                                                                       // have empty slot?
-                id = m_Logfiles.size();                                                                         // no - set new id
-                logfileAttrT attr;                                                                              // create new attributes struct
-                attr.active = false;                                                                            // for now...
-                m_Logfiles.push_back(std::move(attr));                                                          // append to vector
+            if (id < 0) {                                                                                           // have empty slot?
+                id = m_Logfiles.size();                                                                             // no - set new id
+                logfileAttrT attr;                                                                                  // create new attributes struct
+                attr.active = false;                                                                                // for now...
+                m_Logfiles.push_back(std::move(attr));                                                              // append to vector
             }
                
             try {
-                m_Logfiles[id].file.open(filename, std::ios::out | std::ios::app);                              // create fs log file
-                m_Logfiles[id].file.exceptions(std::ofstream::failbit | std::ofstream::badbit);                 // enable exceptions on log file
+                m_Logfiles[id].file.open(filename, std::ios::out | std::ios::app);                                  // create fs log file
+                m_Logfiles[id].file.exceptions(std::ofstream::failbit | std::ofstream::badbit);                     // enable exceptions on log file
 
-                m_Logfiles[id].active         = true;                                                           // this entry now active
-                m_Logfiles[id].logfiletype    = p_StandardLogfile;                                              // standard logfile type
-                m_Logfiles[id].filetype       = m_LogfileType;                                                  // set filetype for this log file
-                m_Logfiles[id].name           = filename;                                                       // log file name
-                m_Logfiles[id].timestamp      = p_Timestamp;                                                    // set timestamp flag for this log file
-                m_Logfiles[id].label          = p_Label;                                                        // set label flag for this log file
-                m_Logfiles[id].h5File.fileId  = -1;                                                             // not HDF5 file
-                m_Logfiles[id].h5File.groupId = -1;                                                             // not HDF5 file
+                m_Logfiles[id].active         = true;                                                               // this entry now active
+                m_Logfiles[id].logfiletype    = p_StandardLogfile;                                                  // standard logfile type
+                m_Logfiles[id].filetype       = m_LogfileType;                                                      // set filetype for this log file
+                m_Logfiles[id].name           = filename;                                                           // log file name
+                m_Logfiles[id].timestamp      = p_Timestamp;                                                        // set timestamp flag for this log file
+                m_Logfiles[id].label          = p_Label;                                                            // set label flag for this log file
+                m_Logfiles[id].h5File.fileId  = -1;                                                                 // not HDF5 file
+                m_Logfiles[id].h5File.groupId = -1;                                                                 // not HDF5 file
             }
-            catch (const std::ofstream::failure &e) {                                                           // fs problem...
-                Squawk("ERROR: Unable to create fs log file with file name " + m_Logfiles[id].name);            // announce error
-                Squawk(e.what());                                                                               // plus details
+            catch (const std::ofstream::failure &e) {                                                               // fs problem...
+                Squawk("ERROR: Unable to create fs log file with file name " + m_Logfiles[id].name);                // announce error
+                Squawk(e.what());                                                                                   // plus details
 
                 // it's possible this m_Logfiles entry was just appended - it can be used next time
-                if (id >= 0) ClearEntry(id);                                                                    // clear entry
-                ok = false;                                                                                     // fail
+                if (id >= 0) ClearEntry(id);                                                                        // clear entry
+                ok = false;                                                                                         // fail
             }
         }
     }
 
-    return ok ? id : -1;                                                                                        // return log file id
+    return ok ? id : -1;                                                                                            // return log file id
 }
 
 
@@ -496,7 +736,6 @@ bool Log::Close_(const int p_LogfileId) {
 
     if (m_Enabled && IsActiveId(p_LogfileId)) {                                                                     // logging enabled and logfile active?
         if (m_Logfiles[p_LogfileId].filetype == LOGFILETYPE::HDF5) {                                                // yes - HDF5 logfile?
-
             Flush_(p_LogfileId);                                                                                    // first, flush any unwritten data
 
             // close all open datasets
@@ -941,7 +1180,7 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
     }
     else {                                                                                                                              // logging not enabled or not active          
 
-        // construct a log record and siplay it on stderr
+        // construct a log record and display it on stderr
         string logRecord = "";        
 
         for (auto &value : p_LogRecordValues) {
@@ -1418,7 +1657,7 @@ std::tuple<bool, LOGFILE> Log::GetStandardLogfileKey(const int p_FileId) {
  * do some time in the future, but for now this will have to suffice.
  *
  *
- * std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> StandardLogFileRecordDetails(const LOGFILE p_Logfile)
+ * std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> GetStandardLogFileRecordDetails(const LOGFILE p_Logfile)
  *
  * @param   [IN]    p_Logfile                   Logfile for which details are to be retrieved (see enum class LOGFILE in constants.h)
  * @return                                      Tuple containing:
@@ -1469,6 +1708,21 @@ std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> Log::GetStandardLogFileReco
 
             case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                    // BSE_SYSTEM_PARAMETERS
                 recordProperties = m_BSE_SysParms_Rec;                                                                              // record properties
+
+                // check whether to add program option columns to BSE_SYSTEM_PARAMETERS file and add them if required
+                if ((OPTIONS->AddOptionsToSysParms() == ADD_OPTIONS_TO_SYSPARMS::ALWAYS) ||                                         // always add option columns?                   
+                   ((OPTIONS->AddOptionsToSysParms() == ADD_OPTIONS_TO_SYSPARMS::GRID) &&                                           // add for grids?
+                   (!OPTIONS->GridFilename().empty() || OPTIONS->CommandLineGrid()))) {                                             // have grid file or ranges/sets?
+                                                                                                                                    // yes - add program options
+                    // iterate over the PROGRAM_OPTION_DETAIL map and add each entry to the recordProperties vector
+                    // unfortunately no guarantee of order since it is an unordered map
+                    for (auto& iter: PROGRAM_OPTION_DETAIL) {                                                                       // for each entry
+                        T_ANY_PROPERTY thisProp = iter.first;                                                                       // program option
+                        if (std::find(recordProperties.begin(), recordProperties.end(), thisProp) == recordProperties.end()) {      // already exists in recordProperties vector?
+                            recordProperties.push_back(thisProp);                                                                   // no - add it
+                        }
+                    }
+                }
                 break;
 
             case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                      // SSE_DETAILED_OUTPUT
@@ -1485,6 +1739,21 @@ std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> Log::GetStandardLogFileReco
 
             case LOGFILE::SSE_SYSTEM_PARAMETERS:                                                                                    // SSE_SYSTEM_PARAMETERS
                 recordProperties = m_SSE_SysParms_Rec;                                                                              // record properties
+
+                // check whether to add program option columns to SSE_SYSTEM_PARAMETERS file and add them if required
+                if ((OPTIONS->AddOptionsToSysParms() == ADD_OPTIONS_TO_SYSPARMS::ALWAYS) ||                                         // always add option columns?                   
+                   ((OPTIONS->AddOptionsToSysParms() == ADD_OPTIONS_TO_SYSPARMS::GRID) &&                                           // add for grids?
+                   (!OPTIONS->GridFilename().empty() || OPTIONS->CommandLineGrid()))) {                                             // have grid file or ranges/sets?
+                                                                                                                                    // yes - add program options
+                    // iterate over the PROGRAM_OPTION_DETAIL map and add each entry to the recordProperties vector
+                    // unfortunately no guarantee of order since it is an unordered map
+                    for (auto& iter: PROGRAM_OPTION_DETAIL) {                                                                       // for each entry
+                        T_ANY_PROPERTY thisProp = iter.first;                                                                       // program option
+                        if (std::find(recordProperties.begin(), recordProperties.end(), thisProp) == recordProperties.end()) {      // already exists in recordProperties vector?
+                            recordProperties.push_back(thisProp);                                                                   // no - add it
+                        }
+                    }
+                }
                 break;
 
             default:                                                                                                                // unknown logfile
@@ -1570,6 +1839,119 @@ std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> Log::GetStandardLogFileReco
 }
 
 
+
+// DOCUMENTATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+// determine HDF5 datatype from COPAS datatype
+
+hid_t Log::GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWidth) {
+    
+    hid_t h5DataType = -1;                                                                  // HDF5 datat type - return value
+
+    switch (p_COMPASdatatype) {                                                             // which COMPAS type?
+        case TYPENAME::SHORTINT    : h5DataType = H5T_NATIVE_SHORT; break;
+        case TYPENAME::INT         : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::LONGINT     : h5DataType = H5T_NATIVE_LONG; break;
+        case TYPENAME::USHORTINT   : h5DataType = H5T_NATIVE_USHORT; break;
+        case TYPENAME::UINT        : h5DataType = H5T_NATIVE_UINT; break;
+        case TYPENAME::ULONGINT    : h5DataType = H5T_NATIVE_ULONG; break;
+        case TYPENAME::FLOAT       : h5DataType = H5T_NATIVE_FLOAT; break;
+        case TYPENAME::DOUBLE      : h5DataType = H5T_NATIVE_DOUBLE; break;
+        case TYPENAME::LONGDOUBLE  : h5DataType = H5T_NATIVE_LDOUBLE; break;
+        case TYPENAME::OBJECT_ID   : h5DataType = H5T_NATIVE_ULONG; break;
+        case TYPENAME::ERROR       : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::STELLAR_TYPE: h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::MT_CASE     : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::MT_TRACKING : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::SN_EVENT    : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::SN_STATE    : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::STRING: {
+            hid_t h5DType = H5Tcopy(H5T_C_S1);                                              // HDF5 c-string datatype
+            (void)H5Tset_size(h5DType, p_FieldWidth + 1);                                   // size is field width + 1 (for NULL terminator)
+            (void)H5Tset_cset(h5DType, H5T_CSET_ASCII);                                     // ASCII (rather than UTF-8)
+            h5DataType = h5DType;
+            } break;
+        case TYPENAME::BOOL: {
+            if (OPTIONS->PrintBoolAsString()) {                                             // print bool values as strings "TRUE" or "FALSE"?
+                hid_t h5DType = H5Tcopy(H5T_C_S1);                                          // yes - HDF5 c-string datatype
+                (void)H5Tset_size(h5DType, 6);                                              // len("FALSE") + 1 (for NULL terminator)
+                (void)H5Tset_cset(h5DType, H5T_CSET_ASCII);                                 // ASCII (rather than UTF-8)
+                h5DataType = h5DType;
+            }
+            else {                                                                          // no - print bool values as 1 or 0
+                h5DataType = H5T_NATIVE_UCHAR;
+            }
+            } break;
+        default:                                                                            // unknown property type
+            Squawk(ERR_MSG(ERROR::UNKNOWN_DATA_TYPE));                                      // announce error
+    }
+    return h5DataType;                                                                      // HDF5 data type
+}
+
+
+// DOCUMENTATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                                // create HDF5 dataset
+hid_t Log::CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, const string p_DatasetName, const hid_t p_H5DataType, const string p_UnitsStr) {
+
+    hid_t h5Dset = -1;                                                                                              // datset id - return value
+
+    // create a 1-d HDF5 dataspace
+    hsize_t h5Dims[1]    = {0};                                                                                     // initially 0, but...
+    hsize_t h5MaxDims[1] = {H5S_UNLIMITED};                                                                         // ... unlimited
+    hid_t   h5Dspace     = H5Screate_simple(1, h5Dims, h5MaxDims);                                                  // create the dataspace
+    hid_t   h5CPlist     = H5Pcreate(H5P_DATASET_CREATE);                                                           // create the dataset creation property list
+    (void)H5Pset_alloc_time(h5CPlist, H5D_ALLOC_TIME_INCR);                                                         // allocate space on disk incrementally
+    (void)H5Pset_layout(h5CPlist, H5D_CHUNKED);                                                                     // must be chunked when using unlimited dimensions
+
+    hsize_t h5ChunkDims[1] = {m_HDF5ChunkSize};                                                                     // chunk size - affects performance
+    herr_t h5Result = H5Pset_chunk(h5CPlist, 1, h5ChunkDims);                                                       // set chunk size
+    if (h5Result < 0) {                                                                                             // ok?
+        Squawk("ERROR: Unable to set chunk size for HDF5 container file " + p_Filename);                            // no - announce error
+    }
+    else {                                                                                                          // yes - chunk size set ok
+        // create HDF5 dataset
+        string h5DsetName = p_DatasetName;                                                                          // dataset name 
+        h5DsetName        = utils::trim(h5DsetName);                                                                // remove leading and trailing blanks
+        h5Dset            = H5Dcreate(p_GroupId,                                                                    // create the dataset in group p_GroupId
+                                      h5DsetName.c_str(),                                                           // dataset name
+                                      p_H5DataType,                                                                 // datatype
+                                      h5Dspace,                                                                     // dataspace
+                                      H5P_DEFAULT,                                                                  // dataset link property list                                                                     
+                                      h5CPlist,                                                                     // dataset creation property list
+                                      H5P_DEFAULT);                                                                 // dataset access property list
+        if (h5Dset < 0) {                                                                                           // dataset created ok?
+            Squawk("ERROR: Unable to create HDF5 dataSet " + h5DsetName + " for file " + p_Filename);               // no - announce error
+        }
+        else {                                                                                                      // yes - dataset created ok
+            // create attribute for units
+            hid_t h5Dspace = H5Screate(H5S_SCALAR);                                                                 // HDF5 scalar dataspace
+            hid_t h5DType  = H5Tcopy(H5T_C_S1);                                                                     // HDF5 c-string datatype
+
+            (void)H5Tset_size(h5DType, p_UnitsStr.length() + 1);                                                    // size is strlen + 1 (for NULL terminator)
+            (void)H5Tset_cset(h5DType, H5T_CSET_ASCII);                                                             // ASCII (rather than UTF-8)
+            hid_t h5Attr = H5Acreate(h5Dset, "units", h5DType, h5Dspace, H5P_DEFAULT, H5P_DEFAULT);                 // create attribute for units
+            if (h5Attr < 0) {                                                                                       // attribute created ok?
+                Squawk("ERROR: Unable to create HDF5 attribute " + p_UnitsStr + " for dataSet " + h5DsetName);      // no - announce error
+                h5Dset = -1;                                                                                        // fail
+            }
+            else {                                                                                                  // yes - attribute created ok
+                if (H5Awrite(h5Attr, h5DType, (const void *)p_UnitsStr.c_str()) < 0) {                              // write units attributes to file - ok?
+                    Squawk("ERROR: Unable to write HDF5 attribute " + p_UnitsStr + " for dataSet " + h5DsetName);   // no - announce error
+                    h5Dset = -1;                                                                                    // fail
+                }
+            }
+            (void)H5Aclose(h5Attr);                                                                                 // close attribute 
+        }
+    }
+    (void)H5Sclose(h5CPlist);                                                                                       // close creation property list
+    (void)H5Sclose(h5Dspace);                                                                                       // close scalar dataspace
+
+    return h5Dset;                                                                                                  // return dataset id: < 0 = fail
+}
+
+
+
 /*
  * Get standard log file details and open file if necessary
  *
@@ -1651,6 +2033,21 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                 case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                            // BSE_SYSTEM_PARAMETERS
                     fileDetails.filename         = OPTIONS->LogfileSystemParameters();
                     fileDetails.recordProperties = m_BSE_SysParms_Rec;
+
+                    // check whether to add program option columns to BSE_SYSTEM_PARAMETERS file and add them if required
+                    if ((OPTIONS->AddOptionsToSysParms() == ADD_OPTIONS_TO_SYSPARMS::ALWAYS) ||                                                 // always add option columns?                   
+                       ((OPTIONS->AddOptionsToSysParms() == ADD_OPTIONS_TO_SYSPARMS::GRID) &&                                                   // add for grids?
+                       (!OPTIONS->GridFilename().empty() || OPTIONS->CommandLineGrid()))) {                                                     // have grid file or ranges/sets?
+                                                                                                                                                // yes - add program options
+                        // iterate over the PROGRAM_OPTION_DETAIL map and add each entry to the recordProperties vector
+                        // unfortunately no guarantee of order since it is an unordered map
+                        for (auto& iter: PROGRAM_OPTION_DETAIL) {                                                                               // for each entry
+                            T_ANY_PROPERTY thisProp = iter.first;                                                                               // program option
+                            if (std::find(fileDetails.recordProperties.begin(), fileDetails.recordProperties.end(), thisProp) == fileDetails.recordProperties.end()) { // already exists in recordProperties vector?
+                                fileDetails.recordProperties.push_back(thisProp);                                                               // no - add it
+                            }
+                        }
+                    }
                     break;
 
                 case LOGFILE::SSE_SUPERNOVAE:                                                                                                   // SSE_SUPERNOVAE
@@ -1666,6 +2063,21 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                 case LOGFILE::SSE_SYSTEM_PARAMETERS:                                                                                            // SSE_SYSTEM_PARAMETERS
                     fileDetails.filename         = OPTIONS->LogfileSystemParameters();
                     fileDetails.recordProperties = m_SSE_SysParms_Rec;
+
+                    // check whether to add program option columns to SSE_SYSTEM_PARAMETERS file and add them if required
+                    if ((OPTIONS->AddOptionsToSysParms() == ADD_OPTIONS_TO_SYSPARMS::ALWAYS) ||                                                 // always add option columns?                   
+                       ((OPTIONS->AddOptionsToSysParms() == ADD_OPTIONS_TO_SYSPARMS::GRID) &&                                                   // add for grids?
+                       (!OPTIONS->GridFilename().empty() || OPTIONS->CommandLineGrid()))) {                                                     // have grid file or ranges/sets?
+                                                                                                                                                // yes - add program options
+                        // iterate over the PROGRAM_OPTION_DETAIL map and add each entry to the recordProperties vector
+                        // unfortunately no guarantee of order since it is an unordered map
+                        for (auto& iter: PROGRAM_OPTION_DETAIL) {                                                                               // for each entry
+                            T_ANY_PROPERTY thisProp = iter.first;                                                                               // program option
+                            if (std::find(fileDetails.recordProperties.begin(), fileDetails.recordProperties.end(), thisProp) == fileDetails.recordProperties.end()) { // already exists in recordProperties vector?
+                                fileDetails.recordProperties.push_back(thisProp);                                                               // no - add it
+                            }
+                        }
+                    }
                     break;
 
                 case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                              // SSE_DETAILED_OUTPUT
@@ -1909,109 +2321,25 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             m_Logfiles[fileDetails.id].h5File.dataSets.push_back({-1, -1, {}});                                                 // create new dataset
 
                             // set datatypes
-                            hid_t h5DataType;
-                            switch (fileDetails.propertyTypes[idx]) {                                                                           // which type?
-                                case TYPENAME::SHORTINT    : h5DataType = H5T_NATIVE_SHORT; break;
-                                case TYPENAME::INT         : h5DataType = H5T_NATIVE_INT; break;
-                                case TYPENAME::LONGINT     : h5DataType = H5T_NATIVE_LONG; break;
-                                case TYPENAME::USHORTINT   : h5DataType = H5T_NATIVE_USHORT; break;
-                                case TYPENAME::UINT        : h5DataType = H5T_NATIVE_UINT; break;
-                                case TYPENAME::ULONGINT    : h5DataType = H5T_NATIVE_ULONG; break;
-                                case TYPENAME::FLOAT       : h5DataType = H5T_NATIVE_FLOAT; break;
-                                case TYPENAME::DOUBLE      : h5DataType = H5T_NATIVE_DOUBLE; break;
-                                case TYPENAME::LONGDOUBLE  : h5DataType = H5T_NATIVE_LDOUBLE; break;
-                                case TYPENAME::OBJECT_ID   : h5DataType = H5T_NATIVE_ULONG; break;
-                                case TYPENAME::ERROR       : h5DataType = H5T_NATIVE_INT; break;
-                                case TYPENAME::STELLAR_TYPE: h5DataType = H5T_NATIVE_INT; break;
-                                case TYPENAME::MT_CASE     : h5DataType = H5T_NATIVE_INT; break;
-                                case TYPENAME::MT_TRACKING : h5DataType = H5T_NATIVE_INT; break;
-                                case TYPENAME::SN_EVENT    : h5DataType = H5T_NATIVE_INT; break;
-                                case TYPENAME::SN_STATE    : h5DataType = H5T_NATIVE_INT; break;
-                                case TYPENAME::STRING: {
-                                    hid_t h5DType = H5Tcopy(H5T_C_S1);                                                                          // HDF5 c-string datatype
-                                    (void)H5Tset_size(h5DType, (int)std::stod(fileDetails.fmtStrings[idx]) + 1);                                // size is field width + 1 (for NULL terminator)
-                                    (void)H5Tset_cset(h5DType, H5T_CSET_ASCII);                                                                 // ASCII (rather than UTF-8)
-                                    h5DataType = h5DType;
-                                    } break;
-                                case TYPENAME::BOOL: {
-                                    if (OPTIONS->PrintBoolAsString()) {                                                                         // print bool values as strings "TRUE" or "FALSE"?
-                                        hid_t h5DType = H5Tcopy(H5T_C_S1);                                                                      // yes - HDF5 c-string datatype
-                                        (void)H5Tset_size(h5DType, 6);                                                                          // len("FALSE") + 1 (for NULL terminator)
-                                        (void)H5Tset_cset(h5DType, H5T_CSET_ASCII);                                                             // ASCII (rather than UTF-8)
-                                        h5DataType = h5DType;
-                                    }
-                                    else {                                                                                                      // no - print bool values as 1 or 0
-                                        h5DataType = H5T_NATIVE_UCHAR;
-                                    }
-                                    } break;
-                                default:                                                                                                        // unknown property type
-                                    Squawk(ERR_MSG(ERROR::UNKNOWN_DATA_TYPE));                                                                  // announce error
-                                    ok = false;                                                                                                 // that's not ok...
+                            hid_t h5DataType = GetHDF5DataType(fileDetails.propertyTypes[idx], (int)std::stod(fileDetails.fmtStrings[idx]));    // get HDF5 data type from COMPAS data type
+                            if (h5DataType < 0) {                                                                                               // ok?
+                                ok = false;                                                                                                     // no - fail
                             }
-
-                            if (ok) {
-                                m_Logfiles[fileDetails.id].h5File.dataSets[idx].dataType   = fileDetails.propertyTypes[idx];                    // COMPAS data type
-                                m_Logfiles[fileDetails.id].h5File.dataSets[idx].h5DataType = h5DataType;                                        // HDF5 data type
+                            else {                                                                                                              // yes - ok
+                                m_Logfiles[fileDetails.id].h5File.dataSets[idx].dataType   = fileDetails.propertyTypes[idx];                    // record COMPAS data type
+                                m_Logfiles[fileDetails.id].h5File.dataSets[idx].h5DataType = h5DataType;                                        // record HDF5 data type
 
                                 // create HDF5 dataset
-
-                                herr_t h5Result;
-
-                                // create a 1-d HDF5 dataspace
-                                hsize_t h5Dims[1]    = {0};                                                                                     // initially 0, but...
-                                hsize_t h5MaxDims[1] = {H5S_UNLIMITED};                                                                         // ... unlimited
-                                hid_t   h5Dspace     = H5Screate_simple(1, h5Dims, h5MaxDims);                                                  // create the dataspace
-                                hid_t   h5CPlist     = H5Pcreate(H5P_DATASET_CREATE);                                                           // create the dataset creation property list
-                                (void)H5Pset_alloc_time(h5CPlist, H5D_ALLOC_TIME_INCR);                                                         // allocate space on disk incrementally
-                                (void)H5Pset_layout(h5CPlist, H5D_CHUNKED);                                                                     // must be chunked when using unlimited dimensions
-
-                                hsize_t h5ChunkDims[1] = {m_HDF5ChunkSize};                                                                     // chunk size - affects performance
-                                h5Result = H5Pset_chunk(h5CPlist, 1, h5ChunkDims);                                                              // set chunk size
-                                if (h5Result < 0) {                                                                                             // ok?
-                                    Squawk("ERROR: Unable to set chunk size for HDF5 container file " + fileDetails.filename);                  // no - announce error
-                                    ok = false;                                                                                                 // fail
+                                hid_t h5Dset = CreateHDF5Dataset(fileDetails.filename, 
+                                                                 m_Logfiles[fileDetails.id].h5File.groupId, 
+                                                                 utils::trim(fileDetails.hdrStrings[idx]), 
+                                                                 h5DataType, 
+                                                                 utils::trim(fileDetails.unitsStrings[idx]));
+                                if (h5Dset < 0) {                                                                                               // created ok?
+                                    ok = false;                                                                                                 // no - fail
                                 }
-                                else {                                                                                                          // yes - chunk size set ok
-                                    // create HDF5 dataset
-                                    string h5DsetName = utils::trim(fileDetails.hdrStrings[idx]);                                               // dataset name is just the header string
-                                    hid_t  h5Dset     = H5Dcreate(m_Logfiles[fileDetails.id].h5File.groupId,                                    // create the dataset
-                                                                  h5DsetName.c_str(),                                                           // dataset name
-                                                                  m_Logfiles[fileDetails.id].h5File.dataSets[idx].h5DataType,                   // datatype
-                                                                  h5Dspace,                                                                     // dataspace
-                                                                  H5P_DEFAULT,                                                                  // dataset link property list                                                                     
-                                                                  h5CPlist,                                                                     // dataset creation property list
-                                                                  H5P_DEFAULT);                                                                 // dataset access property list
-                                    if (h5Dset < 0) {                                                                                           // dataset created ok?
-                                        Squawk("ERROR: Unable to create HDF5 dataSet " + h5DsetName + " for file " + fileDetails.filename);     // no - announce error
-                                        ok = false;                                                                                             // fail
-                                    }
-                                    else {                                                                                                      // yes - dataset created ok
-
-                                        m_Logfiles[fileDetails.id].h5File.dataSets[idx].dataSetId = h5Dset;                                     // dataset id
-
-                                        // create attribute for units
-                                        hid_t h5Dspace = H5Screate(H5S_SCALAR);                                                                 // HDF5 scalar dataspace
-                                        hid_t h5DType  = H5Tcopy(H5T_C_S1);                                                                     // HDF5 c-string datatype
-
-                                        string h5UnitsStr = utils::trim(fileDetails.unitsStrings[idx]);                                         // units string
-                                        (void)H5Tset_size(h5DType, h5UnitsStr.length() + 1);                                                    // size is strlen + 1 (for NULL terminator)
-                                        (void)H5Tset_cset(h5DType, H5T_CSET_ASCII);                                                             // ASCII (rather than UTF-8)
-                                        hid_t h5Attr = H5Acreate(h5Dset, "units", h5DType, h5Dspace, H5P_DEFAULT, H5P_DEFAULT);                 // create attribute for units
-                                        if (h5Attr < 0) {                                                                                       // attribute created ok?
-                                            Squawk("ERROR: Unable to create HDF5 attribute " + h5UnitsStr + " for dataSet " + h5DsetName);      // no - announce error
-                                            ok = false;                                                                                         // fail
-                                        }
-                                        else {                                                                                                  // yes - attribute created ok
-                                            if (H5Awrite(h5Attr, h5DType, (const void *)h5UnitsStr.c_str()) < 0) {                              // write units attributes to file - ok?
-                                                Squawk("ERROR: Unable to write HDF5 attribute " + h5UnitsStr + " for dataSet " + h5DsetName);   // no - announce error
-                                                ok = false;                                                                                     // fail
-                                            }
-                                        }
-                                        (void)H5Aclose(h5Attr);                                                                                 // close attribute 
-                                    }
-                                }
-                                (void)H5Sclose(h5CPlist);                                                                                       // close creation property list
-                                (void)H5Sclose(h5Dspace);                                                                                       // close scalar dataspace
+                                
+                                m_Logfiles[fileDetails.id].h5File.dataSets[idx].dataSetId = h5Dset;                                             // record dataset id
                             }
                         }
                     }
@@ -2020,9 +2348,9 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                         string fullUnitsStr = "";                                                                                               // initialise full units string
                         string fullTypesStr = "";                                                                                               // initialise full types string
                         for (size_t idx = 0; idx < fileDetails.hdrStrings.size(); idx++) {                                                      // for each property
-                            fullHdrsStr += fileDetails.hdrStrings[idx] + delimiter;                                                             // append field header string to full header string
-                            fullUnitsStr  += fileDetails.unitsStrings[idx] + delimiter;                                                         // append field units string to full units string
-                            fullTypesStr   += fileDetails.typeStrings[idx] + delimiter;                                                         // append field type string to full type string
+                            fullHdrsStr  += fileDetails.hdrStrings[idx] + delimiter;                                                            // append field header string to full header string
+                            fullUnitsStr += fileDetails.unitsStrings[idx] + delimiter;                                                          // append field units string to full units string
+                            fullTypesStr += fileDetails.typeStrings[idx] + delimiter;                                                           // append field type string to full type string
                         }
 
                         if (!fullHdrsStr.empty())  fullHdrsStr.pop_back();                                                                      // remove the trailing delimiter from the header string
