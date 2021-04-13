@@ -19,6 +19,121 @@ Log* Log::Instance() {
 }
 
 
+
+
+// DOCUMENTATION !!!!!!!!!!!!!!!!!!!!!!!!!
+
+bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
+
+    if (!m_Enabled) return m_Enabled;                                                                                                           // logging not enabled - ni business being here
+
+    bool ok = true;                                                                                                                             // return value
+
+    // The run details file is not treated as a standard logfile, so we need to 
+    // open it manually rather than have Log::StandardLogFileDetails() open it.
+    //
+    // Note that the HDF5 run details file columns (datasets) have the "units" attribute
+    // set to '-' for all columns (datasets) - the contents of the run details file are
+    // just a reflection of the values supplied by the user (or calculated by COMPAS), 
+    // so no units.
+
+    m_Run_Details_H5_File.fileId = m_HDF5ContainerId;                                                                                           // record run details HDF5 fileid - just the HDF5 container id
+
+    // open the run details file inside the HDF5 container
+    string h5GroupName = p_Filename;                                                                                                            // HDF5 group name for run details file
+    h5GroupName        = utils::trim(h5GroupName);                                                                                              // remove leading and trailing blanks
+    hid_t h5GroupId = H5Gopen(m_Run_Details_H5_File.fileId, h5GroupName.c_str(), H5P_DEFAULT);                                                  // open the group
+    if (h5GroupId >= 0) {                                                                                                                       // group open (and therefore already exists)?
+        Squawk("ERROR: HDF5 group with name " + h5GroupName + " already exists");                                                               // that's not ok - announce error
+        (void)H5Gclose(h5GroupId);                                                                                                              // close the group
+        ok = false;                                                                                                                             // fail
+    }
+    else {                                                                                                                                      // group does not exist/is not open               
+        h5GroupId = H5Gcreate(m_HDF5ContainerId, h5GroupName.c_str(), 0, H5P_DEFAULT, H5P_DEFAULT);                                             // create the group
+        if (h5GroupId < 0) {                                                                                                                    // group created ok?
+            Squawk("ERROR: Error creating HDF5 group with name " + h5GroupName);                                                                // no - announce error
+            ok = false;                                                                                                                         // fail
+        }
+        else {                                                                                                                                  // group created ok
+            m_Run_Details_H5_File.groupId = h5GroupId;                                                                                          // record group id for run details file
+
+            // We now have the run details file in the HDF5 container, so we add
+            // columns (datasets) for what we know here:
+            //
+            //      - COMPAS version (STRING)
+            //      - run start time (STRING)
+            //      - number of objects (stars/binaries) requested (UNSIGNED INT)
+            //
+            // The rest we add in Log::Stop() when they're known.
+            // We also add the commandline option values in Log::Stop(), even though
+            // they are known now.  The original Run_Detals file has the run stats at
+            // the top of teh file, and the option values following the stats - so we'll
+            // stick with that format (even though order isn't of any significance in an
+            // HDF5 file...)
+            //
+            // All columns (datasets) in the HDF5 copy of the run details file have a 
+            // "shadow" column (dataset) that has '-derivation' appended to its name.
+            // (Not strictly necessary for the preamble/ststs columns (datasets), but
+            // included for consistency).
+            //
+            // The "derivation" column indicates how the data was derived, and will be
+            // one of the following strings (particularly relevant for program options):
+            //
+            //      - 'USER_SUPPLIED' : indicates the user supplied a value, and the user-supplied value was used
+            //      - 'DEFAULT_USED'  : indicates the user did not supply a value, and the COMPAS C++ default value was used
+            //      - 'CALCULATED'    : the value was calculated by COMPAS
+
+            // create preamble columns
+
+            // first, create some HDF5 datatypes
+            hid_t h5String8DataType  = GetHDF5DataType(TYPENAME::STRING, 8);                                                                    // HDF5 data type for COMPAS data type STRING (8 chars - version string, wall time)
+            hid_t h5String13DataType = GetHDF5DataType(TYPENAME::STRING, 13);                                                                   // HDF5 data type for COMPAS data type STRING (13 chars - derivation)
+            hid_t h5String24DataType = GetHDF5DataType(TYPENAME::STRING, 24);                                                                   // HDF5 data type for COMPAS data type STRING (24 chars - run start times)
+            hid_t h5IntDataType      = GetHDF5DataType(TYPENAME::INT);                                                                          // HDF5 data type from COMPAS data type INT
+
+            // now create the datasets
+            if (ok) {                                                                                                                           // still ok?
+                hid_t h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, "COMPAS-Version", h5String8DataType, "-");                              // "COMPAS_Version"
+                if (h5Dset < 0) ok = false;                                                                                                     // fail
+                else {
+                    m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String8DataType, TYPENAME::STRING, {}});                                // record dataset details
+
+                    h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, "COMPAS-Version-Derivation", h5String13DataType, "-");                    // "COMPAS_Version" derivation
+                    if (h5Dset < 0) ok = false;                                                                                                 // fail
+                    else {
+                        m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String13DataType, TYPENAME::STRING, {}});                           // record dataset details
+
+                        h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, "Run-Start", h5String24DataType, "-");                                // "Run_Start"
+                        if (h5Dset < 0) ok = false;                                                                                             // fail
+                        else {
+                            m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String24DataType, TYPENAME::STRING, {}});                       // record dataset details
+
+                            h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, "Run-Start-Derivation", h5String13DataType, "-");                 // "Run_Start"
+                            if (h5Dset < 0) ok = false;                                                                                         // fail
+                            else {
+                                m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String13DataType, TYPENAME::STRING, {}});                   // record dataset details
+                                        
+                                h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, "Objects-Requested", h5IntDataType, "-");                     // "Objects_Requested"
+                                if (h5Dset < 0) ok = false;                                                                                     // fail
+                                else {
+                                    m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5IntDataType, TYPENAME::INT, {}});                       // record dataset details
+                                        
+                                    h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, "Objects-Requested-Derivation", h5String13DataType, "-"); // "Objects_Requested"
+                                    if (h5Dset < 0) ok = false;                                                                                 // fail
+                                    else {
+                                        m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String13DataType, TYPENAME::STRING, {}});           // record dataset details
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }   
+    }
+    return ok;
+}  
+
 /*
  * Start logging.
  *
@@ -69,9 +184,9 @@ void Log::Start(const string              p_LogBasePath,
 
     H5Eset_auto (0, NULL, NULL);
 
-    if (!m_Enabled) {
-
-        m_Enabled       = true;                                                                                             // logging enabled;
+    if (!m_Enabled) {                                                                                                       // logging enabled?
+                                                                                                                            // no...
+        m_Enabled       = true;                                                                                             // enabled logging
         m_LogBasePath   = p_LogBasePath;                                                                                    // set base path
         m_LogNamePrefix = p_LogNamePrefix;                                                                                  // set log file name prefix
         m_LogLevel      = p_LogLevel;                                                                                       // set log level
@@ -87,9 +202,9 @@ void Log::Start(const string              p_LogBasePath,
 
         m_Enabled = UpdateAllLogfileRecordSpecs();                                                                          // update all logfile record specifications - disable logging upon failure
 
-        if (m_Enabled) {
-
-            // first create the container at p_LogBasePath
+        if (m_Enabled) {                                                                                                    // still ok?
+                                                                                                                            // yes
+            // first create the container folder at p_LogBasePath
             // use boost filesystem here - easier...
         
             string containerName = p_LogContainerName;                                                                      // container name
@@ -144,53 +259,170 @@ void Log::Start(const string              p_LogBasePath,
                 Squawk("Logging disabled");                                                                                 // show disabled warning
                 m_Enabled = false;                                                                                          // disable
             }
+        }
 
-            // create run details file if all ok
-            if (m_Enabled) {                                                                                                // ok?
-
-                m_OptionDetails = OPTIONS->CmdLineOptionsDetails(); // get the commandline options details
-                // We put a copy of  the Run_Details file in HDF5 file if we're logging to HDF5 files, so
-                // need to create HDF5 container file here if we are in fact logging to HDF5 files.
-                //
-                // The Run_Details file is not treated as a standard logfile - so need to open manually here...
-                //
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!! FIX THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                // This code pulled in from Log::StandardLogFileDetails().  It still exists there -
-                // maybe a bit redundant but not a big issue (no real performance hit)
-
-                if (m_LogfileType == LOGFILETYPE::HDF5) {                                                                   // logging to HDF5 files?
+        if (m_Enabled) {                                                                                                    // still ok?
                                                                                                                             // yes
-                    string fileExt = "." + LOGFILETYPEFileExt.at(OPTIONS->LogfileType());                                   // file extension for HDF5 files
-                    string h5Filename = m_LogBasePath + "/" + m_LogContainerName + "/" + m_HDF5ContainerName + fileExt;     // full filename with path, container, and extension ("/" works on Uni*x and Windows)
-                    m_HDF5ContainerId = H5Fcreate(h5Filename.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT);              // create HDF5 container file
-                    if (m_HDF5ContainerId < 0) {                                                                            // created ok?                        
-                        Squawk("ERROR: Unable to create HDF5 container file with file name " + h5Filename);                 // no - announce error
-                        Squawk("Logging disabled");                                                                         // show disabled warning
-                        m_Enabled = false;                                                                                  // disable logging
-                    }
-                    else {                                                                                                  // HDF5 container file open
-                        m_Run_Details_H5_File.fileId = m_HDF5ContainerId;                                                   // record run details HDF5 fileid - just the HDF5 container id
+            // containing folder now exists
+            // now create the run details file
 
-                        // open the Run_Details file inside the HDF5 container
-                        string h5GroupName = "Run_Details";                                                                 // HDF5 group name for run details file
-                        hid_t h5GroupId = H5Gopen(m_HDF5ContainerId, h5GroupName.c_str(), H5P_DEFAULT);                     // open the group
-                        if (h5GroupId >= 0) {                                                                               // group open (and therefore already exists)?
-                            Squawk("ERROR: HDF5 group with name " + h5GroupName + " already exists");                       // that's not ok - announce error
-                            (void)H5Gclose(h5GroupId);                                                                      // close the group
+            // if we're logging to HDF5 files We put a copy of the run details file in the HDF5 container file,
+            // so if we are in fact logging to HDF5 files, we need to create the HDF5 container file here.
+
+            if (m_LogfileType == LOGFILETYPE::HDF5) {                                                                       // logging to HDF5 files?
+                                                                                                                            // yes
+                string fileExt = "." + LOGFILETYPEFileExt.at(OPTIONS->LogfileType());                                       // file extension for HDF5 files
+                string h5Filename = m_LogBasePath + "/" + m_LogContainerName + "/" + m_HDF5ContainerName + fileExt;         // full filename with path, container, and extension ("/" works on Uni*x and Windows)
+                m_HDF5ContainerId = H5Fcreate(h5Filename.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT);                  // create HDF5 container file
+                if (m_HDF5ContainerId < 0) {                                                                                // created ok?                        
+                    Squawk("ERROR: Unable to create HDF5 container file with file name " + h5Filename);                     // no - announce error
+                    Squawk("Logging disabled");                                                                             // show disabled warning
+                    m_Enabled = false;                                                                                      // disable logging
+                }
+                else {                                                                                                      // HDF5 container file now exists and open
+                    m_Enabled = OpenHDF5RunDetailsFile(RUN_DETAILS_FILE_NAME);                                              // open HDF5 run details file inside HDF5 container
+                    if (!m_Enabled) Squawk("Logging disabled");                                                             // show disabled warning
+                }
+            }
+
+            // If logging is still enabled then if we are logging to HDF5 files we
+            // have an open HDF5 container with an open group for the run details file
+            //
+            // We still need to create the run details text file
+
+                // Add preamble to Run_Details file
+            if (m_Enabled) {                                                                                            // still ok?
+                                                                                                                            // yes
+                m_WallStart = std::chrono::system_clock::now();                                                         // start wall timer
+                m_ClockStart = clock();                                                                                 // start CPU timer
+
+                    string filename = m_LogBasePath + "/" + m_LogContainerName + "/" + RUN_DETAILS_FILE_NAME;               // run details filename with container name
+                    try {
+                        m_RunDetailsFile.open(filename, std::ios::out);                                                     // create run details file
+                        m_RunDetailsFile.exceptions(std::ofstream::failbit | std::ofstream::badbit);                        // enable exceptions on run details file
+
+                        // file should be open - write the run details
+
+                        try {                                                                                             
+
+                            m_RunDetailsFile << utils::SplashScreen(false) << std::endl;                                    // write splash string with version number to file
+
+                            std::time_t timeStart = std::chrono::system_clock::to_time_t(m_WallStart);                      // record start time
+
+                            // record start time and whether evolving single stars or binaries   
+                            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE)
+                                m_RunDetailsFile << "Start generating stars at " << std::ctime(&timeStart) << std::endl;
+                            else
+                                m_RunDetailsFile << "Start generating binaries at " << std::ctime(&timeStart) << std::endl;
+
+                            if (m_LogfileType == LOGFILETYPE::HDF5) {                                                                   // logging to HDF5 files?
+
+
+
+// WHATE HERE ????????????????????????????????????????????  HDF5 PREAMBLE COLUMNS!!!!!!!  SEPARATE THIS OUT
+
+
+
+
+                            }
+
+                            // run details file will be updated and closed in Log::Stop()
+                        }
+                        catch (const std::ofstream::failure &e) {                                                           // problem...
+                            Squawk("ERROR: Unable to write to run details file with name " + filename);                     // announce error
+                            Squawk(e.what());                                                                               // plus details
                             m_Enabled = false;                                                                              // fail
                         }
-                        else {                                                                                              // group does not exist/is not open               
-                            h5GroupId = H5Gcreate(m_HDF5ContainerId, h5GroupName.c_str(), 0, H5P_DEFAULT, H5P_DEFAULT);     // create the group
-                            if (h5GroupId < 0) {                                                                            // group created ok?
-                                Squawk("ERROR: Error creating HDF5 group with name " + h5GroupName);                        // no - announce error
-                                m_Enabled = false;                                                                          // fail
-                            }
-                            else {                                                                                          // group created ok
-                                m_Run_Details_H5_File.groupId = h5GroupId;                                                  // record group id for run details file
+                    }
+                    catch (const std::ofstream::failure &e) {                                                               // fs problem...
+                        Squawk("ERROR: Unable to create run details file with file name " + filename);                      // announce error
+                        Squawk(e.what());                                                                                   // plus details
+                        m_Enabled = false;                                                                                  // fail
+                    }
+                    catch (...) {                                                                                           // unhandled problem...
+                        Squawk("ERROR: Unable to create log file with file name " + filename);                              // announce error
+                        m_Enabled = false;                                                                                  // fail
+                    }
+                }
+            }
+
+
+
+        }
+    }
+}
+
+
+/*
+ * Stop logging
+ *
+ * Closes any open logfiles
+ *
+ *
+ * void Stop()
+ *
+ */
+void Log::Stop(std::tuple<int, int> p_ObjectStats) {
+    if (m_Enabled) {
+        CloseAllStandardFiles();                                                                                // first close all standard log files
+        for(unsigned int index = 0; index < m_Logfiles.size(); index++) {                                       // check for open logfiles (even if not active)
+            if (IsActiveId(index)) {                                                                            // logfile active?
+                if (m_Logfiles[index].file.is_open()) {                                                         // open file?
+                    try {                                                                                       // yes
+                        m_Logfiles[index].file.flush();                                                         // flush output and
+                        m_Logfiles[index].file.close();                                                         // close it
+                    }
+                    catch (const std::ofstream::failure &e) {                                                   // problem...
+                        Squawk("ERROR: Unable to close log file with file name " + m_Logfiles[index].name);     // announce error
+                        Squawk(e.what());                                                                       // plus details
+                    }
+                }
+            }
+        }
+
+        // update run details file
+        string filename = m_LogBasePath + "/" + m_LogContainerName + "/" + RUN_DETAILS_FILE_NAME;               // run details filename with container name
+        try {  
+            double cpuSeconds = (clock() - m_ClockStart) / (double) CLOCKS_PER_SEC;                             // stop CPU timer and calculate seconds
+
+            m_WallEnd = std::chrono::system_clock::now();                                                       // stop wall timer
+            std::time_t timeEnd = std::chrono::system_clock::to_time_t(m_WallEnd);                              // get end time and date
+        
+            // record end time and whether evolving single stars or binaries   
+            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {
+                m_RunDetailsFile << "Generated " << std::to_string(std::get<1>(p_ObjectStats)) << " of " << (std::get<0>(p_ObjectStats) < 0 ? "<INCOMPLETE GRID>" : std::to_string(std::get<0>(p_ObjectStats))) << " stars requested" << std::endl;
+                m_RunDetailsFile << "\nEnd generating stars at " << std::ctime(&timeEnd) << std::endl;
+            }
+            else {
+                m_RunDetailsFile << "Generated " << std::to_string(std::get<1>(p_ObjectStats)) << " of " << (std::get<0>(p_ObjectStats) < 0 ? "<INCOMPLETE GRID>" : std::to_string(std::get<0>(p_ObjectStats))) << " binaries requested" << std::endl;
+                m_RunDetailsFile << "\nEnd generating binaries at " << std::ctime(&timeEnd) << std::endl; 
+            }
+
+            m_RunDetailsFile << "Clock time = " << cpuSeconds << " CPU seconds" << std::endl;                   // record cpu second
+
+            std::chrono::duration<double> wallSeconds = m_WallEnd - m_WallStart;                                // elapsed seconds
+
+            int wallHH = (int)(wallSeconds.count() / 3600.0);                                                   // hours
+            int wallMM = (int)((wallSeconds.count() - ((double)wallHH * 3600.0)) / 60.0);                       // minutes
+            int wallSS = (int)(wallSeconds.count() - ((double)wallHH * 3600.0) - ((double)wallMM * 60.0));      // seconds
+
+            m_RunDetailsFile << "Wall time  = " << 
+                                std::setfill('0') << std::setw(2) << wallHH << ":" << 
+                                std::setfill('0') << std::setw(2) << wallMM << ":" << 
+                                std::setfill('0') << std::setw(2) << wallSS << " (hh:mm:ss)" << std::endl;      // include 0 buffer 
+
+            // add commandline options
+            // moved this code here from Options.cpp
+            // have to add a small kludge here to get it to look the same (someone might be relying on format)
+            // (run through twice - first time specified options, second time calculated options - only need to do once per run, so not a disaster...)
 
 
 
 
+
+// already have option details in m_OptionDetails  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+// HAVE TO POPULATE H5 RUN DETAILS HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
                                 // create HDF5 datasets for run details
                                 // want columns for:
@@ -209,14 +441,6 @@ void Log::Start(const string              p_LogBasePath,
                                 //          - second column (option name + "-derivation"): one of {"DEFAULT_USED", "USER_SUPPLIED", "CALCULATED"}
 
                                 // allow for "<EMPTY_OPTION>" for all three values (value, derivation, datatype)
-                                                                                                         // yes - chunk size set ok
-
-
-
-
-
-
-                                // create fixed columns
 
                                 // first, create some HDF5 datatypes
                                 hid_t h5String8DataType = GetHDF5DataType(TYPENAME::STRING, 8);     // HDF5 data type for COMPAS data type STRING (8 chars - version string, wall time)
@@ -320,136 +544,10 @@ void Log::Start(const string              p_LogBasePath,
 
 
 
-                // if logging is still enabled then if we are logging to HDF5 files we
-                // have an open HDF5 container with an open group for the Run_Details file
-                // If we're not logging to HDF5 files we just proceed.
-                //
-                // Add preamble to Run_Details file
-                if (m_Enabled) {                                                                                            // still ok?
-                                                                                                                            // yes
-                    m_WallStart = std::chrono::system_clock::now();                                                         // start wall timer
-                    m_ClockStart = clock();                                                                                 // start CPU timer
-
-                    string filename = m_LogBasePath + "/" + m_LogContainerName + "/" + RUN_DETAILS_FILE_NAME;               // run details filename with container name
-                    try {
-                        m_RunDetailsFile.open(filename, std::ios::out);                                                     // create run details file
-                        m_RunDetailsFile.exceptions(std::ofstream::failbit | std::ofstream::badbit);                        // enable exceptions on run details file
-
-                        // file should be open - write the run details
-
-                        try {                                                                                             
-
-                            m_RunDetailsFile << utils::SplashScreen(false) << std::endl;                                    // write splash string with version number to file
-
-                            std::time_t timeStart = std::chrono::system_clock::to_time_t(m_WallStart);                      // record start time
-
-                            // record start time and whether evolving single stars or binaries   
-                            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE)
-                                m_RunDetailsFile << "Start generating stars at " << std::ctime(&timeStart) << std::endl;
-                            else
-                                m_RunDetailsFile << "Start generating binaries at " << std::ctime(&timeStart) << std::endl;
-
-                            if (m_LogfileType == LOGFILETYPE::HDF5) {                                                                   // logging to HDF5 files?
-
-
-
-// WHATE HERE ????????????????????????????????????????????
 
 
 
 
-                            }
-
-                            // run details file will be updated and closed in Log::Stop()
-                        }
-                        catch (const std::ofstream::failure &e) {                                                           // problem...
-                            Squawk("ERROR: Unable to write to run details file with name " + filename);                     // announce error
-                            Squawk(e.what());                                                                               // plus details
-                            m_Enabled = false;                                                                              // fail
-                        }
-                    }
-                    catch (const std::ofstream::failure &e) {                                                               // fs problem...
-                        Squawk("ERROR: Unable to create run details file with file name " + filename);                      // announce error
-                        Squawk(e.what());                                                                                   // plus details
-                        m_Enabled = false;                                                                                  // fail
-                    }
-                    catch (...) {                                                                                           // unhandled problem...
-                        Squawk("ERROR: Unable to create log file with file name " + filename);                              // announce error
-                        m_Enabled = false;                                                                                  // fail
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-/*
- * Stop logging
- *
- * Closes any open logfiles
- *
- *
- * void Stop()
- *
- */
-void Log::Stop(std::tuple<int, int> p_ObjectStats) {
-    if (m_Enabled) {
-        CloseAllStandardFiles();                                                                                // first close all standard log files
-        for(unsigned int index = 0; index < m_Logfiles.size(); index++) {                                       // check for open logfiles (even if not active)
-            if (IsActiveId(index)) {                                                                            // logfile active?
-                if (m_Logfiles[index].file.is_open()) {                                                         // open file?
-                    try {                                                                                       // yes
-                        m_Logfiles[index].file.flush();                                                         // flush output and
-                        m_Logfiles[index].file.close();                                                         // close it
-                    }
-                    catch (const std::ofstream::failure &e) {                                                   // problem...
-                        Squawk("ERROR: Unable to close log file with file name " + m_Logfiles[index].name);     // announce error
-                        Squawk(e.what());                                                                       // plus details
-                    }
-                }
-            }
-        }
-
-        // update run details file
-        string filename = m_LogBasePath + "/" + m_LogContainerName + "/" + RUN_DETAILS_FILE_NAME;               // run details filename with container name
-        try {  
-            double cpuSeconds = (clock() - m_ClockStart) / (double) CLOCKS_PER_SEC;                             // stop CPU timer and calculate seconds
-
-            m_WallEnd = std::chrono::system_clock::now();                                                       // stop wall timer
-            std::time_t timeEnd = std::chrono::system_clock::to_time_t(m_WallEnd);                              // get end time and date
-        
-            // record end time and whether evolving single stars or binaries   
-            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {
-                m_RunDetailsFile << "Generated " << std::to_string(std::get<1>(p_ObjectStats)) << " of " << (std::get<0>(p_ObjectStats) < 0 ? "<INCOMPLETE GRID>" : std::to_string(std::get<0>(p_ObjectStats))) << " stars requested" << std::endl;
-                m_RunDetailsFile << "\nEnd generating stars at " << std::ctime(&timeEnd) << std::endl;
-            }
-            else {
-                m_RunDetailsFile << "Generated " << std::to_string(std::get<1>(p_ObjectStats)) << " of " << (std::get<0>(p_ObjectStats) < 0 ? "<INCOMPLETE GRID>" : std::to_string(std::get<0>(p_ObjectStats))) << " binaries requested" << std::endl;
-                m_RunDetailsFile << "\nEnd generating binaries at " << std::ctime(&timeEnd) << std::endl; 
-            }
-
-            m_RunDetailsFile << "Clock time = " << cpuSeconds << " CPU seconds" << std::endl;                   // record cpu second
-
-            std::chrono::duration<double> wallSeconds = m_WallEnd - m_WallStart;                                // elapsed seconds
-
-            int wallHH = (int)(wallSeconds.count() / 3600.0);                                                   // hours
-            int wallMM = (int)((wallSeconds.count() - ((double)wallHH * 3600.0)) / 60.0);                       // minutes
-            int wallSS = (int)(wallSeconds.count() - ((double)wallHH * 3600.0) - ((double)wallMM * 60.0));      // seconds
-
-            m_RunDetailsFile << "Wall time  = " << 
-                                std::setfill('0') << std::setw(2) << wallHH << ":" << 
-                                std::setfill('0') << std::setw(2) << wallMM << ":" << 
-                                std::setfill('0') << std::setw(2) << wallSS << " (hh:mm:ss)" << std::endl;      // include 0 buffer 
-
-            // add commandline options
-            // moved this code here from Options.cpp
-            // have to add a small kludge here to get it to look the same (someone might be relying on format)
-            // (run through twice - first time specified options, second time calculated options - only need to do once per run, so not a disaster...)
-
-// already have option details in m_OptionDetails  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-// HAVE TO POPULATE H5 RUN DETAILS HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
             // first, specified options
@@ -2142,6 +2240,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                 fileDetails.filename += p_FileSuffix;                                                                                           // add suffix to filename
 
                 // if we're logging to HDF5 files:
+                //    - we should have an HDF5 container (opened in Log::Start())
                 //    - all logfiles except detailed output files are included in a single HDF5 file
                 //    - detailed output files are created individually as HDF5 files inside their containing directory
                 if (m_LogfileType == LOGFILETYPE::HDF5) {                                                                                       // logging to HDF5 files?
@@ -2155,19 +2254,6 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             m_HDF5DetailedId = H5Fcreate(h5Filename.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT);                           // create HDF5 detailed file
                             if (m_HDF5DetailedId < 0) {                                                                                         // created ok?                        
                                 Squawk("ERROR: Unable to create HDF5 detailed file with file name " + h5Filename);                              // no - announce error
-                                Squawk("Logging disabled");                                                                                     // show disabled warning
-                                m_Enabled = false;                                                                                              // disable logging
-                                ok = false;                                                                                                     // fail
-                            }
-                        }
-                    }
-                    else {                                                                                                                      // no - not detailed output file
-                        if (m_HDF5ContainerId < 0) {                                                                                            // have HDF5 container?
-                                                                                                                                                // no - create it
-                            string h5Filename = m_LogBasePath + "/" + m_LogContainerName + "/" + m_HDF5ContainerName + fileExt;                 // full filename with path, container, and extension ("/" works on Uni*x and Windows)
-                            m_HDF5ContainerId = H5Fcreate(h5Filename.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT);                          // create HDF5 container file
-                            if (m_HDF5ContainerId < 0) {                                                                                        // created ok?                        
-                                Squawk("ERROR: Unable to create HDF5 container file with file name " + h5Filename);                             // no - announce error
                                 Squawk("Logging disabled");                                                                                     // show disabled warning
                                 m_Enabled = false;                                                                                              // disable logging
                                 ok = false;                                                                                                     // fail
