@@ -11,6 +11,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/variant.hpp>
+#include <boost/range/algorithm.hpp>
 
 #include "hdf5.h"
 
@@ -313,6 +314,8 @@ private:
     Log() {                                                                         // constructor - initialise variables
         m_Enabled = false;                                                          // logging disabled initially
         m_HDF5ContainerId = -1;                                                     // no HDF5 container file open initially
+        m_Run_Details_H5_File.fileId = -1;                                          // no HDF5 file id for run details file initially
+        m_Run_Details_H5_File.groupId = -1;                                         // no HDF5 group id for run details file initially
         m_HDF5DetailedId = -1;                                                      // no HDF5 detailed file open initially
         m_HDF5ChunkSize = HDF5_DEFAULT_CHUNK_SIZE;                                  // initially just the defined constant
         m_HDF5IOBufSize = HDF5_DEFAULT_IO_BUFFER_SIZE * HDF5_DEFAULT_CHUNK_SIZE;    // initially just the defined constant (scaled)
@@ -337,6 +340,8 @@ private:
         m_SSESupernova_DelayedLogRecord    = "";                                    // delayed log record for SSE_Supernova file - initially empty
         m_SSESupernova_LogRecordProperties = {};                                    // SSE Supernova logfile record properties - initially empty
         m_SSESupernova_LogRecordFmtVector  = {};                                    // SSE Supernova logfile format vector - initially empty
+
+        m_OptionDetails = {};                                                       // option details retrieved from commandline - initially empty
     };
     Log(Log const&) = delete;                                                       // copy constructor does nothing, and not exposed publicly
     Log& operator = (Log const&) = delete;                                          // operator = does nothing, and not exposed publicly
@@ -372,6 +377,23 @@ private:
     int                  m_ErrLogfileId;                                            // log file id of file to which error statements should be written
 
 
+    std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPENAME>> m_OptionDetails;  // option details retrieved from commandline
+
+
+    struct h5AttrT {                                                                // attributes of HDF5 files
+        hid_t fileId;                                                               //    - file id
+        hid_t groupId;                                                              //    - group id
+
+        struct h5DataSetsT {                                                        // attributes of HDF5 datasets
+            hid_t    dataSetId;                                                     //    - HDF5 dataset id
+            hid_t    h5DataType;                                                    //    - HDF5 datatype
+            TYPENAME dataType;                                                      //    - COMPAS data type
+            std::vector<COMPAS_VARIABLE_TYPE> buf;                                  //    - write buffer - for chunking
+        };
+
+        std::vector<h5DataSetsT> dataSets;                                          // details of datasets
+    };
+
     struct logfileAttrT {
         bool        active;                                                         // currently logging?  (ie log file open)
         LOGFILE     logfiletype;                                                    // logfile type
@@ -382,24 +404,12 @@ private:
 
         std::ofstream file;                                                         // file pointer for CSV, TSV, TXT files
 
-        struct h5AttrT {                                                            // attributes of HDF5 files
-            hid_t fileId;                                                           //    - file id
-            hid_t groupId;                                                          //    - group id
-
-            struct h5DataSetsT {                                                    // attributes of HDF5 datasets
-                hid_t    dataSetId;                                                 //    - HDF5 dataset id
-                hid_t    h5DataType;                                                //    - HDF5 datatype
-                TYPENAME dataType;                                                  //    - COMPAS data type
-                std::vector<COMPAS_VARIABLE_TYPE> buf;                              //    - write buffer - for chunking
-            };
-
-            std::vector<h5DataSetsT> dataSets;                                      // details of datasets
-        };
-
         h5AttrT h5File;                                                             // file details for HDF5 files
     };
 
     std::vector<logfileAttrT> m_Logfiles;                                           // logfiles - in use and not
+
+    h5AttrT m_Run_Details_H5_File;                                                  // HDF5 attributes for run details in HDF5 container
 
     COMPASUnorderedMap<LOGFILE, LogfileDetailsT> m_OpenStandardLogFileIds;          // currently open standard logfiles: id, filename, property details, field format strings
 
@@ -482,9 +492,14 @@ private:
     STR_STR_STR_STR  FormatFieldHeaders(PROPERTY_DETAILS p_Details, string p_HeaderSuffix = "");
     LogfileDetailsT  StandardLogFileDetails(const LOGFILE p_Logfile, const string p_FileSuffix);
 
-
     std::tuple<bool, LOGFILE> GetLogfileDescriptorKey(const string p_Value);
     std::tuple<bool, LOGFILE> GetStandardLogfileKey(const int p_FileId);
+
+
+    bool  OpenHDF5RunDetailsFile(const string p_Filename = "Run_Details");
+    hid_t CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, const string p_DatasetName, const hid_t p_H5DataType, const string p_UnitsStr);
+    hid_t GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWidth = 0);
+
 
 
     /*
