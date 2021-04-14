@@ -1870,21 +1870,35 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
     		    	sigma = OPTIONS->KickMagnitudeDistributionSigmaForUSSN();
                     m_SupernovaDetails.kickMagnitude = sigma * sqrt(gsl_cdf_chisq_Pinv(RAND->Random(0, 1), 3)); // source code for maxw
                 }
-                else { // if (m_SupernovaDetails.events.current == SN_EVENT::ECSN) {
+                else { // if (m_SupernovaDetails.events.current == SN_EVENT::ECSN) 
         			sigma = OPTIONS->KickMagnitudeDistributionSigmaForECSN();
 
-                    double ecsnKickReductionFactor = 1;
-                    STYPE_VECTOR mtHist = MassTransferDonorHistory();
-                    if (mtHist.size() != 0) {                                                                                           // No history of MT - effectively single star
-                        ecsnKickReductionFactor = 0.0; 
+                    //double ecsnKickReductionFactor = 1;
+                    //STYPE_VECTOR mtHist = MassTransferDonorHistory();
+                    //if (mtHist.size() != 0) {                                                                                           // No history of MT - effectively single star
+                    //    ecsnKickReductionFactor = 0.0; 
+                    //}
+                    //m_SupernovaDetails.kickMagnitude = sigma*ecsnKickReductionFactor; // Just use raw value
+
+                    if (sigma > 29) {
+                        m_SupernovaDetails.kickMagnitude = sigma * sqrt(gsl_cdf_chisq_Pinv(RAND->Random(0, 1), 3)); // source code for maxw
                     }
-                    m_SupernovaDetails.kickMagnitude = sigma*ecsnKickReductionFactor; // Just use raw value
+                    else {
+                        // Use raw value for 0 or 10, but Maxw(30) for 30
+                        m_SupernovaDetails.kickMagnitude = sigma; // Just use raw value
+                    }
 
-
+                    // Kill all Wide ECSN if flag is set
+                    if (OPTIONS->KickMagnitude() > 50) { // flag is set
+                        STYPE_VECTOR mtHist = MassTransferDonorHistory();
+                        if (mtHist.size() == 0) {        // Non interactor - wide binary
+                            stellarType = STELLAR_TYPE::BLACK_HOLE; 
+                            m_Mass = 6.66;
+                        }
+                    }
                 }
-
-                //m_SupernovaDetails.kickMagnitude = sigma * sqrt(gsl_cdf_chisq_Pinv(RAND->Random(0, 1), 3)); // source code for maxw
             }
+        
 
 
 
