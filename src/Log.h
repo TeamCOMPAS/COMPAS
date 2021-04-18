@@ -246,27 +246,29 @@ using std::string;
  */
 class FormatVariantValue: public boost::static_visitor<string> {
 public:
-    string operator()(const bool               v, const string fmtStr) const {
-                                                                           string fmt = OPTIONS->PrintBoolAsString() ? "%5s" : "%1s";
-                                                                           string vS  = OPTIONS->PrintBoolAsString() ? (v ? "TRUE " : "FALSE") : (v ? "1" : "0");
-                                                                           return utils::vFormat(fmt.c_str(), vS.c_str());
-                                                                       }
-    string operator()(const int                v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const short int          v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const long int           v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const unsigned int       v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "u"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const unsigned short int v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "u"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const unsigned long int  v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "u"; return utils::vFormat(fmt.c_str(), v); } // also handles OBJECT_ID (typedef)
-    string operator()(const float              v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "e"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const double             v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "e"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const long double        v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "e"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const string             v, const string fmtStr) const { string fmt = fmtStr; fmt = "%-" + fmt + "s"; return utils::vFormat(fmt.c_str(), v.c_str()); }
-    string operator()(const ERROR              v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const STELLAR_TYPE       v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const MT_CASE            v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const MT_TRACKING        v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const SN_EVENT           v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const SN_STATE           v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const bool                    v, const string fmtStr) const {
+                                                        string fmt = OPTIONS->PrintBoolAsString() ? "%5s" : "%1s";
+                                                        string vS  = OPTIONS->PrintBoolAsString() ? (v ? "TRUE " : "FALSE") : (v ? "1" : "0");
+                                                        return utils::vFormat(fmt.c_str(), vS.c_str());
+                                                    }
+    string operator()(const int                     v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const short int               v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const long int                v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const long long int           v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const unsigned int            v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "u"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const unsigned short int      v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "u"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const unsigned long int       v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "u"; return utils::vFormat(fmt.c_str(), v); } // also handles OBJECT_ID (typedef)
+    string operator()(const unsigned long long int  v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "u"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const float                   v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "e"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const double                  v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "e"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const long double             v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "e"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const string                  v, const string fmtStr) const { string fmt = fmtStr; fmt = "%-" + fmt + "s"; return utils::vFormat(fmt.c_str(), v.c_str()); }
+    string operator()(const ERROR                   v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const STELLAR_TYPE            v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const MT_CASE                 v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const MT_TRACKING             v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const SN_EVENT                v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const SN_STATE                v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
 };
 
 
@@ -283,27 +285,29 @@ public:
  */
 class FormatVariantValueDefault: public boost::static_visitor<string> {
 public:
-    string operator()(const bool               v) const {
-                                                    string fmt = OPTIONS->PrintBoolAsString() ? "%5s" : "%1s";
-                                                    string vS  = OPTIONS->PrintBoolAsString() ? (v ? "TRUE " : "FALSE") : (v ? "1" : "0");
-                                                    return utils::vFormat(fmt.c_str(), vS.c_str());
-                                                  }
-    string operator()(const int                v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const short int          v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const long int           v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const unsigned int       v) const { string fmt = "%14.1u"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const unsigned short int v) const { string fmt = "%14.1u"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const unsigned long int  v) const { string fmt = "%14.1u"; return utils::vFormat(fmt.c_str(), v); } // also handles OBJECT_ID (typedef)
-    string operator()(const float              v) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const double             v) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const long double        v) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const string             v) const { string fmt = "%-30s";  return utils::vFormat(fmt.c_str(), v.c_str()); }
-    string operator()(const ERROR              v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const STELLAR_TYPE       v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const MT_CASE            v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const MT_TRACKING        v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const SN_EVENT           v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const SN_STATE           v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const bool                    v) const {
+                                                        string fmt = OPTIONS->PrintBoolAsString() ? "%5s" : "%1s";
+                                                        string vS  = OPTIONS->PrintBoolAsString() ? (v ? "TRUE " : "FALSE") : (v ? "1" : "0");
+                                                        return utils::vFormat(fmt.c_str(), vS.c_str());
+                                                    }
+    string operator()(const int                     v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const short int               v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const long int                v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const long long int           v) const { string fmt = "%28.1d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const unsigned int            v) const { string fmt = "%14.1u"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const unsigned short int      v) const { string fmt = "%14.1u"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const unsigned long int       v) const { string fmt = "%14.1u"; return utils::vFormat(fmt.c_str(), v); } // also handles OBJECT_ID (typedef)
+    string operator()(const unsigned long long int  v) const { string fmt = "%28.1u"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const float                   v) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const double                  v) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const long double             v) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const string                  v) const { string fmt = "%-30s";  return utils::vFormat(fmt.c_str(), v.c_str()); }
+    string operator()(const ERROR                   v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const STELLAR_TYPE            v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const MT_CASE                 v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const MT_TRACKING             v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const SN_EVENT                v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const SN_STATE                v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
 };
 
 
@@ -480,6 +484,7 @@ private:
     void Say_(const string p_SayStr);
     bool Write_(const int p_LogfileId, const string p_LogStr);
     bool Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const bool p_Flush = false);
+    bool WriteHDF5_(h5AttrT p_H5file, const string p_H5filename, const size_t p_DataSetIdx);
     bool Flush_(const int p_LogfileId) { return Write_(p_LogfileId, {}, true); }
     bool Put_(const int p_LogfileId, const string p_LogStr, const string p_Label = "");
     bool Put_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues);
@@ -495,11 +500,9 @@ private:
     std::tuple<bool, LOGFILE> GetLogfileDescriptorKey(const string p_Value);
     std::tuple<bool, LOGFILE> GetStandardLogfileKey(const int p_FileId);
 
-
-    bool  OpenHDF5RunDetailsFile(const string p_Filename = "Run_Details");
+    bool  OpenHDF5RunDetailsFile(const string p_Filename = RUN_DETAILS_FILE_NAME);
     hid_t CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, const string p_DatasetName, const hid_t p_H5DataType, const string p_UnitsStr);
     hid_t GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWidth = 0);
-
 
 
     /*

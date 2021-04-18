@@ -1386,25 +1386,27 @@ enum class TYPENAME: int {
 // labels (long and short) for typenames
 // unordered_map - key is integer typename (from enum class TYPENAME above)
 const COMPASUnorderedMap<TYPENAME, std::tuple<std::string, std::string>> TYPENAME_LABEL = {
-    { TYPENAME::NONE,         { "NONE",               "NONE"   }},
-    { TYPENAME::BOOL,         { "BOOL",               "BOOL"   }},
-    { TYPENAME::SHORTINT,     { "SHORT INT",          "INT"    }},
-    { TYPENAME::INT,          { "INT",                "INT"    }},
-    { TYPENAME::LONGINT,      { "LONG_INT",           "INT"    }},
-    { TYPENAME::USHORTINT,    { "UNSIGNED_SHORT_INT", "INT"    }},
-    { TYPENAME::UINT,         { "UNSIGNED_INT",       "INT"    }},
-    { TYPENAME::ULONGINT,     { "UNSIGNED_LONG_INT",  "INT"    }},
-    { TYPENAME::FLOAT,        { "FLOAT",              "FLOAT"  }},
-    { TYPENAME::DOUBLE,       { "DOUBLE",             "FLOAT"  }},
-    { TYPENAME::LONGDOUBLE,   { "LONG_DOUBLE",        "FLOAT"  }},
-    { TYPENAME::STRING,       { "STRING",             "STRING" }},
-    { TYPENAME::OBJECT_ID,    { "OBJECT_ID",          "INT"    }},
-    { TYPENAME::ERROR,        { "ERROR",              "INT"    }},
-    { TYPENAME::STELLAR_TYPE, { "STELLAR_TYPE",       "INT"    }},
-    { TYPENAME::MT_CASE,      { "MT_CASE",            "INT"    }},
-    { TYPENAME::MT_TRACKING,  { "MT_TRACKING",        "INT"    }},
-    { TYPENAME::SN_EVENT,     { "SN_EVENT",           "INT"    }},
-    { TYPENAME::SN_STATE,     { "SN_STATE",           "INT"    }}
+    { TYPENAME::NONE,         { "NONE",                   "NONE"   }},
+    { TYPENAME::BOOL,         { "BOOL",                   "BOOL"   }},
+    { TYPENAME::SHORTINT,     { "SHORT INT",              "INT"    }},
+    { TYPENAME::INT,          { "INT",                    "INT"    }},
+    { TYPENAME::LONGINT,      { "LONG_INT",               "INT"    }},
+    { TYPENAME::LONGLONGINT,  { "LONG_LONG_INT",          "INT"    }},
+    { TYPENAME::USHORTINT,    { "UNSIGNED_SHORT_INT",     "INT"    }},
+    { TYPENAME::UINT,         { "UNSIGNED_INT",           "INT"    }},
+    { TYPENAME::ULONGINT,     { "UNSIGNED_LONG_INT",      "INT"    }},
+    { TYPENAME::ULONGLONGINT, { "UNSIGNED_LONG_LONG_INT", "INT"    }},
+    { TYPENAME::FLOAT,        { "FLOAT",                  "FLOAT"  }},
+    { TYPENAME::DOUBLE,       { "DOUBLE",                 "FLOAT"  }},
+    { TYPENAME::LONGDOUBLE,   { "LONG_DOUBLE",            "FLOAT"  }},
+    { TYPENAME::STRING,       { "STRING",                 "STRING" }},
+    { TYPENAME::OBJECT_ID,    { "OBJECT_ID",              "INT"    }},
+    { TYPENAME::ERROR,        { "ERROR",                  "INT"    }},
+    { TYPENAME::STELLAR_TYPE, { "STELLAR_TYPE",           "INT"    }},
+    { TYPENAME::MT_CASE,      { "MT_CASE",                "INT"    }},
+    { TYPENAME::MT_TRACKING,  { "MT_TRACKING",            "INT"    }},
+    { TYPENAME::SN_EVENT,     { "SN_EVENT",               "INT"    }},
+    { TYPENAME::SN_STATE,     { "SN_STATE",               "INT"    }}
 };
 
 
@@ -1413,9 +1415,11 @@ const std::initializer_list<TYPENAME> INT_TYPES = {
     TYPENAME::SHORTINT,
     TYPENAME::INT,
     TYPENAME::LONGINT,
+    TYPENAME::LONGLONGINT,
     TYPENAME::USHORTINT,
     TYPENAME::UINT,
-    TYPENAME::ULONGINT
+    TYPENAME::ULONGINT,
+    TYPENAME::ULONGLONGINT
 };
 
 // (convenience) initializer list for FLOAT data types
@@ -1433,9 +1437,11 @@ typedef boost::variant<
     short int,
     int,
     long int,
+    long long int,
     unsigned short int,
     unsigned int,
     unsigned long int,
+    unsigned long long int,
     float,
     double,
     long double,
@@ -2851,7 +2857,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::MT_CRIT_MR_WD_NONDEGENERATE_ACCRETOR,                 { TYPENAME::DOUBLE,         "MT_Crit_MR_WD_NonDeg_Acc",             "-",        14, 6 }},
     */
 
-    { PROGRAM_OPTION::MT_FRACTION_ACCRETED,                                 { TYPENAME::DOUBLE,         "MT_Fraction_Accreted",          "-",                14, 6 }},
+    { PROGRAM_OPTION::MT_FRACTION_ACCRETED,                                 { TYPENAME::DOUBLE,         "MT_Fraction_Accreted",         "-",                14, 6 }},
     { PROGRAM_OPTION::MT_JLOSS,                                             { TYPENAME::DOUBLE,         "MT_JLoss",                     "-",                14, 6 }},
     { PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION,                         { TYPENAME::INT,            "MT_Rejuvenation_Prscrptn",     "-",                 4, 1 }},
     { PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION,                       { TYPENAME::INT,            "MT_Thermally_Lmtd_Variation",  "-",                 4, 1 }},
@@ -2914,6 +2920,34 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::ZETA_ADIABATIC_ARBITRARY,                             { TYPENAME::DOUBLE,         "Zeta_Adiabatic_Arbitrary",     "-",                14, 6 }},
     { PROGRAM_OPTION::ZETA_MS,                                              { TYPENAME::DOUBLE,         "Zeta_Main_Sequence",           "-",                14, 6 }},
     { PROGRAM_OPTION::ZETA_RADIATIVE_ENVELOPE_GIANT,                        { TYPENAME::DOUBLE,         "Zeta_Radiative_Envelope_Giant","-",                14, 6 }}
+};
+
+
+// enum class RUN_DETAILS_REC
+// symbolic names for RUN DETAILS record definitions
+// For preamble/stats columns only
+// Program options columns are dynamic
+// these must be left as default values - their order can be changed with the caveat that the sentinel "SENTINEL" must stay at the end
+// it's a bit of a hack, but it lets me iterate over the enum
+enum class RUN_DETAILS_COLUMNS: int { COMPAS_VERSION,
+                                      RUN_START, 
+                                      RUN_END, 
+                                      OBJECTS_REQUESTED,
+                                      OBJECTS_CREATED,
+                                      CLOCK_TIME,
+                                      WALL_TIME,
+                                      ACTUAL_RANDOM_SEED,
+                                      SENTINEL };
+
+const COMPASUnorderedMap<RUN_DETAILS_COLUMNS, std::tuple<std::string, TYPENAME, std::size_t>> RUN_DETAILS_DETAIL = {
+    { RUN_DETAILS_COLUMNS::COMPAS_VERSION,      { "COMPAS-Version",                TYPENAME::STRING,    8 }},
+    { RUN_DETAILS_COLUMNS::RUN_START,           { "Run-Start",                     TYPENAME::STRING,   24 }},
+    { RUN_DETAILS_COLUMNS::RUN_END,             { "Run-End",                       TYPENAME::STRING,   24 }},
+    { RUN_DETAILS_COLUMNS::OBJECTS_REQUESTED,   { "Objects-Requested",             TYPENAME::INT,       0 }},
+    { RUN_DETAILS_COLUMNS::OBJECTS_CREATED,     { "Objects-Created",               TYPENAME::INT,       0 }},
+    { RUN_DETAILS_COLUMNS::CLOCK_TIME,          { "Clock-Time",                    TYPENAME::DOUBLE,    0 }},
+    { RUN_DETAILS_COLUMNS::WALL_TIME,           { "Wall-Time",                     TYPENAME::STRING,   10 }},
+    { RUN_DETAILS_COLUMNS::ACTUAL_RANDOM_SEED,  { "Actual-Random-Seed",            TYPENAME::ULONGINT,  0 }}
 };
 
 

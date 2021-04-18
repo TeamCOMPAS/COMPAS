@@ -711,17 +711,18 @@
 //                                      - Correct polynomial evaluation of Nanjing lambda's for EAGB and TPAGB stellar types.
 // 02.18.10     LVS - Apr 06, 2021   - Enhancement:
 //                                      - Added PPISN prescription option - Farmer 2019
-
-
-// 02.19.00     JR - Apr 10, 2021   - Enhancements and Defect Repairs:
+// 02.19.00     JR - Apr 17, 2021   - Enhancements and Defect Repairs:
 //                                      - Enhancements:
 //                                          - Added option to enable users to add program options values to BSE/SSE system parameters files
 //                                              - option is '--add-options-to-sysparms', allowed values are {ALWAYS, GRID, NEVER}.  See docs for details.
+//                                          - Included "Run_Details" file in HDF5 output file if logfile type = HDF5.  The text Run_Details file still exists
+//                                            so users can still easily look at the contents of the Run_Details file - this enhancements adds a copy of the
+//                                            Run_Details file to the HDF5 output file.
 //
 //                                      - Defect Repairs:
-//                                          - fixed a few previously unnoticed typos id PROGRAM_OPTION map in constamts.h, and in Options::OptionValue() function.
+//                                          - fixed a few previously unnoticed typos in PROGRAM_OPTION map in constamts.h, and in Options::OptionValue() function.
 //                                            Fairly benign since they had't been noticed, but needed to be fixed.
 
-const std::string VERSION_STRING = "02.19.10";
+const std::string VERSION_STRING = "02.19.00";
 
 # endif // __changelog_h__
