@@ -520,9 +520,9 @@ std::tuple<int, int> EvolveBinaryStars() {
     int wallMM = (int)((wallSeconds.count() - ((double)wallHH * 3600.0)) / 60.0);                               // minutes
     int wallSS = (int)(wallSeconds.count() - ((double)wallHH * 3600.0) - ((double)wallMM * 60.0));              // seconds
 
-    SAY("Wall time  = " << std::setfill('0') << std::setw(2) << wallHH << ":" << 
+    SAY("Wall time  = " << std::setfill('0') << std::setw(4) << wallHH << ":" << 
                            std::setfill('0') << std::setw(2) << wallMM << ":" << 
-                           std::setfill('0') << std::setw(2) << wallSS << " (hh:mm:ss)");                                       // Include 0 buffer 
+                           std::setfill('0') << std::setw(2) << wallSS << " (hhhh:mm:ss)");                     // Include 0 buffer 
 
     return std::make_tuple(nBinariesRequested, index);
 }

@@ -58,7 +58,7 @@ double& Vector3d::operator[] (size_t i) {
         case 0: return m_x;
         case 1: return m_y;
         case 2: return m_z;
-        default: throw "Not an index!\n";
+        default: throw "Not an index!\n";       // JR: we should fix this one day - the error should be handled rather than just stopping the program with an exception
     }
 }
 
