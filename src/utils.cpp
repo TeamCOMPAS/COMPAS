@@ -458,10 +458,39 @@ namespace utils {
 
 
     /*
+     * Determines if the string passed as p_Str is a valid DOUBLE
+     *
+     * In this context, to be a valid DOUBLE the string must convert to a
+     * double succussfully via the std::stod() function
+     * 
+     * 
+     * int IsDOUBLE(const std::string p_Str)
+     *
+     * @param   [IN]    p_Str                       String to check
+     * @return                                      Result - TRUE if string is a valid DOUBLE, else FALSE
+     */
+    bool IsDOUBLE(const std::string p_Str) {
+
+        bool result = false;                        // default result
+
+        try {
+            size_t lastChar;
+            (void)std::stod(p_Str, &lastChar);      // try conversion
+
+            result = lastChar == p_Str.size();      // valid DOUBLE if p_Str completely consumed
+        }
+        catch (const std::out_of_range& e) {        // conversion failed
+            result = false;                         // not a valid DOUBLE
+        }
+        return result;
+    }
+
+
+    /*
      * Determines if the string passed as p_Str is a valid FLOAT
      *
      * In this context, to be a valid FLOAT the string must convert to a
-     * double succussfully via the std::stod() function
+     * double succussfully via the std::stof() function
      * 
      * 
      * int IsFLOAT(const std::string p_Str)
@@ -475,7 +504,7 @@ namespace utils {
 
         try {
             size_t lastChar;
-            (void)std::stod(p_Str, &lastChar);      // try conversion
+            (void)std::stof(p_Str, &lastChar);      // try conversion
 
             result = lastChar == p_Str.size();      // valid FLOAT if p_Str completely consumed
         }
