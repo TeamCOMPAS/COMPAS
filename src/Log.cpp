@@ -129,61 +129,71 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
                 hid_t  h5Dset;
                 hid_t  h5String13DataType = GetHDF5DataType(TYPENAME::STRING, 13);                                      // HDF5 data type for 13-character string (derivation columns)
                   
-                try {   // for error handling here - helps prevent the code walking off the rhs of the page...
+                string h5Filename = OPTIONS->OutputContainerName();                                                     // HDF5 container file name
 
-                    string h5Filename = OPTIONS->OutputContainerName();                                                 // HDF5 container file name
+                // preamble/stats datasets
 
-                    // preamble/stats datasets
+                for (int dSetIdx = static_cast<int>(RUN_DETAILS_COLUMNS::COMPAS_VERSION); dSetIdx < static_cast<int>(RUN_DETAILS_COLUMNS::SENTINEL); dSetIdx++ ) {
 
-                    for ( int dSetIdx = static_cast<int>(RUN_DETAILS_COLUMNS::COMPAS_VERSION); dSetIdx < static_cast<int>(RUN_DETAILS_COLUMNS::SENTINEL); dSetIdx++ ) {
-
-                        std::tuple<std::string, TYPENAME, std::size_t> runDetails;
-                        try { runDetails = RUN_DETAILS_DETAIL.at(static_cast<RUN_DETAILS_COLUMNS>(dSetIdx)); }          // get run details details
-                        catch (const std::exception& e) {                                                               // unknown property
-                            throw "BadH5Dset";                                                                          // fail
-                        }
-   
+                    std::tuple<std::string, TYPENAME, std::size_t> runDetails;
+                    try { runDetails = RUN_DETAILS_DETAIL.at(static_cast<RUN_DETAILS_COLUMNS>(dSetIdx)); }              // get run details details
+                    catch (const std::exception& e) {                                                                   // unknown property
+                        Squawk("ERROR: Unknown property for HDF5 file with name " + h5Filename);                        // announce error
+                        ok = false;                                                                                     // fail
+                    }
+                    
+                    if (ok) {                                                                                           // have valid property
                         h5DatasetName = std::get<0>(runDetails);                                                        // dataset name
                         TYPENAME compasType = std::get<1>(runDetails);                                                  // COMPAS data type
                         h5DataType = GetHDF5DataType(compasType, std::get<2>(runDetails));                              // HDF5 data type
                         h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, h5DatasetName, h5DataType, "-");              // create dataset
-                        if (h5Dset < 0) throw "BadH5Dset";                                                              // fail
-                        m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5DataType, compasType, {}});                 // record dataset details
+                        if (h5Dset < 0) {                                                                               // dataset not created
+                            Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                    // announce error
+                            ok = false;                                                                                 // fail
+                        }
+                        else {                                                                                          // dataset created ok
+                            m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5DataType, compasType, {}});             // record dataset details
 
-                        // derivation
-                        h5DatasetName += "-Derivation";                                                                 // derivation
-                        h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, h5DatasetName, h5String13DataType, "-");      // create dataset
-                        if (h5Dset < 0) throw "BadH5Dset";                                                              // fail
-                        m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String13DataType, TYPENAME::STRING, {}});   // record dataset details                      
-
+                            // derivation
+                            h5DatasetName += "-Derivation";                                                             // derivation
+                            h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, h5DatasetName, h5String13DataType, "-");  // create dataset
+                            if (h5Dset < 0) {                                                                           // dataset not created
+                                Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                // announce error
+                                ok = false;                                                                             // fail
+                            }
+                            else
+                                m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String13DataType, TYPENAME::STRING, {}});   // dataset created ok - record details
+                        }
                     }
+                    if (!ok) break;                                                                                     // something went wrong - fail
+                }
 
-                    // program options datasets
+                // program options datasets
 
-                    for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                    // for each program option
-                        // option
-                        TYPENAME compasType = std::get<4>(m_OptionDetails[idx]);                                        // COMPAS data type
-                        h5DataType = GetHDF5DataType(compasType, (std::get<1>(m_OptionDetails[idx])).length());         // HDF5 data type for COMPAS data type
-                        h5DatasetName = std::get<0>(m_OptionDetails[idx]);                                              // dataset (option name)
-                        h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, h5DatasetName, h5DataType, "-");              // create dataset
-                        if (h5Dset < 0) throw "BadH5Dset";                                                              // fail
-                        m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5DataType, compasType, {}});                 // record dataset details
-
-                        // derivation
-                        h5DatasetName += "-Derivation";                                                                 // derivation
-                        h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, h5DatasetName, h5String13DataType, "-");      // create dataset
-                        if (h5Dset < 0) throw "BadH5Dset";                                                              // fail
-                        m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String13DataType, TYPENAME::STRING, {}});   // record dataset details                      
-                    }
-
-                } 
-                catch (char const* errStr) {                                                                            // catch exception
-                    if (strcmp(errStr, "BadH5Dset") == 0) {                                                             // "BadH5Dset"
-                        Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                        // yes - announce error
+                for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                        // for each program option
+                    // option
+                    TYPENAME compasType = std::get<4>(m_OptionDetails[idx]);                                            // COMPAS data type
+                    h5DataType = GetHDF5DataType(compasType, (std::get<1>(m_OptionDetails[idx])).length());             // HDF5 data type for COMPAS data type
+                    h5DatasetName = std::get<0>(m_OptionDetails[idx]);                                                  // dataset (option name)
+                    h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, h5DatasetName, h5DataType, "-");                  // create dataset
+                    if (h5Dset < 0) {                                                                                   // dataset not created
+                        Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                        // announce error
                         ok = false;                                                                                     // fail
                     }
-                    else throw errStr;  // not one of ours - bubble it up - that's what would have happened anyway
-                                        // we really need to get better error/exception handling in place... (see issue #320)
+                    else {                                                                                              // dataset created ok
+                        m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5DataType, compasType, {}});                 // record dataset details
+
+                        // derivation
+                        h5DatasetName += "-Derivation";                                                                 // derivation
+                        h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, h5DatasetName, h5String13DataType, "-");      // create dataset
+                        if (h5Dset < 0) {                                                                               // dataset not created
+                            Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                    // announce error
+                            ok = false;                                                                                 // fail
+                        }
+                        else
+                            m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String13DataType, TYPENAME::STRING, {}});  // dataset created ok - record details
+                    }
+                    if (!ok) break;                                                                                     // something went wrong - fail
                 }
             }
         }   
@@ -394,6 +404,7 @@ void Log::Start(const string              p_LogBasePath,
  *                                                 - the number created is the actual number created (which may be short of the number requested...)
  */
 void Log::Stop(std::tuple<int, int> p_ObjectStats) {
+
     if (m_Enabled) {                                                                                                                    // only need to do most of this if logging is enabled 
 
         // get some run stats
@@ -425,6 +436,8 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
         // update run details file
 
         if (m_LogfileType == LOGFILETYPE::HDF5) {                                                                                       // logging to HDF5 files?
+              
+            bool ok = true;                                                                                                             // status
                                                                                                                                         // yes - write run details data to HDF5 output file
             // update run HDF5 details file
             
@@ -432,21 +445,20 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
             string derivation;
             int    dSetIdx;
 
-            try { // for error handling here - helps prevent the code walking off the rhs of the page...
+            // preamble/stats datasets
 
+            std::ostringstream ss;
 
-                // preamble/stats datasets
+            for ( int idx = static_cast<int>(RUN_DETAILS_COLUMNS::COMPAS_VERSION); idx < static_cast<int>(RUN_DETAILS_COLUMNS::SENTINEL); idx++ ) {
 
-                std::ostringstream ss;
-
-                for ( int idx = static_cast<int>(RUN_DETAILS_COLUMNS::COMPAS_VERSION); idx < static_cast<int>(RUN_DETAILS_COLUMNS::SENTINEL); idx++ ) {
-
-                    std::tuple<std::string, TYPENAME, std::size_t> runDetails;
-                    try { runDetails = RUN_DETAILS_DETAIL.at(static_cast<RUN_DETAILS_COLUMNS>(idx)); }                                  // get run details details
-                    catch (const std::exception& e) {                                                                                   // unknown property
-                        throw "BadH5Dset";                                                                                              // fail
-                    }
-   
+                std::tuple<std::string, TYPENAME, std::size_t> runDetails;
+                try { runDetails = RUN_DETAILS_DETAIL.at(static_cast<RUN_DETAILS_COLUMNS>(idx)); }                                      // get run details details
+                catch (const std::exception& e) {                                                                                       // unknown property
+                    Squawk("ERROR: Unknown property for HDF5 file with name " + OPTIONS->OutputContainerName());                        // announce error
+                    ok = false;                                                                                                         // fail
+                }
+                
+                if (ok) {                                                                                                               // have valid property
                     h5DatasetName = std::get<0>(runDetails);                                                                            // dataset name
                     dSetIdx       = idx * 2;
                     derivation    = "CALCULATED";
@@ -479,7 +491,7 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
                         case RUN_DETAILS_COLUMNS::CLOCK_TIME:                                                                           // Clock_Time (CPU seconds)
                             m_Run_Details_H5_File.dataSets[dSetIdx].buf.push_back(cpuSeconds);                                          // add write data to buffer
                             break;
-                            
+                          
                         case RUN_DETAILS_COLUMNS::WALL_TIME:                                                                            // Wall_Time (elapsed time: hhhh:mm:ss)
                             m_Run_Details_H5_File.dataSets[dSetIdx].buf.push_back(wallTime);                                            // add write data to buffer
                             break;
@@ -487,17 +499,32 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
                         case RUN_DETAILS_COLUMNS::ACTUAL_RANDOM_SEED:                                                                   // Actual_Random_Seed
                             m_Run_Details_H5_File.dataSets[dSetIdx].buf.push_back(actualRandomSeed);                                    // add write data to buffer
                             break;
-                        default:
-                            throw "BadH5Dset";                                                                                          // unknown dataset - how did that happen?
+
+                        default:                                                                                                        // unknown dataset - how did that happen?
+                            Squawk("ERROR: Invalid HDF5 dataset with name " + h5DatasetName);                                           // announce error
+                            ok = false;                                                                                                 // fail
                     }
-                    if (!WriteHDF5_(m_Run_Details_H5_File, RUN_DETAILS_FILE_NAME, dSetIdx)) throw "BadH5Write";                         // write to file
 
-                    // Derivation
-                    dSetIdx += 1;                                                                                                       // increment dataset
-                    m_Run_Details_H5_File.dataSets[dSetIdx].buf.push_back(std::string("CALCULATED"));                                   // add write data to buffer
-                    if (!WriteHDF5_(m_Run_Details_H5_File, RUN_DETAILS_FILE_NAME, dSetIdx)) throw "BadH5Write";                         // write to file
+                    if (ok) {
+                        if (!WriteHDF5_(m_Run_Details_H5_File, RUN_DETAILS_FILE_NAME, dSetIdx)) {                                       // write to file ok?
+                            Squawk("ERROR: Error writing to HDF5 dataset with name " + h5DatasetName);                                  // no - announce error
+                            ok = false;                                                                                                 // fail
+                        }
+                        else {                                                                                                          // write succeeded
+                            // Derivation
+                            dSetIdx += 1;                                                                                               // increment dataset
+                            m_Run_Details_H5_File.dataSets[dSetIdx].buf.push_back(std::string("CALCULATED"));                           // add write data to buffer
+                            if (!WriteHDF5_(m_Run_Details_H5_File, RUN_DETAILS_FILE_NAME, dSetIdx)) {                                   // write to file ok?
+                                Squawk("ERROR: Error writing to HDF5 dataset with name " + h5DatasetName);                              // no - announce error
+                                ok = false;                                                                                             // fail
+                            }
+                        }
+                    }
                 }
+                if (!ok) break;                                                                                                         // something went wrong
+            }
 
+            if (ok) {
                 // program  options datasets
 
                 try {
@@ -528,36 +555,32 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
                                 break;
                     
                             default:                                                                                                    // invalid datatype
-                                throw "BadDatatype";                                                                                    // fail
+                                Squawk("ERROR: Invalid datatype for HDF5 dataset with name " + h5DatasetName);                          // announce error
+                                ok = false;                                                                                             // fail
                         }
-                        if (!WriteHDF5_(m_Run_Details_H5_File, RUN_DETAILS_FILE_NAME, dSetIdx)) throw "BadH5Write";                     // write to file
 
-                        // Derivation
-                        dSetIdx += 1;                                                                                                   // incremement dataset
-                        m_Run_Details_H5_File.dataSets[dSetIdx].buf.push_back(std::string(std::get<2>(m_OptionDetails[idx])));          // add write data to buffer
-                        if (!WriteHDF5_(m_Run_Details_H5_File, RUN_DETAILS_FILE_NAME, dSetIdx)) throw "BadH5Write";                     // write to file
+                        if (ok) {
+                            if (!WriteHDF5_(m_Run_Details_H5_File, RUN_DETAILS_FILE_NAME, dSetIdx)) {                                   // write to file ok?
+                                Squawk("ERROR: Error writing to HDF5 dataset with name " + h5DatasetName);                              // no - announce error
+                                ok = false;                                                                                             // fail
+                            }
+                            else {                                                                                                      // write succeeded
+                            // Derivation
+                                dSetIdx += 1;                                                                                           // incremement dataset
+                                m_Run_Details_H5_File.dataSets[dSetIdx].buf.push_back(std::string(std::get<2>(m_OptionDetails[idx])));  // add write data to buffer
+                                if (!WriteHDF5_(m_Run_Details_H5_File, RUN_DETAILS_FILE_NAME, dSetIdx)) {                               // write to file ok?
+                                    Squawk("ERROR: Error writing to HDF5 dataset with name " + h5DatasetName);                          // no - announce error
+                                    ok = false;                                                                                         // fail
+                                }
+                            }
+                        }
+                        if (!ok) break;                                                                                                 // something went wrong
                     }
                 } 
-                catch (char const* errStr) {                                                                                            // catch exception
-                    if (strcmp(errStr, "BadDatatype") == 0) {                                                                           // "BadDatatype"?
-                        Squawk("ERROR: Invalid datatype for HDF5 dataset with name " + h5DatasetName);                                  // yes - announce error
-                    }
-                    else throw errStr;  // not one of ours - bubble it up - that's what would have happened anyway
-                                        // we really need to get better error/exception handling in place... (see issue #320)
-                }
                 catch (const std::out_of_range& e) {                                                                                    // type conversion failed
                     Squawk("ERROR: Error converting option value to correct datatype for HDF5 dataset with name " + h5DatasetName);     // announce error
+                    ok = false;
                 }
-            }
-            catch (char const* errStr) {                                                                                                // catch exception
-                if (strcmp(errStr, "BadH5Write") == 0) {                                                                                // "BadH5Write"?
-                    Squawk("ERROR: Error writing to HDF5 dataset with name " + h5DatasetName);                                          // yes - announce error
-                }
-                if (strcmp(errStr, "BadH5Dset") == 0) {                                                                                 // "BadH5Dset"?
-                    Squawk("ERROR: Invalid HDF5 dataset with name " + h5DatasetName);                                                   // yes - announce error
-                }
-                else throw errStr;  // not one of ours - bubble it up - that's what would have happened anyway
-                                    // we really need to get better error/exception handling in place... (see issue #320)
             }
         }
 
@@ -583,9 +606,9 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
                 m_RunDetailsFile << "\nEnd generating binaries at " << std::ctime(&timeEnd) << std::endl; 
             }
 
-            m_RunDetailsFile << "Clock time = " << cpuSeconds << " CPU seconds" << std::endl;                                       // record cpu seconds
+            m_RunDetailsFile << "Clock time = " << cpuSeconds << " CPU seconds" << std::endl;                                           // record cpu seconds
 
-            m_RunDetailsFile << "Wall time  = " << wallTime << " (hhhh:mm:ss)" << std::endl;                                        // wall time 
+            m_RunDetailsFile << "Wall time  = " << wallTime << " (hhhh:mm:ss)" << std::endl;                                            // wall time 
 
             // add commandline options
             // moved this code here from Options.cpp
@@ -594,39 +617,39 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
 
             // first, specified options
 
-            m_RunDetailsFile << "\n\nCOMMAND LINE OPTIONS\n--------------------\n\n";                                               // add commandline options (all of them...)
-            for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                                        // and add them to the run details file
+            m_RunDetailsFile << "\n\nCOMMAND LINE OPTIONS\n--------------------\n\n";                                                   // add commandline options (all of them...)
+            for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                                            // and add them to the run details file
 
-                if (utils::Equals(std::get<2>(m_OptionDetails[idx]), "CALCULATED")) continue;                                       // CALCULATED later
+                if (utils::Equals(std::get<2>(m_OptionDetails[idx]), "CALCULATED")) continue;                                           // CALCULATED later
 
-                m_RunDetailsFile << std::get<0>(m_OptionDetails[idx]) << " = ";                                                     // option name
+                m_RunDetailsFile << std::get<0>(m_OptionDetails[idx]) << " = ";                                                         // option name
 
-                if (std::get<1>(m_OptionDetails[idx]) == "")                                                                        // empty option?
-                    m_RunDetailsFile << "<EMPTY_OPTION>\n";                                                                         // yes - say so
-                else                                                                                                                // no - add option details
-                    m_RunDetailsFile << std::get<1>(m_OptionDetails[idx]) + ", "                                                    // value
-                                     << std::get<2>(m_OptionDetails[idx]) + ", "                                                    // defaulted
-                                     << std::get<3>(m_OptionDetails[idx]) << "\n";                                                  // datatype
+                if (std::get<1>(m_OptionDetails[idx]) == "")                                                                            // empty option?
+                    m_RunDetailsFile << "<EMPTY_OPTION>\n";                                                                             // yes - say so
+                else                                                                                                                    // no - add option details
+                    m_RunDetailsFile << std::get<1>(m_OptionDetails[idx]) + ", "                                                        // value
+                                     << std::get<2>(m_OptionDetails[idx]) + ", "                                                        // defaulted
+                                     << std::get<3>(m_OptionDetails[idx]) << "\n";                                                      // datatype
             }
 
             // next, calculated options
 
             m_RunDetailsFile << "\n\nOTHER PARAMETERS\n----------------\n\n";
-            for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                                        // and add them to the run details file
+            for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                                            // and add them to the run details file
 
-                if (!utils::Equals(std::get<2>(m_OptionDetails[idx]), "CALCULATED")) continue;                                      // only CALCULATED here
+                if (!utils::Equals(std::get<2>(m_OptionDetails[idx]), "CALCULATED")) continue;                                          // only CALCULATED here
 
-                m_RunDetailsFile << std::get<0>(m_OptionDetails[idx]) << " = ";                                                     // option name
+                m_RunDetailsFile << std::get<0>(m_OptionDetails[idx]) << " = ";                                                         // option name
 
-                if (std::get<1>(m_OptionDetails[idx]) == "")                                                                        // empty option?
-                    m_RunDetailsFile << "<EMPTY_OPTION>\n";                                                                         // yes - say so
-                else                                                                                                                // no - add option details
-                    m_RunDetailsFile << std::get<1>(m_OptionDetails[idx]) + ", "                                                    // value
-                                     << std::get<2>(m_OptionDetails[idx]) + ", "                                                    // defaulted
-                                     << std::get<3>(m_OptionDetails[idx]) << "\n";                                                  // datatype
+                if (std::get<1>(m_OptionDetails[idx]) == "")                                                                            // empty option?
+                    m_RunDetailsFile << "<EMPTY_OPTION>\n";                                                                             // yes - say so
+                else                                                                                                                    // no - add option details
+                    m_RunDetailsFile << std::get<1>(m_OptionDetails[idx]) + ", "                                                        // value
+                                     << std::get<2>(m_OptionDetails[idx]) + ", "                                                        // defaulted
+                                     << std::get<3>(m_OptionDetails[idx]) << "\n";                                                      // datatype
             }
 
-            m_RunDetailsFile << "Actual random seed = " << actualRandomSeed  << ", CALCULATED, UNSIGNED_LONG" << std::endl;         // actual random seed
+            m_RunDetailsFile << "Actual random seed = " << actualRandomSeed  << ", CALCULATED, UNSIGNED_LONG" << std::endl;             // actual random seed
 
 
             // done writing - flush and close the file
@@ -634,37 +657,37 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
                 m_RunDetailsFile.flush();
                 m_RunDetailsFile.close();
             }
-            catch (const std::ofstream::failure &e) {                                                                               // problem...
-                Squawk("ERROR: Unable to close run details file with file name " + filename);                                       // announce error
-                Squawk(e.what());                                                                                                   // plus details
+            catch (const std::ofstream::failure &e) {                                                                                   // problem...
+                Squawk("ERROR: Unable to close run details file with file name " + filename);                                           // announce error
+                Squawk(e.what());                                                                                                       // plus details
             }
         }
-        catch (const std::ofstream::failure &e) {                                                                                   // problem...
-            Squawk("ERROR: Unable to write to run details file with name " + filename);                                             // announce error
-            Squawk(e.what());                                                                                                       // plus details
+        catch (const std::ofstream::failure &e) {                                                                                       // problem...
+            Squawk("ERROR: Unable to write to run details file with name " + filename);                                                 // announce error
+            Squawk(e.what());                                                                                                           // plus details
         }
 
         // close standard log files
 
-        CloseAllStandardFiles();                                                                                                    // close all standard log files
-        for(unsigned int index = 0; index < m_Logfiles.size(); index++) {                                                           // check for open logfiles (even if not active)
-            if (IsActiveId(index)) {                                                                                                // logfile active?
-                if (m_Logfiles[index].file.is_open()) {                                                                             // open file?
-                    try {                                                                                                           // yes
-                        m_Logfiles[index].file.flush();                                                                             // flush output and
-                        m_Logfiles[index].file.close();                                                                             // close it
+        CloseAllStandardFiles();                                                                                                        // close all standard log files
+        for(unsigned int index = 0; index < m_Logfiles.size(); index++) {                                                               // check for open logfiles (even if not active)
+            if (IsActiveId(index)) {                                                                                                    // logfile active?
+                if (m_Logfiles[index].file.is_open()) {                                                                                 // open file?
+                    try {                                                                                                               // yes
+                        m_Logfiles[index].file.flush();                                                                                 // flush output and
+                        m_Logfiles[index].file.close();                                                                                 // close it
                     }
-                    catch (const std::ofstream::failure &e) {                                                                       // problem...
-                        Squawk("ERROR: Unable to close log file with file name " + m_Logfiles[index].name);                         // announce error
-                        Squawk(e.what());                                                                                           // plus details
+                    catch (const std::ofstream::failure &e) {                                                                           // problem...
+                        Squawk("ERROR: Unable to close log file with file name " + m_Logfiles[index].name);                             // announce error
+                        Squawk(e.what());                                                                                               // plus details
                     }
                 }
             }
         }
     }
 
-    m_Logfiles.clear();                                                                                                         // clear all entries
-    m_Enabled = false;                                                                                                          // set not enabled
+    m_Logfiles.clear();                                                                                                                 // clear all entries
+    m_Enabled = false;                                                                                                                  // set not enabled
 }
 
 

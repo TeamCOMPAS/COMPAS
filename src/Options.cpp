@@ -2172,7 +2172,7 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
     else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned long long int)) { dataType = TYPENAME::ULONGLONGINT; typeStr = "UNSIGNED_LONG_LONG_INT"; valueStr = std::to_string(p_VM[p_IT->first].as<unsigned long long int>()); }
 
     else if (((boost::any)p_IT->second.value()).type() == typeid(float                 )) { dataType = TYPENAME::FLOAT;        typeStr = "FLOAT";                  valueStr = std::to_string(p_VM[p_IT->first].as<float                 >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(double                )) { dataType = TYPENAME::FLOAT;        typeStr = "DOUBLE";                 valueStr = std::to_string(p_VM[p_IT->first].as<double                >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(double                )) { dataType = TYPENAME::DOUBLE;       typeStr = "DOUBLE";                 valueStr = std::to_string(p_VM[p_IT->first].as<double                >()); }
     else if (((boost::any)p_IT->second.value()).type() == typeid(long double           )) { dataType = TYPENAME::LONGDOUBLE;   typeStr = "LONG_DOUBLE";            valueStr = std::to_string(p_VM[p_IT->first].as<long double           >()); }
 
     else if (((boost::any)p_IT->second.value()).type() == typeid(char                  )) { dataType = TYPENAME::INT;          typeStr = "CHAR";                   valueStr = std::to_string(p_VM[p_IT->first].as<char                  >()); }
@@ -2299,6 +2299,39 @@ void Options::PrintOptionHelp(const bool p_Verbose) {
             std::cerr << "  " << opt.description() << std::endl;
         }
     }
+}
+
+
+/*
+ * Returns TRUE if parameter p_TypeName is a supported COMPAS numeric datatype
+ * for program options, otherwise FALSE
+ *
+ * The datatypes here should cover our options for now - but we might have to 
+ * refine them over time
+ * 
+ * 
+ * bool IsSupportedNumericDataType(TYPENAME p_TypeName)
+ * 
+ * @param   [IN]    p_TypeName                  COMPAS datatype name
+ * @return                                      True if p_TypeName is a supported numeric datatype, else false
+ */
+bool Options::IsSupportedNumericDataType(TYPENAME p_TypeName) {
+
+    bool supported = false;
+
+    switch(p_TypeName) {
+        case TYPENAME::INT:
+        case TYPENAME::LONGINT:
+        case TYPENAME::ULONGINT:
+        case TYPENAME::FLOAT:
+        case TYPENAME::DOUBLE:
+        case TYPENAME::LONGDOUBLE:
+            supported = true;
+            break;
+        default:
+            supported = false;
+    }
+    return supported;
 }
 
 
@@ -2592,10 +2625,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                     if (idx == (count - 1)) details.currPos = 0;                                                            // initial position for inner iterator
 
                     if (type == COMPLEX_TYPE::RANGE) {                                                                      // RANGE?
-                        // these should cover our options for now - but we might have to refine them over time
-                        if (dataType != TYPENAME::INT && dataType != TYPENAME::LONGINT && dataType != TYPENAME::ULONGINT && 
-                            dataType != TYPENAME::FLOAT && dataType != TYPENAME::LONGDOUBLE) {                              // yes - numeric?
-                            
+                        if (!IsSupportedNumericDataType(dataType)) {                                                        // yes - numeric? 
                             error  = true;                                                                                  // no - that's not ok
                             errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_NOT_SUPPORTED) + std::string(" '") + optionName + std::string("'");
                         }
@@ -2698,6 +2728,35 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
 
                                         size_t lastChar;
+                                        details.rangeParms[0].dVal = std::stof(details.parameters[0], &lastChar);           // floating point start
+                                        COMPLAIN_IF(lastChar != details.parameters[0].size(), complaint1);                  // not a valid float
+                                        details.rangeParms[2].dVal = std::stof(details.parameters[2], &lastChar);           // floating point inc
+                                        COMPLAIN_IF(lastChar != details.parameters[2].size(), complaint1);                  // not a valid float
+
+                                        try {
+                                            size_t lastChar;
+                                            details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
+                                            COMPLAIN_IF(lastChar != details.parameters[1].size(), complaint2);              // not a valid unsigned long int
+
+                                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details); // reset values
+                                        }
+                                        catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
+                                            errStr = complaint2;
+                                        }
+                                    }
+                                    catch (const std::out_of_range& e) {                                                    // not a valid floating point number
+                                        errStr = complaint1;
+                                    }
+                                } break;
+
+                                case TYPENAME::DOUBLE: {                                                                    // DOUBLE
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP) + std::string(" '") + optionName + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName + std::string("'");
+                                    try {
+                                        RangeParameterT tmp = {0.0};                                                        // dummy value
+                                        details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
+
+                                        size_t lastChar;
                                         details.rangeParms[0].dVal = std::stod(details.parameters[0], &lastChar);           // floating point start
                                         COMPLAIN_IF(lastChar != details.parameters[0].size(), complaint1);                  // not a valid double
                                         details.rangeParms[2].dVal = std::stod(details.parameters[2], &lastChar);           // floating point inc
@@ -2757,9 +2816,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                         // check for numeric/bool data types only that all set parameters are numeric/bool
                         // can't check for string data types 
                         
-                        // these should cover our options for now - but we might have to refine them over time
-                        if (dataType == TYPENAME::INT || dataType == TYPENAME::LONGINT || dataType == TYPENAME::ULONGINT || 
-                            dataType == TYPENAME::FLOAT || dataType == TYPENAME::LONGDOUBLE) {                              // numeric?
+                        if (IsSupportedNumericDataType(dataType)) {                                                         // numeric?
                             
                             for (size_t ip = 0; ip < parms.size(); ip++) {                                                  // yes - for each set parameter specified
 
@@ -2767,6 +2824,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                     (dataType == TYPENAME::LONGINT    && !utils::IsLONGINT(parms[ip]))     ||               // LONG INT?
                                     (dataType == TYPENAME::ULONGINT   && !utils::IsULONGINT(parms[ip]))    ||               // UNSIGNED LONG INT?
                                     (dataType == TYPENAME::FLOAT      && !utils::IsFLOAT(parms[ip]))       ||               // FLOAT?
+                                    (dataType == TYPENAME::DOUBLE     && !utils::IsDOUBLE(parms[ip]))      ||               // DOUBLE?
                                     (dataType == TYPENAME::LONGDOUBLE && !utils::IsLONGDOUBLE(parms[ip]))) {                // LONG DOUBLE?
                                     error  = true;                                                                          // no - that's not ok
                                     errStr = ERR_MSG(ERROR::ARGUMENT_SET_EXPECTED_NUMERIC) + std::string(" '") + optionName + std::string("'");
@@ -3030,6 +3088,12 @@ int Options::AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor) {
                 }   break;
 
                 case TYPENAME::FLOAT: {                                 // FLOAT
+                    double thisVal = std::stof(optionValue);                    
+                    p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal);
+                    po::notify(p_OptionsDescriptor.optionValues.m_VM);
+                }   break;
+
+                case TYPENAME::DOUBLE: {                                // DOUBLE
                     double thisVal = std::stod(optionValue);                    
                     p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal);
                     po::notify(p_OptionsDescriptor.optionValues.m_VM);
@@ -3099,6 +3163,16 @@ int Options::AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor) {
                 }   break;
 
                 case TYPENAME::FLOAT: {                                 // FLOAT
+
+                    double start   = details.rangeParms[0].dVal;
+                    double inc     = details.rangeParms[2].dVal;
+                    double thisVal = start + (details.currPos * inc);
+                    
+                    p_OptionsDescriptor.optionValues.ModifyVariableMap(p_OptionsDescriptor.optionValues.m_VM, optionName, thisVal);
+                    po::notify(p_OptionsDescriptor.optionValues.m_VM);
+                }   break;
+
+                case TYPENAME::DOUBLE: {                                // DOUBLE
 
                     double start   = details.rangeParms[0].dVal;
                     double inc     = details.rangeParms[2].dVal;
