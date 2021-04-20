@@ -89,8 +89,16 @@ Output file
   existing output file will be deleted, and new, empty, file created, and data from the input
   file(s) will be appended to the new output file.
 
-When appending data, if a dataset in an input file does not exist in the output file, the 
-dataset will be created, otherwise the data copied will be appended to the existing dataset.
+When appending data:
+
+   (a) if a group in an input file already exists in the output file, then the group data (the
+       datasets within the group) will only be copied if the number of datasets in the input
+       file group matches the number of datasets in the output file group.  If there is a mismatch
+       a warning will be issued and the group will not be copied (but the file copy will continue,
+       just as though the group had been excluded) 
+   
+   (b) if a dataset in an input file does not exist in the output file, the dataset will be created,
+       otherwise the data copied will be appended to the existing dataset.
 
 
 Input files
@@ -331,110 +339,117 @@ IO_BUFFER_SIZE = 10             # number of HDF5 chunks, minimum 1
 
 def copyHDF5File(path, outFile, chunkSize = CHUNK_SIZE, bufferSize = IO_BUFFER_SIZE, excludeList = ''):
 
-    ok = False                                                                                                          # result
+    ok = False                                                                                                              # result
 
-    outFname = os.path.abspath(outFile.filename)                                                                        # fully-qualified output filename
+    outFname = os.path.abspath(outFile.filename)                                                                            # fully-qualified output filename
     
     try:
-        with h5.File(path, 'r') as srcFile:                                                                             # open the input HDF5 file
+        with h5.File(path, 'r') as srcFile:                                                                                 # open the input HDF5 file
 
-            srcFname = os.path.abspath(srcFile.filename)                                                                # fully-qualified source filename
-            if srcFname == outFname:                                                                                    # is this source file the output file?
-                ok = True                                                                                               # don't copy the output file...
+            srcFname = os.path.abspath(srcFile.filename)                                                                    # fully-qualified source filename
+            if srcFname == outFname:                                                                                        # is this source file the output file?
+                ok = True                                                                                                   # don't copy the output file...
             else:
 
-                print('Copying file', srcFname)                                                                         # announce file being copied
+                print('Copying file', srcFname)                                                                             # announce file being copied
 
-                srcGroupNames = list(srcFile.keys())                                                                    # list of groups in input file
+                srcGroupNames = list(srcFile.keys())                                                                        # list of groups in input file
 
-                for srcGroupName in srcGroupNames:                                                                      # for each source group
+                for srcGroupName in srcGroupNames:                                                                          # for each source group
 
-                    if srcGroupName in excludeList: continue                                                            # skip it if required
-
-                    srcGroup = srcFile[srcGroupName]                                                                    # source group
+                    if srcGroupName in excludeList: continue                                                                # skip it if required
+                    
+                    srcGroup = srcFile[srcGroupName]                                                                        # source group
 
                     try:
-                        destGroup = outFile.require_group(srcGroupName)                                                 # open group in output file - create it if necessary
+                        destGroup = outFile.require_group(srcGroupName)                                                     # open group in output file - create it if necessary
 
-                        srcDatasetNames = list(srcGroup.keys())                                                         # list of datasets in srcGroup in input file
+                        srcDatasetNames  = list(srcGroup.keys())                                                            # list of datasets in srcGroup in input file
+                        destDatasetNames = list(destGroup.keys())                                                           # list of datasets in destGroup in output file
 
-                        for srcDatasetName in srcDatasetNames:                                                          # for each source dataset in srcGroup
+                        if len(destDatasetNames) > 0 and (len(destDatasetNames) != len(srcDatasetNames)):                   # destination group not empty and not same size as source
+                            # print a warning that the group will noyt be copied, but continue 
+                            # (just as though this group is an excluded group)
+                            print('Dataset count mismatch between source and destination for group', srcGroupName, 'in files', srcFname, 'and', outFname)
+                            print('WARNING: Group', srcGroupName, 'from file', srcFname, 'not copied to', outFname)
+                        else:                                                                                               # ok to copy
+                            for srcDatasetName in srcDatasetNames:                                                          # yes - for each source dataset in srcGroup
 
-                            thisChunkSize  = chunkSize                                                                  # default dataset chunk size
-                            thisBufferSize = bufferSize                                                                 # default IO block size
+                                thisChunkSize  = chunkSize                                                                  # default dataset chunk size
+                                thisBufferSize = bufferSize                                                                 # default IO block size
 
-                            srcDataset       = srcGroup[srcDatasetName]                                                 # source dataset
-                            srcDataset_dtype = srcDataset.dtype                                                         # source dataset data type
-                            srcDatasetLen    = srcDataset.size                                                          # source dataset length
+                                srcDataset       = srcGroup[srcDatasetName]                                                 # source dataset
+                                srcDataset_dtype = srcDataset.dtype                                                         # source dataset data type
+                                srcDatasetLen    = srcDataset.size                                                          # source dataset length
 
-                            try:
-                                datasetOpen = False                                                                     # no dataset open yet
-                                try:                                                                                    # get destination dataset details if it exists
-                                    destDataset    = destGroup[srcDatasetName]                                          # destination dataset
-                                    destDatasetLen = destDataset.size                                                   # destination dataset length
-                                    # use destination dataset chunk size if it is a chunked dataset
-                                    # if it is not a chunked dataset the resize (below) will fail
-                                    if destDataset.chunks is not None: thisChunkSize = destDataset.chunks[0]
-                                    datasetOpen = True                                                                  # existing dataset is now open
-                                except Exception as e:                                                                  # dataset does not exist - create it
-                                    if chunkSize < 1: chunkSize = 1                                                     # clamp chunk size to minimum
+                                try:
+                                    datasetOpen = False                                                                     # no dataset open yet
+                                    try:                                                                                    # get destination dataset details if it exists
+                                        destDataset    = destGroup[srcDatasetName]                                          # destination dataset
+                                        destDatasetLen = destDataset.size                                                   # destination dataset length
+                                        # use destination dataset chunk size if it is a chunked dataset
+                                        # if it is not a chunked dataset the resize (below) will fail
+                                        if destDataset.chunks is not None: thisChunkSize = destDataset.chunks[0]
+                                        datasetOpen = True                                                                  # existing dataset is now open
+                                    except Exception as e:                                                                  # dataset does not exist - create it
+                                        if chunkSize < 1: chunkSize = 1                                                     # clamp chunk size to minimum
 
-                                    #create the dataset (with chunking enabled)
-                                    try:
-                                        destDataset    = destGroup.create_dataset(srcDatasetName, (0,), maxshape=(None,), chunks = (thisChunkSize,), dtype = srcDataset_dtype)
-                                        destDatasetLen = destDataset.size                                               # destination dataset length
-                                        datasetOpen    = True                                                           # newly created dataset is now open
-                                    except:
-                                        print('Error creating dataset', srcDatasetName, 'in group', srcGroupName, 'in file', outFname, ':', str(e))
-
-                                if datasetOpen:                                                                         # dataset open ok?
-                                    if thisBufferSize < 1: thisBufferSize = 1                                           # yes - clamp io minimum block size to 1 chunk
-                                    thisBufferSize *= thisChunkSize                                                     # convert to number of entries
-
-                                    srcDataset_attrs = list(srcDataset.attrs.items())                                   # list of dataset attributes
-
-                                    for srcAttr in srcDataset_attrs:
+                                        #create the dataset (with chunking enabled)
                                         try:
-                                            destDataset.attrs[srcAttr[0]] = srcAttr[1]                                  # set dataset attributes in destDataset - overwrites existing
+                                            destDataset    = destGroup.create_dataset(srcDatasetName, (0,), maxshape=(None,), chunks = (thisChunkSize,), dtype = srcDataset_dtype)
+                                            destDatasetLen = destDataset.size                                               # destination dataset length
+                                            datasetOpen    = True                                                           # newly created dataset is now open
+                                        except:
+                                            print('Error creating dataset', srcDatasetName, 'in group', srcGroupName, 'in file', outFname, ':', str(e))
 
+                                    if datasetOpen:                                                                         # dataset open ok?
+                                        if thisBufferSize < 1: thisBufferSize = 1                                           # yes - clamp io minimum block size to 1 chunk
+                                        thisBufferSize *= thisChunkSize                                                     # convert to number of entries
+
+                                        srcDataset_attrs = list(srcDataset.attrs.items())                                   # list of dataset attributes
+
+                                        for srcAttr in srcDataset_attrs:
                                             try:
+                                                destDataset.attrs[srcAttr[0]] = srcAttr[1]                                  # set dataset attributes in destDataset - overwrites existing
 
-                                                srcStart      = 0                                                       # source start position for copy
-                                                srcEnd        = srcStart + thisBufferSize                               # source end position for copy
-                                                destStart     = destDatasetLen                                          # destination start position for copy
-                                                destEnd       = destStart + thisBufferSize                              # destination end position for copy
+                                                try:
 
-                                                while srcEnd <= srcDatasetLen:                                          # while source copy end position is inside source dataset
-                                                    destDataset.resize((destStart + thisBufferSize,))                   # resize the destination dataset appropriately
-                                                    destDataset[destStart : destEnd] = srcDataset[srcStart : srcEnd]    # copy source block to destination block
+                                                    srcStart      = 0                                                       # source start position for copy
+                                                    srcEnd        = srcStart + thisBufferSize                               # source end position for copy
+                                                    destStart     = destDatasetLen                                          # destination start position for copy
+                                                    destEnd       = destStart + thisBufferSize                              # destination end position for copy
 
-                                                    srcStart  = srcEnd                                                  # advance source start position for copy
-                                                    srcEnd   += thisBufferSize                                          # advance source end position for copy
-                                                    destStart = destEnd                                                 # advance destination start position for copy
-                                                    destEnd  += thisBufferSize                                          # advance destination end position for copy
+                                                    while srcEnd <= srcDatasetLen:                                          # while source copy end position is inside source dataset
+                                                        destDataset.resize((destStart + thisBufferSize,))                   # resize the destination dataset appropriately
+                                                        destDataset[destStart : destEnd] = srcDataset[srcStart : srcEnd]    # copy source block to destination block
 
-                                                if srcEnd > srcDatasetLen:                                              # source copy end position at or beyond end of source dataset?
-                                                                                                                        # yes - last chunk (partial)
-                                                    srcEnd  = srcDatasetLen                                             # set source end position for copy to end of dataset
-                                                    destEnd = destStart + srcEnd - srcStart                             # set destination end position for copy appropriately
-                                                    destDataset.resize((destEnd,))                                      # resize the destination dataset appropriately
-                                                    destDataset[destStart : destEnd] = srcDataset[srcStart : srcEnd]    # copy source chunk to destination chunk
+                                                        srcStart  = srcEnd                                                  # advance source start position for copy
+                                                        srcEnd   += thisBufferSize                                          # advance source end position for copy
+                                                        destStart = destEnd                                                 # advance destination start position for copy
+                                                        destEnd  += thisBufferSize                                          # advance destination end position for copy
 
-                                                ok = True                                                               # all good
+                                                    if srcEnd > srcDatasetLen:                                              # source copy end position at or beyond end of source dataset?
+                                                                                                                            # yes - last chunk (partial)
+                                                        srcEnd  = srcDatasetLen                                             # set source end position for copy to end of dataset
+                                                        destEnd = destStart + srcEnd - srcStart                             # set destination end position for copy appropriately
+                                                        destDataset.resize((destEnd,))                                      # resize the destination dataset appropriately
+                                                        destDataset[destStart : destEnd] = srcDataset[srcStart : srcEnd]    # copy source chunk to destination chunk
 
-                                            except Exception as e:                                                      # error occurred while writing to dataset
-                                                print('Error writing to dataset', srcDatasetName, 'in group', srcGroupName, 'in file', outFname, ':', str(e))
+                                                    ok = True                                                               # all good
 
-                                        except Exception as e:                                                          # error occurred while accessing the dataset attributes
-                                            print('Error accessing attribute', srcAttr[0], 'in dataset', srcDatasetName, 'in group', srcGroupName, 'in file', outFname, ':', str(e))
+                                                except Exception as e:                                                      # error occurred while writing to dataset
+                                                    print('Error writing to dataset', srcDatasetName, 'in group', srcGroupName, 'in file', outFname, ':', str(e))
 
-                            except Exception as e:                                                                      # error occurred while accessing the dataset
-                                print('Error accessing dataset', srcDatasetName, 'in group', srcGroupName, 'in file', outFname, ':', str(e))
+                                            except Exception as e:                                                          # error occurred while accessing the dataset attributes
+                                                print('Error accessing attribute', srcAttr[0], 'in dataset', srcDatasetName, 'in group', srcGroupName, 'in file', outFname, ':', str(e))
+
+                                except Exception as e:                                                                      # error occurred while accessing the dataset
+                                    print('Error accessing dataset', srcDatasetName, 'in group', srcGroupName, 'in file', outFname, ':', str(e))
 
                     except Exception as e:
-                        print('Error accessing group', srcGroupName, 'in file', outFname, ':', str(e))                  # error occurred while accessing the group
+                        print('Error accessing group', srcGroupName, 'in file', outFname, ':', str(e))                      # error occurred while accessing the group
 
-    except Exception as e:                                                                                              # error occurrd accessing the input file
+    except Exception as e:                                                                                                  # error occurrd accessing the input file
         print('Error accessing HDF5 file', path, ':', str(e))
 
     return ok
@@ -525,7 +540,7 @@ def main():
     outFname = args.output_fileName
     if outFname[-3:] != '.h5' and outFname[-3:] != '.H5': outFname += '.h5'                                         # add output file extension if necessary
 
-    fileFilter = args.filename_filter + '.h5'                                                                       # add file extension to filer
+    fileFilter = args.filename_filter + '.h5'                                                                       # add file extension to filter
 
     excludeList = ' '.join(args.exclude_group)                                                                      # construct exclude list for groups
 
@@ -568,7 +583,7 @@ def main():
                 ok = false                                                                                                      # fail
         else:                                                                                                                   # output file does not exist
             try:
-                outHDF5file = h5.h5f.create(fullOutFpath.encode('utf-8'), fapl = h5FileAccessPropertyList)                      # creat it
+                outHDF5file = h5.h5f.create(fullOutFpath.encode('utf-8'), fapl = h5FileAccessPropertyList)                      # create it
             except Exception as e:                                                                                              # error creating file
                 print('Error occurred while disabling HDF5 dataset cache:', str(e))                                             # announce error
                 ok = false                                                                                                      # fail

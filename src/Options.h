@@ -987,6 +987,8 @@ private:
     bool            AddOptions(OptionValues *p_Options, po::options_description *p_OptionsDescription);
     int             AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor);
 
+    bool            IsSupportedNumericDataType(TYPENAME p_TypeName);
+
     ATTR            OptionAttributes(const po::variables_map p_VM, const po::variables_map::const_iterator p_IT);
 
     PROGRAM_STATUS  ParseCommandLineOptions(int argc, char * argv[]);
