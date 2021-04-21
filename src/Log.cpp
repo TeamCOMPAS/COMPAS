@@ -20,7 +20,7 @@ Log* Log::Instance() {
 
 
 /*
- * Open the run details file inside the HDF5 container (if logging to FHDF5 files)
+ * Open the run details file inside the HDF5 container (if logging to HDF5 files)
  * 
  * Creates the file (group) inside the HDF5 container, and creates the columns
  * (datasets) required.  Ciluns (datasets) are created for the preamble/stats

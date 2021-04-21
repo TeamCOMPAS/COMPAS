@@ -507,7 +507,7 @@ void Options::OptionValues::Initialise() {
     m_LogfileSwitchLog                                              = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));       // assume BSE - get real answer when we know mode
     m_LogfileSystemParameters                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));
 
-    m_AddOptionsToSysParms.type                                     = ADD_OPTIONS_TO_SYSPARMS::NEVER;
+    m_AddOptionsToSysParms.type                                     = ADD_OPTIONS_TO_SYSPARMS::GRID;
     m_AddOptionsToSysParms.typeString                               = ADD_OPTIONS_TO_SYSPARMS_LABEL.at(m_AddOptionsToSysParms.type);
     
     m_HDF5BufferSize                                                = HDF5_DEFAULT_IO_BUFFER_SIZE;
