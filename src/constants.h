@@ -793,6 +793,17 @@ const COMPASUnorderedMap<DELIMITER, std::string> DELIMITERValue = {         // v
 };
 
 
+// Logfile modifiers
+
+// Option to add program option columns to [BSE/SSE] SYSPARMS file
+enum class ADD_OPTIONS_TO_SYSPARMS: int { ALWAYS, GRID, NEVER };
+const COMPASUnorderedMap<ADD_OPTIONS_TO_SYSPARMS, std::string> ADD_OPTIONS_TO_SYSPARMS_LABEL = {
+    { ADD_OPTIONS_TO_SYSPARMS::ALWAYS, "ALWAYS" },
+    { ADD_OPTIONS_TO_SYSPARMS::GRID,   "GRID" },
+    { ADD_OPTIONS_TO_SYSPARMS::NEVER,  "NEVER" }
+};
+
+
 // Eccentricity distribution
 enum class ECCENTRICITY_DISTRIBUTION: int { ZERO, FLAT, THERMAL, GELLER_2013, DUQUENNOYMAYOR1991, SANA2012 };
 const COMPASUnorderedMap<ECCENTRICITY_DISTRIBUTION, std::string> ECCENTRICITY_DISTRIBUTION_LABEL = {
@@ -991,7 +1002,7 @@ const COMPASUnorderedMap<PPI_PRESCRIPTION, std::string> PPI_PRESCRIPTION_LABEL =
     { PPI_PRESCRIPTION::COMPAS,    "COMPAS" },
     { PPI_PRESCRIPTION::STARTRACK, "STARTRACK" },
     { PPI_PRESCRIPTION::MARCHANT,  "MARCHANT" },
-    { PPI_PRESCRIPTION::FARMER,  "FARMER" }
+    { PPI_PRESCRIPTION::FARMER,    "FARMER" }
 };
 
 
@@ -1025,7 +1036,7 @@ const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PR
     { REMNANT_MASS_PRESCRIPTION::MULLER2016,           "MULLER2016" },
     { REMNANT_MASS_PRESCRIPTION::MULLERMANDEL,         "MULLERMANDEL" },
     { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020,        "SCHNEIDER2020" },
-    { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT ,    "SCHNEIDER2020ALT"}
+    { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT ,    "SCHNEIDER2020ALT" }
 };
 
 
@@ -1375,25 +1386,27 @@ enum class TYPENAME: int {
 // labels (long and short) for typenames
 // unordered_map - key is integer typename (from enum class TYPENAME above)
 const COMPASUnorderedMap<TYPENAME, std::tuple<std::string, std::string>> TYPENAME_LABEL = {
-    { TYPENAME::NONE,         { "NONE",               "NONE"   }},
-    { TYPENAME::BOOL,         { "BOOL",               "BOOL"   }},
-    { TYPENAME::SHORTINT,     { "SHORT INT",          "INT"    }},
-    { TYPENAME::INT,          { "INT",                "INT"    }},
-    { TYPENAME::LONGINT,      { "LONG_INT",           "INT"    }},
-    { TYPENAME::USHORTINT,    { "UNSIGNED_SHORT_INT", "INT"    }},
-    { TYPENAME::UINT,         { "UNSIGNED_INT",       "INT"    }},
-    { TYPENAME::ULONGINT,     { "UNSIGNED_LONG_INT",  "INT"    }},
-    { TYPENAME::FLOAT,        { "FLOAT",              "FLOAT"  }},
-    { TYPENAME::DOUBLE,       { "DOUBLE",             "FLOAT"  }},
-    { TYPENAME::LONGDOUBLE,   { "LONG_DOUBLE",        "FLOAT"  }},
-    { TYPENAME::STRING,       { "STRING",             "STRING" }},
-    { TYPENAME::OBJECT_ID,    { "OBJECT_ID",          "INT"    }},
-    { TYPENAME::ERROR,        { "ERROR",              "INT"    }},
-    { TYPENAME::STELLAR_TYPE, { "STELLAR_TYPE",       "INT"    }},
-    { TYPENAME::MT_CASE,      { "MT_CASE",            "INT"    }},
-    { TYPENAME::MT_TRACKING,  { "MT_TRACKING",        "INT"    }},
-    { TYPENAME::SN_EVENT,     { "SN_EVENT",           "INT"    }},
-    { TYPENAME::SN_STATE,     { "SN_STATE",           "INT"    }}
+    { TYPENAME::NONE,         { "NONE",                   "NONE"   }},
+    { TYPENAME::BOOL,         { "BOOL",                   "BOOL"   }},
+    { TYPENAME::SHORTINT,     { "SHORT INT",              "INT"    }},
+    { TYPENAME::INT,          { "INT",                    "INT"    }},
+    { TYPENAME::LONGINT,      { "LONG_INT",               "INT"    }},
+    { TYPENAME::LONGLONGINT,  { "LONG_LONG_INT",          "INT"    }},
+    { TYPENAME::USHORTINT,    { "UNSIGNED_SHORT_INT",     "INT"    }},
+    { TYPENAME::UINT,         { "UNSIGNED_INT",           "INT"    }},
+    { TYPENAME::ULONGINT,     { "UNSIGNED_LONG_INT",      "INT"    }},
+    { TYPENAME::ULONGLONGINT, { "UNSIGNED_LONG_LONG_INT", "INT"    }},
+    { TYPENAME::FLOAT,        { "FLOAT",                  "FLOAT"  }},
+    { TYPENAME::DOUBLE,       { "DOUBLE",                 "FLOAT"  }},
+    { TYPENAME::LONGDOUBLE,   { "LONG_DOUBLE",            "FLOAT"  }},
+    { TYPENAME::STRING,       { "STRING",                 "STRING" }},
+    { TYPENAME::OBJECT_ID,    { "OBJECT_ID",              "INT"    }},
+    { TYPENAME::ERROR,        { "ERROR",                  "INT"    }},
+    { TYPENAME::STELLAR_TYPE, { "STELLAR_TYPE",           "INT"    }},
+    { TYPENAME::MT_CASE,      { "MT_CASE",                "INT"    }},
+    { TYPENAME::MT_TRACKING,  { "MT_TRACKING",            "INT"    }},
+    { TYPENAME::SN_EVENT,     { "SN_EVENT",               "INT"    }},
+    { TYPENAME::SN_STATE,     { "SN_STATE",               "INT"    }}
 };
 
 
@@ -1402,9 +1415,11 @@ const std::initializer_list<TYPENAME> INT_TYPES = {
     TYPENAME::SHORTINT,
     TYPENAME::INT,
     TYPENAME::LONGINT,
+    TYPENAME::LONGLONGINT,
     TYPENAME::USHORTINT,
     TYPENAME::UINT,
-    TYPENAME::ULONGINT
+    TYPENAME::ULONGINT,
+    TYPENAME::ULONGLONGINT
 };
 
 // (convenience) initializer list for FLOAT data types
@@ -1422,9 +1437,11 @@ typedef boost::variant<
     short int,
     int,
     long int,
+    long long int,
     unsigned short int,
     unsigned int,
     unsigned long int,
+    unsigned long long int,
     float,
     double,
     long double,
@@ -1595,6 +1612,10 @@ enum class STAR_PROPERTY: int { STAR_PROPERTIES };
 // map STAR PROPERTY to string identifying the property
 // for lookup by the printing functions
 // this map serves as the lookup for: STAR_PROPERTY, STAR_1_PROPERTY, STAR_2_PROPERTY, SUPERNOVA_PROPERTY, COMPANION_PROPERTY and ANY_STAR_PROPERTY
+//
+// Properties only need to be here if they are required to be available for 
+// printing in the logfiles - all keys present here should also be in the STAR_PROPERTIES #define
+// and ANY_STAR_PROPERTY_DETAIL
 const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::AGE,                                             "AGE" },
     { STAR_PROPERTY::ANGULAR_MOMENTUM,                                "ANGULAR_MOMENTUM" },
@@ -1745,6 +1766,10 @@ enum class ANY_STAR_PROPERTY: int { STAR_PROPERTIES };
 // enum class BINARY_PROPERTY
 // Symbolic names for variables of binary stars that can be selected for printing
 // BINARY_PROPERTY refers to a binary star of type BaseBinaryStar) for BSE
+//
+// Properties only need to be here if they are required to be available for 
+// printing in the logfiles - all keys present here should also be in BINARY_PROPERTY_LABEL
+// and BINARY_PROPERTY_DETAIL
 enum class BINARY_PROPERTY: int {
     BE_BINARY_CURRENT_COMPANION_LUMINOSITY,
     BE_BINARY_CURRENT_COMPANION_MASS,
@@ -1867,6 +1892,10 @@ enum class BINARY_PROPERTY: int {
 
 // map BINARY_PROPERTY to string identifying the property
 // for lookup by the printing functions
+//
+// Property names only need to be here if they are required to be available for 
+// printing in the logfiles - all keys present here should also be in BINARY_PROPERTY
+// and BINARY_PROPERTY_DETAIL
 const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_LUMINOSITY,             "BE_BINARY_CURRENT_COMPANION_LUMINOSITY" },
     { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_MASS,                   "BE_BINARY_CURRENT_COMPANION_MASS" },
@@ -1990,10 +2019,11 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
 // enum class PROGRAM_OPTION
 // Symbolic names for program option values
 //
-// Option names only need to be here if they are required to be
+// Options only need to be here if they are required to be
 // available for printing in the logfiles
 enum class PROGRAM_OPTION: int {
 
+    ADD_OPTIONS_TO_SYSPARMS,
     ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE,
     ALLOW_RLOF_AT_BIRTH,
     ALLOW_TOUCHING_AT_BIRTH,
@@ -2003,8 +2033,6 @@ enum class PROGRAM_OPTION: int {
     //BE_BINARIES,
 
     BLACK_HOLE_KICKS,
-
-    EVOLUTION_MODE,
     
     CASE_BB_STABILITY_PRESCRIPTION,
     
@@ -2034,6 +2062,7 @@ enum class PROGRAM_OPTION: int {
     ECCENTRICITY_DISTRIBUTION_MIN,
     EDDINGTON_ACCRETION_FACTOR,
     ENVELOPE_STATE_PRESCRIPTION,
+    EVOLUTION_MODE,
 
     FRYER_SUPERNOVA_ENGINE,
 
@@ -2196,10 +2225,12 @@ enum class PROGRAM_OPTION: int {
 // map PROGRAM_OPTION to string identifying the property
 // for lookup by the printing functions
 //
-// Option names only need to be here if they are required to be
-// available for printing in the logfiles
+// Options only need to be here if they are required to be
+// available for printing in the logfiles - all keys present here
+// should also be in PROGRAM_OPTION_DETAIL
 const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
+    { PROGRAM_OPTION::ADD_OPTIONS_TO_SYSPARMS,                          "ADD_OPTIONS_TO_SYSPARMS" },
     { PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE,         "ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE" },
     { PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH,                              "ALLOW_RLOF_AT_BIRTH" },
     { PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH,                          "ALLOW_TOUCHING_AT_BIRTH" },
@@ -2238,7 +2269,6 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MIN,                    "ECCENTRICITY_DISTRIBUTION_MIN" },
     { PROGRAM_OPTION::EDDINGTON_ACCRETION_FACTOR,                       "EDDINGTON_ACCRETION_FACTOR" },
     { PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION,                      "ENVELOPE_STATE_PRESCRIPTION" },
-
     { PROGRAM_OPTION::EVOLUTION_MODE,                                   "EVOLUTION_MODE" },
 
     { PROGRAM_OPTION::FRYER_SUPERNOVA_ENGINE,                           "FRYER_SUPERNOVA_ENGINE" },
@@ -2438,10 +2468,14 @@ public:
 typedef std::tuple<TYPENAME, std::string, std::string, int, int> PROPERTY_DETAILS;
 
 
-// enum class ANY_STAR_PROPERTY_DETAIL
+// map ANY_STAR_PROPERTY_DETAIL
 // Records the details of STELLAR properties.  The STELLAR properties are those that pertain
 // to individual stars, whether they be a single star being evolved for SSE, or one of the
 // constituent stars being evolved as part of a binary for BSE
+//
+// Properties only need to be here if they are required to be available for printing in 
+// the logfiles - all keys present here should also be in the STAR_PROPERTIES #define and
+// STAR_PROPERTIES_LABEL
 const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::AGE,                                               { TYPENAME::DOUBLE,         "Age",                  "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::ANGULAR_MOMENTUM,                                  { TYPENAME::DOUBLE,         "Ang_Momentum",         "Msol*AU^2*yr^-1",  14, 6 }},
@@ -2558,9 +2592,12 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE,                                  { TYPENAME::DOUBLE,         "Zeta_SoberMan_He",     "-",                14, 6 }}
 };
 
-// enum class BINARY_PROPERTY_DETAIL
+// map BINARY_PROPERTY_DETAIL
 // Records the details of BINARY properties.  The BINARY properties are those that pertain
 // to exclusively to a binary star - not the constituent stars that make up the binary
+//
+// Properties only need to be here if they are required to be available for printing in 
+// the logfiles - all keys present here should also be in BINARY_PROPERTY and BINARY_PROPERTY_LABEL
 const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_LUMINOSITY,              { TYPENAME::DOUBLE,         "Companion_Lum",        "Lsol",             14, 6 }},
     { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_MASS,                    { TYPENAME::DOUBLE,         "Companion_Mass",       "Msol",             14, 6 }},
@@ -2680,10 +2717,14 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::ZETA_STAR,                                           { TYPENAME::DOUBLE,         "Zeta_Star",            "-",                14, 6 }}
 };
 
-// enum class PROGRAM_OPTION_DETAIL
+// map PROGRAM_OPTION_DETAIL
 // Records the details of PROGRAM_OPTION properties.
+//
+// Options only need to be here if they are required to be available for printing in 
+// the logfiles - all keys present here should also be in PROGRAM_OPTION and PROGRAM_OPTION_LABEL
 const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
 
+    { PROGRAM_OPTION::ADD_OPTIONS_TO_SYSPARMS,                              { TYPENAME::INT,            "Add_Options_To_SysParms",      "-",                 4, 1 }},
     { PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE,             { TYPENAME::BOOL,           "Allow_MS_To_Survive_CE",       "Flag",              0, 0 }},
     { PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH,                                  { TYPENAME::BOOL,           "Allow_RLOF@Birth",             "Flag",              0, 0 }},
     { PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH,                              { TYPENAME::BOOL,           "Allow_Touching@Birth",         "Flag",              0, 0 }},
@@ -2721,6 +2762,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MIN,                        { TYPENAME::DOUBLE,         "Eccentricity_Dstrbtn_Min",     "-",                14, 6 }},
     { PROGRAM_OPTION::EDDINGTON_ACCRETION_FACTOR,                           { TYPENAME::DOUBLE,         "Eddington_Accr_Factor",        "-",                14, 6 }},
     { PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION,                          { TYPENAME::INT,            "Envelope_State_Prscrptn",      "-",                 4, 1 }},
+    { PROGRAM_OPTION::EVOLUTION_MODE,                                       { TYPENAME::INT,            "Evolution_Mode",               "Mode",              4, 1 }},
 
     { PROGRAM_OPTION::FRYER_SUPERNOVA_ENGINE,                               { TYPENAME::INT,            "Fryer_SN_Engine",              "-",                 4, 1 }},
 
@@ -2772,7 +2814,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::MAXIMUM_EVOLUTION_TIME,                               { TYPENAME::DOUBLE,         "Max_Evolution_Time",           "Myr",              14, 6 }},
     { PROGRAM_OPTION::MAXIMUM_DONOR_MASS,                                   { TYPENAME::DOUBLE,         "Max_Donor_Mass",               "Msol",             14, 6 }},
     { PROGRAM_OPTION::MAXIMUM_NEUTRON_STAR_MASS,                            { TYPENAME::DOUBLE,         "Max_NS_Mass",                  "Msol",             14, 6 }},
-    { PROGRAM_OPTION::MAXIMUM_TIMESTEPS,                                    { TYPENAME::DOUBLE,         "Max_Timesteps",                "-",                10, 1 }},
+    { PROGRAM_OPTION::MAXIMUM_TIMESTEPS,                                    { TYPENAME::INT,            "Max_Timesteps",                "Count",            10, 1 }},
 
     { PROGRAM_OPTION::MCBUR1,                                               { TYPENAME::DOUBLE,         "MCBUR1",                       "Msol",             14, 6 }},
 
@@ -2815,7 +2857,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::MT_CRIT_MR_WD_NONDEGENERATE_ACCRETOR,                 { TYPENAME::DOUBLE,         "MT_Crit_MR_WD_NonDeg_Acc",             "-",        14, 6 }},
     */
 
-    { PROGRAM_OPTION::MT_FRACTION_ACCRETED,                                 { TYPENAME::DOUBLE,         "MT_Fraction_Accreted",          "-",                14, 6 }},
+    { PROGRAM_OPTION::MT_FRACTION_ACCRETED,                                 { TYPENAME::DOUBLE,         "MT_Fraction_Accreted",         "-",                14, 6 }},
     { PROGRAM_OPTION::MT_JLOSS,                                             { TYPENAME::DOUBLE,         "MT_JLoss",                     "-",                14, 6 }},
     { PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION,                         { TYPENAME::INT,            "MT_Rejuvenation_Prscrptn",     "-",                 4, 1 }},
     { PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION,                       { TYPENAME::INT,            "MT_Thermally_Lmtd_Variation",  "-",                 4, 1 }},
@@ -2855,8 +2897,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
 
     { PROGRAM_OPTION::PULSAR_MINIMUM_MAGNETIC_FIELD,                        { TYPENAME::DOUBLE,         "Pulsar_Minimum_Mag_Field",     "Gauss",            14, 6 }},
 
-    { PROGRAM_OPTION::RANDOM_SEED,                                          { TYPENAME::DOUBLE,         "SEED(OPTION)",                 "-",                14, 6 }},
-    { PROGRAM_OPTION::RANDOM_SEED_CMDLINE,                                  { TYPENAME::DOUBLE,         "SEED(CMDLINE)",                "-",                14, 6 }},
+    { PROGRAM_OPTION::RANDOM_SEED,                                          { TYPENAME::ULONGINT,       "SEED(OPTION)",                 "-",                12, 1 }},
+    { PROGRAM_OPTION::RANDOM_SEED_CMDLINE,                                  { TYPENAME::ULONGINT,       "SEED(CMDLINE)",                "-",                11, 1 }},
 
     { PROGRAM_OPTION::REMNANT_MASS_PRESCRIPTION,                            { TYPENAME::INT,            "Remnant_Mass_Prscrptn",        "-",                 4, 1 }},
 
@@ -2869,7 +2911,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION,                         { TYPENAME::INT,            "Semi-Major_Axis_Dstrbtn",      "-",                 4, 1 }},
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MAX,                     { TYPENAME::DOUBLE,         "Semi-Major_Axis_Dstrbtn_Max",  "AU",               14, 6 }},
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MIN,                     { TYPENAME::DOUBLE,         "Semi-Major_Axis_Dstrbtn_Min",  "AU",               14, 6 }},
-//    { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_POWER,                   { TYPENAME::DOUBLE,         "Semi-Major_Axis_Dstrbtn_Power","-",                14, 6 }},
+    { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_POWER,                   { TYPENAME::DOUBLE,         "Semi-Major_Axis_Dstrbtn_Power","-",                14, 6 }},
 
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                            { TYPENAME::INT,            "Stellar_Zeta_Prscrptn",        "-",                 4, 1 }},
 
@@ -2878,6 +2920,34 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::ZETA_ADIABATIC_ARBITRARY,                             { TYPENAME::DOUBLE,         "Zeta_Adiabatic_Arbitrary",     "-",                14, 6 }},
     { PROGRAM_OPTION::ZETA_MS,                                              { TYPENAME::DOUBLE,         "Zeta_Main_Sequence",           "-",                14, 6 }},
     { PROGRAM_OPTION::ZETA_RADIATIVE_ENVELOPE_GIANT,                        { TYPENAME::DOUBLE,         "Zeta_Radiative_Envelope_Giant","-",                14, 6 }}
+};
+
+
+// enum class RUN_DETAILS_REC
+// symbolic names for RUN DETAILS record definitions
+// For preamble/stats columns only
+// Program options columns are dynamic
+// these must be left as default values - their order can be changed with the caveat that the sentinel "SENTINEL" must stay at the end
+// it's a bit of a hack, but it lets me iterate over the enum
+enum class RUN_DETAILS_COLUMNS: int { COMPAS_VERSION,
+                                      RUN_START, 
+                                      RUN_END, 
+                                      OBJECTS_REQUESTED,
+                                      OBJECTS_CREATED,
+                                      CLOCK_TIME,
+                                      WALL_TIME,
+                                      ACTUAL_RANDOM_SEED,
+                                      SENTINEL };
+
+const COMPASUnorderedMap<RUN_DETAILS_COLUMNS, std::tuple<std::string, TYPENAME, std::size_t>> RUN_DETAILS_DETAIL = {
+    { RUN_DETAILS_COLUMNS::COMPAS_VERSION,      { "COMPAS-Version",                TYPENAME::STRING,    8 }},
+    { RUN_DETAILS_COLUMNS::RUN_START,           { "Run-Start",                     TYPENAME::STRING,   24 }},
+    { RUN_DETAILS_COLUMNS::RUN_END,             { "Run-End",                       TYPENAME::STRING,   24 }},
+    { RUN_DETAILS_COLUMNS::OBJECTS_REQUESTED,   { "Objects-Requested",             TYPENAME::INT,       0 }},
+    { RUN_DETAILS_COLUMNS::OBJECTS_CREATED,     { "Objects-Created",               TYPENAME::INT,       0 }},
+    { RUN_DETAILS_COLUMNS::CLOCK_TIME,          { "Clock-Time",                    TYPENAME::DOUBLE,    0 }},
+    { RUN_DETAILS_COLUMNS::WALL_TIME,           { "Wall-Time",                     TYPENAME::STRING,   10 }},
+    { RUN_DETAILS_COLUMNS::ACTUAL_RANDOM_SEED,  { "Actual-Random-Seed",            TYPENAME::ULONGINT,  0 }}
 };
 
 
