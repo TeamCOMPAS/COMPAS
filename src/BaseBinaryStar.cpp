@@ -1184,6 +1184,12 @@ bool BaseBinaryStar::ResolveSupernova() {
 
             m_SemiMajorAxis *= (m1pre+m2pre)/(m1stripped+m2pre);
             m_Supernova->UpdateTotalMassForECSN(m1stripped);
+
+            std::cout << "ECSN with modified env:"
+                      << "\n  options->kick_mag = " << OPTIONS->KickMagnitude()
+                      //<< "\n  snDetails.kick_mag = " << m_SupernovaDetails.kickMagnitude
+                      << "\n  m_SN->SNKickMag() = " << m_Supernova->SN_KickMagnitude()
+                      << std::endl;
         }
     }
 

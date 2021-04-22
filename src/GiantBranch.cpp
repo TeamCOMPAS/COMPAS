@@ -1880,6 +1880,10 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
                     //}
                     //m_SupernovaDetails.kickMagnitude = sigma*ecsnKickReductionFactor; // Just use raw value
 
+                    m_SupernovaDetails.kickMagnitude = sigma * sqrt(gsl_cdf_chisq_Pinv(RAND->Random(0, 1), 3)); // source code for maxw
+
+                    // Do different things for 0, 10, and 30 EC kicks
+                    /* actually, don't
                     if (sigma > 29) {
                         m_SupernovaDetails.kickMagnitude = sigma * sqrt(gsl_cdf_chisq_Pinv(RAND->Random(0, 1), 3)); // source code for maxw
                     }
@@ -1887,6 +1891,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
                         // Use raw value for 0 or 10, but Maxw(30) for 30
                         m_SupernovaDetails.kickMagnitude = sigma; // Just use raw value
                     }
+                    */
 
                     // Kill all Wide ECSN if flag is set
                     if (OPTIONS->KickMagnitude() > 50) { // flag is set
@@ -1896,6 +1901,14 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
                             m_Mass = 6.66;
                         }
                     }
+
+                    std::cout << "ECSN:"
+                              << "\n  options->ecsn_sigma = " << sigma
+                              << "\n  options->kick_mag = " << OPTIONS->KickMagnitude()
+                              << "\n  snDetails.kick_mag = " << m_SupernovaDetails.kickMagnitude
+                              << "\n  final stype = " << MassTransferDonorHistoryString()
+                              << std::endl;
+                    // Need to fix the stellarType thing to pass to string...
                 }
             }
         
