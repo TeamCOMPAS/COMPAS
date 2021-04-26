@@ -709,7 +709,27 @@
 //                                              - PPI-upper-limit
 // 02.18.09     ML - Mar 22, 2021   - Defect repair:
 //                                      - Correct polynomial evaluation of Nanjing lambda's for EAGB and TPAGB stellar types.
+// 02.18.10     LVS - Apr 06, 2021   - Enhancement:
+//                                      - Added PPISN prescription option - Farmer 2019
+// 02.19.00     JR - Apr 20, 2021   - Enhancements and Defect Repairs:
+//                                      - Enhancements:
+//                                          - Added option to enable users to add program options values to BSE/SSE system parameters files
+//                                              - option is '--add-options-to-sysparms', allowed values are {ALWAYS, GRID, NEVER}.  See docs for details.
+//                                          - Included "Run_Details" file in HDF5 output file if logfile type = HDF5.  The text Run_Details file still exists
+//                                            so users can still easily look at the contents of the Run_Details file - this enhancements adds a copy of the
+//                                            Run_Details file to the HDF5 output file.
+//
+//                                      - Defect Repairs:
+//                                          - fixed a few previously unnoticed typos in PROGRAM_OPTION map in constamts.h, and in Options::OptionValue() function.
+//                                            Fairly benign since they had't been noticed, but needed to be fixed.
+//
+//                                      Modified h5copy.py (in postProcessing/Folders/H5/PythonScripts) so that groups (COMPAS files) will not be copied
+//                                      if the group exists in the destination file but has a different number of datasets (columns) from the group in
+//                                      the source file.
+//
+//                                      Also provided h5view.py - an HDF5 file viewer for COMPAS HDF5 files (in postProcessing/Folders/H5/PythonScripts).  See
+//                                      documentation as top of source file for details.
 
-const std::string VERSION_STRING = "02.18.09";
+const std::string VERSION_STRING = "02.19.00";
 
 # endif // __changelog_h__

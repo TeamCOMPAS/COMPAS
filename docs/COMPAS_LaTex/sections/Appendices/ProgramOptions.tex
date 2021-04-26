@@ -7,6 +7,8 @@ Following is the list of program options that can be specified at the command li
 
 \programOption{version}{v}{Prints COMPAS version string.}{}
 
+\programOption{add-options-to-sysparms}{}{Add columns for program options to SSE\_System\_Parameters/BSE\_System\_Parameters file (mode dependent). \\ Options: \lcb\ ALWAYS, GRID, NEVER\ \rcb}{GRID \\ \\ ALWAYS indicates that the program options should be added to the sysparms file \\ GRID indicates that the program options should be added to the sysparms file only if a GRID file is specified, or RANGEs or SETs are specified for options \\ NEVER indicates that the program options should not be added to the sysparms file}
+
 \programOption{allow-rlof-at-birth}{}{Allow binaries that have one or both stars in RLOF at birth to evolve as over-contact systems.}{FALSE}
 
 \programOption{allow-touching-at-birth}{}{Allow binaries that are touching at birth to be included in the sampling.}{FALSE}
@@ -275,7 +277,7 @@ In both cases the number of objects evolved will be the number specified by the 
 
 \programOption{pulsational-pair-instability}{}{Enable mass loss due to pulsational-pair-instability (PPI).}{FALSE}
 
-\programOption{pulsational-pair-instability-prescription}{}{Pulsational pair instability prescription. \\ Options: \lcb\ COMPAS, STARTRACK, MARCHANT\ \rcb}{COMPAS}
+\programOption{pulsational-pair-instability-prescription}{}{Pulsational pair instability prescription. \\ Options: \lcb\ COMPAS, STARTRACK, MARCHANT, FARMER\ \rcb}{COMPAS}
 
 \programOption{quiet}{}{Suppress printing to stdout.}{FALSE}
 

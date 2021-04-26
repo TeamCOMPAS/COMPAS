@@ -1513,6 +1513,12 @@ double GiantBranch::CalculateRemnantMassByBelczynski2002(const double p_Mass, co
 }
 
 
+
+
+
+
+
+
 /*
  * Driver function for Core Collapse Supernovas
  *
@@ -1762,6 +1768,29 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
 
             baryonicMass = ratioOfRemnantToHeCoreMass * m_HeCoreMass;                                   // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static)
             m_Mass = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                                // convert to gravitational mass due to neutrino mass loss
+
+            } break;
+
+        case PPI_PRESCRIPTION::FARMER: {                                                                // Farmer et al. 2019 http://dx.doi.org/10.3847/1538-4357/ab518b
+                                                                                                        // Three cases:
+            if (m_COCoreMass < FARMER_PPISN_UPP_LIM_LIN_REGIME) {
+                m_Mass = m_COCoreMass + 4.;                                                             // A linear relation below CO core masses of 38 Msun
+            }
+
+            else if (m_COCoreMass < FARMER_PPISN_UPP_LIM_QUAD_REGIME) {                                 // A quadratic relation in CO core mass for 38 =< CO_core < 60
+                double a1             = -0.096;
+                double a2             = 8.564;
+                double a3             = -2.07;
+                double a4             = -152.97;
+                m_Mass = a1*pow(m_COCoreMass, 2.0)  + a2*m_COCoreMass + a3*log10(m_Metallicity) + a4  ;
+            }
+
+            else if (m_COCoreMass < FARMER_PPISN_UPP_LIM_INSTABILLITY) {                                // No remnant between 60 - 140 Msun
+                m_Mass = 0;
+            }
+            else {                                                                                      // BH mass becomes CO-core mass above the PISN gap
+                m_Mass = m_COCoreMass;
+            }
 
             } break;
 

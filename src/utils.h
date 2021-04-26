@@ -93,6 +93,7 @@ namespace utils {
     double                              InverseSampleFromTabulatedCDF(const double p_Y, const std::map<double, double> p_Table);
 
     int                                 IsBOOL(const std::string p_Str);
+    bool                                IsDOUBLE(const std::string p_Str);
     bool                                IsFLOAT(const std::string p_Str);
     bool                                IsINT(const std::string p_Str);
     bool                                IsLONGDOUBLE(const std::string p_Str);
