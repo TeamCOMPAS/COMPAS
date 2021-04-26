@@ -1883,65 +1883,63 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         /////////////////////////////////////////////////////////////////////////////////////////
 
         // Uncomment the appropriate section to hard code the kick/remnant mass as needed
-        if (m_SupernovaDetails.events.current == SN_EVENT::CCSN ||
-            m_SupernovaDetails.events.current == SN_EVENT::USSN ||
-            m_SupernovaDetails.events.current == SN_EVENT::ECSN) {  // Only fuck with these SN types, not e.g PISN
+        if (((m_SupernovaDetails.events.current & (SN_EVENT::CCSN | SN_EVENT::USSN)) == SN_EVENT::CCSN ) ||
+            ((m_SupernovaDetails.events.current & SN_EVENT::ECSN )                   == SN_EVENT::ECSN ) ||
+            ((m_SupernovaDetails.events.current & SN_EVENT::USSN )                   == SN_EVENT::USSN )) { // Only fuck with these SN types, not e.g PISN
+
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////
             // Use input value for CCSN - these come from Deller
             // Use Maxw drawn values for USSN and ECSN - these are important to vary
-            if (m_SupernovaDetails.events.current == SN_EVENT::CCSN) {
+            //if (m_SupernovaDetails.events.current == SN_EVENT::CCSN) {
+
+            if ((m_SupernovaDetails.events.current & (SN_EVENT::CCSN | SN_EVENT::USSN)) == SN_EVENT::CCSN ) { // CCSN
                 m_SupernovaDetails.kickMagnitude = m_SupernovaDetails.drawnKickMagnitude;
             }
-            else {
-                double sigma;
-                if (m_SupernovaDetails.events.current == SN_EVENT::USSN) {
-    		    	sigma = OPTIONS->KickMagnitudeDistributionSigmaForUSSN();
-                    m_SupernovaDetails.kickMagnitude = sigma * sqrt(gsl_cdf_chisq_Pinv(RAND->Random(0, 1), 3)); // source code for maxw
-                }
-                else { // if (m_SupernovaDetails.events.current == SN_EVENT::ECSN) 
-        			sigma = OPTIONS->KickMagnitudeDistributionSigmaForECSN();
-
-                    //double ecsnKickReductionFactor = 1;
-                    //STYPE_VECTOR mtHist = MassTransferDonorHistory();
-                    //if (mtHist.size() != 0) {                                                                                           // No history of MT - effectively single star
-                    //    ecsnKickReductionFactor = 0.0; 
-                    //}
-                    //m_SupernovaDetails.kickMagnitude = sigma*ecsnKickReductionFactor; // Just use raw value
-
-                    m_SupernovaDetails.kickMagnitude = sigma * sqrt(gsl_cdf_chisq_Pinv(RAND->Random(0, 1), 3)); // source code for maxw
-
-                    // Do different things for 0, 10, and 30 EC kicks
-                    /* actually, don't
-                    if (sigma > 29) {
-                        m_SupernovaDetails.kickMagnitude = sigma * sqrt(gsl_cdf_chisq_Pinv(RAND->Random(0, 1), 3)); // source code for maxw
-                    }
-                    else {
-                        // Use raw value for 0 or 10, but Maxw(30) for 30
-                        m_SupernovaDetails.kickMagnitude = sigma; // Just use raw value
-                    }
-                    */
-
-                    // Kill all Wide ECSN if flag is set
-                    if (OPTIONS->KickMagnitude() > 50) { // flag is set
-                        STYPE_VECTOR mtHist = MassTransferDonorHistory();
-                        if (mtHist.size() == 0) {        // Non interactor - wide binary
-                            stellarType = STELLAR_TYPE::BLACK_HOLE; 
-                            m_Mass = 6.66;
-                        }
-                    }
-
-                    std::cout << "ECSN:"
-                              << "\n  options->ecsn_sigma = " << sigma
-                              << "\n  options->kick_mag = " << OPTIONS->KickMagnitude()
-                              << "\n  snDetails.kick_mag = " << m_SupernovaDetails.kickMagnitude
-                              << "\n  final stype = " << MassTransferDonorHistoryString()
-                              << std::endl;
-                    // Need to fix the stellarType thing to pass to string...
-                }
+            else if ((m_SupernovaDetails.events.current & SN_EVENT::USSN )              == SN_EVENT::USSN ) { // USSN
+    		    double sigma = OPTIONS->KickMagnitudeDistributionSigmaForUSSN();
+                m_SupernovaDetails.kickMagnitude = sigma * sqrt(gsl_cdf_chisq_Pinv(RAND->Random(0, 1), 3)); // source code for maxw
             }
-        
+            else { //((m_SupernovaDetails.events.current & SN_EVENT::ECSN )             == SN_EVENT::ECSN )   // ECSN
+                double sigma = OPTIONS->KickMagnitudeDistributionSigmaForECSN();
+                m_SupernovaDetails.kickMagnitude = sigma * sqrt(gsl_cdf_chisq_Pinv(RAND->Random(0, 1), 3)); // source code for maxw
 
+                //double ecsnKickReductionFactor = 1;
+                //STYPE_VECTOR mtHist = MassTransferDonorHistory();
+                //if (mtHist.size() != 0) {                                                                                           // No history of MT - effectively single star
+                //    ecsnKickReductionFactor = 0.0; 
+                //}
+                //m_SupernovaDetails.kickMagnitude = sigma*ecsnKickReductionFactor; // Just use raw value
+
+
+                // Do different things for 0, 10, and 30 EC kicks
+                /* actually, don't
+                if (sigma > 29) {
+                    m_SupernovaDetails.kickMagnitude = sigma * sqrt(gsl_cdf_chisq_Pinv(RAND->Random(0, 1), 3)); // source code for maxw
+                }
+                else {
+                    // Use raw value for 0 or 10, but Maxw(30) for 30
+                    m_SupernovaDetails.kickMagnitude = sigma; // Just use raw value
+                }
+                */
+
+                // Kill all Wide ECSN if flag is set
+                if (OPTIONS->KickMagnitude() > 50) { // flag is set
+                    STYPE_VECTOR mtHist = MassTransferDonorHistory();
+                    if (mtHist.size() == 0) {        // Non interactor - wide binary
+                        stellarType = STELLAR_TYPE::BLACK_HOLE; 
+                        m_Mass = 6.66;
+                    }
+                }
+
+                //std::cout << "ECSN:"
+                //          << "\n  options->ecsn_sigma = " << sigma
+                //          << "\n  options->kick_mag = " << OPTIONS->KickMagnitude()
+                //          << "\n  snDetails.kick_mag = " << m_SupernovaDetails.kickMagnitude
+                //          << "\n  final stype = " << MassTransferDonorHistoryString()
+                //          << std::endl;
+                // Need to fix the stellarType thing to pass to string...
+            }
 
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////
