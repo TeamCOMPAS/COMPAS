@@ -1773,7 +1773,7 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
         case PPI_PRESCRIPTION::FARMER: {                                                                // Farmer et al. 2019 http://dx.doi.org/10.3847/1538-4357/ab518b
                                                                                                         // Three cases:
             if (m_COCoreMass < FARMER_PPISN_UPP_LIM_LIN_REGIME){
-                m_Mass = m_COCoreMass + 4.;                                                             // A linear relation below CO core masses of 38 Msun
+                m_Mass = std::min((m_COCoreMass + 4.), m_Mass);                                                             // A linear relation below CO core masses of 38 Msun
                 }
 
             else if (m_COCoreMass < FARMER_PPISN_UPP_LIM_QUAD_REGIME){                                  // A quadratic relation in CO core mass for 38 =< CO_core < 60
