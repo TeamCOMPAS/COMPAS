@@ -1776,20 +1776,20 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
                 m_Mass = std::min((m_COCoreMass + 4.), m_Mass);                                                             // A linear relation below CO core masses of 38 Msun
                 }
 
-            else if (m_COCoreMass < FARMER_PPISN_UPP_LIM_QUAD_REGIME){                                  // A quadratic relation in CO core mass for 38 =< CO_core < 60
+            else if (m_COCoreMass < FARMER_PPISN_UPP_LIM_QUAD_REGIME) {                                 // A quadratic relation in CO core mass for 38 =< CO_core < 60
                 double a1             = -0.096;
                 double a2             = 8.564;
                 double a3             = -2.07;
                 double a4             = -152.97;
                 m_Mass = a1*pow(m_COCoreMass, 2.0)  + a2*m_COCoreMass + a3*log10(m_Metallicity) + a4  ;
-              }
+            }
 
-            else if (m_COCoreMass < FARMER_PPISN_UPP_LIM_INSTABILLITY){                                 // No remnant between 60 - 140 Msun
+            else if (m_COCoreMass < FARMER_PPISN_UPP_LIM_INSTABILLITY) {                                // No remnant between 60 - 140 Msun
                 m_Mass = 0;
-              }
+            }
             else {                                                                                      // BH mass becomes CO-core mass above the PISN gap
                 m_Mass = m_COCoreMass;
-              }
+            }
 
             } break;
 
