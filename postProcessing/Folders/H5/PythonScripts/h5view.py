@@ -202,7 +202,7 @@ def printSummary(h5name = None, h5file = None, excludeList = ''):
         print('\n')
 
     except Exception as e:                                                                          # error occurred accessing the input file
-        print('printSummary: Error accessing HDF5 file', path, ':', str(e))
+        print('printSummary: Error accessing HDF5 file', h5name, ':', str(e))
         ok = False
 
     return ok
@@ -320,7 +320,7 @@ def printHeaders(h5name = None, h5file = None, excludeList = ''):
         print('\n')
 
     except Exception as e:                                                                          # error occurred accessing the input file
-        print('printHeaders: Error accessing HDF5 file', path, ':', str(e))
+        print('printHeaders: Error accessing HDF5 file', h5name, ':', str(e))
         ok = False
 
     return ok
@@ -466,7 +466,7 @@ def printContents(h5name = None, h5file = None, excludeList = '', count = sys.ma
         
 
     except Exception as e:                                                                      # error occurred accessing the input file
-        print('printContents: Error accessing HDF5 file', path, ':', str(e))
+        print('printContents: Error accessing HDF5 file', h5name, ':', str(e))
         ok = False
 
     return ok
