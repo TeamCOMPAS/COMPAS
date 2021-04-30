@@ -2,7 +2,7 @@
 
 
 // binary is generated according to distributions specified in program options
-BinaryStar::BinaryStar(const long int p_Id) : m_BinaryStar(new BaseBinaryStar(p_Id)) {
+BinaryStar::BinaryStar(const unsigned long int p_Seed, const long int p_Id) : m_BinaryStar(new BaseBinaryStar(p_Seed, p_Id)) {
 
     m_ObjectId       = globalObjectId++;
     m_ObjectType     = OBJECT_TYPE::BINARY_STAR;

@@ -729,7 +729,19 @@
 //
 //                                      Also provided h5view.py - an HDF5 file viewer for COMPAS HDF5 files (in postProcessing/Folders/H5/PythonScripts).  See
 //                                      documentation as top of source file for details.
+// 02.19.01     JR - Apr 30, 2021   - Enhancements and Defect Repairs:
+//                                      - Enhancements:
+//                                          - changed chunk size for HDF5 files to HDF5_MINIMUM_CHUNK_SIZE for Run_Details group in COMPAS_Output and for detailed output files.
+//                                              - Run_Details is a small file, and detailed output files are generally a few thousand records rather than hundreds of thousands, 
+//                                                so a smaller chunck size wastes less space and doesn't impact performance significantly
+//
+//                                      - Defect Repairs:
+//                                          - fixed issue #548 - HDF5 detailed output files not created when random-seed specified in a grid file
+//                                          - fixed defect where records in HDF5 output files would be duplicated if the number of systems exceeded the HDF5 chunck size
+//                                            being used (the default chunk size is 100000 - that might explain why this problem hasn't been reported)
+//
+//                                      Modified h5view.py (in postProcessing/Folders/H5/PythonScripts) to handle detailed ouput files
 
-const std::string VERSION_STRING = "02.19.00";
+const std::string VERSION_STRING = "02.19.01";
 
 # endif // __changelog_h__
