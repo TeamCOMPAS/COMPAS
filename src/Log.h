@@ -116,7 +116,7 @@ using std::string;
  * 
  * Chunks are the unit of IO for HDF5 files - all IO to HDF5 is performed on the basis of chunks.  This means
  * that whenever dataset values are accessed (read or written (i.e. changed)), if the value is not already in
- * memory, the entire chunck containing the value must be read from, or written to, the storage media - even
+ * memory, the entire chunk containing the value must be read from, or written to, the storage media - even
  * if the dataset value being accessed is the only value in the chunk.  So few large chunks could cause 
  * empty, "wasted", space in the HDF5 files (at the end of datasets) - but they could also adversely affect
  * performance by causing unecessary IO traffic (although probably not much in the way we access data in COMPAS
@@ -185,6 +185,8 @@ using std::string;
  * systems being evolved is < HDF5_MINIMUM_CHUNK_SIZE the chunk size used will be HDF5_MINIMUM_CHUNK_SIZE.
  * This is just so we don't waste too much storage space when running small tests - and if they are that small
  * performance is probably not going to be much of an issue, so no real trade-off against storage space.  
+ * Detailed output files will use a chunk size of HDF5_MINIMUM_CHUNK_SIZE on the basis that detailed output
+ * files generally don't have many thousands of records.
  * 
  * IO to HDF5 files is buffered in COMPAS - we buffer a number of chunks for each open dataset and write the
  * buffer to the file when the buffer fills (or a partial buffer upon file close if the buffer is not full).
@@ -321,8 +323,6 @@ private:
         m_Run_Details_H5_File.fileId = -1;                                          // no HDF5 file id for run details file initially
         m_Run_Details_H5_File.groupId = -1;                                         // no HDF5 group id for run details file initially
         m_HDF5DetailedId = -1;                                                      // no HDF5 detailed file open initially
-        m_HDF5ChunkSize = HDF5_DEFAULT_CHUNK_SIZE;                                  // initially just the defined constant
-        m_HDF5IOBufSize = HDF5_DEFAULT_IO_BUFFER_SIZE * HDF5_DEFAULT_CHUNK_SIZE;    // initially just the defined constant (scaled)
         m_LogBasePath = ".";                                                        // default log file base path
         m_LogContainerName = DEFAULT_OUTPUT_CONTAINER_NAME;                         // default log file container name                        
         m_LogNamePrefix = "";                                                       // default log file name prefix
@@ -360,8 +360,6 @@ private:
     string               m_HDF5ContainerName;                                       // HDF5 container name
     hid_t                m_HDF5ContainerId;                                         // HDF5 container id
     hid_t                m_HDF5DetailedId;                                          // HDF5 detailed output id
-    size_t               m_HDF5ChunkSize;                                           // HDF5 chunk size
-    size_t               m_HDF5IOBufSize;                                           // HDF5 IO buffer size
 
     string               m_LogBasePath;                                             // base path for log files
     string               m_LogContainerName;                                        // container (directory) name for log files
@@ -385,8 +383,11 @@ private:
 
 
     struct h5AttrT {                                                                // attributes of HDF5 files
-        hid_t fileId;                                                               //    - file id
-        hid_t groupId;                                                              //    - group id
+        hid_t   fileId;                                                             //    - file id
+        hid_t   groupId;                                                            //    - group id
+
+        size_t  chunkSize;                                                          //    - chunk size
+        size_t  IOBufSize;                                                          //    - IO buffer size
 
         struct h5DataSetsT {                                                        // attributes of HDF5 datasets
             hid_t    dataSetId;                                                     //    - HDF5 dataset id
@@ -484,7 +485,7 @@ private:
     void Say_(const string p_SayStr);
     bool Write_(const int p_LogfileId, const string p_LogStr);
     bool Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const bool p_Flush = false);
-    bool WriteHDF5_(h5AttrT p_H5file, const string p_H5filename, const size_t p_DataSetIdx);
+    bool WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t p_DataSetIdx);
     bool Flush_(const int p_LogfileId) { return Write_(p_LogfileId, {}, true); }
     bool Put_(const int p_LogfileId, const string p_LogStr, const string p_Label = "");
     bool Put_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues);
@@ -501,7 +502,7 @@ private:
     std::tuple<bool, LOGFILE> GetStandardLogfileKey(const int p_FileId);
 
     bool  OpenHDF5RunDetailsFile(const string p_Filename = RUN_DETAILS_FILE_NAME);
-    hid_t CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, const string p_DatasetName, const hid_t p_H5DataType, const string p_UnitsStr);
+    hid_t CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, const string p_DatasetName, const hid_t p_H5DataType, const string p_UnitsStr, const size_t p_HDF5ChunkSize);
     hid_t GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWidth = 0);
 
 
