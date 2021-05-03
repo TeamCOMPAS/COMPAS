@@ -131,6 +131,12 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
                   
                 string h5Filename = OPTIONS->OutputContainerName();                                                     // HDF5 container file name
 
+                size_t chunkSize = HDF5_MINIMUM_CHUNK_SIZE;                                                             // chunk size
+                size_t IOBufSize = OPTIONS->HDF5BufferSize() * chunkSize;                                               // IO buffer size
+
+                m_Run_Details_H5_File.chunkSize = chunkSize;                                                            // record chunk size for file
+                m_Run_Details_H5_File.IOBufSize = IOBufSize;                                                            // record IO buf size for file
+
                 // preamble/stats datasets
 
                 for (int dSetIdx = static_cast<int>(RUN_DETAILS_COLUMNS::COMPAS_VERSION); dSetIdx < static_cast<int>(RUN_DETAILS_COLUMNS::SENTINEL); dSetIdx++ ) {
@@ -146,23 +152,24 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
                         h5DatasetName = std::get<0>(runDetails);                                                        // dataset name
                         TYPENAME compasType = std::get<1>(runDetails);                                                  // COMPAS data type
                         h5DataType = GetHDF5DataType(compasType, std::get<2>(runDetails));                              // HDF5 data type
-                        h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, h5DatasetName, h5DataType, "-");              // create dataset
+                        h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, h5DatasetName, h5DataType, "-", chunkSize);   // create dataset
                         if (h5Dset < 0) {                                                                               // dataset not created
                             Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                    // announce error
                             ok = false;                                                                                 // fail
                         }
                         else {                                                                                          // dataset created ok
+
                             m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5DataType, compasType, {}});             // record dataset details
 
                             // derivation
                             h5DatasetName += "-Derivation";                                                             // derivation
-                            h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, h5DatasetName, h5String13DataType, "-");  // create dataset
+                            h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, h5DatasetName, h5String13DataType, "-", chunkSize); // create dataset
                             if (h5Dset < 0) {                                                                           // dataset not created
                                 Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                // announce error
                                 ok = false;                                                                             // fail
                             }
                             else
-                                m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String13DataType, TYPENAME::STRING, {}});   // dataset created ok - record details
+                                m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String13DataType, TYPENAME::STRING, {}}); // dataset created ok - record details
                         }
                     }
                     if (!ok) break;                                                                                     // something went wrong - fail
@@ -175,7 +182,7 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
                     TYPENAME compasType = std::get<4>(m_OptionDetails[idx]);                                            // COMPAS data type
                     h5DataType = GetHDF5DataType(compasType, (std::get<1>(m_OptionDetails[idx])).length());             // HDF5 data type for COMPAS data type
                     h5DatasetName = std::get<0>(m_OptionDetails[idx]);                                                  // dataset (option name)
-                    h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, h5DatasetName, h5DataType, "-");                  // create dataset
+                    h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, h5DatasetName, h5DataType, "-", chunkSize);       // create dataset
                     if (h5Dset < 0) {                                                                                   // dataset not created
                         Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                        // announce error
                         ok = false;                                                                                     // fail
@@ -185,13 +192,13 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
 
                         // derivation
                         h5DatasetName += "-Derivation";                                                                 // derivation
-                        h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, h5DatasetName, h5String13DataType, "-");      // create dataset
+                        h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, h5DatasetName, h5String13DataType, "-", chunkSize); // create dataset
                         if (h5Dset < 0) {                                                                               // dataset not created
                             Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                    // announce error
                             ok = false;                                                                                 // fail
                         }
                         else
-                            m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String13DataType, TYPENAME::STRING, {}});  // dataset created ok - record details
+                            m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String13DataType, TYPENAME::STRING, {}}); // dataset created ok - record details
                     }
                     if (!ok) break;                                                                                     // something went wrong - fail
                 }
@@ -269,8 +276,7 @@ void Log::Start(const string              p_LogBasePath,
         m_DbgToLogfile  = p_DbgToLogfile;                                                                                   // write debug records to logfile?
         m_ErrToLogfile  = p_ErrorsToLogfile;                                                                                // write error records to logfile?
         m_LogfileType   = p_LogfileType;                                                                                    // set log file type
-        m_HDF5ChunkSize = OPTIONS->nObjectsToEvolve() < HDF5_MINIMUM_CHUNK_SIZE ? HDF5_MINIMUM_CHUNK_SIZE : OPTIONS->HDF5ChunkSize(); // set HDF5 chunk size
-        m_HDF5IOBufSize = OPTIONS->HDF5BufferSize() * m_HDF5ChunkSize;                                                      // set HDF5 IO buffer size
+
         m_Logfiles.clear();                                                                                                 // clear all entries
 
         m_OptionDetails = OPTIONS->CmdLineOptionsDetails();                                                                 // get commandline option details
@@ -1133,7 +1139,7 @@ bool Log::Write_(const int p_LogfileId, const string p_LogStr) {
  * @param   [IN]    p_DataSetIdx                Index of the dataset within the HDF5 file to which the buf should be written (assumed to exist and be open)
  * @return                                      Boolean indicating whether buffer was written successfully
  */
-bool Log::WriteHDF5_(h5AttrT p_H5file, const string p_H5filename, const size_t p_DataSetIdx) {
+bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t p_DataSetIdx) {
 
     herr_t ok = 0;                                                                                                          // return value
 
@@ -1377,7 +1383,7 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
                             m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.push_back(p_LogRecordValues[idx]);             // no - add write data to buffer
                         }
 
-                        if ((m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.size() >= m_HDF5IOBufSize) || p_Flush) {      // need to write?
+                        if ((m_Logfiles[p_LogfileId].h5File.dataSets[idx].buf.size() >= m_Logfiles[p_LogfileId].h5File.IOBufSize) || p_Flush) { // need to write?
                             ok = WriteHDF5_(m_Logfiles[p_LogfileId].h5File, m_Logfiles[p_LogfileId].name, idx);             // do the write 
                         }
                     }
@@ -2109,16 +2115,17 @@ hid_t Log::GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWid
  * 
  * 
  * 
- * hid_t Log::CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, const string p_DatasetName, const hid_t p_H5DataType, const string p_UnitsStr)
+ * hid_t Log::CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, const string p_DatasetName, const hid_t p_H5DataType, const string p_UnitsStr, const size_t p_HDF5ChunkSize)
  *
  * @param   [IN]    p_Filename                  The filename of the HDF5 file (for error logging)
  * @param   [IN]    p_GroupId                   The group id under which the dataset should be created
  * @param   [IN]    p_DatasetName               The dataset name (this (generally) corresponds to the COMPAS column header)
  * @param   [IN]    p_H5DataType                The HDF5 datatype for the dataset
  * @param   [IN]    p_UnitsStr                  The units string to be associated with the dataset (generally corresponds to COMPAS units string)
+ * @param   [IN]    p_HDF5ChunkSize             Chunk size for this dataset
  * @return                                      HDF5 dataset id (-1 indicates failure)
  */
-hid_t Log::CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, const string p_DatasetName, const hid_t p_H5DataType, const string p_UnitsStr) {
+hid_t Log::CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, const string p_DatasetName, const hid_t p_H5DataType, const string p_UnitsStr, const size_t p_HDF5ChunkSize) {
 
     hid_t h5Dset = -1;                                                                                              // datset id - return value
 
@@ -2130,7 +2137,7 @@ hid_t Log::CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, con
     (void)H5Pset_alloc_time(h5CPlist, H5D_ALLOC_TIME_INCR);                                                         // allocate space on disk incrementally
     (void)H5Pset_layout(h5CPlist, H5D_CHUNKED);                                                                     // must be chunked when using unlimited dimensions
 
-    hsize_t h5ChunkDims[1] = {m_HDF5ChunkSize};                                                                     // chunk size - affects performance
+    hsize_t h5ChunkDims[1] = {p_HDF5ChunkSize};                                                                     // chunk size - affects performance
     herr_t h5Result = H5Pset_chunk(h5CPlist, 1, h5ChunkDims);                                                       // set chunk size
     if (h5Result < 0) {                                                                                             // ok?
         Squawk("ERROR: Unable to set chunk size for HDF5 container file " + p_Filename);                            // no - announce error
@@ -2378,6 +2385,15 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                         if (m_HDF5DetailedId < 0) {                                                                                             // have HDF5 detailed file?
                                                                                                                                                 // no - create it
                             string h5Filename = m_LogBasePath + "/" + m_LogContainerName + "/" + fileDetails.filename + fileExt;                // full filename with path, container, and extension ("/" works on Uni*x and Windows)
+
+                            // check if file already exists - if it does, add a version number before creating new file
+                            // no append for detailed output files, so no need to open existing files for appending
+            
+                            int version = 0;                                                                                                    // logfile version number if required - start at 1
+                            while (utils::FileExists(h5Filename)) {                                                                             // file already exists?
+                                h5Filename = m_LogBasePath + "/" + m_LogContainerName + "/" + fileDetails.filename + "_" + std::to_string(++version) + fileExt; // yes - add a version number and generate new filename
+                            }
+
                             m_HDF5DetailedId = H5Fcreate(h5Filename.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT);                           // create HDF5 detailed file
                             if (m_HDF5DetailedId < 0) {                                                                                         // created ok?                        
                                 Squawk("ERROR: Unable to create HDF5 detailed file with file name " + h5Filename);                              // no - announce error
@@ -2531,7 +2547,16 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     if (OPTIONS->LogfileType() == LOGFILETYPE::HDF5) {                                                                          // logging to HDF5 files?
                         for (size_t idx = 0; idx < fileDetails.hdrStrings.size(); idx++) {                                                      // for each property
                             
-                            m_Logfiles[fileDetails.id].h5File.dataSets.push_back({-1, -1, {}});                                                 // create new dataset
+                            size_t chunkSize = OPTIONS->nObjectsToEvolve() < HDF5_MINIMUM_CHUNK_SIZE || 
+                                               p_Logfile == LOGFILE::SSE_DETAILED_OUTPUT             || 
+                                               p_Logfile == LOGFILE::BSE_DETAILED_OUTPUT ? HDF5_MINIMUM_CHUNK_SIZE : OPTIONS->HDF5ChunkSize();  // chunk size
+
+                            size_t IOBufSize = OPTIONS->HDF5BufferSize() * chunkSize;                                                           // IO buffer size
+                
+                            m_Logfiles[fileDetails.id].h5File.chunkSize = chunkSize;                                                            // record chunk size for file
+                            m_Logfiles[fileDetails.id].h5File.IOBufSize = IOBufSize;                                                            // record IO buf size for file
+
+                            m_Logfiles[fileDetails.id].h5File.dataSets.push_back({-1, -1, TYPENAME::NONE, {}});                                 // create new dataset
 
                             // set datatypes
                             hid_t h5DataType = GetHDF5DataType(fileDetails.propertyTypes[idx], (int)std::stod(fileDetails.fmtStrings[idx]));    // get HDF5 data type from COMPAS data type
@@ -2547,7 +2572,8 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                                                                  m_Logfiles[fileDetails.id].h5File.groupId, 
                                                                  utils::trim(fileDetails.hdrStrings[idx]), 
                                                                  h5DataType, 
-                                                                 utils::trim(fileDetails.unitsStrings[idx]));
+                                                                 utils::trim(fileDetails.unitsStrings[idx]),
+                                                                 chunkSize);
                                 if (h5Dset < 0) {                                                                                               // created ok?
                                     ok = false;                                                                                                 // no - fail
                                 }

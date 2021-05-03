@@ -176,11 +176,12 @@ std::tuple<int, int> EvolveSingleStars() {
                 // (so the base random seed specified by the user is also the initial random seed - the 
                 // random seed of the first star evolved)
                 //
-                // if the user specified a random seed in the grid file for the current str, regardless of
+                // if the user specified a random seed in the grid file for the current star, regardless of
                 // whether a random seed was specified on the commandline, the random seed from the grid
-                // file is used, and no offset is added (i.e. the random seed specified is used as it).
-                // note that in this scenario it is the user's responsibility to ensure that there is no
-                // duplication of seeds.
+                // file is used, and an offset is added if the grid line also specified ranges or sets for
+                // and options (if no rangers or sets were specified on the grid line then no offset is added
+                // (i.e. the random seed specified is used as it)).  Note that in this scenario it is the 
+                // user's responsibility to ensure that there is no duplication of seeds.
 
                 unsigned long int randomSeed = 0l;
                 if (OPTIONS->FixedRandomSeedGridLine()) {                                                           // user specified a random seed in the grid file for this star?
@@ -412,9 +413,47 @@ std::tuple<int, int> EvolveBinaryStars() {
                 // (The index is really only needed for legacy comparison, so can probably be removed at any time)
 
                 // create the binary
-                long int thisId = OPTIONS->FixedRandomSeedGridLine() ? gridLineVariation : index;               // set the id for the binary
+
+                // Binary stars (in BSE) are provided with a random seed that is used to seed the random 
+                // number generator.  The random number generator is re-seeded for each binary.  Here we 
+                // generate the seed for the binary being evolved - by this point we have picked up the 
+                // option value from either the commandline or the grid file.
+                //
+                // there are three scenarios:
+                //
+                // if the user did not specify a random seed, either on the commandline or in a grid file
+                // record, we use a randomly chosen seed, based on the system time.
+                //
+                // if the user specified a random seed on the commandline, and not in the grid file for
+                // the current binary, the random seed specified on the commandline is used - and the offset 
+                // applied (the index of the binary being evolved).  The index of the binary being evolved 
+                // starts at 0 for the first binary, and increments by 1 for each subsequent binary evolved
+                // (so the base random seed specified by the user is also the initial random seed - the 
+                // random seed of the first binary evolved)
+                //
+                // if the user specified a random seed in the grid file for the current binary, regardless of
+                // whether a random seed was specified on the commandline, the random seed from the grid
+                // file is used, and an offset is added if the grid line also specified ranges or sets for
+                // and options (if no rangers or sets were specified on the grid line then no offset is added
+                // (i.e. the random seed specified is used as it)).  Note that in this scenario it is the 
+                // user's responsibility to ensure that there is no duplication of seeds.
+
+                unsigned long int randomSeed = 0l;
+                
+                if (OPTIONS->FixedRandomSeedGridLine()) {                                                       // user specified a random seed in the grid file for this star?
+                    randomSeed = RAND->Seed(OPTIONS->RandomSeedGridLine() + (long int)gridLineVariation);       // yes - use it (indexed)
+                }
+                else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                   // no - user specified a random seed on the commandline?
+                    randomSeed = RAND->Seed(OPTIONS->RandomSeedCmdLine() + (long int)index);                    // yes - use it (indexed)
+                }
+                else {                                                                                          // no
+                    randomSeed = RAND->Seed(RAND->DefaultSeed() + (long int)index);                             // use default seed (based on system time) + id (index)
+                }
+
+                long int thisId = OPTIONS->FixedRandomSeedGridLine() ? index + gridLineVariation : index;       // set the id for the binary
+                
                 delete binary; binary = nullptr;                                                                // so we don't leak
-                binary = new BinaryStar(thisId);                                                                // generate binary according to the user options
+                binary = new BinaryStar(randomSeed, thisId);                                                    // generate binary according to the user options
 
                 evolvingBinaryStar      = binary;                                                               // set global pointer to evolving binary (for BSE Switch Log)
                 evolvingBinaryStarValid = true;                                                                 // indicate that the global pointer is now valid (for BSE Switch Log)
@@ -429,14 +468,14 @@ std::tuple<int, int> EvolveBinaryStars() {
                 if (!OPTIONS->Quiet()) {                                                                        // quiet mode?
                                                                                                                 // no - announce result of evolving the binary
                     if (OPTIONS->CHEMode() == CHE_MODE::NONE) {                                                 // CHE enabled?
-                        SAY(index                                      << ": "  <<                              // no - CHE not enabled - don't need initial stellar type
+                        SAY(thisId                                     << ": "  <<                              // no - CHE not enabled - don't need initial stellar type
                             EVOLUTION_STATUS_LABEL.at(binaryStatus)    << ": "  <<
                             STELLAR_TYPE_LABEL.at(binary->Star1Type()) << " + " <<
                             STELLAR_TYPE_LABEL.at(binary->Star2Type())
                         );
                     }
                     else {                                                                                      // CHE enabled - show initial stellar type
-                        SAY(index                                             << ": "    <<
+                        SAY(thisId                                            << ": "    <<
                             EVOLUTION_STATUS_LABEL.at(binaryStatus)           << ": ("   <<
                             STELLAR_TYPE_LABEL.at(binary->Star1InitialType()) << " -> "  <<
                             STELLAR_TYPE_LABEL.at(binary->Star1Type())        << ") + (" <<
@@ -453,8 +492,6 @@ std::tuple<int, int> EvolveBinaryStars() {
 
                 ERRORS->Clean();                                                                                // clean the dynamic error catalog
 
-                index++;                                                                                        // next...
-
                 if (usingGrid) {                                                                                // using grid file?
                     gridLineVariation++;                                                                        // yes - increment grid line variation number
                     int optionsStatus = OPTIONS->AdvanceGridLineOptionValues();                                 // apply next grid file options (ranges/sets)
@@ -466,7 +503,9 @@ std::tuple<int, int> EvolveBinaryStars() {
                         doneGridLine = true;                                                                    // yes - we're done
                     }
                 }
-                else doneGridLine = true;                                                                       // not using grid file - done    
+                else doneGridLine = true;                                                                       // not using grid file - done
+
+                if (doneGridLine) index = thisId + 1;                                                           // increment index
             }
         }
         delete binary; binary = nullptr;

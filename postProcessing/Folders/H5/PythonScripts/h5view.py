@@ -159,20 +159,35 @@ def printSummary(h5name = None, h5file = None, excludeList = ''):
         print('\nFile size    :', strFileSize.strip(), 'GB')
         print('Last modified:', lastModified)
 
-        # get widths for columns to be displayed - it's a bit more
-        # work, and a bit redundant, but it is neater... (and we don't have thousands of files...)
+        # get widths for columns to be displayed - it's a bit more work, 
+        # and a bit redundant, but it is neater... (and we don't have thousands of files...)
         maxFilenameLen  = -1
         maxColumns      = -1
         groupMaxEntries = []
-        for gIdx, group in enumerate(h5file.keys()):
+
+        keyList = list(h5file.keys())
+        detailedOutput = isinstance(h5file[keyList[0]], h5.Dataset)                                 # processing detailed output file?
+
+        if detailedOutput:                                                                          # detailed output file
+
+            maxColumns = len(keyList)
             groupMaxEntries.append(-1)
+            for dIdx, dataset in enumerate(h5file.keys()):
+                if h5file[dataset].shape[0] > groupMaxEntries[0]: groupMaxEntries[0] = h5file[dataset].shape[0]
 
-            if len(group) > maxFilenameLen: maxFilenameLen = len(group)
-            if len(h5file[group].keys()) > maxColumns: maxColumns = len(h5file[group].keys())
+        else:                                                                                       # assume COMPAS_Output file
 
-            columns = h5file[group].keys()
-            for idx, column in enumerate(columns):
-                if h5file[group][column].shape[0] > groupMaxEntries[gIdx]: groupMaxEntries[gIdx] = h5file[group][column].shape[0]
+            for gIdx, group in enumerate(h5file.keys()):
+
+                groupMaxEntries.append(-1)
+
+                if len(group) > maxFilenameLen: maxFilenameLen = len(group)
+                if len(h5file[group].keys()) > maxColumns: maxColumns = len(h5file[group].keys())
+
+                columns = h5file[group].keys()
+                for idx, column in enumerate(columns):
+                    if h5file[group][column].shape[0] > groupMaxEntries[gIdx]: groupMaxEntries[gIdx] = h5file[group][column].shape[0]
+
 
 
         for widthColumns in range(10):                                                              # better not be more than 10**10 columns!
@@ -182,22 +197,33 @@ def printSummary(h5name = None, h5file = None, excludeList = ''):
         for widthEntries in range(10):                                                              # better not be more than 10**10 entries per column!
             if maxEntries < 10**widthEntries: break                                                 # 'entries' width
 
-        print(('\n{:<' + str(maxFilenameLen) + '}   {:<' + str(max(7, widthColumns)) + '}   {:<' + str(max(7, widthEntries)) + '}')
-              .format('COMPAS Filename', 'Columns', 'Entries'))
-        print('-'*(maxFilenameLen), ' ', '-'*(max(7, widthColumns)), ' ', '-'*(max(7, widthEntries)))
+        if detailedOutput:                                                                          # detailed output file
 
-        # do Run_Details file first
-        if not Run_Details_Filename in excludeList:                                                 # ... if not excluded
-            print(('{:<' + str(maxFilenameLen) + '}   {:>' + str(max(7, widthColumns)) + '}   {:>' + str(max(7, widthEntries)) + '}')
-                  .format(Run_Details_Filename, len(h5file[Run_Details_Filename].keys()), len(h5file[Run_Details_Filename][list(h5file[Run_Details_Filename].keys())[0]])))
+            print(('\n{:<' + str(max(7, widthColumns)) + '}   {:<' + str(max(7, widthEntries)) + '}')
+                  .format('Columns', 'Entries'))
+            print('-'*(max(7, widthColumns)), ' ', '-'*(max(7, widthEntries)))
 
-        # do remaining files (groups)
-        for gIdx, group in enumerate(h5file.keys()):
-            if group in excludeList: continue                                                       # skip if excludedd
-            if group == Run_Details_Filename: continue                                              # Run_details already done (or excluded)
+            print(('{:>' + str(max(7, widthColumns)) + '}   {:>' + str(max(7, widthEntries)) + '}')
+                  .format(len(keyList), groupMaxEntries[0]))
 
-            print(('{:<' + str(maxFilenameLen) + '}   {:>' + str(max(7, widthColumns)) + '}   {:>' + str(max(7, widthEntries)) + '}')
-                  .format(group, len(h5file[group].keys()), groupMaxEntries[gIdx]))
+        else:                                                                                       # assume COMPAS_Output file
+
+            print(('\n{:<' + str(maxFilenameLen) + '}   {:<' + str(max(7, widthColumns)) + '}   {:<' + str(max(7, widthEntries)) + '}')
+                  .format('COMPAS Filename', 'Columns', 'Entries'))
+            print('-'*(maxFilenameLen), ' ', '-'*(max(7, widthColumns)), ' ', '-'*(max(7, widthEntries)))
+
+            # do Run_Details file first
+            if not Run_Details_Filename in excludeList:                                             # ... if not excluded
+                print(('{:<' + str(maxFilenameLen) + '}   {:>' + str(max(7, widthColumns)) + '}   {:>' + str(max(7, widthEntries)) + '}')
+                      .format(Run_Details_Filename, len(h5file[Run_Details_Filename].keys()), len(h5file[Run_Details_Filename][list(h5file[Run_Details_Filename].keys())[0]])))
+
+            # do remaining files (groups)
+            for gIdx, group in enumerate(h5file.keys()):
+                if group in excludeList: continue                                                   # skip if excluded
+                if group == Run_Details_Filename: continue                                          # Run_details already done (or excluded)
+
+                print(('{:<' + str(maxFilenameLen) + '}   {:>' + str(max(7, widthColumns)) + '}   {:>' + str(max(7, widthEntries)) + '}')
+                      .format(group, len(h5file[group].keys()), groupMaxEntries[gIdx]))
 
         print('\n')
 
@@ -230,46 +256,10 @@ def printHeaders(h5name = None, h5file = None, excludeList = ''):
         print('\n\nHeaders for HDF5 file', h5name)
         print('='*(22 + len(h5name)), '\n')
 
-        # do Run_Details file first
-        if not Run_Details_Filename in excludeList:                                                 # ... if not excluded
+        keyList = list(h5file.keys())
+        detailedOutput = isinstance(h5file[keyList[0]], h5.Dataset)                                 # processing detailed output file?
 
-            # get widths for columns to be displayed - it's a bit more
-            # work, and a bit redundant, but it is neater... (and we don't have thousands of columns...)
-            maxDatasetNameLen = -1
-            maxEntries        = -1
-            maxDataTypeLen    = -1
-            for column in h5file[Run_Details_Filename].keys():
-                if len(column) > maxDatasetNameLen: maxDatasetNameLen = len(column)
-                if h5file[Run_Details_Filename][column].shape[0] > maxEntries: maxEntries = h5file[Run_Details_Filename][column].shape[0]
-
-                dataType = getDataType(str(h5file[Run_Details_Filename][column].dtype))
-                if len(dataType) > maxDataTypeLen: maxDataTypeLen = len(dataType)
-
-            for widthEntries in range(10):                                                          # better not be more than 10**10 entries per column!
-                if maxEntries < 10**widthEntries: break                                             # 'entries' width
-
-            # print data
-            print('COMPAS file:', Run_Details_Filename)
-            print('-'*(13 + len(Run_Details_Filename)))
-
-            print(('\n{:<' + str(maxDatasetNameLen) + '}   {:<' + str(max(7, widthEntries)) + '}   {:<' + str(max(8, maxDataTypeLen)) + '}')
-                  .format('Datatset Name', 'Entries', 'Data Type'))
-            print('.'*(maxDatasetNameLen), ' ', '.'*(max(7, widthEntries)), ' ', '.'*(max(9, maxDataTypeLen)))
-
-            for column in h5file[Run_Details_Filename].keys():
-                dataType = getDataType(str(h5file[Run_Details_Filename][column].dtype))
-
-                print(('{:<' + str(maxDatasetNameLen) + '}   {:>' + str(max(7, widthEntries)) + '}   {:<' + str(max(8, maxDataTypeLen)) + '}')
-                      .format(column, h5file[Run_Details_Filename][column].shape[0], dataType))
-
-            print()
-
-        # do remaining files (groups)
-        for group in h5file.keys():
-            if group in excludeList: continue                                                       # skip if excludedd
-            if group == Run_Details_Filename: continue                                              # Run_details already done (or excluded)
-
-            if not Run_Details_Filename in excludeList: print()
+        if detailedOutput:
 
             # get widths for columns to be displayed - it's a bit more
             # work, and a bit redundant, but it is neater... (and we don't have thousands of columns...)
@@ -277,18 +267,18 @@ def printHeaders(h5name = None, h5file = None, excludeList = ''):
             maxEntries        = -1
             maxDataTypeLen    = -1
             maxUnitsLen       = -1
-            for column in h5file[group].keys():
+            for column in h5file.keys():
                 if len(column) > maxDatasetNameLen: maxDatasetNameLen = len(column)
-                if h5file[group][column].shape[0] > maxEntries: maxEntries = h5file[group][column].shape[0]
+                if h5file[column].shape[0] > maxEntries: maxEntries = h5file[column].shape[0]
 
-                dataType = getDataType(str(h5file[group][column].dtype))
+                dataType = getDataType(str(h5file[column].dtype))
                 if len(dataType) > maxDataTypeLen: maxDataTypeLen = len(dataType)
 
                 # get units - not for run details file
                 try:
-                    units = h5file[group][column].attrs['units'].decode('utf-8')
+                    units = h5file[column].attrs['units'].decode('utf-8')
                 except AttributeError:
-                    units = h5file[group][column].attrs['units']
+                    units = h5file[column].attrs['units']
 
                 if len(units) > maxUnitsLen: maxUnitsLen = len(units)
 
@@ -296,26 +286,113 @@ def printHeaders(h5name = None, h5file = None, excludeList = ''):
                 if maxEntries < 10**widthEntries: break                                             # 'entries' width
 
             # print data
-            print('COMPAS file:', group)
-            print('-'*(13 + len(group)))
 
             print(('\n{:<' + str(maxDatasetNameLen) + '}   {:<' + str(max(7, widthEntries)) + '}   {:<' + str(max(8, maxDataTypeLen)) + '}   {:<' + str(max(5, maxUnitsLen)) + '}')
                   .format('Datatset Name', 'Entries', 'Data Type', 'Units'))
             print('.'*(maxDatasetNameLen), ' ', '.'*(max(7, widthEntries)), ' ', '.'*(max(9, maxDataTypeLen)), ' ', '.'*(max(5, maxUnitsLen)))
 
-            for column in h5file[group].keys():
-                dataType = getDataType(str(h5file[group][column].dtype))
+            for column in h5file.keys():
+                dataType = getDataType(str(h5file[column].dtype))
 
-                # get units
+                 # get units
                 try:
-                    units = h5file[group][column].attrs['units'].decode('utf-8')
+                    units = h5file[column].attrs['units'].decode('utf-8')
                 except AttributeError:
-                    units = h5file[group][column].attrs['units']
+                    units = h5file[column].attrs['units']
 
-                print(('{:<' + str(maxDatasetNameLen) + '}   {:>' + str(max(7, widthEntries)) + '}   {:<' + str(max(8, maxDataTypeLen)) + '}   {:<' + str(max(5, maxUnitsLen)) + '}')
-                      .format(column, h5file[group][column].shape[0], dataType, units))
+                print(('{:<' + str(maxDatasetNameLen) + '}   {:>' + str(max(7, widthEntries)) + '}   {:<' + str(max(9, maxDataTypeLen)) + '}   {:<' + str(max(5, maxUnitsLen)) + '}')
+                      .format(column, h5file[column].shape[0], dataType, units))
 
             print()
+
+        else:
+
+            # do Run_Details file first
+            if not Run_Details_Filename in excludeList:                                             # ... if not excluded
+
+                # get widths for columns to be displayed - it's a bit more
+                # work, and a bit redundant, but it is neater... (and we don't have thousands of columns...)
+                maxDatasetNameLen = -1
+                maxEntries        = -1
+                maxDataTypeLen    = -1
+                for column in h5file[Run_Details_Filename].keys():
+                    if len(column) > maxDatasetNameLen: maxDatasetNameLen = len(column)
+                    if h5file[Run_Details_Filename][column].shape[0] > maxEntries: maxEntries = h5file[Run_Details_Filename][column].shape[0]
+
+                    dataType = getDataType(str(h5file[Run_Details_Filename][column].dtype))
+                    if len(dataType) > maxDataTypeLen: maxDataTypeLen = len(dataType)
+
+                for widthEntries in range(10):                                                      # better not be more than 10**10 entries per column!
+                    if maxEntries < 10**widthEntries: break                                         # 'entries' width
+
+                # print data
+                print('COMPAS file:', Run_Details_Filename)
+                print('-'*(13 + len(Run_Details_Filename)))
+
+                print(('\n{:<' + str(maxDatasetNameLen) + '}   {:<' + str(max(7, widthEntries)) + '}   {:<' + str(max(8, maxDataTypeLen)) + '}')
+                      .format('Datatset Name', 'Entries', 'Data Type'))
+                print('.'*(maxDatasetNameLen), ' ', '.'*(max(7, widthEntries)), ' ', '.'*(max(9, maxDataTypeLen)))
+
+                for column in h5file[Run_Details_Filename].keys():
+                    dataType = getDataType(str(h5file[Run_Details_Filename][column].dtype))
+
+                    print(('{:<' + str(maxDatasetNameLen) + '}   {:>' + str(max(7, widthEntries)) + '}   {:<' + str(max(8, maxDataTypeLen)) + '}')
+                          .format(column, h5file[Run_Details_Filename][column].shape[0], dataType))
+
+                print()
+
+            # do remaining files (groups)
+            for group in h5file.keys():
+                if group in excludeList: continue                                                   # skip if excludedd
+                if group == Run_Details_Filename: continue                                          # Run_details already done (or excluded)
+
+                if not Run_Details_Filename in excludeList: print()
+
+                # get widths for columns to be displayed - it's a bit more
+                # work, and a bit redundant, but it is neater... (and we don't have thousands of columns...)
+                maxDatasetNameLen = -1
+                maxEntries        = -1
+                maxDataTypeLen    = -1
+                maxUnitsLen       = -1
+                for column in h5file[group].keys():
+                    if len(column) > maxDatasetNameLen: maxDatasetNameLen = len(column)
+                    if h5file[group][column].shape[0] > maxEntries: maxEntries = h5file[group][column].shape[0]
+
+                    dataType = getDataType(str(h5file[group][column].dtype))
+                    if len(dataType) > maxDataTypeLen: maxDataTypeLen = len(dataType)
+
+                    # get units - not for run details file
+                    try:
+                        units = h5file[group][column].attrs['units'].decode('utf-8')
+                    except AttributeError:
+                        units = h5file[group][column].attrs['units']
+
+                    if len(units) > maxUnitsLen: maxUnitsLen = len(units)
+
+                for widthEntries in range(10):                                                      # better not be more than 10**10 entries per column!
+                    if maxEntries < 10**widthEntries: break                                         # 'entries' width
+
+                # print data
+                print('COMPAS file:', group)
+                print('-'*(13 + len(group)))
+
+                print(('\n{:<' + str(maxDatasetNameLen) + '}   {:<' + str(max(7, widthEntries)) + '}   {:<' + str(max(8, maxDataTypeLen)) + '}   {:<' + str(max(5, maxUnitsLen)) + '}')
+                      .format('Datatset Name', 'Entries', 'Data Type', 'Units'))
+                print('.'*(maxDatasetNameLen), ' ', '.'*(max(7, widthEntries)), ' ', '.'*(max(9, maxDataTypeLen)), ' ', '.'*(max(5, maxUnitsLen)))
+
+                for column in h5file[group].keys():
+                    dataType = getDataType(str(h5file[group][column].dtype))
+
+                    # get units
+                    try:
+                        units = h5file[group][column].attrs['units'].decode('utf-8')
+                    except AttributeError:
+                        units = h5file[group][column].attrs['units']
+
+                    print(('{:<' + str(maxDatasetNameLen) + '}   {:>' + str(max(7, widthEntries)) + '}   {:<' + str(max(9, maxDataTypeLen)) + '}   {:<' + str(max(5, maxUnitsLen)) + '}')
+                          .format(column, h5file[group][column].shape[0], dataType, units))
+
+                print()
 
         print('\n')
 
@@ -354,67 +431,13 @@ def printContents(h5name = None, h5file = None, excludeList = '', count = sys.ma
         print('\n\nContents of HDF5 file', h5name)
         print('='*(22 + len(h5name)), '\n')
 
-        # do Run_Details file first
-        if not Run_Details_Filename in excludeList:                                             # ... if not excluded
+        keyList = list(h5file.keys())
+        detailedOutput = isinstance(h5file[keyList[0]], h5.Dataset)                                 # processing detailed output file?
 
-            # print data
-            print('COMPAS file:', Run_Details_Filename)
-            print('-'*(13 + len(Run_Details_Filename)))
+        if detailedOutput:
 
-            columns = list(h5file[Run_Details_Filename].keys())
 
-            hdr = ''
-            for column in columns: 
-                if hdr == '': hdr += column                                                     # add value to hdr (first value)
-                else        : hdr += ', ' + column                                              # add value to hdr (subsequent values)
-
-            print(hdr)  
-            
-            rows = len(h5file[Run_Details_Filename][columns[0]])
-            rowsPrinted = 0
-            for idx in range(rows):
-
-                index = rows - idx - 1 if count < 0 else idx                                    # correct index - head or tail of file       
-
-                row = ''
-                for column in h5file[Run_Details_Filename].keys():
-                    try:
-                        value = h5file[Run_Details_Filename][column][index].decode('utf-8')
-                    except AttributeError:
-                        value = h5file[Run_Details_Filename][column][index]
-
-                    if column == 'Run-End' or column == 'Run-Start': value = value[:-1]         # strip trailing \n
-
-                    dataType = getDataType(str(h5file[Run_Details_Filename][column].dtype))     # data type
-                    if dataType[0:6] == 'STRING':                                               # string?
-                        if value[0:1] == "'": value = value[1:]                                 # yes - strip leading quote if present
-                        if value[len(value)-1:len(value)] == "'": value = value[:-1]            # strip trailing quote if present
-                        value = value.strip()                                                   # strip leading and trailing blanks 
-
-                    if row == '': row += str(value)                                             # add value to output row (first value)
-                    else        : row += ', ' + str(value)                                      # add value to outputrow (subsequent values)
-
-                print(row)
-
-                if count < sys.maxsize:                                                         # count limited?
-                    rowsPrinted += 1                                                            # yes - increment number printed
-                    if rowsPrinted >= abs(count): break                                         # check for done
-
-            print()
-
-        
-        # do remaining files (groups)
-        for group in h5file.keys():
-            if group in excludeList: continue                                                   # skip if excludedd
-            if group == Run_Details_Filename: continue                                          # Run_details already done (or excluded)
-
-            if not Run_Details_Filename in excludeList: print()
-
-            # print data
-            print('COMPAS file:', group)
-            print('-'*(13 + len(group)))
-
-            columns = list(h5file[group].keys())
+            columns = list(h5file.keys())
 
             hdr = ''
             for column in columns: 
@@ -423,7 +446,7 @@ def printContents(h5name = None, h5file = None, excludeList = '', count = sys.ma
 
             print(hdr)  
             
-            rows = len(h5file[group][columns[0]])
+            rows = len(h5file[columns[0]])
             rowsPrinted = 0
             for idx in range(rows):           
 
@@ -432,11 +455,11 @@ def printContents(h5name = None, h5file = None, excludeList = '', count = sys.ma
                 index = rows - idx - 1 if count < 0 else idx                                    # correct index - head or tail of file       
 
                 row = ''
-                for column in h5file[group].keys():
+                for column in h5file.keys():
                     try:
-                        value = h5file[group][column][index].decode('utf-8')
+                        value = h5file[column][index].decode('utf-8')
                     except AttributeError:
-                        value = h5file[group][column][index]
+                        value = h5file[column][index]
 
                     if column == 'Run-End' or column == 'Run-Start': value = value[:-1]         # strip trailing \n
 
@@ -444,7 +467,7 @@ def printContents(h5name = None, h5file = None, excludeList = '', count = sys.ma
                         printIt = False
                         break
 
-                    dataType = getDataType(str(h5file[group][column].dtype))                    # data type
+                    dataType = getDataType(str(h5file[column].dtype))                    # data type
                     if dataType[0:6] == 'STRING':                                               # string?
                         if value[0:1] == "'": value = value[1:]                                 # yes - strip leading quote if present
                         if value[len(value)-1:len(value)] == "'": value = value[:-1]            # strip trailing quote if present
@@ -462,9 +485,121 @@ def printContents(h5name = None, h5file = None, excludeList = '', count = sys.ma
 
             print()
 
+
+
+
+        else:
+
+            # do Run_Details file first
+            if not Run_Details_Filename in excludeList:                                             # ... if not excluded
+
+                # print data
+                print('COMPAS file:', Run_Details_Filename)
+                print('-'*(13 + len(Run_Details_Filename)))
+
+                columns = list(h5file[Run_Details_Filename].keys())
+
+                hdr = ''
+                for column in columns: 
+                    if hdr == '': hdr += column                                                     # add value to hdr (first value)
+                    else        : hdr += ', ' + column                                              # add value to hdr (subsequent values)
+
+                print(hdr)  
+            
+                rows = len(h5file[Run_Details_Filename][columns[0]])
+                rowsPrinted = 0
+                for idx in range(rows):
+
+                    index = rows - idx - 1 if count < 0 else idx                                    # correct index - head or tail of file       
+
+                    row = ''
+                    for column in h5file[Run_Details_Filename].keys():
+                        try:
+                            value = h5file[Run_Details_Filename][column][index].decode('utf-8')
+                        except AttributeError:
+                            value = h5file[Run_Details_Filename][column][index]
+
+                        if column == 'Run-End' or column == 'Run-Start': value = value[:-1]         # strip trailing \n
+
+                        dataType = getDataType(str(h5file[Run_Details_Filename][column].dtype))     # data type
+                        if dataType[0:6] == 'STRING':                                               # string?
+                            if value[0:1] == "'": value = value[1:]                                 # yes - strip leading quote if present
+                            if value[len(value)-1:len(value)] == "'": value = value[:-1]            # strip trailing quote if present
+                            value = value.strip()                                                   # strip leading and trailing blanks 
+
+                        if row == '': row += str(value)                                             # add value to output row (first value)
+                        else        : row += ', ' + str(value)                                      # add value to outputrow (subsequent values)
+
+                    print(row)
+
+                    if count < sys.maxsize:                                                         # count limited?
+                        rowsPrinted += 1                                                            # yes - increment number printed
+                        if rowsPrinted >= abs(count): break                                         # check for done
+
+                print()
+
+        
+            # do remaining files (groups)
+            for group in h5file.keys():
+                if group in excludeList: continue                                                   # skip if excludedd
+                if group == Run_Details_Filename: continue                                          # Run_details already done (or excluded)
+
+                if not Run_Details_Filename in excludeList: print()
+
+                # print data
+                print('COMPAS file:', group)
+                print('-'*(13 + len(group)))
+
+                columns = list(h5file[group].keys())
+
+                hdr = ''
+                for column in columns: 
+                    if hdr == '': hdr += column                                                     # add value to hdr (first value)
+                    else        : hdr += ', ' + column                                              # add value to hdr (subsequent values)
+
+                print(hdr)  
+            
+                rows = len(h5file[group][columns[0]])
+                rowsPrinted = 0
+                for idx in range(rows):           
+
+                    printIt = True
+
+                    index = rows - idx - 1 if count < 0 else idx                                    # correct index - head or tail of file       
+
+                    row = ''
+                    for column in h5file[group].keys():
+                        try:
+                            value = h5file[group][column][index].decode('utf-8')
+                        except AttributeError:
+                            value = h5file[group][column][index]
+
+                        if column == 'Run-End' or column == 'Run-Start': value = value[:-1]         # strip trailing \n
+
+                        if seeds and column == 'SEED' and not(value in seeds):
+                            printIt = False
+                            break
+
+                        dataType = getDataType(str(h5file[group][column].dtype))                    # data type
+                        if dataType[0:6] == 'STRING':                                               # string?
+                            if value[0:1] == "'": value = value[1:]                                 # yes - strip leading quote if present
+                            if value[len(value)-1:len(value)] == "'": value = value[:-1]            # strip trailing quote if present
+                            value = value.strip()                                                   # strip leading and trailing blanks 
+
+                        if row == '': row += str(value)                                             # add value to output row (first value)
+                        else        : row += ', ' + str(value)                                      # add value to outputrow (subsequent values)
+
+                    if printIt:
+                        print(row)
+
+                        if count < sys.maxsize:                                                     # count limited?
+                            rowsPrinted += 1                                                        # yes - increment number printed
+                            if rowsPrinted >= abs(count): break                                     # check for done
+
+                print()
+
         print('\n')
         
-
     except Exception as e:                                                                      # error occurred accessing the input file
         print('printContents: Error accessing HDF5 file', h5name, ':', str(e))
         ok = False

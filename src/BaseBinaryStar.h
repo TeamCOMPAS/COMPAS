@@ -28,7 +28,7 @@ class BaseBinaryStar {
 
 public:
 
-    BaseBinaryStar(const long int p_Id = -1l);
+    BaseBinaryStar(const unsigned long int p_Seed, const long int p_Id);
 
     void CopyMemberVariables(const BaseBinaryStar& p_Star) {
 
@@ -401,7 +401,7 @@ private:
     //                            and call the actual function
     // JR: todo: note in the orginal code the binary orbital velicity was passed in as a parameter but never used - I removed it
 
-    void    SetInitialValues(const long int p_Id);
+    void    SetInitialValues(const unsigned long int p_Seed, const long int p_Id);
     void    SetRemainingValues();
 
 
