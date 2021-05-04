@@ -7,27 +7,18 @@
 
 /* Constructor
  *
- * Parameter p_Id is optional, and is only included so that comparison tests can
- * be run against the legacy COMPAS code.  If a fixed random seed is being used
- * (program option) the legacy code effectively adds the loop index of the binary
- * (from COMPASBinary() in main.cpp) to the user-specified fixed random seed so
- * that each binary has a repeatable random seed.
- *
- * Notes: the legacy code doesn't actually use the loop index - it uses a generated
- * object id that is the same as the loop index.  The new code also assigns objects
- * object ids, but the ids are assigned to all objects, not just binary stars, so
- * the ids generated in the new code won't match the legacy code ids - hence the
- * need to use the loop index here.  The parameter is optional - if no comparison
- * testing against the legacy code is required, the p_Id parameter can be let default
- * (in which case it is not used to generate the random seed - the generated object
- * id is used instead).
+ * Parameter p_Seed is the seed for the random number generator - see main.cpp for an
+ * explanation of how p_Seed is derived.
+ * 
+ * Parameter p_Id is the id of the binary - effectively an index - which is added as
+ * a suffix to the filenames of any detailed output files created.
  */
 
 
 // binary is generated according to distributions specified in program options
-BaseBinaryStar::BaseBinaryStar(const long int p_Id) {
+BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_Id) {
 
-    SetInitialValues(p_Id);                                                                                                             // start construction of the binary
+    SetInitialValues(p_Seed, p_Id);                                                                                                     // start construction of the binary
                         
     // generate initial properties of binary
     // check that the constituent stars are not touching
@@ -238,44 +229,15 @@ BaseBinaryStar::BaseBinaryStar(const long int p_Id) {
  *
  * @param   [IN]    p_Id                        Ordinal value of binary - see constructor notes above
  */
-void BaseBinaryStar::SetInitialValues(const long int p_Id) {
+void BaseBinaryStar::SetInitialValues(const unsigned long int p_Seed, const long int p_Id) {
 
     m_Error = ERROR::NONE;
 
     m_ObjectId    = globalObjectId++;
     m_ObjectType  = OBJECT_TYPE::BASE_BINARY_STAR;
     m_StellarType = STELLAR_TYPE::BINARY_STAR;
+    m_RandomSeed  = p_Seed;
     m_Id          = p_Id;
-
-
-    // binary stars generate their own random seed, and pass that to their constituent stars
-    // 
-    // there are three scenarios:
-    //
-    // if the user did not specify a random seed, either on the commandline or in a grid file
-    // record, we use a randomly chosen seed, based on the system time.
-    //
-    // if the user specified a random seed on the commandline, and not in the grid file for
-    // the current binary, the random seed specified on the commandline is used - and the 'id'
-    // offset applied
-    //
-    // if the user specified a random seed in the grid file for the current binary, regardless
-    // of whether a random seed was specified on the commandline, the random seed from the grid
-    // file is used, and no offset is added (i.e. the random seed specified is used as it).
-    // note that in this scenario it is the user's responsibility to ensure that there is no
-    // duplication of seeds.
-
-    OBJECT_ID id = p_Id < 0 ? m_ObjectId : p_Id;                                                        // for legacy testing
-
-    if (OPTIONS->FixedRandomSeedGridLine()) {                                                           // user specified a random seed in the grid file for this binary?
-        m_RandomSeed = RAND->Seed(OPTIONS->RandomSeedGridLine() + id);                                  // yes - use it (indexed))
-    }
-    else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                       // no - user supplied seed for the random number generator?
-        m_RandomSeed = RAND->Seed(OPTIONS->RandomSeedCmdLine() + id);                                   // yes - this allows the user to reproduce results for each binary
-    }
-    else {                                                                                              // no
-        m_RandomSeed = RAND->Seed(RAND->DefaultSeed() + id);                                            // use default seed (based on system time) + id
-    }
 
     if (OPTIONS->PopulationDataPrinting()) {                                                            // user wants to see details of binary?
         SAY("Using supplied random seed " << m_RandomSeed << " for Binary Star id = " << m_ObjectId);   // yes - show them
