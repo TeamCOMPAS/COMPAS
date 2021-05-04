@@ -1771,7 +1771,7 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
             } break;
 
         case PPI_PRESCRIPTION::FARMER: {                                                                // Farmer et al. 2019 http://dx.doi.org/10.3847/1538-4357/ab518b
-            double totalMassPrePPISN = m_Mass;                                                          // Safe the total stellar mass 
+            double totalMassPrePPISN = m_Mass;                                                          // Save the total stellar mass 
                                                                                                         // Three cases:
             if (m_COCoreMass < FARMER_PPISN_UPP_LIM_LIN_REGIME){
                 m_Mass = m_COCoreMass + 4.;                                                             // A linear relation below CO core masses of 38 Msun
