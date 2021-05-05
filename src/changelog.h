@@ -741,7 +741,10 @@
 //                                            being used (the default chunk size is 100000 - that might explain why this problem hasn't been reported)
 //
 //                                      Modified h5view.py (in postProcessing/Folders/H5/PythonScripts) to handle detailed ouput files
+// 02.19.02     LVS - May 04, 2021   - Defect Repairs:
+//                                      - Avoid possibility of exceeding total mass in Farmer PPISN prescription
 
-const std::string VERSION_STRING = "02.19.01";
+
+const std::string VERSION_STRING = "02.19.02";
 
 # endif // __changelog_h__
