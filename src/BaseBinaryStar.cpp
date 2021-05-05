@@ -1134,6 +1134,22 @@ bool BaseBinaryStar::ResolveSupernova() {
         return false;                                                                                                   // not a supernova event - bail out 
     }
 
+    // RTW hack for ECSN - update the orbit and mass preSN - // For No Mass Loss Model, comment all this out!
+    if (m_Supernova->SN_Type() == SN_EVENT::ECSN) {
+        if (OPTIONS->KickMagnitude() < 20) { // set to 20 if you want to use this compiled branch, but not run the ecsn env mass loss - uses a parameter that is otherwise ignored in BSE
+            double m1pre = m_Supernova->SN_TotalMassAtCOFormation();
+            double m1core = m_Supernova->SN_COCoreMassAtCOFormation();
+            double m1env = m1pre - m1core;
+            double m2pre = m_Companion->SN_TotalMassAtCOFormation();
+            double massEnvLimit = OPTIONS->KickMagnitude(); // this variable shouldn't get used otherwise, so it should be open season
+            double m1stripped = m1core + ((m1env > massEnvLimit) ? massEnvLimit : m1env);
+
+            m_SemiMajorAxis *= (m1pre+m2pre)/(m1stripped+m2pre);
+            m_Supernova->UpdateTotalMassForECSN(m1stripped);
+
+        }
+    }
+
     // Set relevant preSN parameters 
     m_EccentricityPreSN = m_Eccentricity;                                                 
     m_SemiMajorAxisPreSN = m_SemiMajorAxis;                                               
