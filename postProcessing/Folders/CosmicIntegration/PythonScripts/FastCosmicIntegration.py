@@ -255,10 +255,13 @@ def find_detection_probability(Mc, eta, redshifts, distances, n_redshifts_detect
         # lookup values for the detection probability (but make sure you don't go over the top of the array)
         detection_list_index = np.round(snrs / snr_step).astype(int) - 1
         snr_below_max = detection_list_index < len(detection_probability_from_snr)
+        snr_below_min = detection_list_index < 0
 
         # remember we set probability = 1 by default? Because if we don't set it here, we have snr > max snr
         # which is 1000 by default, meaning very detectable
         detection_probability[i, snr_below_max] = detection_probability_from_snr[detection_list_index[snr_below_max]]
+        #on the other hand, if SNR is too low, the detection probability is effectively zero
+        detection_probability[i, snr_below_min] = 0
 
     return detection_probability
 
@@ -368,6 +371,9 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
     chirp_masses = (COMPAS.mass1*COMPAS.mass2)**(3/5) / (COMPAS.mass1 + COMPAS.mass2)**(1/5)
     etas = COMPAS.mass1 * COMPAS.mass2 / (COMPAS.mass1 + COMPAS.mass2)**2
     n_binaries = len(chirp_masses)
+    # another warning on poor input
+    if max(chirp_masses)*(1+max_redshift_detection) < Mc_max:
+        warnings.warn("Maximum chirp mass used for detectability calculation is below maximum binary chirp mass * (1+maximum redshift for detectability calculation)", stacklevel=2)
 
     # calculate the redshifts array and its equivalents
     redshifts, n_redshifts_detection, times, distances, shell_volumes = calculate_redshift_related_params(max_redshift, max_redshift_detection, redshift_step)
