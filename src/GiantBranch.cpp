@@ -1772,10 +1772,11 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
             } break;
 
         case PPI_PRESCRIPTION::FARMER: {                                                                // Farmer et al. 2019 http://dx.doi.org/10.3847/1538-4357/ab518b
+            double totalMassPrePPISN = m_Mass;                                                          // Save the total stellar mass 
                                                                                                         // Three cases:
-            if (m_COCoreMass < FARMER_PPISN_UPP_LIM_LIN_REGIME) {
+            if (m_COCoreMass < FARMER_PPISN_UPP_LIM_LIN_REGIME){
                 m_Mass = m_COCoreMass + 4.;                                                             // A linear relation below CO core masses of 38 Msun
-            }
+                }
 
             else if (m_COCoreMass < FARMER_PPISN_UPP_LIM_QUAD_REGIME) {                                 // A quadratic relation in CO core mass for 38 =< CO_core < 60
                 double a1             = -0.096;
@@ -1791,6 +1792,8 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
             else {                                                                                      // BH mass becomes CO-core mass above the PISN gap
                 m_Mass = m_COCoreMass;
             }
+
+            m_Mass = std::min(totalMassPrePPISN, m_Mass);                                               // Check if your remnant mass is bigger than your total mass    
 
             } break;
 
