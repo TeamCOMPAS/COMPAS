@@ -159,26 +159,27 @@ def retrieveMassEvolvedPerZ(path, fileName):
 
 
 
-def totalMassEvolvedPerZ(path=None, fileName=None, Mlower=None, Mupper=None, binaryFraction=0.7, \
+def totalMassEvolvedPerZ(path=None, fileName=None, M1lower=None, M1upper=None, M2lower=None, binaryFraction=0.7, \
                          x1=0.01, x2=0.08, x3=0.5, x4=200., a1=-0.3, a2=-1.3, a3=-2.3, C1=1., Mmax=200):
 
     #the default values assume a Kroupa IMF for M1
     if path is None:
         raise TypeError("\n Need to give path to directory COMPASOutput.h5")
-    if Mlower is None:
+    if M1lower is None:
         raise TypeError("\n Need to give lower limit M1 of pythonSubmit")
-    if Mupper is None:
+    if M1upper is None:
         raise TypeError("\n Need to give upper limit M1 of pythonSubmit")
+    if M2lower is None:
+        raise TypeError("\n Need to give lower limit M2 of pythonSubmit")
     
-
     M1, M2 = createSampleUniverse(binaryFraction=binaryFraction, x1=x1, x2=x2, x3=x3, x4=x4, \
                                   a1=a1, a2=a2, a3=a3, C1=C1, Mmax=Mmax)
 
     totalMassInStarFormation = np.sum(M1) + np.sum(M2)
 
     #Now mask M1 and M2 to see what lies in the range of COMPAS
-    maskM1 = (M1>=Mlower) & (M1<=Mupper)
-    maskBinaries = (M2!=0)
+    maskM1 = (M1 >= M1lower) & (M1 <= M1upper)
+    maskBinaries = (M2 >= M2lower)
     mask = maskM1 & maskBinaries
 
     totalMassEvolvedCOMPAS = np.sum(M1[mask]) + np.sum(M2[mask])
