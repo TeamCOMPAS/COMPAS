@@ -58,6 +58,7 @@ def main():
     axes[1][0].plot(Data['Time'][()], Data['Eccentricity'][()], linestyle='-', c='k') #, label= 'Eccentricity')
     axes[1][0].set_ylabel('Eccentricity')
     axes[1][0].set_xlabel('Time / Myr')
+    axes[1][0].set_ylim(-0.05, 1.05)
     axes[1][0].grid(linestyle=':', c='gray')
     
     ### Plot stellar types
