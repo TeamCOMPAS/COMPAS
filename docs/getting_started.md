@@ -126,9 +126,9 @@ If you do not have python3 installed, install it by following the instructions b
 ## 2. Evolving your first binary
 To start using COMPAS, you will need the python script pythonSubmit.py, which specifies all the program options (physics assumptions, output types) and runs COMPAS in the terminal. Although the primary functionality of COMPAS is to evolve a whole population of binary stars rapidly, for now, let's focus on evolving a single stellar system and examining the detailed output.
 
-To start, change to the `demo` directory:
+To start, change to the `examples/methods_paper_plots/detailed_evolution/` directory:
 
-    cd $COMPAS_ROOT_DIR/demo
+    cd $COMPAS_ROOT_DIR/examples/methods_paper_plots/detailed_evolution/
 
 Here, you will find the script pythonSubmitDemo.py for this demo.
 
@@ -181,10 +181,10 @@ The COMPAS run just now produces a new directory `COMPAS_Output`, inside which y
 
 We examine `BSE_Detailed_Output_0.h5` to look at the evolution of the two stars. A default python plotting script has been included to visualise the data. Let's run the script:
 
-    python3 $COMPAS_ROOT_DIR/demo/single_sys_plotter.py
+    python3 single_sys_plotter.py
 
 This should produce the following plot:  
-![demo_plot](../demo/demo_plot.png)
+![demo_plot](../examples/methods_paper_plots/detailed_evolution/gw151226evol.eps)
 
 
 COMPAS provides many tools for analysing and post-processing the data. Please view the post-processing documentation in `COMPAS/postProcessing`. 
