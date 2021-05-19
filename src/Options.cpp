@@ -326,7 +326,7 @@ void Options::OptionValues::Initialise() {
     m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::VINK;
     m_MassLossPrescription.typeString                               = MASS_LOSS_PRESCRIPTION_LABEL.at(m_MassLossPrescription.type);
 
-    m_LuminousBlueVariablePrescription.type                         = LBV_PRESCRIPTION::BELCZYNSKI;
+    m_LuminousBlueVariablePrescription.type                         = LBV_PRESCRIPTION::HURLEY_ADD;
     m_LuminousBlueVariablePrescription.typeString                   = LBV_PRESCRIPTION_LABEL.at(m_LuminousBlueVariablePrescription.type);
 
     // Wind mass loss multiplicitive constants
