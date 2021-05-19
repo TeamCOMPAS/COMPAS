@@ -1,7 +1,11 @@
 import numpy as np
 
+""" This file creates a grid of stars for the HRD plot """
 
+# use solar and low metallicity
 metallicities = [0.0142, 0.001]
+
+# circular binaries with a separation so wide that they are effectively single
 eccentricity = 0.0
 a = 1e20
 
