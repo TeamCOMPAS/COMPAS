@@ -138,7 +138,7 @@ class pythonProgramOptions:
     envelope_state_prescription = 'LEGACY'
 
     mass_loss_prescription = 'VINK'
-    luminous_blue_variable_prescription = 'BELCZYNSKI'
+    luminous_blue_variable_prescription = 'HURLEY_ADD'
     luminous_blue_variable_multiplier = 1.5
     overall_wind_mass_loss_multiplier = 1.0
     wolf_rayet_multiplier = 1.0
