@@ -184,7 +184,7 @@ We examine `BSE_Detailed_Output_0.h5` to look at the evolution of the two stars.
     python3 single_sys_plotter.py
 
 This should produce the following plot:  
-![demo_plot](../examples/methods_paper_plots/detailed_evolution/gw151226evol.eps)
+![demo_plot](../examples/methods_paper_plots/detailed_evolution/gw151226evol.png)
 
 
 COMPAS provides many tools for analysing and post-processing the data. Please view the post-processing documentation in `COMPAS/postProcessing`. 
