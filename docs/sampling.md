@@ -17,7 +17,7 @@ If you have not already, you will need to install Stroopwafel. If you have admin
 
 ---------------
 
-To use Stroopwafel sampling, copy `defaults/stroopwafelInterface.py` into your working directory. 
+To use Stroopwafel sampling, copy `preProcessing/stroopwafelInterface.py` into your working directory. 
 
 
 ### Settings
@@ -30,7 +30,7 @@ If you have many non-default COMPAS arguments, you may want to set them in the
 `pythonSubmit.py` file in the same directory. For now, the file must be named this way 
 and placed in the same directory as the `stroopwafelInterface.py` file. 
 
-A configurable pythonSubmit file can be found in the `defaults/` directory.
+A configurable pythonSubmit file can be found in the `preProcessing/` directory.
 
 Set your desired options, then set the `usePythonSubmit` parameter to `True` 
 in the `stroopwafelInterface.py`.
