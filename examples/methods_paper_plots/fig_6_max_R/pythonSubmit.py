@@ -161,7 +161,7 @@ class pythonProgramOptions:
 
     maximum_evolution_time = 13700.0                            # Maximum physical time a system can be evolved [Myrs]
     maximum_number_timesteps = 99999
-    timestep_multiplier = 0.1                                   # Optional multiplier relative to default time step duration
+    timestep_multiplier = 0.3                                   # Optional multiplier relative to default time step duration
 
     initial_mass_function = 'KROUPA'
     initial_mass_min = 5.0                                      # Use 1.0 for LRNe, 5.0 for DCOs  [Msol]
