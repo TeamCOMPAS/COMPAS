@@ -85,6 +85,7 @@ def main():
     fig.subplots_adjust(left=0.05)  #adjusting boundaries of the plotter
     fig.subplots_adjust(wspace=.3)
     plt.savefig('gw151226evol.eps', format='eps') 
+    plt.savefig('gw151226evol.png', format='png') 
     plt.show()
 
 
