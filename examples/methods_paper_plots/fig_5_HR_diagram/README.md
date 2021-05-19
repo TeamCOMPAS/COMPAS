@@ -1,4 +1,4 @@
-# How to recreate/edit the HR diagram from COMPAS methods paper
+# How to recreate/edit the HR diagram from the COMPAS methods paper
 
 This folder contains everything you need to reproduce (or edit!) the HRD from the methods paper. You'll need to do the following:
 
