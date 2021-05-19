@@ -1494,8 +1494,8 @@ double BaseStar::CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_prescript
                 rate = CalculateMassLossRateLBVBelczynski();
                 break;
             default:
-                SHOW_WARN(ERROR::UNKNOWN_LBV_PRESCRIPTION, "Using default value BELCZYNSKI");
-                rate = CalculateMassLossRateLBVBelczynski();
+                SHOW_WARN(ERROR::UNKNOWN_LBV_PRESCRIPTION, "Using default value HURLEY_ADD");
+                rate = CalculateMassLossRateLBVHurley(HD_limit_factor);
                 break;
         }
     } else {
