@@ -545,19 +545,19 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
 /*
  * Calculate thermal timescale
  *
- * Kalogera & Webbink 1996, eq 2 [note that (61) of BSE proposes a value a factor of 3 smaller]
+ * Kalogera & Webbink 1996 (https://arxiv.org/abs/astro-ph/9508072), equation 2.
+ * [note that equation 61 of BSE (https://arxiv.org/abs/astro-ph/0201220) approximates this with a value a factor of 3 smaller]
  *
  *
- * double CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity) const
+ * double CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) const
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @param   [IN]    p_Radius                    Radius in Rsol
  * @param   [IN]    p_Luminosity                Luminosity in Lsol
- * @param   [IN]    p_EnvMass                   Envelope mass in Msol (ignored here)
  * @return                                      Thermal timescale in Myr
  */
 double MainSequence::CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) const {
-    return 30.0 * p_Mass * p_Mass / (p_Radius * p_Luminosity);      // G*Msol^2/(Lsol*Rsol) ~ 30 Myr
+    return 31.4 * p_Mass * p_Mass / (p_Radius * p_Luminosity);      // G*Msol^2/(Lsol*Rsol) ~ 31.4 Myr (~ 30 Myr in Kalogera & Webbink)
 }
 
 
