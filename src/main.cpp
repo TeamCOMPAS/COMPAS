@@ -440,18 +440,18 @@ std::tuple<int, int> EvolveBinaryStars() {
 
                 unsigned long int randomSeed = 0l;
                 
+                long int thisId = index + gridLineVariation;                                                    // set the id for the binary
+
                 if (OPTIONS->FixedRandomSeedGridLine()) {                                                       // user specified a random seed in the grid file for this star?
                     randomSeed = RAND->Seed(OPTIONS->RandomSeedGridLine() + (long int)gridLineVariation);       // yes - use it (indexed)
                 }
                 else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                   // no - user specified a random seed on the commandline?
-                    randomSeed = RAND->Seed(OPTIONS->RandomSeedCmdLine() + (long int)index);                    // yes - use it (indexed)
+                    randomSeed = RAND->Seed(OPTIONS->RandomSeedCmdLine() + thisId);                             // yes - use it (indexed)
                 }
                 else {                                                                                          // no
-                    randomSeed = RAND->Seed(RAND->DefaultSeed() + (long int)index);                             // use default seed (based on system time) + id (index)
+                    randomSeed = RAND->Seed(RAND->DefaultSeed() + thisId);                                      // use default seed (based on system time, and indexed)
                 }
 
-                long int thisId = OPTIONS->FixedRandomSeedGridLine() ? index + gridLineVariation : index;       // set the id for the binary
-                
                 delete binary; binary = nullptr;                                                                // so we don't leak
                 binary = new BinaryStar(randomSeed, thisId);                                                    // generate binary according to the user options
 
