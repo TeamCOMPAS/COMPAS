@@ -556,7 +556,7 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
  * @param   [IN]    p_Luminosity                Luminosity in Lsol
  * @return                                      Thermal timescale in Myr
  */
-double MainSequence::CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) const {
+double MainSequence::CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity) const {
     return 31.4 * p_Mass * p_Mass / (p_Radius * p_Luminosity);      // G*Msol^2/(Lsol*Rsol) ~ 31.4 Myr (~ 30 Myr in Kalogera & Webbink)
 }
 
