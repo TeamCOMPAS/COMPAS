@@ -208,9 +208,9 @@ def printSummary(h5name = None, h5file = None, excludeList = ''):
 
         else:                                                                                       # assume COMPAS_Output file
 
-            print(('\n{:<' + str(maxFilenameLen) + '}   {:<' + str(max(7, widthColumns)) + '}   {:<' + str(max(7, widthEntries)) + '}')
-                  .format('COMPAS Filename', 'Columns', 'Entries'))
-            print('-'*(maxFilenameLen), ' ', '-'*(max(7, widthColumns)), ' ', '-'*(max(7, widthEntries)))
+            print(('\n{:<' + str(maxFilenameLen) + '}   {:<' + str(max(7, widthColumns)) + '}   {:<' + str(max(7, widthEntries)) + '}   {:<' + str(max(12, widthEntries)) + '}')
+                  .format('COMPAS Filename', 'Columns', 'Entries', 'Unique SEEDs'))
+            print('-'*(maxFilenameLen), ' ', '-'*(max(7, widthColumns)), ' ', '-'*(max(7, widthEntries)), ' ', '-'*(max(12, widthEntries)))
 
             # do Run_Details file first
             if not Run_Details_Filename in excludeList:                                             # ... if not excluded
@@ -222,8 +222,13 @@ def printSummary(h5name = None, h5file = None, excludeList = ''):
                 if group in excludeList: continue                                                   # skip if excluded
                 if group == Run_Details_Filename: continue                                          # Run_details already done (or excluded)
 
-                print(('{:<' + str(maxFilenameLen) + '}   {:>' + str(max(7, widthColumns)) + '}   {:>' + str(max(7, widthEntries)) + '}')
-                      .format(group, len(h5file[group].keys()), groupMaxEntries[gIdx]))
+                try:
+                    uniqueSeedsStr = str(len(np.unique(h5file[group]['SEED'])))
+                except Exception as e:
+                    uniqueSeedsStr = " "
+
+                print(('{:<' + str(maxFilenameLen) + '}   {:>' + str(max(7, widthColumns)) + '}   {:>' + str(max(7, widthEntries)) + '}   {:>' + str(max(12, widthEntries)) + '}')
+                      .format(group, len(h5file[group].keys()), groupMaxEntries[gIdx], uniqueSeedsStr))
 
         print('\n')
 
@@ -716,7 +721,7 @@ def main():
     parser.add_argument('inputPaths', metavar = 'input', type = str, nargs = '+', help = 'input directory and/or file name(s)')
     parser.add_argument('-f', '--filter', dest = 'filename_filter', type = str, action = 'store',  default = '*', help = 'input filename filter (default = *)')
     parser.add_argument('-r', '--recursive', dest = 'recursion_depth', type = int, nargs = '?', action = 'store', default = 0, const = sys.maxsize,  help = 'recursion depth (default is no recursion)')
-    parser.add_argument('-S', '--summary', dest = 'summary', action = 'store_true',  default = False, help = 'display summary output for HDF5 file (default is not to displat summary)')
+    parser.add_argument('-S', '--summary', dest = 'summary', action = 'store_true',  default = False, help = 'display summary output for HDF5 file (default is not to display summary)')
     parser.add_argument('-H', '--headers', dest = 'headers', action = 'store_true',  default = False, help = 'display file headers for HDF5 file (default is not to display headers)')
     parser.add_argument('-C', '--contents', dest = 'contents', type = int, nargs = '?', action = 'store', default = 0, const = sys.maxsize, help = 'display file contents for HDF5 file: argument is number of entries (+ve from top, -ve from bottom) (default is not to display contents)')
     parser.add_argument('-s', '--stop-on-error', dest = 'stop_on_error', action = 'store_true',  default = False, help = 'stop all copying if an error occurs (default is skip to next file and continue)')

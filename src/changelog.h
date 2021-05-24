@@ -745,8 +745,12 @@
 //                                      - Avoid possibility of exceeding total mass in Farmer PPISN prescription
 // 02.19.03     TW - May 18, 2021    - Enhancement:
 //                                      - Change default LBV wind prescription to HURLEY_ADD
+// 02.19.04     JR - May 24, 2021    - Defect Repair:
+//                                      - Fixed incrementing of random seed and binary id when grid file contains sets/ranges
+//
+//                                      Modified h5view.py (in postProcessing/Folders/H5/PythonScripts) to print number of unique seeds (where relevant) in summary output
 
 
-const std::string VERSION_STRING = "02.19.03";
+const std::string VERSION_STRING = "02.19.04";
 
 # endif // __changelog_h__
