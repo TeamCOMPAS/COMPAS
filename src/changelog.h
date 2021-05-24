@@ -745,8 +745,10 @@
 //                                      - Avoid possibility of exceeding total mass in Farmer PPISN prescription
 // 02.19.03     TW - May 18, 2021    - Enhancement:
 //                                      - Change default LBV wind prescription to HURLEY_ADD
+// 02.19.04     FSB- May 24, 2021    - Enhancement:
+//                                      - updated kelvin-helmholtz (thermal) timescale calculation with more accurate pre-factor and updated documentation.
 
 
-const std::string VERSION_STRING = "02.19.03";
+const std::string VERSION_STRING = "02.19.04";
 
 # endif // __changelog_h__
