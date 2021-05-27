@@ -61,47 +61,89 @@ def find_sfr(redshifts):
     sfr = 0.01 * ((1+redshifts)**2.77) / (1 + ((1+redshifts)/2.9)**4.7) * u.Msun / u.yr / u.Mpc**3
     return sfr.to(u.Msun / u.yr / u.Gpc**3).value
 
+
 def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
-                                    Z0=0.035, alpha=-0.23, sigma=0.39, step_logZ=0.01):
+                                  mu0=0.035, muz=-0.23, sigma_0=0.39, sigma_z=0.0, alpha =0.0,
+                                  min_logZ  =-12.0, max_logZ  =0.0, step_logZ = 0.01):
+                                 
     """
-        Calculate the distribution of metallicities at different redshifts using Neijssel+19 Eq.7-9
-        (which is based on Madau & Dickinson 2014)
+    Calculate the distribution of metallicities at different redshifts using a log skew normal distribution
+    the log-normal distribution is a special case of this log skew normal distribution distribution, and is retrieved by setting 
+    the skewness to zero (alpha = 0). 
+    Based on the method in Neijssel+19. Default values of mu0=0.035, muz=-0.23, sigma_0=0.39, sigma_z=0.0, alpha =0.0, 
+    retrieve the dP/dZ distribution used in Neijssel+19
 
-        NOTE: This assumes that metallicities in COMPAS are drawn from a flat in log distribution
+    NOTE: This assumes that metallicities in COMPAS are drawn from a flat in log distribution!
 
-        Args:
-            redshifts          --> [list of floats] List of redshifts at which to calculate things
-            min_logZ_COMPAS    --> [float]          Minimum logZ value that COMPAS samples
-            max_logZ_COMPAS    --> [float]          Maximum logZ value that COMPAS samples
-            Z0                 --> [float]          Parameter used for calculating mean metallicity
-            alpha              --> [float]          Parameter used for calculating mean metallicity
-            sigma              --> [float]          Parameter used for calculating mean metallicity
-            step_logZ          --> [float]          Size of logZ steps to take in finding a Z range
+    Args:
+        max_redshift       --> [float]          max redshift for calculation
+        redshift_step      --> [float]          step used in redshift calculation
+        min_logZ_COMPAS    --> [float]          Minimum logZ value that COMPAS samples
+        max_logZ_COMPAS    --> [float]          Maximum logZ value that COMPAS samples
+        
+        mu0    = 0.025    --> [float]           location (mean in normal) at redshift 0
+        muz    = -0.05    --> [float]           redshift scaling/evolution of the location
+        sigma_0 = 1.25     --> [float]          Scale (variance in normal) at redshift 0
+        sigma_z = 0.05     --> [float]          redshift scaling of the scale (variance in normal)
+        alpha   = -1.77    --> [float]          shape (skewness, alpha = 0 retrieves normal dist)
 
-        Returns:
-            dPdlogZ            --> [2D float array] Probability of getting a particular logZ at a certain redshift
-            metallicities      --> [list of floats] Metallicities at which dPdlogZ is evaluated
-            p_draw_metallicity --> float            Probability of drawing a certain metallicity in COMPAS (float because assuming uniform)
+        min_logZ           --> [float]          Minimum logZ at which to calculate dPdlogZ (influences normalization)
+        max_logZ           --> [float]          Maximum logZ at which to calculate dPdlogZ (influences normalization)
+        step_logZ          --> [float]          Size of logZ steps to take in finding a Z range
+
+    Returns:
+        dPdlogZ            --> [2D float array] Probability of getting a particular logZ at a certain redshift
+        metallicities      --> [list of floats] Metallicities at which dPdlogZ is evaluated
+        p_draw_metallicity --> float            Probability of drawing a certain metallicity in COMPAS (float because assuming uniform)
     """
-    # use Neijssel+19 Eq. 9 to find means
-    mean_metallicities = Z0 * 10**(alpha * redshifts)
-    mu_metallicities = np.log(mean_metallicities) - sigma**2/2
+    import scipy
 
-    # create a range of metallicities
-    log_metallicities = np.arange(min_logZ_COMPAS, max_logZ_COMPAS + step_logZ, step_logZ)
+    ##################################
+    # the PDF of a standard normal distrtibution
+    def normal_PDF(x):
+        return 1./(np.sqrt(2* np.pi)) * np.exp(-(1./2) * (x)**2 )
+
+    ##################################
+    # the CDF of a standard normal distrtibution
+    def normal_CDF(x):
+        return 1./2. * (1 + scipy.special.erf(x/np.sqrt(2)) )
+        
+    ##################################
+    # Log-Linear redshift dependence of sigma
+    sigma = sigma_0* 10**(sigma_z*redshifts)
+    
+    ##################################
+    # Follow Langer & Norman 2007? in assuming that mean metallicities evolve in z as:
+    mean_metallicities = mu0 * 10**(muz * redshifts) 
+        
+    # Now we re-write the expected value of ou log-skew-normal to retrieve mu
+    beta = alpha/(np.sqrt(1 + (alpha)**2))
+    PHI  = normal_CDF(beta * sigma) 
+    mu_metallicities = np.log(mean_metallicities/2. * 1./(np.exp(0.5*sigma**2) * PHI )  ) 
+
+    ##################################
+    # create a range of metallicities (thex-values, or random variables)
+    log_metallicities = np.arange(min_logZ, max_logZ + step_logZ, step_logZ)
     metallicities = np.exp(log_metallicities)
 
-    # use Neijessel+19 Eq. 7 to find probabilities (without the factor of 1/Z since this is dp/dlogZ not dp/dZ)
-    dPdlogZ = 1 / (sigma * np.sqrt(2*np.pi)) * np.exp(-(log_metallicities - mu_metallicities[:,np.newaxis])**2 / (2 * sigma**2))
 
-    # normalise the distribution
-    norm = dPdlogZ.sum(axis=1) * step_logZ
-    dPdlogZ = dPdlogZ / norm[:,np.newaxis]
+    ##################################
+    # probabilities of log-skew-normal (without the factor of 1/Z since this is dp/dlogZ not dp/dZ)
+    dPdlogZ = 2./(sigma[:,np.newaxis]) * normal_PDF((log_metallicities -  mu_metallicities[:,np.newaxis])/sigma[:,np.newaxis]) * normal_CDF(alpha * (log_metallicities -  mu_metallicities[:,np.newaxis])/sigma[:,np.newaxis] )
 
-    # assume a flat in log distribution in metallicity to find probability of drawing Z
+    ##################################
+    # normalise the distribution over al metallicities
+    norm = dPdlogZ.sum(axis=-1) * step_logZ
+    dPdlogZ = dPdlogZ /norm[:,np.newaxis]
+
+    ##################################
+    # assume a flat in log distribution in metallicity to find probability of drawing Z in COMPAS
     p_draw_metallicity = 1 / (max_logZ_COMPAS - min_logZ_COMPAS)
-
+    
     return dPdlogZ, metallicities, p_draw_metallicity
+
+
+
 
 def find_formation_and_merger_rates(n_binaries, redshifts, times, n_formed, dPdlogZ, metallicities, p_draw_metallicity,
                                     COMPAS_metallicites, COMPAS_delay_times, COMPAS_weights=None):
