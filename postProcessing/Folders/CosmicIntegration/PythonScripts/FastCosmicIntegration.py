@@ -10,14 +10,15 @@ import warnings
 
 import astropy.units as u
 
-def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001):
+def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10.0):
     """ 
         Given limits on the redshift, create an array of redshifts, times, distances and volumes
 
         Args:
-            max_redshift           --> [float]          Maximum redshift to use in array
+            max_redshift           --> [float]          Maximum redshift to use for calculations
             max_redshift_detection --> [float]          Maximum redshift to calculate detection rates (must be <= max_redshift)
             redshift_step          --> [float]          size of step to take in redshift
+            z_first_SF             --> [float]          redshift of first star formation
 
         Returns:
             redshifts              --> [list of floats] List of redshifts between limits supplied
@@ -33,6 +34,9 @@ def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=
     # convert redshifts to times and ensure all times are in Myr
     times = cosmology.age(redshifts).to(u.Myr).value
 
+    # and time of first Sf
+    time_first_SF = cosmology.age(z_first_SF).to(u.Myr).value
+
     # convert redshifts to distances and ensure all distances are in Mpc (also avoid D=0 because division by 0)
     distances = cosmology.luminosity_distance(redshifts).to(u.Mpc).value
     distances[0] = 0.001
@@ -44,7 +48,7 @@ def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=
     shell_volumes = np.diff(volumes)
     shell_volumes = np.append(shell_volumes, shell_volumes[-1])
 
-    return redshifts, n_redshifts_detection, times, distances, shell_volumes
+    return redshifts, n_redshifts_detection, times, time_first_SF, distances, shell_volumes
 
 def find_sfr(redshifts):
     """
@@ -145,7 +149,7 @@ def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
 
 
 
-def find_formation_and_merger_rates(n_binaries, redshifts, times, n_formed, dPdlogZ, metallicities, p_draw_metallicity,
+def find_formation_and_merger_rates(n_binaries, redshifts, times, time_first_SF, n_formed, dPdlogZ, metallicities, p_draw_metallicity,
                                     COMPAS_metallicites, COMPAS_delay_times, COMPAS_weights=None):
     """
         Find both the formation and merger rates for each binary at each redshift
@@ -180,7 +184,7 @@ def find_formation_and_merger_rates(n_binaries, redshifts, times, n_formed, dPdl
     times_to_redshifts = interp1d(times, redshifts)
 
     # make note of the first time at which star formation occured
-    age_first_sfr = np.min(times)
+    age_first_sfr = time_first_SF
 
     # go through each binary in the COMPAS data
     for i in range(n_binaries):
@@ -418,7 +422,7 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
         warnings.warn("Maximum chirp mass used for detectability calculation is below maximum binary chirp mass * (1+maximum redshift for detectability calculation)", stacklevel=2)
 
     # calculate the redshifts array and its equivalents
-    redshifts, n_redshifts_detection, times, distances, shell_volumes = calculate_redshift_related_params(max_redshift, max_redshift_detection, redshift_step)
+    redshifts, n_redshifts_detection, times, time_first_SF, distances, shell_volumes = calculate_redshift_related_params(max_redshift, max_redshift_detection, redshift_step, z_first_SF)
 
     # find the star forming mass per year per Gpc^3 and convert to total number formed per year per Gpc^3
     sfr = find_sfr(redshifts)
@@ -429,7 +433,7 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
                                                                                 np.log(np.max(COMPAS.initialZ)), Z0, alpha, sigma, step_logZ)
 
     # calculate the formation and merger rates using what we computed above
-    formation_rate, merger_rate = find_formation_and_merger_rates(n_binaries, redshifts, times, n_formed, dPdlogZ,
+    formation_rate, merger_rate = find_formation_and_merger_rates(n_binaries, redshifts, times, time_first_SF, n_formed, dPdlogZ,
                                                                     metallicities, p_draw_metallicity, COMPAS.metallicitySystems,
                                                                     COMPAS.delayTimes, COMPAS.sw_weights)
 
