@@ -94,6 +94,14 @@ class pythonProgramOptions:
         else:
             logfile_definitions = compas_input_path_override + '/' + logfile_definitions
 
+    # ensure that no file paths have spaces that could confuse Boost
+    for path in [output, grid_filename, logfile_definitions]:
+        if path is not None and path.find(" ") >= 0:
+            print("ERROR: File path contains spaces, replace with underscores or another character.")
+            print("\t" + path)
+            print("\t" + " " * path.find(" ") + "^")
+            exit(1)
+
     initial_mass    = None                                      # initial mass for SSE
     initial_mass_1  = None                                      # primary initial mass for BSE
     initial_mass_2  = None                                      # secondary initial mass for BSE
