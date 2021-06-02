@@ -512,6 +512,9 @@ def plot_rates(formation_rate, merger_rate, detection_rate, redshifts, chirp_mas
     plt.show()
 
 
+
+
+
 ##################################################################
 ### 
 ### Run it!
@@ -522,6 +525,23 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", dest= 'path',  help="Path to the COMPAS file that contains the output",type=str, default = './')
     parser.add_argument("--filename", dest= 'fname',  help="Name of the COMPAS file",type=str, default = "COMPAS_Output.h5")
+    # For what DCO would you like the rate?  options: ALL, BHBH, BHNS NSNS
+    parser.add_argument("--dco_type", dest= 'dco_type',  help="Which DCO type you used to calculate rates, one of: ['ALL', 'BHBH', 'BHNS', 'NSNS'] ",type=str, default = "BHBH")
+    parser.add_argument("--weight", dest= 'weight_column',  help="Name of column w AIS sampling weights, i.e. 'mixture_weight'(leave as None for unweighted samples) ",type=str, default = "BHBH")
+
+    # Options for the redshift evolution and detector sensitivity
+    parser.add_argument("--maxz", dest= 'max_redshift',  help="Maximum redshift to use in array",type=float, default=10)
+    parser.add_argument("--zSF", dest= 'z_first_SF',  help="redshift of first star formation",type=float, default=10)
+    parser.add_argument("--maxzdet", dest= 'max_redshift_detection',  help="Maximum redshift to calculate detection rates",type=float, default=1)
+    parser.add_argument("--zstep", dest= 'redshift_step',  help="size of step to take in redshift",type=float, default=0.001)
+    parser.add_argument("--sens", dest= 'sensitivity',  help="Which detector sensitivity to use: one of ['design', 'O1', 'O3']",type=str, default = "O3")
+    parser.add_argument("--snr", dest= 'snr_threshold',  help="What SNR threshold required for a detection",type=float, default=8)
+
+    # Parameters to calculate the representing SF mass (make sure these match YOUR simulation!)
+    parser.add_argument("--m1min", dest= 'm1_min',  help="Minimum primary mass sampled by COMPAS",type=float, default=5.) 
+    parser.add_argument("--m1max", dest= 'm1_max',  help="Maximum primary mass sampled by COMPAS",type=float, default=150.) 
+    parser.add_argument("--m2min", dest= 'm2_min',  help="Minimum secondary mass sampled by COMPAS",type=float, default=0.1) 
+    parser.add_argument("--fbin", dest= 'fbin',  help="Binary fraction used by COMPAS",type=float, default=0.7) 
 
     # Parameters determining dP/dZ and SFR(z), default options from Neijssel 2019
     parser.add_argument("--mu0", dest= 'mu0',  help="mean metallicity at redshhift 0",type=float, default=0.035)
@@ -536,16 +556,15 @@ if __name__ == "__main__":
  
     args = parser.parse_args()
 
-
     start_CI = time.time()
-    # Do the cosmic integration
-    detection_rate, formation_rate, merger_rate, redshifts, COMPAS = find_detection_rate(args.path, filename=args.fname, dco_type=Dco_type, weight_column="mixture_weight",
-                            max_redshift=Max_redshift, max_redshift_detection=Max_redshift_detection, redshift_step=Redshift_step, z_first_SF= z_first_SF,
-                            m1_min=M1_min, m1_max=M1_max, m2_min=M2_min, fbin=Fbin,
+    # Run the cosmic integration
+    detection_rate, formation_rate, merger_rate, redshifts, COMPAS = find_detection_rate(args.path, filename=args.fname, dco_type=args.dco_type, weight_column=None, #"mixture_weight"
+                            max_redshift=args.max_redshift, max_redshift_detection=args.max_redshift_detection, redshift_step=args.redshift_step, z_first_SF= args.z_first_SF,
+                            m1_min=args.m1_min, m1_max=args.m1_max, m2_min=args.m2_min, fbin=args.fbin,
                             aSF = args.aSF, bSF = args.bSF, cSF = args.cSF, dSF = args.dSF, 
                             mu0=args.mu0, muz=args.muz, sigma0=args.sigma0, sigmaz=args.sigmaz, alpha=args.alpha, 
+                            sensitivity=args.sensitivity, snr_threshold=args.snr_threshold, 
                             min_logZ=-12.0, max_logZ=0.0, step_logZ=0.01,
-                            sensitivity=Sensitivity, snr_threshold=Snr_threshold, 
                             Mc_min=0.1, Mc_max=300.0, Mc_step=0.1, eta_min=0.01, eta_max=0.25, eta_step=0.01,
                             snr_min=0.1, snr_max=1000.0, snr_step=0.1)
     end_CI = time.time()
