@@ -1,12 +1,16 @@
 import numpy as np
 import h5py  as h5
 import os
+import time
 import matplotlib.pyplot as plt
 from astropy.cosmology import WMAP9 as cosmology
 from scipy.interpolate import interp1d
+import scipy
 import ClassCOMPAS
 import selection_effects
 import warnings
+import astropy.units as u
+import argparse
 
 import astropy.units as u
 
@@ -506,3 +510,52 @@ def plot_rates(formation_rate, merger_rate, detection_rate, redshifts, chirp_mas
         ax.tick_params(labelsize=0.7*fs)
 
     plt.show()
+
+
+##################################################################
+### 
+### Run it!
+###
+##################################################################
+if __name__ == "__main__":
+    # Define command line options for the most commonly varied options
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--path", dest= 'path',  help="Path to the COMPAS file that contains the output",type=str, default = './')
+    parser.add_argument("--filename", dest= 'fname',  help="Name of the COMPAS file",type=str, default = "COMPAS_Output.h5")
+
+    # Parameters determining dP/dZ and SFR(z), default options from Neijssel 2019
+    parser.add_argument("--mu0", dest= 'mu0',  help="mean metallicity at redshhift 0",type=float, default=0.035)
+    parser.add_argument("--muz", dest= 'muz',  help="redshift evolution of mean metallicity, dPdlogZ",type=float, default=-0.23)
+    parser.add_argument("--sigma0", dest= 'sigma0',  help="variance in metallicity density distribution, dPdlogZ",type=float, default=0.39)
+    parser.add_argument("--sigmaz", dest= 'sigmaz',  help="redshift evolution of variance, dPdlogZ",type=float, default=0.0)
+    parser.add_argument("--alpha", dest= 'alpha',  help="skewness of mtallicity density distribution, dPdlogZ",type=float, default=0.0)
+    parser.add_argument("--aSF", dest= 'aSF',  help="Parameter for shape of SFR(z)",type=float, default=0.01) 
+    parser.add_argument("--bSF", dest= 'bSF',  help="Parameter for shape of SFR(z)",type=float, default=2.77)
+    parser.add_argument("--cSF", dest= 'cSF',  help="Parameter for shape of SFR(z)",type=float, default=2.90)
+    parser.add_argument("--dSF", dest= 'dSF',  help="Parameter for shape of SFR(z)",type=float, default=4.70)
+ 
+    args = parser.parse_args()
+
+
+    start_CI = time.time()
+    # Do the cosmic integration
+    detection_rate, formation_rate, merger_rate, redshifts, COMPAS = find_detection_rate(args.path, filename=args.fname, dco_type=Dco_type, weight_column="mixture_weight",
+                            max_redshift=Max_redshift, max_redshift_detection=Max_redshift_detection, redshift_step=Redshift_step, z_first_SF= z_first_SF,
+                            m1_min=M1_min, m1_max=M1_max, m2_min=M2_min, fbin=Fbin,
+                            aSF = args.aSF, bSF = args.bSF, cSF = args.cSF, dSF = args.dSF, 
+                            mu0=args.mu0, muz=args.muz, sigma0=args.sigma0, sigmaz=args.sigmaz, alpha=args.alpha, 
+                            min_logZ=-12.0, max_logZ=0.0, step_logZ=0.01,
+                            sensitivity=Sensitivity, snr_threshold=Snr_threshold, 
+                            Mc_min=0.1, Mc_max=300.0, Mc_step=0.1, eta_min=0.01, eta_max=0.25, eta_step=0.01,
+                            snr_min=0.1, snr_max=1000.0, snr_step=0.1)
+    end_CI = time.time()
+
+    # If you want, you can also plot your result
+    start_plot = time.time()
+    chirp_masses = COMPAS.chirp_masses()[COMPAS.DCO_masks[Dco_type]].value
+    plot_rates(args.path, formation_rate, merger_rate, detection_rate, redshifts, chirp_masses, show_plot = False, mu0=args.mu0, muz=args.muz, sigma0=args.sigma0, sigmaz=args.sigmaz, alpha=args.alpha)
+    end_plot = time.time()
+
+    print('CI took ', end_CI - start_CI, 's')
+    print('plot took ', end_plot - start_plot, 's')
+
