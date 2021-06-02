@@ -146,8 +146,12 @@ def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
     dPdlogZ = dPdlogZ /norm[:,np.newaxis]
 
     ##################################
-    # assume a flat in log distribution in metallicity to find probability of drawing Z in COMPAS
-    p_draw_metallicity = 1 / (max_logZ_COMPAS - min_logZ_COMPAS)
+    if min_logZ_COMPAS == max_logZ_COMPAS:
+        print('You ran just one metallicity ')
+        p_draw_metallicity = 1.
+    else:
+        # assume a flat in log distribution in metallicity to find probability of drawing Z in COMPAS
+        p_draw_metallicity = 1 / (max_logZ_COMPAS - min_logZ_COMPAS)
     
     return dPdlogZ, metallicities, p_draw_metallicity
 
