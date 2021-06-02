@@ -402,8 +402,11 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
     assert snr_step < snr_max, "SNR step size must be less than maximum SNR"
 
     nonnegative_args = [(max_redshift, "max_redshift"), (max_redshift_detection, "max_redshift_detection"), (m1_min.value, "m1_min"), (m1_max.value, "m1_max"),
-                        (m2_min.value, "m2_min"), (Z0, "Z0"), (sigma, "sigma"), (step_logZ, "step_logZ"), (snr_threshold, "snr_threshold"), (Mc_max, "Mc_max"),
+                        (m2_min.value, "m2_min"), (mu0, "mu0"), (sigma0, "sigma0"),  
+                        (step_logZ, "step_logZ"), (snr_threshold, "snr_threshold"), (Mc_max, "Mc_max"),
                         (Mc_step, "Mc_step"), (eta_max, "eta_max"), (eta_step, "eta_step"), (snr_max, "snr_max"), (snr_step, "snr_step")]
+
+
     for arg, arg_str in nonnegative_args:
         assert arg >= 0.0, "{} must be nonnegative".format(arg_str)
 
@@ -441,8 +444,8 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
 
 
     # work out the metallicity distribution at each redshift and probability of drawing each metallicity in COMPAS
-    dPdlogZ, metallicities, p_draw_metallicity = find_metallicity_distribution(redshifts, min_logZ_COMPAS = np.log(np.min(COMPAS.metallicities_allsystems)),
-                                                                                max_logZ_COMPAS = np.log(np.max(COMPAS.metallicities_allsystems)),
+    dPdlogZ, metallicities, p_draw_metallicity = find_metallicity_distribution(redshifts, min_logZ_COMPAS = np.log(np.min(COMPAS.initialZ)),
+                                                                                max_logZ_COMPAS = np.log(np.max(COMPAS.initialZ)),
                                                                                 mu0=mu0, muz=muz, sigma_0=sigma0, sigma_z=sigmaz, alpha = alpha,
                                                                                 min_logZ=min_logZ, max_logZ=max_logZ, step_logZ = step_logZ)
 
@@ -467,23 +470,28 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
 
     return detection_rate, formation_rate, merger_rate, redshifts, COMPAS
 
-def plot_rates(formation_rate, merger_rate, detection_rate, redshifts, chirp_masses):
+def plot_rates(save_dir, formation_rate, merger_rate, detection_rate, redshifts, chirp_masses, show_plot = False, mu0=0.035, muz=-0.23, sigma0=0.39, sigmaz=0., alpha=0):
     """
         Show a summary plot of the results, it also returns the summaries that it computes
 
         Args:
-            detection_rate            --> [2D float array] Detection rate for each binary at each redshift in 1/yr
+            save_dir                  --> [string] path where you would like to save your plot
             formation_rate            --> [2D float array] Formation rate for each binary at each redshift in 1/yr/Gpc^3
             merger_rate               --> [2D float array] Merger rate for each binary at each redshift in 1/yr/Gpc^3
+            detection_rate            --> [2D float array] Detection rate for each binary at each redshift in 1/yr
             redshifts                 --> [list of floats] List of redshifts
-            COMPAS                    --> [Object]         Relevant COMPAS data in COMPASData Class
+            chirp_masses              --> [list of floats] Chrirp masses of merging DCO's
+
+            show_plot                 --> [bool] Bool whether to show plot or not
+            mu0                       --> [float] Parameter used for calculating metallicity density dist
+            muz                       --> [float] Parameter used for calculating metallicity density dist
+            sigma0                    --> [float] Parameter used for calculating metallicity density dist
+            sigmaz                    --> [float] Parameter used for calculating metallicity density dist
+            alpha                     --> [float] Parameter used for calculating metallicity density dist
 
         Returns:
-            total_formation_rate      --> [list of floats] Total formation rate over each redshift
-            total_merger_rate         --> [list of floats] Total merger rate over each redshift
-            total_detection_rate      --> [list of floats] Total detection rate over each redshift
-            cumulative_detection_rate --> [list of floats] Cumulative detection rate over each redshift
-            detection_rate_by_binary  --> [list of floats] Detection rate for each binary over every redshift
+            matplotlib figure
+
     """
     # sum things up across binaries
     total_formation_rate = np.sum(formation_rate, axis=0)
@@ -494,10 +502,13 @@ def plot_rates(formation_rate, merger_rate, detection_rate, redshifts, chirp_mas
     cumulative_detection_rate = np.cumsum(total_detection_rate)
     detection_rate_by_binary = np.sum(detection_rate, axis=1)
 
+    ###########################
+    #Start plotting
+
     # set some constants for the plots
     plt.rc('font', family='serif')
     fs = 20
-    lw = 2
+    lw = 3
 
     fig, axes = plt.subplots(2, 2, figsize=(20, 20))
 
@@ -517,11 +528,21 @@ def plot_rates(formation_rate, merger_rate, detection_rate, redshifts, chirp_mas
     axes[1,1].set_xlabel(r'Chirp mass, $\mathcal{M}_c$', fontsize=fs)
     axes[1,1].set_ylabel(r'Mass distrbution of detections $[\rm \frac{\mathrm{d}N}{\mathrm{d}\mathcal{M}_c \mathrm{d}yr}]$', fontsize=fs)
 
+    #########################
+    #Plotvalues
+
+    # Add text upper left corner
+    axes[0,0].text(0.05,0.8, "mu0=%s \nmuz=%s \nsigma0=%s \nsigmaz=%s \nalpha=%s"%(mu0,muz,sigma0,sigmaz,alpha), transform=axes[0,0].transAxes, size = fs) 
+
     for ax in axes.flatten():
-        ax.tick_params(labelsize=0.7*fs)
+        ax.tick_params(labelsize=0.9*fs)
 
-    plt.show()
-
+    # Save and show :)
+    plt.savefig(save_dir +'Rate_Info'+"mu0%s_muz%s_alpha%s_sigma0%s_sigmaz%s"%(mu0,muz,alpha,sigma0, sigmaz)+'.png', bbox_inches='tight') 
+    if show_plot:
+        plt.show()
+    else:
+        plt.close()
 
 
 
@@ -537,8 +558,8 @@ if __name__ == "__main__":
     parser.add_argument("--path", dest= 'path',  help="Path to the COMPAS file that contains the output",type=str, default = './')
     parser.add_argument("--filename", dest= 'fname',  help="Name of the COMPAS file",type=str, default = "COMPAS_Output.h5")
     # For what DCO would you like the rate?  options: ALL, BHBH, BHNS NSNS
-    parser.add_argument("--dco_type", dest= 'dco_type',  help="Which DCO type you used to calculate rates, one of: ['ALL', 'BHBH', 'BHNS', 'NSNS'] ",type=str, default = "BHBH")
-    parser.add_argument("--weight", dest= 'weight_column',  help="Name of column w AIS sampling weights, i.e. 'mixture_weight'(leave as None for unweighted samples) ",type=str, default = "BHBH")
+    parser.add_argument("--dco_type", dest= 'dco_type',  help="Which DCO type you used to calculate rates, one of: ['all', 'BBH', 'BHNS', 'BNS'] ",type=str, default = "BBH")
+    parser.add_argument("--weight", dest= 'weight_column',  help="Name of column w AIS sampling weights, i.e. 'mixture_weight'(leave as None for unweighted samples) ",type=str, default = None)
 
     # Options for the redshift evolution and detector sensitivity
     parser.add_argument("--maxz", dest= 'max_redshift',  help="Maximum redshift to use in array",type=float, default=10)
@@ -571,7 +592,7 @@ if __name__ == "__main__":
     # Run the cosmic integration
     detection_rate, formation_rate, merger_rate, redshifts, COMPAS = find_detection_rate(args.path, filename=args.fname, dco_type=args.dco_type, weight_column=None, #"mixture_weight"
                             max_redshift=args.max_redshift, max_redshift_detection=args.max_redshift_detection, redshift_step=args.redshift_step, z_first_SF= args.z_first_SF,
-                            m1_min=args.m1_min, m1_max=args.m1_max, m2_min=args.m2_min, fbin=args.fbin,
+                            m1_min=args.m1_min*u.Msun, m1_max=args.m1_max*u.Msun, m2_min=args.m2_min*u.Msun, fbin=args.fbin,
                             aSF = args.aSF, bSF = args.bSF, cSF = args.cSF, dSF = args.dSF, 
                             mu0=args.mu0, muz=args.muz, sigma0=args.sigma0, sigmaz=args.sigmaz, alpha=args.alpha, 
                             sensitivity=args.sensitivity, snr_threshold=args.snr_threshold, 
@@ -582,7 +603,7 @@ if __name__ == "__main__":
 
     # Plot your result
     start_plot = time.time()
-    chirp_masses = COMPAS.chirp_masses()[COMPAS.DCO_masks[Dco_type]].value
+    chirp_masses = (COMPAS.mass1*COMPAS.mass2)**(3./5.) / (COMPAS.mass1 + COMPAS.mass2)**(1./5.)
     plot_rates(args.path, formation_rate, merger_rate, detection_rate, redshifts, chirp_masses, show_plot = False, mu0=args.mu0, muz=args.muz, sigma0=args.sigma0, sigmaz=args.sigmaz, alpha=args.alpha)
     end_plot = time.time()
 
