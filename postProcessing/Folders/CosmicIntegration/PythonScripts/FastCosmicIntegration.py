@@ -54,10 +54,11 @@ def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=
 
     return redshifts, n_redshifts_detection, times, time_first_SF, distances, shell_volumes
 
-def find_sfr(redshifts):
+
+def find_sfr(redshifts, a = 0.01, b =2.77, c = 2.90, d = 4.70):
     """
-        Calculate the star forming mass per unit volume per year using
-        Neijssel+19 Eq. 6
+        Calculate the star forming mass per unit volume per year following
+        Neijssel+19 Eq. 6, using functional form of Madau & Dickinson 2014
 
         Args:
             redshifts --> [list of floats] List of redshifts at which to evaluate the sfr
@@ -65,8 +66,8 @@ def find_sfr(redshifts):
         Returns:
             sfr       --> [list of floats] Star forming mass per unit volume per year for each redshift
     """
-    # use Neijssel+19 to get value in mass per year per cubic Mpc and convert to per cubic Gpc then return
-    sfr = 0.01 * ((1+redshifts)**2.77) / (1 + ((1+redshifts)/2.9)**4.7) * u.Msun / u.yr / u.Mpc**3
+    # get value in mass per year per cubic Mpc and convert to per cubic Gpc then return
+    sfr = a * ((1+redshifts)**b) / (1 + ((1+redshifts)/c)**d) * u.Msun / u.yr / u.Mpc**3
     return sfr.to(u.Msun / u.yr / u.Gpc**3).value
 
 
@@ -317,9 +318,11 @@ def find_detection_probability(Mc, eta, redshifts, distances, n_redshifts_detect
 
 def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weight_column=None,
                         merges_hubble_time=True, pessimistic_CEE=True, no_RLOF_after_CEE=True,
-                        max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001,
-                        z_first_SF = 10, m1_min=5 * u.Msun, m1_max=150 * u.Msun, m2_min=0.1 * u.Msun, fbin=0.7,
-                        Z0=0.035, alpha=-0.23, sigma=0.39, step_logZ=0.01,
+                        max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10,
+                        m1_min=5 * u.Msun, m1_max=150 * u.Msun, m2_min=0.1 * u.Msun, fbin=0.7,
+                        aSF = 0.01, bSF = 2.77, cSF = 2.90, dSF = 4.70,
+                        mu0=0.035, muz=-0.23, sigma0=0.39,sigmaz=0., alpha=0.0, 
+                        min_logZ=-12.0, max_logZ=0.0, step_logZ=0.01,
                         sensitivity="O1", snr_threshold=8, 
                         Mc_max=300.0, Mc_step=0.1, eta_max=0.25, eta_step=0.01,
                         snr_max=1000.0, snr_step=0.1):
@@ -361,9 +364,13 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
             =======================================================================
             == Arguments for creating metallicity distribution and probabilities ==
             =======================================================================
-            Z0                     --> [float]  Parameter used for calculating mean metallicity (see Neijssel+19 Eq.7-9)
-            alpha                  --> [float]  Parameter used for calculating mean metallicity (see Neijssel+19 Eq.7-9)
-            sigma                  --> [float]  Parameter used for calculating mean metallicity (see Neijssel+19 Eq.7-9)
+            mu0                    --> [float]  metallicity dist: expected value at redshift 0
+            muz                    --> [float]  metallicity dist: redshift evolution of expected value
+            sigma0                 --> [float]  metallicity dist: width at redshhift 0
+            sigmaz                 --> [float]  metallicity dist: redshift evolution of width
+            alpha                  --> [float]  metallicity dist: skewness (0 = lognormal)
+            min_logZ               --> [float]  Minimum logZ at which to calculate dPdlogZ
+            max_logZ               --> [float]  Maximum logZ at which to calculate dPdlogZ
             step_logZ              --> [float]  Size of logZ steps to take in finding a Z range
 
             =======================================================
@@ -429,12 +436,16 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
     redshifts, n_redshifts_detection, times, time_first_SF, distances, shell_volumes = calculate_redshift_related_params(max_redshift, max_redshift_detection, redshift_step, z_first_SF)
 
     # find the star forming mass per year per Gpc^3 and convert to total number formed per year per Gpc^3
-    sfr = find_sfr(redshifts)
-    n_formed = sfr / (COMPAS.mass_evolved_per_binary.value * COMPAS.n_systems)
+    sfr = find_sfr(redshifts, a = aSF, b = bSF, c = cSF, d = dSF) # functional form from Madau & Dickinson 2014
+    n_formed = sfr / (COMPAS.mass_evolved_per_binary.value * COMPAS.n_systems) # Divide the star formation rate density by the representative SF mass
+
 
     # work out the metallicity distribution at each redshift and probability of drawing each metallicity in COMPAS
-    dPdlogZ, metallicities, p_draw_metallicity = find_metallicity_distribution(redshifts, np.log(np.min(COMPAS.initialZ)),
-                                                                                np.log(np.max(COMPAS.initialZ)), Z0, alpha, sigma, step_logZ)
+    dPdlogZ, metallicities, p_draw_metallicity = find_metallicity_distribution(redshifts, min_logZ_COMPAS = np.log(np.min(COMPAS.metallicities_allsystems)),
+                                                                                max_logZ_COMPAS = np.log(np.max(COMPAS.metallicities_allsystems)),
+                                                                                mu0=mu0, muz=muz, sigma_0=sigma0, sigma_z=sigmaz, alpha = alpha,
+                                                                                min_logZ=min_logZ, max_logZ=max_logZ, step_logZ = step_logZ)
+
 
     # calculate the formation and merger rates using what we computed above
     formation_rate, merger_rate = find_formation_and_merger_rates(n_binaries, redshifts, times, time_first_SF, n_formed, dPdlogZ,
@@ -565,11 +576,11 @@ if __name__ == "__main__":
                             mu0=args.mu0, muz=args.muz, sigma0=args.sigma0, sigmaz=args.sigmaz, alpha=args.alpha, 
                             sensitivity=args.sensitivity, snr_threshold=args.snr_threshold, 
                             min_logZ=-12.0, max_logZ=0.0, step_logZ=0.01,
-                            Mc_min=0.1, Mc_max=300.0, Mc_step=0.1, eta_min=0.01, eta_max=0.25, eta_step=0.01,
-                            snr_min=0.1, snr_max=1000.0, snr_step=0.1)
+                            Mc_max=300.0, Mc_step=0.1, eta_max=0.25, eta_step=0.01,
+                            snr_max=1000.0, snr_step=0.1)
     end_CI = time.time()
 
-    # If you want, you can also plot your result
+    # Plot your result
     start_plot = time.time()
     chirp_masses = COMPAS.chirp_masses()[COMPAS.DCO_masks[Dco_type]].value
     plot_rates(args.path, formation_rate, merger_rate, detection_rate, redshifts, chirp_masses, show_plot = False, mu0=args.mu0, muz=args.muz, sigma0=args.sigma0, sigmaz=args.sigmaz, alpha=args.alpha)
