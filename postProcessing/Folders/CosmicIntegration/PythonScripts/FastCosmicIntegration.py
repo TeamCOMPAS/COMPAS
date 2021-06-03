@@ -474,6 +474,139 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
 
     return detection_rate, formation_rate, merger_rate, redshifts, COMPAS
 
+
+def append_rates(path, filename, detection_rate, formation_rate, merger_rate, redshifts, COMPAS, n_redshifts_detection,
+    maxz=1., sensitivity="O1", dco_type="BHBH", mu0=0.035, muz=-0.23, sigma0=0.39, sigmaz=0., alpha=0.,
+    remove_group = False, append_binned_by_z = False, redshift_binsize=0.1):
+    """
+        Append the formation rate, merger rate, detection rate and redshifts as a new group to your COMPAS output with weights hdf5 file
+
+        Args:
+            path                   --> [string] Path to the COMPAS file that contains the output
+            filename               --> [string] Name of the COMPAS file
+            detection_rate         --> [2D float array] Detection rate for each binary at each redshift in 1/yr
+            formation_rate         --> [2D float array] Formation rate for each binary at each redshift in 1/yr/Gpc^3
+            merger_rate            --> [2D float array] Merger rate for each binary at each redshift in 1/yr/Gpc^3
+            redshifts              --> [list of floats] List of redshifts
+            COMPAS                 --> [Object]         Relevant COMPAS data in COMPASData Class
+            n_redshifts_detection  --> [int]            Number of redshifts in list that should be used to calculate detection rates
+
+            maxz                   --> [float] Maximum redshhift up to where we would like to store the data
+            sensitivity            --> [string] Which detector sensitivity you used to calculate rates 
+            dco_type               --> [string] Which DCO type you used to calculate rates 
+            mu0                       --> [float] Parameter used for calculating metallicity density dist
+            muz                       --> [float] Parameter used for calculating metallicity density dist
+            sigma0                    --> [float] Parameter used for calculating metallicity density dist
+            sigmaz                    --> [float] Parameter used for calculating metallicity density dist
+            alpha                     --> [float] Parameter used for calculating metallicity density dist
+
+            remove_group           --> [Bool] if you completely want to remove this group from the hdf5 file, set this to True
+            append_binned_by_z     --> [Bool] to save space, bin rates by redshiftbin and append binned rates
+
+        Returns:
+            h_new                  --> [hdf5 file] Compas output file with a new group "rates" with the same shape as DoubleCompactObjects
+    """
+    print('shape redshifts', np.shape(redshifts))
+    print('shape COMPAS.sw_weights', np.shape(COMPAS.sw_weights) )
+    print('shape COMPAS COMPAS.DCO_masks["BHBH"]]', np.shape(COMPAS.sw_weights[COMPAS.DCO_masks[dco_type]]) )
+
+    n_redshifts_detection = int(max_redshift_detection / redshift_step)
+
+    #################################################
+    #Open hdf5 file that we will write on
+    print('filename', filename)
+    with h5.File(path +'/'+ filename, 'r+') as h_new:
+        # The rate info is shaped as DoubleCompactObjects[COMPAS.DCO_masks["BHBH"]] , len(redshifts)
+        DCO             = h_new['DoubleCompactObjects']#
+        print('shape DCO[SEED]', np.shape(DCO['SEED'][()]) )
+
+        #################################################
+        # Create a new group where we will store data
+        new_rate_group  = 'Rates_mu0'+str(mu0)+'_muz'+str(muz)+'_alpha'+str(alpha)+'_sigma0'+str(sigma0)+'_sigmaz'+str(sigmaz)
+        if append_binned_by_z:
+            new_rate_group  = new_rate_group + '_zBinned'
+
+        if new_rate_group not in h_new:
+            h_new.create_group(new_rate_group)
+        else:
+            print(new_rate_group, 'exists, we will overrwrite the data')
+
+
+        ######################s###########################
+        # If you just want to get rid of this point
+        print('remove_group', remove_group)
+        if remove_group:
+            print('You really want to remove this group fromm the hdf5 file, removing now..')
+            del h_new[new_rate_group]
+            return
+        
+
+        #################################################
+        # Bin rates by redshifts
+        #################################################
+        if append_binned_by_z:
+            print('IN append_binned_by_z')
+
+            # Choose how you want to bin the redshift, these represent the left and right boundaries
+            redshift_bins = np.arange(0, redshifts[-1]+redshift_binsize, redshift_binsize)
+
+            # Use digitize to assign the redshifts to a bin (detection list is shorter)
+            digitized     = np.digitize(redshifts, redshift_bins)
+            digitized_det = np.digitize(redshifts[:n_redshifts_detection], redshift_bins)
+
+            # The number of merging BBHs that need a weight
+            N_dco  = len(merger_rate[:,0])
+            
+            ####################
+            # binned_merger_rate will be the (observed) weights, binned by redshhift
+            binned_merger_rate    = np.zeros( (N_dco, len(redshift_bins)-1) )# create an empty list to fill
+            binned_detection_rate = np.zeros( (N_dco, len(redshift_bins)-1) )# create an empty list to fill
+            print('x', range(0, len(redshift_bins)-1))
+            # loop over all redshift redshift_bins
+            for i in range(len(redshift_bins)-1):
+                binned_merger_rate[:,i]    = np.sum(merger_rate[:, digitized == i+1], axis = 1)
+                # only add detected rates for the 'detectable' redshiifts
+                if redshift_bins[i] < redshifts[n_redshifts_detection]:
+                    binned_detection_rate[:,i] = np.sum(detection_rate[:, digitized_det == i+1], axis = 1)
+            save_redshifts        = redshift_bins
+            save_merger_rate      = binned_merger_rate
+            save_detection_rate   = binned_detection_rate
+
+        else: 
+            #  We don't really wan't All the data, so we're going to save only up to some redshift
+            z_index = np.digitize(maxz, redshifts) -1
+            # The detection_rate is a smaller array, make sure you don't go beyond the end
+            detection_index = z_index if z_index < n_redshifts_detection else n_redshifts_detection
+            print('You will only save data up to redshift ', maxz, ', i.e. index', redshifts[z_index])
+            save_redshifts        = redshifts
+            save_merger_rate      = merger_rate[:,:z_index]
+            save_detection_rate   = detection_rate[:,:detection_index]
+
+        print('save_redshifts', save_redshifts)
+
+        #################################################
+        # Write the rates as a seperate dataset
+        # re-arrange your list of rate parameters
+        DCO_to_rate_mask     = COMPAS.DCO_masks[dco_type]
+        print('DCO_to_rate_mask', DCO_to_rate_mask)
+        rate_data_list       = [DCO['SEED'][DCO_to_rate_mask], DCO_to_rate_mask , save_redshifts,  save_merger_rate, merger_rate[:,0], save_detection_rate]
+        rate_list_names      = ['SEED', 'DCO_mask', 'redshifts',  'merger_rate','merger_rate_z0', 'detection_rate'+sensitivity]
+        for i, data in enumerate(rate_data_list):
+            print('Adding rate info of shape', np.shape(data))
+            # Check if dataset exists, if so, just delete it
+            if rate_list_names[i] in h_new[new_rate_group].keys():
+                del h_new[new_rate_group][rate_list_names[i]]
+            # write rates as a new data set
+            dataNew     = h_new[new_rate_group].create_dataset(rate_list_names[i], data=data)
+
+    #Always close your files again
+    h_new.close()
+    print('Done :) your new files are here: ', path + '/' + filename )
+
+
+
+
+
 def plot_rates(save_dir, formation_rate, merger_rate, detection_rate, redshifts, chirp_masses, show_plot = False, mu0=0.035, muz=-0.23, sigma0=0.39, sigmaz=0., alpha=0):
     """
         Show a summary plot of the results, it also returns the summaries that it computes
@@ -557,6 +690,8 @@ def plot_rates(save_dir, formation_rate, merger_rate, detection_rate, redshifts,
 ###
 ##################################################################
 if __name__ == "__main__":
+
+    #####################################
     # Define command line options for the most commonly varied options
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", dest= 'path',  help="Path to the COMPAS file that contains the output",type=str, default = './')
@@ -592,8 +727,9 @@ if __name__ == "__main__":
  
     args = parser.parse_args()
 
-    start_CI = time.time()
+    #####################################
     # Run the cosmic integration
+    start_CI = time.time()
     detection_rate, formation_rate, merger_rate, redshifts, COMPAS = find_detection_rate(args.path, filename=args.fname, dco_type=args.dco_type, weight_column=None, #"mixture_weight"
                             max_redshift=args.max_redshift, max_redshift_detection=args.max_redshift_detection, redshift_step=args.redshift_step, z_first_SF= args.z_first_SF,
                             m1_min=args.m1_min*u.Msun, m1_max=args.m1_max*u.Msun, m2_min=args.m2_min*u.Msun, fbin=args.fbin,
@@ -605,6 +741,15 @@ if __name__ == "__main__":
                             snr_max=1000.0, snr_step=0.1)
     end_CI = time.time()
 
+    #####################################
+    # Append your freshly calculated merger rates to the hdf5 file
+    start_append = time.time()
+    append_rates(args.path, args.fname, detection_rate, formation_rate, merger_rate, redshifts, COMPAS, 
+        maxz=args.max_redshift_detection, sensitivity=args.sensitivity, dco_type=args.dco_type, mu0=args.mu0, muz=args.muz, alpha=args.alpha, sigma0=args.sigma0, sigmaz=args.sigmaz, 
+        remove_group = False, max_redshift_detection=args.max_redshift_detection, redshift_step=args.redshift_step, append_binned_by_z = False, redshift_binsize=0.05)
+    end_append = time.time()
+
+    #####################################
     # Plot your result
     start_plot = time.time()
     chirp_masses = (COMPAS.mass1*COMPAS.mass2)**(3./5.) / (COMPAS.mass1 + COMPAS.mass2)**(1./5.)
@@ -612,5 +757,6 @@ if __name__ == "__main__":
     end_plot = time.time()
 
     print('CI took ', end_CI - start_CI, 's')
+    print('Appending rates took ', end_append - start_append, 's')
     print('plot took ', end_plot - start_plot, 's')
 
