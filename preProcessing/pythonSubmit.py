@@ -1,10 +1,8 @@
 import numpy as np
-import subprocess
 import sys
 import os
-import pickle
-import itertools 
 from subprocess import call
+import re
 
 # Check if we are using python 3
 python_version = sys.version_info[0]
@@ -93,14 +91,6 @@ class pythonProgramOptions:
             logfile_definitions = os.getcwd() + '/' + logfile_definitions
         else:
             logfile_definitions = compas_input_path_override + '/' + logfile_definitions
-
-    # ensure that no file paths have spaces that could confuse Boost
-    for path in [output, grid_filename, logfile_definitions]:
-        if path is not None and path.find(" ") >= 0:
-            print("ERROR: File path contains spaces, replace with underscores or another character.")
-            print("\t" + path)
-            print("\t" + " " * path.find(" ") + "^")
-            exit(1)
 
     initial_mass    = None                                      # initial mass for SSE
     initial_mass_1  = None                                      # primary initial mass for BSE
@@ -309,6 +299,16 @@ class pythonProgramOptions:
     debug_to_file  = False
     errors_to_file = False
 
+    # ensure that no file paths have unescaped spaces that could confuse Boost
+    paths = [output, grid_filename, logfile_definitions, logfile_common_envelopes, logfile_detailed_output,
+             logfile_double_compact_objects, logfile_rlof_parameters, logfile_pulsar_evolution,
+             logfile_supernovae, logfile_switch_log, logfile_system_parameters]
+    for i in range(len(paths)):
+        if paths[i] is not None:
+            paths[i] = re.sub(r"(?<!\\) ", r"\ ", paths[i])
+    output, grid_filename, logfile_definitions, logfile_common_envelopes, logfile_detailed_output,\
+        logfile_double_compact_objects, logfile_rlof_parameters, logfile_pulsar_evolution,\
+        logfile_supernovae, logfile_switch_log, logfile_system_parameters = paths
 
     def booleanChoices(self):
         booleanChoices = [
