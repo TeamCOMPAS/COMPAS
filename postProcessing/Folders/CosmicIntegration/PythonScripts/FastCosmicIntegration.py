@@ -146,12 +146,8 @@ def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
     dPdlogZ = dPdlogZ /norm[:,np.newaxis]
 
     ##################################
-    if min_logZ_COMPAS == max_logZ_COMPAS:
-        print('You ran just one metallicity ')
-        p_draw_metallicity = 1.
-    else:
-        # assume a flat in log distribution in metallicity to find probability of drawing Z in COMPAS
-        p_draw_metallicity = 1 / (max_logZ_COMPAS - min_logZ_COMPAS)
+    # assume a flat in log distribution in metallicity to find probability of drawing Z in COMPAS
+    p_draw_metallicity = 1 / (max_logZ_COMPAS - min_logZ_COMPAS)
     
     return dPdlogZ, metallicities, p_draw_metallicity
 
@@ -430,6 +426,10 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
     COMPAS.setCOMPASData()
     COMPAS.set_sw_weights(weight_column)
     COMPAS.find_star_forming_mass_per_binary_sampling()
+
+    
+    assert np.log(np.min(COMPAS.initialZ)) != np.log(np.max(COMPAS.initialZ)), "You cannot perform cosmic integration with just one metallicity"
+
 
     # compute the chirp masses and symmetric mass ratios only for systems of interest
     chirp_masses = (COMPAS.mass1*COMPAS.mass2)**(3/5) / (COMPAS.mass1 + COMPAS.mass2)**(1/5)
