@@ -64,7 +64,7 @@ class pythonProgramOptions:
     # if COMPAS_INPUT_DIR_PATH is not set (== None) the current working directory
     # is prepended to input filenames
     compas_input_path_override = os.environ.get('COMPAS_INPUT_DIR_PATH')
-    
+
     #-- option to make a grid of hyperparameter values at which to produce populations.
     #-- If this is set to true, it will divide the number_of_binaries parameter equally
     #-- amoungst the grid points (as closely as possible). See the hyperparameterGrid method below
@@ -80,17 +80,17 @@ class pythonProgramOptions:
 
     if grid_filename != None:
         if compas_input_path_override == None:
-            grid_filename = os.getcwd() + '/' + grid_filename
+            grid_filename = os.getcwd() + '/' + grid_filename.strip("'\"")
         else:
-            grid_filename = compas_input_path_override + '/' + grid_filename
+            grid_filename = compas_input_path_override + '/' + grid_filename.strip("'\"")
 
     logfile_definitions = None                                  # logfile record definitions file name (e.g. 'logdefs.txt')
 
     if logfile_definitions != None:
         if compas_input_path_override == None:
-            logfile_definitions = os.getcwd() + '/' + logfile_definitions
+            logfile_definitions = os.getcwd() + '/' + logfile_definitions.strip("'\"")
         else:
-            logfile_definitions = compas_input_path_override + '/' + logfile_definitions
+            logfile_definitions = compas_input_path_override + '/' + logfile_definitions.strip("'\"")
 
     initial_mass    = None                                      # initial mass for SSE
     initial_mass_1  = None                                      # primary initial mass for BSE
@@ -727,9 +727,15 @@ def combineCommandLineOptionsDictIntoShellCommand(commandOptions):
 
 
 def cleanStringParameter(str_param):
-    """ strip quotes and escape spaces to avoid confusing Boost """
+    """ clean up string parameters to avoid confusing Boost """
     if str_param is not None:
-        str_param = re.sub(r"(?<!\\) ", r"\ ", str_param).replace("'", "").replace('"', '')
+        # strip any quotes from the ends of the string
+        str_param = str_param.strip("'\"")
+
+        # escape any unescaped spaces or quotes within the string
+        escapes = [" ", "'", "\""]
+        for escape in escapes:
+            str_param = re.sub(r"(?<!\\){}".format(escape), r"\{}".format(escape), str_param)
     return str_param
 
 
