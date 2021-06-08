@@ -41,11 +41,12 @@ jobs:
       - name: upload pdf
         run: |
           git checkout --orphan Documentation
+          PDF_FILE=paper_holder/paper/main.pdf 
           git rm -rf .
-          mv paper_holder/paper/main.pdf COMPAS_Doc.pdf
+          #mv paper_holder/paper/main.pdf COMPAS_Doc.pdf
           #cp $PDF_FILE ms.pdf 
           #git add -f ms.pdf $PDF_FILE
-          git add -f COMPAS_Doc.pdf
+          git add -f $PDF_FILE
           git -c user.name='reinhold-willcox' -c user.email='reinhold.willcox@mail.mcgill.ca' commit -m "added latest paper"
           git push -f --set-upstream origin Documentation
 
