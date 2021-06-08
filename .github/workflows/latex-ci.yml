@@ -1,34 +1,50 @@
 name: Build LaTeX document
 on: [push]
+# on: push: branches: [ dev ]
 
 jobs:
-    build_latex:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Set up git repo
-              uses: actions/checkout@v2
+  compile_latex:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Set up git repo
+        uses: actions/checkout@v2
 
-            - name: pdflatex main
-              uses: dante-ev/latex-action@latest
-              with:
-                  working_directory: docs/COMPAS_LaTeX
-                  root_file: main.tex
-                  compiler: pdflatex
-                  args: -interaction=nonstopmode -shell-escape
+      - name: pdflatex main
+        uses: dante-ev/latex-action@latest
+        with:
+          working_directory: docs/COMPAS_LaTeX
+          root_file: main.tex
+          compiler: pdflatex
+          args: -interaction=nonstopmode -shell-escape
 
-            - name: bibtex main
-              uses: dante-ev/latex-action@latest
-              with:
-                  working_directory: docs/COMPAS_LaTeX
-                  root_file: main.aux
-                  compiler: bibtex 
-                  args: 
+      - name: bibtex main
+        uses: dante-ev/latex-action@latest
+        with:
+          working_directory: docs/COMPAS_LaTeX
+          root_file: main.aux
+          compiler: bibtex 
+          args: 
 
-            - name: pdflatex main
-              uses: dante-ev/latex-action@latest
-              with:
-                  working_directory: docs/COMPAS_LaTeX
-                  root_file: main.tex
-                  compiler: pdflatex
-                  args: -interaction=nonstopmode -shell-escape
+      - name: pdflatex main
+        uses: dante-ev/latex-action@latest
+        with:
+          working_directory: docs/COMPAS_LaTeX
+          root_file: main.tex
+          compiler: pdflatex
+          args: -interaction=nonstopmode -shell-escape
+
+      - name: Get variables 
+        run: echo "COMPAS_VERSION=$(sed -n '/const std::string VERSION_STRING/,/^$/p' ./src/changelog.h | sed 's/.*"\(.*\)"[^"]*$/\1/')" >> $GITHUB_ENV
+        run: echo "PDF_FILE=COMPAS_Doc-$COMPAS_VERSION"
+    
+      - name: upload pdf
+        run: |
+          git checkout --orphan Documentation
+          git rm -rf .
+          mv paper_holder/paper/ms.pdf $PDF_FILE
+          cp $PDF_FILE ms.pdf 
+          git add -f ms.pdf $PDF_FILE
+          git -c user.name='reinhold-willcox' -c user.email='reinhold.willcox@mail.mcgill.ca' commit -m "added latest paper"
+          git push -f --set-upstream origin Documentation
+
 
