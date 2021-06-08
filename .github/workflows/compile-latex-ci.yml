@@ -1,6 +1,6 @@
 name: Compile LaTeX
 on: 
-  pull_request: 
+  push: 
     branches: [dev]
 
 jobs:
