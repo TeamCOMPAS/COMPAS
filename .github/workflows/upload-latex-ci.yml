@@ -1,10 +1,12 @@
-name: Build LaTeX document
+name: Compile and upload LaTeX
 on: 
-  push: 
-    branches: [ dev ]
+  pull_request_review: 
+    types: [submitted]
+    branches: [dev]
 
 jobs:
-  compile_latex:
+  compile_and_upload:
+    if: github.event.review.state == 'approved'
     runs-on: ubuntu-18.04
     steps:
       - name: Set up git repo
