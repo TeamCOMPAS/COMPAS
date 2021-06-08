@@ -5,6 +5,13 @@ on:
     branches: [dev]
 
 jobs:
+  test1: 
+    runs-on: ubuntu-18.04
+    steps:
+      run: |
+        echo 'made it here'
+        echo github.event.review.state
+      
   compile_and_upload:
     if: github.event.review.state == 'approved'
     runs-on: ubuntu-18.04
