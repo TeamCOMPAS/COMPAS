@@ -33,18 +33,19 @@ jobs:
           compiler: pdflatex
           args: -interaction=nonstopmode -shell-escape
 
-      - name: Get variables 
-        run: |
-          echo "COMPAS_VERSION=$(sed -n '/const std::string VERSION_STRING/,/^$/p' ./src/changelog.h | sed 's/.*"\(.*\)"[^"]*$/\1/')" >> $GITHUB_ENV
-          echo "PDF_FILE=COMPAS_Doc-$COMPAS_VERSION"
+          #- name: Get variables 
+          #run: |
+          #echo "COMPAS_VERSION=$(sed -n '/const std::string VERSION_STRING/,/^$/p' ./src/changelog.h | sed 's/.*"\(.*\)"[^"]*$/\1/')" >> $GITHUB_ENV
+          #echo "PDF_FILE=COMPAS_Doc-$COMPAS_VERSION"
     
       - name: upload pdf
         run: |
           git checkout --orphan Documentation
           git rm -rf .
-          mv paper_holder/paper/ms.pdf $PDF_FILE
-          cp $PDF_FILE ms.pdf 
-          git add -f ms.pdf $PDF_FILE
+          mv paper_holder/paper/main.pdf COMPAS_Doc.pdf
+          #cp $PDF_FILE ms.pdf 
+          #git add -f ms.pdf $PDF_FILE
+          git add -f COMPAS_Doc.pdf
           git -c user.name='reinhold-willcox' -c user.email='reinhold.willcox@mail.mcgill.ca' commit -m "added latest paper"
           git push -f --set-upstream origin Documentation
 
