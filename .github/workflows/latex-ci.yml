@@ -34,8 +34,9 @@ jobs:
           args: -interaction=nonstopmode -shell-escape
 
       - name: Get variables 
-        run: echo "COMPAS_VERSION=$(sed -n '/const std::string VERSION_STRING/,/^$/p' ./src/changelog.h | sed 's/.*"\(.*\)"[^"]*$/\1/')" >> $GITHUB_ENV
-        run: echo "PDF_FILE=COMPAS_Doc-$COMPAS_VERSION"
+        run: |
+          echo "COMPAS_VERSION=$(sed -n '/const std::string VERSION_STRING/,/^$/p' ./src/changelog.h | sed 's/.*"\(.*\)"[^"]*$/\1/')" >> $GITHUB_ENV
+          echo "PDF_FILE=COMPAS_Doc-$COMPAS_VERSION"
     
       - name: upload pdf
         run: |
