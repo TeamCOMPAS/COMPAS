@@ -41,7 +41,7 @@ jobs:
       - name: upload pdf
         run: |
           git checkout --orphan Documentation
-          PDF_FILE=paper_holder/paper/main.pdf 
+          PDF_FILE=docs/COMPAS_LaTeX/main.pdf
           git rm -rf .
           #mv paper_holder/paper/main.pdf COMPAS_Doc.pdf
           #cp $PDF_FILE ms.pdf 
