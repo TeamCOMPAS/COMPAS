@@ -1,19 +1,22 @@
 name: Compile and upload LaTeX
 on: 
-  pull_request_review: 
-    types: [submitted]
+  push:
     branches: [dev]
+  pull_request_review: 
+    branches: [dev]
+    types: [submitted]
 
 jobs:
-  test1: 
+  test: 
     runs-on: ubuntu-18.04
     steps:
       run: |
         echo 'made it here'
+        echo github.event.type
         echo github.event.review.state
+        #if: github.event.review.state == 'approved'
       
   compile_and_upload:
-    if: github.event.review.state == 'approved'
     runs-on: ubuntu-18.04
     steps:
       - name: Set up git repo
