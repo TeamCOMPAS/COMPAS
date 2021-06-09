@@ -12,8 +12,11 @@ jobs:
     steps:
       - run: |
           echo "${{github.event.action}}"
+      - run: |
           echo "${{github.event.type}}"
+      - run: |
           echo "${{github.event.review.state}}"
+      - run: |
           echo 'test 1'
 
         #echo github.event.review.state
