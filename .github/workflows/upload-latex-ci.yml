@@ -58,7 +58,7 @@ jobs:
 
       # If the PR is approved, a push is sent to dev
       - name: upload pdf
-        if: ${{github.event_name}} == push
+        #if: ${{github.event_name}} == push
         run: |
           git checkout --orphan Documentation
           PDF_FILE=COMPAS_Documentation.pdf
