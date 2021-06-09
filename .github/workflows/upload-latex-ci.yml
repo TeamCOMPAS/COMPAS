@@ -10,7 +10,7 @@ jobs:
   test: 
     runs-on: ubuntu-18.04
     steps:
-      run: |
+      - run: |
         echo 'made it here'
         echo github.event.type
         echo github.event.review.state
