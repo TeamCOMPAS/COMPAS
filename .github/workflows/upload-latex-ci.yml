@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - run: |
+          echo "${{github.event}}"
+      - run: |
           echo "${{github.event.action}}"
       - run: |
           echo "${{github.event.type}}"
