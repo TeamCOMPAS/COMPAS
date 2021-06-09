@@ -12,7 +12,7 @@ jobs:
     steps:
       - run: |
         echo 'test 1'
-        echo ${{ github.event.type }}
+        echo ${{ github.event.action }}
         #echo github.event.review.state
         #if: github.event.review.state == 'approved'
       
