@@ -35,40 +35,46 @@ jobs:
       - name: Set up git repo
         uses: actions/checkout@v2
 
-      - name: pdflatex main
-        uses: dante-ev/latex-action@latest
-        with:
-          working_directory: docs/COMPAS_LaTeX
-          root_file: main.tex
-          compiler: pdflatex
-          args: -interaction=nonstopmode -shell-escape
-
-      - name: bibtex main
-        uses: dante-ev/latex-action@latest
-        with:
-          working_directory: docs/COMPAS_LaTeX
-          root_file: main.aux
-          compiler: bibtex 
-          args: 
-
-      - name: pdflatex main
-        uses: dante-ev/latex-action@latest
-        with:
-          working_directory: docs/COMPAS_LaTeX
-          root_file: main.tex
-          compiler: pdflatex
-          args: -interaction=nonstopmode -shell-escape
-
-      # If the PR is approved, a push is sent to dev
-      - name: upload pdf
-        #if: ${{github.event_name}} == push
-        run: |
-          git checkout --orphan Documentation
-          PDF_FILE=COMPAS_Documentation.pdf
-          mv docs/COMPAS_LaTeX/main.pdf $PDF_FILE
-          git rm -rf .
-          git add -f $PDF_FILE
-          git -c user.name='reinhold-willcox' -c user.email='reinhold.willcox@mail.mcgill.ca' commit -m "documentation update"
-          git push -f --set-upstream origin Documentation
+      - name: latexmk
+        uses: xu-cheng/latex-action@master
 
 
+
+
+        #      - name: pdflatex main
+        #        uses: dante-ev/latex-action@latest
+        #        with:
+        #          working_directory: docs/COMPAS_LaTeX
+        #          root_file: main.tex
+        #          compiler: pdflatex
+        #          args: -interaction=nonstopmode -shell-escape
+        #
+        #      - name: bibtex main
+        #        uses: dante-ev/latex-action@latest
+        #        with:
+        #          working_directory: docs/COMPAS_LaTeX
+        #          root_file: main.aux
+        #          compiler: bibtex 
+        #          args: 
+        #
+        #      - name: pdflatex main
+        #        uses: dante-ev/latex-action@latest
+        #        with:
+        #          working_directory: docs/COMPAS_LaTeX
+        #          root_file: main.tex
+        #          compiler: pdflatex
+        #          args: -interaction=nonstopmode -shell-escape
+        #
+        #      # If the PR is approved, a push is sent to dev
+        #      - name: upload pdf
+        #        #if: ${{github.event_name}} == push
+        #        run: |
+        #          git checkout --orphan Documentation
+        #          PDF_FILE=COMPAS_Documentation.pdf
+        #          mv docs/COMPAS_LaTeX/main.pdf $PDF_FILE
+        #          git rm -rf .
+        #          git add -f $PDF_FILE
+        #          git -c user.name='reinhold-willcox' -c user.email='reinhold.willcox@mail.mcgill.ca' commit -m "documentation update"
+        #          git push -f --set-upstream origin Documentation
+        #
+        #
