@@ -2,7 +2,7 @@ name: Compile and upload LaTeX
 on: 
   push:
     branches: [dev]
-  pull_request_review: 
+  pull_request: 
     branches: [dev]
     types: [submitted]
 
@@ -26,7 +26,7 @@ jobs:
         #echo github.event.review.state
         #if: github.event.review.state == 'approved'
       
-  compile_and_upload:
+  compile:
     runs-on: ubuntu-18.04
     steps:
       - name: Set up git repo
@@ -56,7 +56,9 @@ jobs:
           compiler: pdflatex
           args: -interaction=nonstopmode -shell-escape
 
+      # If the PR is approved, a push is sent to dev
       - name: upload pdf
+        if: ${{github.event_name}} == push
         run: |
           git checkout --orphan Documentation
           PDF_FILE=COMPAS_Documentation.pdf
