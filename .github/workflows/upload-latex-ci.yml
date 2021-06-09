@@ -11,8 +11,9 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - run: |
-        echo 'test 1'
-        echo "${{github.event.action}}"
+          echo 'test 1'
+          echo "${{github.event.action}}"
+
         #echo github.event.review.state
         #if: github.event.review.state == 'approved'
       
