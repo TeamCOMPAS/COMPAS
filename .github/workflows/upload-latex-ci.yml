@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - run: |
-        echo 'made it here'
-        echo github.event.type
-        echo github.event.review.state
+        echo 'test 1'
+        echo ${{ github.event.type }}
+        #echo github.event.review.state
         #if: github.event.review.state == 'approved'
       
   compile_and_upload:
