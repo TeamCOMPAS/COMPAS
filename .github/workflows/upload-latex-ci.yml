@@ -23,6 +23,9 @@ jobs:
       - run: |
           echo 'test 1'
 
+      - run: echo 'test 2'
+        if: ${{github.event_name}} == push
+
         #echo github.event.review.state
         #if: github.event.review.state == 'approved'
       
