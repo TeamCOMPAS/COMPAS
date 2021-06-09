@@ -13,6 +13,8 @@ jobs:
       - run: |
           echo "${{github.event}}"
       - run: |
+          echo "${{github.event_name}}"
+      - run: |
           echo "${{github.event.action}}"
       - run: |
           echo "${{github.event.type}}"
