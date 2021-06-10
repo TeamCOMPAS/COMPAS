@@ -1,0 +1,16 @@
+name: COMPAS Compile CI
+
+on:
+  pull_request:
+      branches: [ dev ]
+  push: # just for testing
+
+jobs:
+  compile:
+    name: Build Docker image and push to DockerHub
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Compas
+        run: make clean && make fast -f -j $(nproc) src/Makefile
