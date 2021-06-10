@@ -3,7 +3,7 @@ name: COMPAS Compile CI
 on:
   pull_request:
       branches: [ dev ]
-  push: # just for testing
+  push: # testing
 
 jobs:
   compile:
@@ -12,8 +12,5 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: test
-        run: ls src/
-
       - name: Build Compas
-        run: make fast -f -j $(nproc) src/Makefile
+        run: make -j $(nproc) -f src/Makefile
