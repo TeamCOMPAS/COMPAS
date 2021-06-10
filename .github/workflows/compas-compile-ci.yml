@@ -12,5 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: test
+        run: ls src/
+
       - name: Build Compas
-        run: make clean && make fast -f -j $(nproc) src/Makefile
+        run: make fast -f -j $(nproc) src/Makefile
