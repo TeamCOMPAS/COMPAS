@@ -1,12 +1,12 @@
-name: COMPAS Compile CI
+name: CI Test Compilation of various COMPAS components
 
 on:
   pull_request:
       branches: [ dev ]
-  push: # testing
+  #push: # testing
 
 jobs:
-  compile:
+  compas:
     name: Build Docker image and push to DockerHub
     runs-on: ubuntu-18.04
     steps:
@@ -17,3 +17,5 @@ jobs:
 
       - name: Build Compas
         run: cd src && make -j $(nproc) -f Makefile
+
+  # TODO: add latex and postprocessing python scripts
