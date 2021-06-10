@@ -1,0 +1,21 @@
+name: CI Test Compilation of various COMPAS components
+
+on:
+  pull_request:
+      branches: [ dev ]
+  #push: # testing
+
+jobs:
+  compas:
+    name: Build Docker image and push to DockerHub
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies 
+        run: sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
+
+      - name: Build Compas
+        run: cd src && make -j $(nproc) -f Makefile
+
+  # TODO: add latex and postprocessing python scripts
