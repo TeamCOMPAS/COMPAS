@@ -12,12 +12,8 @@ jobs:
   latex:
     name: Build LaTeX documentation
     runs-on: ubuntu-18.04
-    env: # testing, delete later
-      MY_VAR: ${{github.event_name}}
 
     steps:
-      - run: echo $MY_VAR # testing
-
       - uses: actions/checkout@v2
 
       - name: Install dependencies 
