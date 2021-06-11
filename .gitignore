@@ -27,6 +27,7 @@ COMPAS
 *.toc
 *.bbl
 *.blg
+*.pdf
 *.synctex
 *.synctex(busy)
 *.synctex.gz
