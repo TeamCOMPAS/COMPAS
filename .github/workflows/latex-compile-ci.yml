@@ -55,7 +55,7 @@ jobs:
 
       # If push to dev, publish the documentation
       - name: publish documentation 
-        #if: github.event_name == 'push' # testing, uncomment later
+        if: github.event_name == 'push' 
         run: |
           git checkout --orphan Documentation
           PDF_FILE=COMPAS_Documentation.pdf
