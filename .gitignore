@@ -21,7 +21,6 @@ Thumbs.db
 __pycache__/
 COMPAS_Output*/
 output*/
-.github/
 COMPAS
 *.log
 *.aux
