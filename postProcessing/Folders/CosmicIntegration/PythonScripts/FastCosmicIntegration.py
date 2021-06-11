@@ -509,14 +509,16 @@ def append_rates(path, filename, detection_rate, formation_rate, merger_rate, re
     """
     print('shape redshifts', np.shape(redshifts))
     print('shape COMPAS.sw_weights', np.shape(COMPAS.sw_weights) )
-    print('shape COMPAS COMPAS.DCO_masks["BHBH"]]', np.shape(COMPAS.sw_weights[COMPAS.DCO_masks[dco_type]]) )
+    print('COMPAS.DCOmask', COMPAS.DCOmask, ' was set for dco_type', dco_type)
+    print('shape COMPAS COMPAS.DCOmask', np.shape(COMPAS.DCOmask) )
+    print('path', path)
 
     #################################################
     #Open hdf5 file that we will write on
     print('filename', filename)
     with h5.File(path +'/'+ filename, 'r+') as h_new:
-        # The rate info is shaped as DoubleCompactObjects[COMPAS.DCO_masks["BHBH"]] , len(redshifts)
-        DCO             = h_new['DoubleCompactObjects']#
+        # The rate info is shaped as BSE_Double_Compact_Objects[COMPAS.DCOmask] , len(redshifts)
+        DCO             = h_new['BSE_Double_Compact_Objects']#
         print('shape DCO[SEED]', np.shape(DCO['SEED'][()]) )
 
         #################################################
@@ -588,9 +590,9 @@ def append_rates(path, filename, detection_rate, formation_rate, merger_rate, re
         #################################################
         # Write the rates as a seperate dataset
         # re-arrange your list of rate parameters
-        DCO_to_rate_mask     = COMPAS.DCO_masks[dco_type] #save this bool for easy conversion between DoubleCompactObjects, and CI weights
+        DCO_to_rate_mask     = COMPAS.DCOmask #save this bool for easy conversion between BSE_Double_Compact_Objects, and CI weights
         rate_data_list       = [DCO['SEED'][DCO_to_rate_mask], DCO_to_rate_mask , save_redshifts,  save_merger_rate, merger_rate[:,0], save_detection_rate]
-        rate_list_names      = ['SEED', 'DCO_mask', 'redshifts',  'merger_rate','merger_rate_z0', 'detection_rate'+sensitivity]
+        rate_list_names      = ['SEED', 'DCOmask', 'redshifts',  'merger_rate','merger_rate_z0', 'detection_rate'+sensitivity]
         for i, data in enumerate(rate_data_list):
             print('Adding rate info of shape', np.shape(data))
             # Check if dataset exists, if so, just delete it
