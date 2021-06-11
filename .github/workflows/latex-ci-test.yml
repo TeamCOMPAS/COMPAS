@@ -14,7 +14,7 @@ jobs:
 
       - name: Install dependencies 
         #run: sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
-        run: sudo apt install texlive-full
+        run: sudo apt install texlive-base
         # options are texlive-base texlive-latex-recommended texlive texlive-latex-extra texlive-full
         
         # Need to do pdflatex, bibtex, pdflatex, pdflatex
