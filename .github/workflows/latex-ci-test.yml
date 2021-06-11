@@ -2,8 +2,8 @@ name: Latex Tests
 
 on:
   pull_request:
-  #branches: [ dev ]
-  push: # testing
+  push: 
+      branches: [dev] # when pushing to dev, should also publish the document
 
 jobs:
   latex:
@@ -13,9 +13,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install dependencies 
-        #run: sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
         run: sudo apt install texlive-base
-        # options are texlive-base texlive-latex-recommended texlive texlive-latex-extra texlive-full
         
         # Need to do pdflatex, bibtex, pdflatex, pdflatex
 
@@ -53,7 +51,7 @@ jobs:
 
       # If the PR is approved, a push is sent to dev
       - name: upload pdf
-        #if: ${{github.event_name}} == push
+        if: ${{github.event_name}} == push
         run: |
           git checkout --orphan Documentation
           PDF_FILE=COMPAS_Documentation.pdf
