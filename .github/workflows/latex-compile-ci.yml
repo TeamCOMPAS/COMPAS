@@ -66,5 +66,7 @@ jobs:
           mv docs/COMPAS_LaTeX/main.pdf $PDF_FILE
           git rm -rf .
           git add -f $PDF_FILE
-          git commit -m "documentation update" --author "Team COMPAS <>"
+          git config user.name "Team COMPAS"
+          git config user.email "<>"
+          git commit -m "Documentation update"
           git push -f --set-upstream origin Documentation
