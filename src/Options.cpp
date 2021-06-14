@@ -128,7 +128,7 @@ void Options::OptionValues::Initialise() {
 
     // flags
 
-    m_AllowRLOFAtBirth                                              = false;
+    m_AllowRLOFAtBirth                                              = true;
     m_AllowTouchingAtBirth                                          = false;
 
     m_DebugToFile                                                   = false;
@@ -144,7 +144,7 @@ void Options::OptionValues::Initialise() {
     m_PopulationDataPrinting                                        = false;
     m_PrintBoolAsString                                             = false;
     m_Quiet                                                         = false;
-    m_RlofPrinting                                                  = false;
+    m_RlofPrinting                                                  = true;
 
     m_ShortHelp                                                     = true;
 
@@ -158,7 +158,7 @@ void Options::OptionValues::Initialise() {
     // Population synthesis variables
     m_ObjectsToEvolve                                               = 10;
 
-    m_FixedRandomSeed                                               = false;                                                // TRUE if --random-seed is passed on command line
+    m_FixedRandomSeed                                               = false;
     m_RandomSeed                                                    = 0;
 
     // Specify how long to evolve for
@@ -173,25 +173,25 @@ void Options::OptionValues::Initialise() {
 
     m_InitialMassFunction.type                                      = INITIAL_MASS_FUNCTION::KROUPA;
     m_InitialMassFunction.typeString                                = INITIAL_MASS_FUNCTION_LABEL.at(m_InitialMassFunction.type);
-    m_InitialMassFunctionMin                                        = 8.0;
-    m_InitialMassFunctionMax                                        = 100.0; 
-    m_InitialMassFunctionPower                                      = -2.3;
+    m_InitialMassFunctionMin                                        = 5.0;
+    m_InitialMassFunctionMax                                        = 150.0;
+    m_InitialMassFunctionPower                                      = 0.0;
 
 
     // Initial mass ratio
     m_MassRatio                                                     = 1.0;
-    m_MassRatioDistribution.type                                    = MASS_RATIO_DISTRIBUTION::FLAT;                        // Most likely want FLAT or SANA2012
+    m_MassRatioDistribution.type                                    = MASS_RATIO_DISTRIBUTION::FLAT;
     m_MassRatioDistribution.typeString                              = MASS_RATIO_DISTRIBUTION_LABEL.at(m_MassRatioDistribution.type);
     m_MassRatioDistributionMin                                      = 0.01;
     m_MassRatioDistributionMax                                      = 1.0;
 
-    m_MinimumMassSecondary                                          = MINIMUM_INITIAL_MASS;                                 // actual value set later
+    m_MinimumMassSecondary                                          = 0.1;
 
 
     // Initial orbit options
     m_SemiMajorAxis                                                 = 0.1;
 
-    m_SemiMajorAxisDistribution.type                                = SEMI_MAJOR_AXIS_DISTRIBUTION::FLATINLOG;              // Most likely want FLATINLOG or SANA2012
+    m_SemiMajorAxisDistribution.type                                = SEMI_MAJOR_AXIS_DISTRIBUTION::FLATINLOG;
     m_SemiMajorAxisDistribution.typeString                          = SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL.at(m_SemiMajorAxisDistribution.type);
     m_SemiMajorAxisDistributionMin                                  = 0.1;
     m_SemiMajorAxisDistributionMax                                  = 1000.0;
@@ -231,8 +231,8 @@ void Options::OptionValues::Initialise() {
     // Kick options
     m_KickMagnitudeDistribution.type                                = KICK_MAGNITUDE_DISTRIBUTION::MAXWELLIAN;
     m_KickMagnitudeDistribution.typeString                          = KICK_MAGNITUDE_DISTRIBUTION_LABEL.at(m_KickMagnitudeDistribution.type);
-    m_KickMagnitudeDistributionSigmaCCSN_NS                         = 250;
-    m_KickMagnitudeDistributionSigmaCCSN_BH                         = 250;
+    m_KickMagnitudeDistributionSigmaCCSN_NS                         = 265;
+    m_KickMagnitudeDistributionSigmaCCSN_BH                         = 265;
     m_KickMagnitudeDistributionMaximum                              = -1.0; 
     m_KickMagnitudeDistributionSigmaForECSN                         = 30.0;
     m_KickMagnitudeDistributionSigmaForUSSN   	                    = 30.0;
@@ -285,7 +285,7 @@ void Options::OptionValues::Initialise() {
     m_FryerSupernovaEngine.type                                     = SN_ENGINE::DELAYED;
     m_FryerSupernovaEngine.typeString                               = SN_ENGINE_LABEL.at(m_FryerSupernovaEngine.type);
 
-    m_NeutrinoMassLossAssumptionBH.type                             = NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_FRACTION;
+    m_NeutrinoMassLossAssumptionBH.type                             = NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS;
     m_NeutrinoMassLossAssumptionBH.typeString                       = NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL.at(m_NeutrinoMassLossAssumptionBH.type);
     m_NeutrinoMassLossValueBH                                       = 0.1;
 
@@ -296,18 +296,18 @@ void Options::OptionValues::Initialise() {
 
 
     // Pair instability and pulsational pair instability mass loss
-    m_UsePairInstabilitySupernovae                                  = false;
+    m_UsePairInstabilitySupernovae                                  = true;
     m_PairInstabilityLowerLimit                                     = 60.0;                                                 // Belczynski+ 2016 is 65 Msol
     m_PairInstabilityUpperLimit                                     = 135.0;                                                // Belczynski+ 2016 is 135 Msol
 
-    m_UsePulsationalPairInstability                                 = false;
+    m_UsePulsationalPairInstability                                 = true;
     m_PulsationalPairInstabilityLowerLimit                          = 35.0;                                                 // Belczynski+ 2016 is 45 Msol
     m_PulsationalPairInstabilityUpperLimit                          = 60.0;                                                 // Belczynski+ 2016 is 65 Msol
 
-    m_PulsationalPairInstabilityPrescription.type                   = PPI_PRESCRIPTION::COMPAS;
+    m_PulsationalPairInstabilityPrescription.type                   = PPI_PRESCRIPTION::MARCHANT;
     m_PulsationalPairInstabilityPrescription.typeString             = PPI_PRESCRIPTION_LABEL.at(m_PulsationalPairInstabilityPrescription.type);
 
-	m_MaximumNeutronStarMass                                        = 3.0;                                                  // StarTrack is 3.0
+	m_MaximumNeutronStarMass                                        = 2.5;                                                  // StarTrack is 3.0
     
     m_mCBUR1                                                        = MCBUR1HURLEY;                                         // MHurley value, Fryer+ and Belczynski+ use 1.83
 
@@ -320,7 +320,7 @@ void Options::OptionValues::Initialise() {
     
 
     // Mass loss options
-    m_UseMassLoss                                                   = false; // TW - shouldn't this be true by default? It says so in options.h
+    m_UseMassLoss                                                   = true;
     m_CheckPhotonTiringLimit                                        = false;
 
     m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::VINK;
@@ -338,7 +338,7 @@ void Options::OptionValues::Initialise() {
 
     // Mass transfer options
     m_UseMassTransfer                                               = true;
-	m_CirculariseBinaryDuringMassTransfer         	                = false;
+	m_CirculariseBinaryDuringMassTransfer         	                = true;
 	m_AngularMomentumConservationDuringCircularisation              = false;
 
     // Case BB/BC mass transfer stability prescription
@@ -349,7 +349,7 @@ void Options::OptionValues::Initialise() {
     m_MassTransferAccretionEfficiencyPrescription.type              = MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED;
     m_MassTransferAccretionEfficiencyPrescription.typeString        = MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL.at(m_MassTransferAccretionEfficiencyPrescription.type);
 
-    m_MassTransferFractionAccreted                                  = 1.0;
+    m_MassTransferFractionAccreted                                  = 0.5;
     m_MassTransferCParameter                                        = 10.0;
     m_EddingtonAccretionFactor                                      = 1;                                                    // >1 is super-eddington, 0 is no accretion
 
@@ -363,7 +363,7 @@ void Options::OptionValues::Initialise() {
     m_MassTransferAngularMomentumLossPrescription.typeString        = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL.at(m_MassTransferAngularMomentumLossPrescription.type);
 
     // Mass transfer rejuvenation prescriptions
-    m_MassTransferRejuvenationPrescription.type                     = MT_REJUVENATION_PRESCRIPTION::NONE;
+    m_MassTransferRejuvenationPrescription.type                     = MT_REJUVENATION_PRESCRIPTION::STARTRACK;
     m_MassTransferRejuvenationPrescription.typeString               = MT_REJUVENATION_PRESCRIPTION_LABEL.at(m_MassTransferRejuvenationPrescription.type);
 
     // Mass transfer critical mass ratios
@@ -402,10 +402,10 @@ void Options::OptionValues::Initialise() {
     // Common Envelope options
     m_CommonEnvelopeAlpha                                           = 1.0;
     m_CommonEnvelopeLambda                                          = 0.1;
-	m_CommonEnvelopeSlopeKruckow                                    = -4.0 / 5.0;
+	m_CommonEnvelopeSlopeKruckow                                    = -5.0 / 6.0;
 	m_CommonEnvelopeAlphaThermal                                    = 1.0;
     m_CommonEnvelopeLambdaMultiplier                                = 1.0;
-    m_AllowMainSequenceStarToSurviveCommonEnvelope                  = false;
+    m_AllowMainSequenceStarToSurviveCommonEnvelope                  = true;
 
     // Prescription for envelope state (radiative or convective)
     m_EnvelopeStatePrescription.type                                = ENVELOPE_STATE_PRESCRIPTION::LEGACY;
@@ -439,7 +439,7 @@ void Options::OptionValues::Initialise() {
 
 
     // Metallicity options
-    m_Metallicity                                                   = ZSOL;
+    m_Metallicity                                                   = 0.0142;                                               // Solar metallicity Asplund+2010 (note that ZSOL is something different)
     m_MetallicityDistribution.type                                  = METALLICITY_DISTRIBUTION::ZSOLAR; 
     m_MetallicityDistribution.typeString                            = METALLICITY_DISTRIBUTION_LABEL.at(m_MetallicityDistribution.type);
     m_MetallicityDistributionMin                                    = MINIMUM_METALLICITY;
@@ -461,7 +461,7 @@ void Options::OptionValues::Initialise() {
     // Pulsar birth spin period distribution string
     m_PulsarBirthSpinPeriodDistribution.type                        = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::ZERO;
     m_PulsarBirthSpinPeriodDistribution.typeString                  = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL.at(m_PulsarBirthSpinPeriodDistribution.type);
-    m_PulsarBirthSpinPeriodDistributionMin                          = 0.0;
+    m_PulsarBirthSpinPeriodDistributionMin                          = 10.0;
     m_PulsarBirthSpinPeriodDistributionMax                          = 100.0;
 
     m_PulsarMagneticFieldDecayTimescale                             = 1000.0;
@@ -949,7 +949,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "initial-mass-power",                                          
             po::value<double>(&p_Options->m_InitialMassFunctionPower)->default_value(p_Options->m_InitialMassFunctionPower),                                                                      
-            ("Single power law power to generate primary mass using given IMF (default = " + std::to_string(p_Options->m_InitialMassFunctionPower) + ")").c_str()
+            ("Single power law power to generate primary mass using POWERLAW IMF (default = " + std::to_string(p_Options->m_InitialMassFunctionPower) + ")").c_str()
         )
 
         (
@@ -1107,7 +1107,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "metallicity,z",                                               
             po::value<double>(&p_Options->m_Metallicity)->default_value(p_Options->m_Metallicity),                                                                                                
-            ("Metallicity to use (default " + std::to_string(p_Options->m_Metallicity) + " Zsol)").c_str()
+            ("Metallicity to use (default " + std::to_string(p_Options->m_Metallicity) + ")").c_str()
         )
         (
             "metallicity-max",                                            
@@ -1336,7 +1336,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         (
             "grid",                                                        
-            po::value<std::string>(&p_Options->m_GridFilename)->default_value(p_Options->m_GridFilename)->implicit_value(""),                                                                      
+            po::value<std::string>(&p_Options->m_GridFilename)->default_value(p_Options->m_GridFilename)->implicit_value(""),
             ("Grid filename (default = " + p_Options->m_GridFilename + ")").c_str()
         )
 

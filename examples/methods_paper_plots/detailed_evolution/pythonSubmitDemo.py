@@ -144,14 +144,14 @@ class pythonProgramOptions:
     envelope_state_prescription = 'LEGACY'
 
     mass_loss_prescription = 'VINK'
-    luminous_blue_variable_prescription = 'BELCZYNSKI'
+    luminous_blue_variable_prescription = 'HURLEY_ADD'
     luminous_blue_variable_multiplier = 1.5
     overall_wind_mass_loss_multiplier = 1.0
     wolf_rayet_multiplier = 1.0
     cool_wind_mass_loss_multiplier = 1.0
     check_photon_tiring_limit = False
 
-    circularise_binary_during_mass_transfer = False
+    circularise_binary_during_mass_transfer = True
     angular_momentum_conservation_during_circularisation = False
     mass_transfer_angular_momentum_loss_prescription = 'ISOTROPIC'
     mass_transfer_accretion_efficiency_prescription = 'THERMAL'
