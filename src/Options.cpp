@@ -193,7 +193,7 @@ void Options::OptionValues::Initialise() {
 
     m_SemiMajorAxisDistribution.type                                = SEMI_MAJOR_AXIS_DISTRIBUTION::FLATINLOG;
     m_SemiMajorAxisDistribution.typeString                          = SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL.at(m_SemiMajorAxisDistribution.type);
-    m_SemiMajorAxisDistributionMin                                  = 0.1;
+    m_SemiMajorAxisDistributionMin                                  = 0.01;
     m_SemiMajorAxisDistributionMax                                  = 1000.0;
     m_SemiMajorAxisDistributionPower                                = -1.0;
 
@@ -274,7 +274,7 @@ void Options::OptionValues::Initialise() {
 
 
     // Chemically Homogeneous Evolution
-    m_CheMode.type                                                  = CHE_MODE::NONE;
+    m_CheMode.type                                                  = CHE_MODE::PESSIMISTIC;
     m_CheMode.typeString                                            = CHE_MODE_LABEL.at(m_CheMode.type);
 
 
