@@ -439,8 +439,8 @@ void Options::OptionValues::Initialise() {
 
 
     // Metallicity options
-    m_Metallicity                                                   = 0.0142;                                               // Solar metallicity Asplund+2010 (note that ZSOL is something different)
-    m_MetallicityDistribution.type                                  = METALLICITY_DISTRIBUTION::ZSOLAR; 
+    m_Metallicity                                                   = ZSOL_ASPLUND;
+    m_MetallicityDistribution.type                                  = METALLICITY_DISTRIBUTION::ZSOLAR;
     m_MetallicityDistribution.typeString                            = METALLICITY_DISTRIBUTION_LABEL.at(m_MetallicityDistribution.type);
     m_MetallicityDistributionMin                                    = MINIMUM_METALLICITY;
     m_MetallicityDistributionMax                                    = MAXIMUM_METALLICITY;
