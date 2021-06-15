@@ -1,10 +1,8 @@
 import numpy as np
-import subprocess
 import sys
 import os
-import pickle
-import itertools 
 from subprocess import call
+import re
 
 # Check if we are using python 3
 python_version = sys.version_info[0]
@@ -52,6 +50,7 @@ class pythonProgramOptions:
     # if COMPAS_LOGS_OUTPUT_DIR_PATH is not set (== None) the current working directory
     # is used as the value for the --output-path option
     compas_logs_output_override = os.environ.get('COMPAS_LOGS_OUTPUT_DIR_PATH')
+
     if (compas_logs_output_override is None):
         output = os.getcwd()
         output_container = None                 # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
@@ -77,21 +76,21 @@ class pythonProgramOptions:
 
     mode = 'BSE'                                                # evolving single stars (SSE) or binaries (BSE)?
 
-    grid_filename = "grid.txt"                                        # grid file name (e.g. 'mygrid.txt')
+    grid_filename = 'grid.txt'                                        # grid file name (e.g. 'mygrid.txt')
 
     if grid_filename != None:
         if compas_input_path_override == None:
-            grid_filename = os.getcwd() + '/' + grid_filename
+            grid_filename = os.getcwd() + '/' + grid_filename.strip("'\"")
         else:
-            grid_filename = compas_input_path_override + '/' + grid_filename
+            grid_filename = compas_input_path_override + '/' + grid_filename.strip("'\"")
 
     logfile_definitions = None                                  # logfile record definitions file name (e.g. 'logdefs.txt')
 
     if logfile_definitions != None:
         if compas_input_path_override == None:
-            logfile_definitions = os.getcwd() + '/' + logfile_definitions
+            logfile_definitions = os.getcwd() + '/' + logfile_definitions.strip("'\"")
         else:
-            logfile_definitions = compas_input_path_override + '/' + logfile_definitions
+            logfile_definitions = compas_input_path_override + '/' + logfile_definitions.strip("'\"")
 
     initial_mass    = None                                      # initial mass for SSE
     initial_mass_1  = None                                      # primary initial mass for BSE
@@ -111,7 +110,7 @@ class pythonProgramOptions:
     evolve_unbound_systems = False
     quiet = False
 
-    metallicity = None                                       # metallicity for both SSE and BSE - Solar metallicity Asplund+2010
+    metallicity = 0.0142                                        # metallicity for both SSE and BSE - Solar metallicity Asplund+2010
 
     allow_rlof_at_birth = True                                  # allow binaries that have one or both stars in RLOF at birth to evolve?
     allow_touching_at_birth = False                             # record binaries that have stars touching at birth in output files?
@@ -211,7 +210,7 @@ class pythonProgramOptions:
 
     neutrino_mass_loss_BH_formation = "FIXED_MASS"              # "FIXED_FRACTION"
     neutrino_mass_loss_BH_formation_value = 0.1                 # Either fraction or mass (Msol) to lose
-    
+
     remnant_mass_prescription   = 'FRYER2012'                   #
     fryer_supernova_engine      = 'DELAYED'
     black_hole_kicks            = 'FALLBACK'
@@ -299,7 +298,6 @@ class pythonProgramOptions:
 
     debug_to_file  = False
     errors_to_file = False
-
 
     def booleanChoices(self):
         booleanChoices = [
@@ -659,12 +657,12 @@ class pythonProgramOptions:
         and run directly as a terminal command, or passed to the stroopwafel interface
         where some of them may be overwritten. Options not to be included in the command 
         line should be set to pythons None (except booleans, which should be set to False)
-    
+
         Parameters
         -----------
         self : pythonProgramOptions
             Contains program options
-    
+
         Returns
         --------
         commands : str or list of strs
@@ -673,17 +671,17 @@ class pythonProgramOptions:
         booleanCommands = self.booleanCommands()
         nBoolean = len(booleanChoices)
         assert len(booleanCommands) == nBoolean
-    
+
         numericalChoices = self.numericalChoices()
         numericalCommands = self.numericalCommands()
         nNumerical = len(numericalChoices)
         assert len(numericalCommands) == nNumerical
-    
+
         stringChoices = self.stringChoices()
         stringCommands = self.stringCommands()
         nString = len(stringChoices)
         assert len(stringCommands) == nString
-    
+
         listChoices = self.listChoices()
         listCommands = self.listCommands()
         nList = len(listChoices)
@@ -693,23 +691,23 @@ class pythonProgramOptions:
         ### Collect all options into a dictionary mapping option name to option value
 
         command = {'compas_executable' : self.compas_executable}
-    
+
         for i in range(nBoolean):
             if booleanChoices[i] == True:
                 command.update({booleanCommands[i] : ''})
-    
+
         for i in range(nNumerical):
             if not numericalChoices[i] == None:
                 command.update({numericalCommands[i] : str(numericalChoices[i])})
-    
+
         for i in range(nString):
             if not stringChoices[i] == None:
-                command.update({stringCommands[i] : stringChoices[i]})
-    
+                command.update({stringCommands[i] : cleanStringParameter(stringChoices[i])})
+
         for i in range(nList):
             if listChoices[i]:
                 command.update({listCommands[i] : ' '.join(map(str,listChoices[i]))})
-    
+
         return command
 
 
@@ -721,11 +719,24 @@ def combineCommandLineOptionsDictIntoShellCommand(commandOptions):
     """
 
     shellCommand = commandOptions['compas_executable']
-    del commandOptions['compas_executable'] 
+    del commandOptions['compas_executable']
     for key, val in commandOptions.items():
         shellCommand += ' ' + key + ' ' + val
 
     return shellCommand
+
+
+def cleanStringParameter(str_param):
+    """ clean up string parameters to avoid confusing Boost """
+    if str_param is not None:
+        # strip any quotes from the ends of the string
+        str_param = str_param.strip("'\"")
+
+        # escape any unescaped spaces or quotes within the string
+        escapes = [" ", "'", "\""]
+        for escape in escapes:
+            str_param = re.sub(r"(?<!\\){}".format(escape), r"\{}".format(escape), str_param)
+    return str_param
 
 
 if __name__ == "__main__":
