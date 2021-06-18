@@ -561,7 +561,7 @@ def append_rates(path, filename, detection_rate, formation_rate, merger_rate, re
             # The detection_rate is a smaller array, make sure you don't go beyond the end
             detection_index = z_index if z_index < n_redshifts_detection else n_redshifts_detection
 
-            print('You will only save data up to redshift ', maxz, ', i.e. index', redshifts[z_index])
+            print('You will only save data up to redshift ', maxz, ', i.e. index', z_index)
             save_redshifts        = redshifts
             save_merger_rate      = merger_rate[:,:z_index]
             save_detection_rate   = detection_rate[:,:detection_index]
@@ -584,7 +584,7 @@ def append_rates(path, filename, detection_rate, formation_rate, merger_rate, re
 
     #Always close your files again ;)
     h_new.close()
-    print('Done with append_rates :) your new files are here: ', path + '/' + filename )
+    print( ('Done with append_rates :) your new files are here: %s/%s'%(path,filename)).replace('//', '/') )
 
 
 
