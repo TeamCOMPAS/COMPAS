@@ -1,0 +1,16 @@
+name: COMPAS compile test
+
+on: [pull_request]
+
+jobs:
+  compas:
+    name: Build COMPAS
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies 
+        run: sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
+
+      - name: Build Compas
+        run: cd src && make -j $(nproc) -f Makefile

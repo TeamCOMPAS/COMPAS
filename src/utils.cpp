@@ -1083,7 +1083,7 @@ namespace utils {
         switch (p_Zdist) {                                                                              // which distribution?
 
             case METALLICITY_DISTRIBUTION::ZSOLAR:                                                      // ZSOLAR - all systems have Z = ZSOLAR
-                metallicity = ZSOL;
+                metallicity = ZSOL_ASPLUND;
                 break;
 
             case METALLICITY_DISTRIBUTION::LOGUNIFORM: {                                                // LOGUNIFORM - sample Z uniformly in the log

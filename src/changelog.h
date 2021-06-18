@@ -749,8 +749,11 @@
 //                                      - Fixed incrementing of random seed and binary id when grid file contains sets/ranges
 //
 //                                      Modified h5view.py (in postProcessing/Folders/H5/PythonScripts) to print number of unique seeds (where relevant) in summary output
+// 02.20.00     IM - June 14, 20201  - Enhancement:
+//                                      - Port defaults from preProcessing/pythonSubmit.py to options.cpp
+//                                      - Minor fixes (e.g., documentation)
 
 
-const std::string VERSION_STRING = "02.19.04";
+const std::string VERSION_STRING = "02.20.00";
 
 # endif // __changelog_h__

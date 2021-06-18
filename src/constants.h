@@ -225,7 +225,8 @@ constexpr double G_SN                                   = G * 1.0E-9 / KG_TO_MSO
 constexpr double G_SOLAR_YEAR                           = 3.14E7;                                                   // Gravitational constant in Lsol Rsol yr Msol^-2 for calculating photon tiring limit
 
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
-constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity
+constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity used in scalings
+constexpr double ZSOL_ASPLUND				= 0.0142;						    // Solar Metallicity (Asplund+ 2010) used in initial condition
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
 
 constexpr double AU                                     = 149597870700.0;                                           // 1 AU (Astronomical Unit) in metres
