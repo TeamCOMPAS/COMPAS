@@ -9,7 +9,7 @@ class COMPASData(object):
     def __init__(
         self,
         path=None,
-        fileName="COMPAS_output.h5",
+        fileName="COMPAS_Output.h5",
         lazyData=True,
         Mlower=None,
         Mupper=None,
