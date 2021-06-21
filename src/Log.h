@@ -599,6 +599,7 @@ private:
 
                 value    = p_SpecifiedPropertyValue;
                 valueStr = boost::apply_visitor(FormatVariantValue(), value, fmtStr);       // format value
+                logRecord += valueStr + delimiter;                                          // add value string to log record - with delimiter
             }
             else {
 
@@ -972,12 +973,10 @@ public:
 
     template <class T>
     bool LogStashedSSESupernovaDetails(const T* const p_Star) { 
-
         bool result = true;
 
         // if the stashed SSE Supernova record is non-empty, print it, then clear it - otherwise do nothing
         if (!m_SSESupernova_DelayedLogRecord.empty()) {
-
             result = LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, p_Star, m_SSESupernova_DelayedLogRecord);
             m_SSESupernova_DelayedLogRecord = "";
         }
