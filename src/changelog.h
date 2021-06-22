@@ -749,11 +749,13 @@
 //                                      - Fixed incrementing of random seed and binary id when grid file contains sets/ranges
 //
 //                                      Modified h5view.py (in postProcessing/Folders/H5/PythonScripts) to print number of unique seeds (where relevant) in summary output
-// 02.20.00     IM - June 14, 20201  - Enhancement:
+// 02.20.00     IM - June 14, 2021  - Enhancement:
 //                                      - Port defaults from preProcessing/pythonSubmit.py to options.cpp
 //                                      - Minor fixes (e.g., documentation)
+// 02.20.01     JR - June 21, 2021  - Defect repair:
+//                                      - Fix for issue #585: add formatted value and delimiter to logrecord string in Log.h (defect introduced in v02.18.00; only affected SSE_Supernovae logfile)
 
 
-const std::string VERSION_STRING = "02.20.00";
+const std::string VERSION_STRING = "02.20.01";
 
 # endif // __changelog_h__
