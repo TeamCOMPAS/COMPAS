@@ -65,7 +65,7 @@ Sampled parameters will be combined into grid files which COMPAS then reads in.
 Users should choose which parameters they would like to be sampled over, as well as
 the relevent distributions. 
 
-See [docs/COMPAS_Doc.pdf](COMPAS_Doc.pdf) for details on which sets of 
+See the [COMPAS Documentation](https://github.com/TeamCOMPAS/COMPAS/blob/Documentation/COMPAS_Documentation.pdf) for details on which sets of 
 parameters are allowed/required. 
 
 See [Stroopwafel Documentation](https://github.com/lokiysh/stroopwafel) for details on which distributions are available.
