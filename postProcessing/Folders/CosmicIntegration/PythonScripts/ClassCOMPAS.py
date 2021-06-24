@@ -38,6 +38,7 @@ class COMPASData(object):
         self.BBHmask = None
         self.DNSmask = None
         self.BHNSmask = None
+        self.CHE_mask = None
         self.CHE_BBHmask = None
         self.NonCHE_BBHmask = None
         self.initialZ = None
@@ -75,21 +76,14 @@ class COMPASData(object):
         stellar_type_1, stellar_type_2, hubble_flag, dco_seeds = \
             self.get_COMPAS_variables("BSE_Double_Compact_Objects", ["Stellar_Type(1)", "Stellar_Type(2)", "Merges_Hubble_Time", "SEED"])
 
-        if types == "CHE_BBH":
+        if types == "CHE_BBH" or types == "NON_CHE_BBH":
             stellar_type_1_zams, stellar_type_2_zams, che_ms_1, che_ms_2, sys_seeds = \
                 self.get_COMPAS_variables("BSE_System_Parameters", ["Stellar_Type@ZAMS(1)", "Stellar_Type@ZAMS(2)", "CH_on_MS(1)", "CH_on_MS(2)", "SEED"])
+          
+            che_mask  = np.logical_and.reduce((stellar_type_1_zams == 16, stellar_type_2_zams == 16, che_ms_1 == True, che_ms_2 == True))
+            che_seeds = sys_seeds[()][che_mask]
 
-            che_1_mask = np.logical_and(np.logical_and(stellar_type_1_zams, 16), (che_ms_1 == True))
-            che_2_mask = np.logical_and(np.logical_and(stellar_type_2_zams, 16), (che_ms_2 == True))
-            che_seeds  = sys_seeds[()][che_1_mask & che_2_mask]
-
-        if types == "NON_CHE_BBH":
-            stellar_type_1_zams, stellar_type_2_zams, che_ms_1, che_ms_2, sys_seeds = \
-                self.get_COMPAS_variables("BSE_System_Parameters", ["Stellar_Type@ZAMS(1)", "Stellar_Type@ZAMS(2)", "CH_on_MS(1)", "CH_on_MS(2)", "SEED"])
-
-            non_che_1_mask = np.logical_or(np.logical_not(np.logical_and(stellar_type_1_zams, 16)), np.logical_and(np.logical_and(stellar_type_1_zams, 16), (che_ms_1 == False)))
-            non_che_2_mask = np.logical_or(np.logical_not(np.logical_and(stellar_type_1_zams, 16)), np.logical_and(np.logical_and(stellar_type_2_zams, 16), (che_ms_2 == False)))
-            non_che_seeds  = sys_seeds[()][non_che_1_mask & non_che_2_mask]
+        self.CHE_mask = np.in1d(dco_seeds, che_seeds) if types == "CHE_BBH" or types == "NON_CHE_BBH" else np.repeat(False, len(dco_seeds))
 
         # if user wants to mask on Hubble time use the flag, otherwise just set all to True
         hubble_mask = hubble_flag.astype(bool) if withinHubbleTime else np.repeat(True, len(dco_seeds))
@@ -100,9 +94,9 @@ class COMPASData(object):
             "BBH": np.logical_and(stellar_type_1 == 14, stellar_type_2 == 14),
             "BHNS": np.logical_or(np.logical_and(stellar_type_1 == 14, stellar_type_2 == 13), np.logical_and(stellar_type_1 == 13, stellar_type_2 == 14)),
             "BNS": np.logical_and(stellar_type_1 == 13, stellar_type_2 == 13),
-            "CHE_BBH": np.logical_and(np.in1d(dco_seeds, che_seeds), np.logical_and(stellar_type_1 == 14, stellar_type_2 == 14)) if types == "CHE_BBH" else np.repeat(False, len(dco_seeds)),
-            "NON_CHE_BBH": np.logical_and(np.in1d(dco_seeds, non_che_seeds), np.logical_and(stellar_type_1 == 14, stellar_type_2 == 14)) if types == "NON_CHE_BBH" else np.repeat(True, len(dco_seeds))
         }
+        type_masks["CHE_BBH"]     = np.logical_and(self.CHE_mask, type_masks["BBH"]) if types == "CHE_BBH" else np.repeat(False, len(dco_seeds))
+        type_masks["NON_CHE_BBH"] = np.logical_and(np.logical_not(self.CHE_mask), type_masks["BBH"]) if types == "NON_CHE_BBH" else np.repeat(True, len(dco_seeds))
 
         # if the user wants to make RLOF or optimistic CEs
         if noRLOFafterCEE or pessimistic:
