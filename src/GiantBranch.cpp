@@ -986,7 +986,8 @@ double GiantBranch::CalculateLifetimeToHeIgnition(const double p_Mass, const dou
 /*
  * Calculate thermal timescale
  *
- * Kalogera & Webbink 1996, eq 2 [note that (61) of BSE proposes a value a factor of 3 smaller]
+ * pre-factor from Kalogera & Webbink 1996 (https://arxiv.org/abs/astro-ph/9508072), equation 2, combined with p_Mass * p_EnvMass case from equation 61 from https://arxiv.org/abs/astro-ph/0201220 for k in {2,3,4,5,6,8,9}
+ * [note that equation 61 of BSE (https://arxiv.org/abs/astro-ph/0201220) approximates this with a value a factor of 3 smaller]
  *
  *
  * double CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) const
@@ -998,7 +999,7 @@ double GiantBranch::CalculateLifetimeToHeIgnition(const double p_Mass, const dou
  * @return                                      Thermal timescale in Myr
 */
 double GiantBranch::CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) const {
-    return 30.0 * p_Mass * p_EnvMass / (p_Radius * p_Luminosity);       // G*Msol^2/(Lsol*Rsol) ~ 30 Myr
+    return 31.4 * p_Mass * p_EnvMass / (p_Radius * p_Luminosity);       // G*Msol^2/(Lsol*Rsol) ~ 31.4 Myr (~ 30 Myr in Kalogera & Webbink)
 }
 
 
