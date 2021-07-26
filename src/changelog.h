@@ -754,8 +754,10 @@
 //                                      - Minor fixes (e.g., documentation)
 // 02.20.01     JR - June 21, 2021  - Defect repair:
 //                                      - Fix for issue #585: add formatted value and delimiter to logrecord string in Log.h (defect introduced in v02.18.00; only affected SSE_Supernovae logfile)
+// 02.20.02     JR - July 26, 2021  - Defect repair:
+//                                      - Add HDF5 support to logging code for SSE/BSE switch log files.  Support for HDF5 switch files was inadvertently not added when HDF5 file support as added in v02.18.00 for all standard log files.  Switch log files are 'special' (they have extra columns, not part of the 'standard' log file functionality), and that was missed.
+//                                      - Also removed '-lsz' from Makefile and Makefile.docker - library not required
 
-
-const std::string VERSION_STRING = "02.20.01";
+const std::string VERSION_STRING = "02.20.02";
 
 # endif // __changelog_h__

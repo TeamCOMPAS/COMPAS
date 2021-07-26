@@ -802,18 +802,39 @@ private:
                     // ( ii) the stellar type from which the star is switching
                     // (iii) the stellar type to which the star is switching
 
-                    string fmt = "%4.1d";                                                                                               // format - all integers here
+                    string fmtStr = "%4.1d";                                                                                            // format - all integers here
+
                     if (p_LogFile == LOGFILE::BSE_SWITCH_LOG) {
                         int starSwitching = m_PrimarySwitching ? 1 : 2;                                                                 // primary (1) or secondary (2)
-                        logRecord += utils::vFormat(fmt.c_str(), starSwitching) + delimiter;                                            // star switching
+                        if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                                 // yes - HDF5 file?
+                            logRecordValues.push_back(starSwitching);                                                                   // add value to vector of values
+                        }
+                        else {                                                                                                          // no - CSV, TSV, or TXT file
+                            logRecord += utils::vFormat(fmtStr.c_str(), starSwitching) + delimiter;                                     // add value string to log record - with delimiter
+                        }
                     }
 
                     if (p_LogFile == LOGFILE::BSE_SWITCH_LOG || p_LogFile == LOGFILE::SSE_SWITCH_LOG) {
-                        logRecord += utils::vFormat(fmt.c_str(), m_TypeSwitchingFrom) + delimiter;                                      // switching from
-                        logRecord += utils::vFormat(fmt.c_str(), m_TypeSwitchingTo) + delimiter;                                        // switching to
+                        STELLAR_TYPE switchingFrom = m_TypeSwitchingFrom;                                                               // switching from (stellar type)
+                        if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                                 // HDF5 file?
+                            logRecordValues.push_back(switchingFrom);                                                                   // yes - add value to vector of values
+                        }
+                        else {                                                                                                          // no - CSV, TSV, or TXT file
+                            logRecord += utils::vFormat(fmtStr.c_str(), switchingFrom) + delimiter;                                     // add value string to log record - with delimiter
+                        }
+
+                        STELLAR_TYPE switchingTo = m_TypeSwitchingTo;                                                                   // switching to (stellar type)
+                        if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                                 // HDF5 file?
+                            logRecordValues.push_back(switchingTo);                                                                     // yes - add value to vector of values
+                        }
+                        else {                                                                                                          // no - CSV, TSV, or TXT file
+                            logRecord += utils::vFormat(fmtStr.c_str(), switchingTo) + delimiter;                                       // add value string to log record - with delimiter
+                        }
                     }
 
-                    logRecord = logRecord.substr(0, logRecord.size()-1);                                                                // remove the last character - extraneous delimiter
+                    if (m_Logfiles[fileDetails.id].filetype != LOGFILETYPE::HDF5) {                                                     // HDF5 file?
+                        logRecord = logRecord.substr(0, logRecord.size()-1);                                                            // no - remove the last character - extraneous delimiter
+                    }
                 }
             }
             else {                                                                                                                      // logfile record passed in is not empty
