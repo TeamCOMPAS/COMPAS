@@ -2517,13 +2517,17 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                         // option.
 
                         if (p_Logfile == LOGFILE::BSE_SWITCH_LOG) {                                                                             // BSE Switch Log
+                            fileDetails.propertyTypes.push_back(TYPENAME::INT);                                                                 // append property typename
                             fileDetails.hdrStrings.push_back("STAR_SWITCHING");                                                                 // append header string for field
                             fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
-                            fileDetails.fmtStrings.push_back("14.1");                                                                           // append format string for field (size accomodates header string)
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accomodates header string)
                         }
 
                         if (p_Logfile == LOGFILE::BSE_SWITCH_LOG || p_Logfile == LOGFILE::SSE_SWITCH_LOG) {                                     // BSE Switch Log or SSE Switch Log
+                            fileDetails.propertyTypes.push_back(TYPENAME::STELLAR_TYPE);                                                                 // append property typename
+                            fileDetails.propertyTypes.push_back(TYPENAME::STELLAR_TYPE);                                                                 // append property typename
+
                             fileDetails.hdrStrings.push_back("SWITCHING_FROM");                                                                 // append header string for field
                             fileDetails.hdrStrings.push_back("SWITCHING_TO");                                                                   // append header string for field
 
@@ -2533,8 +2537,8 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
 
-                            fileDetails.fmtStrings.push_back("14.1");                                                                            // append fromat string for field (size accomodates header string)
-                            fileDetails.fmtStrings.push_back("12.1");                                                                            // append format string for field (size accomodates header string)
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append fromat string for field (size accomodates header string)
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accomodates header string)
                         }
                     }
                     
