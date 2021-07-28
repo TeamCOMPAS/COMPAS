@@ -3,10 +3,12 @@ import sys
 import os
 from subprocess import call
 import re
+import ntpath
 
 # Check if we are using python 3
 python_version = sys.version_info[0]
 print("python_version =", python_version)
+
 
 class pythonProgramOptions:
     """
@@ -24,7 +26,6 @@ class pythonProgramOptions:
     # docker container (src, obj, bin), and the COMPAS executable resides
     # in the bin directory (rather than the src directory)
     compas_executable_override = os.environ.get('COMPAS_EXECUTABLE_PATH')
-    print('compas_executable_override', compas_executable_override)
 
     if (compas_executable_override is None):
         git_directory = os.environ.get('COMPAS_ROOT_DIR')
@@ -53,7 +54,7 @@ class pythonProgramOptions:
 
     if (compas_logs_output_override is None):
         output = os.getcwd()
-        output_container = None                 # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
+        output_container = None                                 # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
     else:
         output = compas_logs_output_override
         output_container = None
@@ -79,18 +80,28 @@ class pythonProgramOptions:
     grid_filename = None                                        # grid file name (e.g. 'mygrid.txt')
 
     if grid_filename != None:
-        if compas_input_path_override == None:
-            grid_filename = os.getcwd() + '/' + grid_filename.strip("'\"")
-        else:
-            grid_filename = compas_input_path_override + '/' + grid_filename.strip("'\"")
+        # if the grid filename supplied is already fully-qualified, leave it as is
+        head, tail = ntpath.split(grid_filename)                # split into pathname and base filename
+        
+        if head == '' or head == '.':                           # no path (or CWD) - add path as required
+            grid_filename = tail or ntpath.basename(head)
+            if compas_input_path_override == None:
+                grid_filename = os.getcwd() + '/' + grid_filename.strip("'\"")
+            else:
+                grid_filename = compas_input_path_override + '/' + grid_filename.strip("'\"")
 
     logfile_definitions = None                                  # logfile record definitions file name (e.g. 'logdefs.txt')
 
     if logfile_definitions != None:
-        if compas_input_path_override == None:
-            logfile_definitions = os.getcwd() + '/' + logfile_definitions.strip("'\"")
-        else:
-            logfile_definitions = compas_input_path_override + '/' + logfile_definitions.strip("'\"")
+        # if the grid filename supplied is already fully-qualified, leave it as is
+        head, tail = ntpath.split(grid_filename)                # split into pathname and base filename
+        
+        if head == '' or head == '.':                           # no path (or CWD) - add path as required
+            logfile_definitions = tail or ntpath.basename(head)
+            if compas_input_path_override == None:
+                logfile_definitions = os.getcwd() + '/' + logfile_definitions.strip("'\"")
+            else:
+                logfile_definitions = compas_input_path_override + '/' + logfile_definitions.strip("'\"")
 
     initial_mass    = None                                      # initial mass for SSE
     initial_mass_1  = None                                      # primary initial mass for BSE
@@ -116,6 +127,8 @@ class pythonProgramOptions:
     allow_touching_at_birth = False                             # record binaries that have stars touching at birth in output files?
 
     chemically_homogeneous_evolution = 'PESSIMISTIC'            # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
+
+    store_input_files = True                                    # store input files in output container?
 
     switch_log = False
 
@@ -319,6 +332,7 @@ class pythonProgramOptions:
             self.errors_to_file,
             self.allow_rlof_at_birth,
             self.allow_touching_at_birth,
+            self.store_input_files,
             self.switch_log,
             self.check_photon_tiring_limit
         ]
@@ -345,6 +359,7 @@ class pythonProgramOptions:
             '--errors-to-file',
             '--allow-rlof-at-birth',
             '--allow-touching-at-birth',
+            '--store-input-files',
             '--switch-log',
             '--check-photon-tiring-limit'
         ]
@@ -695,6 +710,8 @@ class pythonProgramOptions:
         for i in range(nBoolean):
             if booleanChoices[i] == True:
                 command.update({booleanCommands[i] : ''})
+            elif booleanChoices[i] == False:
+                command.update({booleanCommands[i] : 'False'})
 
         for i in range(nNumerical):
             if not numericalChoices[i] == None:

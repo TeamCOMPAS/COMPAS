@@ -195,6 +195,7 @@ private:
 
         "rlof-printing",
 
+        "store-input-files",
         "switch-log",
 
         "timestep-multiplier",
@@ -464,6 +465,7 @@ private:
 
         "semi-major-axis-distribution",
         "stellar-zeta-prescription",
+        "store-input-files",
         "switch-log",
 
         "use-mass-loss",
@@ -522,6 +524,7 @@ private:
         "random-seed",
         "rlof-printing",
 
+        "store-input-files",
         "switch-log",
 
         "version", "v"
@@ -572,6 +575,8 @@ public:
             bool                                                m_RlofPrinting;                                                 // RLOF printing
 
             bool                                                m_ShortHelp;                                                    // Flag to indicate whether user wants short help ('-h', just option names) or long help ('--help', plus descriptions)
+
+            bool                                                m_StoreInputFiles;                                              // Store input files in output container (default = true)
 
             bool                                                m_SwitchLog;                                                    // Print switch log details to file (default = false)
 
@@ -1291,7 +1296,8 @@ public:
     bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
     bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }
 
-    bool                                        SwitchLog() const                                                       { return OPT_VALUE("switch-log", m_SwitchLog, true); }
+    bool                                        StoreInputFiles() const                                                 { return m_CmdLine.optionValues.m_StoreInputFiles; }
+    bool                                        SwitchLog() const                                                       { return m_CmdLine.optionValues.m_SwitchLog; }
 
     ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
 
