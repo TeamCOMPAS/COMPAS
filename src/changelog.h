@@ -757,7 +757,12 @@
 // 02.20.02     JR - July 26, 2021  - Defect repair:
 //                                      - Add HDF5 support to logging code for SSE/BSE switch log files.  Support for HDF5 switch files was inadvertently not added when HDF5 file support as added in v02.18.00 for all standard log files.  Switch log files are 'special' (they have extra columns, not part of the 'standard' log file functionality), and that was missed.
 //                                      - Also removed '-lsz' from Makefile and Makefile.docker - library not required
+// 02.21.00     JR - July 28, 2021  - Enhancement and Defect Repairs:
+//                                      - Added code to copy any grid file and/or logfile-definitions file specified to output container.
+//                                      - Copying a large grid file could take time, and take up much space, so added new program option '--store-input-files' which is TRUE by default.  If FALSE, neither the grid file (if specified) nor the logfile-definitions file (if specified) will be copied to the output container (if TRUE, both will be copied (if specified)).
+//                                      - Fixed issue #600: changed pythonSubmit.py to treat fully-qualified grid filenames and fully-qualified logfile-definitions filenames correctly (i.e. don't add CWD if the filename is already fully-qualified).
+//                                      - Fixed issue #601: changed pythonSubmit.py to put all boolean parameters on the commandline, with "True" or "False" value.
 
-const std::string VERSION_STRING = "02.20.02";
+const std::string VERSION_STRING = "02.21.00";
 
 # endif // __changelog_h__
