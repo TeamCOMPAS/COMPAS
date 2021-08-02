@@ -62,7 +62,7 @@
 /*    Read the explanations for each of the vectors in Options.h to get a better idea of  */
 /*    what they are for and where the new option should go.                               */
 /*                                                                                        */
-/* 10. Add the new option to the following structres in constants.h:                      */
+/* 10. Add the new option to the following structures in constants.h:                     */
 /*                                                                                        */
 /*        - enum class PROGRAM_OPTION                                                     */
 /*        - const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL    */
@@ -147,6 +147,8 @@ void Options::OptionValues::Initialise() {
     m_RlofPrinting                                                  = true;
 
     m_ShortHelp                                                     = true;
+
+    m_StoreInputFiles                                               = true;
 
     m_SwitchLog                                                     = false;
 
@@ -703,6 +705,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "rlof-printing",                                                
             po::value<bool>(&p_Options->m_RlofPrinting)->default_value(p_Options->m_RlofPrinting)->implicit_value(true),                                                                          
             ("Enable output parameters before/after RLOF (default = " + std::string(p_Options->m_RlofPrinting ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "store-input-files",                                                
+            po::value<bool>(&p_Options->m_StoreInputFiles)->default_value(p_Options->m_StoreInputFiles)->implicit_value(true),                                                                          
+            ("Store input files in output container (default = " + std::string(p_Options->m_StoreInputFiles ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "switch-log",                                                
