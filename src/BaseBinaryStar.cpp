@@ -807,6 +807,8 @@ bool BaseBinaryStar::PrintRLOFParameters(const string p_Rec) {
     bool ok = true;
 
     if (!OPTIONS->RLOFPrinting()) return ok;                    // do not print if printing option off
+        
+    StashRLOFProperties();                                      // stash properties immediately post EvaluateBinary() 
 
     if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {               // print if either star is in RLOF
         m_RLOFDetails.currentProps->eventCounter += 1;          // every time we print a MT event happened, increment counter
@@ -2335,7 +2337,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 (void)PrintDetailedOutput(m_Id);                                                                                            // print (log) detailed output for binary
 
-                if (OPTIONS->RLOFPrinting()) StashRLOFProperties();          // if printing RLOF details, stash previous step immediately before EvaluateBinary() 
+                if (OPTIONS->RLOFPrinting()) StashRLOFProperties();                                                                         // if printing RLOF details, stash previous step immediately before EvaluateBinary() 
                     
                 EvaluateBinary(dt);                                                                                                         // evaluate the binary at this timestep
 
