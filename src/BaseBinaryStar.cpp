@@ -808,7 +808,7 @@ bool BaseBinaryStar::PrintRLOFParameters(const string p_Rec) {
 
     if (!OPTIONS->RLOFPrinting()) return ok;                    // do not print if printing option off
         
-    StashRLOFProperties();                                      // stash properties immediately post EvaluateBinary() 
+    StashRLOFProperties(true);                                  // stash properties immediately post-Mass Transfer 
 
     if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {               // print if either star is in RLOF
         m_RLOFDetails.currentProps->eventCounter += 1;          // every time we print a MT event happened, increment counter
@@ -838,6 +838,7 @@ bool BaseBinaryStar::PrintBeBinary(const string p_Rec) {
 }
 
 
+
 /*
  * Squirrel RLOF properties away
  *
@@ -848,32 +849,41 @@ bool BaseBinaryStar::PrintBeBinary(const string p_Rec) {
  *
  * void StashRLOFProperties()
  */
-void BaseBinaryStar::StashRLOFProperties() {
+void BaseBinaryStar::StashRLOFProperties(const bool p_StashPostMassTransfer) {
 
     if (!OPTIONS->RLOFPrinting()) return;                                                                           // nothing to do
 
-    // switch previous<->current (preserves existing current as (new) previous)
-    RLOFPropertiesT* tmp;
-    tmp                                       = m_RLOFDetails.previousProps;                                        // save pointer to existing previous props
-    m_RLOFDetails.previousProps               = m_RLOFDetails.currentProps;                                         // existing current props become new previous props (values will be preserved)
-    m_RLOFDetails.currentProps                = tmp;                                                                // new current props points at existing prevous (values will be replaced)
+    // set whether to update pre-MT or post-MT parameters depending on input argument
+    RLOFPropertiesT* rlofPropertiesToReset;
+    if (p_StashPostMassTransfer) {
+        rlofPropertiesToReset = m_RLOFDetails.currentProps;
+    }
+    else {
+        rlofPropertiesToReset = m_RLOFDetails.previousProps;
+    }
 
-    // now save (new) current
-    m_RLOFDetails.currentProps->id            = m_ObjectId;
-    m_RLOFDetails.currentProps->randomSeed    = m_RandomSeed;
-    m_RLOFDetails.currentProps->mass1         = m_Star1->Mass();
-    m_RLOFDetails.currentProps->mass2         = m_Star2->Mass();
-    m_RLOFDetails.currentProps->radius1       = m_Star1->Radius();
-    m_RLOFDetails.currentProps->radius2       = m_Star2->Radius();
-    m_RLOFDetails.currentProps->stellarType1  = m_Star1->StellarType();
-    m_RLOFDetails.currentProps->stellarType2  = m_Star2->StellarType();
-    m_RLOFDetails.currentProps->eccentricity  = m_Eccentricity;
-    m_RLOFDetails.currentProps->semiMajorAxis = m_SemiMajorAxis * AU_TO_RSOL;                                       // semi-major axis - change units to Rsol
-    m_RLOFDetails.currentProps->eventCounter  = m_RLOFDetails.previousProps->eventCounter;
-    m_RLOFDetails.currentProps->time          = m_Time;
-    m_RLOFDetails.currentProps->isRLOF1       = m_Star1->IsRLOF();
-    m_RLOFDetails.currentProps->isRLOF2       = m_Star2->IsRLOF();
-    m_RLOFDetails.currentProps->isCE          = m_CEDetails.CEEnow;
+    // switch previous<->current (preserves existing current as (new) previous)
+    //RLOFPropertiesT* tmp;
+    //tmp                                       = m_RLOFDetails.previousProps;                                        // save pointer to existing previous props
+    //m_RLOFDetails.previousProps               = m_RLOFDetails.currentProps;                                         // existing current props become new previous props (values will be preserved)
+    //m_RLOFDetails.currentProps                = tmp;                                                                // new current props points at existing prevous (values will be replaced)
+
+    // update properites for appropriate timestep
+    rlofPropertiesToReset->id            = m_ObjectId;
+    rlofPropertiesToReset->randomSeed    = m_RandomSeed;
+    rlofPropertiesToReset->mass1         = m_Star1->Mass();
+    rlofPropertiesToReset->mass2         = m_Star2->Mass();
+    rlofPropertiesToReset->radius1       = m_Star1->Radius();
+    rlofPropertiesToReset->radius2       = m_Star2->Radius();
+    rlofPropertiesToReset->stellarType1  = m_Star1->StellarType();
+    rlofPropertiesToReset->stellarType2  = m_Star2->StellarType();
+    rlofPropertiesToReset->eccentricity  = m_Eccentricity;
+    rlofPropertiesToReset->semiMajorAxis = m_SemiMajorAxis * AU_TO_RSOL;                                       // semi-major axis - change units to Rsol
+    rlofPropertiesToReset->eventCounter  = m_RLOFDetails.previousProps->eventCounter;
+    rlofPropertiesToReset->time          = m_Time;
+    rlofPropertiesToReset->isRLOF1       = m_Star1->IsRLOF();
+    rlofPropertiesToReset->isRLOF2       = m_Star2->IsRLOF();
+    rlofPropertiesToReset->isCE          = m_CEDetails.CEEnow;
 }
 
 
@@ -2337,8 +2347,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 (void)PrintDetailedOutput(m_Id);                                                                                            // print (log) detailed output for binary
 
-                if (OPTIONS->RLOFPrinting()) StashRLOFProperties();                                                                         // if printing RLOF details, stash previous step immediately before EvaluateBinary() 
-                    
+                if (OPTIONS->RLOFPrinting()) StashRLOFProperties(false);                                                                    // stash properties immediately pre-Mass Transfer 
+
                 EvaluateBinary(dt);                                                                                                         // evaluate the binary at this timestep
 
                 (void)PrintRLOFParameters();                                                                                                // print (log) RLOF parameters
