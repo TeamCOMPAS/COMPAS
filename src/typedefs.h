@@ -191,8 +191,8 @@ typedef struct BinaryRLOFDetails {                          // RLOF details pert
     bool stableRLOFPostCEE;                                 // Here for now - maybe should be in Binary CEDetails struct?       JR: todo:
     RLOFPropertiesT  props1;
     RLOFPropertiesT  props2;
-    RLOFPropertiesT* currentProps;
-    RLOFPropertiesT* previousProps;
+    RLOFPropertiesT* propsPreMT;
+    RLOFPropertiesT* propsPostMT;
 } BinaryRLOFDetailsT;
 
 typedef struct StellarRLOFDetails {                         // RLOF details pertinent to individual stars
