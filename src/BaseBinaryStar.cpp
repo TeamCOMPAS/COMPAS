@@ -875,7 +875,6 @@ void BaseBinaryStar::StashRLOFProperties(const bool p_StashPostMassTransfer) {
     rlofPropertiesToReset->stellarType2  = m_Star2->StellarType();
     rlofPropertiesToReset->eccentricity  = m_Eccentricity;
     rlofPropertiesToReset->semiMajorAxis = m_SemiMajorAxis * AU_TO_RSOL;                                       // semi-major axis - change units to Rsol
-    //rlofPropertiesToReset->eventCounter  = m_RLOFDetails.previousProps->eventCounter; //RTW remove this later
     rlofPropertiesToReset->time          = m_Time;
     rlofPropertiesToReset->isRLOF1       = m_Star1->IsRLOF();
     rlofPropertiesToReset->isRLOF2       = m_Star2->IsRLOF();
