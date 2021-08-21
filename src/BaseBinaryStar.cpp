@@ -620,7 +620,6 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_CURRENT_STAR2_STELLAR_TYPE_NAME:                 value = STELLAR_TYPE_LABEL.at(RLOFDetails().propsPostMT->stellarType2);    break;
         case BINARY_PROPERTY::RLOF_CURRENT_TIME:                                    value = RLOFDetails().propsPostMT->time;                                   break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_ECCENTRICITY:                           value = RLOFDetails().propsPreMT->eccentricity;                          break;
-        case BINARY_PROPERTY::RLOF_PREVIOUS_EVENT_COUNTER:                          value = RLOFDetails().propsPreMT->eventCounter;                          break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_SEMI_MAJOR_AXIS:                        value = RLOFDetails().propsPreMT->semiMajorAxis;                         break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_STAR1_MASS:                             value = RLOFDetails().propsPreMT->mass1;                                 break;
         case BINARY_PROPERTY::RLOF_PREVIOUS_STAR2_MASS:                             value = RLOFDetails().propsPreMT->mass2;                                 break;
