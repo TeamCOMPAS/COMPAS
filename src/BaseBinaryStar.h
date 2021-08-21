@@ -501,7 +501,7 @@ private:
                             const double p_RocheLobe2to1);
 
     void    StashBeBinaryProperties();
-    void    StashRLOFProperties(const bool p_StashPostMassTransfer);
+    void    StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which);
 
     void    UpdateSystemicVelocity(Vector3d p_newVelocity);
 
