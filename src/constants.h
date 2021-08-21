@@ -1105,6 +1105,11 @@ enum class SN_EVENT: int {
 };
 ENABLE_BITMASK_OPERATORS(SN_EVENT);
 
+enum class MASS_TRANSFER_TIMING: int {
+    PRE_MT       = 0, 
+    POST_MT      = 1
+};
+
 const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
     { SN_EVENT::NONE,         "No Supernova" },
     { SN_EVENT::CCSN,         "Core Collapse Supernova" },

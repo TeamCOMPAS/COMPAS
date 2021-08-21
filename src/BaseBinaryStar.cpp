@@ -808,7 +808,7 @@ bool BaseBinaryStar::PrintRLOFParameters(const string p_Rec) {
 
     if (!OPTIONS->RLOFPrinting()) return ok;                    // do not print if printing option off
         
-    StashRLOFProperties(true);                                  // stash properties immediately post-Mass Transfer 
+    StashRLOFProperties(MASS_TRANSFER_TIMING::POST_MT);         // stash properties immediately post-Mass Transfer 
 
     if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {               // print if either star is in RLOF
         m_RLOFDetails.propsPostMT->eventCounter += 1;           // every time we print a MT event happened, increment counter
@@ -851,18 +851,15 @@ bool BaseBinaryStar::PrintBeBinary(const string p_Rec) {
  *
  * @param   [IN]    p_StashPostMassTransfer     Boolean - true if post-MT values should be stored (false for pre-MT values)
  */
-void BaseBinaryStar::StashRLOFProperties(const bool p_StashPostMassTransfer) {
+void BaseBinaryStar::StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which) {
 
     if (!OPTIONS->RLOFPrinting()) return;                                                                           // nothing to do
 
     // set whether to update pre-MT or post-MT parameters depending on input argument
     RLOFPropertiesT* rlofPropertiesToReset;
-    if (p_StashPostMassTransfer) {
-        rlofPropertiesToReset = m_RLOFDetails.propsPostMT;
-    }
-    else {
-        rlofPropertiesToReset = m_RLOFDetails.propsPreMT;
-    }
+    rlofPropertiesToReset = (p_Which == MASS_TRANSFER_TIMING::PRE_MT) ?
+                             m_RLOFDetails.propsPreMT  :
+                             m_RLOFDetails.propsPostMT ;
 
     // update properites for appropriate timestep
     rlofPropertiesToReset->id            = m_ObjectId;
@@ -2342,7 +2339,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 (void)PrintDetailedOutput(m_Id);                                                                                            // print (log) detailed output for binary
 
-                if (OPTIONS->RLOFPrinting()) StashRLOFProperties(false);                                                                    // stash properties immediately pre-Mass Transfer 
+                if (OPTIONS->RLOFPrinting()) StashRLOFProperties(MASS_TRANSFER_TIMING::PRE_MT);                                            // stash properties immediately pre-Mass Transfer 
 
                 EvaluateBinary(dt);                                                                                                         // evaluate the binary at this timestep
 
