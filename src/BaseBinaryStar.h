@@ -86,8 +86,8 @@ public:
         m_PrintExtraDetailedOutput         = p_Star.m_PrintExtraDetailedOutput;
 
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
-        m_RLOFDetails.currentProps         = p_Star.m_RLOFDetails.currentProps  == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
-        m_RLOFDetails.previousProps        = p_Star.m_RLOFDetails.previousProps == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
+        m_RLOFDetails.propsPreMT           = p_Star.m_RLOFDetails.propsPreMT == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
+        m_RLOFDetails.propsPostMT          = p_Star.m_RLOFDetails.propsPostMT == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
 
         m_SemiMajorAxis                    = p_Star.m_SemiMajorAxis;
         m_SemiMajorAxisAtDCOFormation      = p_Star.m_SemiMajorAxisAtDCOFormation;
@@ -501,7 +501,7 @@ private:
                             const double p_RocheLobe2to1);
 
     void    StashBeBinaryProperties();
-    void    StashRLOFProperties();
+    void    StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which);
 
     void    UpdateSystemicVelocity(Vector3d p_newVelocity);
 
