@@ -138,11 +138,15 @@ std::tuple<int, int> EvolveSingleStars() {
                 int gridResult = OPTIONS->ApplyNextGridLine();                                                      // set options according to specified values in grid file              
                 switch (gridResult) {                                                                               // handle result of grid file read
                     case -1: evolutionStatus = EVOLUTION_STATUS::STOPPED; break;                                    // read error - stop evolution
-                    case  0:                                                                                        // end of file
+                    case  0: {                                                                                      // end of file
                         doneGridLine = true;                                                                        // flag we're done with this grid line
                         doneGridFile = true;                                                                        // flag we're done with the grid file
-                        OPTIONS->RewindGridFile();                                                                  // ready for next commandline options variation
-                        break;
+                        ERROR error = OPTIONS->RewindGridFile();                                                    // ready for next commandline options variation
+                        if (error != ERROR::NONE) {                                                                 // rewind ok?
+                            SHOW_ERROR(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'");             // no - show error (should never happen here - should be picked up at file open)
+                            evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // stop evolution
+                        }
+                        } break;
                     case  1: break;                                                                                 // grid record read - not done yet...
                     default: evolutionStatus = EVOLUTION_STATUS::STOPPED; break;                                    // problem - stop evolution
                 }
@@ -387,11 +391,15 @@ std::tuple<int, int> EvolveBinaryStars() {
                 int gridResult = OPTIONS->ApplyNextGridLine();                                                  // yes - set options according to specified values in grid file              
                 switch (gridResult) {                                                                           // handle result of grid file read
                     case -1: evolutionStatus = EVOLUTION_STATUS::STOPPED; break;                                // read error - stop evolution
-                    case  0:                                                                                    // end of file
+                    case  0: {                                                                                  // end of file
                         doneGridLine = true;                                                                    // flag we're done with this grid line
                         doneGridFile = true;                                                                    // flag we're done with the grid file
-                        OPTIONS->RewindGridFile();                                                              // ready for next commandline options variation
-                        break;
+                        ERROR error = OPTIONS->RewindGridFile();                                                // ready for next commandline options variation
+                        if (error != ERROR::NONE) {                                                             // rewind ok?
+                            SHOW_ERROR(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'");         // no - show error (should never happen here - should be picked up at file open)
+                            evolutionStatus = EVOLUTION_STATUS::STOPPED;                                        // stop evolution
+                        }
+                    } break;
                     case  1: break;                                                                             // grid record read - not done yet...
                     default: evolutionStatus = EVOLUTION_STATUS::STOPPED; break;                                // problem - stop evolution
                 }
@@ -624,7 +632,7 @@ int main(int argc, char * argv[]) {
                 if (!OPTIONS->GridFilename().empty()) {                                             // have grid filename?
                     ERROR error = OPTIONS->OpenGridFile(OPTIONS->GridFilename());                   // yes - open grid file
                     if (error != ERROR::NONE) {                                                     // open ok?
-                        SHOW_ERROR(error, "Opening grid file '" + OPTIONS->GridFilename() + "'");   // no - show error
+                        SHOW_ERROR(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'"); // no - show error
                         programStatus = PROGRAM_STATUS::STOPPED;                                    // set status
                     }
                 }
