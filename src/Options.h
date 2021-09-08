@@ -156,6 +156,8 @@ private:
         "errors-to-file",
 
         "grid",
+        "grid-start-line",
+        "grid-num-lines",
 
         "hdf5-buffer-size",
         "hdf5-chunk-size",
@@ -401,6 +403,8 @@ private:
         "fryer-supernova-engine",
 
         "grid",
+        "grid-start-line",
+        "grid-num-lines",
 
         "hdf5-buffer-size",
         "hdf5-chunk-size",
@@ -488,6 +492,8 @@ private:
         "errors-to-file",
 
         "grid",
+        "grid-start-line",
+        "grid-num-lines",
 
         "hdf5-buffer-size",
         "hdf5-chunk-size",
@@ -592,6 +598,9 @@ public:
             double                                              m_MaxEvolutionTime;                                             // Maximum time to evolve a binary by
             int                                                 m_MaxNumberOfTimestepIterations;                                // Maximum number of timesteps to evolve binary for before giving up
             double                                              m_TimestepMultiplier;                                           // Multiplier for time step size (<1 -- shorter timesteps, >1 -- longer timesteps)
+
+            std::streamsize                                     m_GridStartLine;                                                // The grid file line to start processing (0-based)
+            std::streamsize                                     m_GridLinesToProcess;                                           // The number of grid file lines to process (starting at m_GridStartLine)
 
             // Initial distribution variables
 
@@ -1025,7 +1034,10 @@ public:
 
     void            PrintOptionHelp(const bool p_Verbose);
 
-    void            RewindGridFile() { m_Gridfile.handle.clear(); m_Gridfile.handle.seekg(0); }
+    ERROR           RewindGridFile();
+
+    ERROR           SeekToGridFileLine(const unsigned int p_Line);
+
 
     // getters
 
@@ -1090,6 +1102,8 @@ public:
     SN_ENGINE                                   FryerSupernovaEngine() const                                            { return OPT_VALUE("fryer-supernova-engine", m_FryerSupernovaEngine.type, true); }
 
     string                                      GridFilename() const                                                    { return m_CmdLine.optionValues.m_GridFilename; }
+    std::streamsize                             GridStartLine() const                                                   { return m_CmdLine.optionValues.m_GridStartLine; }
+    std::streamsize                             GridLinesToProcess() const                                              { return m_CmdLine.optionValues.m_GridLinesToProcess; }
 
     size_t                                      HDF5ChunkSize() const                                                   { return m_CmdLine.optionValues.m_HDF5ChunkSize; }
     size_t                                      HDF5BufferSize() const                                                  { return m_CmdLine.optionValues.m_HDF5BufferSize; }
