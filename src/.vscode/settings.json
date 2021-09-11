@@ -58,6 +58,10 @@
         "set": "cpp",
         "string": "cpp",
         "string_view": "cpp",
-        "csignal": "cpp"
+        "csignal": "cpp",
+        "condition_variable": "cpp",
+        "mutex": "cpp",
+        "variant": "cpp",
+        "bit": "cpp"
     }
 }

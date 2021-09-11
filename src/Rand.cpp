@@ -34,6 +34,8 @@ void Rand::Initialise() {
         gsl_rng_default_seed = time(NULL);
     }
 
+    m_Seed = gsl_rng_default_seed;
+
     if (!m_Rng) {
         m_Rng = gsl_rng_alloc(gsl_rng_default);
     }
