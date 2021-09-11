@@ -3049,7 +3049,7 @@ int Options::AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor) {
     int retVal = 0;
 
     if (p_OptionsDescriptor.complexOptionValues.size() == 0) {          // more variations?
-        // no - set calculated option defaults if required and return
+        // no - set calculated option defaults and return
         return p_OptionsDescriptor.optionValues.SetCalculatedOptionDefaults(BOOST_MAP::NO_UPDATE) == "" ? 0 : -1;
     }
 
