@@ -767,7 +767,9 @@
 //                                      - The function call has also been tidied up to take an argument specifying whether the call was made before or after the MT took place.
 // 02.22.00     JR - Aug 26, 2021   - Enhancement:
 //                                      - Added functionality to allow users to select a range of lines from the grid file (if specified) to process.  Added program options --grid-start-line and --grid-lines-to-process - see documentation for details.
+// 02.22.01     JR - Sep `1, 2021  - Defect repair:
+//                                      - Fix for issue #615: defaults for calculated/drawn program options now calculated after random seed is set for the system being evolved.
 
-const std::string VERSION_STRING = "02.22.00";
+const std::string VERSION_STRING = "02.22.01";
 
 # endif // __changelog_h__

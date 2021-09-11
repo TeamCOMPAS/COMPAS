@@ -19,30 +19,33 @@ class Rand {
 
 private:
 
-   Rand() { m_Rng = NULL; };
-   Rand(Rand const&) = delete;
-   Rand& operator = (Rand const&) = delete;
+    Rand() { m_Rng = NULL; };
+    Rand(Rand const&) = delete;
+    Rand& operator = (Rand const&) = delete;
 
-   static Rand*  m_Instance;
+    static Rand*      m_Instance;
 
-   gsl_rng*      m_Rng;                                                                           // GSL random number generator
+    gsl_rng*          m_Rng;                                                                           // GSL random number generator
+
+    unsigned long int m_Seed;
 
 
 public:
 
-   static Rand*  Instance();
+    static Rand*  Instance();
 
-   void          Initialise();
-   void          Free();
+    void          Initialise();
+    void          Free();
 
-   unsigned long int DefaultSeed()                      { return gsl_rng_default_seed; }
-   unsigned long int Seed(const unsigned long p_Seed)   { gsl_rng_set(m_Rng, p_Seed); return p_Seed; }
+    unsigned long int CurrentSeed()                    { return m_Seed; }
+    unsigned long int DefaultSeed()                    { return gsl_rng_default_seed; }
+    unsigned long int Seed(const unsigned long p_Seed) { gsl_rng_set(m_Rng, p_Seed); m_Seed = p_Seed; return p_Seed; }
 
-   double        Random();
-   double        Random(const double p_Lower, const double p_Upper);
-   int           RandomInt(const int p_Lower, const int p_Upper);
-   int           RandomInt(const int p_Upper) { return p_Upper < 0 ? 0 : RandomInt(0, p_Upper); }
-   double        RandomGaussian(const double p_Sigma);
+    double        Random();
+    double        Random(const double p_Lower, const double p_Upper);
+    int           RandomInt(const int p_Lower, const int p_Upper);
+    int           RandomInt(const int p_Upper) { return p_Upper < 0 ? 0 : RandomInt(0, p_Upper); }
+    double        RandomGaussian(const double p_Sigma);
 };
 
 

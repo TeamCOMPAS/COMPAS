@@ -46,7 +46,8 @@
 /*    and any affected existing options, to Options::OptionValues::CheckAndSetOptions()   */
 /*    in Options.cpp.  It is also here you can set any final values that, perhaps due to  */
 /*    dependencies on options that had not yet been parsed, could not be set directly by  */
-/*    Boost when the options were parsed (viz. m_KickPhi1 etc.).                          */
+/*    Boost when the options were parsed (also see SetCalculatedOptionDefaults(); viz.    */
+/*    m_KickPhi1 etc.).                                                                   */
 /*                                                                                        */
 /* 9. Add the new option to one or more of the following vectors in Options.h, as         */
 /*    required:                                                                           */
@@ -1588,13 +1589,13 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
  * Note this is a class OptionValues function.
  * 
  * 
- * std::string SetCalculatedOptionDefaults(const bool p_ModifyMap)
+ * std::string SetCalculatedOptionDefaults(const BOOST_MAP p_ModifyMap)
  * 
- * @param   [IN]    p_ModifyMap                 Flag indicating whether the Boost variables map should be updated
+ * @param   [IN]    p_UpdateMap                 Flag indicating whether the Boost variables map should be updated
  * @return                                      String containing an error string
  *                                              If no error occurred the return string will be the empty string 
  */
-std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_ModifyMap) {
+std::string Options::OptionValues::SetCalculatedOptionDefaults(const BOOST_MAP p_UpdateMap) {
 #define DEFAULTED(opt) m_VM[opt].defaulted()    // for convenience and readability - undefined at end of function
 
     std::string errStr = "";                                        // error string
@@ -1606,7 +1607,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
 
         if (DEFAULTED("kick-magnitude-random")) {
             m_KickMagnitudeRandom = RAND->Random();
-            if (p_ModifyMap) {
+            if (p_UpdateMap == BOOST_MAP::UPDATE) {
                 ModifyVariableMap(m_VM, "kick-magnitude-random", m_KickMagnitudeRandom);
                 po::notify(m_VM);
             }
@@ -1614,7 +1615,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
     
         if (DEFAULTED("kick-magnitude-random-1")) {
             m_KickMagnitudeRandom1 = RAND->Random();
-            if (p_ModifyMap) {
+            if (p_UpdateMap == BOOST_MAP::UPDATE) {
                 ModifyVariableMap(m_VM, "kick-magnitude-random-1", m_KickMagnitudeRandom1);
                 po::notify(m_VM);
             }
@@ -1622,7 +1623,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
     
         if (DEFAULTED("kick-magnitude-random-2")) {
             m_KickMagnitudeRandom2 = RAND->Random();
-            if (p_ModifyMap) {
+            if (p_UpdateMap == BOOST_MAP::UPDATE) {
                 ModifyVariableMap(m_VM, "kick-magnitude-random-2", m_KickMagnitudeRandom2);
                 po::notify(m_VM);
             }
@@ -1633,7 +1634,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
     
         if (DEFAULTED("kick-mean-anomaly-1")) {
             m_KickMeanAnomaly1 = RAND->Random(0.0, _2_PI);
-            if (p_ModifyMap) {
+            if (p_UpdateMap == BOOST_MAP::UPDATE) {
                 ModifyVariableMap(m_VM, "kick-mean-anomaly-1", m_KickMeanAnomaly1);
                 po::notify(m_VM);
             }
@@ -1641,7 +1642,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
 
         if (DEFAULTED("kick-mean-anomaly-2")) {
             m_KickMeanAnomaly2 = RAND->Random(0.0, _2_PI);
-            if (p_ModifyMap) {
+            if (p_UpdateMap == BOOST_MAP::UPDATE) {
                 ModifyVariableMap(m_VM, "kick-mean-anomaly-2", m_KickMeanAnomaly2);
                 po::notify(m_VM);
             }
@@ -1660,7 +1661,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
             std::tie(phi1, theta1) = utils::DrawKickDirection(m_KickDirectionDistribution.type, m_KickDirectionPower);
             if (phi1Defaulted) {
                 m_KickPhi1 = phi1;
-                if (p_ModifyMap) {
+                if (p_UpdateMap == BOOST_MAP::UPDATE) {
                     ModifyVariableMap(m_VM, "kick-phi-1", m_KickPhi1);
                     po::notify(m_VM);
                 }
@@ -1668,7 +1669,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
 
             if (theta1Defaulted) {
                 m_KickTheta1 = theta1;
-                if (p_ModifyMap) {
+                if (p_UpdateMap == BOOST_MAP::UPDATE) {
                     ModifyVariableMap(m_VM, "kick-theta-1", m_KickTheta1);
                     po::notify(m_VM);
                 }
@@ -1683,7 +1684,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
             std::tie(phi2, theta2) = utils::DrawKickDirection(m_KickDirectionDistribution.type, m_KickDirectionPower);
             if (phi2Defaulted) {
                 m_KickPhi2 = phi2;
-                if (p_ModifyMap) {
+                if (p_UpdateMap == BOOST_MAP::UPDATE) {
                     ModifyVariableMap(m_VM, "kick-phi-2", m_KickPhi2);
                     po::notify(m_VM);
                 }
@@ -1691,7 +1692,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
 
             if (theta2Defaulted) {
                 m_KickTheta2 = theta2;
-                if (p_ModifyMap) {
+                if (p_UpdateMap == BOOST_MAP::UPDATE) {
                     ModifyVariableMap(m_VM, "kick-theta-2", m_KickTheta2);
                     po::notify(m_VM);
                 }
@@ -2027,7 +2028,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_KickMagnitudeRandom1 < 0.0 || m_KickMagnitudeRandom1 >= 1.0, "Kick magnitude random (--kick-magnitude-random-1) must be >= 0 and < 1");
         COMPLAIN_IF(m_KickMagnitudeRandom2 < 0.0 || m_KickMagnitudeRandom2 >= 1.0, "Kick magnitude random (--kick-magnitude-random-2) must be >= 0 and < 1");
 
-        errStr = SetCalculatedOptionDefaults(false);                                                                                // set calculated option values
+        errStr = SetCalculatedOptionDefaults(BOOST_MAP::NO_UPDATE);                                                                 // set calculated option values
     }
     catch (po::error& e) {                                                                                                          // program options exception
         errStr = e.what();                                                                                                          // set the error string
@@ -3025,7 +3026,7 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
 
 /*
  * Advances the command or grid line options to the next variation (depending
- * upon th eparameters passed).  A "variation" is a combination of options 
+ * upon the parameters passed).  A "variation" is a combination of options 
  * defined by the option values, ranges, and sets the user specified on the
  * commandline or grid file line.
  * 
@@ -3039,7 +3040,7 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
  * 
  * @param   [IN]    p_OptionsDescriptor         Commandline or grid line options descriptor
  * @return                                      Int result:
- *                                                  -1: en error occurred
+ *                                                  -1: an error occurred
  *                                                   0: no more variations - all done
  *                                                   1: new variation applied - option values are set
  */
@@ -3049,7 +3050,7 @@ int Options::AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor) {
 
     if (p_OptionsDescriptor.complexOptionValues.size() == 0) {          // more variations?
         // no - set calculated option defaults and return
-        return p_OptionsDescriptor.optionValues.SetCalculatedOptionDefaults(false) == "" ? 0 : -1;
+        return p_OptionsDescriptor.optionValues.SetCalculatedOptionDefaults(BOOST_MAP::NO_UPDATE) == "" ? 0 : -1;
     }
 
     // Upon entry iterators for ranges and sets need to be advanced in order
@@ -3241,7 +3242,7 @@ int Options::AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor) {
  * line read.
  *
  * 
- * bool Options::InitialiseEvolvingObject(int p_ArgCount, char *p_ArgStrings[])
+ * bool Options::InitialiseEvolvingObject(const std::string p_OptionsString)
  * 
  * @param   [IN]    p_OptionsString             String containing all options - the grid file record
  * @return                                      Boolean value indicating status: true = ok, false = an error occurred
@@ -3358,7 +3359,7 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
         }
 
         // parse the option values before handing them over to boost
-        // boost knows nothing about ranges and sets, so we have to handlde
+        // boost knows nothing about ranges and sets, so we have to handle
         // them ourselves first
         m_GridLine.complexOptionValues = {};                                                                        // no ranges or sets - unless we find them in the parse
                                                     /*****  << do *not* try this at home >> *****/
@@ -3423,41 +3424,41 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
  */
 int Options::ApplyNextGridLine() {
 
-    int status = -1;                                                                    // default status is failure
+    int status = -1;                                                                                // default status is failure
 
-    if (m_Gridfile.handle.is_open()) {                                                  // file open?
+    if (m_Gridfile.handle.is_open()) {                                                              // file open?
 
-        if (m_Gridfile.linesProcessed >= m_Gridfile.linesToProcess) {                   // yes - have we already processed all the records the user wants processed?
-            status = 0;                                                                 // yes - return EOF so processing of grid file stops
+        if (m_Gridfile.linesProcessed >= m_Gridfile.linesToProcess) {                               // yes - have we already processed all the records the user wants processed?
+            status = 0;                                                                             // yes - return EOF so processing of grid file stops
         }
-        else {                                                                          // no - process current record
+        else {                                                                                      // no - process current record
             bool done = false;
             while (!done) {
-                std::string record;                                                     // the record read
-                std::getline(m_Gridfile.handle, record);                                // read the next record
-                if (m_Gridfile.handle.fail()) {                                         // read ok?
-                    if (m_Gridfile.handle.eof()) {                                      // no - eof?
-                                                                                        // yes - eof
-                        if (OPTIONS->OptionSpecified("grid-lines-to-process") == 1 &&   // user specified number of grid lines to process?
-                            m_Gridfile.linesProcessed < m_Gridfile.linesToProcess) {    // yes - did we process all the lines the user asked for?
-                            m_Gridfile.error = ERROR::UNEXPECTED_END_OF_FILE;           // no - not all lines user asked for were processed before EOF - record error
-                            status = -1;                                                // set error status
+                std::string record;                                                                 // the record read
+                std::getline(m_Gridfile.handle, record);                                            // read the next record
+                if (m_Gridfile.handle.fail()) {                                                     // read ok?
+                    if (m_Gridfile.handle.eof()) {                                                  // no - eof?
+                                                                                                    // yes - eof
+                        if (OPTIONS->OptionSpecified("grid-lines-to-process") == 1 &&               // user specified number of grid lines to process?
+                            m_Gridfile.linesProcessed < m_Gridfile.linesToProcess) {                // yes - did we process all the lines the user asked for?
+                            m_Gridfile.error = ERROR::UNEXPECTED_END_OF_FILE;                       // no - not all lines user asked for were processed before EOF - record error
+                            status = -1;                                                            // set error status
                         }
-                        else status = 0;                                                // set EOF status         
+                        else status = 0;                                                            // set EOF status         
                     }
-                    else {                                                              // not eof - some other error
-                        m_Gridfile.error = ERROR::FILE_READ_ERROR;                      // record error
-                        status = -1;                                                    // set error status
+                    else {                                                                          // not eof - some other error
+                        m_Gridfile.error = ERROR::FILE_READ_ERROR;                                  // record error
+                        status = -1;                                                                // set error status
                     }
-                    done = true;                                                        // we're done
+                    done = true;                                                                    // we're done
                 }
-                else {                                                                  // read ok
-                    m_Gridfile.currentLine++;                                           // increment line about to be processed (will be current)
-                    m_Gridfile.linesProcessed++;                                        // increment lines processed
-                    record = utils::ltrim(record);                                      // trim leading white space
-                    if (!record.empty() && record[0] != '#') {                          // blank line or comment?
-                        status = InitialiseEvolvingObject(record) ? 1 : -1;             // no - apply record and set status
-                        done = true;                                                    // we're done
+                else {                                                                              // read ok
+                    m_Gridfile.currentLine++;                                                       // increment line about to be processed (will be current)
+                    m_Gridfile.linesProcessed++;                                                    // increment lines processed
+                    record = utils::ltrim(record);                                                  // trim leading white space
+                    if (!record.empty() && record[0] != '#') {                                      // blank line or comment?
+                        status = InitialiseEvolvingObject(record) ? 1 : -1;                         // no - apply record and set status
+                        done = true;                                                                // we're done
                     }
                 }
             }
@@ -3827,4 +3828,32 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
     }
 
     return std::make_tuple(ok, value);
+}
+
+
+/*
+ * Sets the seed for the pseudo random number generator using either command-line options
+ * or grid-line options (depending upon the p_OptionsDescriptor parameters passed).
+ * 
+ * After setting the seed for the pseudo random number generator, recalculates the "calculated"
+ * program option values - those that are calculated from other variables or drawn from
+ * distributions.  This is required to ensure that all default option values are drawn or calculated
+ * using the random seed for the ciurrent system (star or binary).
+ * 
+ * 
+ * int AdvanceOptionVariation(SetRandomSeed(OptionsDescriptorT &p_OptionsDescriptor, const unsigned long int p_RandomSeed)
+ * 
+ * @param   [IN]    p_OptionsDescriptor         Commandline or grid line options descriptor
+ * @param   [IN]    p_OptionsDescriptor         The random seed to use as the seed for the pseudo random number generator
+ * @return                                      Int result:
+ *                                                  -1: en error occurred
+ *                                                   0: no more variations - all done
+ *                                                   1: new variation applied - option values are set
+ */
+
+int Options::SetRandomSeed(OptionsDescriptorT &p_OptionsDescriptor, const unsigned long int p_RandomSeed) {
+
+    RAND->Seed(p_RandomSeed);       // seed the pseudo random number generator
+
+    return p_OptionsDescriptor.optionValues.SetCalculatedOptionDefaults(BOOST_MAP::NO_UPDATE) == "" ? 0 : -1;
 }
