@@ -145,8 +145,9 @@ class COMPASData(object):
         _, self.totalMassEvolvedPerZ = MPZ.totalMassEvolvedPerZ(
             path=self.path,
             fileName=self.fileName,
-            Mlower=self.Mlower,
-            Mupper=self.Mupper,
+            M1lower=self.Mlower,
+            M1upper=self.Mupper,
+            M2lower=self.m2_min,
             binaryFraction=self.binaryFraction,
         )
         # Want to recover entire metallicity grid, assume that every metallicity
@@ -197,8 +198,9 @@ class COMPASData(object):
         self.binaryFraction = binaryFraction
         _, self.totalMassEvolvedPerZ = MPZ.totalMassEvolvedPerZ(
             pathCOMPASh5=self.path,
-            Mlower=self.Mlower,
-            Mupper=self.Mupper,
+            M1lower=self.Mlower,
+            M1upper=self.Mupper,
+            M2lower=self.m2_min,
             binaryFraction=self.binaryFraction,
         )
 
