@@ -1828,7 +1828,6 @@ enum class BINARY_PROPERTY: int {
     RLOF_POST_MT_ECCENTRICITY,
     RLOF_POST_MT_EVENT_COUNTER,
     RLOF_POST_MT_ID,
-    RLOF_POST_MT_RANDOM_SEED,
     RLOF_POST_MT_SEMI_MAJOR_AXIS,
     RLOF_POST_MT_STAR1_MASS,
     RLOF_POST_MT_STAR2_MASS,
@@ -1953,7 +1952,6 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::RLOF_POST_MT_ECCENTRICITY,                          "RLOF_POST_MT_ECCENTRICITY" },
     { BINARY_PROPERTY::RLOF_POST_MT_EVENT_COUNTER,                         "RLOF_POST_MT_EVENT_COUNTER" },
     { BINARY_PROPERTY::RLOF_POST_MT_ID,                                    "RLOF_POST_MT_ID" },
-    { BINARY_PROPERTY::RLOF_POST_MT_RANDOM_SEED,                           "RLOF_POST_MT_RANDOM_SEED" },
     { BINARY_PROPERTY::RLOF_POST_MT_SEMI_MAJOR_AXIS,                       "RLOF_POST_MT_SEMI_MAJOR_AXIS" },
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_MASS,                            "RLOF_POST_MT_STAR1_MASS" },
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS,                            "RLOF_POST_MT_STAR2_MASS" },
@@ -2653,7 +2651,6 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::RLOF_POST_MT_ECCENTRICITY,                           { TYPENAME::DOUBLE,         "Eccentricity>MT",      "-",                14, 6 }},
     { BINARY_PROPERTY::RLOF_POST_MT_EVENT_COUNTER,                          { TYPENAME::UINT,           "Event_Counter>MT",     "Count",             6, 1 }},
     { BINARY_PROPERTY::RLOF_POST_MT_ID,                                     { TYPENAME::OBJECT_ID,      "ID>MT",                "",                 12, 1 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_RANDOM_SEED,                            { TYPENAME::ULONGINT,       "SEED>MT",              "",                 12, 1 }},
     { BINARY_PROPERTY::RLOF_POST_MT_SEMI_MAJOR_AXIS,                        { TYPENAME::DOUBLE,         "SemiMajorAxis>MT",     "Rsol",             14, 6 }},
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_MASS,                             { TYPENAME::DOUBLE,         "Mass(1)>MT",           "Msol",             14, 6 }},
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS,                             { TYPENAME::DOUBLE,         "Mass(2)>MT",           "Msol",             14, 6 }},
@@ -3186,7 +3183,7 @@ const ANY_PROPERTY_VECTOR BSE_PULSAR_EVOLUTION_REC = {
 // Default record definition for the RLOF Parameters logfile
 //
 const ANY_PROPERTY_VECTOR BSE_RLOF_PARAMETERS_REC = {
-    BINARY_PROPERTY::RLOF_POST_MT_RANDOM_SEED,
+    BINARY_PROPERTY::RANDOM_SEED,
     BINARY_PROPERTY::RLOF_POST_MT_STAR1_MASS,
     BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS,
     BINARY_PROPERTY::RLOF_POST_MT_STAR1_RADIUS,

@@ -606,7 +606,6 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_POST_MT_ECCENTRICITY:                            value = RLOFDetails().propsPostMT->eccentricity;                            break;
         case BINARY_PROPERTY::RLOF_POST_MT_EVENT_COUNTER:                           value = RLOFDetails().propsPostMT->eventCounter;                            break;
         case BINARY_PROPERTY::RLOF_POST_MT_ID:                                      value = RLOFDetails().propsPostMT->id;                                      break;
-        case BINARY_PROPERTY::RLOF_POST_MT_RANDOM_SEED:                             value = RLOFDetails().propsPostMT->randomSeed;                              break;
         case BINARY_PROPERTY::RLOF_POST_MT_SEMI_MAJOR_AXIS:                         value = RLOFDetails().propsPostMT->semiMajorAxis;                           break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR1_MASS:                              value = RLOFDetails().propsPostMT->mass1;                                   break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS:                              value = RLOFDetails().propsPostMT->mass2;                                   break;
@@ -1619,7 +1618,7 @@ double BaseBinaryStar::CalculateRocheLobeRadius_Static(const double p_MassPrimar
  * double CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass)
  *
  * @param   [IN]    p_DonorMass                 The mass of the donor (Msol)
- * @param   [IN]    p_JLoss                     The mass of the accretor (Msol)
+ * @param   [IN]    p_AccretorMass              The mass of the accretor (Msol)
  * @return                                      The fraction of specific angular momentum with which the non-accreted mass leaves the system
  */
 double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass) {
