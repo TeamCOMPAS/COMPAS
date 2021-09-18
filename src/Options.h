@@ -1039,8 +1039,7 @@ public:
 
     ERROR           SeekToGridFileLine(const unsigned int p_Line);
 
-    int             SetCmdLineRandomSeed(const unsigned long int p_RandomSeed)  { return SetRandomSeed(m_CmdLine, p_RandomSeed); }
-    int             SetGridLineRandomSeed(const unsigned long int p_RandomSeed)  { return SetRandomSeed(m_GridLine, p_RandomSeed); }
+    int             SetRandomSeed(const unsigned long int p_RandomSeed, const OPTIONS_ORIGIN p_OptionsSet);
 
 
     // getters

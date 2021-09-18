@@ -189,25 +189,26 @@ std::tuple<int, int> EvolveSingleStars() {
                 // (i.e. the random seed specified is used as it)).  Note that in this scenario it is the 
                 // user's responsibility to ensure that there is no duplication of seeds.
 
-                unsigned long int randomSeed = 0l;
-                if (OPTIONS->FixedRandomSeedGridLine()) {                                                           // user specified a random seed in the grid file for this star?
+                unsigned long int randomSeed = 0l;                                                                  // random seed
+                OPTIONS_ORIGIN    optsOrigin = usingGrid ? OPTIONS_ORIGIN::GRIDFILE : OPTIONS_ORIGIN::CMDLINE;      // indicate which set of program options we're using
+                if (OPTIONS->FixedRandomSeedGridLine()) {                                                           // user specified a random seed in the grid file for this binary?
                                                                                                                     // yes - use it (indexed)
-                    if (OPTIONS->SetGridLineRandomSeed(OPTIONS->RandomSeedGridLine() + (long int)gridLineVariation) < 0) { // ok?
-                        SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                       // no -show error
+                    if (OPTIONS->SetRandomSeed(OPTIONS->RandomSeedGridLine() + (long int)gridLineVariation, optsOrigin) < 0) { // ok?
+                        SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                       // no - show error
                         evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                // and stop evolution
                     }
                 }
                 else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                       // no - user specified a random seed on the commandline?
                                                                                                                     // yes - use it (indexed)
-                    if (OPTIONS->SetCmdLineRandomSeed(OPTIONS->RandomSeedCmdLine() + (long int)index) < 0) {        // ok?
-                        SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                        // no -show error
+                    if (OPTIONS->SetRandomSeed(OPTIONS->RandomSeedCmdLine() + (long int)index, optsOrigin) < 0) {   // ok?
+                        SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                        // no - show error
                         evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                // and stop evolution
                     }
                 }
                 else {                                                                                              // no
                                                                                                                     // use default seed (based on system time) + id (index)
-                    if (OPTIONS->SetCmdLineRandomSeed(RAND->DefaultSeed() + (long int)index) < 0) {                 // ok?
-                        SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                        // no -show error
+                    if (OPTIONS->SetRandomSeed(RAND->DefaultSeed() + (long int)index, optsOrigin) < 0) {            // ok?
+                        SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                        // no - show error
                         evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                // and stop evolution
                     }
                 }
@@ -469,24 +470,25 @@ std::tuple<int, int> EvolveBinaryStars() {
              
                 long int thisId = index + gridLineVariation;                                                    // set the id for the binary
 
-                unsigned long int randomSeed = 0l;
+                unsigned long int randomSeed = 0l;                                                              // random seed
+                OPTIONS_ORIGIN    optsOrigin = usingGrid ? OPTIONS_ORIGIN::GRIDFILE : OPTIONS_ORIGIN::CMDLINE;  // indicate which set of program options we're using
                 if (OPTIONS->FixedRandomSeedGridLine()) {                                                       // user specified a random seed in the grid file for this binary?
                                                                                                                 // yes - use it (indexed)
-                    if (OPTIONS->SetGridLineRandomSeed(OPTIONS->RandomSeedGridLine() + (long int)gridLineVariation) < 0) { // ok?
+                    if (OPTIONS->SetRandomSeed(OPTIONS->RandomSeedGridLine() + (long int)gridLineVariation, optsOrigin) < 0) { // ok?
                         SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                   // no - show error
                         evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // and stop evolution
                     }
                 }
                 else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                   // no - user specified a random seed on the commandline?
                                                                                                                 // yes - use it (indexed)
-                    if (OPTIONS->SetCmdLineRandomSeed(OPTIONS->RandomSeedCmdLine() + (long int)index) < 0) {    // ok?
+                    if (OPTIONS->SetRandomSeed(OPTIONS->RandomSeedCmdLine() + (long int)index, optsOrigin) < 0) { // ok?
                         SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                    // no - show error
                         evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // and stop evolution
                     }
                 }
                 else {                                                                                          // no
                                                                                                                 // use default seed (based on system time) + id (index)
-                    if (OPTIONS->SetCmdLineRandomSeed(RAND->DefaultSeed() + (long int)index) < 0) {             // ok?
+                    if (OPTIONS->SetRandomSeed(RAND->DefaultSeed() + (long int)index, optsOrigin) < 0) {        // ok?
                         SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                    // no - show error
                         evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // and stop evolution
                     }

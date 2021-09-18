@@ -3832,28 +3832,33 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
 
 /*
- * Sets the seed for the pseudo random number generator using either command-line options
- * or grid-line options (depending upon the p_OptionsDescriptor parameters passed).
+ * Sets the seed for the pseudo random number generator.
  * 
  * After setting the seed for the pseudo random number generator, recalculates the "calculated"
  * program option values - those that are calculated from other variables or drawn from
  * distributions.  This is required to ensure that all default option values are drawn or calculated
- * using the random seed for the ciurrent system (star or binary).
+ * using the random seed for the current system (star or binary).  The parameter "p_OptionsSet"
+ * indicates whether the command-line or gridfile-line set of option values is updated.
  * 
  * 
- * int AdvanceOptionVariation(SetRandomSeed(OptionsDescriptorT &p_OptionsDescriptor, const unsigned long int p_RandomSeed)
+ * int AdvanceOptionVariation(SetRandomSeed(OptionsDescriptorT &p_OptionsDescriptor, OPTIONS_ORIGIN p_OptionSet)
  * 
- * @param   [IN]    p_OptionsDescriptor         Commandline or grid line options descriptor
- * @param   [IN]    p_OptionsDescriptor         The random seed to use as the seed for the pseudo random number generator
+ * @param   [IN]    p_RandomSeed                The random seed to use as the seed for the pseudo random number generator
+ * @param   [IN]    p_OptionsSet                Indicates which set of options to update (command-line or gridfile-line)
  * @return                                      Int result:
  *                                                  -1: en error occurred
  *                                                   0: no more variations - all done
  *                                                   1: new variation applied - option values are set
  */
 
-int Options::SetRandomSeed(OptionsDescriptorT &p_OptionsDescriptor, const unsigned long int p_RandomSeed) {
+int Options::SetRandomSeed(const unsigned long int p_RandomSeed, const OPTIONS_ORIGIN p_OptionsSet) {
 
     RAND->Seed(p_RandomSeed);       // seed the pseudo random number generator
 
-    return p_OptionsDescriptor.optionValues.SetCalculatedOptionDefaults(BOOST_MAP::NO_UPDATE) == "" ? 0 : -1;
+    // recalculate "calculated" option values for the relevant set of option values
+    std::string err = p_OptionsSet == OPTIONS_ORIGIN::CMDLINE
+                        ? m_CmdLine.optionValues.SetCalculatedOptionDefaults(BOOST_MAP::NO_UPDATE)
+                        : m_GridLine.optionValues.SetCalculatedOptionDefaults(BOOST_MAP::NO_UPDATE);
+
+    return err == "" ? 0 : -1;
 }

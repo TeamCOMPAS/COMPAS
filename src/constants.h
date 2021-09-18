@@ -392,8 +392,11 @@ const COMPASUnorderedMap<OBJECT_TYPE, std::string> OBJECT_TYPE_LABEL = {
 // Commandline Status constants
 enum class PROGRAM_STATUS: int { SUCCESS, CONTINUE, STOPPED, ERROR_IN_COMMAND_LINE, LOGGING_FAILED, ERROR_UNHANDLED_EXCEPTION };
 
-// Boost map update uptions for program options
+// Boost map update options for program options
 enum class BOOST_MAP: int { UPDATE, NO_UPDATE };
+
+// Program options origin indicator (command line or gridfile line)
+enum class OPTIONS_ORIGIN: int { CMDLINE, GRIDFILE };
 
 
 // enum class ERROR
