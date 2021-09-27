@@ -4,28 +4,28 @@ from astropy.cosmology import Planck15 as cosmo
 from gwpy.timeseries import TimeSeries, TimeSeriesDict
 import random
 
-random.seed()
-path="./"
-filename="mergers.txt"
-dz=0.001
-Tobs=1./12. #in yrs
-T0=1234567 #in sec
+def multiple_injections (path="/Users/ilyam/Work/COMPASresults/popsynth/Arash/",
+                         filename="mergers.txt", dz=0.001, Tobs=1./12., T0=1234567):
+    random.seed()
+    #path="./"
+    input=open(path+filename, 'r')
+    input.readline()
+    input.readline()
+    count=0
+    for line in input:
+        m1,m2,z,rate=np.float_(line.strip().split("\t"))
+        distance = cosmo.luminosity_distance(z).value
+        dVcdz = cosmo.differential_comoving_volume(z).value*4*np.pi
+        prob_injection = rate * (dVcdz * dz)/1e9 * (Tobs/(1+z))
+        assert(prob_injection<1)
+        if(random.random()<prob_injection):
+            one_injection(m1,m2,z,distance, T0, Tobs)
+            count+=count
+    input.close()
+    return count
 
-input=open(path+filename, 'r')
-input.readline()
-input.readline()
-for line in input:
-    m1,m2,z,rate=np.float_(line.strip().split("\t"))
-    distance = cosmo.luminosity_distance(z).value
-    dVcdz = cosmo.differential_comoving_volume(z).value*4*np.pi
-    prob_injection = rate * (dVcdz * dz)/1e9 * (Tobs/(1+z))
-    assert(prob_injection<1)
-    if(random.random<prob_injection):
-        inject(m1,m2,z,distance)
-input.close()
 
-
-def inject (m1, m2, z, distance):
+def one_injection (m1, m2, z, distance, T0, Tobs):
     print(f'Injecting m1:{m1}, m2:{m2}, z:{z}')
     time=T0+Tobs*365.25*86400*random.random()
     ra=2*np.pi*random.random()
@@ -73,3 +73,5 @@ def inject (m1, m2, z, distance):
     ifos = TimeSeriesDict()
     ifos.update(H1=H1, L1=L1)
     ifos.write('frame.gwf')
+
+    return start_time
