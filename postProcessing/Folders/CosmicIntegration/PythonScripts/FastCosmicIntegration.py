@@ -432,7 +432,7 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", merge
     etas = COMPAS.mass1 * COMPAS.mass2 / (COMPAS.mass1 + COMPAS.mass2)**2
     n_binaries = len(chirp_masses)
     # another warning on poor input
-    if max(chirp_masses)*(1+max_redshift_detection) < Mc_max:
+    if max(chirp_masses)*(1+max_redshift_detection) > Mc_max:
         warnings.warn("Maximum chirp mass used for detectability calculation is below maximum binary chirp mass * (1+maximum redshift for detectability calculation)", stacklevel=2)
 
     # calculate the redshifts array and its equivalents
