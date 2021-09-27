@@ -331,7 +331,7 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", merge
             path                   --> [string] Path to the COMPAS file that contains the output
             filename               --> [string] Name of the COMPAS file
             dco_type               --> [string] Which DCO type to calculate rates for: one of ["all", "BBH", "BHNS", "BNS"]
-            merger_output_filename --> [string] Optional name of output file to store merging DCOs
+            merger_output_filename --> [string] Optional name of output file to store merging DCOs (do not create the extra output if None)
             weight_column          --> [string] Name of column in "DoubleCompactObjects" file that contains adaptive sampling weights
                                                     (Leave this as None if you have unweighted samples)
             merges_in_hubble_time  --> [bool]   whether to mask binaries that don't merge in a Hubble time
