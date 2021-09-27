@@ -152,7 +152,7 @@ def find_formation_and_merger_rates(n_binaries, redshifts, times, time_first_SF,
             times               --> [list of floats] Equivalent of the redshifts in terms of age of the Universe
             n_formed            --> [float]          Binary formation rate (number of binaries formed per year per cubic Gpc) represented by each simulated COMPAS binary
             dPdlogZ             --> [2D float array] Probability of getting a particular logZ at a certain redshift
-            metallicities       --> [list of floats] Metallicities at which dPdlogZ is evaluated
+            metallicities       --> [list of floats] Metallicities at which dPdlogZ is evaluated; if this is None, assume that metallicity weighting is 1 (corresponds to all SFR happening at one fixed metallicity)
             p_draw_metallicity  --> [float]          Probability of drawing a certain metallicity in COMPAS (float because assuming uniform)
             COMPAS_metallicites --> [list of floats] Metallicity of each binary in COMPAS data
             COMPAS_delay_times  --> [list of floats] Delay time of each binary in COMPAS data
@@ -180,8 +180,12 @@ def find_formation_and_merger_rates(n_binaries, redshifts, times, time_first_SF,
 
     # go through each binary in the COMPAS data
     for i in range(n_binaries):
+        # if metallicities array is None, assume all SFR happened at one fixed metallicity
+        if(metallicities==None):
+            formation_rate[i, :] = n_formed * COMPAS_weights[i]
         # calculate formation rate (see Neijssel+19 Section 4) - note this uses dPdlogZ for *closest* metallicity
-        formation_rate[i, :] = n_formed * dPdlogZ[:, np.digitize(COMPAS_metallicites[i], metallicities)] / p_draw_metallicity * COMPAS_weights[i]
+        else:
+            formation_rate[i, :] = n_formed * dPdlogZ[:, np.digitize(COMPAS_metallicites[i], metallicities)] / p_draw_metallicity * COMPAS_weights[i]
 
         # calculate the time at which the binary formed if it merges at this redshift
         time_of_formation = times - COMPAS_delay_times[i]
@@ -303,10 +307,10 @@ def find_detection_probability(Mc, eta, redshifts, distances, n_redshifts_detect
 
     return detection_probability
 
-def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weight_column=None,
+def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", merger_output_filename=None, weight_column=None,
                         merges_hubble_time=True, pessimistic_CEE=True, no_RLOF_after_CEE=True,
                         max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10,
-                        m1_min=5 * u.Msun, m1_max=150 * u.Msun, m2_min=0.1 * u.Msun, fbin=0.7,
+                        use_sampled_mass_ranges=True, m1_min=5 * u.Msun, m1_max=150 * u.Msun, m2_min=0.1 * u.Msun, fbin=0.7,
                         aSF = 0.01, bSF = 2.77, cSF = 2.90, dSF = 4.70,
                         mu0=0.035, muz=-0.23, sigma0=0.39,sigmaz=0., alpha=0.0, 
                         min_logZ=-12.0, max_logZ=0.0, step_logZ=0.01,
@@ -327,6 +331,7 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
             path                   --> [string] Path to the COMPAS file that contains the output
             filename               --> [string] Name of the COMPAS file
             dco_type               --> [string] Which DCO type to calculate rates for: one of ["all", "BBH", "BHNS", "BNS"]
+            merger_output_filename --> [string] Optional name of output file to store merging DCOs
             weight_column          --> [string] Name of column in "DoubleCompactObjects" file that contains adaptive sampling weights
                                                     (Leave this as None if you have unweighted samples)
             merges_in_hubble_time  --> [bool]   whether to mask binaries that don't merge in a Hubble time
@@ -343,6 +348,7 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
             ====================================================================
             == Arguments for determining star forming mass per sampled binary ==
             ====================================================================
+            use_sampled_mass_ranges--> [bool]   whether to use the min and max m1 and m2 samples in lieu of hard cutoffs as below
             m1_min                 --> [float]  Minimum primary mass sampled by COMPAS
             m1_max                 --> [float]  Maximum primary mass sampled by COMPAS
             m2_min                 --> [float]  Minimum secondary mass sampled by COMPAS
@@ -412,10 +418,13 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
     COMPAS.setCOMPASDCOmask(types=dco_type, withinHubbleTime=merges_hubble_time, pessimistic=pessimistic_CEE, noRLOFafterCEE=no_RLOF_after_CEE)
     COMPAS.setCOMPASData()
     COMPAS.set_sw_weights(weight_column)
+    m1=COMPAS.get_COMPAS_variables("BSE_System_Parameters","Mass@ZAMS(1)");
+    m2=COMPAS.get_COMPAS_variables("BSE_System_Parameters","Mass@ZAMS(2)");
+    if use_sampled_mass_ranges:
+        COMPAS.Mlower=min(m1[m1!=m2])*u.Msun    # the m1!=m2 ensures we don't include masses set equal through RLOF at ZAMS
+        COMPAS.Mupper=max(m1)*u.Msun
+        COMPAS.m2_min=min(m2)*u.Msun
     COMPAS.find_star_forming_mass_per_binary_sampling()
-
-    
-    assert np.log(np.min(COMPAS.initialZ)) != np.log(np.max(COMPAS.initialZ)), "You cannot perform cosmic integration with just one metallicity"
 
 
     # compute the chirp masses and symmetric mass ratios only for systems of interest
@@ -439,10 +448,15 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
 
 
     # work out the metallicity distribution at each redshift and probability of drawing each metallicity in COMPAS
-    dPdlogZ, metallicities, p_draw_metallicity = find_metallicity_distribution(redshifts, min_logZ_COMPAS = np.log(np.min(COMPAS.initialZ)),
+    if np.log(np.min(COMPAS.initialZ)) != np.log(np.max(COMPAS.initialZ)): # Will perform integral over metallicities
+        dPdlogZ, metallicities, p_draw_metallicity = find_metallicity_distribution(redshifts, min_logZ_COMPAS = np.log(np.min(COMPAS.initialZ)),
                                                                                 max_logZ_COMPAS = np.log(np.max(COMPAS.initialZ)),
                                                                                 mu0=mu0, muz=muz, sigma_0=sigma0, sigma_z=sigmaz, alpha = alpha,
                                                                                 min_logZ=min_logZ, max_logZ=max_logZ, step_logZ = step_logZ)
+    else:
+        metallicities = None
+        dPdlogZ = 1
+        p_draw_metallicity = 1
 
 
     # calculate the formation and merger rates using what we computed above
@@ -463,6 +477,16 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
     detection_rate = merger_rate[:, :n_redshifts_detection] * detection_probability \
                     * shell_volumes[:n_redshifts_detection] / (1 + redshifts[:n_redshifts_detection])
 
+    
+    if(merger_output_filename!=None): # Store merger rates in an output text file if specified
+        with open(path+merger_output_filename, 'w') as output:
+            output.write('Mass1atMerger \t Mass2atMerger \t MergerRedshift \t MergerRate \n')
+            output.write('Msun \t Msun \t -- \t Gpc^{-3} yr^{-1} \n')
+            for i in range(n_redshifts_detection):
+                for j in range(n_binaries):
+                    if(merger_rate[j][i]>0):
+                        #output.write(str(COMPAS.mass1[j])+'\t'+str(COMPAS.mass2[j])+'\t'+str(redshifts[i])+'\t'+str(merger_rate[j][i])+'\n')
+                        output.write(f'{COMPAS.mass1[j]:.5f}\t{COMPAS.mass2[j]:.5f}\t{redshifts[i]:.5f}\t{merger_rate[j][i]:.10f}\n')
     return detection_rate, formation_rate, merger_rate, redshifts, COMPAS
 
 
