@@ -5,7 +5,7 @@ from gwpy.timeseries import TimeSeries, TimeSeriesDict
 import random
 
 def multiple_injections (path="/Users/ilyam/Work/COMPASresults/popsynth/Arash/",
-                         filename="mergers.txt", dz=0.001, Tobs=1./12., T0=1234567):
+                         filename="mergers.txt", dz=0.001, Tobs=1./365.25/24/60, T0=1234567):
     random.seed()
     #path="./"
     input=open(path+filename, 'r')
@@ -22,6 +22,7 @@ def multiple_injections (path="/Users/ilyam/Work/COMPASresults/popsynth/Arash/",
             one_injection(m1,m2,z,distance, T0, Tobs)
             count+=count
     input.close()
+    print(count)
     return count
 
 
@@ -38,7 +39,8 @@ def one_injection (m1, m2, z, distance, T0, Tobs):
                                  ra=ra, dec=dec, chi_1=0, chi_2=0)
     duration = 32
     sampling_frequency = 2048
-    start_time=T0-duration
+    start_time=time-duration
+    print(start_time)
     waveform_arguments = dict(waveform_approximant='IMRPhenomPv2', reference_frequency=50, minimum_frequency=40)
 
 # Create the waveform_generator. This is something used for injecting a signal and inference.
