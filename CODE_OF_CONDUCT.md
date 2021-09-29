@@ -3,7 +3,7 @@
 Dear colleagues:
 
 I want to take this opportunity to remind all of us (myself included) 
-how important it is maintain the highest standards of respectful and tolerant 
+how important it is to maintain the highest standards of respectful and tolerant 
 behavior in our professional interactions.  
 
 We are fortunate that Team COMPAS is a diverse group, and we want to benefit 
@@ -13,7 +13,7 @@ There are numerous codes of conduct describing what is considered appropriate
 professional behaviour;  since many of us are based in Australia and connected to OzGrav, 
 let me point to these two in particular:
 
-ASA code of conduct: <http://asa.astronomy.org.au/code_of_conduct.php>
+ASA code of conduct: <https://asa.astronomy.org.au/wp-content/uploads/2020/09/ASA_Code_of_Conduct.pdf>
 
 OzGrav code of conduct: <https://www.ozgrav.org/code-of-conduct.html>
 
@@ -21,7 +21,7 @@ Fundamentally, all of these codes are focused on one thing:
 maintaining a professional environment where everyone is treated with respect. 
 
 
-If you notice that this is not happening, and are comfortable with doing so, please speak up or let me know offline.  We (myself included) should aim to be held accountable to each other, respect being challenged for our behavior, and remain willing to get advice on how we as individuals can help create a welcoming community where we can all thrive. Making mistakes is how we learn, both as individuals and as a community. I and others strive to be very grateful if you let us know about any suggestions and will endeavor to learn from them.  
+If you notice that this is not happening, and are comfortable with doing so, please speak up or let me know offline.  We (myself included) should aim to be held accountable to each other, respect being challenged for our behavior, and remain willing to get advice on how we as individuals can help create a welcoming community where we can all thrive. Making mistakes is how we learn, both as individuals and as a community. I and others will be very grateful if you let us know about any suggestions and will endeavor to learn from them.  
 
 But there may be situations where this can be very uncomfortable.  
 With that in mind, I’ve asked Prof. Elena Maria Rossi from Leiden University in the 
