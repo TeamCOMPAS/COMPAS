@@ -21,7 +21,7 @@ Fundamentally, all of these codes are focused on one thing:
 maintaining a professional environment where everyone is treated with respect. 
 
 
-If you notice that this is not happening, and are comfortable with doing so, please speak up or let me know offline.  We (myself included) should aim to be held accountable to each other, respect being challenged for our behavior, and remain willing to get advice on how we as individuals can help create a welcoming community where we can all thrive. Making mistakes is how we learn, both as individuals and as a community. I and others will be very grateful if you let us know about any suggestions and will endeavor to learn from them.  
+If you notice that this is not happening, and are comfortable with doing so, please speak up or let me know offline*.  We (myself included) should aim to be held accountable to each other, respect being challenged for our behavior, and remain willing to get advice on how we as individuals can help create a welcoming community where we can all thrive. Making mistakes is how we learn, both as individuals and as a community. I and others will be very grateful if you let us know about any suggestions and will endeavor to learn from them.  
 
 But there may be situations where this can be very uncomfortable.  
 With that in mind, I’ve asked Prof. Elena Maria Rossi from Leiden University in the 
@@ -34,4 +34,6 @@ like to discuss them confidentially with someone who is outside of any local str
 please contact Elena, her contact details can be found at <https://www.universiteitleiden.nl/en/staffmembers/elena-rossi#tab-1> 
 
 Best wishes,
-Ilya
+Ilya 
+
+* see <https://ilyamandel.github.io/> for my contact information
