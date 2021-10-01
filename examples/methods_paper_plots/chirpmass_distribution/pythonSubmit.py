@@ -6,12 +6,6 @@ import pickle
 import itertools 
 from subprocess import call
 
-#### NOTE: For this demo, we use the Grid_demo.txt grid file. 
-#### The values in that file will override many of the defaults
-#### listed here, but in order to reproduce the example in Fig. 9
-#### of the COMPAS methods paper, but some, e.g the random_seed,
-#### must still be set correctly here. 
-
 # Check if we are using python 3
 python_version = sys.version_info[0]
 print("python_version =", python_version)
@@ -42,7 +36,7 @@ class pythonProgramOptions:
 
     enable_warnings = False                                     # option to enable/disable warning messages
 
-    number_of_systems = 10  #number of systems per batch
+    number_of_systems = int(1e2)  #number of systems per batch
 
     populationPrinting = False
 
@@ -84,7 +78,7 @@ class pythonProgramOptions:
 
     mode = 'BSE'                                                # evolving single stars (SSE) or binaries (BSE)?
 
-    grid_filename = 'Grid_demo.txt'                                        # grid file name (e.g. 'mygrid.txt')
+    grid_filename = None                                        # grid file name (e.g. 'mygrid.txt')
 
     if grid_filename != None:
         if compas_input_path_override == None:
@@ -92,7 +86,7 @@ class pythonProgramOptions:
         else:
             grid_filename = compas_input_path_override + '/' + grid_filename
 
-    logfile_definitions = None                                  # logfile record definitions file name (e.g. 'logdefs.txt')
+    logfile_definitions = "COMPAS_Output_Definitions.txt"                                  # logfile record definitions file name (e.g. 'logdefs.txt')
 
     if logfile_definitions != None:
         if compas_input_path_override == None:
@@ -113,7 +107,7 @@ class pythonProgramOptions:
 
     use_mass_loss = True
     mass_transfer = True
-    detailed_output = True                                      # WARNING: this creates a data heavy file
+    detailed_output = False                                     # WARNING: this creates a data heavy file
     RLOFPrinting = True
     evolve_unbound_systems = False
     quiet = False
@@ -151,7 +145,7 @@ class pythonProgramOptions:
     cool_wind_mass_loss_multiplier = 1.0
     check_photon_tiring_limit = False
 
-    circularise_binary_during_mass_transfer = True
+    circularise_binary_during_mass_transfer = False
     angular_momentum_conservation_during_circularisation = False
     mass_transfer_angular_momentum_loss_prescription = 'ISOTROPIC'
     mass_transfer_accretion_efficiency_prescription = 'THERMAL'
@@ -171,7 +165,7 @@ class pythonProgramOptions:
     timestep_multiplier = 1.0                                   # Optional multiplier relative to default time step duration
 
     initial_mass_function = 'KROUPA'
-    initial_mass_min = 5.0                                      # Use 1.0 for LRNe, 5.0 for DCOs  [Msol]
+    initial_mass_min = 10.0                                      # Use 1.0 for LRNe, 5.0 for DCOs  [Msol]
     initial_mass_max = 150.0                                    # Stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
 
     initial_mass_power = 0.0
@@ -219,7 +213,7 @@ class pythonProgramOptions:
     neutrino_mass_loss_BH_formation = "FIXED_MASS"              # "FIXED_FRACTION"
     neutrino_mass_loss_BH_formation_value = 0.1                 # Either fraction or mass (Msol) to lose
     
-    remnant_mass_prescription   = 'FRYER2012'
+    remnant_mass_prescription   = 'FRYER2012'                   #
     fryer_supernova_engine      = 'DELAYED'
     black_hole_kicks            = 'FALLBACK'
     kick_magnitude_distribution = 'MAXWELLIAN'
@@ -261,7 +255,7 @@ class pythonProgramOptions:
     PPI_lower_limit = 35.0                                      # Minimum core mass for PPI [Msol]
     PPI_upper_limit = 60.0                                      # Maximum core mass for PPI [Msol]
 
-    pulsational_pair_instability_prescription = 'MARCHANT'
+    pulsational_pair_instability_prescription = 'FARMER'
 
     maximum_neutron_star_mass = 2.5  #  [Msol]
 

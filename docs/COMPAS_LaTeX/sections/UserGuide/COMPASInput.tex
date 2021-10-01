@@ -98,9 +98,20 @@ Grid files can have blank lines and comments.  Comments begin with a hash/pound 
 
 Not all program options can be specified in a grid file.  Options that should remain constant for a single execution of COMPAS, such as options that specify the mode of evolution (e.g. \texttt{-{}-}\textit{mode}), or the name or path of output files (e.g. \texttt{-{}-}\textit{output-path}, \texttt{-{}-}\textit{logfile-detailed-output} etc.) can only be specified on the commandline. COMPAS will issue an error message if an option that is not supported in a grid file is specified on a grid file line.
 
+\paragraph{Specifying a Subset of the Grid File to be Processed}\label{sec:GridFileSubset}\mbox{}
+
+Users can instruct COMPAS to process only a subset of a specified grid file.  This is achieved via the program options \texttt{-{}-}\textit{grid-start-line}, and \texttt{-{}-}\textit{grid-lines-to-process}:
+
+The \texttt{-{}-}\textit{grid-start-line} program option takes a single parameter: an integer specifying the zero-based line number of the first line of the grid file to be processed.  The default value is 0 - the first line of the grid file.  Specifying a start line beyond the end of the grid file will result in an UNEXPECTED-END-OF-FILE error.
+
+The \texttt{-{}-}\textit{grid-lines-to-process} program option takes a single parameter: an integer specifying the number of lines of the grid file to be processed.  The default is to process all lines in the grid file from the start line (which may have been specified by the \texttt{-{}-}grid-start-line option) through to the end of the grid file.  Specifying a number of lines to be processed that, when coupled with the start line, would result in attempting to process lines beyond the end of the grid file will result in an INCOMPLETE-GRID error.
+
+Both option \texttt{-{}-}\textit{grid-start-line} and \texttt{-{}-}\textit{grid-lines-to-process} are ignored if no grid file is specified via the \texttt{-{}-}\textit{grid} program option.
+
+
 \paragraph{Program Option Defaults}\label{sec:ProgramOptionsdefaults}\mbox{}
 
-Any program options that are not specified  take default values:
+Any program options that are not specified take default values:
 
 \begin{itemize}
 \item On a grid file line, program options that are not explicitly specified default to the value specified for that option on the commandline.
