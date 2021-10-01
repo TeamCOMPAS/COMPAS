@@ -139,7 +139,7 @@ An example grid file, `Grid_demo.txt`, has been included in the current `detaile
 
     # Demo BSE Grid file
   
-    --initial-mass-1 35.4 --initial-mass-2 29.3 --metallicity 0.001  --eccentricity 0.000000e+00 --semi-major-axis 1.02
+    --initial-mass-1 35.4 --initial-mass-2 31.3 --metallicity 0.001 --eccentricity 0.000000e+00 --semi-major-axis 1.02 --kick-magnitude-1 293.447 --kick-magnitude-2 260.142 --kick-phi-1 -1.013818 --kick-phi-2 -1.244273 --kick-theta-1 3.721039 --kick-theta-2 1.646224 --kick-mean-anomaly-1 3.265196 --kick-mean-anomaly-2 1.059172 
 
 
 It should be clear that this grid file specifies a binary of zero-age main sequence stars with primary mass 35.4 Msol, secondary mass 29.3 Msol, metallicity 0.001, zero eccentricity, and semi-major axis of 1.02 AU. For more detailed documentation of COMPAS's grid functionality for both single and binary stars, please see [Specifications](./COMPAS_Doc.pdf).
@@ -181,7 +181,7 @@ The COMPAS run just now produces a new directory `COMPAS_Output`, inside which y
 
 We examine `BSE_Detailed_Output_0.h5` to look at the evolution of the two stars. A default python plotting script has been included to visualise the data. Let's run the script:
 
-    python3 single_sys_plotter.py
+    python3 detailed_evol_plotter.py
 
 This should produce the following plot:  
 ![demo_plot](../examples/methods_paper_plots/detailed_evolution/gw151226evol.png)
