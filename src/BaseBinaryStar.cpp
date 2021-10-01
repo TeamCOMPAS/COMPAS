@@ -413,7 +413,6 @@ void BaseBinaryStar::SetRemainingValues() {
 
 	// RLOF details - properties 1
     m_RLOFDetails.props1.id                      = -1l;
-    m_RLOFDetails.props1.randomSeed              = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_RLOFDetails.props1.stellarType1            = STELLAR_TYPE::NONE;
     m_RLOFDetails.props1.stellarType2            = STELLAR_TYPE::NONE;
@@ -437,7 +436,6 @@ void BaseBinaryStar::SetRemainingValues() {
 
 	// RLOF details - properties 2
     m_RLOFDetails.props2.id = -1l;
-    m_RLOFDetails.props2.randomSeed              = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_RLOFDetails.props2.stellarType1            = STELLAR_TYPE::NONE;
     m_RLOFDetails.props2.stellarType2            = STELLAR_TYPE::NONE;
@@ -466,7 +464,6 @@ void BaseBinaryStar::SetRemainingValues() {
 
     // BeBinary details - properties 1
     m_BeBinaryDetails.props1.id                  = -1l;
-    m_BeBinaryDetails.props1.randomSeed          = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_BeBinaryDetails.props1.dt                  = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_BeBinaryDetails.props1.totalTime           = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -483,7 +480,6 @@ void BaseBinaryStar::SetRemainingValues() {
 
     // BeBinary details - properties 2
     m_BeBinaryDetails.props2.id                  = -1l;
-    m_BeBinaryDetails.props2.randomSeed          = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_BeBinaryDetails.props2.dt                  = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_BeBinaryDetails.props2.totalTime           = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -563,7 +559,6 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::BE_BINARY_CURRENT_ECCENTRICITY:                       value = BeBinaryDetails().currentProps->eccentricity;                       break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_ID:                                 value = BeBinaryDetails().currentProps->id;                                 break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_NS_MASS:                            value = BeBinaryDetails().currentProps->massNS;                             break;
-        case BINARY_PROPERTY::BE_BINARY_CURRENT_RANDOM_SEED:                        value = BeBinaryDetails().currentProps->randomSeed;                         break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_SEMI_MAJOR_AXIS:                    value = BeBinaryDetails().currentProps->semiMajorAxis;                      break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_TOTAL_TIME:                         value = BeBinaryDetails().currentProps->totalTime;                          break;
         case BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE:                            value = CircularizationTimescale();                                         break;
@@ -861,7 +856,6 @@ void BaseBinaryStar::StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which) {
 
     // update properites for appropriate timestep
     rlofPropertiesToReset->id            = m_ObjectId;
-    rlofPropertiesToReset->randomSeed    = m_RandomSeed;
     rlofPropertiesToReset->mass1         = m_Star1->Mass();
     rlofPropertiesToReset->mass2         = m_Star2->Mass();
     rlofPropertiesToReset->radius1       = m_Star1->Radius();
@@ -899,7 +893,6 @@ void BaseBinaryStar::StashBeBinaryProperties() {
 
     // now save (new) current
     m_BeBinaryDetails.currentProps->id            = m_ObjectId;                                                      // object id
-    m_BeBinaryDetails.currentProps->randomSeed    = m_RandomSeed;                                                    // random seed
     m_BeBinaryDetails.currentProps->dt            = m_Dt;                                                            // timestep
     m_BeBinaryDetails.currentProps->totalTime     = m_BeBinaryDetails.previousProps->dt + m_Dt;                      // total time - accumulate, don't just replace
     m_BeBinaryDetails.currentProps->semiMajorAxis = m_SemiMajorAxis * AU_TO_RSOL;                                    // semi-major axis - change units to Rsol

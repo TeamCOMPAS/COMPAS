@@ -162,7 +162,6 @@ typedef struct BindingEnergies {
 // RLOF properties
 typedef struct RLOFProperties {
     OBJECT_ID     id;
-    unsigned long randomSeed;
 
     STELLAR_TYPE  stellarType1;
     STELLAR_TYPE  stellarType2;
@@ -210,7 +209,6 @@ typedef struct StellarRLOFDetails {                         // RLOF details pert
 // BeBinary properties
 typedef struct BeBinaryProperties {
     OBJECT_ID     id;
-    unsigned long randomSeed;
 
     double        dt;
     double        totalTime;
