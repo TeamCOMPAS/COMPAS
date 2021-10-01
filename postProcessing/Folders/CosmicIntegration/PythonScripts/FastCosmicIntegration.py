@@ -181,7 +181,7 @@ def find_formation_and_merger_rates(n_binaries, redshifts, times, time_first_SF,
     # go through each binary in the COMPAS data
     for i in range(n_binaries):
         # if metallicities array is None, assume all SFR happened at one fixed metallicity
-        if(metallicities==None):
+        if metallicities is None :
             formation_rate[i, :] = n_formed * COMPAS_weights[i]
         # calculate formation rate (see Neijssel+19 Section 4) - note this uses dPdlogZ for *closest* metallicity
         else:
