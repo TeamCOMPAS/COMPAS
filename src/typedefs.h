@@ -30,6 +30,11 @@ typedef struct Gridfile {
     std::string   filename;                                 // filename for grid file
     ERROR         error;                                    // status - ERROR::NONE if no problem, otherwise an error number
     std::ifstream handle;                                   // the file handle
+
+    std::streamsize startLine;                              // the first line of the grid file to process (0-based)
+    std::streamsize currentLine;                            // the grid line currently being processed
+    std::streamsize linesProcessed;                         // the number of grid lines processed so far in this run
+    std::streamsize linesToProcess;                         // the number of grid lines to process (from start line)
 } GridfileT;
 
 
@@ -191,8 +196,8 @@ typedef struct BinaryRLOFDetails {                          // RLOF details pert
     bool stableRLOFPostCEE;                                 // Here for now - maybe should be in Binary CEDetails struct?       JR: todo:
     RLOFPropertiesT  props1;
     RLOFPropertiesT  props2;
-    RLOFPropertiesT* currentProps;
-    RLOFPropertiesT* previousProps;
+    RLOFPropertiesT* propsPreMT;
+    RLOFPropertiesT* propsPostMT;
 } BinaryRLOFDetailsT;
 
 typedef struct StellarRLOFDetails {                         // RLOF details pertinent to individual stars

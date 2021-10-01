@@ -762,7 +762,14 @@
 //                                      - Copying a large grid file could take time, and take up much space, so added new program option '--store-input-files' which is TRUE by default.  If FALSE, neither the grid file (if specified) nor the logfile-definitions file (if specified) will be copied to the output container (if TRUE, both will be copied (if specified)).
 //                                      - Fixed issue #600: changed pythonSubmit.py to treat fully-qualified grid filenames and fully-qualified logfile-definitions filenames correctly (i.e. don't add CWD if the filename is already fully-qualified).
 //                                      - Fixed issue #601: changed pythonSubmit.py to put all boolean parameters on the commandline, with "True" or "False" value.
+// 02.21.01     RTW - Aug 21, 2021  - Defect Repair:
+//                                      - PrintRLOFProperties now gets called immediately before and after the call to EvaluateBinary so that the changes reflect only BSE changes.
+//                                      - The function call has also been tidied up to take an argument specifying whether the call was made before or after the MT took place.
+// 02.22.00     JR - Aug 26, 2021   - Enhancement:
+//                                      - Added functionality to allow users to select a range of lines from the grid file (if specified) to process.  Added program options --grid-start-line and --grid-lines-to-process - see documentation for details.
+// 02.22.01     JR - Sep 11, 2021   - Defect repair:
+//                                      - Fix for issue #615: defaults for calculated/drawn program options now calculated after random seed is set for the system being evolved.
 
-const std::string VERSION_STRING = "02.21.00";
+const std::string VERSION_STRING = "02.22.01";
 
 # endif // __changelog_h__

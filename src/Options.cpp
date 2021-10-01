@@ -46,7 +46,8 @@
 /*    and any affected existing options, to Options::OptionValues::CheckAndSetOptions()   */
 /*    in Options.cpp.  It is also here you can set any final values that, perhaps due to  */
 /*    dependencies on options that had not yet been parsed, could not be set directly by  */
-/*    Boost when the options were parsed (viz. m_KickPhi1 etc.).                          */
+/*    Boost when the options were parsed (also see SetCalculatedOptionDefaults(); viz.    */
+/*    m_KickPhi1 etc.).                                                                   */
 /*                                                                                        */
 /* 9. Add the new option to one or more of the following vectors in Options.h, as         */
 /*    required:                                                                           */
@@ -62,7 +63,8 @@
 /*    Read the explanations for each of the vectors in Options.h to get a better idea of  */
 /*    what they are for and where the new option should go.                               */
 /*                                                                                        */
-/* 10. Add the new option to the following structures in constants.h:                     */
+/* 10. Add the new option to the following structures in constants.h (only required if    */
+/*     the option is required to be available for printing in the logfiles):              */
 /*                                                                                        */
 /*        - enum class PROGRAM_OPTION                                                     */
 /*        - const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL    */
@@ -483,7 +485,8 @@ void Options::OptionValues::Initialise() {
 	// grids
 
 	m_GridFilename                                                  = "";
-
+    m_GridStartLine                                                 = 0;
+    m_GridLinesToProcess                                            = std::numeric_limits<std::streamsize>::max();                  // effectively no limit - process to EOF
 
     // debug and logging options
 
@@ -735,12 +738,22 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
 
-        // int
+        // int / unsigned int
 
         (
             "debug-level",                                                 
             po::value<int>(&p_Options->m_DebugLevel)->default_value(p_Options->m_DebugLevel),                                                                                                     
             ("Determines which print statements are displayed for debugging (default = " + std::to_string(p_Options->m_DebugLevel) + ")").c_str()
+        )
+        (
+            "grid-start-line",                                                 
+            po::value<std::streamsize>(&p_Options->m_GridStartLine)->default_value(p_Options->m_GridStartLine),                                                                                                     
+            ("Specifies which line of the grid file is processed first (0-based) (default = " + std::to_string(p_Options->m_GridStartLine) + ")").c_str()
+        )
+        (
+            "grid-lines-to-process",                                                 
+            po::value<std::streamsize>(&p_Options->m_GridLinesToProcess)->default_value(p_Options->m_GridLinesToProcess),                                                                                                     
+            ("Specifies how many grid lines should be processed (from the start line - see grid-start-line) (default = " + (p_Options->m_GridLinesToProcess == std::numeric_limits<std::streamsize>::max() ? "Process to EOF" : std::to_string(p_Options->m_GridLinesToProcess)) + ")").c_str()
         )
         (
             "hdf5-chunk-size",                                                 
@@ -1576,13 +1589,13 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
  * Note this is a class OptionValues function.
  * 
  * 
- * std::string SetCalculatedOptionDefaults(const bool p_ModifyMap)
+ * std::string SetCalculatedOptionDefaults(const BOOST_MAP p_ModifyMap)
  * 
- * @param   [IN]    p_ModifyMap                 Flag indicating whether the Boost variables map should be updated
+ * @param   [IN]    p_UpdateMap                 Flag indicating whether the Boost variables map should be updated
  * @return                                      String containing an error string
  *                                              If no error occurred the return string will be the empty string 
  */
-std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_ModifyMap) {
+std::string Options::OptionValues::SetCalculatedOptionDefaults(const BOOST_MAP p_UpdateMap) {
 #define DEFAULTED(opt) m_VM[opt].defaulted()    // for convenience and readability - undefined at end of function
 
     std::string errStr = "";                                        // error string
@@ -1594,7 +1607,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
 
         if (DEFAULTED("kick-magnitude-random")) {
             m_KickMagnitudeRandom = RAND->Random();
-            if (p_ModifyMap) {
+            if (p_UpdateMap == BOOST_MAP::UPDATE) {
                 ModifyVariableMap(m_VM, "kick-magnitude-random", m_KickMagnitudeRandom);
                 po::notify(m_VM);
             }
@@ -1602,7 +1615,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
     
         if (DEFAULTED("kick-magnitude-random-1")) {
             m_KickMagnitudeRandom1 = RAND->Random();
-            if (p_ModifyMap) {
+            if (p_UpdateMap == BOOST_MAP::UPDATE) {
                 ModifyVariableMap(m_VM, "kick-magnitude-random-1", m_KickMagnitudeRandom1);
                 po::notify(m_VM);
             }
@@ -1610,7 +1623,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
     
         if (DEFAULTED("kick-magnitude-random-2")) {
             m_KickMagnitudeRandom2 = RAND->Random();
-            if (p_ModifyMap) {
+            if (p_UpdateMap == BOOST_MAP::UPDATE) {
                 ModifyVariableMap(m_VM, "kick-magnitude-random-2", m_KickMagnitudeRandom2);
                 po::notify(m_VM);
             }
@@ -1621,7 +1634,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
     
         if (DEFAULTED("kick-mean-anomaly-1")) {
             m_KickMeanAnomaly1 = RAND->Random(0.0, _2_PI);
-            if (p_ModifyMap) {
+            if (p_UpdateMap == BOOST_MAP::UPDATE) {
                 ModifyVariableMap(m_VM, "kick-mean-anomaly-1", m_KickMeanAnomaly1);
                 po::notify(m_VM);
             }
@@ -1629,7 +1642,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
 
         if (DEFAULTED("kick-mean-anomaly-2")) {
             m_KickMeanAnomaly2 = RAND->Random(0.0, _2_PI);
-            if (p_ModifyMap) {
+            if (p_UpdateMap == BOOST_MAP::UPDATE) {
                 ModifyVariableMap(m_VM, "kick-mean-anomaly-2", m_KickMeanAnomaly2);
                 po::notify(m_VM);
             }
@@ -1648,7 +1661,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
             std::tie(phi1, theta1) = utils::DrawKickDirection(m_KickDirectionDistribution.type, m_KickDirectionPower);
             if (phi1Defaulted) {
                 m_KickPhi1 = phi1;
-                if (p_ModifyMap) {
+                if (p_UpdateMap == BOOST_MAP::UPDATE) {
                     ModifyVariableMap(m_VM, "kick-phi-1", m_KickPhi1);
                     po::notify(m_VM);
                 }
@@ -1656,7 +1669,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
 
             if (theta1Defaulted) {
                 m_KickTheta1 = theta1;
-                if (p_ModifyMap) {
+                if (p_UpdateMap == BOOST_MAP::UPDATE) {
                     ModifyVariableMap(m_VM, "kick-theta-1", m_KickTheta1);
                     po::notify(m_VM);
                 }
@@ -1671,7 +1684,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
             std::tie(phi2, theta2) = utils::DrawKickDirection(m_KickDirectionDistribution.type, m_KickDirectionPower);
             if (phi2Defaulted) {
                 m_KickPhi2 = phi2;
-                if (p_ModifyMap) {
+                if (p_UpdateMap == BOOST_MAP::UPDATE) {
                     ModifyVariableMap(m_VM, "kick-phi-2", m_KickPhi2);
                     po::notify(m_VM);
                 }
@@ -1679,7 +1692,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const bool p_Modi
 
             if (theta2Defaulted) {
                 m_KickTheta2 = theta2;
-                if (p_ModifyMap) {
+                if (p_UpdateMap == BOOST_MAP::UPDATE) {
                     ModifyVariableMap(m_VM, "kick-theta-2", m_KickTheta2);
                     po::notify(m_VM);
                 }
@@ -1921,6 +1934,9 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_EccentricityDistributionMax < 0.0 || m_EccentricityDistributionMax > 1.0, "Maximum eccentricity (--eccentricity-max) must be between 0 and 1");
         COMPLAIN_IF(m_EccentricityDistributionMax <= m_EccentricityDistributionMin, "Maximum eccentricity (--eccentricity-max) must be > Minimum eccentricity (--eccentricity-min)");
 
+        COMPLAIN_IF(m_GridStartLine < 0, "Grid file start line (--grid-start-line) < 0");
+        COMPLAIN_IF(!DEFAULTED("grid-lines-to-process") && m_GridLinesToProcess < 1, "Grid file lines to process (--grid-lines-to-process) < 1");
+
         COMPLAIN_IF(m_HDF5BufferSize < 1, "HDF5 IO buffer size (--hdf5-buffer-size) must be >= 1");
         COMPLAIN_IF(m_HDF5ChunkSize < HDF5_MINIMUM_CHUNK_SIZE, "HDF5 file dataset chunk size (--hdf5-chunk-size) must be >= minimum chunk size of " + std::to_string(HDF5_MINIMUM_CHUNK_SIZE));
 
@@ -2012,7 +2028,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_KickMagnitudeRandom1 < 0.0 || m_KickMagnitudeRandom1 >= 1.0, "Kick magnitude random (--kick-magnitude-random-1) must be >= 0 and < 1");
         COMPLAIN_IF(m_KickMagnitudeRandom2 < 0.0 || m_KickMagnitudeRandom2 >= 1.0, "Kick magnitude random (--kick-magnitude-random-2) must be >= 0 and < 1");
 
-        errStr = SetCalculatedOptionDefaults(false);                                                                                // set calculated option values
+        errStr = SetCalculatedOptionDefaults(BOOST_MAP::NO_UPDATE);                                                                 // set calculated option values
     }
     catch (po::error& e) {                                                                                                          // program options exception
         errStr = e.what();                                                                                                          // set the error string
@@ -3010,7 +3026,7 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
 
 /*
  * Advances the command or grid line options to the next variation (depending
- * upon th eparameters passed).  A "variation" is a combination of options 
+ * upon the parameters passed).  A "variation" is a combination of options 
  * defined by the option values, ranges, and sets the user specified on the
  * commandline or grid file line.
  * 
@@ -3024,7 +3040,7 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
  * 
  * @param   [IN]    p_OptionsDescriptor         Commandline or grid line options descriptor
  * @return                                      Int result:
- *                                                  -1: en error occurred
+ *                                                  -1: an error occurred
  *                                                   0: no more variations - all done
  *                                                   1: new variation applied - option values are set
  */
@@ -3034,7 +3050,7 @@ int Options::AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor) {
 
     if (p_OptionsDescriptor.complexOptionValues.size() == 0) {          // more variations?
         // no - set calculated option defaults and return
-        return p_OptionsDescriptor.optionValues.SetCalculatedOptionDefaults(false) == "" ? 0 : -1;
+        return p_OptionsDescriptor.optionValues.SetCalculatedOptionDefaults(BOOST_MAP::NO_UPDATE) == "" ? 0 : -1;
     }
 
     // Upon entry iterators for ranges and sets need to be advanced in order
@@ -3226,7 +3242,7 @@ int Options::AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor) {
  * line read.
  *
  * 
- * bool Options::InitialiseEvolvingObject(int p_ArgCount, char *p_ArgStrings[])
+ * bool Options::InitialiseEvolvingObject(const std::string p_OptionsString)
  * 
  * @param   [IN]    p_OptionsString             String containing all options - the grid file record
  * @return                                      Boolean value indicating status: true = ok, false = an error occurred
@@ -3343,7 +3359,7 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
         }
 
         // parse the option values before handing them over to boost
-        // boost knows nothing about ranges and sets, so we have to handlde
+        // boost knows nothing about ranges and sets, so we have to handle
         // them ourselves first
         m_GridLine.complexOptionValues = {};                                                                        // no ranges or sets - unless we find them in the parse
                                                     /*****  << do *not* try this at home >> *****/
@@ -3408,33 +3424,118 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
  */
 int Options::ApplyNextGridLine() {
 
-    int status = -1;                                                    // default status is failure
+    int status = -1;                                                                                // default status is failure
 
-    if (m_Gridfile.handle.is_open()) {                                  // file open?
-                                                                        // yes
-        bool done = false;
-        while (!done) {
-            std::string record;                                         // the record read
-            std::getline(m_Gridfile.handle, record);                    // read the next record
-            if (m_Gridfile.handle.fail()) {                             // read ok?
-                if (m_Gridfile.handle.eof()) status = 0;                // eof?
-                else {                                                  // no
-                    m_Gridfile.error = ERROR::FILE_READ_ERROR;          // record error
-                    status = -1;                                        // set status
+    if (m_Gridfile.handle.is_open()) {                                                              // file open?
+
+        if (m_Gridfile.linesProcessed >= m_Gridfile.linesToProcess) {                               // yes - have we already processed all the records the user wants processed?
+            status = 0;                                                                             // yes - return EOF so processing of grid file stops
+        }
+        else {                                                                                      // no - process current record
+            bool done = false;
+            while (!done) {
+                std::string record;                                                                 // the record read
+                std::getline(m_Gridfile.handle, record);                                            // read the next record
+                if (m_Gridfile.handle.fail()) {                                                     // read ok?
+                    if (m_Gridfile.handle.eof()) {                                                  // no - eof?
+                                                                                                    // yes - eof
+                        if (OPTIONS->OptionSpecified("grid-lines-to-process") == 1 &&               // user specified number of grid lines to process?
+                            m_Gridfile.linesProcessed < m_Gridfile.linesToProcess) {                // yes - did we process all the lines the user asked for?
+                            m_Gridfile.error = ERROR::UNEXPECTED_END_OF_FILE;                       // no - not all lines user asked for were processed before EOF - record error
+                            status = -1;                                                            // set error status
+                        }
+                        else status = 0;                                                            // set EOF status         
+                    }
+                    else {                                                                          // not eof - some other error
+                        m_Gridfile.error = ERROR::FILE_READ_ERROR;                                  // record error
+                        status = -1;                                                                // set error status
+                    }
+                    done = true;                                                                    // we're done
                 }
-                done = true;                                            // we're done
-            }
-            else {                                                      // read ok
-                record = utils::ltrim(record);                          // trim leading white space
-                if (!record.empty() && record[0] != '#') {              // blank line or comment?
-                    status = InitialiseEvolvingObject(record) ? 1 : -1; // no - apply record and set status
-                    done = true;                                        // we're done
+                else {                                                                              // read ok
+                    m_Gridfile.currentLine++;                                                       // increment line about to be processed (will be current)
+                    m_Gridfile.linesProcessed++;                                                    // increment lines processed
+                    record = utils::ltrim(record);                                                  // trim leading white space
+                    if (!record.empty() && record[0] != '#') {                                      // blank line or comment?
+                        status = InitialiseEvolvingObject(record) ? 1 : -1;                         // no - apply record and set status
+                        done = true;                                                                // we're done
+                    }
                 }
             }
         }
     }
 
     return status;
+}
+
+
+/*
+ * Seek to grid file line
+ *
+ * The grid file is a variable-length file (in that each line is not a fixed number of bytes),
+ * so we can't use the filesystem seek functions - they rely on each line being the same number of bytes.
+ * We have to just read each line until we get to the one we want - use ignore() instead of getline() 
+ * because it's a little faster.  There will be some overhead in doing this, especially for very large 
+ * grid file, but it shouldn't be significant, especially compared to the overall runtime.
+ * (I tested this on a grid file of 1,000,000 lines, each line 85 bytes - to process just the first line of
+ * the file was 0.03 CPU seconds, and to process just the last line of the file (skipping the first 999,999
+ * lines) was 0.07 CPU seconds - suggesting that even skipping to the end of a grid file of several million 
+ * records might only add overhead of one or two tenths of a second of CPU time to the entire run)
+ * 
+ * 
+ * ERROR SeekToGridFileLine(const unsigned int p_Line)
+ *
+ * @param   [IN]        p_Line                  The line number to seek to - this will be the next line read from the file
+ * @return                                      ERROR indicator - will be ERROR::NONE if seek is successful
+ */
+ERROR Options::SeekToGridFileLine(const unsigned int p_Line) { 
+
+    m_Gridfile.error = ERROR::NONE;                                                         // default is no error
+
+    if (m_Gridfile.startLine > 0) {                                                         // need to seek?
+        for (unsigned int line = 0; line < m_Gridfile.startLine; line++) {                  // yes - for each line until start line
+            m_Gridfile.handle.ignore(std::numeric_limits<std::streamsize>::max(), '\n');    // skip to end of record
+            if (m_Gridfile.handle.fail()) {                                                 // skip ok?
+                if (m_Gridfile.handle.eof()) {                                              // no - eof?
+                    m_Gridfile.error = ERROR::UNEXPECTED_END_OF_FILE;                       // yes - record error
+                }
+                else {                                                                      // not eof
+                    m_Gridfile.error = ERROR::FILE_READ_ERROR;                              // record error
+                    break;                                                                  // we're done
+                }
+            }
+            else {                                                                          // skip ok
+                m_Gridfile.currentLine++;                                                   // set line about to be processed (will be current)
+            }
+        } 
+    }
+ 
+    return m_Gridfile.error;    
+}
+
+
+/*
+ * Rewind the grid file
+ *
+ * The grid file is rewound to prepare for the next commandline options variation.
+ * Here we have to seek to the start of the file, then advance to the first line 
+ * the user asked to be processed.
+ *
+ * 
+ * ERROR RewindGridFile()
+ *
+ * @return                                      ERROR indicator - will be ERROR::NONE if file opened successfully
+ */
+ERROR Options::RewindGridFile() { 
+    
+    m_Gridfile.handle.clear();                          // clear file errors
+    m_Gridfile.handle.seekg(0);                         // go to start of file
+
+    m_Gridfile.error          = ERROR::NONE;            // reset error (none)
+    m_Gridfile.currentLine    = 0;                      // reset current lines
+    m_Gridfile.linesProcessed = 0;                      // reset number of lines processed
+
+    return SeekToGridFileLine(m_Gridfile.startLine);    // seek to start line requested by user and return error
 }
 
 
@@ -3449,20 +3550,29 @@ int Options::ApplyNextGridLine() {
  * ERROR OpenGridFile(const std::string p_GridFilename)
  *
  * @param   [IN]        p_Filename              The filename of the Grid file
- * @return                                      ERROR indicator - will be ERROR::NONE if file opened sccessfully
+ * @return                                      ERROR indicator - will be ERROR::NONE if file opened successfully
  */
 ERROR Options::OpenGridFile(const std::string p_GridFilename) {
 
-    m_Gridfile.filename = p_GridFilename;                       // record filename
+    m_Gridfile.filename = p_GridFilename;                                               // record filename
 
-    if (!m_Gridfile.filename.empty()) {                         // have grid filename?
-        m_Gridfile.handle.open(m_Gridfile.filename);            // yes - open the file
-        if (m_Gridfile.handle.fail()) {                         // open ok?
-            m_Gridfile.error = ERROR::FILE_OPEN_ERROR;          // no - record error
+    if (!m_Gridfile.filename.empty()) {                                                 // have grid filename?
+        m_Gridfile.handle.open(m_Gridfile.filename);                                    // yes - open the file
+        if (m_Gridfile.handle.fail()) {                                                 // open ok?
+            m_Gridfile.error = ERROR::FILE_OPEN_ERROR;                                  // no - record error
         }
-        else m_Gridfile.error = ERROR::NONE;                    // open ok - no error
+        else {                                                                          // open ok - no error
+            m_Gridfile.error = ERROR::NONE;                                             // record success
+
+            m_Gridfile.startLine      = OPTIONS->GridStartLine();                       // set first line to process (0-based)
+            m_Gridfile.linesToProcess = OPTIONS->GridLinesToProcess();                  // set number of lines to process (-1 = process to EOF)
+            m_Gridfile.currentLine    = 0;                                              // set line about to be processed (will be current)
+            m_Gridfile.linesProcessed = 0;                                              // set number of lines processed in this run
+
+            m_Gridfile.error = SeekToGridFileLine(m_Gridfile.startLine);                // Seek to first line to be processed (if necessary)
+        }
     }
-    else m_Gridfile.error = ERROR::EMPTY_FILENAME;              // empty filename
+    else m_Gridfile.error = ERROR::EMPTY_FILENAME;                                      // empty filename
 
     return m_Gridfile.error;
 }
@@ -3718,4 +3828,37 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
     }
 
     return std::make_tuple(ok, value);
+}
+
+
+/*
+ * Sets the seed for the pseudo random number generator.
+ * 
+ * After setting the seed for the pseudo random number generator, recalculates the "calculated"
+ * program option values - those that are calculated from other variables or drawn from
+ * distributions.  This is required to ensure that all default option values are drawn or calculated
+ * using the random seed for the current system (star or binary).  The parameter "p_OptionsSet"
+ * indicates whether the command-line or gridfile-line set of option values is updated.
+ * 
+ * 
+ * int AdvanceOptionVariation(SetRandomSeed(OptionsDescriptorT &p_OptionsDescriptor, OPTIONS_ORIGIN p_OptionSet)
+ * 
+ * @param   [IN]    p_RandomSeed                The random seed to use as the seed for the pseudo random number generator
+ * @param   [IN]    p_OptionsSet                Indicates which set of options to update (command-line or gridfile-line)
+ * @return                                      Int result:
+ *                                                  -1: en error occurred
+ *                                                   0: no more variations - all done
+ *                                                   1: new variation applied - option values are set
+ */
+
+int Options::SetRandomSeed(const unsigned long int p_RandomSeed, const OPTIONS_ORIGIN p_OptionsSet) {
+
+    RAND->Seed(p_RandomSeed);       // seed the pseudo random number generator
+
+    // recalculate "calculated" option values for the relevant set of option values
+    std::string err = p_OptionsSet == OPTIONS_ORIGIN::CMDLINE
+                        ? m_CmdLine.optionValues.SetCalculatedOptionDefaults(BOOST_MAP::NO_UPDATE)
+                        : m_GridLine.optionValues.SetCalculatedOptionDefaults(BOOST_MAP::NO_UPDATE);
+
+    return err == "" ? 0 : -1;
 }

@@ -156,6 +156,8 @@ private:
         "errors-to-file",
 
         "grid",
+        "grid-start-line",
+        "grid-num-lines",
 
         "hdf5-buffer-size",
         "hdf5-chunk-size",
@@ -401,6 +403,8 @@ private:
         "fryer-supernova-engine",
 
         "grid",
+        "grid-start-line",
+        "grid-num-lines",
 
         "hdf5-buffer-size",
         "hdf5-chunk-size",
@@ -488,6 +492,8 @@ private:
         "errors-to-file",
 
         "grid",
+        "grid-start-line",
+        "grid-num-lines",
 
         "hdf5-buffer-size",
         "hdf5-chunk-size",
@@ -592,6 +598,9 @@ public:
             double                                              m_MaxEvolutionTime;                                             // Maximum time to evolve a binary by
             int                                                 m_MaxNumberOfTimestepIterations;                                // Maximum number of timesteps to evolve binary for before giving up
             double                                              m_TimestepMultiplier;                                           // Multiplier for time step size (<1 -- shorter timesteps, >1 -- longer timesteps)
+
+            std::streamsize                                     m_GridStartLine;                                                // The grid file line to start processing (0-based)
+            std::streamsize                                     m_GridLinesToProcess;                                           // The number of grid file lines to process (starting at m_GridStartLine)
 
             // Initial distribution variables
 
@@ -880,7 +889,7 @@ public:
 
             po::variables_map m_VM;
 
-            bool m_Populated;       // flag to indicate whether we're using a grid line
+            bool m_Populated;                                                                                                   // flag to indicate whether we're using a grid line
 
 
             // member functions
@@ -896,7 +905,7 @@ public:
 
             int         OptionSpecified(std::string p_OptionString);
 
-            std::string SetCalculatedOptionDefaults(const bool p_ModifyMap);
+            std::string SetCalculatedOptionDefaults(const BOOST_MAP p_BoostMap);
 
         public:
 
@@ -1001,6 +1010,7 @@ private:
 
     std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPENAME>> OptionDetails(const OptionsDescriptorT &p_Options);
 
+    int             SetRandomSeed(OptionsDescriptorT &p_OptionsDescriptor, const unsigned long int p_RandomSeed);
 
 public:
 
@@ -1008,8 +1018,8 @@ public:
 
 
 
-    int             AdvanceCmdLineOptionValues()            { return AdvanceOptionVariation(m_CmdLine); }
-    int             AdvanceGridLineOptionValues()           { return AdvanceOptionVariation(m_GridLine); }
+    int             AdvanceCmdLineOptionValues()  { return AdvanceOptionVariation(m_CmdLine); }
+    int             AdvanceGridLineOptionValues() { return AdvanceOptionVariation(m_GridLine); }
     int             ApplyNextGridLine();
 
     void            CloseGridFile() { m_Gridfile.handle.close(); m_Gridfile.filename = ""; m_Gridfile.error = ERROR::EMPTY_FILENAME; }
@@ -1025,7 +1035,12 @@ public:
 
     void            PrintOptionHelp(const bool p_Verbose);
 
-    void            RewindGridFile() { m_Gridfile.handle.clear(); m_Gridfile.handle.seekg(0); }
+    ERROR           RewindGridFile();
+
+    ERROR           SeekToGridFileLine(const unsigned int p_Line);
+
+    int             SetRandomSeed(const unsigned long int p_RandomSeed, const OPTIONS_ORIGIN p_OptionsSet);
+
 
     // getters
 
@@ -1090,6 +1105,8 @@ public:
     SN_ENGINE                                   FryerSupernovaEngine() const                                            { return OPT_VALUE("fryer-supernova-engine", m_FryerSupernovaEngine.type, true); }
 
     string                                      GridFilename() const                                                    { return m_CmdLine.optionValues.m_GridFilename; }
+    std::streamsize                             GridStartLine() const                                                   { return m_CmdLine.optionValues.m_GridStartLine; }
+    std::streamsize                             GridLinesToProcess() const                                              { return m_CmdLine.optionValues.m_GridLinesToProcess; }
 
     size_t                                      HDF5ChunkSize() const                                                   { return m_CmdLine.optionValues.m_HDF5ChunkSize; }
     size_t                                      HDF5BufferSize() const                                                  { return m_CmdLine.optionValues.m_HDF5BufferSize; }
