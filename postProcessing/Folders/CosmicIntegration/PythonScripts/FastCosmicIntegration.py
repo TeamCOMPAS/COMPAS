@@ -109,10 +109,10 @@ def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
     sigma = sigma_0* 10**(sigma_z*redshifts)
     
     ##################################
-    # Follow Langer & Norman 2007? in assuming that mean metallicities evolve in z as:
+    # Follow Langer & Norman 2006 in assuming that mean metallicities evolve in z as:
     mean_metallicities = mu0 * 10**(muz * redshifts) 
         
-    # Now we re-write the expected value of ou log-skew-normal to retrieve mu
+    # Now we re-write the expected value of the log-skew-normal to retrieve mu
     beta = alpha/(np.sqrt(1 + (alpha)**2))
     PHI  = NormDist.cdf(beta * sigma) 
     mu_metallicities = np.log(mean_metallicities/2. * 1./(np.exp(0.5*sigma**2) * PHI )  ) 
@@ -128,12 +128,12 @@ def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
     dPdlogZ = 2./(sigma[:,np.newaxis]) * NormDist.pdf((log_metallicities -  mu_metallicities[:,np.newaxis])/sigma[:,np.newaxis]) * NormDist.cdf(alpha * (log_metallicities -  mu_metallicities[:,np.newaxis])/sigma[:,np.newaxis] )
 
     ##################################
-    # normalise the distribution over al metallicities
+    # normalise the distribution over all metallicities; this choice of normalisation assumes that metallicities outside the COMPAS range have yields of zero
     norm = dPdlogZ.sum(axis=-1) * step_logZ
     dPdlogZ = dPdlogZ /norm[:,np.newaxis]
 
     ##################################
-    # assume a flat in log distribution in metallicity to find probability of drawing Z in COMPAS
+    # assume a flat in log distribution in sampled metallicity to find probability of drawing Z in COMPAS
     p_draw_metallicity = 1 / (max_logZ_COMPAS - min_logZ_COMPAS)
     
     return dPdlogZ, metallicities, p_draw_metallicity
@@ -511,7 +511,7 @@ def append_rates(path, filename, detection_rate, formation_rate, merger_rate, re
             dco_type               --> [string] Which DCO type you used to calculate rates 
             mu0                    --> [float]  metallicity dist: expected value at redshift 0
             muz                    --> [float]  metallicity dist: redshift evolution of expected value
-            sigma0                 --> [float]  metallicity dist: width at redshhift 0
+            sigma0                 --> [float]  metallicity dist: width at redshift 0
             sigmaz                 --> [float]  metallicity dist: redshift evolution of width
             alpha                  --> [float]  metallicity dist: skewness (0 = lognormal)
 
