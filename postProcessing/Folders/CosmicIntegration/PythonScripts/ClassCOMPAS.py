@@ -108,7 +108,7 @@ class COMPASData(object):
 
             # if masking on RLOF, get flag and match seeds to dco seeds
             if noRLOFafterCEE:
-                rlof_flag = self.get_COMPAS_variables("BSE_Common_Envelopes", "Immediate_RLOF>CE")[dco_from_ce]
+                rlof_flag = self.get_COMPAS_variables("BSE_Common_Envelopes", "Immediate_RLOF>CE")[dco_from_ce].astype(bool)
                 rlof_seeds = np.unique(dco_ce_seeds[rlof_flag])
                 rlof_mask = np.logical_not(np.in1d(dco_seeds, rlof_seeds))
             else:
@@ -116,7 +116,7 @@ class COMPASData(object):
 
             # if masking on pessimistic CE, get flag and match seeds to dco seeds
             if pessimistic:
-                pessimistic_flag = self.get_COMPAS_variables("BSE_Common_Envelopes", "Optimistic_CE")[dco_from_ce]
+                pessimistic_flag = self.get_COMPAS_variables("BSE_Common_Envelopes", "Optimistic_CE")[dco_from_ce].astype(bool)
                 pessimistic_seeds = np.unique(dco_ce_seeds[pessimistic_flag])
                 pessimistic_mask = np.logical_not(np.in1d(dco_seeds, pessimistic_seeds))
             else:
