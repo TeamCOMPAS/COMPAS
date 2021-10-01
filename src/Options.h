@@ -889,7 +889,7 @@ public:
 
             po::variables_map m_VM;
 
-            bool m_Populated;       // flag to indicate whether we're using a grid line
+            bool m_Populated;                                                                                                   // flag to indicate whether we're using a grid line
 
 
             // member functions
@@ -905,7 +905,7 @@ public:
 
             int         OptionSpecified(std::string p_OptionString);
 
-            std::string SetCalculatedOptionDefaults(const bool p_ModifyMap);
+            std::string SetCalculatedOptionDefaults(const BOOST_MAP p_BoostMap);
 
         public:
 
@@ -1010,6 +1010,7 @@ private:
 
     std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPENAME>> OptionDetails(const OptionsDescriptorT &p_Options);
 
+    int             SetRandomSeed(OptionsDescriptorT &p_OptionsDescriptor, const unsigned long int p_RandomSeed);
 
 public:
 
@@ -1017,8 +1018,8 @@ public:
 
 
 
-    int             AdvanceCmdLineOptionValues()            { return AdvanceOptionVariation(m_CmdLine); }
-    int             AdvanceGridLineOptionValues()           { return AdvanceOptionVariation(m_GridLine); }
+    int             AdvanceCmdLineOptionValues()  { return AdvanceOptionVariation(m_CmdLine); }
+    int             AdvanceGridLineOptionValues() { return AdvanceOptionVariation(m_GridLine); }
     int             ApplyNextGridLine();
 
     void            CloseGridFile() { m_Gridfile.handle.close(); m_Gridfile.filename = ""; m_Gridfile.error = ERROR::EMPTY_FILENAME; }
@@ -1037,6 +1038,8 @@ public:
     ERROR           RewindGridFile();
 
     ERROR           SeekToGridFileLine(const unsigned int p_Line);
+
+    int             SetRandomSeed(const unsigned long int p_RandomSeed, const OPTIONS_ORIGIN p_OptionsSet);
 
 
     // getters

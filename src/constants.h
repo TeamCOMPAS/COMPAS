@@ -373,6 +373,7 @@ constexpr double MULLERMANDEL_KICKNS                    = 400.0;
 constexpr double MULLERMANDEL_KICKBH                    = 200.0;
 constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3; 
 
+
 // object types
 enum class OBJECT_TYPE: int { NONE, MAIN, PROFILING, UTILS, STAR, BASE_STAR, BINARY_STAR, BASE_BINARY_STAR, BINARY_CONSTITUENT_STAR };    //  if BASE_STAR, check STELLAR_TYPE
 const COMPASUnorderedMap<OBJECT_TYPE, std::string> OBJECT_TYPE_LABEL = {
@@ -390,6 +391,12 @@ const COMPASUnorderedMap<OBJECT_TYPE, std::string> OBJECT_TYPE_LABEL = {
 
 // Commandline Status constants
 enum class PROGRAM_STATUS: int { SUCCESS, CONTINUE, STOPPED, ERROR_IN_COMMAND_LINE, LOGGING_FAILED, ERROR_UNHANDLED_EXCEPTION };
+
+// Boost map update options for program options
+enum class BOOST_MAP: int { UPDATE, NO_UPDATE };
+
+// Program options origin indicator (command line or gridfile line)
+enum class OPTIONS_ORIGIN: int { CMDLINE, GRIDFILE };
 
 
 // enum class ERROR
@@ -660,7 +667,7 @@ enum class EVOLUTION_STATUS: int {
     STOPPED
 };
 
-// JR: deliberately kept these message succinct (where I could) so running status doesn't scroll off the page...
+// JR: deliberately kept these messages succinct (where I could) so running status doesn't scroll off the page...
 const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL = {
     { EVOLUTION_STATUS::DONE,                        "Simulation completed" },
     { EVOLUTION_STATUS::CONTINUE,                    "Continue evolution" },
@@ -686,7 +693,6 @@ const COMPASUnorderedMap<EVOLUTION_MODE, std::string> EVOLUTION_MODE_LABEL = {
     { EVOLUTION_MODE::SSE, "SSE" },
     { EVOLUTION_MODE::BSE, "BSE" }
 };
-
 
 
 // user specified distributions, assumptions etc.
@@ -967,6 +973,10 @@ const COMPASUnorderedMap<MT_TRACKING, std::string> MT_TRACKING_LABEL = {
 };
 
 
+// Mass tranfer timing options for writing to BSE_RLOF file
+// Doen't need labels...
+enum class MASS_TRANSFER_TIMING: int { PRE_MT, POST_MT };
+
 // Metallicity distribution
 enum class METALLICITY_DISTRIBUTION: int { ZSOLAR, LOGUNIFORM };
 const COMPASUnorderedMap<METALLICITY_DISTRIBUTION, std::string> METALLICITY_DISTRIBUTION_LABEL = {
@@ -1104,11 +1114,6 @@ enum class SN_EVENT: int {
     USSN         = 16
 };
 ENABLE_BITMASK_OPERATORS(SN_EVENT);
-
-enum class MASS_TRANSFER_TIMING: int {
-    PRE_MT       = 0, 
-    POST_MT      = 1
-};
 
 const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
     { SN_EVENT::NONE,         "No Supernova" },
