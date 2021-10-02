@@ -12,10 +12,7 @@ adjustable.  COMPAS draws properties for a binary star system from a set of init
 remnants.  It has been used for inference from observations of gravitational-wave mergers, Galactic neutron stars, X-ray binaries, and luminous red novae.
 
 ## Documentation
-[Getting started](./docs/getting_started.md)  
-[Specifications](https://github.com/TeamCOMPAS/COMPAS/blob/Documentation/COMPAS_Documentation.pdf)  
-[Post-processing](./postProcessing/README.txt)  
-[Running COMPAS inside a Docker container](./docs/docker.md)  
+https://compas.science/docs
 
 ## Contact
 Please email your queries to compas-user@googlegroups.com. You are also welcome to join the [COMPAS User Google Group](https://groups.google.com/forum/#!members/compas-user) to engage in discussions with COMPAS users and developers.
