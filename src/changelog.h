@@ -771,7 +771,9 @@
 //                                      - Fix for issue #615: defaults for calculated/drawn program options now calculated after random seed is set for the system being evolved.
 // 02.22.02     IM - Oct 4, 2021    - Defecr repair:
 //                                      - Removed unnecessary IsPrimary() / BecomePrimary() functionality, fixed incorrect MassTransferTrackerHistory (see issue #605)
+// 02.22.03     IM - Oct 4, 2022    - Defect repair:
+//                                      - Corrected Eddington mass accretion limits, issue #612 (very minor change for WDs and NSs, factor of a few increase for BHs)
 
-const std::string VERSION_STRING = "02.22.02";
+const std::string VERSION_STRING = "02.22.03";
 
 # endif // __changelog_h__
