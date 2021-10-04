@@ -72,7 +72,7 @@ Now install gsl, boost, and hdf5 using Homebrew by running
 
     brew install gsl
     brew install boost
-    brew install hdf5
+	brew install hdf5
 
 ### 1.3 Setting up the Makefile and Compiling
 Time to actually install COMPAS. We first need to define an environment variable for the root directory of COMPAS in your shell start-up file for COMPAS to run properly. For example, if you use bash as your shell, open `~/.bashrc` with a text editor and put in the following:
@@ -122,9 +122,6 @@ If you do not have python3 installed, install it by following the instructions b
 * For macOS: We recommend installing python and its libraries using MacPorts. You can follow the instructions on https://astrofrog.github.io/macports-python/
 * For Linux, install `python3` using your package manager (e.g. in Ubuntu, run `sudo apt-get install python3`). We recommend installing the required python libraries using the package installer pip. E.g. To install numpy, run `pip install numpy`.
 
-You will also need the h5py package for python for reading hdf5 files; this can be accomplished with
-
-    pip install h5py
 
 ## 2. Evolving your first binary
 To start using COMPAS, you will need the python script `pythonSubmitDemo.py`, which specifies all the program options (physics assumptions, output types) and runs COMPAS in the terminal. Although the primary functionality of COMPAS is to evolve a whole population of binary stars rapidly, for now, let's focus on evolving a single stellar system and examining the detailed output.
