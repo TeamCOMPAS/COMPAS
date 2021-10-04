@@ -38,8 +38,6 @@ protected:
     // member functions - alphabetically
             double      CalculateCOCoreMassOnPhase() const                  { return m_COCoreMass; }                                                // NO-OP
 
-            double      CalculateEddingtonCriticalRate() const              { return 1.5E-8 * (m_Radius * RSOL_TO_KM / 10.0) * MYR_TO_YEAR; }       // Sluys 2013 ("Binary Evolution in a Nutshell"), eq 70
-
             double      CalculateHeCoreMassOnPhase() const                  { return m_HeCoreMass; }                                                // NO-OP
 
             double      CalculateInitialSupernovaMass() const               { return 0.0; }
