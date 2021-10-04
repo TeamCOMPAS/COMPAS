@@ -772,7 +772,7 @@
 // 02.22.02     IM - Oct 4, 2021    - Defecr repair:
 //                                      - Removed unnecessary IsPrimary() / BecomePrimary() functionality, fixed incorrect MassTransferTrackerHistory (see issue #605)
 // 02.22.03     IM - Oct 4, 2022    - Defect repair:
-//                                      - Corrected Eddington mass accretion limits (very minor change for WDs and NSs, significant increase for BHs)
+//                                      - Corrected Eddington mass accretion limits, issue #612 (very minor change for WDs and NSs, factor of a few increase for BHs)
 
 const std::string VERSION_STRING = "02.22.03";
 
