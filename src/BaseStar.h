@@ -373,7 +373,7 @@ protected:
 
     static  double              CalculateDynamicalTimescale_Static(const double p_Mass, const double p_Radius);
 
-    virtual double              CalculateEddingtonCriticalRate() const                                                  { return 1.5E-8 * (m_Radius * RSOL_TO_KM / 10.0) * MYR_TO_YEAR; }           // Should never be called...
+    virtual double              CalculateEddingtonCriticalRate() const                                                  { return 2.08E-3 / 1.7 * m_Radius * MYR_TO_YEAR; }       // Hurley+, 2002, Eq. (67); should never be called...
 
             double              CalculateGBRadiusXExponent() const;
 

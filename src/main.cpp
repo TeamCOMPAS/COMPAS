@@ -124,12 +124,13 @@ std::tuple<int, int> EvolveSingleStars() {
     // options specified by the user at the commandline to their next variation (if necessary,
     // based on any ranges and/or sets specified by the user).
 
-    while (evolutionStatus ==EVOLUTION_STATUS::CONTINUE) {                                                          // while all ok
+    while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                         // while all ok
 
         // generate and evolve stars
 
         int gridLineVariation = 0;                                                                                  // grid line variation number
         bool doneGridFile     = false;                                                                              // flags we're done with the grid file (for this commandline variation)
+        bool processingGridLine = false;                                                                            // processing a gridfile line?
         while (!doneGridFile && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                    // for each star to be evolved
 
             bool doneGridLine = false;                                                                              // flags we're done with this grid file line (if using a grid file)
@@ -147,7 +148,7 @@ std::tuple<int, int> EvolveSingleStars() {
                             evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // stop evolution
                         }
                         } break;
-                    case  1: break;                                                                                 // grid record read - not done yet...
+                    case  1: processingGridLine = true; break;                                                      // grid record read - not done yet...
                     default: evolutionStatus = EVOLUTION_STATUS::STOPPED; break;                                    // problem - stop evolution
                 }
             }
@@ -160,6 +161,8 @@ std::tuple<int, int> EvolveSingleStars() {
             // OPTIONS->AdvanceGridLineOptionValues(), called at the end of the loop, advances the
             // options specified by the user in the grid file line to their next variation (if necessary,
             // based on any ranges and/or sets specified by the user).
+            // Note that `doneGridLine` may be a proxy for the command line here (it is set FALSE even if
+            // there is no grid file - so the loop executes once to process the command line)
 
             while (!doneGridLine && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                // while all ok and not done
 
@@ -187,105 +190,126 @@ std::tuple<int, int> EvolveSingleStars() {
                 // (i.e. the random seed specified is used as it)).  Note that in this scenario it is the 
                 // user's responsibility to ensure that there is no duplication of seeds.
 
-                unsigned long int randomSeed = 0l;
-                if (OPTIONS->FixedRandomSeedGridLine()) {                                                           // user specified a random seed in the grid file for this star?
-                    randomSeed = RAND->Seed(OPTIONS->RandomSeedGridLine() + (long int)gridLineVariation);           // yes - use it (indexed)
+                unsigned long int randomSeed = 0l;                                                                  // random seed
+                OPTIONS_ORIGIN    optsOrigin = processingGridLine ? OPTIONS_ORIGIN::GRIDFILE : OPTIONS_ORIGIN::CMDLINE; // indicate which set of program options we're using
+                if (OPTIONS->FixedRandomSeedGridLine()) {                                                           // user specified a random seed in the grid file for this binary?
+                                                                                                                    // yes - use it (indexed)
+                    randomSeed = OPTIONS->RandomSeedGridLine() + (unsigned long int)gridLineVariation;              // random seed               
+                    if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                       // ok?
+                        SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                       // no - show error
+                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                // and stop evolution
+                    }
                 }
                 else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                       // no - user specified a random seed on the commandline?
-                    randomSeed = RAND->Seed(OPTIONS->RandomSeedCmdLine() + (long int)index);                        // yes - use it (indexed)
+                                                                                                                    // yes - use it (indexed)
+                    randomSeed = OPTIONS->RandomSeedCmdLine() + (unsigned long int)index;                           // random seed               
+                    if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                       // ok?
+                        SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                        // no - show error
+                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                // and stop evolution
+                    }
                 }
                 else {                                                                                              // no
-                    randomSeed = RAND->Seed(RAND->DefaultSeed() + (long int)index);                                 // use default seed (based on system time) + id (index)
+                                                                                                                    // use default seed (based on system time) + id (index)
+                    randomSeed = RAND->DefaultSeed() + (unsigned long int)index;                                    // random seed               
+                    if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                       // ok?
+                        SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                        // no - show error
+                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                // and stop evolution
+                    }
                 }
 
-                // the initial mass of the star is supplied - this is to allow binary stars to initialise
-                // the masses of their constituent stars (rather than have the constituent stars sample 
-                // their own mass).  Here we use the mass supplied by the user via the program options or, 
-                // if no mass was supplied by the user, sample the mass from the IMF.
+                if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                // ok?
+                                                                                                                    // yes - continue
+                    randomSeed = RAND->CurrentSeed();                                                               // current random seed - to pass to star object
 
-                double initialMass = OPTIONS->OptionSpecified("initial-mass") == 1                                  // user specified mass?
-                                        ? OPTIONS->InitialMass()                                                    // yes, use it
-                                        : utils::SampleInitialMass(OPTIONS->InitialMassFunction(),                  // no, sample it
-                                                                   OPTIONS->InitialMassFunctionMax(), 
-                                                                   OPTIONS->InitialMassFunctionMin(), 
-                                                                   OPTIONS->InitialMassFunctionPower());
+                    // the initial mass of the star is supplied - this is to allow binary stars to initialise
+                    // the masses of their constituent stars (rather than have the constituent stars sample 
+                    // their own mass).  Here we use the mass supplied by the user via the program options or, 
+                    // if no mass was supplied by the user, sample the mass from the IMF.
 
-                // the metallicity of the star is supplied - this is to allow binary stars to initialise
-                // the metallicity of their constituent stars (rather than have the constituent stars sample 
-                // their own metallicity).  Here we use the mmetallicityass supplied by the user via the program
-                // options or, if no metallicity was supplied by the user, sample the metallicity.
+                    double initialMass = OPTIONS->OptionSpecified("initial-mass") == 1                              // user specified mass?
+                                            ? OPTIONS->InitialMass()                                                // yes, use it
+                                            : utils::SampleInitialMass(OPTIONS->InitialMassFunction(),              // no, sample it
+                                                                       OPTIONS->InitialMassFunctionMax(), 
+                                                                       OPTIONS->InitialMassFunctionMin(), 
+                                                                       OPTIONS->InitialMassFunctionPower());
 
-                double metallicity = OPTIONS->OptionSpecified("metallicity") == 1                                   // user specified metallicity?
-                                        ? OPTIONS->Metallicity()                                                    // yes, use it
-                                        : utils::SampleMetallicity(OPTIONS->MetallicityDistribution(), 
-                                                                   OPTIONS->MetallicityDistributionMax(), 
-                                                                   OPTIONS->MetallicityDistributionMin());          // no, sample it
+                    // the metallicity of the star is supplied - this is to allow binary stars to initialise
+                    // the metallicity of their constituent stars (rather than have the constituent stars sample 
+                    // their own metallicity).  Here we use the mmetallicityass supplied by the user via the program
+                    // options or, if no metallicity was supplied by the user, sample the metallicity.
+
+                    double metallicity = OPTIONS->OptionSpecified("metallicity") == 1                               // user specified metallicity?
+                                            ? OPTIONS->Metallicity()                                                // yes, use it
+                                            : utils::SampleMetallicity(OPTIONS->MetallicityDistribution(), 
+                                                                       OPTIONS->MetallicityDistributionMax(), 
+                                                                       OPTIONS->MetallicityDistributionMin());      // no, sample it
 
 
 
-                // Single stars (in SSE) are provided with a kick structure that specifies the 
-                // values of the random number to be used to generate to kick magnitude, and the
-                // actual kick magnitude specified by the user via program option --kick-magnitude       
-                //
-                // See typedefs.h for the kick structure.
-                //
-                // We can't just pick up the values of the options inside Basestar.cpp because the
-                // constituents of binaries get different values, so use different options. The
-                // Basestar.cpp code doesn't know if the star is a single star (SSE) or a constituent
-                // of a binary (BSE) - it only knows that it is a star - so we have to setup the kick
-                // structure here.
-                //
-                // for SSE only need magnitudeRandom and magnitude - other values can just be ignored
+                    // Single stars (in SSE) are provided with a kick structure that specifies the 
+                    // values of the random number to be used to generate to kick magnitude, and the
+                    // actual kick magnitude specified by the user via program option --kick-magnitude       
+                    //
+                    // See typedefs.h for the kick structure.
+                    //
+                    // We can't just pick up the values of the options inside Basestar.cpp because the
+                    // constituents of binaries get different values, so use different options. The
+                    // Basestar.cpp code doesn't know if the star is a single star (SSE) or a constituent
+                    // of a binary (BSE) - it only knows that it is a star - so we have to setup the kick
+                    // structure here.
+                    //
+                    // for SSE only need magnitudeRandom and magnitude - other values can just be ignored
 
-                KickParameters kickParameters;
-                kickParameters.magnitudeRandomSpecified = OPTIONS->OptionSpecified("kick-magnitude-random") == 1;
-                kickParameters.magnitudeRandom          = OPTIONS->KickMagnitudeRandom();
-                kickParameters.magnitudeSpecified       = OPTIONS->OptionSpecified("kick-magnitude") == 1;
-                kickParameters.magnitude                = OPTIONS->KickMagnitude();
+                    KickParameters kickParameters;
+                    kickParameters.magnitudeRandomSpecified = OPTIONS->OptionSpecified("kick-magnitude-random") == 1;
+                    kickParameters.magnitudeRandom          = OPTIONS->KickMagnitudeRandom();
+                    kickParameters.magnitudeSpecified       = OPTIONS->OptionSpecified("kick-magnitude") == 1;
+                    kickParameters.magnitude                = OPTIONS->KickMagnitude();
                        
-                // create the star
-                delete star; star = nullptr;                                                                        // so we don't leak...
-                star = OPTIONS->OptionSpecified("rotational-frequency") == 1                                        // user specified rotational frequency?
-                    ? new Star(randomSeed, initialMass, metallicity, kickParameters, OPTIONS->RotationalFrequency() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
-                    : new Star(randomSeed, initialMass, metallicity, kickParameters);                               // no - let it be calculated
+                    // create the star
+                    delete star; star = nullptr;                                                                    // so we don't leak...
+                    star = OPTIONS->OptionSpecified("rotational-frequency") == 1                                    // user specified rotational frequency?
+                        ? new Star(randomSeed, initialMass, metallicity, kickParameters, OPTIONS->RotationalFrequency() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
+                        : new Star(randomSeed, initialMass, metallicity, kickParameters);                           // no - let it be calculated
 
-                EVOLUTION_STATUS thisStatus = star->Evolve(index);                                                  // evolve the star
+                    EVOLUTION_STATUS thisStatus = star->Evolve(index);                                              // evolve the star
 
-                if (!OPTIONS->Quiet()) {                                                                            // quiet mode?
-                    SAY(index                                   <<                                                  // announce result of evolving the star
-                        ": "                                    <<
-                        EVOLUTION_STATUS_LABEL.at(thisStatus)   <<                  
-                        ": RandomSeed = "                       <<
-                        randomSeed                              <<
-                        ", Initial Mass = "                     <<
-                        initialMass                             <<
-                        ", Metallicity = "                      <<
-                        star->Metallicity()                     <<
-                        ", "                                    <<
-                        STELLAR_TYPE_LABEL.at(star->StellarType()));
-                }
-
-                if (!LOGGING->CloseStandardFile(LOGFILE::SSE_DETAILED_OUTPUT)) {                                    // close SSE detailed output file
-                    SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                              // close failed - show warning
-                    evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                    // this will cause problems later - stop evolution
-                }
-
-                ERRORS->Clean();                                                                                    // clean the dynamic error catalog
-
-                index++;                                                                                            // next...
-
-                if (usingGrid) {                                                                                    // using grid file?
-                    gridLineVariation++;                                                                            // yes - increment grid line variation number
-                    int optionsStatus = OPTIONS->AdvanceGridLineOptionValues();                                     // apply next grid file options (ranges/sets)
-                    if (optionsStatus < 0) {                                                                        // ok?
-                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                // no - stop evolution
-                        SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                       // show error
+                    if (!OPTIONS->Quiet()) {                                                                        // quiet mode?
+                        SAY(index                                   <<                                              // announce result of evolving the star
+                            ": "                                    <<
+                            EVOLUTION_STATUS_LABEL.at(thisStatus)   <<                  
+                            ": RandomSeed = "                       <<
+                            randomSeed                              <<
+                            ", Initial Mass = "                     <<
+                            initialMass                             <<
+                            ", Metallicity = "                      <<
+                            star->Metallicity()                     <<
+                            ", "                                    <<
+                            STELLAR_TYPE_LABEL.at(star->StellarType()));
                     }
-                    else if (optionsStatus == 0) {                                                                  // end of grid file options variations?
-                        doneGridLine = true;                                                                        // yes - we're done
+
+                    if (!LOGGING->CloseStandardFile(LOGFILE::SSE_DETAILED_OUTPUT)) {                                // close SSE detailed output file
+                        SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                          // close failed - show warning
+                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                // this will cause problems later - stop evolution
                     }
+
+                    ERRORS->Clean();                                                                                // clean the dynamic error catalog
+
+                    index++;                                                                                        // next...
+
+                    if (usingGrid) {                                                                                // using grid file?
+                        gridLineVariation++;                                                                        // yes - increment grid line variation number
+                        int optionsStatus = OPTIONS->AdvanceGridLineOptionValues();                                 // apply next grid file options (ranges/sets)
+                        if (optionsStatus < 0) {                                                                    // ok?
+                            evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // no - stop evolution
+                            SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                   // show error
+                        }
+                        else if (optionsStatus == 0) {                                                              // end of grid file options variations?
+                            doneGridLine = true;                                                                    // yes - we're done
+                        }
+                    }
+                    else doneGridLine = true;                                                                       // not using grid file - done    
                 }
-                else doneGridLine = true;                                                                           // not using grid file - done    
             }
         }
         delete star; star = nullptr;
@@ -374,12 +398,13 @@ std::tuple<int, int> EvolveBinaryStars() {
     // options specified by the user at the commandline to their next variation (if necessary,
     // based on any ranges and/or sets specified by the user).
 
-    while (evolutionStatus ==EVOLUTION_STATUS::CONTINUE) {                                                      // while all ok and not done
+    while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                     // while all ok and not done
 
         // generate and evolve binaries
 
-        int gridLineVariation = 0;                                                                              // grid line variation number
-        bool doneGridFile     = false;                                                                          // flags we're done with the grid file (for this commandline variation)
+        int  gridLineVariation  = 0;                                                                            // grid line variation number
+        bool doneGridFile       = false;                                                                        // flags we're done with the grid file (for this commandline variation)
+        bool processingGridLine = false;                                                                        // processing a gridfile line?
         while (!doneGridFile && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                // for each binary to be evolved
 
             evolvingBinaryStar      = NULL;                                                                     // unset global pointer to evolving binary (for BSE Switch Log)
@@ -400,7 +425,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                             evolutionStatus = EVOLUTION_STATUS::STOPPED;                                        // stop evolution
                         }
                     } break;
-                    case  1: break;                                                                             // grid record read - not done yet...
+                    case  1: processingGridLine = true; break;                                                  // grid record read - not done yet...
                     default: evolutionStatus = EVOLUTION_STATUS::STOPPED; break;                                // problem - stop evolution
                 }
             }
@@ -413,8 +438,10 @@ std::tuple<int, int> EvolveBinaryStars() {
             // OPTIONS->AdvanceGridLineOptionValues(), called at the end of the loop, advances the
             // options specified by the user in the grid file line to their next variation (if necessary,
             // based on any ranges and/or sets specified by the user).
+            // Note that `doneGridLine` may be a proxy for the command line here (it is set FALSE even if
+            // there is no grid file - so the loop executes once to process the command line)
 
-            while (!doneGridLine && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                            // while all ok and not done
+            while (!doneGridLine && (evolutionStatus == EVOLUTION_STATUS::CONTINUE)) {                            // while all ok and not done
 
                 // we only need to pass the index number to the binary - we let the BinaryStar class do the work 
                 // wrt setting the parameters for each of the constituent stars
@@ -445,75 +472,96 @@ std::tuple<int, int> EvolveBinaryStars() {
                 // and options (if no rangers or sets were specified on the grid line then no offset is added
                 // (i.e. the random seed specified is used as it)).  Note that in this scenario it is the 
                 // user's responsibility to ensure that there is no duplication of seeds.
+             
+                unsigned long int thisId = index + gridLineVariation;                                           // set the id for the binary
 
-                unsigned long int randomSeed = 0l;
-                
-                long int thisId = index + gridLineVariation;                                                    // set the id for the binary
-
-                if (OPTIONS->FixedRandomSeedGridLine()) {                                                       // user specified a random seed in the grid file for this star?
-                    randomSeed = RAND->Seed(OPTIONS->RandomSeedGridLine() + (long int)gridLineVariation);       // yes - use it (indexed)
+                unsigned long int randomSeed = 0l;                                                              // random seed
+                OPTIONS_ORIGIN    optsOrigin = processingGridLine ? OPTIONS_ORIGIN::GRIDFILE : OPTIONS_ORIGIN::CMDLINE; // indicate which set of program options we're using
+                if (OPTIONS->FixedRandomSeedGridLine()) {                                                       // user specified a random seed in the grid file for this binary?
+                                                                                                                // yes - use it (indexed)
+                    randomSeed = OPTIONS->RandomSeedGridLine() + (unsigned long int)gridLineVariation;          // random seed               
+                    if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                   // ok?
+                        SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                   // no - show error
+                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // and stop evolution
+                    }
                 }
                 else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                   // no - user specified a random seed on the commandline?
-                    randomSeed = RAND->Seed(OPTIONS->RandomSeedCmdLine() + thisId);                             // yes - use it (indexed)
+                                                                                                                // yes - use it (indexed)
+                    randomSeed = OPTIONS->RandomSeedCmdLine() + (unsigned long int)index + (unsigned long int)gridLineVariation; // random seed               
+                    if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                   // ok?
+                        SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                    // no - show error
+                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // and stop evolution
+                    }
                 }
                 else {                                                                                          // no
-                    randomSeed = RAND->Seed(RAND->DefaultSeed() + thisId);                                      // use default seed (based on system time, and indexed)
+                                                                                                                // use default seed (based on system time) + id (index)
+                    randomSeed = RAND->DefaultSeed() + (unsigned long int)index + (unsigned long int)gridLineVariation; // random seed               
+                    if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                   // ok?
+                        SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                    // no - show error
+                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // and stop evolution
+                    }
                 }
 
-                delete binary; binary = nullptr;                                                                // so we don't leak
-                binary = new BinaryStar(randomSeed, thisId);                                                    // generate binary according to the user options
+                if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                            // ok?
+                                                                                                                // yes - continue
+                    randomSeed = RAND->CurrentSeed();                                                           // current random seed - to pass to binary object
 
-                evolvingBinaryStar      = binary;                                                               // set global pointer to evolving binary (for BSE Switch Log)
-                evolvingBinaryStarValid = true;                                                                 // indicate that the global pointer is now valid (for BSE Switch Log)
 
-                EVOLUTION_STATUS binaryStatus = binary->Evolve();                                               // evolve the binary
+                    delete binary; binary = nullptr;                                                            // so we don't leak
+                    binary = new BinaryStar(randomSeed, thisId);                                                // generate binary according to the user options
 
-                if (binaryStatus == EVOLUTION_STATUS::ERROR || binaryStatus == EVOLUTION_STATUS::SSE_ERROR) {   // ok?
-                    SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED, EVOLUTION_STATUS_LABEL.at(binaryStatus));       // no - show error
-                }
+                    evolvingBinaryStar      = binary;                                                           // set global pointer to evolving binary (for BSE Switch Log)
+                    evolvingBinaryStarValid = true;                                                             // indicate that the global pointer is now valid (for BSE Switch Log)
+
+                    EVOLUTION_STATUS binaryStatus = binary->Evolve();                                           // evolve the binary
+
+                    if (binaryStatus == EVOLUTION_STATUS::ERROR || binaryStatus == EVOLUTION_STATUS::SSE_ERROR) { // ok?
+                        SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED, EVOLUTION_STATUS_LABEL.at(binaryStatus));   // no - show error
+                    }
                 
-                // announce result of evolving the binary
-                if (!OPTIONS->Quiet()) {                                                                        // quiet mode?
+                    // announce result of evolving the binary
+                    if (!OPTIONS->Quiet()) {                                                                    // quiet mode?
                                                                                                                 // no - announce result of evolving the binary
-                    if (OPTIONS->CHEMode() == CHE_MODE::NONE) {                                                 // CHE enabled?
-                        SAY(thisId                                     << ": "  <<                              // no - CHE not enabled - don't need initial stellar type
-                            EVOLUTION_STATUS_LABEL.at(binaryStatus)    << ": "  <<
-                            STELLAR_TYPE_LABEL.at(binary->Star1Type()) << " + " <<
-                            STELLAR_TYPE_LABEL.at(binary->Star2Type())
-                        );
+                        if (OPTIONS->CHEMode() == CHE_MODE::NONE) {                                             // CHE enabled?
+                            SAY(thisId                                     << ": "  <<                          // no - CHE not enabled - don't need initial stellar type
+                                EVOLUTION_STATUS_LABEL.at(binaryStatus)    << ": "  <<
+                                STELLAR_TYPE_LABEL.at(binary->Star1Type()) << " + " <<
+                                STELLAR_TYPE_LABEL.at(binary->Star2Type())
+                            );
+                        }
+                        else {                                                                                  // CHE enabled - show initial stellar type
+                            SAY(thisId                                            << ": "    <<
+                                EVOLUTION_STATUS_LABEL.at(binaryStatus)           << ": ("   <<
+                                STELLAR_TYPE_LABEL.at(binary->Star1InitialType()) << " -> "  <<
+                                STELLAR_TYPE_LABEL.at(binary->Star1Type())        << ") + (" <<
+                                STELLAR_TYPE_LABEL.at(binary->Star2InitialType()) << " -> "  <<
+                                STELLAR_TYPE_LABEL.at(binary->Star2Type())        <<  ")"
+                            );
+                        }
                     }
-                    else {                                                                                      // CHE enabled - show initial stellar type
-                        SAY(thisId                                            << ": "    <<
-                            EVOLUTION_STATUS_LABEL.at(binaryStatus)           << ": ("   <<
-                            STELLAR_TYPE_LABEL.at(binary->Star1InitialType()) << " -> "  <<
-                            STELLAR_TYPE_LABEL.at(binary->Star1Type())        << ") + (" <<
-                            STELLAR_TYPE_LABEL.at(binary->Star2InitialType()) << " -> "  <<
-                            STELLAR_TYPE_LABEL.at(binary->Star2Type())        <<  ")"
-                        );
+
+                    if (!LOGGING->CloseStandardFile(LOGFILE::BSE_DETAILED_OUTPUT)) {                            // close detailed output file if necessary
+                        SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                      // close failed - show warning
+                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // this will cause problems later - stop evolution
                     }
+
+                    ERRORS->Clean();                                                                            // clean the dynamic error catalog
+
+                    if (usingGrid) {                                                                            // using grid file?
+                        gridLineVariation++;                                                                    // yes - increment grid line variation number
+                        int optionsStatus = OPTIONS->AdvanceGridLineOptionValues();                             // apply next grid file options (ranges/sets)
+                        if (optionsStatus < 0) {                                                                // ok?
+                            evolutionStatus = EVOLUTION_STATUS::STOPPED;                                        // no - stop evolution
+                            SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                               // show error
+                        }
+                        else if (optionsStatus == 0) {                                                          // end of grid file options variations?
+                            doneGridLine = true;                                                                // yes - we're done
+                        }
+                    }
+                    else doneGridLine = true;                                                                   // not using grid file - done
+
+                    if (doneGridLine) index = thisId + 1;                                                       // increment index
                 }
-
-                if (!LOGGING->CloseStandardFile(LOGFILE::BSE_DETAILED_OUTPUT)) {                                // close detailed output file if necessary
-                    SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                          // close failed - show warning
-                    evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                // this will cause problems later - stop evolution
-                }
-
-                ERRORS->Clean();                                                                                // clean the dynamic error catalog
-
-                if (usingGrid) {                                                                                // using grid file?
-                    gridLineVariation++;                                                                        // yes - increment grid line variation number
-                    int optionsStatus = OPTIONS->AdvanceGridLineOptionValues();                                 // apply next grid file options (ranges/sets)
-                    if (optionsStatus < 0) {                                                                    // ok?
-                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // no - stop evolution
-                        SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                   // show error
-                    }
-                    else if (optionsStatus == 0) {                                                              // end of grid file options variations?
-                        doneGridLine = true;                                                                    // yes - we're done
-                    }
-                }
-                else doneGridLine = true;                                                                       // not using grid file - done
-
-                if (doneGridLine) index = thisId + 1;                                                           // increment index
             }
         }
         delete binary; binary = nullptr;
@@ -592,7 +640,7 @@ int main(int argc, char * argv[]) {
     PROGRAM_STATUS programStatus = PROGRAM_STATUS::CONTINUE;                                        // status - initially ok
 
     RAND->Initialise();                                                                             // initialise the random number service
-    RAND->Seed(0l);                                                                                 // set see to 0 - ensures repeatable results
+    RAND->Seed(0l);                                                                                 // set seed to 0 - ensures repeatable results
 
     bool ok = OPTIONS->Initialise(argc, argv);                                                      // get the program options from the commandline
     if (!ok) {                                                                                      // have commandline options ok?
