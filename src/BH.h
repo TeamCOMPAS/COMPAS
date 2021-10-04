@@ -48,7 +48,7 @@ protected:
     // member functions - alphabetically
     double  CalculateConvergedMassStepZetaNuclear() const                           { return 0.0; }
 
-    double  CalculateEddingtonCriticalRate() const                                  { return 1.5E-8 * (m_Radius * RSOL_TO_KM / 10.0) * MYR_TO_YEAR; }   // van der Sluys 2013 ("Binary Evolution in a Nutshell"), eq 70
+    double  CalculateEddingtonCriticalRate() const                                  { return 2.6E-8 * m_Mass * MYR_TO_YEAR; }   // E.g., Marchant+, 2017, Eq. 3, assuming accretion efficiency of 10%
 
     double  CalculateGyrationRadius() const                                         { return 0.0; }                                                     // No tidal coupling to a BH
 
