@@ -773,12 +773,13 @@
 //                                      - Removed unnecessary IsPrimary() / BecomePrimary() functionality, fixed incorrect MassTransferTrackerHistory (see issue #605)
 // 02.22.03     IM - Oct 4, 2022    - Defect repair:
 //                                      - Corrected Eddington mass accretion limits, issue #612 (very minor change for WDs and NSs, factor of a few increase for BHs)
-// 02.21.04     RTW - Oct 5, 2021   - Enhancements:
+// 02.22.04     RTW - Oct 5, 2021   - Enhancements:
 //                                      - Added units uniformly to the --help input descriptions
 //                                      - Removed the BeBinary- and RLOF-specific random seeds (which were attributes of the events and were printed with e.g <MT) and replaced with system random seed
 //                                      - In CE output, changed MASS_2_FINAL (which was sort of a wrapper for core mass) for MASS_2_POST_COMMON_ENVELOPE
 //                                      - Removed SN kick angles from SystemParameters output (they are duplicated in SN output) and changed true_anomaly to mean_anomaly in SN output
 //                                      - Cosmetic typo fixes and added consistency, in the Event_Counter parameters and some function definitions
+//                                      - Added *.eps to gitignore
                         
 const std::string VERSION_STRING = "02.22.04";
 
