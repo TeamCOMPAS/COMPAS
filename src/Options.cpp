@@ -1015,22 +1015,22 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "kick-magnitude-sigma-CCSN-BH",                                
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH)->default_value(p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH),                                            
-            ("Sigma for Maxwellian kick magnitude distribution, in km/s, for black holes (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH) + ")").c_str()
+            ("Sigma for chosen kick magnitude distribution, in km/s, for black holes (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH) + ")").c_str()
         )
         (
             "kick-magnitude-sigma-CCSN-NS",                                
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS)->default_value(p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS),                                            
-            ("Sigma for Maxwellian kick magnitude distribution, in km/s, for neutron stars (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS) + ")").c_str()
+            ("Sigma for chosen kick magnitude distribution, in km/s, for neutron stars (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS) + ")").c_str()
         )
         (
             "kick-magnitude-sigma-ECSN",                                   
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaForECSN)->default_value(p_Options->m_KickMagnitudeDistributionSigmaForECSN),                                            
-            ("Sigma for Maxwellian kick magnitude distribution, in km/s, for ECSN (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaForECSN) + ")").c_str()
+            ("Sigma for chosen kick magnitude distribution, in km/s, for ECSN (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaForECSN) + ")").c_str()
         )
         (
             "kick-magnitude-sigma-USSN",                                   
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaForUSSN)->default_value(p_Options->m_KickMagnitudeDistributionSigmaForUSSN),                                            
-            ("Sigma for Maxwellian kick magnitude distribution, in km/s, for USSN (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaForUSSN) + ")").c_str()
+            ("Sigma for chosen kick magnitude distribution, in km/s, for USSN (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaForUSSN) + ")").c_str()
         )
         (
             "kick-mean-anomaly-1",
