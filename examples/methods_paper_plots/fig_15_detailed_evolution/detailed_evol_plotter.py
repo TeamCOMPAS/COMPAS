@@ -2,7 +2,7 @@
 #                                                                 #                                                               
 #  Example of plotting detailed output COMPAS with python         #
 #                                                                 #
-###################################################################
+# ##################################################################
 
 import pandas as pd
 import numpy as np
@@ -35,7 +35,7 @@ def main():
     lines += axes[0][0].plot(Data['Time'][()], Data['Mass_CO_Core(2)'][()], linestyle=':', c='b', label='CO Core 2')
     axes[0][0].set_ylabel(r'Mass $/ \; M_{\odot}$')
     axes[0][0].grid(linestyle=':', c='gray')
-    axes[0][0].legend(lines[:4], axes[0][0].get_legend_handles_labels()[1][:4], prop={'size':8}, loc=(0.05, 0.6))
+    axes[0][0].legend(lines[:4], axes[0][0].get_legend_handles_labels()[1][:4], prop={'size':8}, loc=(0.05, 0.55))
     axes[0][0].add_artist(Legend(axes[0][0], lines[4:], axes[0][0].get_legend_handles_labels()[1][4:], prop={'size':8}, loc=(0.05, 0.15)))
     axes[0][0].tick_params(labelbottom=True)
     axes[0][0].xaxis.set_major_locator(ticker.MultipleLocator(2.0))
@@ -111,8 +111,10 @@ def getStellarTypes(Data):
 
     return stellarTypes, useTypes, typeNameMap
 
-#############################################
-
+""
 if __name__ == "__main__":
     main()
+
+
+""
 

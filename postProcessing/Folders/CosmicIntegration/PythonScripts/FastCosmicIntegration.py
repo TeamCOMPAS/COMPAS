@@ -527,13 +527,29 @@ def append_rates(path, filename, detection_rate, formation_rate, merger_rate, re
         # Bin rates by redshifts
         #################################################
         if append_binned_by_z:
-
             # Choose how you want to bin the redshift, these represent the left and right boundaries
             redshift_bins = np.arange(0, redshifts[-1]+redshift_binsize, redshift_binsize)
+            fine_binsize    = np.diff(redshifts)[0] #Assunming your redshift bins are equally spaced!!
+            print('fine_binsize', fine_binsize)
+            #Assuming your crude redshift bin is made up of an integer number of fine z-bins!!!
+            i_per_crude_bin = redshift_binsize/fine_binsize 
+            i_per_crude_bin = int(i_per_crude_bin)
 
-            # Use digitize to assign the redshifts to a bin (detection list is shorter)
-            digitized     = np.digitize(redshifts, redshift_bins)
-            digitized_det = np.digitize(redshifts[:n_redshifts_detection], redshift_bins)
+            ###################
+            # convert crude redshift bins to volumnes and ensure all volumes are in Gpc^3
+            crude_volumes = cosmology.comoving_volume(redshift_bins).to(u.Gpc**3).value
+            # split volumes into shells 
+            crude_shell_volumes    = np.diff(crude_volumes)
+
+            ###################
+            # convert redshifts to volumnes and ensure all volumes are in Gpc^3
+            fine_volumes       = cosmology.comoving_volume(redshifts).to(u.Gpc**3).value
+            fine_shell_volumes = np.diff(fine_volumes)
+            fine_shell_volumes = np.append(fine_shell_volumes, fine_shell_volumes[-1])
+
+            # Convert your merger_rate back to 1/yr by multiplying by the fine_shell_volumes
+            N_dco_in_z_bin      = (merger_rate[:,:] * fine_shell_volumes[:])
+            print('fine_shell_volumes', fine_shell_volumes)
 
             # The number of merging BBHs that need a weight
             N_dco  = len(merger_rate[:,0])
@@ -545,14 +561,17 @@ def append_rates(path, filename, detection_rate, formation_rate, merger_rate, re
 
             # loop over all redshift redshift_bins
             for i in range(len(redshift_bins)-1):
-                binned_merger_rate[:,i]    = np.sum(merger_rate[:, digitized == i+1], axis = 1)
-                # only add detected rates for the 'detectable' redshiifts
+                # Sum the number of mergers per year, and divide by the new dz volume to get a density
+                # binned_merger_rate[:,i] = np.sum(N_dco_in_z_bin[:,digitized == i+1], axis = 1)/crude_shell_volumes[i]
+                binned_merger_rate[:,i] = np.sum(N_dco_in_z_bin[:,i*i_per_crude_bin:(i+1)*i_per_crude_bin], axis = 1)/crude_shell_volumes[i]
+
+                # only add detected rates for the 'detectable' redshifts
                 if redshift_bins[i] < redshifts[n_redshifts_detection]:
-                    binned_detection_rate[:,i] = np.sum(detection_rate[:, digitized_det == i+1], axis = 1)
+                    # The detection rate was already multiplied by the shell volumes, so we can sum it directly
+                    binned_detection_rate[:,i] = np.sum(detection_rate[:,i*i_per_crude_bin:(i+1)*i_per_crude_bin], axis = 1)
             save_redshifts        = redshift_bins
             save_merger_rate      = binned_merger_rate
             save_detection_rate   = binned_detection_rate
-
         else: 
             #  To avoid huge filesizes, we don't really wan't All the data, 
             # so we're going to save up to some redshift
@@ -761,7 +780,7 @@ if __name__ == "__main__":
     #####################################
     # Run the cosmic integration
     start_CI = time.time()
-    detection_rate, formation_rate, merger_rate, redshifts, COMPAS = find_detection_rate(args.path, filename=args.fname, dco_type=args.dco_type, weight_column=None, #"mixture_weight"
+    detection_rate, formation_rate, merger_rate, redshifts, COMPAS = find_detection_rate(args.path, filename=args.fname, dco_type=args.dco_type, weight_column=args.weight_column,
                             max_redshift=args.max_redshift, max_redshift_detection=args.max_redshift_detection, redshift_step=args.redshift_step, z_first_SF= args.z_first_SF,
                             m1_min=args.m1_min*u.Msun, m1_max=args.m1_max*u.Msun, m2_min=args.m2_min*u.Msun, fbin=args.fbin,
                             aSF = args.aSF, bSF = args.bSF, cSF = args.cSF, dSF = args.dSF, 
