@@ -779,7 +779,7 @@
 //                                      - In CE output, changed MASS_2_FINAL (which was sort of a wrapper for core mass) for MASS_2_POST_COMMON_ENVELOPE
 //                                      - Removed SN kick angles from SystemParameters output (they are duplicated in SN output) and changed true_anomaly to mean_anomaly in SN output
 //                                      - Cosmetic typo fixes and added consistency, in the Event_Counter parameters and some function definitions
-//                                      - Added *.eps to gitignore
+//                                      - Added *.eps, *.png to gitignore
                         
 const std::string VERSION_STRING = "02.22.04";
 
