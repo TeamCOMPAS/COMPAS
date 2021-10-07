@@ -37,6 +37,9 @@ archivePrefix = {arXiv},
       adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }
 
+Note that to make the \noopsort works, which fixes the preferred acknowledgement, you'll have to include at the start of your bibtex file the line
+@PREAMBLE{ {\providecommand{\noopsort}[1]{}} }
+
 
 
 In addition, we suggest to kindly include the two following papers:
@@ -72,3 +75,9 @@ Furthermore,
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
+
+
+
+## A highlight of papers that have made use of COMPAS are listed at [https://compas.science/science.html]https://compas.science/science.html
+
+
