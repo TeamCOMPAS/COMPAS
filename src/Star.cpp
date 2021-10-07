@@ -1,5 +1,6 @@
 #include "Star.h"
 #include <algorithm>
+#include <csignal>
 
 // Default constructor
 Star::Star() : m_Star(new BaseStar()) {
@@ -11,30 +12,30 @@ Star::Star() : m_Star(new BaseStar()) {
 }
 
 
-// Regular constructor - with parameters for RandomSeed, MZAMS, Metallicity, LBVFactor and WolfRayetFactor
+// Regular constructor - with parameters for RandomSeed, MZAMS, Metallicity, and KickParameters
+
 Star::Star(const unsigned long int p_RandomSeed,
            const double            p_MZAMS,
-           const double            p_Metallicity,
+           const double            p_Metallicity, 
            const KickParameters    p_KickParameters,
-           const double            p_LBVfactor,
-           const double            p_WolfRayetFactor) {
+           const double            p_RotationalVelocity) {
 
     m_ObjectId   = globalObjectId++;                                                                                // set object id
     m_ObjectType = OBJECT_TYPE::STAR;                                                                               // set object type
 
-    m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_Metallicity, p_KickParameters, p_LBVfactor, p_WolfRayetFactor);  // create underlying BaseStar object
+    m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_Metallicity, p_KickParameters, p_RotationalVelocity);            // create underlying BaseStar object
 
     // star begins life as a main sequence star, unless it is
     // spinning fast enough for it to be chemically homogeneous
 
-    if (OPTIONS->CHE_Option() != CHE_OPTION::NONE && utils::Compare(m_Star->Omega(), m_Star->OmegaCHE()) >= 0) {    // CHE?
-        SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                       // yes
+    if (OPTIONS->CHEMode() != CHE_MODE::NONE && utils::Compare(m_Star->Omega(), m_Star->OmegaCHE()) >= 0) {         // CHE?
+        (void)SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                 // yes
     }
     else if (p_MZAMS <= 0.7) {                                                                                      // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
-        SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                                                                    // MS <= 0.0 Msol
+        (void)SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                                                              // MS <= 0.0 Msol
     }
     else {
-        SwitchTo(STELLAR_TYPE::MS_GT_07, true);                                                                     // MS > 0.7 Msol
+        (void)SwitchTo(STELLAR_TYPE::MS_GT_07, true);                                                               // MS > 0.7 Msol
     }
 
     m_SaveStar = nullptr;
@@ -114,13 +115,19 @@ Star& Star::operator = (const Star& p_Star) {
  * replaces it with pointer to newly instantiated object
  *
  *
- * void SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialState)
+ * STELLAR_TYPE SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialState)
  *
  * @param   [IN]    p_StellarType               StellarType to switch to
  * @param   [IN]    p_SetInitialType            Indicates whether the initial stellar type of the star should be set to p_StellarType
  *                                              (optional, default = false)
+ * @return                                      Stellar type of star before switch (previous stellar type)
  */
-void Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType) {
+STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType) {
+
+    STELLAR_TYPE stellarTypePrev = m_Star->StellarType();
+
+    // don't switch if stellarTypePrev == p_StellarType
+    // (the call to SwitchTo() in Star::EvolveOneTimestep() doesn't check - it relies on the check here)
 
     if (p_StellarType != m_Star->StellarType()) {
         BaseStar *ptr = nullptr;
@@ -152,7 +159,22 @@ void Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType) {
 
             if (p_SetInitialType) m_Star->SetInitialType(p_StellarType);
         }
+
+        // write to switch log file if required
+
+        if (utils::IsOneOf(stellarTypePrev, EVOLVABLE_TYPES) && OPTIONS->SwitchLog()) {     // star should be evolving from one of the evolvable types (We don't want the initial switch from Star->MS.  Not necessary for BSE (handled differently), but no harm)
+        
+            LOGGING->SetSwitchParameters(m_ObjectId, stellarTypePrev, p_StellarType);       // store switch details to LOGGING service
+            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::BSE) {                          // BSE?
+                raise(SIGUSR1);                                                             // signal to BSE that switch is occurring
+            }
+            else {                                                                          // SSE
+                (void)m_Star->PrintSwitchLog(m_Id);                                         // no need for the BSE signal shenaningans - just call the function
+            }
+        }
     }
+
+    return stellarTypePrev;
 }
 
 
@@ -268,9 +290,8 @@ STELLAR_TYPE Star::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
     STELLAR_TYPE stellarType = m_Star->UpdateAttributesAndAgeOneTimestep(p_DeltaMass, p_DeltaMass0, p_DeltaTime, p_ForceRecalculate);
 
     if (p_Switch && (stellarType != m_Star->StellarType())) {                               // switch to new stellar type if necessary?
-        STELLAR_TYPE stellarTypePrev = m_Star->StellarType();                               // yes - record current stellar type (will be previous...)
-        SwitchTo(stellarType);                                                              // switch
-        m_Star->CalculateAllTimescales();                                                   // calculate dynamical, thermal, nuclear and radial expansion timescales
+        STELLAR_TYPE stellarTypePrev = SwitchTo(stellarType);                               // yes - switch
+        m_Star->SetStellarTypePrev(stellarTypePrev);                                        // record previous stellar type
         
         // recalculate stellar attributes after switching if necessary - transition may not be continuous (e.g. CH -> HeMS)
         // (this could get recursive, but shouldn't...)
@@ -391,7 +412,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
     int          retryCount   = 0;
 
     while (!takeTimestep) {                                                                                     // do this until a suitable timestep is found (or the maximum retry count is reached)
-
+        
         SaveState();                                                                                            // save the state of the star - in case we want to revert
 
         double minTimestep = std::max(m_Star->CalculateDynamicalTimescale(), ABSOLUTE_MINIMUM_TIMESTEP);        // calculate the minimum timestep - maximum of dynamical timescale for this star and the aboslute minimum timestep
@@ -407,13 +428,13 @@ double Star::EvolveOneTimestep(const double p_Dt) {
         if (utils::Compare(m_Star->CalculateRadialChange(), MAXIMUM_RADIAL_CHANGE) >= 0) {                      // too much change?
             if (utils::Compare(dt, minTimestep) <= 0) {                                                         // yes - already at or below minimum timestep?
                 takeTimestep = true;                                                                            // yes - just take the last timestep
-//                if (!OPTIONS->Quiet()) SAY("WARNING: Timestep below minimum - timestep taken!");                // announce the problem if required and plough on regardless...
+                SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                                       // announce the problem if required and plough on regardless...
             }
             else {                                                                                              // not at or below dynamical - reduce timestep and try again
                 retryCount++;                                                                                   // increment retry count
                 if (retryCount > MAX_TIMESTEP_RETRIES) {                                                        // too many retries?
                     takeTimestep = true;                                                                        // yes - take the last timestep anyway
-//                    if (!OPTIONS->Quiet()) SAY("WARNING: Too many retries finding timestep - timestep taken!"); // announce the problem if required and plough on regardless...
+                    SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                                   // announce the problem if required and plough on regardless...
                 }
                 else {                                                                                          // not too many retries - retry with smaller timestep
                     if (RevertState()) {                                                                        // revert to last state ok?
@@ -422,7 +443,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
                     }
                     else {                                                                                      // revert failed
                         takeTimestep = true;                                                                    // take the last timestep anyway
-//                        if (!OPTIONS->Quiet()) SAY("Revert of star failed - timestep taken!");                  // announce the problem if required and plough on regardless...
+                        SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                               // announce the problem if required and plough on regardless...
                     }
                 }
             }
@@ -431,11 +452,11 @@ double Star::EvolveOneTimestep(const double p_Dt) {
 
     // take the timestep
 
-    SwitchTo(stellarType);                                                                                      // switch phase if required  JR: whether this goes before or after the log record is a little problematic, but in the end probably doesn't matter too much
+    (void)m_Star->PrintStashedSupernovaDetails();                                                               // print stashed SSE Supernova log record if necessary
+
+    (void)SwitchTo(stellarType);                                                                                // switch phase if required  JR: whether this goes before or after the log record is a little problematic, but in the end probably doesn't matter too much
 
     (void)m_Star->ResolveMassLoss();                                                                            // apply wind mass loss if required     JR: should this really be before the call to SwitchTo()?  It isn't in the original code
-
-     m_Star->CalculateAllTimescales();                                                                          // calculate dynamical, thermal, nuclear and radial expansion timescales
 
     return dt;                                                                                                  // return the timestep actually taken
 }
@@ -445,15 +466,20 @@ double Star::EvolveOneTimestep(const double p_Dt) {
  * Evolve the star through its entire lifetime
  *
  *
- * void Evolve(const int p_StepNum)
+ * EVOLUTION_STATUS Evolve(const long int p_Id)
  *
- * @param   [IN]    p_StepNum                   The mass step number for this star - can be used to name logfile for this star
+ * @param   [IN]    p_Id                        The mass id (e.g. step number) for this star - can be used to name logfiles for this star
+ * @return                                      Status.  One of {EVOLUTION_STATUS::DONE, EVOLUTION_STATUS::STEPS_UP, EVOLUTION_STATUS::TIMES_UP}
  */
-void Star::Evolve(const int p_StepNum) {
+EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
+
+    EVOLUTION_STATUS status = EVOLUTION_STATUS::CONTINUE;
+
+    m_Id = p_Id;                                                                // store the id
 
     // evolve the star
 
-    m_Star->CalculateGBParams();                                                                        // calculate giant branch parameters - in case for some reason star is initially not MS
+    m_Star->CalculateGBParams();                                                // calculate giant branch parameters - in case for some reason star is initially not MS
 
     double dt = 0.0;
 
@@ -461,15 +487,30 @@ void Star::Evolve(const int p_StepNum) {
     // m_Error seems to be set ad hoc for SSE, and doesn't actually stop the evolution
     // we should be more rigorous in checking/setting error conditions, and stop the evolution for catastrophic errors
 
-    while (m_Star->IsOneOf({ STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07, STELLAR_TYPE::HERTZSPRUNG_GAP,
-                             STELLAR_TYPE::FIRST_GIANT_BRANCH, STELLAR_TYPE::CORE_HELIUM_BURNING, STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH, STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,
-                             STELLAR_TYPE::NAKED_HELIUM_STAR_MS, STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH })) {
+    int stepNum = 0;
+    while (status == EVOLUTION_STATUS::CONTINUE) {
+    
+        if (m_Star->Time() > OPTIONS->MaxEvolutionTime()) {
+            status = EVOLUTION_STATUS::TIMES_UP;                                // out of time...
+        }
+        else if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) {
+            status = EVOLUTION_STATUS::STEPS_UP;                                // out of steps...
+        }
+        else if (!m_Star->IsOneOf({ STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07, STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, STELLAR_TYPE::HERTZSPRUNG_GAP,
+                                    STELLAR_TYPE::FIRST_GIANT_BRANCH, STELLAR_TYPE::CORE_HELIUM_BURNING, STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH, STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,
+                                    STELLAR_TYPE::NAKED_HELIUM_STAR_MS, STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH })) {
 
-        dt = m_Star->CalculateTimestep();                                                               // calculate new timestep
-
-        dt = EvolveOneTimestep(dt);                                                                     // evolve for timestep
-
-        m_Star->PrintSingleStarParameters(p_StepNum);                                                   // log record  JR: this should probably be before the star switches type, but this way matches the original code
+            status = EVOLUTION_STATUS::DONE;                                    // we're done
+        }
+        else {
+            stepNum++;                                                          // increment step number                                                      
+            dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();   // calculate new timestep
+            EvolveOneTimestep(dt);                                              // evolve for timestep
+            (void)m_Star->PrintDetailedOutput(m_Id);                            // log record  JR: this should probably be before the star switches type, but this way matches the original code
+        }
     }
 
+    (void)m_Star->PrintSystemParameters();                                      // log system parameters
+
+    return status;
 }

@@ -2,11 +2,12 @@
 #include <gsl/gsl_roots.h>
 #include <gsl/gsl_cdf.h>
 
-// boos includes
+// boost includes
 #include <boost/math/distributions.hpp>
 
 #include "Rand.h"
 #include "BaseStar.h"
+#include "vector3d.h"
 
 using std::max;
 using std::min;
@@ -26,31 +27,27 @@ BaseStar::BaseStar() {
 
 
 BaseStar::BaseStar(const unsigned long int p_RandomSeed, 
-                   const double            p_MZAMS, 
-                   const double            p_Metallicity, 
+                   const double            p_MZAMS,
+                   const double            p_Metallicity,
                    const KickParameters    p_KickParameters,
-                   const double            p_LBVfactor, 
-                   const double            p_WolfRayetFactor) {
+                   const double            p_RotationalFrequency) {
 
     // initialise member variables
 
-    m_ObjectId            = globalObjectId++;                           // unique object id - remains for life of star (even through evolution to other phases)
-    m_ObjectType          = OBJECT_TYPE::BASE_STAR;                     // object type - remains for life of star (even through evolution to other phases)
-    m_InitialStellarType  = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
-    m_StellarType         = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
+    m_ObjectId            = globalObjectId++;                                                       // unique object id - remains for life of star (even through evolution to other phases)
+    m_ObjectType          = OBJECT_TYPE::BASE_STAR;                                                 // object type - remains for life of star (even through evolution to other phases)
+    m_InitialStellarType  = STELLAR_TYPE::STAR;                                                     // stellar type - changes throughout life of star (through evolution to other phases)
+    m_StellarType         = STELLAR_TYPE::STAR;                                                     // stellar type - changes throughout life of star (through evolution to other phases)
 
-    m_Error               = ERROR::NONE;                                // clear error flag
+    m_Error               = ERROR::NONE;                                                            // clear error flag
 
-    m_CHE                 = false;                                      // initially
+    m_CHE                 = false;                                                                  // initially
     
     // Initialise member variables from input parameters
     // (kick parameters initialised below - see m_SupernovaDetails)
     m_RandomSeed          = p_RandomSeed;
     m_MZAMS               = p_MZAMS;
-    m_Metallicity         = std::min(std::max(p_Metallicity, 0.0), 1.0);
-    m_LBVfactor           = p_LBVfactor;
-    m_WolfRayetFactor     = p_WolfRayetFactor;
-
+    m_Metallicity         = p_Metallicity;
 
     // Initialise metallicity dependent values
     m_LogMetallicityXi    = log10(m_Metallicity / ZSOL);
@@ -106,12 +103,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Alpha3                                   = CalculateAlpha3();
     m_Alpha4                                   = CalculateAlpha4();
 
-    // timescales
-    m_DynamicalTimescale                       = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_ThermalTimescale                         = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_NuclearTimescale                         = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_RadialExpansionTimescale                 = DEFAULT_INITIAL_DOUBLE_VALUE;
-
     // initialise remaining member variables
 
     // Zero age main sequence parameters
@@ -120,7 +111,9 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_TZAMS                                    = CalculateTemperatureOnPhase_Static(m_LZAMS, m_RZAMS);
 
     m_OmegaCHE                                 = CalculateOmegaCHE(m_MZAMS, m_Metallicity);
-    m_OmegaZAMS                                = CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);
+    m_OmegaZAMS                                = p_RotationalFrequency >= 0.0                           // valid rotational frequency passed in?
+                                                    ? p_RotationalFrequency                             // yes - use it
+                                                    : CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
 
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
     m_RZAMS0                                   = m_RZAMS;
@@ -130,13 +123,13 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Time                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Dt                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Tau                                      = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Age                                      = 0.0;           // ensure age = 0.0 at construction (rather than default initial value)
+    m_Age                                      = 0.0;                                               // ensure age = 0.0 at construction (rather than default initial value)
     m_Mass                                     = m_MZAMS;
     m_Mass0                                    = m_MZAMS;
     m_Luminosity                               = m_LZAMS;
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
-    m_EnvMass                                  = CalculateInitialEnvelopeMass_Static(m_Mass);
+	m_ComponentVelocity						   = Vector3d();
 
     m_CoreMass                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_COCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -144,11 +137,9 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Mu                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_CoreRadius                               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Mdot                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_DominantMassLossRate                     = MASS_LOSS_TYPE::NONE;
 
     m_Omega                                    = m_OmegaZAMS;
-    m_OmegaBreak                               = CalculateOmegaBreak();
-    m_AngularMomentum                          = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_MomentOfInertia                          = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_MinimumLuminosityOnPhase                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_LBVphaseFlag                             = false;
@@ -171,13 +162,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 	m_Lambdas.loveridgeWinds                   = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_Lambdas.nanjing                          = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    // Zetas
-    m_Zetas.hurley                             = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Zetas.hurleyHe                           = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Zetas.nuclear                            = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Zetas.soberman                           = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Zetas.sobermanHe                         = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_Zetas.thermal                            = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // Binding energies
     m_BindingEnergies.fixed                    = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -198,10 +182,10 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_SupernovaDetails.HeCoreMassAtCOFormation = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_SupernovaDetails.totalMassAtCOFormation  = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_SupernovaDetails.drawnKickVelocity       = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_SupernovaDetails.kickVelocity            = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SupernovaDetails.drawnKickMagnitude      = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SupernovaDetails.kickMagnitude           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_SupernovaDetails.hydrogenContent         = HYDROGEN_CONTENT::RICH;
+    m_SupernovaDetails.isHydrogenPoor          = false;
     m_SupernovaDetails.fallbackFraction        = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_SupernovaDetails.eccentricAnomaly        = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -209,28 +193,25 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     m_SupernovaDetails.supernovaState          = SN_STATE::NONE;
 
-    if (p_KickParameters.supplied) {
-        m_SupernovaDetails.kickVelocityRandom  = p_KickParameters.useVelocityRandom ? p_KickParameters.velocityRandom : DEFAULT_INITIAL_DOUBLE_VALUE;
-        m_SupernovaDetails.theta               = p_KickParameters.theta;
-        m_SupernovaDetails.phi                 = p_KickParameters.phi;
-        m_SupernovaDetails.meanAnomaly         = p_KickParameters.meanAnomaly;
-    }
-    else {
-        m_SupernovaDetails.kickVelocityRandom  = RAND->Random();
-        std::tie(m_SupernovaDetails.theta, m_SupernovaDetails.phi) = DrawKickDirection();
-        m_SupernovaDetails.meanAnomaly         = RAND->Random(0.0, _2_PI);
-    }
+    m_SupernovaDetails.kickMagnitudeRandom     = p_KickParameters.magnitudeRandom;
+    m_SupernovaDetails.theta                   = p_KickParameters.theta;
+    m_SupernovaDetails.phi                     = p_KickParameters.phi;
+    m_SupernovaDetails.meanAnomaly             = p_KickParameters.meanAnomaly;
 
     // Calculates the Baryonic mass for which the GravitationalRemnantMass will be equal to the maximumNeutronStarMass (inverse of SolveQuadratic())
     // needed to decide whether to calculate Fryer+2012 for Neutron Star or Black Hole in GiantBranch::CalculateGravitationalRemnantMass()
-    m_BaryonicMassOfMaximumNeutronStarMass      = (0.075 * OPTIONS->MaximumNeutronStarMass() * OPTIONS->MaximumNeutronStarMass()) + OPTIONS->MaximumNeutronStarMass();
     // calculate only once for entire simulation of N binaries in the future.
+    m_BaryonicMassOfMaximumNeutronStarMass     = (0.075 * OPTIONS->MaximumNeutronStarMass() * OPTIONS->MaximumNeutronStarMass()) + OPTIONS->MaximumNeutronStarMass();
 
     // Pulsar details
     m_PulsarDetails.magneticField              = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.spinPeriod                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.spinFrequency              = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.spinDownRate               = DEFAULT_INITIAL_DOUBLE_VALUE;
+
+    // Mass Transfer Donor Type History
+    m_MassTransferDonorHistory                 = STYPE_VECTOR();
+
 }
 
 
@@ -311,11 +292,12 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_COCoreMassAtCOFormation();                           break;
             case ANY_STAR_PROPERTY::CORE_MASS:                                          value = CoreMass();                                             break;
             case ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION:              value = SN_CoreMassAtCOFormation();                             break;
-            case ANY_STAR_PROPERTY::DRAWN_KICK_VELOCITY:                                value = SN_DrawnKickVelocity();                                 break;
+            case ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE:                               value = SN_DrawnKickMagnitude();                                break;
+            case ANY_STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE:                            value = DominantMassLossRate();                                 break;
             case ANY_STAR_PROPERTY::DT:                                                 value = Dt();                                                   break;
-            case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE:                                value = DynamicalTimescale();                                   break;
+            case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE:                                value = CalculateDynamicalTimescale();                          break;
             case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
-            case ANY_STAR_PROPERTY::ENV_MASS:                                           value = EnvMass();                                              break;
+            case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass()-CoreMass();                                      break;
             case ANY_STAR_PROPERTY::ERROR:                                              value = Error();                                                break;
             case ANY_STAR_PROPERTY::EXPERIENCED_CCSN:                                   value = ExperiencedCCSN();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_ECSN:                                   value = ExperiencedECSN();                                      break;
@@ -326,8 +308,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::FALLBACK_FRACTION:                                  value = SN_FallbackFraction();                                  break;
             case ANY_STAR_PROPERTY::HE_CORE_MASS:                                       value = HeCoreMass();                                           break;
             case ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_HeCoreMassAtCOFormation();                           break;
-            case ANY_STAR_PROPERTY::HYDROGEN_POOR:                                      value = SN_HydrogenContent() == HYDROGEN_CONTENT::POOR;         break;
-            case ANY_STAR_PROPERTY::HYDROGEN_RICH:                                      value = SN_HydrogenContent() == HYDROGEN_CONTENT::RICH;         break;
+            case ANY_STAR_PROPERTY::IS_HYDROGEN_POOR:                                   value = SN_IsHydrogenPoor();                                    break;
             case ANY_STAR_PROPERTY::ID:                                                 value = ObjectId();                                             break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE:                               value = InitialStellarType();                                   break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
@@ -336,7 +317,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::IS_PISN:                                            value = IsPISN();                                               break;
             case ANY_STAR_PROPERTY::IS_PPISN:                                           value = IsPPISN();                                              break;
             case ANY_STAR_PROPERTY::IS_USSN:                                            value = IsUSSN();                                               break;
-            case ANY_STAR_PROPERTY::KICK_VELOCITY:                                      value = SN_KickVelocity();                                      break;
+            case ANY_STAR_PROPERTY::KICK_MAGNITUDE:                                     value = SN_KickMagnitude();                                     break;
             case ANY_STAR_PROPERTY::LAMBDA_DEWI:                                        value = Lambda_Dewi();                                          break;
             case ANY_STAR_PROPERTY::LAMBDA_FIXED:                                       value = Lambda_Fixed();                                         break;
             case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW:                                     value = Lambda_Kruckow();                                       break;
@@ -350,46 +331,42 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::LUMINOSITY:                                         value = Luminosity();                                           break;
             case ANY_STAR_PROPERTY::MASS:                                               value = Mass();                                                 break;
             case ANY_STAR_PROPERTY::MASS_0:                                             value = Mass0();                                                break;
+            case ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY:                        value = MassTransferDonorHistoryString();                       break;
             case ANY_STAR_PROPERTY::MDOT:                                               value = Mdot();                                                 break;
             case ANY_STAR_PROPERTY::MEAN_ANOMALY:                                       value = SN_MeanAnomaly();                                       break;
             case ANY_STAR_PROPERTY::METALLICITY:                                        value = Metallicity();                                          break;
             case ANY_STAR_PROPERTY::MZAMS:                                              value = MZAMS();                                                break;
-            case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE:                                  value = NuclearTimescale();                                     break;
-            case ANY_STAR_PROPERTY::OMEGA:                                              value = Omega();                                                break;
-            case ANY_STAR_PROPERTY::OMEGA_BREAK:                                        value = OmegaBreak();                                           break;
-            case ANY_STAR_PROPERTY::OMEGA_ZAMS:                                         value = OmegaZAMS();                                            break;
+            case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE:                                  value = CalculateNuclearTimescale();                            break;
+            case ANY_STAR_PROPERTY::OMEGA:                                              value = Omega() / SECONDS_IN_YEAR;                              break;
+            case ANY_STAR_PROPERTY::OMEGA_BREAK:                                        value = OmegaBreak() / SECONDS_IN_YEAR;                         break;
+            case ANY_STAR_PROPERTY::OMEGA_ZAMS:                                         value = OmegaZAMS() / SECONDS_IN_YEAR;                          break;
             case ANY_STAR_PROPERTY::PULSAR_MAGNETIC_FIELD:                              value = Pulsar_MagneticField();                                 break;
             case ANY_STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE:                              value = Pulsar_SpinDownRate();                                  break;
             case ANY_STAR_PROPERTY::PULSAR_SPIN_FREQUENCY:                              value = Pulsar_SpinFrequency();                                 break;
             case ANY_STAR_PROPERTY::PULSAR_SPIN_PERIOD:                                 value = Pulsar_SpinPeriod();                                    break;
-            case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE:                         value = RadialExpansionTimescale();                             break;
+            case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE:                         value = CalculateRadialExpansionTimescale();                    break;
             case ANY_STAR_PROPERTY::RADIUS:                                             value = Radius();                                               break;
             case ANY_STAR_PROPERTY::RANDOM_SEED:                                        value = RandomSeed();                                           break;
-            case ANY_STAR_PROPERTY::RECYCLED_NEUTRON_STAR:                              value = ExperiencedRecycledNS();                                break;
-            case ANY_STAR_PROPERTY::RLOF_ONTO_NS:                                       value = ExperiencedRLOFOntoNS();                                break;
-            case ANY_STAR_PROPERTY::RUNAWAY:                                            value = ExperiencedRunaway();                                   break;
             case ANY_STAR_PROPERTY::RZAMS:                                              value = RZAMS();                                                break;
             case ANY_STAR_PROPERTY::SN_TYPE:                                            value = SN_Type();                                              break;
+            case ANY_STAR_PROPERTY::SPEED:                                              value = Speed();												break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE:                                       value = StellarType();                                          break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE_NAME:                                  value = STELLAR_TYPE_LABEL.at(StellarType());                   break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE_PREV:                                  value = StellarTypePrev();                                      break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE_PREV_NAME:                             value = STELLAR_TYPE_LABEL.at(StellarTypePrev());               break;
-            case ANY_STAR_PROPERTY::SUPERNOVA_KICK_VELOCITY_MAGNITUDE_RANDOM_NUMBER:    value = SN_KickVelocityRandom();                                break;
+            case ANY_STAR_PROPERTY::SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER:             value = SN_KickMagnitudeRandom();                               break;
             case ANY_STAR_PROPERTY::SUPERNOVA_PHI:                                      value = SN_Phi();                                               break;
             case ANY_STAR_PROPERTY::SUPERNOVA_THETA:                                    value = SN_Theta();                                             break;
-            case ANY_STAR_PROPERTY::TEMPERATURE:                                        value = Temperature();                                          break;
-            case ANY_STAR_PROPERTY::THERMAL_TIMESCALE:                                  value = ThermalTimescale();                                     break;
+            case ANY_STAR_PROPERTY::TEMPERATURE:                                        value = Temperature()*TSOL;                                     break;
+            case ANY_STAR_PROPERTY::THERMAL_TIMESCALE:                                  value = CalculateThermalTimescale();                            break;
             case ANY_STAR_PROPERTY::TIME:                                               value = Time();                                                 break;
             case ANY_STAR_PROPERTY::TIMESCALE_MS:                                       value = Timescale(TIMESCALE::tMS);                              break;
             case ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION:             value = SN_TotalMassAtCOFormation();                            break;
             case ANY_STAR_PROPERTY::TRUE_ANOMALY:                                       value = SN_TrueAnomaly();                                       break;
-            case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = Zeta_Hurley();                                          break;
-            case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = Zeta_HurleyHe();                                        break;
-            case ANY_STAR_PROPERTY::ZETA_NUCLEAR:                                       value = Zeta_Nuclear();                                         break;
-            case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = Zeta_Soberman();                                        break;
-            case ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE:                                   value = Zeta_SobermanHe();                                      break;
-            case ANY_STAR_PROPERTY::ZETA_THERMAL:                                       value = Zeta_Thermal();                                         break;
-
+            case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = CalculateZadiabaticHurley2002(m_CoreMass);              break;
+            case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = CalculateZadiabaticHurley2002(m_HeCoreMass);            break;
+            case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = CalculateZadiabaticSPH(m_CoreMass);                     break;
+            case ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE:                                   value = CalculateZadiabaticSPH(m_HeCoreMass);                   break;
         default:                                                                                                        // unknown property
             ok    = false;                                                                                              // that's not ok...
             value = "UNKNOWN";                                                                                          // default value
@@ -453,7 +430,7 @@ COMPAS_VARIABLE BaseStar::PropertyValue(const T_ANY_PROPERTY p_Property) const {
         default:                                                                                                                // unknown property type
             ok    = false;                                                                                                      // that's not ok...
             value = "UNKNOWN";                                                                                                  // default value
-            SHOW_WARN(ERROR::UNKNOWN_PROPERTY_TYPE  );                                                                          // show warning
+            SHOW_WARN(ERROR::UNKNOWN_PROPERTY_TYPE);                                                                            // show warning
     }
 
     return std::make_tuple(ok, value);
@@ -520,10 +497,10 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
 
     a[11] *= a[14];
     a[12] *= a[14];
-    a[17] = pow(10.0, max((0.097 - (0.1072 * (sigma + 3.0))), max(0.097, min(0.1461, (0.1461 + (0.1237 * (sigma + 2.0)))))));
+    a[17] = PPOW(10.0, max((0.097 - (0.1072 * (sigma + 3.0))), max(0.097, min(0.1461, (0.1461 + (0.1237 * (sigma + 2.0)))))));
     a[18] *= a[20];
     a[19] *= a[20];
-    a[29] = pow(a[29], (a[32]));
+    a[29] = PPOW(a[29], (a[32]));
     a[33] = min(1.4, 1.5135 + (0.3769 * xi));
     a[42] = min(1.25, max(1.1, a[42]));
     a[44] = min(1.3, max(0.45, a[44]));
@@ -541,7 +518,7 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
     a[68] = max(0.9, min(a[68], 1.0));
 
     // Need bAlpaR - calculate it now
-    RConstants(B_ALPHA_R) = (a[58] * pow(a[66], a[60])) / (a[59] + pow(a[66], a[61]));                          // Hurley et al. 2000, eq 21a (wrong in the arxiv version - says = a59*M**(a61))
+    RConstants(B_ALPHA_R) = (a[58] * PPOW(a[66], a[60])) / (a[59] + PPOW(a[66], a[61]));                          // Hurley et al. 2000, eq 21a (wrong in the arxiv version - says = a59*M**(a61))
 
     // Continue special cases
 
@@ -558,16 +535,16 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
     a[80] = max(0.0585542, a[80]);
     a[81] = min(1.5, max(0.4, a[81]));
 
-    LConstants(B_ALPHA_L)   = (a[45] + (a[46] * pow(2.0, a[48]))) / (pow(2.0, 0.4) + (a[47] * pow(2.0, 1.9)));  // Hurley et al. 2000, eq 19a
-    LConstants(B_BETA_L)    = max(0.0, (a[54] - (a[55] * pow(a[57], a[56]))));                                  // Hurley et al. 2000, eq 20
-    LConstants(B_DELTA_L)   = min((a[34] / pow(a[33], a[35])), (a[36] / pow(a[33], a[37])));                    // Hurley et al. 2000, eq 16
+    LConstants(B_ALPHA_L)   = (a[45] + (a[46] * PPOW(2.0, a[48]))) / (PPOW(2.0, 0.4) + (a[47] * PPOW(2.0, 1.9)));  // Hurley et al. 2000, eq 19a
+    LConstants(B_BETA_L)    = max(0.0, (a[54] - (a[55] * PPOW(a[57], a[56]))));                                  // Hurley et al. 2000, eq 20
+    LConstants(B_DELTA_L)   = min((a[34] / PPOW(a[33], a[35])), (a[36] / PPOW(a[33], a[37])));                    // Hurley et al. 2000, eq 16
 
-    RConstants(C_ALPHA_R)   = (a[58] * pow(a[67], a[60])) / (a[59] + pow(a[67], a[61]));                        // Hurley et al. 2000, eq 21a (wrong in the arxiv version)
-    RConstants(B_BETA_R)    = (a[69] * 8.0 * M_SQRT2) / (a[70] + pow(2.0, a[71]));                              // Hurley et al. 2000, eq 22a
-    RConstants(C_BETA_R)    = (a[69] * 16384.0) / (a[70] + pow(16.0, a[71]));                                   // Hurley et al. 2000, eq 22a
-    RConstants(B_DELTA_R)   = (a[38] + (a[39] * 8.0 * M_SQRT2)) / ((a[40] * 8.0) + pow(2.0, a[41]));            // Hurley et al. 2000, eq 17
+    RConstants(C_ALPHA_R)   = (a[58] * PPOW(a[67], a[60])) / (a[59] + PPOW(a[67], a[61]));                        // Hurley et al. 2000, eq 21a (wrong in the arxiv version)
+    RConstants(B_BETA_R)    = (a[69] * 8.0 * M_SQRT2) / (a[70] + PPOW(2.0, a[71]));                              // Hurley et al. 2000, eq 22a
+    RConstants(C_BETA_R)    = (a[69] * 16384.0) / (a[70] + PPOW(16.0, a[71]));                                   // Hurley et al. 2000, eq 22a
+    RConstants(B_DELTA_R)   = (a[38] + a[39] * 8.0 * M_SQRT2) / (a[40] * 8.0 + PPOW(2.0, a[41])) - 1.0;            // Hurley et al. 2000, eq 17
 
-    GammaConstants(B_GAMMA) = a[76] + (a[77] * pow((1.0 - a[78]), a[79]));                                      // Hurley et al. 2000, eq 23
+    GammaConstants(B_GAMMA) = a[76] + (a[77] * PPOW((1.0 - a[78]), a[79]));                                      // Hurley et al. 2000, eq 23
     GammaConstants(C_GAMMA) = (utils::Compare(a[75], 1.0) == 0) ? GammaConstants(B_GAMMA) : a[80];              // Hurley et al. 2000, eq 23
 
 #undef GammaConstants
@@ -623,34 +600,34 @@ void BaseStar::CalculateBnCoefficients(DBL_VECTOR &p_BnCoefficients) {
     // Special Cases - see Hurley et al. 2000
 
     b[1] = min(0.54, b[1]);
-    b[2] = pow(10.0, (-4.6739 - (0.9394 * sigma)));
-    b[2] = min(max(b[2], (-0.04167 + (55.67 * Z))), (0.4771 - (9329.21 * pow(Z, 2.94))));
+    b[2] = PPOW(10.0, (-4.6739 - (0.9394 * sigma)));
+    b[2] = min(max(b[2], (-0.04167 + (55.67 * Z))), (0.4771 - (9329.21 * PPOW(Z, 2.94))));
     b[3] = max(-0.1451, (-2.2794 - (1.5175 * sigma) - (0.254 * sigma * sigma)));
-    b[3] = (utils::Compare(Z, 0.004) > 0) ? max(b[3], 0.7307 + (14265.1 * pow(Z, 3.395))) : pow(10.0, b[3]);
+    b[3] = (utils::Compare(Z, 0.004) > 0) ? max(b[3], 0.7307 + (14265.1 * PPOW(Z, 3.395))) : PPOW(10.0, b[3]);
     b[4] += 0.1231572 * xi_5;
     b[6] += 0.01640687 * xi_5;
     b[11] = b[11] * b[11];
     b[13] = b[13] * b[13];
-    b[14] = pow(b[14], b[15]);
-    b[16] = pow(b[16], b[15]);
-    b[17] = (utils::Compare(xi, -1.0) > 0) ? 1.0 - (0.3880523 * pow((xi + 1.0), 2.862149)) : 1.0;
-    b[24] = pow(b[24], b[28]);
-    b[26] = 5.0 - (0.09138012 * pow(Z, -0.3671407));
-    b[27] = pow(b[27], (2.0 * b[28]));
-    b[31] = pow(b[31], b[33]);
-    b[34] = pow(b[34], b[33]);
+    b[14] = PPOW(b[14], b[15]);
+    b[16] = PPOW(b[16], b[15]);
+    b[17] = (utils::Compare(xi, -1.0) > 0) ? 1.0 - (0.3880523 * PPOW((xi + 1.0), 2.862149)) : 1.0;
+    b[24] = PPOW(b[24], b[28]);
+    b[26] = 5.0 - (0.09138012 * PPOW(Z, -0.3671407));
+    b[27] = PPOW(b[27], (2.0 * b[28]));
+    b[31] = PPOW(b[31], b[33]);
+    b[34] = PPOW(b[34], b[33]);
     b[36] = b[36] * b[36] * b[36] * b[36];
     b[37] = 4.0 * b[37];
     b[38] = b[38] * b[38] * b[38] * b[38];
     b[40] = max(b[40], 1.0);
-    b[41] = pow(b[41], b[42]);
+    b[41] = PPOW(b[41], b[42]);
     b[44] = b[44] * b[44] * b[44] * b[44] * b[44];
     b[45] = utils::Compare(rho, 0.0) <= 0 ? 1.0 : 1.0 - ((2.47162 * rho) - (5.401682 * rho_2) + (3.247361 * rho_3));
     b[46] = -1.0 * b[46] * log10(massCutoffs(MHeF) / massCutoffs(MFGB));
     b[47] = (1.127733 * rho) + (0.2344416 * rho_2) - (0.3793726 * rho_3);
     b[51] -= 0.1343798 * xi_5;
     b[53] += 0.4426929 * xi_5;
-    b[55] = min((0.99164 - (743.123 * pow(Z, 2.83))), b[55]);
+    b[55] = min((0.99164 - (743.123 * PPOW(Z, 2.83))), b[55]);
     b[56] += 0.1140142 * xi_5;
     b[57] -= 0.01308728 * xi_5;
 
@@ -749,12 +726,12 @@ void BaseStar::CalculateRCoefficients(const double p_LogMetallicityXi, DBL_VECTO
  *
  * @return                                      Metallicity dependent constant alpha1
  */
-double BaseStar::CalculateAlpha1() {
+double BaseStar::CalculateAlpha1() const {
 #define b m_BnCoefficients                                              // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
-    double LHeI_MHeF = (b[11] + (b[12] * pow(massCutoffs(MHeF), 3.8))) / (b[13] + (massCutoffs(MHeF) * massCutoffs(MHeF)));
-    return ((b[9] * pow(massCutoffs(MHeF), b[10])) - LHeI_MHeF) / LHeI_MHeF;
+    double LHeI_MHeF = (b[11] + (b[12] * PPOW(massCutoffs(MHeF), 3.8))) / (b[13] + (massCutoffs(MHeF) * massCutoffs(MHeF)));
+    return ((b[9] * PPOW(massCutoffs(MHeF), b[10])) - LHeI_MHeF) / LHeI_MHeF;
 
 #undef massCutoffs
 #undef b
@@ -773,12 +750,12 @@ double BaseStar::CalculateAlpha1() {
  *
  * @return                                      Metallicity dependent constant alpha3
  */
-double BaseStar::CalculateAlpha3() {
+double BaseStar::CalculateAlpha3() const {
 #define b m_BnCoefficients                                              // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
-    double LBAGB = (b[31] + (b[32] * pow(massCutoffs(MHeF), (b[33] + 1.8)))) / (b[34] + pow(massCutoffs(MHeF), b[33]));
-    return ((b[29] * pow(massCutoffs(MHeF), b[30])) - LBAGB) / LBAGB;
+    double LBAGB = (b[31] + (b[32] * PPOW(massCutoffs(MHeF), (b[33] + 1.8)))) / (b[34] + PPOW(massCutoffs(MHeF), b[33]));
+    return ((b[29] * PPOW(massCutoffs(MHeF), b[30])) - LBAGB) / LBAGB;
 
 #undef massCutoffs
 #undef b
@@ -797,15 +774,16 @@ double BaseStar::CalculateAlpha3() {
  *
  * @return                                      Metallicity dependent constant alpha4
  */
-double BaseStar::CalculateAlpha4() {
+double BaseStar::CalculateAlpha4() const {
 #define b m_BnCoefficients                                              // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     double MHeF      = massCutoffs(MHeF);
     double MHeF_5    = MHeF * MHeF * MHeF * MHeF * MHeF;    // pow() is slow - use multiplication
     double tBGB_MHeF = CalculateLifetimeToBGB(MHeF);        // tBGB for mass M = MHeF
-
-    return tBGB_MHeF * (((b[41] * pow(MHeF, b[42])) + (b[43] * MHeF_5)) / (b[44] + MHeF_5));
+    double tHe_MHeF  = tBGB_MHeF * (b[41] * PPOW(MHeF, b[42]) + b[43] * MHeF_5) / (b[44] + MHeF_5);
+    
+    return ((tHe_MHeF - b[39]) / b[39]);
 
 #undef massCutoffs
 #undef b
@@ -847,8 +825,8 @@ void BaseStar::CalculateMassCutoffs(const double p_Metallicity, const double p_L
     massCutoffs(MHook) = 1.0185 + (0.16015 * p_LogMetallicityXi) + (0.0892 * xi_2); // MHook - Hurley et al. 2000, eq 1
     massCutoffs(MHeF)  = 1.995 + (0.25 * p_LogMetallicityXi) + (0.087 * xi_2);      // MHeF - Hurley et al. 2000, eq 2
 
-    double top         = 13.048 * pow((p_Metallicity / ZSOL), 0.06);
-    double bottom      = 1.0 + (0.0012 * pow((ZSOL / p_Metallicity), 1.27));
+    double top         = 13.048 * PPOW((p_Metallicity / ZSOL), 0.06);
+    double bottom      = 1.0 + (0.0012 * PPOW((ZSOL / p_Metallicity), 1.27));
     massCutoffs(MFGB)  = top / bottom;                                              // MFGB - Hurley et al. 2000, eq 3
 
     massCutoffs(MCHE)  = 100.0;                                                     // MCHE - Mandel/Butler - CHE calculation
@@ -870,7 +848,7 @@ void BaseStar::CalculateMassCutoffs(const double p_Metallicity, const double p_L
  *
  * @return                                      'x' exponent to which Radius depends on Mass (at conatant Luminosity)- 'x' in Hurley et al. 2000, eq 47
  */
-double BaseStar::CalculateGBRadiusXExponent() {
+double BaseStar::CalculateGBRadiusXExponent() const {
 
     // pow()is slow - use multiplication
     double xi   = m_LogMetallicityXi;
@@ -893,7 +871,7 @@ double BaseStar::CalculateGBRadiusXExponent() {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Perturbation parameter b
  */
-double BaseStar::CalculatePerturbationB(const double p_Mass) {
+double BaseStar::CalculatePerturbationB(const double p_Mass) const {
     return 0.002 * max(1.0, (2.5 / p_Mass));
 }
 
@@ -909,7 +887,7 @@ double BaseStar::CalculatePerturbationB(const double p_Mass) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Perturbation parameter c
  */
-double BaseStar::CalculatePerturbationC(double p_Mass) {
+double BaseStar::CalculatePerturbationC(double p_Mass) const {
     return 0.006 * max(1.0, (2.5 / p_Mass));
 }
 
@@ -926,7 +904,7 @@ double BaseStar::CalculatePerturbationC(double p_Mass) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Perturbation parameter s
  */
-double BaseStar::CalculatePerturbationS(const double p_Mu, const double p_Mass) {
+double BaseStar::CalculatePerturbationS(const double p_Mu, const double p_Mass) const {
 
     double b      = CalculatePerturbationB(p_Mass);
     double b_3    = b * b * b;                      // pow() is slow - use multiplication
@@ -948,7 +926,7 @@ double BaseStar::CalculatePerturbationS(const double p_Mu, const double p_Mass) 
  * @param   [IN]    p_Rc                        Radius that the remnant would have if the star immediately lost its envelope (in Rsol)
  * @return                                      Perturbation parameter q
  */
-double BaseStar::CalculatePerturbationQ(const double p_Radius, const double p_Rc) {
+double BaseStar::CalculatePerturbationQ(const double p_Radius, const double p_Rc) const {
     return log(p_Radius / p_Rc); // really is natural log
 }
 
@@ -965,20 +943,20 @@ double BaseStar::CalculatePerturbationQ(const double p_Radius, const double p_Rc
  * @param   [IN]    p_Rc                        Radius that the remnant would have if the star immediately lost its envelope (in Rsol)
  * @return                                      Perturbation parameter r
  */
-double BaseStar::CalculatePerturbationR(const double p_Mu, const double p_Mass, const double p_Radius, const double p_Rc) {
+double BaseStar::CalculatePerturbationR(const double p_Mu, const double p_Mass, const double p_Radius, const double p_Rc) const {
 
     double r = 0.0;
 
-    if(utils::Compare(p_Mu, 0.0) >= 0) {                            // only if mu >= 0
+    if (utils::Compare(p_Mu, 0.0) > 0 && utils::Compare(p_Radius, p_Rc) > 0) {  // only if mu > 0 and radius is larger than core radius, otherwise r=0 and perturbed radius = core radius
 
         double c      = CalculatePerturbationC(p_Mass);
-        double c_3    = c * c * c;                                  // pow() is slow - use multiplication
-        double mu_c_3 = p_Mu * p_Mu * p_Mu / c_3;                   // calculate once
+        double c_3    = c * c * c;                                              // pow() is slow - use multiplication
+        double mu_c_3 = p_Mu * p_Mu * p_Mu / c_3;                               // calculate once
 
         double q        = CalculatePerturbationQ(p_Radius, p_Rc);
-        double exponent = min((0.1 / q), (-14.0 / log10(p_Mu)));    // JR: todo: Hurley et al. 2000 is just 0.1 / q ?
+        double exponent = min((0.1 / q), (-14.0 / log10(p_Mu)));                // JR: todo: Hurley et al. 2000 is just 0.1 / q ?
 
-        r = ((1.0 + c_3) * mu_c_3 * pow((p_Mu), exponent)) / ((1.0 + mu_c_3));
+        r = ((1.0 + c_3) * mu_c_3 * PPOW((p_Mu), exponent)) / ((1.0 + mu_c_3));
     }
 
     return r;
@@ -997,7 +975,7 @@ double BaseStar::CalculatePerturbationR(const double p_Mu, const double p_Mass, 
  * Kruckow et al. 2016 (arXiv:1610.04417), fig 1
  *
  * Spectrum fit to the region bounded by the upper and lower limits as shown in Kruckow+ 2016.
- * Made by Alejandro Vigna-Gomez
+ * Fit as presented in Vigna-Gomez et al. 2018 (arXiv:1805.07974)
  *
  *
  * double CalculateLambdaKruckow(const double p_Radius, const double p_Alpha)
@@ -1006,11 +984,11 @@ double BaseStar::CalculatePerturbationR(const double p_Mu, const double p_Mass, 
  * @param   [IN]    p_Alpha                     Power
  * @return                                      Common envelope lambda parameter
  */
-double BaseStar::CalculateLambdaKruckow(const double p_Radius, const double p_Alpha) {
+double BaseStar::CalculateLambdaKruckow(const double p_Radius, const double p_Alpha) const {
 
 	double alpha = max(-2.0 / 3.0, min(-1.0, p_Alpha));             // clamp alpha to [-1.0, -2/3]
 
-	return 1600.0 * pow(0.00125, -alpha) * pow(p_Radius, alpha);
+	return 1600.0 * PPOW(0.00125, -alpha) * PPOW(p_Radius, alpha);
 }
 
 
@@ -1025,9 +1003,9 @@ double BaseStar::CalculateLambdaKruckow(const double p_Radius, const double p_Al
  * double CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss)
  *
  * @param   [IN]    p_IsMassLoss                Boolean indicating whether mass-loss correction should be applied
- * @return                                      log binding energy in ergs
+ * @return                                      log binding energy in erg
  */
-double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) {
+double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) const {
 
     // find closest metallicity covered by Loveridge et al. 2011
     // (see LOVERIDGE_METALLICITY and LOVERIDGE_METALLICITYValue)
@@ -1090,7 +1068,7 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) {
 /*
  * Calculata lambda parameter from the so-called energy formalism of CE (Webbink 1984).
  *
- * Binding energy from detailed models (Loveridge et al. 2011) is given in [E]=ergs, so use cgs
+ * Binding energy from detailed models (Loveridge et al. 2011) is given in [E]=erg, so use cgs
  *
  *
  * double CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss)
@@ -1099,10 +1077,10 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) {
  * @param   [IN]    p_IsMassLoss                Boolean indicating whether mass-loss correction should be applied
  * @return                                      Common envelope lambda parameter
  */
-double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss) {   // JR: todo: p_IsMassLoss is ignored - do we need it?  I've set the default to false
+double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss) const {
 
-    double bindingEnergy = pow(10.0, CalculateLogBindingEnergyLoveridge(false));
-    return bindingEnergy > 0.0 ? (G_CGS * m_Mass * MSOL_TO_G * p_EnvMass * MSOL_TO_G) / (m_Radius * RSOL_TO_AU * AU_TO_CM * bindingEnergy) : pow(10.0, -20);   // JR: todo: fix this
+    double bindingEnergy = PPOW(10.0, CalculateLogBindingEnergyLoveridge(p_IsMassLoss));
+    return bindingEnergy > 0.0 ? (G_CGS * m_Mass * MSOL_TO_G * p_EnvMass * MSOL_TO_G) / (m_Radius * RSOL_TO_AU * AU_TO_CM * bindingEnergy) : 1E-20;
 }
 
 
@@ -1114,190 +1092,19 @@ double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass,
 
 
 /*
- * Calculate the radius-time exponent zeta
- * Derived by the nuclear evolution of the star according to SSE, calculated using a fake time step and recomputing the stars radius.
- *
- *
- * double CalculateZetaNuclear(const double p_DeltaTime)
- *
- * @param   [IN]    p_DeltaTime                 Timestep (Myr)
- * @return                                      Radius-Time exponent Zeta for the nuclear timescale
- */
-double BaseStar::CalculateZetaNuclear(const double p_DeltaTime) {
-
-    BaseStar* starCopy = new BaseStar(*this);	                                                                                // copy of star - about to be updated for fake mass loss
-
-    double radiusBeforeTimeStep = starCopy->Radius();                                                                           // radius before timestep
-    double ageBeforeTimeStep    = starCopy->Age();
-
-    SHOW_ERROR_IF(utils::Compare(radiusBeforeTimeStep, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "Before fake timestep");     // show error if radius <= 0
-    SHOW_ERROR_IF(utils::Compare(ageBeforeTimeStep,    0.0) <  0, ERROR::AGE_NEGATIVE_ONCE,        "Before fake timestep");     // show error if age < 0
-
-    double logRadiusBeforeTimeStep = utils::Compare(radiusBeforeTimeStep, 0.0) > 0 ? log(radiusBeforeTimeStep) : 0.0;
-
-    starCopy->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                           // allow star to respond to previous mass loss changes      JR: todo: is this really necessary?
-
-    // With the current way of doing things, this star has already lost a bunch of mass due to the mass loss caller,
-    // need to update radius of star to respond to this, before we evolve it for a short amount of time assuming no mass loss.
-    // When Alejandro moves the massLossCaller function, we will need to do things differently, and this will need fixing.
-    // JR: todo: what does this actually mean?
-
-    ageBeforeTimeStep = starCopy->Age();                                                                                        // age before timestep      JR: todo: why don't we get the (possibly) new radius here too?
-    starCopy->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, p_DeltaTime, false);                                                  // age the star 'p_DeltaTime' Myr
-
-    double radiusAfterTimeStep = starCopy->Radius();
-    double ageAfterTimeStep    = starCopy->Age();
-
-    delete starCopy; starCopy = nullptr;
-
-    SHOW_ERROR_IF(utils::Compare(radiusAfterTimeStep, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "After fake timestep");       // show error if radius <= 0
-    SHOW_ERROR_IF(utils::Compare(ageAfterTimeStep,    0.0) <  0, ERROR::AGE_NEGATIVE_ONCE,        "After fake timestep");       // show error if age < 0
-
-    double logRadiusAfterTimeStep = utils::Compare(radiusAfterTimeStep, 0.0) > 0 ? log(radiusAfterTimeStep) : 0.0;
-
-    return (logRadiusAfterTimeStep - logRadiusBeforeTimeStep) / (ageAfterTimeStep - ageBeforeTimeStep);
-
-}
-
-
-/*
- * Calculate the radius response of a star to mass loss on the nuclear timescale as characterised
- * by the mass-radius exponent Zeta nuclear
- *
- * This calculation is good for all stars except Black Holes
- *
- *
- * double CalculateConvergedTimestepZetaNuclear()
- *
- * @return                                      Mass-radius exponent Zeta nuclear (= dlnR/dt)
- */
-double BaseStar::CalculateConvergedTimestepZetaNuclear() {
-
-    double timestep  = ZETA_NUCLEAR_TIMESTEP;                                                                                   // timestep
-    double tolerance = 1.0 - ZETA_NUCLEAR_TOLERANCE;                                                                            // max change allowed in zeta nuclear between iterations - signals convergence
-
-    double thisZetaNuclear;                                                                                                     // value of mass-radius exponent calculated at current iteration
-    double lastZetaNuclear = 0.0;                                                                                               // value of mass-radius exponent calculated at previous iteration
-
-    int    i    = 0;
-    bool   done = false;
-    while (!done) {                                                                                                             // iterate until convergence or max iterations reached
-
-        thisZetaNuclear = CalculateZetaNuclear(timestep);                                                                       // calculate zeta nuclear for this percentage mass loss
-
-        if (i >= ZETA_NUCLEAR_ITERATIONS || std::abs(lastZetaNuclear / thisZetaNuclear) > tolerance) {                          // max iterations or convergence?   (Don't use Compare() here)
-            done = true;                                                                                                        // yes - we're done
-        }
-        else {                                                                                                                  // no - go again
-            lastZetaNuclear = thisZetaNuclear;                                                                                  // remember this zeta nuclear value for comparison next iteration
-            timestep       /= ZETA_NUCLEAR_ITERATIONS;                                                                          // reduce timestep   JR: todo: is this factor right?
-            i++;                                                                                                                // increment number of iterations
-        }
-    }
-
-    SHOW_ERROR_IF(std::abs(lastZetaNuclear / thisZetaNuclear) <= tolerance, ERROR::NO_CONVERGENCE, "Zeta Nuclear calculation"); // show error if no convergence
-
-    return thisZetaNuclear;
-}
-
-
-/*
- * Calculate the radius-mass exponent Zeta, assuming the star has had time to recover its thermal equilibrium.
- * Zeta is calculated using a fake mass change step and recomputing the star's attributes.
- *
- *
- * double CalculateZetaThermal(double p_PercentageMassChange)
- *
- * @param   [IN]    p_PercentageMassChange      Percentage of mass the star should artificially lose/gain in order to calcluate Zeta (thermal)
- *                                              (sign of p_PercentageMassChange determine if loss or gain - -ve is loss, +ve is gain)
- * @return                                      Radius-Mass exponent Zeta for the thermal timescale
- */
-double BaseStar::CalculateZetaThermal(double p_PercentageMassChange) {
-
-    BaseStar* starCopy = new BaseStar(*this);	                                                                                // copy of star - about to be updated for fake mass loss
-
-    starCopy->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                           // allow star to respond to previous mass loss changes      JR: todo: is this really necessary?
-    starCopy->UpdateAttributesAndAgeOneTimestep(-(starCopy->Mass() * FAKE_MASS_LOSS_PERCENTAGE / 100.0), 0.0, 0.0, false);      // apply fake mass loss                                     JR: todo: why do we do this...?
-
-    // record properties of the star before fake mass change
-    double radiusBeforeMassLoss = starCopy->Radius();                                                                           // radius before fake mass change       JR: todo: didn't we just do fake mass loss...?
-    double massBeforeMassLoss   = starCopy->MassPrev();                                                                         // mass before fake mass change - due to order of updating radius bug     JR: todo: check this
-
-    SHOW_ERROR_IF(utils::Compare(radiusBeforeMassLoss, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "Before fake mass change");  // show error if radius <= 0
-    SHOW_ERROR_IF(utils::Compare(massBeforeMassLoss,   0.0) <= 0, ERROR::MASS_NOT_POSITIVE_ONCE,   "Before fake mass change");  // show error if mass <= 0
-
-    double logRadiusBeforeMassLoss = utils::Compare(radiusBeforeMassLoss, 0.0) > 0 ? log(radiusBeforeMassLoss) : 0.0;
-    double logMassBeforeMassLoss   = utils::Compare(massBeforeMassLoss,   0.0) > 0 ? log(massBeforeMassLoss  ) : 0.0;
-
-    double deltaMass           = starCopy->Mass() * p_PercentageMassChange / 100.0;                                             // fake mass change - sign of p_PercentageMassChange determines whether loss or gain
-    double massAfterMassLoss   = starCopy->Mass() + deltaMass;                                                                  // mass after (just) fake mass change
-    starCopy->UpdateAttributesAndAgeOneTimestep(starCopy->Mass() * p_PercentageMassChange / 100.0, 0.0, 0.0, false);            // apply fake mass change and recalculate attributes of star
-    double radiusAfterMassLoss = starCopy->m_Radius;                                                                            // radius after fake mass change
-    delete starCopy; starCopy  = nullptr;
-
-    SHOW_ERROR_IF(utils::Compare(radiusAfterMassLoss, 0.0) <= 0, ERROR::RADIUS_NOT_POSITIVE_ONCE, "After fake mass change");    // show error if radius <= 0
-    SHOW_ERROR_IF(utils::Compare(massAfterMassLoss,   0.0) <= 0, ERROR::MASS_NOT_POSITIVE_ONCE,   "After fake mass change");    // show error if mass <= 0
-
-    double logRadiusAfterMassLoss = utils::Compare(radiusAfterMassLoss, 0.0) > 0 ? log(radiusAfterMassLoss) : 0.0;
-    double logMassAfterMassLoss   = utils::Compare(massAfterMassLoss,   0.0) > 0 ? log(massAfterMassLoss  ) : 0.0;
-
-    return (logRadiusAfterMassLoss - logRadiusBeforeMassLoss) / (logMassAfterMassLoss - logMassBeforeMassLoss);                 // zeta thermal
-}
-
-
-/*
- * Calculate the radius response of a star to mass loss on the thermal timescale as characterised
- * by the mass-radius exponent Zeta thermal
- *
- * This calculation is good for MS, HG, HeMS, HeWD, COWD, and ONeWD stars
- *
- *
- * double CalculateConvergedMassStepZetaThermal()
- *
- * @return                                      Mass-radius exponent Zeta thermal (= dlnR/dlnM)
- */
-double BaseStar::CalculateConvergedMassStepZetaThermal() {
-
-    double percentageMassLoss = -ZETA_THERMAL_PERCENTAGE_MASS_CHANGE;                                                       // percentage mass loss
-    double tolerance          = 1.0 - ZETA_THERMAL_TOLERANCE;                                                               // max change allowed in zeta thermal between iterations - signals convergence
-
-    double thisZetaThermal;                                                                                                 // value of mass-radius exponent calculated at current iteration
-    double lastZetaThermal = 0.0;                                                                                           // value of mass-radius exponent calculated at previous iteration
-
-    int    i    = 0;
-    bool   done = false;
-    while (!done) {                                                                                                         // iterate until convergence or max iterations reached
-
-        thisZetaThermal = CalculateZetaThermal(percentageMassLoss);                                                         // calculate zeta thermal for this percentage mass loss
-
-        if (i >= ZETA_THERMAL_ITERATIONS || std::abs(lastZetaThermal / thisZetaThermal) > tolerance) {                      // max iterations or convergence?   (Don't use Compare() here)
-            done = true;                                                                                                    // yes - we're done
-        }
-        else {                                                                                                              // no - go again
-            lastZetaThermal     = thisZetaThermal;                                                                          // remember this zeta thermal value for comparison next iteration
-            percentageMassLoss /= ZETA_THERMAL_ITERATIONS;                                                                  // reduce mass loss   JR: todo: is this factor right?
-            i++;                                                                                                            // increment number of iterations
-        }
-    }
-
-    SHOW_ERROR_IF(std::abs(lastZetaThermal / thisZetaThermal) <= tolerance, ERROR::NO_CONVERGENCE, "Zeta Thermal calculation");    // show error if no convergence
-
-    return thisZetaThermal;
-}
-
-
-/*
  * Calculate the Adiabatic Exponent per Hurley et al. 2002
  *
  *
- * double CalculateZadiabaticHurley2002(const double p_CoreMass)
+ * double CalculateZadiabaticHurley2002(const double p_CoreMass) const
  *
  * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
  * @return                                      Adiabatic exponent
  */
-double BaseStar::CalculateZadiabaticHurley2002(const double p_CoreMass) {
+double BaseStar::CalculateZadiabaticHurley2002(const double p_CoreMass) const{
+    if (utils::Compare(p_CoreMass, m_Mass) >= 0) return 0.0;    // If the object is all core, the calculation is meaningless
+
     double m = p_CoreMass / m_Mass;
-    double x = -0.3;                                    // Depends on composition, should use x from Hurley et al 2000
+    double x = -0.3;                                            // Depends on composition, should use x from Hurley et al 2000
     return -x + (2.0 * m * m * m * m * m);
 }
 
@@ -1306,26 +1113,61 @@ double BaseStar::CalculateZadiabaticHurley2002(const double p_CoreMass) {
  * Calculate the Adiabatic Exponent per Soberman, Phinney, vdHeuvel 1997
  *
  *
- * double CalculateZadiabaticSPH(const double p_CoreMass)
+ * double CalculateZadiabaticSPH(const double p_CoreMass) const
  *
  * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
  * @return                                      Adiabatic exponent
  */
-double BaseStar::CalculateZadiabaticSPH(const double p_CoreMass) {
-    double m           = p_CoreMass / m_Mass;                                                                                                       // eq (57) Soberman, Phinney, vdHeuvel (1997)
+double BaseStar::CalculateZadiabaticSPH(const double p_CoreMass) const {
+    if (utils::Compare(p_CoreMass, m_Mass) >= 0) return 0.0;    // If the object is all core, the calculation is meaningless (and would result in division by zero)
+
+    double m           = p_CoreMass / m_Mass;                   // eq (57) Soberman, Phinney, vdHeuvel (1997)
     double oneMinusM   = 1.0 - m;
     double oneMinusM_6 = oneMinusM * oneMinusM * oneMinusM * oneMinusM * oneMinusM * oneMinusM;
-    return ((2.0 / 3.0) * m / oneMinusM) - ((1.0 / 3.0) * (oneMinusM / (1.0 + (m + m)))) - (0.03 * m) + (0.2 * m / (1.0 + (1.0 / oneMinusM_6)));    // eq (61) Soberman, Phinney, vdHeuvel (1997)
+    return ((2.0 / 3.0) * m / oneMinusM) - ((1.0 / 3.0) * (oneMinusM / (1.0 + (m + m)))) - (0.03 * m) + (0.2 * m / (1.0 + (1.0 / oneMinusM_6))); // eq (61) Soberman, Phinney, vdHeuvel (1997)
+}
+
+
+/*
+ * Calculate the Adiabatic Exponent (for convective-envelope giant-like stars)
+ *
+ *
+ * double CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) const
+ *
+ * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
+ * @return                                      Adiabatic exponent
+ */
+double BaseStar::CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) {
+    
+    double zeta = 0.0;                                              // default value
+    
+    switch (p_ZetaPrescription) {                                 // which prescription?
+        case ZETA_PRESCRIPTION::SOBERMAN:                         // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
+            zeta = CalculateZadiabaticSPH(m_CoreMass);
+            break;
+            
+        case ZETA_PRESCRIPTION::HURLEY:                          // HURLEY: Hurley, Tout, and Pols, 2002, eq 56
+            zeta = CalculateZadiabaticHurley2002(m_CoreMass);
+            break;
+            
+        case ZETA_PRESCRIPTION::ARBITRARY:                       // ARBITRARY: user program options thermal zeta value
+            zeta = OPTIONS->ZetaAdiabaticArbitrary();
+            break;
+            
+        default:                                                    // unknown common envelope prescription - shouldn't happen
+            m_Error = ERROR::UNKNOWN_ZETA_PRESCRIPTION;          // set error value
+            SHOW_ERROR(m_Error);                                    // warn that an error occurred
+    }
+    
+    return zeta;
 }
 
 
 /*
  * Calculate all Lambdas
  *
- * ALEJANDRO - 04/11/2016 - Lambda calculations as tracker for binding energy;
+ * Lambda calculations as tracker for binding energy;
  *
- * lambda is recalculated in the CommonEnvelopeEvent function.                                          // JR: todo: different envelope mass in CEE function?  Esp. for loveridge?
- * Maybe we can give it as an argument later, as it is already being calculated here.                   // JR: todo: different envelope mass in CEE function?  Esp. for loveridge?
  *
  *
  * void CalculateLambdas(const double p_EnvMass)
@@ -1336,8 +1178,8 @@ void BaseStar::CalculateLambdas(const double p_EnvMass) {
 
     m_Lambdas.fixed          = OPTIONS->CommonEnvelopeLambda();
 	m_Lambdas.nanjing        = CalculateLambdaNanjing();
-	m_Lambdas.loveridge      = CalculateLambdaLoveridgeEnergyFormalism(p_EnvMass, false);     // JR: todo: (1) arg 2 (ismassloss) is ignored
-	m_Lambdas.loveridgeWinds = CalculateLambdaLoveridgeEnergyFormalism(p_EnvMass, true);      // JR: todo: (1) arg 2 (ismassloss) is ignored
+	m_Lambdas.loveridge      = CalculateLambdaLoveridgeEnergyFormalism(p_EnvMass, false);
+	m_Lambdas.loveridgeWinds = CalculateLambdaLoveridgeEnergyFormalism(p_EnvMass, true);      
 	m_Lambdas.kruckow        = CalculateLambdaKruckow(m_Radius, OPTIONS->CommonEnvelopeSlopeKruckow());
 	m_Lambdas.kruckowTop     = CalculateLambdaKruckow(m_Radius, -2.0 / 3.0);
 	m_Lambdas.kruckowMiddle  = CalculateLambdaKruckow(m_Radius, -4.0 / 5.0);
@@ -1346,22 +1188,6 @@ void BaseStar::CalculateLambdas(const double p_EnvMass) {
 }
 
 
-/*
- * Calculate all Zetas
- *
- * ALEJANDRO - 16/10/2017 - Zeta calculations as a mass transfer tracker.
- *
- *
- * void CalculateZetas()
- */
-void BaseStar::CalculateZetas() {
-	m_Zetas.thermal    = CalculateConvergedMassStepZetaThermal();
-	m_Zetas.nuclear    = CalculateConvergedTimestepZetaNuclear();
-	m_Zetas.soberman   = CalculateZadiabaticSPH(m_CoreMass);
-	m_Zetas.sobermanHe = CalculateZadiabaticSPH(m_HeCoreMass);
-	m_Zetas.hurley     = CalculateZadiabaticHurley2002(m_CoreMass);
-	m_Zetas.hurleyHe   = CalculateZadiabaticHurley2002(m_HeCoreMass);
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1416,13 +1242,13 @@ double BaseStar::CalculateLuminosityAtZAMS(const double p_MZAMS) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Luminosity at BAGB in Lsol
  */
-double BaseStar::CalculateLuminosityAtBAGB(double p_Mass) {
+double BaseStar::CalculateLuminosityAtBAGB(double p_Mass) const {
 #define b m_BnCoefficients                                              // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     return (utils::Compare(p_Mass, massCutoffs(MHeF)) < 0)
-            ? (b[29] * pow(p_Mass, b[30])) / (1.0 + (m_Alpha3 * exp(15.0 * (p_Mass - massCutoffs(MHeF)))))
-            : (b[31] + (b[32] * pow(p_Mass, (b[33] + 1.8)))) / (b[34] + pow(p_Mass, b[33]));
+            ? (b[29] * PPOW(p_Mass, b[30])) / (1.0 + (m_Alpha3 * exp(15.0 * (p_Mass - massCutoffs(MHeF)))))
+            : (b[31] + (b[32] * PPOW(p_Mass, (b[33] + 1.8)))) / (b[34] + PPOW(p_Mass, b[33]));
 
 #undef massCutoffs
 #undef b
@@ -1440,11 +1266,9 @@ double BaseStar::CalculateLuminosityAtBAGB(double p_Mass) {
  * @param   [IN]    p_CoreMass                  Core mass in Msol
  * @return                                      Luminosity in Lsol
  */
-double BaseStar::CalculateLuminosityGivenCoreMass(const double p_CoreMass) {
+double BaseStar::CalculateLuminosityGivenCoreMass(const double p_CoreMass) const {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
-
-    return min((gbParams(B) * pow(p_CoreMass, gbParams(q))), (gbParams(D) * pow(p_CoreMass, gbParams(p))));
-
+    return min((gbParams(B) * PPOW(p_CoreMass, gbParams(q))), (gbParams(D) * PPOW(p_CoreMass, gbParams(p))));
 #undef gbParams
 }
 
@@ -1467,7 +1291,7 @@ double BaseStar::CalculateLuminosityGivenCoreMass(const double p_CoreMass) {
  * @return                                      Radius in units of Rsol (RZAMS)
  * Uses class member m_RCoefficients as radius coefficients
  */
-double BaseStar::CalculateRadiusAtZAMS(const double p_MZAMS) {
+double BaseStar::CalculateRadiusAtZAMS(const double p_MZAMS) const {
 #define coeff(x) m_RCoefficients[static_cast<int>(R_Coeff::x)]  // for convenience and readability - undefined at end of function
 
     // pow() is slow - use multiplication where it makes sense
@@ -1506,32 +1330,13 @@ double BaseStar::CalculateRadiusAtZAMS(const double p_MZAMS) {
  * Hurley et al. 2000, eq 89
  *
  *
- * double CalculateMaximumCoreMass(double p_Mass)
+ * double CalculateMaximumCoreMass(const double p_Mass)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Maximum core mass in Msol (McMax)
  */
-double BaseStar::CalculateMaximumCoreMass(double p_Mass) {
+double BaseStar::CalculateMaximumCoreMass(const double p_Mass) const {
     return min(((1.45 * p_Mass) - 0.31), p_Mass);
-}
-
-
-/*
- * Calculate the core mass at which the AGB phase is terminated in a SN/loss of envelope
- *
- * Hurley et al. 2000, eq 75
- *
- *
- * double Star::CalculateMaximumCoreMassSN()
- *
- * @return                                      Maximum core mass before supernova (McSN)
- */
-double BaseStar::CalculateMaximumCoreMassSN() {
-#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]        // for convenience and readability - undefined at end of function
-
-    return max(MECS, (0.773 * gbParams(McBAGB)) - 0.35);        // Mch constant in constants.h
-
-#undef gbParams
 }
 
 
@@ -1562,26 +1367,6 @@ double BaseStar::CalculateInitialEnvelopeMass_Static(const double p_Mass) {
 }
 
 
-/*
- * Calculate envelope mass on phase as a function of time
- *
- * Given just after Eq 111 in Hurley et al. 2000
- *
- * This function works for most phases.  Stellar types MS_lte_07, MS_gt_07 and HertzsprungGap
- * have specialised functions.
- *
- *
- * double CalculateEnvelopeMassOnPhase(const double p_Tau)
- *
- * @param   [IN]    p_Tau                       Relative lifetime
- * @return                                      ZAMS envelope mass - Menv in Hurley et al. 2000
- *
- * Parameter p_Tau not required here - but we want same signature for all classes.  (JR: revisit this)
- */
-double BaseStar::CalculateEnvelopeMassOnPhase(const double p_Tau) {
-    return m_Mass - m_CoreMass; // For most phases with core envelope separation
-}
-
 
 /*
  * Calculate rejuvenation factor for stellar age based on mass lost/gained during mass transfer
@@ -1593,7 +1378,7 @@ double BaseStar::CalculateEnvelopeMassOnPhase(const double p_Tau) {
  *
  * @return                                      Rejuvenation factor
  */
-double BaseStar::CalculateMassTransferRejuvenationFactor() {
+double BaseStar::CalculateMassTransferRejuvenationFactor() const {
 
     double fRej;
     switch (OPTIONS->MassTransferRejuvenationPrescription()) {                          // which prescription
@@ -1631,12 +1416,12 @@ double BaseStar::CalculateMassTransferRejuvenationFactor() {
  *
  * @return                                      Mass loss rate on AGB in Msol per year
  */
-double BaseStar::CalculateMassLossRateVassiliadisWood() {
+double BaseStar::CalculateMassLossRateVassiliadisWood() const {
 
     double logP0      = min(3.3, (-2.07 - (0.9 * log10(m_Mass)) + (1.94 * log10(m_Radius))));
-    double P0         = pow(10.0, (logP0)); // In their fortran code, Hurley et al take P0 to be min(p0, 2000.0), implemented here as a minimum power
+    double P0         = PPOW(10.0, (logP0)); // In their fortran code, Hurley et al take P0 to be min(p0, 2000.0), implemented here as a minimum power
     double logMdot_VW = -11.4 + (0.0125 * (P0 - 100.0 * max((m_Mass - 2.5), 0.0)));
-    double Mdot_VW    = pow(10.0, (logMdot_VW));
+    double Mdot_VW    = PPOW(10.0, (logMdot_VW));
 
     return min(Mdot_VW, (1.36E-9 * m_Luminosity));
 }
@@ -1652,7 +1437,7 @@ double BaseStar::CalculateMassLossRateVassiliadisWood() {
  *
  * @return                                      Kudritzki and Reimers mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateKudritzkiReimers() {
+double BaseStar::CalculateMassLossRateKudritzkiReimers() const {
     return 4.0E-13 * (MASS_LOSS_ETA * m_Luminosity * m_Radius / m_Mass);    // Shouldn't be eta squared like in paper!
 }
 
@@ -1669,24 +1454,68 @@ double BaseStar::CalculateMassLossRateKudritzkiReimers() {
  *
  * @return                                      Nieuwenhuijzen & de Jager mass loss rate for massive stars (in Msol yr^-1)
  */
-double BaseStar::CalculateMassLossRateNieuwenhuijzenDeJager() {
-    double smoothTaper = min(1.0, (m_Luminosity - 4000.0) / 500.0); // Smooth taper between no mass loss and mass loss
-    return sqrt((m_Metallicity / ZSOL)) * smoothTaper * 9.6E-15 * pow(m_Radius, 0.81) * pow(m_Luminosity, 1.24) * pow(m_Mass, 0.16);
+double BaseStar::CalculateMassLossRateNieuwenhuijzenDeJager() const {
+    double rate = 0.0;
+    if (utils::Compare(m_Luminosity, NJ_MINIMUM_LUMINOSITY) > 0) {      // check for minimum luminosity
+        double smoothTaper = min(1.0, (m_Luminosity - 4000.0) / 500.0); // Smooth taper between no mass loss and mass loss
+        rate = sqrt((m_Metallicity / ZSOL)) * smoothTaper * 9.6E-15 * PPOW(m_Radius, 0.81) * PPOW(m_Luminosity, 1.24) * PPOW(m_Mass, 0.16);
+    } else {
+        rate = 0.0;
+    }
+    return rate;
 }
-
 
 /*
  * Calculate LBV-like mass loss rate for stars beyond the Humphreys-Davidson limit (Humphreys & Davidson 1994)
  *
- * Ref?
- *
- *
- * double CalculateMassLossRateLBV()
+ * Sets class member variable m_LBVphaseFlag if necessary
+ * 
+ *  
+ * double CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_prescription)
  *
  * @return                                      LBV-like mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateLBV() {
-    return 0.1 * pow(((1.0E-5 * m_Radius * sqrt(m_Luminosity)) - 1.0), 3.0) * ((m_Luminosity / 6.0E5) - 1.0);
+double BaseStar::CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_prescription) {
+    double rate = 0.0;
+    double HD_limit_factor = m_Radius * sqrt(m_Luminosity) * 1.0E-5;                                                            // calculate factor by which you are above the HD limit
+    if ((utils::Compare(m_Luminosity, LBV_LUMINOSITY_LIMIT_STARTRACK) > 0) && (utils::Compare(HD_limit_factor, 1.0) > 0)) {     // check if luminous blue variable
+		m_LBVphaseFlag = true;                                                                                                  // mark the star as LBV
+        m_DominantMassLossRate = MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE;
+        
+        switch (p_LBV_prescription) {                                                                                           // decide which LBV prescription to use
+            case LBV_PRESCRIPTION::NONE:
+                rate = 0.0;
+                break;
+            case LBV_PRESCRIPTION::HURLEY_ADD:
+            case LBV_PRESCRIPTION::HURLEY:
+                rate = CalculateMassLossRateLBVHurley(HD_limit_factor);
+                break;
+            case LBV_PRESCRIPTION::BELCZYNSKI:
+                rate = CalculateMassLossRateLBVBelczynski();
+                break;
+            default:
+                SHOW_WARN(ERROR::UNKNOWN_LBV_PRESCRIPTION, "Using default value HURLEY_ADD");
+                rate = CalculateMassLossRateLBVHurley(HD_limit_factor);
+                break;
+        }
+    } else {
+        rate = 0.0;                                                                                                             // no winds if it isn't an LBV star!
+    }
+    return rate;
+}
+
+/*
+ * Calculate LBV-like mass loss rate for stars beyond the Humphreys-Davidson limit (Humphreys & Davidson 1994)
+ *
+ * Hurley+ 2000 Section 7.1 a few equation after Eq. 106 (Equation not labelled)
+ *
+ * double CalculateMassLossRateLBVHurley(const double p_HD_limit_factor)
+ *
+ * @param   [IN]    p_HD_limit_factor           Factor by which star is above Humphreys-Davidson limit
+ * @return                                      LBV-like mass loss rate (in Msol yr^{-1})
+ */
+double BaseStar::CalculateMassLossRateLBVHurley(const double p_HD_limit_factor) const {
+    return 0.1 * PPOW((p_HD_limit_factor - 1.0), 3.0) * ((m_Luminosity / 6.0E5) - 1.0);
 }
 
 
@@ -1695,15 +1524,12 @@ double BaseStar::CalculateMassLossRateLBV() {
  *
  * Belczynski et al. 2010, eq 8
  *
+ * double CalculateMassLossRateLBVBelczynski()
  *
- * double CalculateMassLossRateLBV2(const double p_Flbv)
- *
- * @param   [IN]    p_Flbv                      Multiplicitive constant multiplying base rate of 1E-4 Msol yr^-1 for LBV mass loss
- *                                              (Belczynski et al 2010 sets this as 1.5, Mennekens & Vanbeveren 2014 set this as 10)
- * @return                                      LBV-like mass loss rate (in Msol yr^{-1})
+* @return                                      LBV-like mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateLBV2(const double p_Flbv) {
-    return p_Flbv * 1.0E-4;
+double BaseStar::CalculateMassLossRateLBVBelczynski() const {
+    return OPTIONS->LuminousBlueVariableFactor() * 1.0E-4;
 }
 
 
@@ -1715,15 +1541,19 @@ double BaseStar::CalculateMassLossRateLBV2(const double p_Flbv) {
  * Note that the reduction of this formula is imposed in order to match the observed number of black holes in binaries (Hurley et al 2000)
  *
  *
- * double CalculateMassLossRateWolfRayetLike(const double p_Mu)
+ * double CalculateMassLossRateWolfRayet(const double p_Mu)
  *
  * @param   [IN]    p_Mu                        Small envelope parameter (see Hurley et al. 2000, eq 97 & 98)
  * @return                                      Mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateWolfRayetLike(const double p_Mu) {
+double BaseStar::CalculateMassLossRateWolfRayet(const double p_Mu) const {
     // In the fortran code there is a parameter here hewind which by default is 1.0 -
     // can be set to zero to disable this particular part of winds. We instead opt for all winds on or off.
-    return pow(m_Luminosity, 1.5) * (1.0 - p_Mu) * 1.0E-13;
+    double rate = 0.0;
+    if (utils::Compare(p_Mu, 1.0) < 0) {
+        rate = PPOW(m_Luminosity, 1.5) * (1.0 - p_Mu) * 1.0E-13;
+    }
+    return rate;
 }
 
 
@@ -1735,16 +1565,20 @@ double BaseStar::CalculateMassLossRateWolfRayetLike(const double p_Mu) {
  * Note that the reduction of this formula is imposed in order to match the observed number of black holes in binaries (Hurley et al 2000)
  *
  *
- * double CalculateMassLossRateWolfRayet2(const double p_Mu)
+ * double CalculateMassLossRateWolfRayetZDependent(const double p_Mu)
  *
  * @param   [IN]    p_Mu                        Small envelope parameter (see Hurley et al. 2000, eq 97 & 98)
  * @return                                      Mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateWolfRayet2(const double p_Mu) {
+double BaseStar::CalculateMassLossRateWolfRayetZDependent(const double p_Mu) const {
     // I think StarTrack may still do something different here,
     // there are references to Hamann & Koesterke 1998 and Vink and de Koter 2005
-
-    return m_WolfRayetFactor * 1.0E-13 * pow(m_Luminosity, 1.5) * pow(m_Metallicity / ZSOL, 0.86) * (1.0 - p_Mu);
+    // TW - Haven't seen StarTrack but I think H&K gives the original equation and V&dK gives the Z dependence
+    double rate = 0.0;
+    if (utils::Compare(p_Mu, 1.0) < 0) {
+        rate = OPTIONS->WolfRayetFactor() * 1.0E-13 * PPOW(m_Luminosity, 1.5) * PPOW(m_Metallicity / ZSOL, 0.86) * (1.0 - p_Mu);
+    }
+    return rate;
 }
 
 
@@ -1758,7 +1592,7 @@ double BaseStar::CalculateMassLossRateWolfRayet2(const double p_Mu) {
  *
  * @return                                      Mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateWolfRayet3() {
+double BaseStar::CalculateMassLossRateWolfRayet3() const {
     return exp(-5.73 + (0.88 * log(m_Mass)));
 }
 
@@ -1779,8 +1613,8 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
 
     double rate;
 
-    if (utils::Compare(p_Teff, 12500.0) >= 0 && utils::Compare(p_Teff, 25000.0) <= 0) {
-        double V         = 1.3;                                                             // v_inf/v_esc
+    if (utils::Compare(p_Teff, VINK_MASS_LOSS_MINIMUM_TEMP) >= 0 && utils::Compare(p_Teff, VINK_MASS_LOSS_BISTABILITY_TEMP) <= 0) {
+        double V         = 1.3;                                                                                 // v_inf/v_esc
 
         double logMdotOB = -6.688                             +
                            (2.210 * log10(m_Luminosity / 1.0E5)) -
@@ -1789,12 +1623,13 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
                            (0.85  * log10(m_Metallicity / ZSOL)) +
                            (1.07  * log10(p_Teff / 20000.0));
 
-        rate = pow(10.0, logMdotOB);
+        rate = PPOW(10.0, logMdotOB);
+        m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
     }
-    else if (utils::Compare(p_Teff, 25000.0) > 0) {
-        SHOW_WARN_IF(utils::Compare(p_Teff, 50000.0) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
+    else if (utils::Compare(p_Teff, VINK_MASS_LOSS_BISTABILITY_TEMP) > 0) {
+        SHOW_WARN_IF(utils::Compare(p_Teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
 
-        double V         = 2.6;                                                             // v_inf/v_esc
+        double V         = 2.6;                                                                                 // v_inf/v_esc
 
         double logMdotOB = -6.697 +
                            (2.194 * log10(m_Luminosity / 1.0E5)) -
@@ -1804,10 +1639,11 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
                            (0.933 * log10(p_Teff / 40000.0))     -
                            (10.92 * log10(p_Teff / 40000.0) * log10(p_Teff/40000.0));
 
-        rate = pow(10.0, logMdotOB);
+        rate = PPOW(10.0, logMdotOB);
+        m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
     }
-    else{
-        SHOW_WARN(ERROR::LOW_TEFF_WINDS, "Mass Loss Rate = 0.0");                           // too cold to use winds - show warning
+    else {
+        SHOW_WARN(ERROR::LOW_TEFF_WINDS, "Mass Loss Rate = 0.0");                                               // too cold to use winds - show warning.
         rate = 0.0;
     }
 
@@ -1826,7 +1662,7 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
  * @return                                      Mass loss rate in Msol per year
  */
 double BaseStar::CalculateMassLossRateHurley() {
-    return (utils::Compare(m_Luminosity, 4.0E3) > 0) ? CalculateMassLossRateNieuwenhuijzenDeJager() : 0.0;          // JR: todo: make this a constant
+    return CalculateMassLossRateNieuwenhuijzenDeJager();
 }
 
 
@@ -1839,28 +1675,30 @@ double BaseStar::CalculateMassLossRateHurley() {
  * @return                                      Mass loss rate in Msol per year
  */
 double BaseStar::CalculateMassLossRateVink() {
-    double rate;
+    m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;                                                                  // reset dominant mass loss rate
 
-    double tmp = m_Radius * sqrt(m_Luminosity) * 1.0E-5;
-    if ((utils::Compare(m_Luminosity, LBV_LUMINOSITY_LIMIT_STARTRACK) > 0) && (utils::Compare(tmp, 1.0) > 0)) {     // luminous blue variable
-		m_LBVphaseFlag = true;                                                                                      // ... is true
+    double LBVRate = CalculateMassLossRateLBV(OPTIONS->LuminousBlueVariablePrescription());                         // start with LBV winds (can be, and is often, 0.0)
+    double otherWindsRate = 0.0;
 
-        rate = CalculateMassLossRateLBV2(m_LBVfactor);                                                              // calculate mass loss rate
-    }
-    else {
+    if (m_DominantMassLossRate != MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE || 
+        OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::HURLEY_ADD ) {                             // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
+
         double teff = m_Temperature * TSOL;                                                                         // change to Kelvin so it can be compared with values as stated in Vink prescription
-
-        if (utils::Compare(teff, 12500.0) < 0) {                                                                    // cool stars, use Hurley et al 2000 winds  JR: todo: make this a constant
-            rate = CalculateMassLossRateHurley();
+        if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                                // cool stars, add Hurley et al 2000 winds
+            otherWindsRate = CalculateMassLossRateHurley() * OPTIONS->CoolWindMassLossMultiplier();                 // Apply cool wind mass loss multiplier
         }
-        else  {                                                                                                     // hot stars, use Vink et al. 2001 winds (ignoring bistability jump)
-            rate = CalculateMassLossRateOB(teff);
+        else  {                                                                                                     // hot stars, add Vink et al. 2001 winds (ignoring bistability jump)
+            otherWindsRate = CalculateMassLossRateOB(teff);
+        }
+
+        if (utils::Compare(LBVRate, otherWindsRate) > 0) {
+            m_DominantMassLossRate = MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE;                                        // set LBV dominant again in case Hurley or OB overwrote it
         }
     }
 
     // BSE and StarTrack have some mulptilier they apply here
 
-    return rate;
+    return LBVRate + otherWindsRate;
 }
 
 
@@ -1879,20 +1717,34 @@ double BaseStar::CalculateMassLossRate() {
     double mDot = 0.0;
     if (OPTIONS->UseMassLoss()) {
 
-        switch (OPTIONS->MassLossPrescription()) {                                  // which prescription?
+        double LBVRate;
+        double otherWindsRate;
 
-            case MASS_LOSS_PRESCRIPTION::HURLEY:                                    // HURLEY
-                mDot = CalculateMassLossRateHurley();
+        switch (OPTIONS->MassLossPrescription()) {                                                              // which prescription?
+
+            case MASS_LOSS_PRESCRIPTION::HURLEY:                                                                // HURLEY
+                LBVRate = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD);
+                otherWindsRate = CalculateMassLossRateHurley();
+                if (utils::Compare(LBVRate, otherWindsRate) > 0) {
+                    m_DominantMassLossRate = MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE;
+                }
+                mDot = LBVRate + otherWindsRate;
                 break;
 
-            case MASS_LOSS_PRESCRIPTION::VINK:                                      // VINK
+            case MASS_LOSS_PRESCRIPTION::VINK:                                                                  // VINK
                 mDot = CalculateMassLossRateVink();
                 break;
 
-            default:                                                                // unknown mass loss prescription
-                SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using HURLEY");   // show warning
-                mDot = CalculateMassLossRateHurley();                               // use HURLEY
+            default:                                                                                            // unknown mass loss prescription
+                SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using HURLEY");                               // show warning
+                LBVRate = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD);
+                otherWindsRate = CalculateMassLossRateHurley();
+                if (utils::Compare(LBVRate, otherWindsRate) > 0) {
+                    m_DominantMassLossRate = MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE;
+                }
+                mDot = LBVRate + otherWindsRate;                                                                // use HURLEY
         }
+        mDot = mDot * OPTIONS->OverallWindMassLossMultiplier();                                                 // Apply overall wind mass loss multiplier
     }
 
     return mDot;
@@ -1943,6 +1795,11 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
         mDot = CalculateMassLossRate();                                     // calculate mass loss rate
         double massLoss = CalculateMassLoss_Static(mass, mDot, dt);         // calculate mass loss - limited to (mass * MAXIMUM_MASS_LOSS_FRACTION)
 
+        if (OPTIONS->CheckPhotonTiringLimit()) {
+            double lim = m_Luminosity / (G_SOLAR_YEAR * m_Mass / m_Radius); // calculate the photon tiring limit in Msol yr^-1 using Owocki & Gayley 1997, equation slightly clearer in Owocki+2004 Eq. 20
+            massLoss = std::min(massLoss, lim);                             // limit mass loss to the photon tiring limit
+        }
+
         // could do this without the test - we know the mass loss may already
         // have been limited.  This way is probably marginally faster
         if (utils::Compare(massLoss, (mass * MAXIMUM_MASS_LOSS_FRACTION)) < 0) {
@@ -1979,7 +1836,12 @@ void BaseStar::ResolveMassLoss() {
 
     if (OPTIONS->UseMassLoss()) {
         m_Mass = CalculateMassLossValues(true, true);                           // calculate new values assuming mass loss applied
-
+        
+        m_HeCoreMass=std::min(m_HeCoreMass,m_Mass);                             // update He mass if mass loss is happening from He stars
+        
+        m_COCoreMass=std::min(m_COCoreMass,m_Mass);                             // Not expected, only a precaution to avoid inconsistencies
+        m_CoreMass=std::min(m_CoreMass, m_Mass);
+        
         UpdateInitialMass();                                                    // update initial mass (MS, HG & HeMS)  JR: todo: fix this kludge one day - mass0 is overloaded, and isn't always "initial mass"
         UpdateAgeAfterMassLoss();                                               // update age (MS, HG & HeMS)
         ApplyMassTransferRejuvenationFactor();                                  // apply age rejuvenation factor
@@ -2003,8 +1865,8 @@ double BaseStar::CalculateCoreMassGivenLuminosity_Static(const double p_Luminosi
 #define gbParams(x) p_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
 
     return (utils::Compare(p_Luminosity, gbParams(Lx)) > 0)
-            ? pow((p_Luminosity / gbParams(B)), (1.0 / gbParams(q)))
-            : pow((p_Luminosity / gbParams(D)), (1.0 / gbParams(p)));
+            ? PPOW((p_Luminosity / gbParams(B)), (1.0 / gbParams(q)))
+            : PPOW((p_Luminosity / gbParams(D)), (1.0 / gbParams(p)));
 
 #undef gbParams
 }
@@ -2024,59 +1886,34 @@ double BaseStar::CalculateCoreMassGivenLuminosity_Static(const double p_Luminosi
  *
  * For non compact objects:
  *
- *    1) Kelvin-Helmholtz (thermal) timescale if THERMALLY_LIMITED_MASS_TRANSFER
- *    2) Choose a fraction of the mass rate that will be effectively accreted for FIXED_FRACTION_MASS_TRANSFER (as in StarTrack)
- *    3) Disk vs impact accretion for CENTRIFUGALLY_LIMITED_MASS_TRANSFER
+ *    1) Kelvin-Helmholtz (thermal) timescale if THERMAL (thermally limited) mass transfer efficiency
+ *    2) Choose a fraction of the mass rate that will be effectively accreted for FIXED fraction mass transfer (as in StarTrack)
  *
  *
- * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_FractionAccreted, const double p_AccretorMassRate)
+ * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)
  *
  * @param   [IN]    p_DonorMassRate             Mass transfer rate of the donor
- * @param   [IN]    p_FractionAccreted          Accretion efficiency parameter - may be returned unchanged
  * @param   [IN]    p_AccretorMassRate          Thermal mass loss rate of the accretor (this star)
  * @return                                      Tuple containing the Maximum Mass Acceptance Rate and the Accretion Efficiency Parameter
  */
-DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_FractionAccreted, const double p_AccretorMassRate) {
+DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
 
     double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
-    double fractionAccreted = p_FractionAccreted;                                           // accretion fraction - default is unchanged
+    double fractionAccreted = 0.0;                                                          // accretion fraction - default  = 0.0
 
     switch (OPTIONS->MassTransferAccretionEfficiencyPrescription()) {
 
         case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED:                       // thermally limited mass transfer:
 
-            if(utils::Compare(p_AccretorMassRate, p_DonorMassRate) < 0) {                   // the accretor cannot accrete at the rate the donor is providing mass
-
-                acceptanceRate = min(OPTIONS->MassTransferCParameter() * p_AccretorMassRate, p_DonorMassRate);
-
-                switch (OPTIONS->MassTransferThermallyLimitedVariation()) {
-
-                    case MT_THERMALLY_LIMITED_VARIATION::C_FACTOR:
-                        fractionAccreted = min(1.0, OPTIONS->MassTransferCParameter() * (p_AccretorMassRate / p_DonorMassRate));
-                        break;
-
-                    case MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE:
-                        fractionAccreted = min(1.0, OPTIONS->MassTransferCParameter() * (p_AccretorMassRate / p_DonorMassRate));
-                        break;
-
-                    default:                                                                // unknown thermally limited variation - shouldn't happen
-                        m_Error = ERROR::UNKNOWN_MT_THERMALLY_LIMITED_VARIATION;            // set error value
-                        SHOW_WARN(m_Error);                                                 // warn that an error occurred
-                }
-            }
-            else {                                                                          // accretor can accrete more than the donor is providing
-                acceptanceRate   = p_DonorMassRate;
-                fractionAccreted = 1.0;
-            }
+            acceptanceRate = min(OPTIONS->MassTransferCParameter() * p_AccretorMassRate, p_DonorMassRate);
+            fractionAccreted = acceptanceRate / p_DonorMassRate;
             break;
 
         case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION:                          // fixed fraction of mass accreted, as in StarTrack
-            acceptanceRate = min(p_DonorMassRate, p_FractionAccreted * p_DonorMassRate);
+            fractionAccreted = OPTIONS-> MassTransferFractionAccreted();
+            acceptanceRate = min(p_DonorMassRate, fractionAccreted * p_DonorMassRate);
             break;
 
-        case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::CENTRIFUGALLY_LIMITED:                   // centrifugally limited mass transfer
-            acceptanceRate = 0.0;
-            break;
 
         default:                                                                            // unknown mass transfer accretion efficiency prescription - shouldn't happen
             m_Error = ERROR::UNKNOWN_MT_ACCRETION_EFFICIENCY_PRESCRIPTION;                  // set error value
@@ -2120,7 +1957,7 @@ double BaseStar::CalculateTemperatureOnPhase_Static(const double p_Luminosity, c
  * @param   [IN]    p_Radius                    Radius of the star (Rsol)
  * @return                                      Effective temperature of the star (Kelvin)
  */
-double BaseStar::CalculateTemperatureKelvinOnPhase(const double p_Luminosity, const double p_Radius) {
+double BaseStar::CalculateTemperatureKelvinOnPhase(const double p_Luminosity, const double p_Radius) const {
     return CalculateTemperatureOnPhase(p_Luminosity, p_Radius) * TSOL;
 }
 
@@ -2207,12 +2044,12 @@ double BaseStar::CalculateOStarRotationalVelocity_Static(const double p_Xmin, co
 
     double rand = RAND->Random();
 
-    while(utils::Compare(rand, maximumInverse) > 0) {
+    while (utils::Compare(rand, maximumInverse) > 0) {
         xMax          *= 2.0;
         maximumInverse = CalculateOStarRotationalVelocityAnalyticCDF_Static(xMax);
     }
 
-    if(utils::Compare(rand, minimumInverse) >= 0) {
+    if (utils::Compare(rand, minimumInverse) >= 0) {
 
         const gsl_root_fsolver_type *T;
         gsl_root_fsolver            *s;
@@ -2259,9 +2096,9 @@ double BaseStar::CalculateOStarRotationalVelocity_Static(const double p_Xmin, co
  * double CalculateRotationalVelocity(double p_MZAMS)
  *
  * @param   [IN]    p_MZAMS                     Zero age main sequence mass in Msol
- * @return                                      Initial equatorial rotational velocity in km s^-1 - vRot in Hurley at al. 2000
+ * @return                                      Initial equatorial rotational velocity in km s^-1 - vRot in Hurley et al. 2000
  */
-double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
+double BaseStar::CalculateRotationalVelocity(double p_MZAMS) const {
 
     double vRot = 0.0;
 
@@ -2272,7 +2109,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
         case ROTATIONAL_VELOCITY_DISTRIBUTION::HURLEY:                                  // HURLEY
 
             // Hurley et al. 2000, eq 107 (uses fit from Lang 1992)
-            vRot = (330.0 * pow(p_MZAMS, 3.3)) / (15.0 + pow(p_MZAMS, 3.45));
+            vRot = (330.0 * PPOW(p_MZAMS, 3.3)) / (15.0 + PPOW(p_MZAMS, 3.45));
             break;
 
         case ROTATIONAL_VELOCITY_DISTRIBUTION::VLTFLAMES:                               // VLTFLAMES
@@ -2293,7 +2130,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
             else {
                 // Don't know what better to use for low mass stars so for now
                 // default to Hurley et al. 2000, eq 107 (uses fit from Lang 1992)
-                vRot = (330.0 * pow(p_MZAMS, 3.3)) / (15.0 + pow(p_MZAMS, 3.45));
+                vRot = (330.0 * PPOW(p_MZAMS, 3.3)) / (15.0 + PPOW(p_MZAMS, 3.45));
             }
             break;
 
@@ -2308,7 +2145,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
  * Calculate the initial angular frequency (in yr^-1) of a star with
  * ZAMS mass and radius MZAMS and RZAMS respectively
  *
- * Hurley at al. 2000, eq 108
+ * Hurley et al. 2000, eq 108
  *
  *
  * double CalculateRotationalAngularFrequency(const double p_MZAMS, const double p_RZAMS)
@@ -2317,25 +2154,24 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
  * @param   [IN]    p_RZAMS                     Zero age main sequence radius in Rsol
  * @return                                      Initial angular frequency in yr^-1 - omega in Hurley et al. 2000
  */
-double BaseStar::CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS) {
+double BaseStar::CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS) const {
     double vRot = CalculateRotationalVelocity(p_MZAMS);
-    return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 * vRot / p_RZAMS;    // Hurley at al. 2000, eq 108       JR: todo: added check for vRot = 0
+    return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 * vRot / p_RZAMS;    // Hurley et al. 2000, eq 108       JR: todo: added check for vRot = 0
 }
 
 
 /*
- * Calculate the break up frequency of star in yr^-1 units, where [G] = 4*pi^2 AU^3 yr^-2 Msol^-1
+ * Calculate the break up angular velocity of a star in rad/yr units, where [G] = 4*pi^2 AU^3 yr^-2 Msol^-1
  *
  *
- * double CalculateOmegaBreak()
+ * double CalculateOmegaBreak() const
  *
- * @return                                      Break up frequency (yr^-1)
+ * @return                                      Break up angular velocity (rad yr^-1)
  */
-double BaseStar::CalculateOmegaBreak() {
-    constexpr double _2_PI_2      = _2_PI * _2_PI;
+double BaseStar::CalculateOmegaBreak() const {
     constexpr double RSOL_TO_AU_3 = RSOL_TO_AU * RSOL_TO_AU * RSOL_TO_AU;
 
-	return sqrt(_2_PI_2 * m_Mass / (RSOL_TO_AU_3 * m_Radius * m_Radius * m_Radius));
+	return _2_PI * sqrt(m_Mass / (RSOL_TO_AU_3 * m_Radius * m_Radius * m_Radius));
 }
 
 
@@ -2352,7 +2188,7 @@ double BaseStar::CalculateOmegaBreak() {
  * @param   [IN]        p_Metallicity           Metallicity of the star
  * @return                                      Initial angular frequency in rad*s^-1
  */
-double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity) {
+double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     double mRatio = p_MZAMS;                                                                        // in MSol, so ratio is just p_MZAMS
@@ -2361,12 +2197,12 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
     double omegaZ004 = 0.0;
     if (utils::Compare(p_MZAMS, massCutoffs(MCHE)) <= 0) {
         for (std::size_t i = 0; i < CHE_Coefficients.size(); i++) {
-            omegaZ004 += CHE_Coefficients[i] * utils::intPow(mRatio, i) / pow(mRatio, 0.4);
+            omegaZ004 += CHE_Coefficients[i] * utils::intPow(mRatio, i) / PPOW(mRatio, 0.4);
         }
     }
     else {
         for (std::size_t i = 0; i < CHE_Coefficients.size(); i++) {
-            omegaZ004 += CHE_Coefficients[i] * utils::intPow(100.0, i) / pow(mRatio, 0.4);
+            omegaZ004 += CHE_Coefficients[i] * utils::intPow(100.0, i) / PPOW(mRatio, 0.4);
         }
     }
 
@@ -2396,7 +2232,7 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Lifetime to the Base of the Giant Branch in Myr
  */
-double BaseStar::CalculateLifetimeToBGB(const double p_Mass) {
+double BaseStar::CalculateLifetimeToBGB(const double p_Mass) const {
 #define a m_AnCoefficients    // for convenience and readability - undefined at end of function
 
     // pow() is slow - use multiplication (sqrt() is much faster than pow())
@@ -2421,7 +2257,7 @@ double BaseStar::CalculateLifetimeToBGB(const double p_Mass) {
  * @param   [IN]    p_tHe                       Time to helium burning
  * @return                                      Lifetime to Base of the Asymptotic Giant Branch in Myr
  */
-double BaseStar::CalculateLifetimeToBAGB(const double p_tHeI, const double p_tHe) {
+double BaseStar::CalculateLifetimeToBAGB(const double p_tHeI, const double p_tHe) const {
     return p_tHeI + p_tHe;
 }
 
@@ -2491,28 +2327,6 @@ double BaseStar::CalculateRadialExpansionTimescale_Static(const STELLAR_TYPE p_S
 }
 
 
-/*
- * Calculate all timescales
- *
- * Calculates:
- *     - dynamical timescale
- *     - thermal timescale
- *     - nuclear timesclae
- *     - radial expansion timescale
- *
- * and sets class member variables appropriately
- *
- *
- * void CalculateAllTimescales()
- */
-void BaseStar::CalculateAllTimescales() {
-
-    m_DynamicalTimescale	   = CalculateDynamicalTimescale();
-    m_ThermalTimescale 		   = CalculateThermalTimescale();
-    m_NuclearTimescale 		   = CalculateNuclearTimescale();
-    m_RadialExpansionTimescale = CalculateRadialExpansionTimescale();
-}
-
 
 /*
  * Calculate the eddy turnover timescale
@@ -2527,7 +2341,7 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
 
 	double rEnv	= CalculateRadialExtentConvectiveEnvelope();
 
-	return 0.4311 * pow((m_Mass * rEnv * (m_Radius - (0.5 * rEnv))) / (3.0 * m_Luminosity), 1.0 / 3.0);
+	return 0.4311 * PPOW((m_Mass * rEnv * (m_Radius - (0.5 * rEnv))) / (3.0 * m_Luminosity), 1.0 / 3.0);
 }
 
 
@@ -2552,30 +2366,30 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
  *
  *  double ApplyBlackHoleKicks(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass)
  *
- * @param   [IN]    p_vK                        Kick velocity that would otherwise be applied to a neutron star
+ * @param   [IN]    p_vK                        Kick magnitude that would otherwise be applied to a neutron star
  * @param   [IN]    p_FallbackFraction          Fraction of mass that falls back onto the proto-compact object
  * @param   [IN]    p_BlackHoleMass             Mass of remnant (in Msol)
- * @return                                      Kick velocity
+ * @return                                      Kick magnitude
  */
  double BaseStar::ApplyBlackHoleKicks(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass) {
 
     double vK;
 
-    switch (OPTIONS->BlackHoleKicksOption()) {                      // which BH kicks option specified?
+    switch (OPTIONS->BlackHoleKicks()) {                            // which BH kicks option specified?
 
-        case BLACK_HOLE_KICK_OPTION::FULL:                          // BH receives full kick - no adjustment necessary
+        case BLACK_HOLE_KICKS::FULL:                                // BH receives full kick - no adjustment necessary
             vK = p_vK;
             break;
 
-        case BLACK_HOLE_KICK_OPTION::REDUCED:                       // Kick is reduced by the ratio of the black hole mass to neutron star mass i.e. v_bh = ns/bh  *v_ns
+        case BLACK_HOLE_KICKS::REDUCED:                             // Kick is reduced by the ratio of the black hole mass to neutron star mass i.e. v_bh = ns/bh  *v_ns
             vK = p_vK * NEUTRON_STAR_MASS / p_BlackHoleMass;
             break;
 
-        case BLACK_HOLE_KICK_OPTION::ZERO:
-            vK = 0.0;                                               // BH Kicks are set to zero regardless of BH mass or kick velocity drawn.
+        case BLACK_HOLE_KICKS::ZERO:
+            vK = 0.0;                                               // BH Kicks are set to zero regardless of BH mass or kick magnitude drawn.
             break;
 
-        case BLACK_HOLE_KICK_OPTION::FALLBACK:                      // Using the so-called 'fallback' prescription for BH kicks
+        case BLACK_HOLE_KICKS::FALLBACK:                            // Using the so-called 'fallback' prescription for BH kicks
             vK = p_vK * (1.0 - p_FallbackFraction);
             break;
 
@@ -2590,165 +2404,44 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
 
 
 /*
- * Inverse sampling from the Maxwell CDF for MCMC and importance sampling
- * Generates a random sample from the distribution
- *
- * From https://en.wikipedia.org/wiki/Maxwell-Boltzmann_distribution
- *
- * the Maxwell CDF is:
- *
- * erf(x/(sqrt(2.0)*sigma)) - (sqrt(2.0/pi) * x * exp(-(x*x)/(2.0*sigma*sigma))/sigma)
- *
- * where erf is the error function which has the form:
- *
- *   erf(x) = (2/\sqrt(\pi)) \int_0^x dt \exp(-t^2).
- *
- * We use the gsl error function https://www.gnu.org/software/gsl/manual/html_node/Error-Function.html
+ * Draw a kick magnitude in km s^-1 from a Maxwellian distribution of the form:
  *
  *
- * double InverseSampleFromMaxwellCDF_Static(const double p_X, const double p_Sigma)
- *
- * @param   [IN]    p_X                         The value of X for which the distribution function is evaluated
- * @param   [IN]    p_Sigma                     Distribution scale parameter - affects the spread of the distribution
- * @return                                      Maxwell CDF value
- */
-double BaseStar::InverseSampleFromMaxwellCDF_Static(const double p_X, const double p_Sigma) {
-    return gsl_sf_erf(p_X / (M_SQRT2 * p_Sigma)) - (SQRT_M_2_PI * p_X * exp(-(p_X * p_X) / (2.0 * p_Sigma * p_Sigma)) / p_Sigma);
-}
-
-
-/*
- * Calculate the inverse of the Maxwell CDF
- *
- *
- * double CalculateInverseMaxwellCDF_Static(const double p_X, void* p_Paramsa)
- *
- * @param   [IN]    p_X                         Value of the kick vk which we want to find
- * @param   [IN]    p_Params                    Structure containing:
- *                                                 y    : the CDF draw U(0,1), and
- *                                                 sigma: which sets the characteristic kick of the Maxwellian distribution
- * @return                                      Inverse Maxwell CDF value (Should be zero when x = vk, the value of the kick to draw)
- */
-double BaseStar::CalculateInverseMaxwellCDF_Static(const double p_X, void* p_Params) {
-    KickVelocityParams* params = (KickVelocityParams*)p_Params;
-    return InverseSampleFromMaxwellCDF_Static(p_X, params->sigma) - params->y;
-}
-
-
-/*
- * Draw a kick velocity in km s^-1 from a Maxwellian distribution of the form:
- *
- *    sqrt(2/pi) * (x * x * exp(-(x * x)/(2.0 * a * a)) / (a*a*a))
- *
- * Roughly factor of 10 slower than old method, 10^-4 s vs 10^-5 s for old method.
- *
- * Implement option to only do it this way if using mcmc or importance sampling,
- * otherwise use old method     JR: todo: what is the old method?
- *
- *   Inverse sampling done using root finding in GSL, adapted from the examples here:
- *   https://www.gnu.org/software/gsl/doc/html/roots.html
- *
- *
- * double DrawKickVelocityDistributionMaxwell(const double p_Sigma, const double p_Rand)
+ * double DrawKickMagnitudeDistributionMaxwell(const double p_Sigma, const double p_Rand)
  *
  * @param   [IN]    p_Sigma                     Distribution scale parameter - affects the spread of the distribution
  * @param   [IN]    p_Rand                      Random number between 0 and 1 used for drawing from the inverse CDF of the Maxwellian
- * @return                                      Drawn kick velocity (km s^-1)
+ * @return                                      Drawn kick magnitude (km s^-1)
  */
-double BaseStar::DrawKickVelocityDistributionMaxwell(const double p_Sigma, const double p_Rand) {
-
-    double result = 0.0;
-
-    bool useOldMethod = false;
-    if (useOldMethod) {                                     // Old method - JR: todo: is this !OPTIONS->useMCMC ?
-
-        double rms = 0.0;
-        for (int i=0; i<3; i++) {                           // generate each component of a 3 dimensional velocity vector
-            double vel = RAND->RandomGaussian(p_Sigma);
-            rms       += vel * vel;                         // sum the squares (because we need the magnitude
-        }
-
-        result = sqrt(rms);                                 // magnitude
-    }
-    else {
-
-    	double xMin = 0.0;
-    	double xMax = 5.0 * p_Sigma;                        // options.kickmax or whatever it is called.        JR: todo: find out...
-
-        double maximumInverse = InverseSampleFromMaxwellCDF_Static(xMin, p_Sigma);
-
-        double rand = p_Rand;
-        while (utils::Compare(rand, maximumInverse) > 0) {
-            xMax *= 2.0;
-            maximumInverse = InverseSampleFromMaxwellCDF_Static(xMax, p_Sigma);
-        }
-        rand = min(rand, maximumInverse);
-
-        const gsl_root_fsolver_type *T;
-        gsl_root_fsolver            *s;
-        gsl_function                 F;
-
-        KickVelocityParams           params = {rand, p_Sigma};
-
-        F.function = &CalculateInverseMaxwellCDF_Static;
-        F.params   = &params;
-
-        // gsl_root_fsolver_brent
-        // gsl_root_fsolver_bisection
-        T = gsl_root_fsolver_brent;
-        s = gsl_root_fsolver_alloc (T);
-
-        gsl_root_fsolver_set (s, &F, xMin, xMax);
-
-	    int status  = GSL_CONTINUE;
-        int iter    = 0;
-        int maxIter = 100;
-
-    	while (status == GSL_CONTINUE && iter < maxIter) {
-            iter++;
-            status = gsl_root_fsolver_iterate (s);
-            result = gsl_root_fsolver_root (s);
-            xMin   = gsl_root_fsolver_x_lower (s);
-            xMax   = gsl_root_fsolver_x_upper (s);
-            status = gsl_root_test_interval (xMin, xMax, 0, 0.001);
-        }
-
-        gsl_root_fsolver_free (s);                          // de-allocate memory for root solver
-    }
-
-    return result;
+double BaseStar::DrawKickMagnitudeDistributionMaxwell(const double p_Sigma, const double p_Rand) const {
+    return p_Sigma * sqrt(gsl_cdf_chisq_Pinv(p_Rand, 3)); // a Maxwellian is a chi distribution with three degrees of freedom
 }
 
 
 /*
- * Draw a kick velocity in km s^-1 from a uniform distribution between 0 and parameter p_MaxVK
+ * Draw a kick magnitude in km s^-1 from a uniform distribution between 0 and parameter p_MaxVK
  *
  *
- * double DrawKickVelocityDistributionFlat(const double p_MaxVK, const double p_Rand)
+ * double DrawKickMagnitudeDistributionFlat(const double p_MaxVK, const double p_Rand)
  *
- * @param   [IN]    p_MaxVK                     Maximum kick velocity in km s^-1 to draw
+ * @param   [IN]    p_MaxVK                     Maximum kick magnitude in km s^-1 to draw
  * @param   [IN]    p_Rand                      Random number between 0 and 1 used for drawing from the distribution
- * @return                                      Drawn kick velocity (km s^-1)
+ * @return                                      Drawn kick magnitude (km s^-1)
  */
-double BaseStar::DrawKickVelocityDistributionFlat(const double p_MaxVK, const double p_Rand) {
-
-    bool useOldMethod = false;          //  JR: todo: program option?
-
-    double rand = useOldMethod ? RAND->Random() : p_Rand;
-
-    return rand * p_MaxVK;
+double BaseStar::DrawKickMagnitudeDistributionFlat(const double p_MaxVK, const double p_Rand) const {
+    return p_Rand * p_MaxVK;
 }
 
 
 /*
- * Draw a kick velocity in km s^-1 per Bray & Eldridge 2016, 2018
+ * Draw a kick magnitude in km s^-1 per Bray & Eldridge 2016, 2018
  *
  * See:
  *    https://arxiv.org/abs/1605.09529
  *    https://arxiv.org/abs/1804.04414
  *
  *
- * double DrawKickVelocityBrayEldridge(const double p_EjectaMass,
+ * double DrawKickMagnitudeBrayEldridge(const double p_EjectaMass,
  *                                     const double p_RemnantMass,
  *                                     const double p_Alpha,
  *                                     const double p_Beta)
@@ -2757,88 +2450,87 @@ double BaseStar::DrawKickVelocityDistributionFlat(const double p_MaxVK, const do
  * @param   [IN]    p_RemnantMass               Mass of the remnant (Msol)
  * @param   [IN]    p_Alpha                     Fitting coefficient (see Bray & Eldridge 2016, 2018)
  * @param   [IN]    p_Beta                      Fitting coefficient (see Bray & Eldridge 2016, 2018)
- * @return                                      Drawn kick velocity (km s^-1)
+ * @return                                      Drawn kick magnitude (km s^-1)
  */
-double BaseStar::DrawKickVelocityBrayEldridge(const double p_EjectaMass,
+double BaseStar::DrawKickMagnitudeBrayEldridge(const double p_EjectaMass,
                                               const double p_RemnantMass,
                                               const double p_Alpha,
-                                              const double p_Beta) {
+                                              const double p_Beta) const {
 
     return p_Alpha * (p_EjectaMass / p_RemnantMass) + p_Beta;
 }
 
 
 /*
- * Draw kick velocity per Muller et al. 2016
+ * Draw kick magnitude per Muller et al. 2016 as presented in eq. B5 of Vigna-Gomez et al. 2018 (arXiv:1805.07974)
  *
- * For BH assume complete fallback so no ejecta hence no rocket effect
- * If BH doesnt assumes complete fallback, e.g. neutrino mass loss, a Blauuw Kick should be calculated
- *
- * ALEJANDRO - 17/03/2017 - It seems from Bernhard's notes he gives us V_kick = V_kick_3D.
- * Checking with some of the highest kicks he gives, we get V_kick>1000 km s^-1
- *
+ * BHs do not get natal kicks
  *
  * double DrawRemnantKickMuller(const double p_COCoreMass)
  *
  * @param   [IN]    p_COCoreMass                Carbon Oxygen core mass of exploding star (Msol)
- * @return                                      Drawn kick velocity (km s^-1)
+ * @return                                      Drawn kick magnitude (km s^-1)
  */
-double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) {
+double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) const {
 
     double	remnantKick = 0.0;	                // units km/s
-	double	lowerRegimeKick = 70.0;		        // Bernhard proposes to use 10 km s^-1 to replicate ECSN. He quotes Bray & Eldridge 2016 on this.
+	double	lowerRegimeKick = 35.0;		        // Following Vigna-Gomez et al. 2018 using 35 km/s as the peak of a low-kick Maxwellian (e.g. USSN, ECSN)
 
-	     if (utils::Compare(p_COCoreMass, 1.44) <  0) remnantKick = 0.0;
-	else if (utils::Compare(p_COCoreMass, 1.49) <  0) remnantKick = lowerRegimeKick + (2000.0 * (p_COCoreMass - 1.372));
-    else if (utils::Compare(p_COCoreMass, 1.65) <  0) remnantKick = 180.0 + (1300.0 * (p_COCoreMass - 1.49));
-	else if (utils::Compare(p_COCoreMass, 2.4 ) <  0) remnantKick = 250.0 + (350.0  * (p_COCoreMass - 1.65));
-    else if (utils::Compare(p_COCoreMass, 3.2 ) <  0) remnantKick = 400.0 + (1100.0 * (p_COCoreMass - 2.4));
-    else if (utils::Compare(p_COCoreMass, 3.6 ) <  0) remnantKick = 160.0 + (240.0  * (p_COCoreMass - 3.2));
-    else if (utils::Compare(p_COCoreMass, 4.05) <  0) remnantKick = 0.0;
-    else if (utils::Compare(p_COCoreMass, 4.6 ) <  0) remnantKick = 700.0 + (100.0  * (p_COCoreMass - 4.05));
-    else if (utils::Compare(p_COCoreMass, 5.7 ) <  0) remnantKick = 0.0;
-    else if (utils::Compare(p_COCoreMass, 6.0 ) <  0) remnantKick = 550.0 - (600.0  * (p_COCoreMass - 5.7));
-    else if (utils::Compare(p_COCoreMass, 6.0 ) >= 0) remnantKick = 0.0;
+	     if (utils::Compare(p_COCoreMass, 1.372) <  0) remnantKick = 0.0;
+	else if (utils::Compare(p_COCoreMass, 1.49 ) <  0) remnantKick = lowerRegimeKick + (1000.0 * (p_COCoreMass - 1.372));
+    else if (utils::Compare(p_COCoreMass, 1.65 ) <  0) remnantKick = 90.0 + (650.0 * (p_COCoreMass - 1.49));
+	else if (utils::Compare(p_COCoreMass, 2.4  ) <  0) remnantKick = 100.0 + (175.0  * (p_COCoreMass - 1.65));
+    else if (utils::Compare(p_COCoreMass, 3.2  ) <  0) remnantKick = 200.0 + (550.0 * (p_COCoreMass - 2.4));
+    else if (utils::Compare(p_COCoreMass, 3.6  ) <  0) remnantKick = 80.0 + (120.0  * (p_COCoreMass - 3.2));
+    else if (utils::Compare(p_COCoreMass, 4.05 ) <  0) remnantKick = 0.0;                                                // Going to be a Black Hole
+    else if (utils::Compare(p_COCoreMass, 4.6  ) <  0) remnantKick = 350.0 + (50.0  * (p_COCoreMass - 4.05));
+    else if (utils::Compare(p_COCoreMass, 5.7  ) <  0) remnantKick = 0.0;                                                // Going to be a Black Hole
+    else if (utils::Compare(p_COCoreMass, 6.0  ) <  0) remnantKick = 275.0 - (300.0  * (p_COCoreMass - 5.7));
+    else if (utils::Compare(p_COCoreMass, 6.0  ) >= 0) remnantKick = 0.0;                                                // Going to be a Black Hole
 
     return remnantKick;
 }
 
 /*
- * Draw kick velocity per Muller and Mandel 2020
+ * Draw kick magnitude per Mandel and Mueller, 2020
  *
- * double DrawRemnantKickMuller(const double p_COCoreMass)
+ * double DrawRemnantKickMullerMandel(const double p_COCoreMass, 
+ *                                    const double p_Rand,
+ *                                    const double p_RemnantMass)
  * 
  * @param   [IN]    p_COCoreMass                Carbon Oxygen core mass of exploding star (Msol)
  * @param   [IN]    p_Rand                      Random number between 0 and 1 used for drawing from the distribution
  * @param   [IN]    p_RemnantMass               Mass of the remnant (Msol)
- * @return                                      Drawn kick velocity (km s^-1)
+ * @return                                      Drawn kick magnitude (km s^-1)
  */
 double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass, 
-                                    const double p_Rand,
-                                    const double p_RemnantMass) {					
-	double remnantKick=-1.0;
-	double muKick=0.0;
-        double rand=p_Rand;		//makes it possible to adjust if p_Rand is too low, to avoid getting stuck
+                                             const double p_Rand,
+                                             const double p_RemnantMass) const {					
+	double remnantKick = -1.0;
+	double muKick      = 0.0;
+    double rand        = p_Rand;    //makes it possible to adjust if p_Rand is too low, to avoid getting stuck
 
 	if (utils::Compare(p_RemnantMass, MULLERMANDEL_MAXNS) <  0) {
-		muKick=max(MULLERMANDEL_KICKNS*(p_COCoreMass-p_RemnantMass)/p_RemnantMass,0.0);
+		muKick = max(OPTIONS->MullerMandelKickMultiplierNS() * (p_COCoreMass - p_RemnantMass) / p_RemnantMass, 0.0);
 	}
 	else {
-		muKick=max(MULLERMANDEL_KICKBH*(p_COCoreMass-p_RemnantMass)/p_RemnantMass,0.0);
+		muKick = max(OPTIONS->MullerMandelKickMultiplierBH() * (p_COCoreMass - p_RemnantMass) / p_RemnantMass, 0.0);
 	}
-	while(remnantKick<0) {
-		remnantKick=muKick*(1.0+gsl_cdf_gaussian_Pinv(rand, MULLERMANDEL_SIGMAKICK));
-		rand=rand+p_Rand+0.0001;
+
+	while (remnantKick < 0.0) {
+		remnantKick = muKick * (1.0 + gsl_cdf_gaussian_Pinv(rand, MULLERMANDEL_SIGMAKICK));
+		rand        = min(rand + p_Rand + 0.0001, 1.0);
 	}
+
 	return remnantKick;
 }
 
 
 /*
- * Draw a kick velocity from the user-specified distribution
+ * Draw a kick magnitude from the user-specified distribution
  *
  *
- * double DrawSNKickVelocity(const double p_Sigma,
+ * double DrawSNKickMagnitude(const double p_Sigma,
  *                           const double p_COCoreMass,
  *                           const double p_Rand,
  *                           const double p_EjectaMass,
@@ -2849,105 +2541,101 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
  * @param   [IN]    p_Rand                      Random number between 0 and 1 used for drawing from the distribution
  * @param   [IN]    p_EjectaMass                Change in mass of the exploding star (i.e. mass of the ejecta) (Msol)
  * @param   [IN]    p_RemnantMass               Mass of the remnant (Msol)
- * @return                                      Drawn kick velocity (km s^-1)
+ * @return                                      Drawn kick magnitude (km s^-1)
  */
-double BaseStar::DrawSNKickVelocity(const double p_Sigma,
-                                    const double p_COCoreMass,
-                                    const double p_Rand,
-                                    const double p_EjectaMass,
-                                    const double p_RemnantMass) {
-	double kickVelocity;
+double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
+                                     const double p_COCoreMass,
+                                     const double p_Rand,
+                                     const double p_EjectaMass,
+                                     const double p_RemnantMass) const {
+	double kickMagnitude;
 
-    switch (OPTIONS->KickVelocityDistribution()) {                                              // which distribution
+    switch (OPTIONS->KickMagnitudeDistribution()) {                                              // which distribution
 
-        case KICK_VELOCITY_DISTRIBUTION::MAXWELLIAN:
-        case KICK_VELOCITY_DISTRIBUTION::MAXWELL:
-            kickVelocity = DrawKickVelocityDistributionMaxwell(p_Sigma, p_Rand);                // MAXWELLIAN, MAXWELL
+        case KICK_MAGNITUDE_DISTRIBUTION::MAXWELLIAN:
+            kickMagnitude = DrawKickMagnitudeDistributionMaxwell(p_Sigma, p_Rand);                // MAXWELLIAN, MAXWELL
             break;
 
-        case KICK_VELOCITY_DISTRIBUTION::FLAT:                                                  // FLAT
-            kickVelocity = DrawKickVelocityDistributionFlat(OPTIONS->KickVelocityDistributionMaximum(), p_Rand);
+        case KICK_MAGNITUDE_DISTRIBUTION::FLAT:                                                  // FLAT
+            kickMagnitude = DrawKickMagnitudeDistributionFlat(OPTIONS->KickMagnitudeDistributionMaximum(), p_Rand);
             break;
 
-        case KICK_VELOCITY_DISTRIBUTION::ZERO:                                                  // ZERO
-            kickVelocity = 0.0;
+        case KICK_MAGNITUDE_DISTRIBUTION::ZERO:                                                  // ZERO
+            kickMagnitude = 0.0;
             break;
 
-        case KICK_VELOCITY_DISTRIBUTION::FIXED:                                                 // FIXED
-            kickVelocity = p_Sigma;
+        case KICK_MAGNITUDE_DISTRIBUTION::FIXED:                                                 // FIXED
+            kickMagnitude = p_Sigma;
             break;
 
-        case KICK_VELOCITY_DISTRIBUTION::BRAYELDRIDGE:                                          // BRAY ELDRIDGE
-            kickVelocity = DrawKickVelocityBrayEldridge(p_EjectaMass, p_RemnantMass, BRAY_ELDRIDGE_CONSTANT_VALUES.at(BRAY_ELDRIDGE_CONSTANT::ALPHA), BRAY_ELDRIDGE_CONSTANT_VALUES.at(BRAY_ELDRIDGE_CONSTANT::BETA));
+        case KICK_MAGNITUDE_DISTRIBUTION::BRAYELDRIDGE:                                          // BRAY ELDRIDGE
+            kickMagnitude = DrawKickMagnitudeBrayEldridge(p_EjectaMass, p_RemnantMass, BRAY_ELDRIDGE_CONSTANT_VALUES.at(BRAY_ELDRIDGE_CONSTANT::ALPHA), BRAY_ELDRIDGE_CONSTANT_VALUES.at(BRAY_ELDRIDGE_CONSTANT::BETA));
             break;
 
-        case KICK_VELOCITY_DISTRIBUTION::MULLER2016:                                            // MULLER2016
-            kickVelocity = DrawRemnantKickMuller(p_COCoreMass);
+        case KICK_MAGNITUDE_DISTRIBUTION::MULLER2016:                                            // MULLER2016
+            kickMagnitude = DrawRemnantKickMuller(p_COCoreMass);
             break;
 
-        case KICK_VELOCITY_DISTRIBUTION::MULLER2016MAXWELLIAN: {                                // MULLER2016-MAXWELLIAN
+        case KICK_MAGNITUDE_DISTRIBUTION::MULLER2016MAXWELLIAN: {                                // MULLER2016-MAXWELLIAN
 
             double mullerSigma = DrawRemnantKickMuller(p_COCoreMass) / sqrt(3.0);
 
-            kickVelocity = DrawKickVelocityDistributionMaxwell(mullerSigma, p_Rand);
+            kickMagnitude = DrawKickMagnitudeDistributionMaxwell(mullerSigma, p_Rand);
             } break;
 
-        case  KICK_VELOCITY_DISTRIBUTION::MULLERMANDEL:                                          // MULLERMANDEL
-            kickVelocity = DrawRemnantKickMullerMandel(p_COCoreMass, p_Rand, p_RemnantMass);
+        case  KICK_MAGNITUDE_DISTRIBUTION::MULLERMANDEL:                                          // MULLERMANDEL
+            kickMagnitude = DrawRemnantKickMullerMandel(p_COCoreMass, p_Rand, p_RemnantMass);
             break;
 
         default:                                                                                // unknown distribution
-            SHOW_WARN(ERROR::UNKNOWN_KICK_VELOCITY_DISTRIBUTION, "Using default: MAXWELL");     // show warning
-            kickVelocity = DrawKickVelocityDistributionMaxwell(p_Sigma, p_Rand);
+            SHOW_WARN(ERROR::UNKNOWN_KICK_MAGNITUDE_DISTRIBUTION, "Using default: MAXWELL");     // show warning
+            kickMagnitude = DrawKickMagnitudeDistributionMaxwell(p_Sigma, p_Rand);
     }
 
-    return kickVelocity / OPTIONS->KickScalingFactor();
-
+    return kickMagnitude / OPTIONS->KickScalingFactor();
 }
 
 
 /*
- * Calculate supernova kick velocity
- * Based on the current supernova event type and user-specified kick velocity distributions
+ * Calculate supernova kick magnitude
+ * Based on the current supernova event type and user-specified kick magnitude distributions
  *
  *
- * double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType)
+ * double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType)
  *
  * @param   [IN]    p_RemnantMass               The mass of the remnant (Msol)
  * @param   [IN]    p_EjectaMass                Change in mass of the exploding star (i.e. mass of the ejecta) (Msol)
- * @param   [IN]    p_StellarType		Expected remnant type
- * @return                                      Kick velocity
+ * @param   [IN]    p_StellarType		        Expected remnant type
+ * @return                                      Kick magnitude
  */
-double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType) {
+double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType) {
     ERROR error = ERROR::NONE;
 	double vK;
 
-    if (!m_SupernovaDetails.initialKickParameters.supplied ||                                       // user did not supply kick parameters, or
-        (m_SupernovaDetails.initialKickParameters.supplied &&                                       // user did supply kick parameters but ...
-         m_SupernovaDetails.initialKickParameters.useVelocityRandom)) {                             // ... wants to draw velocity using supplied random number
-
+    if (!m_SupernovaDetails.initialKickParameters.magnitudeSpecified ||                             // user did not supply kick magnitude, or
+         m_SupernovaDetails.initialKickParameters.magnitudeRandomSpecified) {                       // ... wants to draw magnitude using supplied random number
 
         double sigma;
         switch (utils::SNEventType(m_SupernovaDetails.events.current)) {                            // what type of supernova event happening now?
 
-		    case SN_EVENT::ECSN:                                                                    // ALEJANDRO - 04/05/2017 - Allow for ECSN to have kicks different than zero. Still, should be low kicks. Default set to zero.  (JR: todo: check default = 30.0?)
-			    sigma = OPTIONS->KickVelocityDistributionSigmaForECSN();
+		    case SN_EVENT::ECSN:                                                                    //  ECSN may have a separate kick prescription
+			    sigma = OPTIONS->KickMagnitudeDistributionSigmaForECSN();
                 break;
 
-		    case SN_EVENT::USSN:                                                                    // ALEJANDRO - 25/08/2017 - Allow for USSN to have a separate kick.
-			    sigma = OPTIONS->KickVelocityDistributionSigmaForUSSN();
+		    case SN_EVENT::USSN:                                                                    // USSN may have a separate kick prescription
+			    sigma = OPTIONS->KickMagnitudeDistributionSigmaForUSSN();
                 break;
 
-		    case SN_EVENT::CCSN:                                                                    // draw a random kick velocity from the user selected distribution - sigma based on whether compact object is a NS or BH
+		    case SN_EVENT::CCSN:                                                                    // draw a random kick magnitude from the user selected distribution - sigma based on whether compact object is a NS or BH
 
                 switch (p_StellarType) {                                                            // which stellar type?
 
                     case STELLAR_TYPE::NEUTRON_STAR:
-                        sigma = OPTIONS->KickVelocityDistributionSigmaCCSN_NS();
+                        sigma = OPTIONS->KickMagnitudeDistributionSigmaCCSN_NS();
                         break;
 
                     case STELLAR_TYPE::BLACK_HOLE:
-                        sigma = OPTIONS->KickVelocityDistributionSigmaCCSN_BH();
+                        sigma = OPTIONS->KickMagnitudeDistributionSigmaCCSN_BH();
                         break;
 
                     default:                                                                        // unknown stellar type - shouldn't happen
@@ -2970,22 +2658,21 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
 	    }
     
 	    if (error == ERROR::NONE) {                                                                 // check for errors
-                                                                                                    // no errors - draw kick velocity
-            vK = DrawSNKickVelocity(sigma, 
+                                                                                                    // no errors - draw kick magnitude
+            vK = DrawSNKickMagnitude(sigma, 
                                     m_SupernovaDetails.COCoreMassAtCOFormation, 
-                                    m_SupernovaDetails.kickVelocityRandom,
+                                    m_SupernovaDetails.kickMagnitudeRandom,
                                     p_EjectaMass, 
                                     p_RemnantMass);
         }
     }
-    else {                                                                                          // user supplied kick parameters and wants tu use supplied kick velocity, so ...
-        vK = m_SupernovaDetails.initialKickParameters.velocity;                                     // ... use it 
+    else {                                                                                          // user supplied kick parameters and wants to use supplied kick magnitude, so ...
+        vK = m_SupernovaDetails.initialKickParameters.magnitude;                                    // ... use it 
     }
-
 
 	if (error == ERROR::NONE) {                                                                     // check for errors
 
-        m_SupernovaDetails.drawnKickVelocity = vK;                                                  // drawn kick velocity
+        m_SupernovaDetails.drawnKickMagnitude = vK;                                                 // drawn kick magnitude
 
         if (utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::CCSN) {              // core-collapse supernova event this timestep?
             vK = ApplyBlackHoleKicks(vK, m_SupernovaDetails.fallbackFraction, m_Mass);              // re-weight kicks by mass of remnant according to user specified black hole kicks option
@@ -2993,131 +2680,15 @@ double BaseStar::CalculateSNKickVelocity(const double p_RemnantMass, const doubl
         else {                                                                                      // otherwise
             m_SupernovaDetails.fallbackFraction = 0.0;                                              // set fallback fraction to zero
         }
-        m_SupernovaDetails.kickVelocity = vK;                                                       // updated kick velocity
+        m_SupernovaDetails.kickMagnitude = vK;                                                      // updated kick magnitude
     }
     else {                                                                                          // error occurred
-        vK = 0.0;                                                                                   // set kick velocity to zero
+        vK = 0.0;                                                                                   // set kick magnitude to zero
         m_Error = error;                                                                            // set error value
         SHOW_WARN(m_Error);                                                                         // warn that an error occurred
     }
 
     return vK;
-}
-
-
- /*
-  * Draw the angular components of the supernova kick theta and phi according to user specified options.
-  *
-  * 
-  * DBL_DBL DrawKickDirection()
-  */
-DBL_DBL BaseStar::DrawKickDirection() {
-
-    double theta;                                                                                               // theta, angle out of the plane
-    double phi;                                                                                                 // phi, angle in the plane
-
-    double delta = 1.0 * DEGREE;                                                                                // small angle () in radians - could be set by user in options
-
-    double rand = RAND->Random();                                                                               // do this here to be consistent with legacy code - allows comparison tests (won't work for long - soon there will be too many changes to the code...)
-
-    switch (OPTIONS->KickDirectionDistribution()) {                                                             // which kick direction distribution?
-
-        case KICK_DIRECTION_DISTRIBUTION::ISOTROPIC:                                                            // ISOTROPIC: Draw theta and phi isotropically
-            theta = acos(1.0 - (2.0 * RAND->Random())) - (4*std::atan(1.0) / 2.0);//M_PI_2;
-            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
-            break;
-
-        case KICK_DIRECTION_DISTRIBUTION::POWERLAW: {                                                           // POWERLAW: Draw phi uniform in [0,2pi], theta according to a powerlaw
-                                                                                                                // (power law power = 0 = isotropic, +infinity = kick along pole, -infinity = kick in plane)
-            // Choose magnitude of power law distribution -- if using a negative power law that blows up at 0,
-            // need a lower cutoff (currently set at 1E-6), check it doesn't affect things too much
-            // JR: todo: shsould these be in constants.h?
-            double magnitude_of_cos_theta = utils::InverseSampleFromPowerLaw(OPTIONS->KickDirectionPower(), 1.0, 1E-6);
-
-            if (OPTIONS->KickDirectionPower() < 0.0) magnitude_of_cos_theta = 1.0 - magnitude_of_cos_theta;     // don't use utils::Compare() here
-
-            double actual_cos_theta = magnitude_of_cos_theta;
-
-            if (RAND->Random() < 0.5) actual_cos_theta = -magnitude_of_cos_theta;                               // By taking the magnitude of cos theta we lost the information about whether it was up or down, so we put that back in randomly here
-
-            actual_cos_theta = min(1.0, max(-1.0, actual_cos_theta));                                           // clamp to [-1.0, 1.0]
-
-            theta = acos(actual_cos_theta);                                                                     // set the kick angle out of the plane theta
-            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
-            } break;
-
-        case KICK_DIRECTION_DISTRIBUTION::INPLANE:                                                              // INPLANE: Force the kick to be in the plane theta = 0
-            theta = 0.0;                                                                                        // force the kick to be in the plane - theta = 0
-            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
-            break;
-
-        case KICK_DIRECTION_DISTRIBUTION::PERPENDICULAR:                                                        // PERPENDICULAR: Force kick to be along spin axis
-            theta = M_PI_2;                                                                                     // pi/2 UP
-            if (rand >= 0.5) theta = -theta;                                                                    // switch to DOWN
-            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
-            break;
-
-        case KICK_DIRECTION_DISTRIBUTION::POLES:                                                                // POLES: Direct the kick in a small cone around the poles
-            if (rand < 0.5) theta = M_PI_2 - fabs(RAND->RandomGaussian(delta));                                 // UP - slightly less than or equal to pi/2
-            else            theta = fabs(RAND->RandomGaussian(delta)) - M_PI_2;                                 // DOWN - slightly more than or equal to -pi/2
-
-            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
-            break;
-
-        case KICK_DIRECTION_DISTRIBUTION::WEDGE:                                                                // WEDGE: Direct kick into a wedge around the horizon (theta = 0)
-            theta = RAND->RandomGaussian(delta);                                                                // Gaussian around 0 with a deviation delta
-            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
-            break;
-
-        default:                                                                                                // unknown kick direction distribution - use ISOTROPIC
-            theta = acos(1.0 - (2.0 * RAND->Random())) - M_PI_2;
-            phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
-            SHOW_WARN(ERROR::UNKNOWN_KICK_DIRECTION_DISTRIBUTION, " Using default");                            // warn that an error occurred
-    }
-
-    return std::make_tuple(theta, phi);
-}
-
-
-/*
- * Solve Kepler's Equation using root finding techniques. Here we use Newton-Raphson.
- *
- * For a definition of all the anomalies see here:
- *
- *    https://en.wikipedia.org/wiki/Mean_anomaly
- *    https://en.wikipedia.org/wiki/True_anomaly
- *    https://en.wikipedia.org/wiki/Eccentric_anomaly
- *
- *
- * DBL_DBL SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity)
- *
- * @param   [IN]    p_MeanAnomaly               The mean anomaly
- * @param   [IN]    p_Eccentricity              Eccentricity of the binary
- * @return                                      Tuple containing the eccentric anomaly and the true anomaly
- */
-DBL_DBL BaseStar::SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity) {
-
-    double e = p_Eccentricity;
-    double M = p_MeanAnomaly;
-    double E = p_MeanAnomaly;                                                                                                       // inital guess at E is M - correct for e = 0
-
-    double kepler = E - (e * sin(E)) - M;                                                                                           // let f(E) = 0.  Equation (92) in my "A simple toy model" document
-
-    int iteration = 0;
-    while (std::abs(kepler) >= NEWTON_RAPHSON_EPSILON && iteration++ < MAX_KEPLER_ITERATIONS) {                                     // repeat the approximation until E is within the specified error of the true value, or max iterations exceeded
-        double keplerPrime = 1.0 - (e * cos(E));                                                                                    // derivative of f(E), f'(E).  Equation (94) in my "A simple toy model" document
-        E = E - kepler / keplerPrime;
-        kepler = E - (e * sin(E)) - M;                                                                                              // let f(E) = 0.  Equation (92) in my "A simple toy model" document
-    }
-
-    if (iteration >= MAX_KEPLER_ITERATIONS) SHOW_ERROR(ERROR::NO_CONVERGENCE, "Solving Kepler's equation");                         // show error
-
-    double nu = 2.0 * atan((sqrt((1.0 + e) / (1.0 - e))) * tan(0.5*E));                                                             // convert eccentric anomaly into true anomaly.  Equation (96) in my "A simple toy model" document
-
-         if (utils::Compare(E, M_PI) >= 0 && utils::Compare(E, _2_PI) <= 0) nu += _2_PI;                                            // add 2PI if necessary
-    else if (utils::Compare(E, 0.0)  <  0 || utils::Compare(E, _2_PI) >  0) SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Eccentric anomaly");   // out of bounds - show warning
-
-    return std::make_tuple(E, nu);
 }
 
 
@@ -3132,7 +2703,28 @@ DBL_DBL BaseStar::SolveKeplersEquation(const double p_MeanAnomaly, const double 
  * @param   [IN]    p_Eccentricity              Eccentricity of the binary
  */
 void BaseStar::CalculateSNAnomalies(const double p_Eccentricity) {
-    std::tie(m_SupernovaDetails.eccentricAnomaly, m_SupernovaDetails.trueAnomaly) = SolveKeplersEquation(m_SupernovaDetails.meanAnomaly, p_Eccentricity);
+
+    ERROR  error = ERROR::NONE;
+
+    std::tie(error, m_SupernovaDetails.eccentricAnomaly, m_SupernovaDetails.trueAnomaly) = utils::SolveKeplersEquation(m_SupernovaDetails.meanAnomaly, p_Eccentricity);
+
+         if (error == ERROR::NO_CONVERGENCE) { SHOW_ERROR(error, "Solving Kepler's equation"); }        // show error
+    else if (error == ERROR::OUT_OF_BOUNDS ) { SHOW_WARN(error, "Eccentric anomaly"); }                 // eccentric anomaly out of bounds - show warning
+
+    return;
+}
+
+
+/*
+ * Update the current velocity vector of the star, adding to a previous one if it exists.
+ *
+ *
+ * void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity)
+ *
+ * @param   [IN]    p_newVelocity               The new velocity vector 
+ */
+void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity) {
+    m_ComponentVelocity += p_newVelocity;                        // Add new velocity to previous velocity 
 }
 
 
@@ -3153,9 +2745,9 @@ void BaseStar::CalculateSNAnomalies(const double p_Eccentricity) {
  * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
  * @param   [IN]    p_EnvMass                   Envelope mass of the star (Msol)
  * @param   [IN]    p_Radius                    Radius of the star (Rsol)
- * @return                                      Binding energy (ergs)
+ * @return                                      Binding energy (erg)
  */
-double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_EnvMass, const double p_Radius, const double p_Lambda) {
+double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_EnvMass, const double p_Radius, const double p_Lambda) const {
 
     double bindingEnergy = 0.0;                                                         // default
 
@@ -3174,7 +2766,7 @@ double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_
 
         double totalMass = coreMass + envMass;                                          // total mass
 
-		bindingEnergy    = G_CGS * totalMass * envMass / (p_Lambda * radius);           // ergs
+		bindingEnergy    = G_CGS * totalMass * envMass / (p_Lambda * radius);           // erg
 	}
 
 	return bindingEnergy;
@@ -3228,8 +2820,6 @@ bool BaseStar::IsOneOf(const STELLAR_TYPE_LIST p_List) const {
 /*
  * Limit timestep to 1% mass change
  *
- * May modify m_Mdot  -  JR: todo: revisit this
- *
  *
  * double LimitTimestep()
  *
@@ -3239,7 +2829,7 @@ double BaseStar::LimitTimestep(const double p_Dt) {
 
     double dt = p_Dt;
 
-    // COEN NEIJSSEL 16/11/2016: cap timestep according to max 1% change in mass star.
+    // cap timestep to maximum of MAXIMUM_MASS_LOSS_FRACTION change in mass star.
     if (OPTIONS->UseMassLoss()) {
         double mDot     = CalculateMassLossRate();                                          // First, calculate mass loss rate
         double massLoss = CalculateMassLoss_Static(m_Mass, mDot, dt);                       // Next, calculate mass loss - limited to (mass * MAXIMUM_MASS_LOSS_FRACTION)
@@ -3247,7 +2837,6 @@ double BaseStar::LimitTimestep(const double p_Dt) {
         if (utils::Compare(massLoss, 0.0) > 0) {                                            // No change if no mass loss
             double dtWind = massLoss / (mDot * 1.0E6);                                      // Calculate timestep to match (possibly limited) mass loss
                    dt     = min(dt, dtWind);                                                // choose dt
-                   m_Mdot = massLoss / (dt * 1.0E6);                                        // Reset mass loss rate to match (possibly limited) mass loss
         }
     }
 
@@ -3276,11 +2865,6 @@ double BaseStar::CalculateTimestep() {
     CalculateTimescales();                                                              // calculate timescales
 
     double dt = ChooseTimestep(m_Age);
-    if (utils::Compare(TIMESTEP_REDUCTION_FACTOR, 1.0) != 0) {                          // timestep reduction factor == 1.0?
-        if (!IsOneOf({ STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07 })) {            // no - check stellar type
-            dt /= TIMESTEP_REDUCTION_FACTOR;                                            // apply timestep reduction factor
-        }
-    }
 
     return LimitTimestep(dt);
 }
@@ -3391,15 +2975,15 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
                                                          const bool   p_ForceRecalculate) {
     STELLAR_TYPE stellarType = m_StellarType;                                               // default is no change
 
-
-    UpdateAttributesAndAgeOneTimestepPreamble(p_DeltaMass, p_DeltaMass0, p_DeltaTime);      // apply mass changes and save current values if required
-
-    if (ShouldBeMasslessRemnant()) {                                                        // ALEJANDRO - 02/12/2016 - Attempt to fix updating the star if it lost all of its mass
-        stellarType = STELLAR_TYPE::MASSLESS_REMNANT;                                       // JR: should also pik up already massless remnant
+    if (ShouldBeMasslessRemnant()) {                                                        // Do not update the star if it lost all of its mass
+        stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
     }
     else {
-        stellarType = ResolveSupernova();                                                   // handle supernova     JR: moved this to start of timestep
+        stellarType = ResolveSupernova();                                                   // handle supernova     JR: moved this to start of timestep        
+        
         if (stellarType == m_StellarType) {                                                 // still on phase?
+            
+            UpdateAttributesAndAgeOneTimestepPreamble(p_DeltaMass, p_DeltaMass0, p_DeltaTime);      // apply mass changes and save current values if required
 
             if (p_ForceRecalculate                     ||                                   // force recalculate?
                 utils::Compare(p_DeltaMass,  0.0) != 0 ||                                   // mass change? or...
@@ -3447,6 +3031,54 @@ void BaseStar::AgeOneTimestepPreamble(const double p_DeltaTime) {
 
 
 /*
+ * Convert Mass Transfer Donor History vector into string
+ *
+ * This is so that a string is passed to the output, not a vector of stellar types.
+ *
+ * std::string BinaryConstituentStar::MassTransferDonorHistoryString() 
+ *
+ * @return                              string of dash-separated stellar type numbers
+ */
+std::string BaseStar::MassTransferDonorHistoryString() const {
+    STYPE_VECTOR mtHistVec = m_MassTransferDonorHistory;      
+    std::string mtHistStr  = "";
+
+    if (mtHistVec.empty()) {    // This star was never a donor for MT
+        mtHistStr = "NA";
+    }
+    else {                      // This star was a donor, return the stellar type string
+
+        for (size_t ii = 0; ii < mtHistVec.size(); ii++) {
+            mtHistStr += std::to_string(static_cast<int>(mtHistVec[ii])) + "-"; // Create string of stellar type followed by dash
+        }
+
+        mtHistStr.pop_back();   // Remove final dash
+
+    }
+
+    return mtHistStr;
+}
+
+
+/*
+ * Add new MT event to event history - only for donor stars
+ *
+ * void BaseStar::UpdateMassTransferDonorHistory()
+ *
+ */
+void BaseStar::UpdateMassTransferDonorHistory() {
+
+    // If MassTransferDonorHistory vector is empty or if there is a new episode, add current type to the vector
+    if (m_MassTransferDonorHistory.empty()) {
+        m_MassTransferDonorHistory.push_back(m_StellarType);
+    }
+    else if (!utils::IsOneOf(m_StellarType, { m_MassTransferDonorHistory.back() })) { // The star has not yet MT'd as its current type, so new event
+        m_MassTransferDonorHistory.push_back(m_StellarType);
+    }
+}
+
+
+/*
  * Evolve the star on it's current phase - take one timestep on the current phase
  *
  *
@@ -3465,12 +3097,10 @@ STELLAR_TYPE BaseStar::EvolveOnPhase() {
         m_COCoreMass  = CalculateCOCoreMassOnPhase();
         m_CoreMass    = CalculateCoreMassOnPhase();
         m_HeCoreMass  = CalculateHeCoreMassOnPhase();
-
+        
         m_Luminosity  = CalculateLuminosityOnPhase();
 
         std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // Radius and possibly new stellar type
-
-        ResolveEnvelopeMassOnPhase(m_Tau);
 
         m_Mu          = CalculatePerturbationMuOnPhase();
 
@@ -3515,8 +3145,6 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase() {
             
             m_Radius      = CalculateRadiusAtPhaseEnd();
 
-            ResolveEnvelopeMassAtPhaseEnd(m_Tau);
-
             m_Mu          = CalculatePerturbationMuAtPhaseEnd();
 
             PerturbLuminosityAndRadiusAtPhaseEnd();
@@ -3529,3 +3157,7 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase() {
 
     return stellarType;
 }
+
+
+
+

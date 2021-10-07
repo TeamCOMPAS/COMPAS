@@ -3,7 +3,7 @@
 # Getting Started
 
   * [1. Installing COMPAS and Dependencies](#1-installing-compas-and-dependencies)
-    + [1.1 Instructions for Ubuntu](#11-instructions-for-ubuntu)
+    + [1.1 Instructions for Linux](#11-instructions-for-linux)
     + [1.2 Instructions for macOS](#12-instructions-for-macos)
     + [1.3 Setting up the Makefile and Compiling](#13-setting-up-the-makefile-and-compiling)
     + [1.4 Installing Python](#14-installing-python)
@@ -18,8 +18,8 @@ First change to the directory within which you wish to store your copy of COMPAS
     cd ~/codes
 
 Use `git clone` to download the COMPAS repository. If you do not have git installed, you may follow the instructions on https://www.atlassian.com/git/tutorials/install-git.
- 
-If you have not yet configured Github with SSH, you can clone over HTTPS:
+
+If you have not yet configured GitHub with SSH, you can clone over HTTPS:
 
     git clone https://github.com/TeamCOMPAS/COMPAS.git
 
@@ -27,26 +27,29 @@ With SSH configured, you can clone with
 
     git clone git@github.com:TeamCOMPAS/COMPAS.git
 
-COMPAS requires a C++ compiller, and the libraries gsl and boost. We include installation instructions for Ubuntu/Linux OS and macOS. 
+COMPAS requires a C++ compiler, and the libraries gsl and boost. We include installation instructions for Ubuntu/Linux OS and macOS.
 
-### 1.1 Instructions for Ubuntu
-While we provide instructions for Ubuntu, other Linux distros will be similar; consult your documentation if you are unsure of which package manager to use.
+### 1.1 Instructions for Linux
+You will need to install the following packages (and their prerequisites) using your package manager:
 
-If you do not have a C++ compiler, you may download the g++ compiler using
+| Package | Ubuntu (apt)       | Fedora (dnf)<br />CentOS (yum)<br />RHEL (yum) |
+|---------|--------------------|---------------|
+| g++     | g++                | gcc           |
+| Boost   | libboost-all-dev   | boost-devel   |
+| GSL     | libgsl-dev         | gsl gsl-devel |
+| hdf5    | libhdf5-serial-dev | hdf5-devel    |
 
-    sudo apt-get install g++
+So, in Ubuntu, type
 
-To download, install, and compile boost,
+    sudo apt-get install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev
 
-    sudo apt-get install libboost-all-dev
+In Fedora,
 
-To download, install, and compile gsl,
+    sudo dnf install gcc boost-devel gsl gsl-devel hdf5-devel
 
-    sudo apt-get install libgsl-dev
+In RHEL or CentOS,
 
-For RHEL family OSs, Red Hat, Fedora, and related distributions, use the yum package manager:
-
-    sudo yum install gcc boost-devel gsl gsl-devel   
+    sudo yum install gcc boost-devel gsl gsl-devel hdf5-devel
 
 ### 1.2 Instructions for macOS
 We suggest you first update to the latest version of macOS through the App Store. You can find what macOS version you are using by clicking on the Apple symbol on the top left of your screen and clicking "About This Mac".
@@ -65,10 +68,11 @@ Next, you need to install several extra libraries and python modules. Popular wa
 
     brew --version
 
-Now install gsl and boost using Homebrew by running
+Now install gsl, boost, and hdf5 using Homebrew by running
 
     brew install gsl
     brew install boost
+	brew install hdf5
 
 ### 1.3 Setting up the Makefile and Compiling
 Time to actually install COMPAS. We first need to define an environment variable for the root directory of COMPAS in your shell start-up file for COMPAS to run properly. For example, if you use bash as your shell, open `~/.bashrc` with a text editor and put in the following:
@@ -79,7 +83,7 @@ where `~/codes` should be replaced with the path to the directory where you clon
 
     source ~/.bashrc
 
-For csh shell, the environment variable may be set by
+If your shell is zsh (which is the default of macOS 10.15), set the environment variable as above in `~/.zshrc` instead of `~/.bashrc`. If your shell is csh, set the environment variable in `~/.cshrc` using
 
     setenv COMPAS_ROOT_DIR ~/codes/COMPAS
     
@@ -87,7 +91,10 @@ Now go to the COMPAS source code directory:
 
     cd $COMPAS_ROOT_DIR/src
 
-In this directory you will find the file `Makefile`, which you need to edit to point to your boost library. If you installed boost using Homebrew, find the path to the boost libraries using
+In this directory you will find the file `Makefile`, which you need to edit to point to your gsl, boost, and hdf5 include files and libraries. 
+
+If you installed the packages with Homebrew, the package files are likely to be found in /usr/local/opt (in directories gsl, boost, and hdf5 respectively),
+but if they are not found there you will need to use Homebrew to locate the files:
 
     $ brew info boost
     boost: stable 1.72.0 (bottled), HEAD
@@ -96,9 +103,10 @@ In this directory you will find the file `Makefile`, which you need to edit to p
     /usr/local/Cellar/boost/1.72.0 (14,466 files, 648.5MB) *
     ...
 
-Copy the path, which in this case is `/usr/local/Cellar/boost/1.72.0`, and add it to the appropriate line of the Makefile:
+Copy the path, which in this case is `/usr/local/Cellar/boost/1.72.0`, and add it to the appropriate lines of the Makefile:
 
-    BOOST = /usr/local/Cellar/boost/1.72.0
+    BOOSTINCDIR = /usr/local/Cellar/boost/1.72.0/include
+    BOOSTLIBDIR = /usr/local/Cellar/boost/1.72.0/lib
  
 Then, compile again by running `make -f Makefile`.
 
@@ -112,80 +120,71 @@ First check if you have python3 installed. If you do, the following should give 
 If you do not have python3 installed, install it by following the instructions below for your OS:
 
 * For macOS: We recommend installing python and its libraries using MacPorts. You can follow the instructions on https://astrofrog.github.io/macports-python/
-* For Linux/Ubuntu OS, run `sudo apt-get install python3`. We recommend installing the required python libraries using the package installer pip. E.g. To install numpy, run `pip install numpy`.
+* For Linux, install `python3` using your package manager (e.g. in Ubuntu, run `sudo apt-get install python3`). We recommend installing the required python libraries using the package installer pip. E.g. To install numpy, run `pip install numpy`.
 
 
 ## 2. Evolving your first binary
-The python script pythonSubmit.py specifies all the program options (physics assumptions, output types) and runs COMPAS in the terminal. Although the primary functionality of COMPAS is to evolve a whole population of binary stars rapidly, for now, let's focus on evolving a single stellar system and examining the detailed output.
+To start using COMPAS, you will need the python script `pythonSubmitDemo.py`, which specifies all the program options (physics assumptions, output types) and runs COMPAS in the terminal. Although the primary functionality of COMPAS is to evolve a whole population of binary stars rapidly, for now, let's focus on evolving a single stellar system and examining the detailed output.
 
-To start, clone the default file, pythonSubmitDefault.py in the `defaults` directory, into the `demo` directory. Then change to the `demo` directory:
+To start, change to the `examples/methods_paper_plots/detailed_evolution/` directory:
 
-    cp $COMPAS_ROOT_DIR/defaults/pythonSubmitDefault.py $COMPAS_ROOT_DIR/docs/demo/pythonSubmit.py
-    cd $COMPAS_ROOT_DIR/docs/demo
+    cd $COMPAS_ROOT_DIR/examples/methods_paper_plots/detailed_evolution/
+
+Here, you will find the script `pythonSubmitDemo.py` for this demo.
 
 ### 2.1 Running COMPAS from a grid file
 In population synthesis, the initial stellar population is usually generated by drawing the primary mass, secondary mass, semi-major axis, and eccentricity from their respective distributions specified in the program options. However, we illustrate COMPAS's ability to specify a grid of initial values for single and binary star evolution using COMPAS's grid functionality.
 
-An example grid file, `BSE_Grid_demo.txt`, has been included in the `demo` directory. Open it with a text editor to view it:
+An example grid file, `Grid_demo.txt`, has been included in the current `detailed_evolution` directory. Open it with a text editor to view it:
 
     # Demo BSE Grid file
   
-    Mass_1, Mass_2, Metallicity_1, Metallicity_2, Eccentricity, Separation
-
-    63.6,   27.8,   0.001,         0.001,         0.0,          3.40
+    --initial-mass-1 35.4 --initial-mass-2 31.3 --metallicity 0.001 --eccentricity 0.000000e+00 --semi-major-axis 1.02 --kick-magnitude-1 293.447 --kick-magnitude-2 260.142 --kick-phi-1 -1.013818 --kick-phi-2 -1.244273 --kick-theta-1 3.721039 --kick-theta-2 1.646224 --kick-mean-anomaly-1 3.265196 --kick-mean-anomaly-2 1.059172 
 
 
-It should be clear that this grid file specifies a binary of zero-age main sequence stars with primary mass 63.6 Msol, secondary mass 27.8 Msol, primary metallicity 0.001, secondary metallicity 0.001, zero eccentricity, and semi-major axis of 3.40 AU. For more detailed documentation of COMPAS's grid functionality for both single and binary stars, please see [Specifications](./COMPAS_Doc.pdf).
+It should be clear that this grid file specifies a binary of zero-age main sequence stars with primary mass 35.4 Msol, secondary mass 29.3 Msol, metallicity 0.001, zero eccentricity, semi-major axis of 1.02 AU, and kick velocities for each component. For more detailed documentation of COMPAS's grid functionality for both single and binary stars, please see [Specifications](./COMPAS_Doc.pdf).
 
-We now have to tell our python submit to take its input from this grid file. To do this, open `pythonSubmit.py` with a text editor, and specify the grid filename:
-
-    grid_filename = 'BSE_Grid_demo.txt'
-
-To print the time evolution of binary properties, we need to turn on detailed output in the python submit:
-
-    detailed_output = True                         # WARNING: this creates a data heavy file
+To tell the python submit script to take its input from this grid file, you usually need to open `$COMPAS_ROOT_DIR/preProcessing/pythonSubmit.py` with a text editor, and specify the grid filename `grid_filename = 'Grid_demo.txt'`.  And to print the time evolution of binary properties, we need to turn on detailed output: `detailed_output = True`.  COMPAS can produce logfiles of different types: HDF5, CSV, TSV, and TXT, which can be chosen by editing the line `logfile_type = 'HDF5'` (the default type is HDF5).  For this demo, this has all been done for you in the file `pythonSubmitDemo.py` found in the current directory.
 
 Now let's run COMPAS!
 
-    $ python pythonSubmit.py
-    ...
-    COMPAS v02.08.01
+    $ python3 pythonSubmitDemo.py
 
-    Compact Object Mergers: Population Astrophysics and Statistics 
+    COMPAS v02.18.06
+    Compact Object Mergers: Population Astrophysics and Statistics
     by Team COMPAS (http://compas.science/index.html)
     A binary star simulator
 
-    Start generating binaries at Mon Sep 14 15:09:14 2020
+    Start generating binaries at Thu Feb 25 14:42:05 2021
 
     Evolution of current binary stopped: Double compact object
-    0: Evolution stopped: Black_Hole + Black_Hole
+    0: Evolution stopped: (Main_Sequence_>_0.7 -> Black_Hole) + (Main_Sequence_>_0.7 -> Black_Hole)
+
+    Generated 1 of 1 binaries requested
 
     Simulation completed
 
-    End generating binaries at Mon Sep 14 15:09:14 2020
+    End generating binaries at Thu Feb 25 14:42:05 2021
 
-    Clock time = 0.168678 CPU seconds
-    Wall time  = 0:0:0 (hh:mm:ss)
+    Clock time = 0.108338 CPU seconds
+    Wall time  = 00:00:00 (hh:mm:ss)
 
-Congratulations! You just made a binary black hole. And it didn't even take a second.
+Congratulations! You've just made a binary black hole. And it didn't even take a second.
 
 
 ### 2.2 Examining detailed output
-The COMPAS run just now produces a new directory `COMPAS_Output`, inside which you will find the following files/directories:
+The COMPAS run just now produces a new directory `COMPAS_Output`, inside which you will find the following files/directories (here we assume `logfile_type = 'h5'` in the python submit file):
 
-* `Detailed_Output`: This directory contains `BSE_Detailed_Output_0.csv`, which records the detailed time evolution of binary. This is only produced if `detailed_output = True` in the python submit. 
-* `BSE_Double_Compact_Objects.csv`: Record of binaries that formed double compact objects (in our example, we evolved one binary that became a binary black hole, which was recorded in this file.)
-* `BSE_Supernovae.csv`: Record of supernovae.
-* `BSE_System_Parameters.csv`: Record of all evolved binaries.
-* `BSE_Common_Envelopes.csv`: Record of common envelope events.
-* `Run_Details`: Record of run details.
+* `COMPAS_Output.h5`: The primary output file, containing hdf5 data groups for the relevant output physics. By default, and for a sufficiently large simulation, this will include `BSE_Common_Envelopes`, `BSE_Double_Compact_Objects`, `BSE_Supernovae`, and `BSE_System_Parameters`. 
+* `Detailed_Output`: This directory contains the detailed output file, `BSE_Detailed_Output_0.h5`, which records the detailed time evolution of binary.  This file, and directory, is only produced if `detailed_output = True` in the python submit.
+* `Run_Details`: An overview of the COMPAS flags used in this particular simulation. 
 
-We examine `BSE_Detailed_Output_0.csv` to look at the evolution of the two stars. A default python plotting script has been included to visualise the data. Let's run the script:
+We examine `BSE_Detailed_Output_0.h5` to look at the evolution of the two stars. A default python plotting script has been included to visualise the data. Let's run the script:
 
-    python $COMPAS_ROOT_DIR/docs/demo/demo_singlesys_plotter.py
+    python3 detailed_evol_plotter.py
 
 This should produce the following plot:  
-![demo_plot](demo/demo_plot.png)
+![demo_plot](../examples/methods_paper_plots/detailed_evolution/gw151226evol.png)
 
 
 COMPAS provides many tools for analysing and post-processing the data. Please view the post-processing documentation in `COMPAS/postProcessing`. 

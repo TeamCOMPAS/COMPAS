@@ -2,36 +2,8 @@
 
 
 // binary is generated according to distributions specified in program options
-BinaryStar::BinaryStar(const AIS &p_AIS, const long int p_Id) : m_BinaryStar(new BaseBinaryStar(p_AIS, p_Id)) {
+BinaryStar::BinaryStar(const unsigned long int p_Seed, const long int p_Id) : m_BinaryStar(new BaseBinaryStar(p_Seed, p_Id)) {
 
-    m_ObjectId       = globalObjectId++;
-    m_ObjectType     = OBJECT_TYPE::BINARY_STAR;
-    m_StellarType    = STELLAR_TYPE::BINARY_STAR;
-
-    m_SaveBinaryStar = nullptr;
-}
-
-
-// binary is generated according to parameters passed
-BinaryStar::BinaryStar(const AIS           &p_AIS,
-                       const double         p_Mass1,
-                       const double         p_Mass2,
-                       const double         p_Metallicity1,
-                       const double         p_Metallicity2,
-                       const double         p_SemiMajorAxis,
-                       const double         p_Eccentricity,
-                       const KickParameters p_KickParameters1,
-                       const KickParameters p_KickParameters2,
-                       const long int       p_Id) : m_BinaryStar(new BaseBinaryStar(p_AIS,
-                                                                                    p_Mass1,
-                                                                                    p_Mass2,
-                                                                                    p_Metallicity1,
-                                                                                    p_Metallicity2,
-                                                                                    p_SemiMajorAxis,
-                                                                                    p_Eccentricity,
-                                                                                    p_KickParameters1,
-                                                                                    p_KickParameters2,
-                                                                                    p_Id)) {
     m_ObjectId       = globalObjectId++;
     m_ObjectType     = OBJECT_TYPE::BINARY_STAR;
     m_StellarType    = STELLAR_TYPE::BINARY_STAR;
@@ -77,6 +49,37 @@ bool BinaryStar::RevertState() {
         m_BinaryStar     = m_SaveBinaryStar;
         m_SaveBinaryStar = nullptr;
         result           = true;
+    }
+
+    return result;
+}
+
+
+/*
+ * Print BSE Switch Log record
+ * 
+ * Called from main() when SIGUSR1 received - raised by Star::SwitchTo() to indicate a stellar type switch.
+ * Here we use the switch parameters stored in the LOGGING service singleton by Star:SwitchTo() to determine
+ * whether it is the primary or the secondary switching, then call BinaryStar::PrintSwitchLog() with the
+ * appropriate parameters to print the log file record.
+ * 
+ * BinaryStar::PrintSwitchLog()
+ *
+ * @return                                      Boolean flag indicating success/failure (true = success)
+ */
+bool BinaryStar::PrintSwitchLog() { 
+    
+    bool result = true;
+
+    OBJECT_ID primaryObjectId   = m_BinaryStar->Star1()->StarObjectId();
+    OBJECT_ID secondaryObjectId = m_BinaryStar->Star2()->StarObjectId();
+    OBJECT_ID objectIdSwitching = LOGGING->ObjectIdSwitching();
+
+         if (objectIdSwitching == primaryObjectId  ) result = m_BinaryStar->PrintSwitchLog(m_BinaryStar->Id(), true);   // primary
+    else if (objectIdSwitching == secondaryObjectId) result = m_BinaryStar->PrintSwitchLog(m_BinaryStar->Id(), false);  // secondary
+    else {                                                                                                              // otherwise...
+        SHOW_ERROR(ERROR::OUT_OF_BOUNDS, "Expected primary or secondary for BSE Switch Log");                           // announce error
+        result = false;
     }
 
     return result;

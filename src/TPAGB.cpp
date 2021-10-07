@@ -43,12 +43,12 @@ void TPAGB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
     if (utils::Compare(LDU, gbParams(Lx)) > 0) {
         timescales(tinf1_SAGB) = timescales(tinf1_FAGB);
         timescales(tMx_SAGB)   = timescales(tMx_FAGB);
-        timescales(tinf2_SAGB) = timescales(tP) + ((1.0 / (q1 * gbParams(AHHe) * gbParams(B))) * pow((gbParams(B) / LDU), q1_q));
+        timescales(tinf2_SAGB) = timescales(tP) + ((1.0 / (q1 * gbParams(AHHe) * gbParams(B))) * PPOW((gbParams(B) / LDU), q1_q));
     }
     else {
-        timescales(tinf1_SAGB) = timescales(tP) + ((1.0 / (p1 * gbParams(AHHe) * gbParams(D) )) * pow((gbParams(D) / LDU), p1_p));
-        timescales(tMx_SAGB)   = timescales(tinf1_SAGB) - ((timescales(tinf1_SAGB) - timescales(tP)) * pow((LDU / gbParams(Lx)), p1_p));
-        timescales(tinf2_SAGB) = timescales(tMx_SAGB) + ((1.0 / (q1 * gbParams(AHHe) * gbParams(B))) * pow((gbParams(B) / gbParams(Lx)), q1_q));
+        timescales(tinf1_SAGB) = timescales(tP) + ((1.0 / (p1 * gbParams(AHHe) * gbParams(D) )) * PPOW((gbParams(D) / LDU), p1_p));
+        timescales(tMx_SAGB)   = timescales(tinf1_SAGB) - ((timescales(tinf1_SAGB) - timescales(tP)) * PPOW((LDU / gbParams(Lx)), p1_p));
+        timescales(tinf2_SAGB) = timescales(tMx_SAGB) + ((1.0 / (q1 * gbParams(AHHe) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
     }
 
 #undef gbParams
@@ -78,18 +78,18 @@ void TPAGB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
  *
  * @return                                      Dewi lambda for use in common envelope
  */
-double TPAGB::CalculateLambdaDewi() {
+double TPAGB::CalculateLambdaDewi() const {
 
     double lambda3 = std::min(-0.9, 0.58 + (0.75 * log10(m_Mass))) - (0.08 * log10(m_Luminosity));                          // (A.4) Claeys+2014
     double lambda1 = std::max(1.0, std::max(lambda3, -3.5 - (0.75 * log10(m_Mass)) + log10(m_Luminosity)));                 // (A.5) Bottom, Claeys+2014
-	double lambda2 = 0.42 * pow(m_RZAMS / m_Radius, 0.4);                                                                   // (A.2) Claeys+2014
+	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014
 	double envMass = utils::Compare(m_CoreMass, 0.0) > 0 && utils::Compare(m_Mass, m_CoreMass) > 0 ? m_Mass - m_CoreMass : 0.0;
 
     double lambdaCE;
 
          if (utils::Compare(envMass, 1.0) >= 0) lambdaCE = 2.0 * lambda1;                                                   // (A.1) Bottom, Claeys+2014
 	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (sqrt(envMass) * (lambda1 - lambda2)));         // (A.1) Mid, Claeys+2014
-	else                                 lambdaCE = 2.0 * lambda2;			                                                // (A.1) Top, Claeys+2014
+	else                                        lambdaCE = 2.0 * lambda2;                                                   // (A.1) Top, Claeys+2014
 
 	return	lambdaCE;
 }
@@ -115,7 +115,7 @@ double TPAGB::CalculateLambdaDewi() {
  *
  * @return                                      Nanjing lambda for use in common envelope
  */
-double TPAGB::CalculateLambdaNanjing() {
+double TPAGB::CalculateLambdaNanjing() const {
 
 	DBL_VECTOR maxBG    = {};                                                       // [0] = maxB, [1] = maxG
 	DBL_VECTOR lambdaBG = {};                                                       // [0] = lambdaB, [1] = lambdaG
@@ -381,7 +381,8 @@ double TPAGB::CalculateLambdaNanjing() {
     }
 
     if (lambdaBG.empty()) {                                                         // calculate lambda B & G - not approximated by hand
-        if (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0 && utils::Compare(m_MZAMS, 1.5) < 0) {
+         if (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0 &&
+            (utils::Compare(m_MZAMS, 1.5) < 0 || (utils::Compare(m_MZAMS, 25.0) < 0 && utils::Compare(m_MZAMS, 18.0) >= 0)) ) {
             double x  = (m_Mass - m_CoreMass) / m_Mass;
             double x2 = x * x;
             double x3 = x2 * x;
@@ -392,6 +393,19 @@ double TPAGB::CalculateLambdaNanjing() {
             double y2 = b[0] + (b[1] * x) + (b[2] * x2) + (b[3] * x3) + (b[4] * x4) + (b[5] * x5);
 
             lambdaBG = { 1.0 / y1, 1.0 / y2 };
+        }
+        else if ( (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0  && utils::Compare(m_MZAMS, 2.5) >= 0 && utils::Compare(m_MZAMS, 5.5) < 0) ||
+                  (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) <= 0 && utils::Compare(m_MZAMS, 2.5) >= 0 && utils::Compare(m_MZAMS, 4.5) < 0)) {
+            double x  = m_Radius;
+            double x2 = x * x;
+            double x3 = x2 * x;
+            double x4 = x2 * x2;
+            double x5 = x3 * x2;
+
+            double y1 = a[0] + (a[1] * x) + (a[2] * x2) + (a[3] * x3) + (a[4] * x4) + (a[5] * x5);
+            double y2 = b[0] + (b[1] * x) + (b[2] * x2) + (b[3] * x3) + (b[4] * x4) + (b[5] * x5);
+
+            lambdaBG = { pow(10.0, y1), y2 };
         }
         else {
             double x  = m_Radius;
@@ -427,7 +441,7 @@ double TPAGB::CalculateLambdaNanjing() {
 
 /*
  * Calculate M'c (core mass used for calculating luminosity and core mass on TPAGB)
- * Described in Hurley at al. 2000, just after eq 73.
+ * Described in Hurley et al. 2000, just after eq 73.
  * Calculated using Hurley et al. 2000, eq 39, modified as described in Section 5.4
  *
  *
@@ -440,13 +454,13 @@ double TPAGB::CalculateLambdaNanjing() {
  * I have done it this way to allow me to have a generic EvolveOneTimestep() function,
  * but there must be an elegant way of calculating once and using twice...
  */
-double TPAGB::CalculateMcPrime(const double p_Time) {
+double TPAGB::CalculateMcPrime(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
     return utils::Compare(p_Time, timescales(tMx_SAGB)) <= 0
-            ? pow((gbParams(p) - 1.0) * gbParams(AHHe) * gbParams(D) * (timescales(tinf1_SAGB) - p_Time), 1.0 / (1.0 - gbParams(p)))
-            : pow((gbParams(q) - 1.0) * gbParams(AHHe) * gbParams(B) * (timescales(tinf2_SAGB) - p_Time), 1.0 / (1.0 - gbParams(q)));
+            ? PPOW((gbParams(p) - 1.0) * gbParams(AHHe) * gbParams(D) * (timescales(tinf1_SAGB) - p_Time), 1.0 / (1.0 - gbParams(p)))
+            : PPOW((gbParams(q) - 1.0) * gbParams(AHHe) * gbParams(B) * (timescales(tinf2_SAGB) - p_Time), 1.0 / (1.0 - gbParams(q)));
 
 #undef gbParams
 #undef timescales
@@ -464,7 +478,7 @@ double TPAGB::CalculateMcPrime(const double p_Time) {
  * @param   [IN]    p_Time                      Time in Myr
  * @return                                      Luminosity on the Thermally Pulsing Asymptotic Giant Branch in Lsol
  */
-double TPAGB::CalculateLuminosityOnPhase(const double p_Time) {
+double TPAGB::CalculateLuminosityOnPhase(const double p_Time) const {
     return CalculateLuminosityGivenCoreMass(CalculateMcPrime(p_Time));
 }
 
@@ -480,7 +494,7 @@ double TPAGB::CalculateLuminosityOnPhase(const double p_Time) {
  *
  * @return                                      Luminosity of remnant core in Lsol
  */
-double TPAGB::CalculateRemnantLuminosity() {
+double TPAGB::CalculateRemnantLuminosity() const {
     return COWD::CalculateLuminosityOnPhase_Static(m_CoreMass, 0.0, m_Metallicity);
 }
 
@@ -530,7 +544,7 @@ double TPAGB::CalculateRadiusOnPhase_Static(const double      p_Mass,
  *
  * @return                                      Radius of remnant core in Rsol
  */
-double TPAGB::CalculateRemnantRadius() {
+double TPAGB::CalculateRemnantRadius() const {
     return HeWD::CalculateRadiusOnPhase_Static(m_CoreMass);
 }
 
@@ -554,13 +568,13 @@ double TPAGB::CalculateRemnantRadius() {
  * @param   [IN]    p_Time                      Time in Myr
  * @return                                      Core mass on the Thermally Pulsing Asymptotic Giant Branch in Msol
  */
-double TPAGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) {
+double TPAGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
 
-    double m_5    = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass;     // pow() is slow - use ultiplication
-    double lambda = std::min(0.9, 0.3 + (0.001 * m_5));             // Hurley et al. 2000, eq 73
+    double m_5    = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass;                                                     // pow() is slow - use ultiplication
+    double lambda = std::min(0.9, 0.3 + (0.001 * m_5));                                                             // Hurley et al. 2000, eq 73
 
-    return gbParams(McDU) +  ((1.0 - lambda) * (CalculateMcPrime(p_Time) - gbParams(McDU)));
+    return std::min((gbParams(McDU) +  ((1.0 - lambda) * (CalculateMcPrime(p_Time) - gbParams(McDU)))), m_Mass);    // Core should never exceed total mass
 
 #undef gbParams
 }
@@ -624,14 +638,14 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;               // default is unchanged
 
-    if (p_NoCheck || (utils::Compare(m_EnvMass, 0.0) <= 0) || (utils::Compare(m_CoreMass, m_Mass) >= 0)){
+    if (p_NoCheck || (utils::Compare(m_CoreMass, m_Mass)) >= 0) {
 
-        stellarType = utils::Compare(gbParams(McBAGB), 1.6) < 0 ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
+        stellarType = utils::Compare(gbParams(McBAGB), OPTIONS->MCBUR1() ) < 0 ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
         
         m_Mass      = m_CoreMass;
+        m_HeCoreMass= m_COCoreMass;
         m_Mass0     = m_Mass;
         m_Age       = 0.0;
-        m_EnvMass   = 0.0;
         m_Radius    = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
     }
 
@@ -653,7 +667,7 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
  * @param   [IN]    p_Time                      Current age of star in Myr
  * @return                                      Suggested timestep (dt)
  */
-double TPAGB::ChooseTimestep(const double p_Time) {
+double TPAGB::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     double dtk = utils::Compare(p_Time, timescales(tMx_SAGB)) <= 0

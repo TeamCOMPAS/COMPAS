@@ -3,6 +3,7 @@
 
 #include "constants.h"
 #include "typedefs.h"
+#include "profiling.h"
 #include "utils.h"
 
 #include "BaseStar.h"
@@ -36,12 +37,11 @@ protected:
 
 
     // member functions - alphabetically
-    double   CalculateMassTransferRejuvenationFactor();
+    double      CalculateMassTransferRejuvenationFactor() const;
 
-    ENVELOPE DetermineEnvelopeType()                        { return ENVELOPE::CONVECTIVE; }        // Always CONVECTIVE
-    ENVELOPE DetermineEnvelopeTypeHurley2002()              { return ENVELOPE::CONVECTIVE; }        // Always CONVECTIVE
+    ENVELOPE    DetermineEnvelopeType() const { return ENVELOPE::CONVECTIVE; }                      // Always CONVECTIVE
 
-    bool     IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate);
+    bool        IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
 };
 
 #endif // __MS_lte_07_h__

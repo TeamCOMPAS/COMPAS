@@ -30,7 +30,7 @@ class BaseBinaryStar;
  * functional return is a tuple: std::tuple<bool, COMPAS_VARIABLE_TYPE>.  This type
  * is COMPAS_VARIABLE by typedef.
  *
- * The bool returned indicates whether the property value was retrieved ok: true = yes, fales = no
+ * The bool returned indicates whether the property value was retrieved ok: true = yes, false = no
  * The COMPAS_VARIABLE_TYPE variable returned is a boost variant variable, the value of which is the
  * value of the underlying primitive variable.
  *
@@ -66,7 +66,6 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
 
         switch (property) {
             case ANY_STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE:                  value = BindingEnergyAtCEE();                           break;
-            case ANY_STAR_PROPERTY::BINDING_ENERGY_POST_COMMON_ENVELOPE:                value = BindingEnergyPostCEE();                         break;
             case ANY_STAR_PROPERTY::BINDING_ENERGY_PRE_COMMON_ENVELOPE:                 value = BindingEnergyPreCEE();                          break;
             case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMMON_ENVELOPE:                    value = COCoreMassAtCEE();                              break;
             case ANY_STAR_PROPERTY::CORE_MASS_AT_COMMON_ENVELOPE:                       value = CoreMassAtCEE();                                break;
@@ -79,16 +78,17 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
             case ANY_STAR_PROPERTY::LUMINOSITY_POST_COMMON_ENVELOPE:                    value = LuminosityPostCEE();                            break;
             case ANY_STAR_PROPERTY::LUMINOSITY_PRE_COMMON_ENVELOPE:                     value = LuminosityPreCEE();                             break;
             case ANY_STAR_PROPERTY::MASS_LOSS_DIFF:                                     value = MassLossDiff();                                 break;
-            case ANY_STAR_PROPERTY::MASS_TRANSFER_CASE_INITIAL:                         value = static_cast<int>(MassTransferCaseInitial());    break;
             case ANY_STAR_PROPERTY::MASS_TRANSFER_DIFF:                                 value = MassTransferDiff();                             break;
             case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE:             value = NuclearTimescalePostCEE();                      break;
             case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE:              value = NuclearTimescalePreCEE();                       break;
-            case ANY_STAR_PROPERTY::ORBITAL_ENERGY_POST_SUPERNOVA:                      value = PostSNeOrbitalEnergy();                         break;
-            case ANY_STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA:                       value = PreSNeOrbitalEnergy();                          break;
+            case ANY_STAR_PROPERTY::ORBITAL_ENERGY_POST_SUPERNOVA:                      value = OrbitalEnergyPostSN();                          break;
+            case ANY_STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA:                       value = OrbitalEnergyPreSN();                           break;
             case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_POST_COMMON_ENVELOPE:    value = RadialExpansionTimescalePostCEE();              break;
             case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_PRE_COMMON_ENVELOPE:     value = RadialExpansionTimescalePreCEE();               break;
-            case ANY_STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE:                   value = TemperaturePostCEE();                           break;
-            case ANY_STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE:                    value = TemperaturePreCEE();                            break;
+            case ANY_STAR_PROPERTY::RECYCLED_NEUTRON_STAR:                              value = ExperiencedRecycledNS();                        break;
+            case ANY_STAR_PROPERTY::RLOF_ONTO_NS:                                       value = ExperiencedRLOFOntoNS();                        break;
+            case ANY_STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE:                   value = TemperaturePostCEE() * TSOL;                    break;
+            case ANY_STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE:                    value = TemperaturePreCEE() * TSOL;                     break;
             case ANY_STAR_PROPERTY::THERMAL_TIMESCALE_POST_COMMON_ENVELOPE:             value = ThermalTimescalePostCEE();                      break;
             case ANY_STAR_PROPERTY::THERMAL_TIMESCALE_PRE_COMMON_ENVELOPE:              value = ThermalTimescalePreCEE();                       break;
 
@@ -175,22 +175,21 @@ double BinaryConstituentStar::CalculateMassAccretedForNS(const double p_Companio
 void BinaryConstituentStar::SetPreCEEValues() {
 
     m_CEDetails.preCEE.bindingEnergy            = m_CEDetails.bindingEnergy;
-    m_CEDetails.preCEE.dynamicalTimescale       = DynamicalTimescale();
+    m_CEDetails.preCEE.dynamicalTimescale       = CalculateDynamicalTimescale();
     m_CEDetails.preCEE.luminosity               = Luminosity();
     m_CEDetails.preCEE.mass                     = Mass();
-    m_CEDetails.preCEE.nuclearTimescale         = NuclearTimescale();
-    m_CEDetails.preCEE.radialExpansionTimescale = RadialExpansionTimescale();
+    m_CEDetails.preCEE.nuclearTimescale         = CalculateNuclearTimescale();
+    m_CEDetails.preCEE.radialExpansionTimescale = CalculateRadialExpansionTimescale();
     m_CEDetails.preCEE.radius                   = Radius();
     m_CEDetails.preCEE.stellarType              = StellarType();
     m_CEDetails.preCEE.temperature              = Temperature();
-    m_CEDetails.preCEE.thermalTimescale         = ThermalTimescale();
+    m_CEDetails.preCEE.thermalTimescale         = CalculateThermalTimescale();
 }
 
 
 /*
  * Calculate (or set) post common envelope values:
  *
- *    m_CEDetails.postCEE.bindingEnergy
  *    m_CEDetails.postCEE.dynamicalTimescale
  *    m_CEDetails.postCEE.eccentricity
  *    m_CEDetails.postCEE.luminosity
@@ -208,16 +207,15 @@ void BinaryConstituentStar::SetPreCEEValues() {
  */
 void BinaryConstituentStar::SetPostCEEValues() {
 
-    m_CEDetails.postCEE.bindingEnergy            = m_CEDetails.bindingEnergy;
-    m_CEDetails.postCEE.dynamicalTimescale       = DynamicalTimescale();
+    m_CEDetails.postCEE.dynamicalTimescale       = CalculateDynamicalTimescale();
     m_CEDetails.postCEE.luminosity               = Luminosity();
     m_CEDetails.postCEE.mass                     = Mass();
-    m_CEDetails.postCEE.nuclearTimescale         = NuclearTimescale();
-    m_CEDetails.postCEE.radialExpansionTimescale = RadialExpansionTimescale();
+    m_CEDetails.postCEE.nuclearTimescale         = CalculateNuclearTimescale();
+    m_CEDetails.postCEE.radialExpansionTimescale = CalculateRadialExpansionTimescale();
     m_CEDetails.postCEE.radius                   = Radius();
     m_CEDetails.postCEE.stellarType              = StellarType();
     m_CEDetails.postCEE.temperature              = Temperature();
-    m_CEDetails.postCEE.thermalTimescale         = ThermalTimescale();
+    m_CEDetails.postCEE.thermalTimescale         = CalculateThermalTimescale();
 }
 
 
@@ -319,7 +317,7 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
 
     double timescale;
 
-	switch (DetermineEnvelopeTypeHurley2002()) {                                                                                        // JR: todo: this differs from envelopeType() in star.cpp and DetermineEnvelopeType() in new code - ok?
+	switch (DetermineEnvelopeType()) {
 
         case ENVELOPE::CONVECTIVE: {                                                                                                    // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
 
@@ -338,10 +336,10 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
             double rOverAPow10            = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;    // use multiplication - pow() is slow
             double rOverAPow21Over2       = rOverAPow10 * rOverA * sqrt(rOverA);                                                        // srqt() is faster than pow()
 
-		    double	secondOrderTidalCoeff = 1.592E-09 * pow(Mass(), 2.84);                                                              // aka E_2.
+		    double	secondOrderTidalCoeff = 1.592E-09 * PPOW(Mass(), 2.84);                                                              // aka E_2.
 		    double	freeFallFactor        = sqrt(G1 * Mass() / rInAUPow3);
 		
-		    timescale                     = 1.0 / ((21.0 / 2.0) * freeFallFactor * q2 * pow(1.0 + q2, 11.0/6.0) * secondOrderTidalCoeff * rOverAPow21Over2);
+		    timescale                     = 1.0 / ((21.0 / 2.0) * freeFallFactor * q2 * PPOW(1.0 + q2, 11.0/6.0) * secondOrderTidalCoeff * rOverAPow21Over2);
         } break;
 
         default:                                                                                                                        // all other envelope types (remnants?)
@@ -372,7 +370,7 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
 
 	double timescale;
 
-	switch (DetermineEnvelopeTypeHurley2002()) {                                // JR: todo: this differs from envelopeType() in star.cpp and DetermineEnvelopeType() in new code - ok?
+	switch (DetermineEnvelopeType()) {
 
         case ENVELOPE::CONVECTIVE: {                                            // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
 
@@ -385,17 +383,17 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
 
         case ENVELOPE::RADIATIVE: {                                             // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
 
-            double coeff2          = pow(52.0, 5.0 / 3.0);                      // JR: todo: replace this with a constant (calculated) value?
-            double e2              = 1.592E-9 * pow(Mass(), 2.84);              // second order tidal coefficient (a.k.a. E_2)
+            double coeff2          = 5.0 * PPOW(2.0, 5.0 / 3.0);                // JR: todo: replace this with a constant (calculated) value?
+            double e2              = 1.592E-9 * PPOW(Mass(), 2.84);             // second order tidal coefficient (a.k.a. E_2)
             double rAU             = Radius() * RSOL_TO_AU;
             double rAU_3           = rAU * rAU * rAU;
             double freeFallFactor  = sqrt(G1 * Mass() / rAU_3);
 
-		    timescale              = 1.0 / (coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * pow(1.0 + q2, 5.0 / 6.0) * e2 * pow(rOverA, 17.0 / 2.0));
+		    timescale              = 1.0 / (coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * PPOW(1.0 + q2, 5.0 / 6.0) * e2 * PPOW(rOverA, 17.0 / 2.0));
             } break;
 
         default:                                                                // all other envelope types (remnants?)
-            timescale = 1.0 / ((1.0 / 1.3E7) * pow(Luminosity() / Mass(), 5.0 / 7.0) * rOverA_6);
+            timescale = 1.0 / ((1.0 / 1.3E7) * PPOW(Luminosity() / Mass(), 5.0 / 7.0) * rOverA_6);
 	}
 
 	return timescale;
@@ -405,7 +403,7 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
 /*
  * Set the Roche Lobe flags for a star based on its Roche Lobe radius
  *
- * Changes class member struct m_Flags
+ * Changes class member struct m_RLOFDetails
  *
  *
  * double SetRocheLobeFlags(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity)
@@ -418,33 +416,32 @@ void BinaryConstituentStar::SetRocheLobeFlags(const bool p_CommonEnvelope, const
 
     m_RLOFDetails.isRLOF = false;                                                                                       // default - not overflowing Roche Lobe
 
-    m_RocheLobeTracker = (Radius() * RSOL_TO_AU) / (m_RocheLobeRadius * p_SemiMajorAxis * (1.0 - p_Eccentricity));      // ratio of star's size to its Roche Lobe radius, calculated at the point of closest approach, periapsis
+    double rocheLobeTracker = RocheLobeTracker(p_SemiMajorAxis, p_Eccentricity);
 
-    if (utils::Compare(m_RocheLobeTracker, 1.0) >= 0) {                                                                 // if star is equal to or larger than its Roche Lobe...
-		m_RLOFDetails.isRLOF          = true;                                                                           // ... it is currently Roche Lobe overflowing
+    if (utils::Compare(rocheLobeTracker, 1.0) >= 0) {                                                                   // if star is equal to or larger than its Roche Lobe...
+        m_RLOFDetails.isRLOF          = true;                                                                           // ... it is currently Roche Lobe overflowing
 		m_RLOFDetails.experiencedRLOF = true;                                                                           // ... and for future checks, did Roche Lobe overflow
 	}
 
-	m_RLOFDetails.RLOFPostCEE = m_RLOFDetails.isRLOF && p_CommonEnvelope ? true : m_RLOFDetails.RLOFPostCEE;            // check for RLOF just after the CEE     JR: todo: should the else part be false?
+	m_RLOFDetails.RLOFPostCEE = m_RLOFDetails.isRLOF && p_CommonEnvelope ? true : m_RLOFDetails.RLOFPostCEE;            // check for RLOF just after the CEE (if this flag was ever true for this system, it remains true)
 }
 
 
 /*
- * Determine initial mass transfer case
+ * Ratio of star's radius to its Roche Lobe radius, calculated at the point of closest approach, periapsis
  *
- * Three cases:
+ * double RocheLobeTracker() const
  *
- *    Case A: mass transfer while donor is on main sequence
- *    Case B: donor star is in (or evolving to) Red Giant phase
- *    Case C: SuperGiant phase
- *
- * Modifies class member variables m_MassTransferCaseInitial and m_FirstMassTransferEpisode
- *
- * void DetermineInitialMassTransferCase()
+ * @param   [IN]    p_SemiMajorAxis             Semi major axis of the binary (in AU)
+ * @param   [IN]    p_Eccentricity              Eccentricity of the binary orbit
+ * @return                              Ratio of stars radius to its Roche lobe radius
  */
-void BinaryConstituentStar::DetermineInitialMassTransferCase() {
-    if (!m_FirstMassTransferEpisode) m_MassTransferCaseInitial = DetermineMassTransferCase();       // JR: todo: are these actually used anywhere?  Only for printing perhaps...
-    m_FirstMassTransferEpisode = true;                                                              // JR: todo: are these actually used anywhere?  Only for printing perhaps...
+double  BinaryConstituentStar::RocheLobeTracker(const double p_SemiMajorAxis, const double p_Eccentricity) {
+    if ((utils::Compare(p_SemiMajorAxis, 0.0) <= 0) || (utils::Compare(p_Eccentricity, 1.0) > 0))
+        return 0.0;         // binary is unbound, so not in RLOF
+    
+    double rocheLobeRadius = BaseBinaryStar::CalculateRocheLobeRadius_Static(Mass(), m_Companion->Mass());
+    return (Radius() * RSOL_TO_AU) / (rocheLobeRadius * p_SemiMajorAxis * (1.0 - p_Eccentricity));
 }
 
 
@@ -462,7 +459,6 @@ void BinaryConstituentStar::DetermineInitialMassTransferCase() {
  * @param   [IN]    p_Eccentricity              Eccentricity of the binary orbit
  */
 void BinaryConstituentStar::InitialiseMassTransfer(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity) {
-    m_RocheLobeRadius = BaseBinaryStar::CalculateRocheLobeRadius_Static(Mass(), m_Companion->Mass());
     SetRocheLobeFlags(p_CommonEnvelope, p_SemiMajorAxis, p_Eccentricity);
     m_MassTransferDiff = 0.0;
 }

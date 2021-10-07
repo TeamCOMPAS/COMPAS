@@ -6,11 +6,36 @@
 // JR: todo: clean this up and document it better
 
 
-typedef std::tuple<bool, COMPAS_VARIABLE_TYPE>                                      COMPAS_VARIABLE;
-typedef std::initializer_list<STELLAR_TYPE>                                         STELLAR_TYPE_LIST;
-typedef std::initializer_list<SN_EVENT>                                             SN_EVENT_LIST;
-typedef std::tuple<int, std::string, ANY_PROPERTY_VECTOR, std::vector<std::string>> LOGFILE_DETAILS;
+typedef std::tuple<bool, COMPAS_VARIABLE_TYPE> COMPAS_VARIABLE;
+typedef std::initializer_list<STELLAR_TYPE>    STELLAR_TYPE_LIST;
+typedef std::initializer_list<SN_EVENT>        SN_EVENT_LIST;
+typedef std::vector<STELLAR_TYPE>              STYPE_VECTOR;
 
+
+// Log file details
+typedef struct LogfileDetails {
+    int                      id;
+    std::string              filename;
+    ANY_PROPERTY_VECTOR      recordProperties;
+    std::vector<TYPENAME>    propertyTypes;
+    std::vector<std::string> hdrStrings;
+    std::vector<std::string> unitsStrings;
+    std::vector<std::string> typeStrings;
+    std::vector<std::string> fmtStrings;
+} LogfileDetailsT;
+
+
+// Grid file details
+typedef struct Gridfile {
+    std::string   filename;                                 // filename for grid file
+    ERROR         error;                                    // status - ERROR::NONE if no problem, otherwise an error number
+    std::ifstream handle;                                   // the file handle
+
+    std::streamsize startLine;                              // the first line of the grid file to process (0-based)
+    std::streamsize currentLine;                            // the grid line currently being processed
+    std::streamsize linesProcessed;                         // the number of grid lines processed so far in this run
+    std::streamsize linesToProcess;                         // the number of grid lines to process (from start line)
+} GridfileT;
 
 
 // RotationalVelocityParams struct for gsl root solver
@@ -19,58 +44,48 @@ struct RotationalVelocityParams {                           // Structure contain
 };
 
 
-// KickVelocityParams struct for gsl root solver
-struct KickVelocityParams {
+// KickMagnitudeParams struct for gsl root solver
+struct KickMagnitudeParams {
     double y;       // Value of CDF, should be drawn as U(0,1)
     double sigma;   // sigma for kick distribution
 };
 
 
-// KickParameters struct for both SSE and BSE grid file parameters
-
-typedef struct KickParameters {
-    bool   supplied;
-    bool   useVelocityRandom;
-    double velocityRandom;
-    double velocity;
-    double theta;                   // only used for BSE
-    double phi;                     // only used for BSE
-    double meanAnomaly;             // only used for BSE
-} KickParameters;
-
-
-// struct for SSE grid file parameters
-
-typedef struct SSEGridParameters {
-    double mass;
-    double metallicity;
-
-    KickParameters kickParameters;
- } SSEGridParameters;
-
-
-// structs for binary stars and BSE grid file parameters
-
-typedef struct BSEGridParameters {
-    double mass1;
-    double mass2;
-    double metallicity1; 
-    double metallicity2;
-    double separation;
-    double eccentricity;
-
-    KickParameters star1KickParameters;
-    KickParameters star2KickParameters;
-} BSEGridParameters;
-
-
 // struct for supernova events:
-// CCSN, ECSN, PISN, PPSIN, USSN, RUNAWAY, RECYCLED_NS, RLOF_ONTO_NS
+// CCSN, ECSN, PISN, PPSIN, USSN
 
 typedef struct SNEvents {
     SN_EVENT current;                                       // Supernova event at the current timestep: NONE if no supernova event happening
     SN_EVENT past;                                          // Supernova event at any past timestep   : NONE if no supernova event happened in any past timestep
 } SNEventsT;
+
+
+// supernova kick struct for both SSE and BSE options
+//
+// some of these are only required for binary stars, but
+// easier (and more logical I think (for now, anyway) to
+// keep all SN-related attributes in the same place
+//
+// we need to know if these values were actually specified
+// by the user via options - hence the boolean values
+
+typedef struct KickParameters {
+    bool   magnitudeRandomSpecified;                        // SSE and BSE
+    double magnitudeRandom;                                 // SSE and BSE
+
+    bool   magnitudeSpecified;                              // SSE and BSE
+    double magnitude;                                       // SSE and BSE
+
+    bool   phiSpecified;                                    // BSE only
+    double phi;                                             // BSE only
+
+    bool   thetaSpecified;                                  // BSE only
+    double theta;                                           // BSE only
+
+    bool   meanAnomalySpecified;                            // BSE only
+    double meanAnomaly;                                     // BSE only
+} KickParameters;
+
 
 // struct for supernova attributes of the base star
 // some of these are only required for binary stars, but
@@ -83,18 +98,18 @@ typedef struct SupernovaDetails {                           // Holds attributes,
     
     double           coreMassAtCOFormation;                 // Core mass of this star when it formed a compact object
     double           COCoreMassAtCOFormation;               // Carbon Oxygen core mass of the star when it goes supernova and forms a compact object
-    double           drawnKickVelocity;                     // Kick velocity the system received during the supernova (km s^-1)
+    double           drawnKickMagnitude;                    // Kick magnitude the system received during the supernova (km s^-1)
     double           eccentricAnomaly;                      // Eccentric anomaly at instataneous time of the SN
     SNEventsT        events;                                // Record of supernova events undergone by the star
     double           fallbackFraction;                      // Fallback fraction during a supernova event
     double           HeCoreMassAtCOFormation;               // Helium core mass of the star when it goes supernova and forms a compact objec
-    HYDROGEN_CONTENT hydrogenContent;                       // Hydrogen content of the exploding star. We consider an H-rich star all SN progenitors that have an H envelope, otherwise H-poor
-    double           kickVelocity;                          // Kick velocity the system received during the supernova (km s^-1)
-    double           kickVelocityRandom;                    // Random number U(0,1) for choosing the supernova kick velocity magnitude - drawn once at star creation
+    bool             isHydrogenPoor;                        // Flag to indicate if exploding star is hydrogen-poor. We consider an H-rich star all SN progenitors that have an H envelope, otherwise H-poor
+    double           kickMagnitude;                         // Kick magnitude the system received during the supernova (km s^-1)
+    double           kickMagnitudeRandom;                   // Random number U(0,1) for choosing the supernova kick magnitude - drawn once at star creation
     double           meanAnomaly;                           // Mean anomaly at instantaneous time of the SN - uniform in [0, 2pi]
-    double           phi;                                   // Angle between 'x' and 'y', both in the orbital plane of supernovae vector (rad)
-    SN_STATE         supernovaState;                        // indicates which star (or stars) are undergoing / hove undergone a supernova event
-    double           theta;                                 // Angle between the orbital plane and the 'z' axis of supernovae vector (rad)
+    double           phi;                                   // Kick angle in the orbital plane, defined CCW from the radial vector pointed away from the Companion (rad) [0, 2pi)
+    SN_STATE         supernovaState;                        // Indicates which star (or stars) are undergoing / have undergone a supernova event
+    double           theta;                                 // Kick angle out of the orbital plane, toward the orbital angular momentum axis (rad) [-pi/2, pi/2]
     double           totalMassAtCOFormation;                // Total mass of the star when it goes supernova and forms a compact object
     double           trueAnomaly;                           // True anomaly at instantaneous time of the SN
 } SupernovaDetailsT;
@@ -118,7 +133,7 @@ typedef struct Lambdas {
 	double kruckowMiddle;                                   // Ccalculated using m_Radius and -4/5
 	double kruckowTop;                                      // Calculated using m_Radius and -2/3
 	double loveridge;                                       // No mass loss
-	double loveridgeWinds;                                  // Mass loss    JR: todo: or would be if the parameter wasn't ignored...
+	double loveridgeWinds;                                  // Mass loss
 	double nanjing;                                         // JR: todo: description?
 } LambdasT;
 
@@ -144,6 +159,34 @@ typedef struct BindingEnergies {
 } BindingEnergiesT;
 
 
+// RLOF properties
+typedef struct RLOFProperties {
+    OBJECT_ID     id;
+    unsigned long randomSeed;
+
+    STELLAR_TYPE  stellarType1;
+    STELLAR_TYPE  stellarType2;
+
+    double        mass1;
+    double        mass2;
+
+    double        radius1;
+    double        radius2;
+
+    double        eccentricity;
+    double        semiMajorAxis;
+
+    unsigned int  eventCounter;
+
+    double        time;
+
+    bool          isRLOF1;
+    bool          isRLOF2;
+
+    bool          isCE;
+
+} RLOFPropertiesT;
+
 typedef struct BinaryRLOFDetails {                          // RLOF details pertinent to binaries
 
     bool experiencedRLOF;
@@ -151,6 +194,10 @@ typedef struct BinaryRLOFDetails {                          // RLOF details pert
     bool isRLOF;
     bool simultaneousRLOF;                                  // Here for now - maybe should be in Binary CEDetails struct?       JR: todo:
     bool stableRLOFPostCEE;                                 // Here for now - maybe should be in Binary CEDetails struct?       JR: todo:
+    RLOFPropertiesT  props1;
+    RLOFPropertiesT  props2;
+    RLOFPropertiesT* propsPreMT;
+    RLOFPropertiesT* propsPostMT;
 } BinaryRLOFDetailsT;
 
 typedef struct StellarRLOFDetails {                         // RLOF details pertinent to individual stars
@@ -175,7 +222,7 @@ typedef struct BeBinaryProperties {
     double        companionTeff;
     double        companionRadius;
 
-    double        separation;
+    double        semiMajorAxis;
     double        eccentricity;
 } BeBinaryPropertiesT;
 
@@ -199,7 +246,6 @@ typedef struct BinaryCEDetails {                            // Common Envelope d
     BinaryCEESavedValuesT preCEE;
     BinaryCEESavedValuesT postCEE;
 
-    double                alpha;                            // Common Envelope efficiency alpha parameter
     bool                  CEEnow;                           // Indicates whether a common envelope event is occurring now
     unsigned int          CEEcount;                         // Common Envelope Event count
     bool                  doubleCoreCE;

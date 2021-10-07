@@ -15,7 +15,7 @@
  *
  * @return                                      Rejuvenation factor
  */
-double MS_lte_07::CalculateMassTransferRejuvenationFactor() {
+double MS_lte_07::CalculateMassTransferRejuvenationFactor() const {
 
     double fRej = 1.0;                                                                              // default - Hurley et al. 2000
 
@@ -51,7 +51,7 @@ double MS_lte_07::CalculateMassTransferRejuvenationFactor() {
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
  * @return                                      Boolean indicating stability of mass transfer (true = unstable)
  */
-bool MS_lte_07::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) {
+bool MS_lte_07::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const {
 
     bool result = false;                                                                                                    // default is stable
 
@@ -63,6 +63,3 @@ bool MS_lte_07::IsMassRatioUnstable(const double p_AccretorMass, const bool p_Ac
 
     return result;
 }
-
-
-

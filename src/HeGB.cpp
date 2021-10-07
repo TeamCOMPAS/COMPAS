@@ -27,7 +27,7 @@ double HeGB::CalculateLuminosityOnPhase_Static(const double p_CoreMass, const do
 /*
  * Calculate the giant branch radius for a helium star
  *
- * Hurley at al. 2000, eqs 85, 86, 87 & 88
+ * Hurley et al. 2000, eqs 85, 86, 87 & 88
  *
  * Calculates and returns R1 and R2 - the caller can then choose the radius and the
  * resultant stellar type based on the radius chosen
@@ -51,8 +51,8 @@ std::tuple<double, double> HeGB::CalculateRadiusOnPhase_Static(const double p_Ma
 
     double lamda = 500.0 * (2.0 + m_5) / m_2_5;
 
-    double R1 = RZHe * pow((p_Luminosity / LTHe), 0.2) + (0.02 * (exp(p_Luminosity / lamda) - exp(LTHe / lamda)));
-    double R2 = 0.08 * pow(p_Luminosity, 0.75);     // Mimics the Hayashi track
+    double R1 = RZHe * PPOW((p_Luminosity / LTHe), 0.2) + (0.02 * (exp(p_Luminosity / lamda) - exp(LTHe / lamda)));
+    double R2 = 0.08 * PPOW(p_Luminosity, 0.75);     // Mimics the Hayashi track
 
     // May need to change this according to section 2.1.2 of http://iopscience.iop.org/article/10.1086/340304/pdf which talks about updated helium star evolution
     // or replace with helium star tracks from binary_c
@@ -67,7 +67,7 @@ std::tuple<double, double> HeGB::CalculateRadiusOnPhase_Static(const double p_Ma
 /*
  * Calculate the giant branch radius for a helium star
  *
- * Hurley at al. 2000, eqs 85, 86, 87 & 88
+ * Hurley et al. 2000, eqs 85, 86, 87 & 88
  *
  * Calls CalculateRadiusOnPhase_Static() and returns the minimum of R1 and R2.
  *
@@ -78,7 +78,7 @@ std::tuple<double, double> HeGB::CalculateRadiusOnPhase_Static(const double p_Ma
  * @param   [IN]    p_Luminosity                Luminosity in Lsol
  * @return                                      Radius on the helium giant branch / post-HeMs
  */
-double HeGB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) {
+double HeGB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const {
     double R1, R2;
     std::tie(R1, R2) = CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity);
 
@@ -89,7 +89,7 @@ double HeGB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosi
 /*
  * Calculate the giant branch radius for a helium star and determine new stellar type
  *
- * Hurley at al. 2000, eqs 85, 86, 87 & 88
+ * Hurley et al. 2000, eqs 85, 86, 87 & 88
  *
  * Calls CalculateRadiusOnPhase_Static() and returns the minimum of R1 and R2.  
  * Returns stellr type to which star should evolve based on radius calculated.
@@ -101,7 +101,7 @@ double HeGB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosi
  * @param   [IN]    p_Luminosity                Luminosity in Lsol
  * @return                                      Radius on the helium giant branch / post-HeMs
  */
-std::tuple <double, STELLAR_TYPE> HeGB::CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity) {
+std::tuple <double, STELLAR_TYPE> HeGB::CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity) const {
 
     double       radius;
     STELLAR_TYPE stellarType = m_StellarType;
@@ -150,17 +150,17 @@ double HeGB::CalculateAgeOnPhase_Static(const double      p_Mass,
     double p1_p  = p1 / gbParams(p);
 
     double LtHe  = HeMS::CalculateLuminosityAtPhaseEnd_Static(p_Mass);
-    double tinf1 = p_tHeMS + ((1.0 / (p1 * gbParams(AHe) * gbParams(D))) * pow(gbParams(D) / LtHe, p1_p));
+    double tinf1 = p_tHeMS + ((1.0 / (p1 * gbParams(AHe) * gbParams(D))) * PPOW(gbParams(D) / LtHe, p1_p));
 
     if (utils::Compare(p_CoreMass, gbParams(Mx)) > 0) {
         double q1    = gbParams(q) - 1.0;
-        double tx    = tinf1 - ((tinf1 - p_tHeMS) * pow(LtHe / gbParams(Lx), p1_p));
-        double tinf2 = tx + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * pow(gbParams(B) / gbParams(Lx), q1 / gbParams(q)));
+        double tx    = tinf1 - ((tinf1 - p_tHeMS) * PPOW(LtHe / gbParams(Lx), p1_p));
+        double tinf2 = tx + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW(gbParams(B) / gbParams(Lx), q1 / gbParams(q)));
 
-        age = tinf2 - (pow(p_CoreMass, 1.0 - gbParams(q)) / (q1 * gbParams(AHe) * gbParams(B)));
+        age = tinf2 - (PPOW(p_CoreMass, 1.0 - gbParams(q)) / (q1 * gbParams(AHe) * gbParams(B)));
     }
     else {
-        age = tinf1 - (pow(p_CoreMass, 1.0 - gbParams(p)) / (p1 * gbParams(AHe) * gbParams(D)));
+        age = tinf1 - (PPOW(p_CoreMass, 1.0 - gbParams(p)) / (p1 * gbParams(AHe) * gbParams(D)));
     }
 
     return age;
@@ -202,16 +202,16 @@ double HeGB::CalculateCoreMassOnPhase_Static(const double      p_Mass,
     double p1_p = p1 / gbParams(p);
 
     double LtHe  = HeMS::CalculateLuminosityAtPhaseEnd_Static(p_Mass);
-    double tinf1 = p_tHeMS + ((1.0 / (p1 * gbParams(AHe) * gbParams(D))) * pow(gbParams(D) / LtHe, p1_p));
-    double tx    = tinf1 - ((tinf1 - p_tHeMS) * pow(LtHe / gbParams(Lx), p1_p));
-
+    double tinf1 = p_tHeMS + ((1.0 / (p1 * gbParams(AHe) * gbParams(D))) * PPOW(gbParams(D) / LtHe, p1_p));
+    double tx    = tinf1 - (tinf1 - p_tHeMS) * PPOW((LtHe / gbParams(Lx)), p1_p);
+    
     if (utils::Compare(p_Time, tx) > 0) {
         double q1    = gbParams(q) - 1.0;
-        double tinf2 = tx + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * pow(gbParams(B) / gbParams(Lx), q1 / gbParams(q)));
-        coreMass = pow(q1 * gbParams(AHe) * gbParams(B) * (tinf2 - p_Time), 1.0 / (1.0 - gbParams(q)));
+        double tinf2 = tx + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW(gbParams(B) / gbParams(Lx), q1 / gbParams(q)));
+        coreMass = PPOW(q1 * gbParams(AHe) * gbParams(B) * (tinf2 - p_Time), 1.0 / (1.0 - gbParams(q)));
     }
     else {
-        coreMass = pow(p1 * gbParams(AHe) * gbParams(D) * (tinf1 - p_Time), 1.0 / (1.0 - gbParams(p)));
+        coreMass = PPOW(p1 * gbParams(AHe) * gbParams(D) * (tinf1 - p_Time), 1.0 / (1.0 - gbParams(p)));
     }
 
     return coreMass;
@@ -234,7 +234,7 @@ double HeGB::CalculateCoreMassOnPhase_Static(const double      p_Mass,
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
  * @return                                      Boolean indicating stability of mass transfer (true = unstable)
  */
-bool HeGB::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) {
+bool HeGB::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const {
 
     bool result = false;                                                                                                    // default is stable
 

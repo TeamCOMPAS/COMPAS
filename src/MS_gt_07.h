@@ -3,6 +3,7 @@
 
 #include "constants.h"
 #include "typedefs.h"
+#include "profiling.h"
 #include "utils.h"
 
 #include "BaseStar.h"
@@ -36,13 +37,12 @@ protected:
 
 
     // member functions - alphabetically
-    double   CalculateMassLossRateHurley();
-    double   CalculateMassTransferRejuvenationFactor();
+    double      CalculateMassLossRateHurley();
+    double      CalculateMassTransferRejuvenationFactor() const;
 
-    ENVELOPE DetermineEnvelopeType()                        { return ENVELOPE::RADIATIVE; }                                                             // Always RADIATIVE
-    ENVELOPE DetermineEnvelopeTypeHurley2002()              { return utils::Compare(m_Mass, 1.25) < 0 ? ENVELOPE::CONVECTIVE : ENVELOPE::RADIATIVE; }   // Sometimes CONVECTIVE... JR: todo: why is this different?
+    ENVELOPE    DetermineEnvelopeType() const;
 
-    bool     IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate);
+    bool        IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
 };
 
 #endif // __MS_gt_07_h__

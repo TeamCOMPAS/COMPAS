@@ -19,5 +19,19 @@ Thumbs.db
 # Others
 .ipynb_checkpoints/
 __pycache__/
+COMPAS_Output*/
+output*/
 COMPAS
+*.log
+*.aux
+*.toc
+*.bbl
+*.blg
+*.pdf
+*.synctex
+*.synctex(busy)
+*.synctex.gz
+*.synctex.gz(busy)
 
+Makefile-reinhold
+.gitignore
