@@ -78,6 +78,6 @@ Furthermore,
 
 
 
-## A highlight of papers that have made use of COMPAS are listed at [https://compas.science/science.html]https://compas.science/science.html
+### A highlight of papers that have made use of COMPAS are listed at [https://compas.science/science.html]https://compas.science/science.html
 
 
