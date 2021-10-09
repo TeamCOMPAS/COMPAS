@@ -37,7 +37,7 @@ archivePrefix = {arXiv},
       adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }
 
-Note that to make the \noopsort works, which fixes the preferred acknowledgement, you'll have to include at the start of your bibtex file the line
+Note that the preferred acknowledgement relies on \noopsort; to make it work, you'll have to include the following line at the start of your bibtex file:
 @PREAMBLE{ {\providecommand{\noopsort}[1]{}} }
 
 
