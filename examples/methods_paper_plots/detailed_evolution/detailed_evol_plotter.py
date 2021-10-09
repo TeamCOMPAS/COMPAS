@@ -81,11 +81,14 @@ def main():
     axes[1][0].text( axes[1][0].get_xlim()[1]*-.18, axes[1][0].get_ylim()[1]*0.87,  'c)', fontweight='bold')
     axes[1][1].text( axes[1][1].get_xlim()[1]*-.25, axes[1][1].get_ylim()[1]*0.87,  'd)', fontweight='bold')
     
+    ### Print out a synopsys of the evolutionary history to the command line
+    printEvolutionaryHistory(Data)
+    
     ### Finalize the boundaries, save, and show
     fig.subplots_adjust(left=0.05)  #adjusting boundaries of the plotter
     fig.subplots_adjust(wspace=.3)
-    plt.savefig('gw151226evol.eps', format='eps') 
-    plt.savefig('gw151226evol.png', format='png') 
+    plt.savefig('gw151226evol.eps', format='eps')
+    plt.savefig('gw151226evol.png', format='png')
     plt.show()
 
 
@@ -110,6 +113,60 @@ def getStellarTypes(Data):
         return np.digitize(x, useTypes, right=True) 
 
     return stellarTypes, useTypes, typeNameMap
+
+
+def printEvolutionaryHistory(Data):
+    """
+    This function prints a synopsys of the evolutionary history to the command line; it can eventually include cartoons as well.
+    """
+
+    print('Time (Myr),   Event,  M1 (M_o),   type1,  M2 (M_o),   type2,  a (R_o),    e')
+
+    print(Data['Time'][0], '   start: Z=', Data['Metallicity@ZAMS(1)'][0], '      ', Data['Mass(1)'][0],'      ', Data['Stellar_Type(1)'][0], '      ', Data['Mass(2)'][0],'      ', Data['Stellar_Type(2)'][0], '      ', Data['SemiMajorAxis'][0], '      ', Data['Eccentricity'][0])
+
+    for i in range(1,Data['Time'].size):
+        MThistory=Data['MT_History'][i];
+        if Data['MT_History'][i]>0:         #mass transfer happened
+            if Data['MT_History'][i]==Data['MT_History'][i-1]:
+                continue    #repeated entry
+            if Data['MT_History'][i]==1:
+                MTstring='Stable MT from 1 TO 2\t'
+            elif Data['MT_History'][i]==2:
+                MTstring='Stable MT from 2 TO 1\t'
+            elif Data['MT_History'][i]==3:
+                MTstring='CE from 1 to 2\t\t'
+            elif Data['MT_History'][i]==4:
+                MTstring='CE from 2 to 1\t\t'
+            elif Data['MT_History'][i]==5:
+                MTstring='CE Double Core\t\t'
+            elif Data['MT_History'][i]==6:
+                MTstring='CE both MS\t\t'
+            elif Data['MT_History'][i]==7:
+                MTstring='CE MS with CO\t\t'
+            else:
+                MTstring='Unknown MT'
+            print(Data['Time'][i], '  ', MTstring, '  ',  Data['Mass(1)'][i],'      ', Data['Stellar_Type(1)'][i], '      ', Data['Mass(2)'][i],'      ', Data['Stellar_Type(2)'][i], '      ', Data['SemiMajorAxis'][i], '      ', Data['Eccentricity'][i])
+        if Data['Stellar_Type(1)'][i]!=Data['Stellar_Type(1)'][i-1]:    #type of star 1 changed
+            print(Data['Time'][i], '   Star 1:', Data['Stellar_Type(1)'][i-1],'->',Data['Stellar_Type(1)'][i],'  ',  Data['Mass(1)'][i],'      ', Data['Stellar_Type(1)'][i], '      ', Data['Mass(2)'][i],'      ', Data['Stellar_Type(2)'][i], '      ', Data['SemiMajorAxis'][i], '      ', Data['Eccentricity'][i])
+        if Data['Stellar_Type(2)'][i]!=Data['Stellar_Type(2)'][i-1]:    #type of star 2 changed
+            print(Data['Time'][i], '   Star 2:', Data['Stellar_Type(2)'][i-1],'->',Data['Stellar_Type(2)'][i],'  ',  Data['Mass(1)'][i],'      ', Data['Stellar_Type(1)'][i], '      ', Data['Mass(2)'][i],'      ', Data['Stellar_Type(2)'][i], '      ', Data['SemiMajorAxis'][i], '      ', Data['Eccentricity'][i])
+        if Data['Eccentricity'][i]>1 or Data['SemiMajorAxis'][i]<0:     #unbound
+            print(Data['Time'][i], '   Unbound binary')
+
+    if Data['Time'][i]<14000 and not((Data['Stellar_Type(1)'][i]==13 or Data['Stellar_Type(1)'][i]==14) and (Data['Stellar_Type(2)'][i]==13 or Data['Stellar_Type(2)'][i]==14)):     #proxy for unrecorded meregr
+        print(Data['Time'][i], '   Stellar merger')
+
+    if ((Data['Stellar_Type(1)'][i]==13 or Data['Stellar_Type(1)'][i]==14) and (Data['Stellar_Type(2)'][i]==13 or Data['Stellar_Type(2)'][i]==14)):
+        Msunkg=1.98892e30
+        c=299792458
+        G=6.67428e-11
+        Rsun = 695500000
+        beta=64/5*G**3*Data['Mass(1)'][i]*Data['Mass(2)'][i]*(Data['Mass(1)'][i]+Data['Mass(2)'][i])*Msunkg**3/c**5
+        T0=(Data['SemiMajorAxis'][i]*Rsun)**4/4/beta
+        e=Data['Eccentricity'][i]
+        Tdelay=T0*(1-e**2)**(7/2)*(1+0.31*e**10 + 0.27*e**20 +  0.2*e**1000)/3.15e7/1e6
+        print(Data['Time'][i]+Tdelay, '   GW merger in ', Tdelay, ' Myr    ', Data['Mass(1)'][i],'      ', Data['Stellar_Type(1)'][i], '      ', Data['Mass(2)'][i],'      ', Data['Stellar_Type(2)'][i])
+
 
 ""
 if __name__ == "__main__":
