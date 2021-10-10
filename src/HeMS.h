@@ -101,12 +101,6 @@ protected:
 
             double          CalculateThermalMassLossRate() const                                        { return BaseStar::CalculateThermalMassLossRate(); }                    // Use BaseStar
 
-            double          CalculateThermalTimescale(const double p_Mass,
-                                                      const double p_Radius,
-                                                      const double p_Luminosity,
-                                                      const double p_EnvMass = 1.0) const               { return MainSequence::CalculateThermalTimescale(p_Mass, p_Radius, p_Luminosity); }
-            double          CalculateThermalTimescale() const                                           { return CalculateThermalTimescale(m_Mass, m_Radius, m_Luminosity); }   // Use class member variables
-
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
             void            CalculateTimescales()                                                       { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
     
