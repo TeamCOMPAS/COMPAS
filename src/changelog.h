@@ -773,7 +773,10 @@
 //                                      - Removed unnecessary IsPrimary() / BecomePrimary() functionality, fixed incorrect MassTransferTrackerHistory (see issue #605)
 // 02.22.03     IM - Oct 4, 2022    - Defect repair:
 //                                      - Corrected Eddington mass accretion limits, issue #612 (very minor change for WDs and NSs, factor of a few increase for BHs)
+// 02.19.04 FSB/JR - Oct 11, 2021   - Enhancement:
+//                                      - updated kelvin-helmholtz (thermal) timescale calculation with more accurate pre-factor and updated documentation.
+//                                      - rationalised parameters of, and calls to, CalculateThermalTimescale()
 
-const std::string VERSION_STRING = "02.22.03";
+const std::string VERSION_STRING = "02.23.00";
 
 # endif // __changelog_h__

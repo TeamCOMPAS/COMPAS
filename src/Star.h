@@ -168,10 +168,7 @@ public:
 
     double          CalculateThermalMassLossRate() const                                                            { return m_Star->CalculateThermalMassLossRate(); }
 
-    double          CalculateThermalTimescale(const double p_Mass,
-                                              const double p_Radius,
-                                              const double p_Luminosity,
-                                              const double p_EnvMass = 1.0) const                                   { return m_Star->CalculateThermalTimescale(p_Mass, p_Radius, p_Luminosity, p_EnvMass); }
+    double          CalculateThermalTimescale(const double p_Radius) const                                          { return m_Star->CalculateThermalTimescale(p_Radius); }
 
     double          CalculateTimestep()                                                                             { return m_Star->CalculateTimestep(); }
 
