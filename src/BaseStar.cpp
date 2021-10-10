@@ -2297,6 +2297,26 @@ double BaseStar::CalculateNuclearTimescale_Static(const double p_Mass, const dou
 
 
 /*
+ * Calculate thermal timescale
+ *
+ * pre-factor from Kalogera & Webbink 1996 (https://arxiv.org/abs/astro-ph/9508072), equation 2, 
+ * combined with p_Mass * p_EnvMass case from equation 61 from https://arxiv.org/abs/astro-ph/0201220 for k in {2,3,4,5,6,8,9}
+ * [note that equation 61 of BSE (https://arxiv.org/abs/astro-ph/0201220) approximates this with a value a factor of 3 smaller]
+ * 
+ * 
+ * double CalculateThermalTimescale(const double p_Radius) const
+ *
+ * @param   [IN]    p_Radius                    Radius in Rsol
+ * @return                                      Thermal timescale in Myr
+ *
+ * The p_Radius parameter is to accommodate the call (of this function) in BaseBinaryStar::CalculateMassTransfer()
+*/
+double BaseStar::CalculateThermalTimescale(const double p_Radius) const {   
+    return 31.4 * m_Mass * (m_Mass == m_CoreMass ? m_Mass : m_Mass - m_CoreMass) / (m_Radius * m_Luminosity); // G*Msol^2/(Lsol*Rsol) ~ 31.4 Myr (~ 30 Myr in Kalogera & Webbink)
+}
+
+
+/*
  * Calculate radial expansion timescale
  *
  *
