@@ -543,25 +543,6 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
 
 
 /*
- * Calculate thermal timescale
- *
- * Kalogera & Webbink 1996, eq 2 [note that (61) of BSE proposes a value a factor of 3 smaller]
- *
- *
- * double CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity) const
- *
- * @param   [IN]    p_Mass                      Mass in Msol
- * @param   [IN]    p_Radius                    Radius in Rsol
- * @param   [IN]    p_Luminosity                Luminosity in Lsol
- * @param   [IN]    p_EnvMass                   Envelope mass in Msol (ignored here)
- * @return                                      Thermal timescale in Myr
- */
-double MainSequence::CalculateThermalTimescale(const double p_Mass, const double p_Radius, const double p_Luminosity, const double p_EnvMass) const {
-    return 30.0 * p_Mass * p_Mass / (p_Radius * p_Luminosity);      // G*Msol^2/(Lsol*Rsol) ~ 30 Myr
-}
-
-
-/*
  * Recalculates the star's age after mass loss
  *
  * Hurley et al. 2000, section 7.1
