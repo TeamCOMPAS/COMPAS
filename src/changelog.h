@@ -773,10 +773,18 @@
 //                                      - Removed unnecessary IsPrimary() / BecomePrimary() functionality, fixed incorrect MassTransferTrackerHistory (see issue #605)
 // 02.22.03     IM - Oct 4, 2022    - Defect repair:
 //                                      - Corrected Eddington mass accretion limits, issue #612 (very minor change for WDs and NSs, factor of a few increase for BHs)
-// 02.19.04 FSB/JR - Oct 11, 2021   - Enhancement:
+// 02.23.00 FSB/JR - Oct 11, 2021   - Enhancement:
 //                                      - updated kelvin-helmholtz (thermal) timescale calculation with more accurate pre-factor and updated documentation.
 //                                      - rationalised parameters of, and calls to, CalculateThermalTimescale()
+// 02.23.01     JR - Oct 11, 2021   - Code cleanup:
+//                                      - Typo fixed in version for changes made on October 11, 2021
+//                                      - Changed KROUPA_POWER to SALPETER_POWER in utils:SampleInitialMass(); Removed KROUPA_POWER from constants.h
+//                                      - Removed p_Id parameter from SSE/BSE switchlog functions - leftover from debugging
+//                                      - Added CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE property to SSE_SYSTEM_PARAMETERS_REC and BSE_SYSTEM_PARAMETERS_REC (both stars)
+//                                      - Tidied up some parameters etc. to better comply with COMPAS coding guidelines
+//                                      - Typo fixed in preProcessing/COMPAS_Output_Definitions.txt
 
-const std::string VERSION_STRING = "02.23.00";
+
+const std::string VERSION_STRING = "02.23.01";
 
 # endif // __changelog_h__
