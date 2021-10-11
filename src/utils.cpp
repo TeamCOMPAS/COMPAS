@@ -1015,7 +1015,7 @@ namespace utils {
                 break;
 
             default:                                                                                                // unknown IMF
-                thisMass = utils::InverseSampleFromPowerLaw(SALPETER_POWER, KROUPA_MAXIMUM, KROUPA_MINIMUM);        // calculate mass using power law with default values
+                thisMass = utils::InverseSampleFromPowerLaw(SALPETER_POWER, SALPETER_MAXIMUM, SALPETER_MINIMUM);    // calculate mass using power law with default values
         }
 
         return thisMass;
