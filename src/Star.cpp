@@ -169,7 +169,7 @@ STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialT
                 raise(SIGUSR1);                                                             // signal to BSE that switch is occurring
             }
             else {                                                                          // SSE
-                (void)m_Star->PrintSwitchLog(m_Id);                                         // no need for the BSE signal shenaningans - just call the function
+                (void)m_Star->PrintSwitchLog();                                             // no need for the BSE signal shenanigans - just call the function
             }
         }
     }
