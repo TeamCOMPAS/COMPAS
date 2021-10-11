@@ -319,7 +319,6 @@ constexpr double MAXIMUM_METALLICITY                    = 0.03;                 
 
 // IMF constants
 constexpr double SALPETER_POWER                         = -2.35;
-constexpr double KROUPA_POWER                           = -2.35;
 constexpr double KROUPA_MINIMUM                         = 0.5;
 constexpr double KROUPA_MAXIMUM                         = 100.0;
 
@@ -974,7 +973,7 @@ const COMPASUnorderedMap<MT_TRACKING, std::string> MT_TRACKING_LABEL = {
 
 
 // Mass tranfer timing options for writing to BSE_RLOF file
-// Doen't need labels...
+// Doesn't need labels...
 enum class MASS_TRANSFER_TIMING: int { PRE_MT, POST_MT };
 
 // Metallicity distribution
@@ -3314,6 +3313,8 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
     STAR_1_PROPERTY::STELLAR_TYPE,
     STAR_2_PROPERTY::INITIAL_STELLAR_TYPE,
     STAR_2_PROPERTY::STELLAR_TYPE,
+    STAR_1_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,
+    STAR_2_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,
     BINARY_PROPERTY::ERROR
 };
 
@@ -3392,6 +3393,7 @@ const ANY_PROPERTY_VECTOR SSE_SYSTEM_PARAMETERS_REC = {
     STAR_PROPERTY::STELLAR_TYPE,
     STAR_PROPERTY::SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER,
     STAR_PROPERTY::MASS,
+    STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,
     PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_NS,
     PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_BH,
     PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_ECSN,

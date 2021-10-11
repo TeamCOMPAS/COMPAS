@@ -942,7 +942,7 @@ public:
     bool LogBSESupernovaDetails(const T* const p_Binary, const string p_Rec)                    { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE)), 0, LOGFILE::BSE_SUPERNOVAE, p_Binary, p_Rec); }
     
     template <class T>
-    bool LogBSESwitchLog(const T* const p_Binary, const long int p_Id, const bool p_PrimarySwitching) {
+    bool LogBSESwitchLog(const T* const p_Binary, const bool p_PrimarySwitching) {
         m_PrimarySwitching = p_PrimarySwitching;        
         return LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG)), 0, LOGFILE::BSE_SWITCH_LOG, p_Binary, "");
     }
@@ -966,7 +966,7 @@ public:
     bool LogSSESupernovaDetails(const T* const p_Star, const string p_Rec)                      { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, p_Star, p_Rec); }
 
     template <class T>
-    bool LogSSESwitchLog(const T* const p_Star, const int p_Id, const string p_Rec)             { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)), 0, LOGFILE::SSE_SWITCH_LOG, p_Star, p_Rec); }
+    bool LogSSESwitchLog(const T* const p_Star, const string p_Rec)                             { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)), 0, LOGFILE::SSE_SWITCH_LOG, p_Star, p_Rec); }
 
     template <class T>
     bool LogSSESystemParameters(const T* const p_Star, const string p_Rec)                      { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS)), 0, LOGFILE::SSE_SYSTEM_PARAMETERS, p_Star, p_Rec); }

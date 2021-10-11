@@ -17,10 +17,10 @@ public:
 
     // constructors & initializers
     Vector3d();
-    Vector3d(const double x,
-             const double y,
-             const double z);
-    Vector3d(DBL_VECTOR v);
+    Vector3d(const double p_x,
+             const double p_y,
+             const double p_z);
+    Vector3d(DBL_VECTOR p_v);
 
     // object identifiers - all classes have these 
     OBJECT_ID    ObjectId()    { return m_ObjectId; }           // object id for vectors - ordinal value from enum
@@ -48,26 +48,26 @@ public:
     // Overload operators
     
     // Overload Indexing operator
-    double& operator[] (size_t i);
-    double operator[] (size_t i) const { return (*const_cast<Vector3d*>(this))[i]; }
+    double& operator[] (size_t p_i);
+    double operator[] (size_t p_i) const { return (*const_cast<Vector3d*>(this))[p_i]; }
     
     // Overload setting operator
-    void operator =(Vector3d vNew);
+    void operator =(Vector3d p_NewVec);
 
     // Overload += setting vector
-    void operator +=(Vector3d vec) { (*this) = (*this) + vec; }
+    void operator +=(Vector3d p_Vec) { (*this) = (*this) + p_Vec; }
 
     // Overload vector addition operator
-    Vector3d operator +(Vector3d vec);
+    Vector3d operator +(Vector3d p_Vec);
     
     // Overload vector subtraction operator
-    Vector3d operator -(Vector3d vec);
+    Vector3d operator -(Vector3d p_Vec);
     
     // Overload scalar multiplication operator (only works as v*s, see below for s*v)
-    Vector3d operator *(const double scalar); 
+    Vector3d operator *(const double p_Scalar); 
 
     // Overload scalar division operator
-    Vector3d operator /(const double scalar);
+    Vector3d operator /(const double p_Scalar);
 
 
     
@@ -83,15 +83,15 @@ protected:
     double m_z;
 
     // member functions
-    void updateVector( const double x, const double y, const double z);
+    void UpdateVector(const double p_x, const double p_y, const double p_z);
 };
 
 // Free functions, 
 // Overload * with reversed order of inputs
-Vector3d operator *(double scalar, Vector3d vec);
+Vector3d operator *(double p_Scalar, Vector3d p_Vec);
 
 // Overload output << operator for Vector3d
-std::ostream &operator <<(std::ostream &os, Vector3d const vec);
+std::ostream &operator <<(std::ostream &os, Vector3d const p_Vec);
 
 
 
@@ -103,11 +103,11 @@ std::ostream &operator <<(std::ostream &os, Vector3d const vec);
 
 namespace linalg {
 
-    double      dot(const Vector3d& a, const Vector3d& b);
+    double      dot(const Vector3d& p_a, const Vector3d& p_b);
 
-    Vector3d    cross(const Vector3d& a, const Vector3d& b);
+    Vector3d    cross(const Vector3d& p_a, const Vector3d& p_b);
 
-    double      angleBetween(const Vector3d& a, const Vector3d& b);
+    double      angleBetween(const Vector3d& p_a, const Vector3d& p_b);
 }
 
 #endif // __vector3d_h__
