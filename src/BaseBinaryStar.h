@@ -271,7 +271,7 @@ public:
 
             EVOLUTION_STATUS    Evolve();
 
-            bool                PrintSwitchLog(const long int p_Id, const bool p_PrimarySwitching) { return OPTIONS->SwitchLog() ? LOGGING->LogBSESwitchLog(this, p_Id, p_PrimarySwitching) : true; }
+            bool                PrintSwitchLog(const bool p_PrimarySwitching) { return OPTIONS->SwitchLog() ? LOGGING->LogBSESwitchLog(this, p_PrimarySwitching) : true; }
 
             COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
 

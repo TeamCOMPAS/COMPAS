@@ -48,7 +48,7 @@ bse_sysparms_rec -= {                                                   # SUBTRA
 }
 
 
-# BSE Double Compas Objects
+# BSE Double Compact Objects
 
 BSE_DCO_Rec = {STAR_1_PROPERTY::MZAMS,STAR_2_PROPERTY::MZAMS}           # set the BSE Double Compact Objects specifivation to MZAMS for Star1, and MZAMS for Star2
 BSE_DCO_Rec = {}                                                        # set the BSE Double Compact Objects specification to empty - nothing will be printed (file will not be created)
