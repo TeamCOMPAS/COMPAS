@@ -986,9 +986,12 @@ void BaseBinaryStar::SetPostCEEValues(const double p_SemiMajorAxis,
 
 
 /*
- * Calculate the time to coalescence for a binary with arbitrary eccentricity using interpolation
+ * Calculate the time to coalescence for a binary with arbitrary eccentricity
  *
- * Peters 1964 http://journals.aps.org/pr/pdf/10.1103/PhysRev.136.B1224, eq 5.14
+ * Mandel 2021 https://iopscience.iop.org/article/10.3847/2515-5172/ac2d35, eq 5
+ * 
+ * Accurate to within 3% over the full range of initial eccentricities up to 0.99999
+ * Will return time = 0.0 for eccentricities >= 1.0
  *
  *
  * double CalculateTimeToCoalescence(const double p_SemiMajorAxis,
@@ -1000,50 +1003,30 @@ void BaseBinaryStar::SetPostCEEValues(const double p_SemiMajorAxis,
  * @param   [IN]    p_Eccentricity              Initial eccentricity
  * @param   [IN]    p_Mass1                     Primary mass in SI units
  * @param   [IN]    p_Mass2                     Secondary mass in SI units
- * @return                                      Time to coalescence in SI units (s)
+ * @return                                      Time to coalescence in SI units (s): returns 0.0 if p_Eccentricity >= 1.0
  */
 double BaseBinaryStar::CalculateTimeToCoalescence(const double p_SemiMajorAxis,
                                                   const double p_Eccentricity,
                                                   const double p_Mass1,
                                                   const double p_Mass2) const {
 
-    double beta    = (64.0 / 5.0) * G * G * G * p_Mass1 * p_Mass2 * (p_Mass1 + p_Mass2) / (C * C * C * C * C);  // defined in Equation 5.9 in Peters 1964 http://journals.aps.org/pr/pdf/10.1103/PhysRev.136.B1224
-    double _4_beta = 4.0 * beta;
+    // pow() is slow - use multiplication where possible
+    
+    // calculate time for a circular binary to merge - Mandel 2021, eq 2
+    double numerator = 5.0 * C * C * C * C * C * p_SemiMajorAxis * p_SemiMajorAxis * p_SemiMajorAxis * p_SemiMajorAxis;
+    double denominator = 256.0 * G * G * G * p_Mass1 * p_Mass2 * (p_Mass1 + p_Mass2);
 
-    double tC = p_SemiMajorAxis * p_SemiMajorAxis * p_SemiMajorAxis * p_SemiMajorAxis / _4_beta;                // time for a circular binary to merge
+    double tC = numerator / denominator;                                                                // time for a circular binary to merge
 
-    // calculate t/tc using the interpolated function
+    // calculate time for eccentric binary to merge - Mandel 2021, eq 5
+    double e0     = p_Eccentricity;
+    double e0_10  = e0 * e0 * e0 * e0 * e0 * e0 * e0 * e0 * e0 * e0;
+    double e0_20  = e0_10 * e0_10;
+    double e0_100 = e0_10 * e0_10 * e0_10 * e0_10 * e0_10 * e0_10 * e0_10 * e0_10 * e0_10 * e0_10;
+    double f      = 1.0 - (e0 * e0);
+    double f_7    = f <= 0.0 ? 0.0 : f * f * f * f * f * f * f;
 
-    if (utils::Compare(p_Eccentricity, 0) != 0) {
-
-        double e0_2  = p_Eccentricity * p_Eccentricity;
-        double c0    = p_SemiMajorAxis * (1.0 - e0_2) * PPOW(p_Eccentricity, -12.0/19.0) * PPOW(1.0 + (121.0 * e0_2 / 304.0), -870.0/2299.0);
-
-		double _4_c0 = c0 * c0 * c0 * c0;
-
-        if (utils::Compare(p_Eccentricity, 0.01) < 0) {
-            tC = _4_c0 *PPOW(p_Eccentricity, 48.0/19.0) / _4_beta;
-        }
-        else if (utils::Compare(p_Eccentricity, 0.99) > 0) {
-
-            double _1_e0_2 = 1.0 - e0_2;
-            tC *= (768.0 / 425.0) * (_1_e0_2 * _1_e0_2 * _1_e0_2 * sqrt(_1_e0_2));                              // approximation of eq. 5.14 of Peters 1964, for high eccentricities
-        }
-        else {
-
-            double sum = 0.0;
-            double de  = p_Eccentricity / 10000;
-
-            for (double e = 0.0; utils::Compare(e, p_Eccentricity) < 0; e += de) {
-                double _1_e_2 = 1.0 - (e * e);
-                sum += de * PPOW(e, 29.0 / 19.0) * PPOW((1.0 + (121.0 / 304.0) * e * e), 1181.0 / 2299.0) / ( _1_e_2 * sqrt( _1_e_2));
-            }
-
-            tC = (12.0 / 19.0) * (_4_c0 / beta) * sum;
-        }
-    }
-
-    return tC;
+    return f <= 0.0 ? 0.0 : tC * (1.0 + 0.27 * e0_10 + 0.33 * e0_20 + 0.2 * e0_100) * f_7 * sqrt(f);     // time for an eccentric binary to merge
 }
 
 
@@ -1818,12 +1801,11 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     else {
 
 		// Begin Mass Transfer
-        double thermalRateDonor    = m_Donor->CalculateThermalMassLossRate();
-        double thermalRateAccretor = OPTIONS->MassTransferThermallyLimitedVariation() == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE
-                                        ? (m_Accretor->Mass() - m_Accretor->CoreMass()) / m_Accretor->CalculateThermalTimescale(CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL)  // assume accretor radius = accretor Roche Lobe radius
-                                        : m_Accretor->CalculateThermalMassLossRate();
                 
-        std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(thermalRateDonor, thermalRateAccretor);
+        // Calculate accretion fraction
+        // Assume accretor radius = accretor Roche Lobe radius to calculate accretor acceptance rate
+        std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(),
+                                                                                            m_Accretor->CalculateThermalMassAcceptanceRate(CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL));
 
         if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {       // arbitrary angular momentum loss prescription?
             jLoss = CalculateGammaAngularMomentumLoss();                                                                        // no - re-calculate angular momentum
