@@ -177,6 +177,9 @@ public:
 
             double          CalculateSNKickMagnitude(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType);
 
+            double          CalculateThermalMassAcceptanceRate(const double p_Radius) const;
+            double          CalculateThermalMassAcceptanceRate() const                                          { return CalculateThermalMassAcceptanceRate(m_Radius); }
+
     virtual double          CalculateThermalMassLossRate() const                                                { return m_Mass / CalculateThermalTimescale(); }                    // Use class member variables - and inheritance hierarchy
 
     virtual double          CalculateThermalTimescale(const double p_Radius) const;                                                                                                 // Use inheritance hierarchy
