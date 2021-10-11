@@ -783,8 +783,10 @@
 //                                      - Added CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE property to SSE_SYSTEM_PARAMETERS_REC and BSE_SYSTEM_PARAMETERS_REC (both stars)
 //                                      - Tidied up some parameters etc. to better comply with COMPAS coding guidelines
 //                                      - Typo fixed in preProcessing/COMPAS_Output_Definitions.txt
+// 02.24.00     JR - Oct 12, 2021   - Minor enhancements/optimisations:
+//                                      - Added BaseStar::CalculateThermalMassAcceptanceRate() as a first-pass to address issue #595 - can be changed/expanded as required
+//                                      - Changed BaseBinaryStar::CalculateTimeToCoalescence() to use Mandel 2021 https://iopscience.iop.org/article/10.3847/2515-5172/ac2d35, eq 5 to address issue #538
 
-
-const std::string VERSION_STRING = "02.23.01";
+const std::string VERSION_STRING = "02.24.00";
 
 # endif // __changelog_h__
