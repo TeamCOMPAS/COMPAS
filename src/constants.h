@@ -319,8 +319,8 @@ constexpr double MAXIMUM_METALLICITY                    = 0.03;                 
 
 // IMF constants
 constexpr double SALPETER_POWER                         = -2.35;
-constexpr double KROUPA_MINIMUM                         = 0.5;
-constexpr double KROUPA_MAXIMUM                         = 100.0;
+constexpr double SALPETER_MINIMUM                       = 0.5;
+constexpr double SALPETER_MAXIMUM                       = 100.0;
 
 // Kroupa IMF is a broken power law with three slopes
 constexpr double KROUPA_POWER_1                         = -0.3;
