@@ -1003,7 +1003,7 @@ void BaseBinaryStar::SetPostCEEValues(const double p_SemiMajorAxis,
  * @param   [IN]    p_Eccentricity              Initial eccentricity
  * @param   [IN]    p_Mass1                     Primary mass in SI units
  * @param   [IN]    p_Mass2                     Secondary mass in SI units
- * @return                                      Time to coalescence in SI units (s): returns 0.0 if 0.0 > p_Eccentricity >= 1.0
+ * @return                                      Time to coalescence in SI units (s): returns 0.0 if p_Eccentricity < 0 or p_Eccentricity >= 1
  */
 double BaseBinaryStar::CalculateTimeToCoalescence(const double p_SemiMajorAxis,
                                                   const double p_Eccentricity,
