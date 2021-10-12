@@ -1,0 +1,445 @@
+\documentclass[10pt,a4paper,onecolumn]{article}
+\usepackage{marginnote}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{authblk,etoolbox}
+\usepackage{titlesec}
+\usepackage{calc}
+\usepackage{tikz}
+\usepackage{hyperref}
+\hypersetup{colorlinks,breaklinks,
+            urlcolor=[rgb]{0.0, 0.5, 1.0},
+            linkcolor=[rgb]{0.0, 0.5, 1.0}}
+\usepackage{caption}
+\usepackage{tcolorbox}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{seqsplit}
+\usepackage{xstring}
+
+\usepackage{float}
+\let\origfigure\figure
+\let\endorigfigure\endfigure
+\renewenvironment{figure}[1][2] {
+    \expandafter\origfigure\expandafter[H]
+} {
+    \endorigfigure
+}
+
+\usepackage{fixltx2e} % provides \textsubscript
+\usepackage[
+  backend=biber,
+%  style=alphabetic,
+%  citestyle=numeric
+]{biblatex}
+\bibliography{paper.bib}
+
+% --- Splitting \texttt --------------------------------------------------
+
+\let\textttOrig=\texttt
+\def\texttt#1{\expandafter\textttOrig{\seqsplit{#1}}}
+\renewcommand{\seqinsert}{\ifmmode
+  \allowbreak
+  \else\penalty6000\hspace{0pt plus 0.02em}\fi}
+
+
+% --- Pandoc does not distinguish between links like [foo](bar) and
+% --- [foo](foo) -- a simplistic Markdown model.  However, this is
+% --- wrong:  in links like [foo](foo) the text is the url, and must
+% --- be split correspondingly.
+% --- Here we detect links \href{foo}{foo}, and also links starting
+% --- with https://doi.org, and use path-like splitting (but not
+% --- escaping!) with these links.
+% --- Another vile thing pandoc does is the different escaping of
+% --- foo and bar.  This may confound our detection.
+% --- This problem we do not try to solve at present, with the exception
+% --- of doi-like urls, which we detect correctly.
+
+
+\makeatletter
+\let\href@Orig=\href
+\def\href@Urllike#1#2{\href@Orig{#1}{\begingroup
+    \def\Url@String{#2}\Url@FormatString
+    \endgroup}}
+\def\href@Notdoi#1#2{\def\tempa{#1}\def\tempb{#2}%
+  \ifx\tempa\tempb\relax\href@Urllike{#1}{#2}\else
+  \href@Orig{#1}{#2}\fi}
+\def\href#1#2{%
+  \IfBeginWith{#1}{https://doi.org}%
+  {\href@Urllike{#1}{#2}}{\href@Notdoi{#1}{#2}}}
+\makeatother
+
+
+% --- Page layout -------------------------------------------------------------
+\usepackage[top=3.5cm, bottom=3cm, right=1.5cm, left=1.0cm,
+            headheight=2.2cm, reversemp, includemp, marginparwidth=4.5cm]{geometry}
+
+% --- Default font ------------------------------------------------------------
+% \renewcommand\familydefault{\sfdefault}
+
+% --- Style -------------------------------------------------------------------
+\renewcommand{\bibfont}{\small \sffamily}
+\renewcommand{\captionfont}{\small\sffamily}
+\renewcommand{\captionlabelfont}{\bfseries}
+
+% --- Section/SubSection/SubSubSection ----------------------------------------
+\titleformat{\section}
+  {\normalfont\sffamily\Large\bfseries}
+  {}{0pt}{}
+\titleformat{\subsection}
+  {\normalfont\sffamily\large\bfseries}
+  {}{0pt}{}
+\titleformat{\subsubsection}
+  {\normalfont\sffamily\bfseries}
+  {}{0pt}{}
+\titleformat*{\paragraph}
+  {\sffamily\normalsize}
+
+
+% --- Header / Footer ---------------------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+%\renewcommand{\headrulewidth}{0.50pt}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhead[L]{\hspace{-0.75cm}\includegraphics[width=5.5cm]{joss-logo.png}}
+\fancyhead[C]{}
+\fancyhead[R]{}
+\renewcommand{\footrulewidth}{0.25pt}
+
+\fancyfoot[L]{\parbox[t]{0.98\headwidth}{\footnotesize{\sffamily Team COMPAS, (2021). COMPAS:
+A rapid binary population synthesis
+suite. \textit{Journal of Open Source Software}, x(xx), xxx. \url{https://doi.org/xxx}}}}
+
+
+\fancyfoot[R]{\sffamily \thepage}
+\makeatletter
+\let\ps@plain\ps@fancy
+\fancyheadoffset[L]{4.5cm}
+\fancyfootoffset[L]{4.5cm}
+
+% --- Macros ---------
+
+\definecolor{linky}{rgb}{0.0, 0.5, 1.0}
+
+\newtcolorbox{repobox}
+   {colback=red, colframe=red!75!black,
+     boxrule=0.5pt, arc=2pt, left=6pt, right=6pt, top=3pt, bottom=3pt}
+
+\newcommand{\ExternalLink}{%
+   \tikz[x=1.2ex, y=1.2ex, baseline=-0.05ex]{%
+       \begin{scope}[x=1ex, y=1ex]
+           \clip (-0.1,-0.1)
+               --++ (-0, 1.2)
+               --++ (0.6, 0)
+               --++ (0, -0.6)
+               --++ (0.6, 0)
+               --++ (0, -1);
+           \path[draw,
+               line width = 0.5,
+               rounded corners=0.5]
+               (0,0) rectangle (1,1);
+       \end{scope}
+       \path[draw, line width = 0.5] (0.5, 0.5)
+           -- (1, 1);
+       \path[draw, line width = 0.5] (0.6, 1)
+           -- (1, 1) -- (1, 0.6);
+       }
+   }
+
+% --- Title / Authors ---------------------------------------------------------
+% patch \maketitle so that it doesn't center
+\patchcmd{\@maketitle}{center}{flushleft}{}{}
+\patchcmd{\@maketitle}{center}{flushleft}{}{}
+% patch \maketitle so that the font size for the title is normal
+\patchcmd{\@maketitle}{\LARGE}{\LARGE\sffamily}{}{}
+% patch the patch by authblk so that the author block is flush left
+\def\maketitle{{%
+  \renewenvironment{tabular}[2][]
+    {\begin{flushleft}}
+    {\end{flushleft}}
+  \AB@maketitle}}
+\makeatletter
+\renewcommand\AB@affilsepx{ \protect\Affilfont}
+%\renewcommand\AB@affilnote[1]{{\bfseries #1}\hspace{2pt}}
+\renewcommand\AB@affilnote[1]{{\bfseries #1}\hspace{3pt}}
+\renewcommand{\affil}[2][]%
+   {\newaffiltrue\let\AB@blk@and\AB@pand
+      \if\relax#1\relax\def\AB@note{\AB@thenote}\else\def\AB@note{#1}%
+        \setcounter{Maxaffil}{0}\fi
+        \begingroup
+        \let\href=\href@Orig
+        \let\texttt=\textttOrig
+        \let\protect\@unexpandable@protect
+        \def\thanks{\protect\thanks}\def\footnote{\protect\footnote}%
+        \@temptokena=\expandafter{\AB@authors}%
+        {\def\\{\protect\\\protect\Affilfont}\xdef\AB@temp{#2}}%
+         \xdef\AB@authors{\the\@temptokena\AB@las\AB@au@str
+         \protect\\[\affilsep]\protect\Affilfont\AB@temp}%
+         \gdef\AB@las{}\gdef\AB@au@str{}%
+        {\def\\{, \ignorespaces}\xdef\AB@temp{#2}}%
+        \@temptokena=\expandafter{\AB@affillist}%
+        \xdef\AB@affillist{\the\@temptokena \AB@affilsep
+          \AB@affilnote{\AB@note}\protect\Affilfont\AB@temp}%
+      \endgroup
+       \let\AB@affilsep\AB@affilsepx
+}
+\makeatother
+\renewcommand\Authfont{\sffamily\bfseries}
+\renewcommand\Affilfont{\sffamily\small\mdseries}
+\setlength{\affilsep}{1em}
+
+
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={COMPAS: A rapid binary population synthesis suite},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+
+% --- We redefined \texttt, but in sections and captions we want the
+% --- old definition
+\let\addcontentslineOrig=\addcontentsline
+\def\addcontentsline#1#2#3{\bgroup
+  \let\texttt=\textttOrig\addcontentslineOrig{#1}{#2}{#3}\egroup}
+\let\markbothOrig\markboth
+\def\markboth#1#2{\bgroup
+  \let\texttt=\textttOrig\markbothOrig{#1}{#2}\egroup}
+\let\markrightOrig\markright
+\def\markright#1{\bgroup
+  \let\texttt=\textttOrig\markrightOrig{#1}\egroup}
+
+
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+\title{COMPAS: A rapid binary population synthesis suite}
+
+        \author[1]{Team COMPAS}
+          \author[2, 3]{Jeff Riley}
+          \author[4, 3]{Poojan Agrawal}
+          \author[5]{Jim W. Barrett}
+          \author[6]{Kristian N. K. Boyett}
+          \author[7]{Floor S. Broekgaarden}
+          \author[8, 4, 3]{Debatri Chattopadhyay}
+          \author[9]{Sebastian M. Gaebel}
+          \author[10]{Fabian Gittins}
+          \author[2,3]{Ryosuke Hirai}
+          \author[11]{George Howitt}
+          \author[12, 13, 14]{Stephen Justham}
+          \author[12]{Lokesh Khandelwal}
+          \author[12]{Floris Kummer}
+          \author[2,3]{Mike Y. M. Lau}
+          \author[2,3,5]{Ilya Mandel}
+          \author[14, 12, 7]{Selma E. de Mink}
+          \author[5,3]{Coenraad Neijssel}
+          \author[2,3]{Tim Riley}
+          \author[7, 12, 14]{Lieke van Son}
+          \author[4,3]{Simon Stevenson}
+          \author[15, 16]{Alejandro Vigna-Gómez}
+          \author[12]{Serena Vinciguerra}
+          \author[7, 14]{Tom Wagg}
+          \author[2,3]{Reinhold Willcox}
+    
+      \affil[1]{The public COMPAS code is a product of work by the
+entire COMPAS collaboration over many years; we therefore kindly request
+that, in recognition of this team effort, the paper is cited as Team
+COMPAS - J. Riley et al.}
+      \affil[2]{School of Physics and Astronomy, Monash University,
+Clayton, Victoria 3800, Australia}
+      \affil[3]{OzGrav, Australian Research Council Centre of Excellence
+for Gravitational Wave Discovery, Australia}
+      \affil[4]{Centre for Astrophysics and Supercomputing, Swinburne
+University of Technology, Hawthorn, VIC 3122, Australia}
+      \affil[5]{Institute of Gravitational Wave Astronomy and School of
+Physics and Astronomy, University of Birmingham, Birmingham, B15 2TT}
+      \affil[6]{Department of Physics, University of Oxford, Denys
+Wilkinson Building, Keble Road, Oxford OX1 3RH, UK}
+      \affil[7]{Center for Astrophysics \textbar Harvard \& Smithsonian,
+60 Garden St., Cambridge, MA 02138, USA}
+      \affil[8]{School of Physics and Astronomy, Cardiff University,
+Cardiff, CF24 3AA, United Kingdom}
+      \affil[9]{Max Planck Institute for Gravitational Physics (Albert
+Einstein Institute), Callinstrasse 38, D-30167 Hannover, Germany}
+      \affil[10]{Mathematical Sciences and STAG Research Centre,
+University of Southampton, Southampton SO17 1BJ, UK}
+      \affil[11]{School of Physics, University of Melbourne, Parkville,
+Victoria, 3010, Australia}
+      \affil[12]{Anton Pannekoek Institute of Astronomy and GRAPPA,
+Science Park 904, University of Amsterdam, 1098XH Amsterdam, The
+Netherlands}
+      \affil[13]{School of Astronomy \& Space Science, University of the
+Chinese Academy of Sciences, Beijing 100012, China}
+      \affil[14]{Max Planck Institute for Astrophysics,
+Karl-Schwarzschild-Str. 1, 85748 Garching, Germany}
+      \affil[15]{DARK, Niels Bohr Institute, University of Copenhagen,
+Jagtvej 128, 2200, Copenhagen, Denmark}
+      \affil[16]{Niels Bohr International Academy, The Niels Bohr
+Institute, Blegdamsvej 17, 2100 Copenhagen, Denmark}
+  \date{\vspace{-5ex}}
+
+\begin{document}
+\maketitle
+
+\marginpar{
+  \sffamily\small
+
+  {\bfseries DOI:} \href{https://doi.org/xxx}{\color{linky}{xxx}}
+
+  \vspace{2mm}
+
+  {\bfseries Software}
+  \begin{itemize}
+    \setlength\itemsep{0em}
+    \item \href{https://github.com/openjournals/joss-reviews/issues/xxx}{\color{linky}{Review}} \ExternalLink
+    \item \href{https://github.com/TeamCOMPAS/COMPAS}{\color{linky}{Repository}} \ExternalLink
+    \item \href{http://arXiv.org/abs/2109.10352}{\color{linky}{Archive}} \ExternalLink
+  \end{itemize}
+
+  \vspace{2mm}
+
+  {\bfseries Submitted:} XX Month 2021\\
+  {\bfseries Published:} XX Month 2021
+
+  \vspace{2mm}
+  {\bfseries License}\\
+  Authors of papers retain copyright and release the work under a Creative Commons Attribution 4.0 International License (\href{https://creativecommons.org/licenses/by/4.0/}{\color{linky}{CC BY 4.0}}).
+}
+
+\hypertarget{summary}{%
+\section{Summary}\label{summary}}
+
+Most massive stars---those with initial masses greater than 8
+\(M_\odot\)---are born with another similarly massive star as a
+companion {[}@Sana:2012Sci{]}. Massive binary stars are responsible for
+producing many exotic astrophysical phenomena, such as the observed
+diversity of supernovae, binary pulsars, X-ray binaries and merging
+compact objects. The latter are now regularly observed by the
+ground-based gravitational wave observatories Advanced LIGO and Virgo
+{[}@abbott2016observation;@GWTC2{]}. Population models of massive binary
+evolution make it possible to interpret existing observations and to
+make predictions for future observing campaigns.
+
+\hypertarget{statement-of-need}{%
+\section{Statement of need}\label{statement-of-need}}
+
+Binary population synthesis generates population models of isolated
+stellar binaries under a set of parametrized assumptions. These models
+permit comparisons against observational data sets, such as X-ray
+binaries of gravitational-wave mergers.
+
+In particular, rapid binary population synthesis is needed in order to
+efficiently explore a broad parameter space of uncertain assumptions
+about the physics of stellar and binary evolution, including supernova
+remnant masses and natal kicks, mass transfer efficiency and stability,
+and the outcome of common-envelope events.
+
+\href{https://compas.science}{COMPAS} is such a rapid binary population
+synthesis suite. It parametrizes complex astrophysical processes with
+prescriptions calibrated to detailed models. COMPAS is designed to allow
+for flexible modifications as evolutionary models improve.
+
+\hypertarget{details}{%
+\section{Details}\label{details}}
+
+The core engine of COMPAS---responsible for calculating the evolution of
+single {[}@Hurley:2000pk{]} and binary {[}@Hurley:2002rf{]} stars---is
+written in object oriented C++ for speed and flexibility. COMPAS is able
+to simulate the evolution of a typical binary over 10 Gyr in
+approximately 10 milliseconds.
+
+A detailed description of the implementation of the COMPAS suite can be
+found in @COMPAS:2021methodsPaper.
+
+In addition to the core stellar and binary evolution engine, we provide
+Python scripts for both pre- and post-processing COMPAS outputs.
+Post-processing can account for integrating populations formed
+throughout cosmic history {[}@2019MNRAS.490.3740N{]} and methods to
+account for gravitational-wave selection effects {[}@Barrett:2017fcw{]}.
+A set of examples is also provided.
+
+COMPAS is \emph{embarrassingly} parallel and can be trivially run on
+high performance computers and distributed on cloud computing.
+
+COMPAS was initially designed to focus on studies of merging binaries
+containing neutron stars and black holes that are being observed through
+gravitational waves
+{[}@Stevenson2017FormationEvolution;@2018MNRAS.481.4009V{]}. In recent
+years, the scope of systems investigated with COMPAS has expanded to
+incorporate, e.g., Be X-ray binaries {[}@Vinciguerra:2020{]} and
+luminous red novae {[}@Howitt:2020{]} (see @COMPAS:2021methodsPaper or
+\href{https://compas.science}{the COMPAS collaboration website} for a
+summary of COMPAS publications to date.)
+
+COMPAS development happens on
+\href{https://github.com/TeamCOMPAS/COMPAS}{Github}. We maintain a
+\href{https://zenodo.org/communities/compas/}{Zenodo community} where
+data from many publications using COMPAS is publicly available.
+
+\hypertarget{acknowledgements}{%
+\section{Acknowledgements}\label{acknowledgements}}
+
+Multiple authors are supported by the Australian Research Council Centre
+of Excellence for Gravitational Wave Discovery (OzGrav), through project
+number CE170100004. Multiple authors were funded in part by the National
+Science Foundation under Grant No.~(NSF grant number 2009131), the
+Netherlands Organization for Scientific Research (NWO) as part of the
+Vidi research program BinWaves with project number 639.042.728 and by
+the European Union's Horizon 2020 research and innovation program from
+the European Research Council (ERC, Grant agreement No.~715063). FSB is
+supported in part by the Prins Bernard Cultuurfonds studiebeurs. IM is a
+recipient of an Australian Research Council Future Fellowship
+(FT190100574). AVG acknowledges funding support by the Danish National
+Research Foundation (DNRF132)
+
+\hypertarget{references}{%
+\section{References}\label{references}}
+
+\end{document}
