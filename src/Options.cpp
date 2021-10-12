@@ -1158,7 +1158,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "neutrino-mass-loss-BH-formation-value",                       
             po::value<double>(&p_Options->m_NeutrinoMassLossValueBH)->default_value(p_Options->m_NeutrinoMassLossValueBH),                                                                        
-            ("Value (fraction or fixed mass) corresponding to neutrino mass loss assumption (default = " + std::to_string(p_Options->m_NeutrinoMassLossValueBH) + ")").c_str()
+            ("Amount of BH mass lost due to neutrinos (either fraction or fixed value, depending on --neutrino-mass-loss-BH-formation) (default = " + std::to_string(p_Options->m_NeutrinoMassLossValueBH) + ")").c_str()
         )
 
         (
@@ -1260,17 +1260,17 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "semi-major-axis,a",                              
             po::value<double>(&p_Options->m_SemiMajorAxis)->default_value(p_Options->m_SemiMajorAxis),                                                        
-            ("Initial semi-major axis a, in AU (default = " + std::to_string(p_Options->m_SemiMajorAxis) + ")").c_str()
+            ("Initial semi-major axis, in AU (default = " + std::to_string(p_Options->m_SemiMajorAxis) + ")").c_str()
         )        
         (
             "semi-major-axis-max",                                         
             po::value<double>(&p_Options->m_SemiMajorAxisDistributionMax)->default_value(p_Options->m_SemiMajorAxisDistributionMax),                                                              
-            ("Maximum semi major axis, in AU, to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMax) + ")").c_str()
+            ("Maximum semi-major axis, in AU, to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMax) + ")").c_str()
         )
         (
             "semi-major-axis-min",                                         
             po::value<double>(&p_Options->m_SemiMajorAxisDistributionMin)->default_value(p_Options->m_SemiMajorAxisDistributionMin),                                                              
-            ("Minimum semi major axis, in AU, to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMin) + ")").c_str()
+            ("Minimum semi-major axis, in AU, to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMin) + ")").c_str()
         )
 
         (
