@@ -1893,7 +1893,7 @@ double BaseStar::CalculateCoreMassGivenLuminosity_Static(const double p_Luminosi
  * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)
  *
  * @param   [IN]    p_DonorMassRate             Mass transfer rate of the donor
- * @param   [IN]    p_AccretorMassRate          Thermal mass loss rate of the accretor (this star)
+ * @param   [IN]    p_AccretorMassRate          Thermal mass transfer rate of the accretor (this star)
  * @return                                      Tuple containing the Maximum Mass Acceptance Rate and the Accretion Efficiency Parameter
  */
 DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
@@ -1921,6 +1921,23 @@ DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
     }
 
     return std::make_tuple(acceptanceRate, fractionAccreted);
+}
+
+
+/*
+ * Calculate thermal mass acceptance rate
+ *
+ *
+ * double CalculateThermalMassAcceptanceRate(const double p_Radius)
+ *
+ * @param   [IN]    p_Radius                    Radius of the accretor (Rsol)
+ * @return                                      Thermal mass acceptance rate
+ */
+double BaseStar::CalculateThermalMassAcceptanceRate(const double p_Radius) const {
+        
+    return OPTIONS->MassTransferThermallyLimitedVariation() == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE
+            ? (m_Mass - m_CoreMass) / CalculateThermalTimescale(p_Radius)
+            : CalculateThermalMassLossRate();
 }
 
 

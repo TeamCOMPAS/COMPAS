@@ -166,6 +166,10 @@ public:
                                              const double p_EjectaMass, 
 								             const STELLAR_TYPE p_StellarType)                                      { return m_Star->CalculateSNKickMagnitude(p_RemnantMass, p_EjectaMass, p_StellarType); }
 
+
+    double          CalculateThermalMassAcceptanceRate(const double p_Radius) const                                 { return m_Star->CalculateThermalMassAcceptanceRate(p_Radius); }
+    double          CalculateThermalMassAcceptanceRate() const                                                      { return m_Star->CalculateThermalMassAcceptanceRate(); }
+
     double          CalculateThermalMassLossRate() const                                                            { return m_Star->CalculateThermalMassLossRate(); }
 
     double          CalculateThermalTimescale(const double p_Radius) const                                          { return m_Star->CalculateThermalTimescale(p_Radius); }
