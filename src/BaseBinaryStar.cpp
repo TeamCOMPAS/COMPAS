@@ -991,7 +991,7 @@ void BaseBinaryStar::SetPostCEEValues(const double p_SemiMajorAxis,
  * Mandel 2021 https://iopscience.iop.org/article/10.3847/2515-5172/ac2d35, eq 5
  * 
  * Accurate to within 3% over the full range of initial eccentricities up to 0.99999
- * Will return time = 0.0 for eccentricities >= 1.0
+ * Will return time = 0.0 for eccentricities < 0.0 and >= 1.0
  *
  *
  * double CalculateTimeToCoalescence(const double p_SemiMajorAxis,
@@ -1003,14 +1003,14 @@ void BaseBinaryStar::SetPostCEEValues(const double p_SemiMajorAxis,
  * @param   [IN]    p_Eccentricity              Initial eccentricity
  * @param   [IN]    p_Mass1                     Primary mass in SI units
  * @param   [IN]    p_Mass2                     Secondary mass in SI units
- * @return                                      Time to coalescence in SI units (s): returns 0.0 if p_Eccentricity >= 1.0
+ * @return                                      Time to coalescence in SI units (s): returns 0.0 if 0.0 > p_Eccentricity >= 1.0
  */
 double BaseBinaryStar::CalculateTimeToCoalescence(const double p_SemiMajorAxis,
                                                   const double p_Eccentricity,
                                                   const double p_Mass1,
                                                   const double p_Mass2) const {
 
-    if (p_Eccentricity >= 1.0) return 0.0;                                                              // save some cpu cycles...
+    if (p_Eccentricity < 0.0 || p_Eccentricity >= 1.0) return 0.0;                                      // save some cpu cycles...
 
     // pow() is slow - use multiplication where possible
 
