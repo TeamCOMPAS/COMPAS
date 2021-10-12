@@ -1893,7 +1893,7 @@ double BaseStar::CalculateCoreMassGivenLuminosity_Static(const double p_Luminosi
  * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)
  *
  * @param   [IN]    p_DonorMassRate             Mass transfer rate of the donor
- * @param   [IN]    p_AccretorMassRate          Thermal mass acceptance rate of the accretor (this star)
+ * @param   [IN]    p_AccretorMassRate          Thermal mass transfer rate of the accretor (this star)
  * @return                                      Tuple containing the Maximum Mass Acceptance Rate and the Accretion Efficiency Parameter
  */
 DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
