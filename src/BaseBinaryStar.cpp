@@ -1011,7 +1011,7 @@ double BaseBinaryStar::CalculateTimeToCoalescence(const double p_SemiMajorAxis,
                                                   const double p_Mass2) const {
 
     // pow() is slow - use multiplication where possible
-    
+
     // calculate time for a circular binary to merge - Mandel 2021, eq 2
     double numerator = 5.0 * C * C * C * C * C * p_SemiMajorAxis * p_SemiMajorAxis * p_SemiMajorAxis * p_SemiMajorAxis;
     double denominator = 256.0 * G * G * G * p_Mass1 * p_Mass2 * (p_Mass1 + p_Mass2);
@@ -1024,9 +1024,9 @@ double BaseBinaryStar::CalculateTimeToCoalescence(const double p_SemiMajorAxis,
     double e0_20  = e0_10 * e0_10;
     double e0_100 = e0_10 * e0_10 * e0_10 * e0_10 * e0_10 * e0_10 * e0_10 * e0_10 * e0_10 * e0_10;
     double f      = 1.0 - (e0 * e0);
-    double f_7    = f <= 0.0 ? 0.0 : f * f * f * f * f * f * f;
+    double f_3    = f <= 0.0 ? 0.0 : f * f * f;
 
-    return f <= 0.0 ? 0.0 : tC * (1.0 + 0.27 * e0_10 + 0.33 * e0_20 + 0.2 * e0_100) * f_7 * sqrt(f);     // time for an eccentric binary to merge
+    return f <= 0.0 ? 0.0 : tC * (1.0 + 0.27 * e0_10 + 0.33 * e0_20 + 0.2 * e0_100) * f_3 * sqrt(f);     // time for an eccentric binary to merge
 }
 
 
