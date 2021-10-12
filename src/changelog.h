@@ -786,7 +786,14 @@
 // 02.24.00     JR - Oct 12, 2021   - Minor enhancements/optimisations:
 //                                      - Added BaseStar::CalculateThermalMassAcceptanceRate() as a first-pass to address issue #595 - can be changed/expanded as required
 //                                      - Changed BaseBinaryStar::CalculateTimeToCoalescence() to use Mandel 2021 https://iopscience.iop.org/article/10.3847/2515-5172/ac2d35, eq 5 to address issue #538
+// 02.24.01     RTW - Oct 13, 2021  - Enhancements:
+//                                      - Added units uniformly to the --help input descriptions
+//                                      - Removed the BeBinary- and RLOF-specific random seeds (which were attributes of the events and were printed with e.g <MT) and replaced with system random seed
+//                                      - In CE output, changed MASS_2_FINAL (which was sort of a wrapper for core mass) for MASS_2_POST_COMMON_ENVELOPE
+//                                      - Removed SN kick angles from SystemParameters output (they are duplicated in SN output) and changed true_anomaly to mean_anomaly in SN output
+//                                      - Cosmetic typo fixes and added consistency, in the Event_Counter parameters and some function definitions
+//                                      - Added *.eps, *.png to gitignore
 
-const std::string VERSION_STRING = "02.24.00";
+const std::string VERSION_STRING = "02.24.01";
 
 # endif // __changelog_h__

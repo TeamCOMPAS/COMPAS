@@ -413,7 +413,6 @@ void BaseBinaryStar::SetRemainingValues() {
 
 	// RLOF details - properties 1
     m_RLOFDetails.props1.id                      = -1l;
-    m_RLOFDetails.props1.randomSeed              = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_RLOFDetails.props1.stellarType1            = STELLAR_TYPE::NONE;
     m_RLOFDetails.props1.stellarType2            = STELLAR_TYPE::NONE;
@@ -437,7 +436,6 @@ void BaseBinaryStar::SetRemainingValues() {
 
 	// RLOF details - properties 2
     m_RLOFDetails.props2.id = -1l;
-    m_RLOFDetails.props2.randomSeed              = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_RLOFDetails.props2.stellarType1            = STELLAR_TYPE::NONE;
     m_RLOFDetails.props2.stellarType2            = STELLAR_TYPE::NONE;
@@ -466,7 +464,6 @@ void BaseBinaryStar::SetRemainingValues() {
 
     // BeBinary details - properties 1
     m_BeBinaryDetails.props1.id                  = -1l;
-    m_BeBinaryDetails.props1.randomSeed          = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_BeBinaryDetails.props1.dt                  = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_BeBinaryDetails.props1.totalTime           = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -483,7 +480,6 @@ void BaseBinaryStar::SetRemainingValues() {
 
     // BeBinary details - properties 2
     m_BeBinaryDetails.props2.id                  = -1l;
-    m_BeBinaryDetails.props2.randomSeed          = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_BeBinaryDetails.props2.dt                  = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_BeBinaryDetails.props2.totalTime           = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -563,7 +559,6 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::BE_BINARY_CURRENT_ECCENTRICITY:                       value = BeBinaryDetails().currentProps->eccentricity;                       break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_ID:                                 value = BeBinaryDetails().currentProps->id;                                 break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_NS_MASS:                            value = BeBinaryDetails().currentProps->massNS;                             break;
-        case BINARY_PROPERTY::BE_BINARY_CURRENT_RANDOM_SEED:                        value = BeBinaryDetails().currentProps->randomSeed;                         break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_SEMI_MAJOR_AXIS:                    value = BeBinaryDetails().currentProps->semiMajorAxis;                      break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_TOTAL_TIME:                         value = BeBinaryDetails().currentProps->totalTime;                          break;
         case BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE:                            value = CircularizationTimescale();                                         break;
@@ -582,10 +577,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::ERROR:                                                value = Error();                                                            break;
         case BINARY_PROPERTY::ID:                                                   value = ObjectId();                                                         break;
         case BINARY_PROPERTY::IMMEDIATE_RLOF_POST_COMMON_ENVELOPE:                  value = ImmediateRLOFPostCEE();                                             break;
-        case BINARY_PROPERTY::MASS_1_FINAL:                                         value = Mass1Final();                                                       break;
         case BINARY_PROPERTY::MASS_1_POST_COMMON_ENVELOPE:                          value = Mass1PostCEE();                                                     break;
         case BINARY_PROPERTY::MASS_1_PRE_COMMON_ENVELOPE:                           value = Mass1PreCEE();                                                      break;
-        case BINARY_PROPERTY::MASS_2_FINAL:                                         value = Mass2Final();                                                       break;
         case BINARY_PROPERTY::MASS_2_POST_COMMON_ENVELOPE:                          value = Mass2PostCEE();                                                     break;
         case BINARY_PROPERTY::MASS_2_PRE_COMMON_ENVELOPE:                           value = Mass2PreCEE();                                                      break;
         case BINARY_PROPERTY::MASS_ENV_1:                                           value = MassEnv1();                                                         break;
@@ -606,7 +599,6 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_POST_MT_ECCENTRICITY:                            value = RLOFDetails().propsPostMT->eccentricity;                            break;
         case BINARY_PROPERTY::RLOF_POST_MT_EVENT_COUNTER:                           value = RLOFDetails().propsPostMT->eventCounter;                            break;
         case BINARY_PROPERTY::RLOF_POST_MT_ID:                                      value = RLOFDetails().propsPostMT->id;                                      break;
-        case BINARY_PROPERTY::RLOF_POST_MT_RANDOM_SEED:                             value = RLOFDetails().propsPostMT->randomSeed;                              break;
         case BINARY_PROPERTY::RLOF_POST_MT_SEMI_MAJOR_AXIS:                         value = RLOFDetails().propsPostMT->semiMajorAxis;                           break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR1_MASS:                              value = RLOFDetails().propsPostMT->mass1;                                   break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS:                              value = RLOFDetails().propsPostMT->mass2;                                   break;
@@ -862,7 +854,6 @@ void BaseBinaryStar::StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which) {
 
     // update properites for appropriate timestep
     rlofPropertiesToReset->id            = m_ObjectId;
-    rlofPropertiesToReset->randomSeed    = m_RandomSeed;
     rlofPropertiesToReset->mass1         = m_Star1->Mass();
     rlofPropertiesToReset->mass2         = m_Star2->Mass();
     rlofPropertiesToReset->radius1       = m_Star1->Radius();
@@ -900,7 +891,6 @@ void BaseBinaryStar::StashBeBinaryProperties() {
 
     // now save (new) current
     m_BeBinaryDetails.currentProps->id            = m_ObjectId;                                                      // object id
-    m_BeBinaryDetails.currentProps->randomSeed    = m_RandomSeed;                                                    // random seed
     m_BeBinaryDetails.currentProps->dt            = m_Dt;                                                            // timestep
     m_BeBinaryDetails.currentProps->totalTime     = m_BeBinaryDetails.previousProps->dt + m_Dt;                      // total time - accumulate, don't just replace
     m_BeBinaryDetails.currentProps->semiMajorAxis = m_SemiMajorAxis * AU_TO_RSOL;                                    // semi-major axis - change units to Rsol
@@ -1605,7 +1595,7 @@ double BaseBinaryStar::CalculateRocheLobeRadius_Static(const double p_MassPrimar
  * double CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass)
  *
  * @param   [IN]    p_DonorMass                 The mass of the donor (Msol)
- * @param   [IN]    p_JLoss                     The mass of the accretor (Msol)
+ * @param   [IN]    p_AccretorMass              The mass of the accretor (Msol)
  * @return                                      The fraction of specific angular momentum with which the non-accreted mass leaves the system
  */
 double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass) {
