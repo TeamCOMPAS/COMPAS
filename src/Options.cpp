@@ -807,22 +807,22 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "common-envelope-mass-accretion-constant",                     
             po::value<double>(&p_Options->m_CommonEnvelopeMassAccretionConstant)->default_value(p_Options->m_CommonEnvelopeMassAccretionConstant),                                                
-            ("Value of mass accreted by NS/BH during common envelope evolution if assuming all NS/BH accrete same amount of mass (common-envelope-mass-accretion-prescription CONSTANT). Ignored otherwise (default = " + std::to_string(p_Options->m_CommonEnvelopeMassAccretionConstant) + ")").c_str()
+            ("Value of mass accreted by NS/BH, in Msol, during common envelope evolution, assuming all NS/BH accrete same amount of mass (common-envelope-mass-accretion-prescription CONSTANT). Ignored otherwise (default = " + std::to_string(p_Options->m_CommonEnvelopeMassAccretionConstant) + ")").c_str()
         )
         (
             "common-envelope-mass-accretion-max",                          
             po::value<double>(&p_Options->m_CommonEnvelopeMassAccretionMax)->default_value(p_Options->m_CommonEnvelopeMassAccretionMax),                                                          
-            ("Maximum amount of mass accreted by NS/BHs during common envelope evolution in solar masses (default = " + std::to_string(p_Options->m_CommonEnvelopeMassAccretionMax) + ")").c_str()
+            ("Maximum amount of mass accreted by NS/BHs, in Msol, during common envelope evolution in Msol (default = " + std::to_string(p_Options->m_CommonEnvelopeMassAccretionMax) + ")").c_str()
         )
         (
             "common-envelope-mass-accretion-min",                          
             po::value<double>(&p_Options->m_CommonEnvelopeMassAccretionMin)->default_value(p_Options->m_CommonEnvelopeMassAccretionMin),                                                          
-            ("Minimum amount of mass accreted by NS/BHs during common envelope evolution in solar masses (default = " + std::to_string(p_Options->m_CommonEnvelopeMassAccretionMin) + ")").c_str()
+            ("Minimum amount of mass accreted by NS/BHs, in Msol, during common envelope evolution in Msol (default = " + std::to_string(p_Options->m_CommonEnvelopeMassAccretionMin) + ")").c_str()
         )
         (
             "common-envelope-recombination-energy-density",                
             po::value<double>(&p_Options->m_CommonEnvelopeRecombinationEnergyDensity)->default_value(p_Options->m_CommonEnvelopeRecombinationEnergyDensity),                                      
-            ("Recombination energy density in erg/g (default = " + std::to_string(p_Options->m_CommonEnvelopeRecombinationEnergyDensity) + ")").c_str()
+            ("Recombination energy density, in erg/g (default = " + std::to_string(p_Options->m_CommonEnvelopeRecombinationEnergyDensity) + ")").c_str()
         )
         (
             "common-envelope-slope-kruckow",                               
@@ -980,22 +980,22 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "kick-magnitude",                                          
             po::value<double>(&p_Options->m_KickMagnitude)->default_value(p_Options->m_KickMagnitude),                                                      
-            ("The magnitude of the kick velocity the star receives during the a supernova (default = " + std::to_string(p_Options->m_KickMagnitude) + " km s^-1 )").c_str()
+            ("The magnitude of the kick velocity, in km/s, that the star receives during the a supernova (default = " + std::to_string(p_Options->m_KickMagnitude) + ")").c_str()
         )
         (
             "kick-magnitude-1",                                          
             po::value<double>(&p_Options->m_KickMagnitude1)->default_value(p_Options->m_KickMagnitude1),                                                      
-            ("The magnitude of the kick velocity the primary star receives during the a supernova (default = " + std::to_string(p_Options->m_KickMagnitude1) + " km s^-1 )").c_str()
+            ("The magnitude of the kick velocity, in km/s, that the primary star receives during the a supernova (default = " + std::to_string(p_Options->m_KickMagnitude1) + ")").c_str()
         )
         (
             "kick-magnitude-2",                                          
             po::value<double>(&p_Options->m_KickMagnitude2)->default_value(p_Options->m_KickMagnitude2),                                                      
-            ("The magnitude of the kick velocity the secondary star receives during the a supernova (default = " + std::to_string(p_Options->m_KickMagnitude2) + " km s^-1 )").c_str()
+            ("The magnitude of the kick velocity, in km/s, that the secondary star receives during the a supernova (default = " + std::to_string(p_Options->m_KickMagnitude2) + ")").c_str()
         )
         (
             "kick-magnitude-max",                                          
             po::value<double>(&p_Options->m_KickMagnitudeDistributionMaximum)->default_value(p_Options->m_KickMagnitudeDistributionMaximum),                                                      
-            ("Maximum drawn kick magnitude in km s^-1. Ignored if < 0. Must be > 0 if using kick-magnitude-distribution=FLAT (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionMaximum) + ")").c_str()
+            ("Maximum drawn kick magnitude in km/s. Ignored if < 0. Must be > 0 if using kick-magnitude-distribution=FLAT (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionMaximum) + ")").c_str()
         )
         (
             "kick-magnitude-random",                                          
@@ -1015,42 +1015,42 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "kick-magnitude-sigma-CCSN-BH",                                
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH)->default_value(p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH),                                            
-            ("Sigma for chosen kick magnitude distribution for black holes (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH) + " km s^-1 )").c_str()
+            ("Sigma for chosen kick magnitude distribution, in km/s, for black holes (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH) + ")").c_str()
         )
         (
             "kick-magnitude-sigma-CCSN-NS",                                
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS)->default_value(p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS),                                            
-            ("Sigma for chosen kick magnitude distribution for neutron stars (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS) + " km s^-1 )").c_str()
+            ("Sigma for chosen kick magnitude distribution, in km/s, for neutron stars (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS) + ")").c_str()
         )
         (
             "kick-magnitude-sigma-ECSN",                                   
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaForECSN)->default_value(p_Options->m_KickMagnitudeDistributionSigmaForECSN),                                            
-            ("Sigma for chosen kick magnitude distribution for ECSN (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaForECSN) + " km s^-1 )").c_str()
+            ("Sigma for chosen kick magnitude distribution, in km/s, for ECSN (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaForECSN) + ")").c_str()
         )
         (
             "kick-magnitude-sigma-USSN",                                   
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaForUSSN)->default_value(p_Options->m_KickMagnitudeDistributionSigmaForUSSN),                                            
-            ("Sigma for chosen kick magnitude distribution for USSN (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaForUSSN) + " km s^-1 )").c_str()
+            ("Sigma for chosen kick magnitude distribution, in km/s, for USSN (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaForUSSN) + ")").c_str()
         )
         (
             "kick-mean-anomaly-1",
             po::value<double>(&p_Options->m_KickMeanAnomaly1)->default_value(p_Options->m_KickMeanAnomaly1),                                                                                  
-            "Mean anomaly for the primary star at instantaneous time of the supernova (default = uniform random number [0.0, 2pi))"
+            "Mean anomaly, in rad, for the primary star at instantaneous time of the supernova (default = uniform random number [0.0, 2pi))"
         )
         (
             "kick-mean-anomaly-2",
             po::value<double>(&p_Options->m_KickMeanAnomaly2)->default_value(p_Options->m_KickMeanAnomaly2),                                                                                  
-            "Mean anomaly for the secondary star at instantaneous time of the supernova (default = uniform random number [0.0, 2pi))"
+            "Mean anomaly, in rad, for the secondary star at instantaneous time of the supernova (default = uniform random number [0.0, 2pi))"
         )
         (
             "kick-phi-1",
             po::value<double>(&p_Options->m_KickPhi1)->default_value(p_Options->m_KickPhi1),                                                                                  
-            "Angle between 'x' and 'y', both in the orbital plane of the supernovae vector, for the primary star (default = drawn from kick direction distribution)"
+            "Planar angle, in rad, of the supernova vector, for the primary star (default = drawn from kick direction distribution)"
         )
         (
             "kick-phi-2",
             po::value<double>(&p_Options->m_KickPhi2)->default_value(p_Options->m_KickPhi2),                                                                                  
-            "Angle between 'x' and 'y', both in the orbital plane of the supernovae vector, for the secondary star (default = drawn from kick direction distribution)"
+            "Planar angle, in rad, of the supernova vector, for the secondary star (default = drawn from kick direction distribution)"
         )
         (
             "kick-scaling-factor",                                         
@@ -1060,12 +1060,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "kick-theta-1",                                        
             po::value<double>(&p_Options->m_KickTheta1)->default_value(p_Options->m_KickTheta1),                                                                                  
-            "Angle between the orbital plane and the 'z' axis of the supernovae vector, for the primary star (default = drawn from kick direction distribution)"
+            "Polar angle, in rad, of the supernova vector, for the primary star (default = drawn from kick direction distribution)"
         )
         (
             "kick-theta-2",                                        
             po::value<double>(&p_Options->m_KickTheta2)->default_value(p_Options->m_KickTheta2),                                                                                  
-            "Angle between the orbital plane and the 'z' axis of the supernovae vector, for the secondary star (default = drawn from kick direction distribution)"
+            "Polar angle, in rad, of the supernova vector, for the secondary star (default = drawn from kick direction distribution)"
         )
 
         (
@@ -1097,32 +1097,32 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "mass-transfer-jloss",                                         
             po::value<double>(&p_Options->m_MassTransferJloss)->default_value(p_Options->m_MassTransferJloss),                                                                                    
-            ("Specific angular momentum with which the non-accreted system leaves the system (default = " + std::to_string(p_Options->m_MassTransferJloss) + ")").c_str()
+            ("Fraction of specific angular momentum which non-accreted matter removes from the system (default = " + std::to_string(p_Options->m_MassTransferJloss) + ")").c_str()
         )
         (
             "mass-transfer-thermal-limit-C",                               
             po::value<double>(&p_Options->m_MassTransferCParameter)->default_value(p_Options->m_MassTransferCParameter),                                                                          
-            ("Mass Transfer Thermal rate factor fo the accretor (default = " + std::to_string(p_Options->m_MassTransferCParameter) + ")").c_str()
+            ("Mass Transfer Thermal rate factor of the accretor (default = " + std::to_string(p_Options->m_MassTransferCParameter) + ")").c_str()
         )
         (
             "maximum-evolution-time",                                      
             po::value<double>(&p_Options->m_MaxEvolutionTime)->default_value(p_Options->m_MaxEvolutionTime),                                                                                      
-            ("Maximum time to evolve binaries in Myr (default = " + std::to_string(p_Options->m_MaxEvolutionTime) + ")").c_str()
+            ("Maximum time to evolve binaries, in Myr (default = " + std::to_string(p_Options->m_MaxEvolutionTime) + ")").c_str()
         )
         (
             "maximum-mass-donor-nandez-ivanova",                           
             po::value<double>(&p_Options->m_MaximumMassDonorNandezIvanova)->default_value(p_Options->m_MaximumMassDonorNandezIvanova),                                                            
-            ("Maximum donor mass allowed for the revised common envelope formalism in Msol (default = " + std::to_string(p_Options->m_MaximumMassDonorNandezIvanova) + ")").c_str()
+            ("Maximum donor mass, in Msol, allowed for the revised common envelope formalism in Msol (default = " + std::to_string(p_Options->m_MaximumMassDonorNandezIvanova) + ")").c_str()
         )
         (
             "maximum-neutron-star-mass",                                   
             po::value<double>(&p_Options->m_MaximumNeutronStarMass)->default_value(p_Options->m_MaximumNeutronStarMass),                                                                          
-            ("Maximum mass of a neutron star (default = " + std::to_string(p_Options->m_MaximumNeutronStarMass) + ")").c_str()
+            ("Maximum mass of a neutron star, in Msol (default = " + std::to_string(p_Options->m_MaximumNeutronStarMass) + ")").c_str()
         )
         (
             "mcbur1",                                                      
             po::value<double>(&p_Options->m_mCBUR1)->default_value(p_Options->m_mCBUR1),                                                                                                          
-            ("MCBUR1: Min core mass at BAGB to avoid fully degenerate CO core  (default = " + std::to_string(p_Options->m_mCBUR1) + ")").c_str()
+            ("Minimum core mass at BAGB, in Msol, to avoid fully degenerate CO core  (default = " + std::to_string(p_Options->m_mCBUR1) + ")").c_str()
         )
         (
             "metallicity,z",                                               
@@ -1142,7 +1142,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "minimum-secondary-mass",                                      
             po::value<double>(&p_Options->m_MinimumMassSecondary)->default_value(p_Options->m_MinimumMassSecondary),                                                                              
-            ("Minimum mass of secondary to generate in Msol (default = " + std::to_string(p_Options->m_MinimumMassSecondary) + ")").c_str()
+            ("Minimum mass of secondary to generate, in Msol (default = " + std::to_string(p_Options->m_MinimumMassSecondary) + ")").c_str()
         )
         (
             "muller-mandel-kick-multiplier-BH",                                        
@@ -1158,23 +1158,23 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "neutrino-mass-loss-BH-formation-value",                       
             po::value<double>(&p_Options->m_NeutrinoMassLossValueBH)->default_value(p_Options->m_NeutrinoMassLossValueBH),                                                                        
-            ("Value corresponding to neutrino mass loss assumption (default = " + std::to_string(p_Options->m_NeutrinoMassLossValueBH) + ")").c_str()
+            ("Amount of BH mass lost due to neutrinos (either fraction or fixed value, depending on --neutrino-mass-loss-BH-formation) (default = " + std::to_string(p_Options->m_NeutrinoMassLossValueBH) + ")").c_str()
         )
 
         (
             "orbital-period",                                          
             po::value<double>(&p_Options->m_OrbitalPeriod)->default_value(p_Options->m_OrbitalPeriod),                                                                            
-            ("Initial orbital period in days (default = " + std::to_string(p_Options->m_OrbitalPeriod) + ")").c_str()
+            ("Initial orbital period, in days (default = " + std::to_string(p_Options->m_OrbitalPeriod) + ")").c_str()
         )
         (
             "orbital-period-max",                                          
             po::value<double>(&p_Options->m_OrbitalPeriodDistributionMax)->default_value(p_Options->m_OrbitalPeriodDistributionMax),                                                                            
-            ("Maximum period in days to generate (default = " + std::to_string(p_Options->m_OrbitalPeriodDistributionMax) + ")").c_str()
+            ("Maximum period, in days, to generate (default = " + std::to_string(p_Options->m_OrbitalPeriodDistributionMax) + ")").c_str()
         )
         (
             "orbital-period-min",                                          
             po::value<double>(&p_Options->m_OrbitalPeriodDistributionMin)->default_value(p_Options->m_OrbitalPeriodDistributionMin),                                                                            
-            ("Minimum period in days to generate (default = " + std::to_string(p_Options->m_OrbitalPeriodDistributionMin) + ")").c_str()
+            ("Minimum period, in days, to generate (default = " + std::to_string(p_Options->m_OrbitalPeriodDistributionMin) + ")").c_str()
         )
 
         (
@@ -1186,57 +1186,57 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "PISN-lower-limit",                                            
             po::value<double>(&p_Options->m_PairInstabilityLowerLimit)->default_value(p_Options->m_PairInstabilityLowerLimit),                                                                    
-            ("Minimum core mass for PISN (default = " + std::to_string(p_Options->m_PairInstabilityLowerLimit) + ")").c_str()
+            ("Minimum core mass for PISN, in Msol (default = " + std::to_string(p_Options->m_PairInstabilityLowerLimit) + ")").c_str()
         )
         (
             "PISN-upper-limit",                                            
             po::value<double>(&p_Options->m_PairInstabilityUpperLimit)->default_value(p_Options->m_PairInstabilityUpperLimit),                                                                    
-            ("Maximum core mass for PISN (default = " + std::to_string(p_Options->m_PairInstabilityUpperLimit) + ")").c_str()
+            ("Maximum core mass for PISN, in Msol (default = " + std::to_string(p_Options->m_PairInstabilityUpperLimit) + ")").c_str()
         )
         (
             "PPI-lower-limit",                                             
             po::value<double>(&p_Options->m_PulsationalPairInstabilityLowerLimit)->default_value(p_Options->m_PulsationalPairInstabilityLowerLimit),                                              
-            ("Minimum core mass for PPI (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityLowerLimit) + ")").c_str()
+            ("Minimum core mass for PPI, in Msol (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityLowerLimit) + ")").c_str()
         )
         (
             "PPI-upper-limit",                                             
             po::value<double>(&p_Options->m_PulsationalPairInstabilityUpperLimit)->default_value(p_Options->m_PulsationalPairInstabilityUpperLimit),                                              
-            ("Maximum core mass for PPI (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityUpperLimit) + ")").c_str()
+            ("Maximum core mass for PPI, in Msol (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityUpperLimit) + ")").c_str()
         )
         (
             "pulsar-birth-magnetic-field-distribution-max",                
             po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionMax)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionMax),                                        
-            ("Maximum (log10) pulsar birth magnetic field (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMax) + ")").c_str()
+            ("Maximum pulsar birth magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMax) + ")").c_str()
         )
         (
             "pulsar-birth-magnetic-field-distribution-min",                
             po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionMin)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionMin),                                        
-            ("Minimum (log10) pulsar birth magnetic field) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMin) + ")").c_str()
+            ("Minimum pulsar birth magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMin) + ")").c_str()
         )
         (
             "pulsar-birth-spin-period-distribution-max",                   
             po::value<double>(&p_Options->m_PulsarBirthSpinPeriodDistributionMax)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionMax),                                              
-            ("Maximum pulsar birth spin period in ms (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionMax) + ")").c_str()
+            ("Maximum pulsar birth spin period, in ms (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionMax) + ")").c_str()
         )
         (
             "pulsar-birth-spin-period-distribution-min",                   
             po::value<double>(&p_Options->m_PulsarBirthSpinPeriodDistributionMin)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionMin),                                              
-            ("Minimum pulsar birth spin period in ms (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionMin) + ")").c_str()
+            ("Minimum pulsar birth spin period, in ms (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionMin) + ")").c_str()
         )
         (
             "pulsar-magnetic-field-decay-massscale",                       
             po::value<double>(&p_Options->m_PulsarMagneticFieldDecayMassscale)->default_value(p_Options->m_PulsarMagneticFieldDecayMassscale),                                                    
-            ("Mass scale on which magnetic field decays during accretion in solar masses (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayMassscale) + ")").c_str()
+            ("Mass scale on which magnetic field decays during accretion, in Msol (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayMassscale) + ")").c_str()
         )
         (
             "pulsar-magnetic-field-decay-timescale",                       
             po::value<double>(&p_Options->m_PulsarMagneticFieldDecayTimescale)->default_value(p_Options->m_PulsarMagneticFieldDecayTimescale),                                                    
-            ("Timescale on which magnetic field decays in Myrs (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayTimescale) + ")").c_str()
+            ("Timescale on which magnetic field decays, in Myrs (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayTimescale) + ")").c_str()
         )
         (
             "pulsar-minimum-magnetic-field",                               
             po::value<double>(&p_Options->m_PulsarLog10MinimumMagneticField)->default_value(p_Options->m_PulsarLog10MinimumMagneticField),                                                        
-            ("log10 of the minimum pulsar magnetic field in Gauss (default = " + std::to_string(p_Options->m_PulsarLog10MinimumMagneticField) + ")").c_str()
+            ("Minimum pulsar magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarLog10MinimumMagneticField) + ")").c_str()
         )
 
         (
@@ -1260,17 +1260,17 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "semi-major-axis,a",                              
             po::value<double>(&p_Options->m_SemiMajorAxis)->default_value(p_Options->m_SemiMajorAxis),                                                        
-            ("Initial semi-major axis, a (default = " + std::to_string(p_Options->m_SemiMajorAxis) + ")").c_str()
+            ("Initial semi-major axis, in AU (default = " + std::to_string(p_Options->m_SemiMajorAxis) + ")").c_str()
         )        
         (
             "semi-major-axis-max",                                         
             po::value<double>(&p_Options->m_SemiMajorAxisDistributionMax)->default_value(p_Options->m_SemiMajorAxisDistributionMax),                                                              
-            ("Maximum semi major axis in AU to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMax) + ")").c_str()
+            ("Maximum semi-major axis, in AU, to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMax) + ")").c_str()
         )
         (
             "semi-major-axis-min",                                         
             po::value<double>(&p_Options->m_SemiMajorAxisDistributionMin)->default_value(p_Options->m_SemiMajorAxisDistributionMin),                                                              
-            ("Minimum semi major axis in AU to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMin) + ")").c_str()
+            ("Minimum semi-major axis, in AU, to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMin) + ")").c_str()
         )
 
         (

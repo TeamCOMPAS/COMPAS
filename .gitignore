@@ -28,6 +28,8 @@ COMPAS
 *.bbl
 *.blg
 *.pdf
+*.eps
+*.png
 *.synctex
 *.synctex(busy)
 *.synctex.gz
