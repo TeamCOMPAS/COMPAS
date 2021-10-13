@@ -790,10 +790,13 @@
 //                                      - Added units uniformly to the --help input descriptions
 //                                      - Removed the BeBinary- and RLOF-specific random seeds (which were attributes of the events and were printed with e.g <MT) and replaced with system random seed
 //                                      - In CE output, changed MASS_2_FINAL (which was sort of a wrapper for core mass) for MASS_2_POST_COMMON_ENVELOPE
-//                                      - Removed SN kick angles from SystemParameters output (they are duplicated in SN output) and changed true_anomaly to mean_anomaly in SN output
+//                                      - Removed SN kick angles from SystemParameters output (they are duplicated in SN output) and changed true_anomaly to mean_anomaly in BSE SN output
 //                                      - Cosmetic typo fixes and added consistency, in the Event_Counter parameters and some function definitions
 //                                      - Added *.eps, *.png to gitignore
+// 02.24.02     JR - Oct 13, 2021   - Minor fixes:
+//                                      - Fixed a few typos in header strings
+//                                      - Changed true_anomaly to mean_anomaly in SSE SN output
 
-const std::string VERSION_STRING = "02.24.01";
+const std::string VERSION_STRING = "02.24.02";
 
 # endif // __changelog_h__
