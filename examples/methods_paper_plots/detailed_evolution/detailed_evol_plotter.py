@@ -153,7 +153,9 @@ def printEvolutionaryHistory(Data):
         if Data['Eccentricity'][i]>1 or Data['SemiMajorAxis'][i]<0:     #unbound
             print(Data['Time'][i], '   Unbound binary')
 
-    if Data['Time'][i]<14000 and not ((Data['Stellar_Type(1)'][i]==13 or Data['Stellar_Type(1)'][i]==14) and (Data['Stellar_Type(2)'][i]==13 or Data['Stellar_Type(2)'][i]==14)) and not (Data['Eccentricity'][i]>1 or Data['SemiMajorAxis'][i]<0):     #proxy for unrecorded meregr
+    isDCO = (Data['Stellar_Type(1)'][i]==13 or Data['Stellar_Type(1)'][i]==14) and (Data['Stellar_Type(2)'][i]==13 or Data['Stellar_Type(2)'][i]==14)
+    isDoubleWD = (Data['Stellar_Type(1)'][i]==10 or Data['Stellar_Type(1)'][i]==11 or Data['Stellar_Type(1)'][i]==12) and (Data['Stellar_Type(2)'][i]==10 or Data['Stellar_Type(2)'][i]==11 or Data['Stellar_Type(2)'][i]==12)
+    if Data['Time'][i]<14000 and not isDCO and not isDoubleWD and not (Data['Eccentricity'][i]>1 or Data['SemiMajorAxis'][i]<0):     #proxy for unrecorded meregr
         print(Data['Time'][i], '   Stellar merger')
 
     #Merger time calculation follows https://iopscience.iop.org/article/10.3847/2515-5172/ac2d35
