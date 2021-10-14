@@ -115,41 +115,60 @@ def getStellarTypes(Data):
     return stellarTypes, useTypes, typeNameMap
 
 
+def printFormattedEvolutionLine(time, event, m1, t1, m2, t2, a, e):
+    # All values are floats except event which is a string and t1, t2 which are ints
+    print("{:10.6f}   {:21}  {:7.3f}    {:2}    {:7.3f}    {:2}   {:8.3f}  {:5.3f}" .format(time, event, m1, t1, m2, t2, a, e))
+
 def printEvolutionaryHistory(Data):
     """
     This function prints a synopsys of the evolutionary history to the command line; it can eventually include cartoons as well.
     """
 
-    print('Time (Myr),   Event,  M1 (M_o),   type1,  M2 (M_o),   type2,  a (R_o),    e')
+    print('Time (Myr), Event,                  M1 (M_o), type1, M2 (M_o), type2, a (R_o),   e')
 
-    print(Data['Time'][0], '   start: Z=', Data['Metallicity@ZAMS(1)'][0], '      ', Data['Mass(1)'][0],'      ', Data['Stellar_Type(1)'][0], '      ', Data['Mass(2)'][0],'      ', Data['Stellar_Type(2)'][0], '      ', Data['SemiMajorAxis'][0], '      ', Data['Eccentricity'][0])
+    printFormattedEvolutionLine( Data['Time'][0], 'start:Z='+str(Data['Metallicity@ZAMS(1)'][0]),  
+                                 Data['Mass(1)'][0], Data['Stellar_Type(1)'][0],  
+                                 Data['Mass(2)'][0], Data['Stellar_Type(2)'][0],  
+                                 Data['SemiMajorAxis'][0],  Data['Eccentricity'][0])
 
     for i in range(1,Data['Time'].size):
-        MThistory=Data['MT_History'][i];
         if Data['MT_History'][i]>0:         #mass transfer happened
             if Data['MT_History'][i]==Data['MT_History'][i-1]:
                 continue    #repeated entry
             if Data['MT_History'][i]==1:
-                MTstring='Stable MT from 1 TO 2\t'
+                MTstring='Stable MT: 1 to 2'
             elif Data['MT_History'][i]==2:
-                MTstring='Stable MT from 2 TO 1\t'
+                MTstring='Stable MT: 2 to 1'
             elif Data['MT_History'][i]==3:
-                MTstring='CE from 1 to 2\t\t'
+                MTstring='CE: 1 to 2'
             elif Data['MT_History'][i]==4:
-                MTstring='CE from 2 to 1\t\t'
+                MTstring='CE: 2 to 1'
             elif Data['MT_History'][i]==5:
-                MTstring='CE Double Core\t\t'
+                MTstring='CE: Double Core'
             elif Data['MT_History'][i]==6:
-                MTstring='CE both MS\t\t'
+                MTstring='CE: both MS'
             elif Data['MT_History'][i]==7:
-                MTstring='CE MS with CO\t\t'
+                MTstring='CE: MS with CO'
             else:
                 MTstring='Unknown MT'
-            print(Data['Time'][i], '  ', MTstring, '  ',  Data['Mass(1)'][i],'      ', Data['Stellar_Type(1)'][i], '      ', Data['Mass(2)'][i],'      ', Data['Stellar_Type(2)'][i], '      ', Data['SemiMajorAxis'][i], '      ', Data['Eccentricity'][i])
+
+            printFormattedEvolutionLine( Data['Time'][i], MTstring, 
+                                         Data['Mass(1)'][i], Data['Stellar_Type(1)'][i], 
+                                         Data['Mass(2)'][i], Data['Stellar_Type(2)'][i], 
+                                         Data['SemiMajorAxis'][i], Data['Eccentricity'][i])
+
         if Data['Stellar_Type(1)'][i]!=Data['Stellar_Type(1)'][i-1]:    #type of star 1 changed
-            print(Data['Time'][i], '   Star 1:', Data['Stellar_Type(1)'][i-1],'->',Data['Stellar_Type(1)'][i],'  ',  Data['Mass(1)'][i],'      ', Data['Stellar_Type(1)'][i], '      ', Data['Mass(2)'][i],'      ', Data['Stellar_Type(2)'][i], '      ', Data['SemiMajorAxis'][i], '      ', Data['Eccentricity'][i])
+            printFormattedEvolutionLine( Data['Time'][i], 'Star 1: '+str(Data['Stellar_Type(1)'][i-1])+'->'+str(Data['Stellar_Type(1)'][i]),
+                                         Data['Mass(1)'][i], Data['Stellar_Type(1)'][i], 
+                                         Data['Mass(2)'][i], Data['Stellar_Type(2)'][i],
+                                         Data['SemiMajorAxis'][i], Data['Eccentricity'][i])
+                        
         if Data['Stellar_Type(2)'][i]!=Data['Stellar_Type(2)'][i-1]:    #type of star 2 changed
-            print(Data['Time'][i], '   Star 2:', Data['Stellar_Type(2)'][i-1],'->',Data['Stellar_Type(2)'][i],'  ',  Data['Mass(1)'][i],'      ', Data['Stellar_Type(1)'][i], '      ', Data['Mass(2)'][i],'      ', Data['Stellar_Type(2)'][i], '      ', Data['SemiMajorAxis'][i], '      ', Data['Eccentricity'][i])
+            printFormattedEvolutionLine( Data['Time'][i], 'Star 2: '+str(Data['Stellar_Type(2)'][i-1])+'->'+str(Data['Stellar_Type(2)'][i]),
+                                         Data['Mass(1)'][i], Data['Stellar_Type(1)'][i], 
+                                         Data['Mass(2)'][i], Data['Stellar_Type(2)'][i],
+                                         Data['SemiMajorAxis'][i], Data['Eccentricity'][i])
+
         if Data['Eccentricity'][i]>1 or Data['SemiMajorAxis'][i]<0:     #unbound
             print(Data['Time'][i], '   Unbound binary')
 
@@ -168,13 +187,12 @@ def printEvolutionaryHistory(Data):
         T0=(Data['SemiMajorAxis'][i]*Rsun)**4/4/beta
         e=Data['Eccentricity'][i]
         Tdelay=T0*(1-e**2)**(7/2)*(1+0.31*e**10 + 0.27*e**20 +  0.2*e**1000)/3.15e7/1e6
-        print(Data['Time'][i]+Tdelay, '   GW merger in ', Tdelay, ' Myr    ', Data['Mass(1)'][i],'      ', Data['Stellar_Type(1)'][i], '      ', Data['Mass(2)'][i],'      ', Data['Stellar_Type(2)'][i])
+        printFormattedEvolutionLine( Data['Time'][i]+Tdelay, 'GW merger in {:.1f} Myr'.format(Tdelay),
+                                     Data['Mass(1)'][i], Data['Stellar_Type(1)'][i],  
+                                     Data['Mass(2)'][i], Data['Stellar_Type(2)'][i],  
+                                     Data['SemiMajorAxis'][i],  Data['Eccentricity'][i])
 
 
-""
 if __name__ == "__main__":
     main()
-
-
-""
 
