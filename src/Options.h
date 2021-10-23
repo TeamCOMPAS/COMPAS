@@ -33,7 +33,7 @@ namespace po = boost::program_options;
 
 // OPT_VALUE macro
 //
-// getter functions return the value of the class member variable - the class
+// Getter functions return the value of the class member variable - the class
 // member variable is set to a value depending upon the value of the corresponding
 // option enetered by the user.
 // 
@@ -115,7 +115,10 @@ class Options {
 private:
 
     // The following vectors are used to constrain which options can be specified
-    // when.  There are three groups of two vectors:
+    // when:
+    //
+    // m_ShorthandAllowed records option strings that may be specified using the
+    // shorthand notation described in Options::PreprocessOptionValues()
     //
     // m_GridLineExcluded records option strings that may not be specified on a grid line
     //
@@ -128,6 +131,38 @@ private:
     // Each of these is described in more detail below
 
 
+    // m_ShorthandAllowed records option strings that may be specified using the
+    // shorthand notation described in Options::ExpandShorthandOptionValues().
+    //
+    // Furthermore, the vector records whether option values for such options can be
+    // defaulted (i.e. some or all values need not be specified), and if so, what
+    // string should be substituted for the unspecified values (at this stage there is
+    // no type associated with the options - what is being manipulated is the command-line
+    // or grid-line string that will be parsed to determine options specified and their
+    // values).
+    //
+    // This vector is checked immediately prior to the command line or grid line being parsed
+    // for ranges and sets - i.e. before the command line or grid line is passed to boost
+    // for final parsing.  If any option strings not in this vector are specified using
+    // shorthand notation, boost will parse them as usual and likely (though not necessarily)
+    // complain (boost will only complain if the option/value pair is malformed or unknown,
+    // which would almost certainly be the case - but it isn't guaranteed to be). 
+
+    typedef std::tuple<std::string, bool, std::string> SHORTHAND_ENTRY;         // option name, default allowed (i.e. can be omitted), default string
+    std::vector<SHORTHAND_ENTRY> m_ShorthandAllowed = {
+
+        // trying to keep entries alphabetical so easier to find specific entries
+
+        // option name          default allowed     default string
+        { "debug-classes",      false,              "" },
+
+        { "log-classes",        false,              "" },
+
+        { "notes",              true,               "" },
+        { "notes-hdrs",         false,              "" }
+    };
+
+
     // m_GridLineExcluded records option strings that may not be specified on a grid line
     //
     // This vector is checked when the grid line is parsed - if any option strings are 
@@ -137,7 +172,7 @@ private:
     // think of a good reason to exclude options from the commandline, so I haven't 
     // implemented that functionality (though it wouldn't be too difficult to add it).
     //
-    // I coupld probably have done this using a different set of options in Boost for
+    // I could probably have done this using a different set of options in Boost for
     // the commandline and gridfile, but in the end I decided this way was actually
     // easier, cleaner, and gives us a bit more control.
 
@@ -185,6 +220,7 @@ private:
         "maximum-number-timestep-iterations",
         "mode",
 
+        "notes-hdrs",
         "number-of-systems",
 
         "output-container", "c",
@@ -209,7 +245,7 @@ private:
     // m_SSEOnly records option strings that apply to SSE only
     // m_BSEOnly records option strings that apply to BSE only
     //
-    // These vectors are checked when the commandline or grid line are parsed for
+    // These vectors are checked when the commandline or grid line is parsed for
     // ranges and sets.  Ranges and sets are played out, and stars/binaries evolved
     // based on the grid of options defined by any ranges and sets specified by the
     // user.
@@ -357,7 +393,7 @@ private:
     // m_RangeExcluded records option strings that apply to SSE only
     // m_SetExcluded records option strings that apply to BSE only
     //
-    // These vectors are checked when the commandline or grid line are parsed for
+    // These vectors are checked when the commandline or grid line is parsed for
     // ranges and sets.  Ranges can only be specified for numerical options - other
     // data types are not ordered, so ranges don't make sense (what would the
     // increment be...).  Sets can be specified for options of all data types,
@@ -444,6 +480,8 @@ private:
         "metallicity-distribution",
         "mode",
 
+        "notes",
+        "notes-hdrs",
         "neutrino-mass-loss-BH-formation",
         "neutron-star-equation-of-state",
 
@@ -519,6 +557,9 @@ private:
 
         "mode",
 
+        "notes",
+        "notes-hdrs",
+
         "output-container", "c",
         "outputPath", "o",
 
@@ -569,6 +610,9 @@ public:
             bool                                                m_ErrorsToFile;                                                 // Flag used to determine whether error statements should also be written to a log file
 
             bool                                                m_EnableWarnings;                                               // Flag used to determine if warnings (via SHOW_WARN macros) should be displayed
+
+            vector<string>                                      m_Notes;                                                        // Notes contents - for user-defined annotations
+            vector<string>                                      m_NotesHdrs;                                                    // Notes header strings - for user-defined annotations
 
 	        bool                                                m_BeBinaries;													// Flag if we want to print BeBinaries (main.cpp)
             bool                                                m_EvolvePulsars;                                                // Whether to evolve pulsars or not
@@ -963,7 +1007,7 @@ public:
     // each struct contains:
     //
     //    an OptionValues object - holds the values of the options 
-    //    a  Boost options_decsriptions object
+    //    a  Boost options_descriptions object
     //    a  COMPLEX_OPTION_VALUES object - holds the complex option values (ranges, sets)
     //    a  struct containing the option strings of the specified options
 
@@ -1000,6 +1044,8 @@ private:
 
     bool            AddOptions(OptionValues *p_Options, po::options_description *p_OptionsDescription);
     int             AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor);
+
+    std::tuple<std::string, int, std::vector<std::string>> ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[]);
 
     bool            IsSupportedNumericDataType(TYPENAME p_TypeName);
 
@@ -1245,6 +1291,11 @@ public:
 
     NS_EOS                                      NeutronStarEquationOfState() const                                      { return OPT_VALUE("neutron-star-equation-of-state", m_NeutronStarEquationOfState.type, true); }
 
+    string                                      Notes(const size_t p_Idx) const                                         { return OPT_VALUE("notes", m_Notes[p_Idx], true); }
+    vector<string>                              Notes() const                                                           { return OPT_VALUE("notes", m_Notes, true); }
+    string                                      NotesHdrs(const size_t p_Idx) const                                     { return m_CmdLine.optionValues.m_NotesHdrs[p_Idx]; }
+    vector<string>                              NotesHdrs() const                                                       { return m_CmdLine.optionValues.m_NotesHdrs; }
+ 
     size_t                                      nObjectsToEvolve() const                                                { return m_CmdLine.optionValues.m_ObjectsToEvolve; }
     bool                                        OptimisticCHE() const                                                   { CHE_MODE che = OPT_VALUE("chemically-homogeneous-evolution", m_CheMode.type, true); return che == CHE_MODE::OPTIMISTIC; }
 
