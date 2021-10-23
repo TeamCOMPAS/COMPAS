@@ -796,7 +796,17 @@
 // 02.24.02     JR - Oct 13, 2021   - Minor fixes:
 //                                      - Fixed a few typos in header strings
 //                                      - Changed true_anomaly to mean_anomaly in SSE SN output
+// 02.25.00     JR - Oct 23, 2021   - Enhancements and minor fixes:
+//                                      - Added ability for users to annotate log files via new program options '--notes-hdrs' and '--notes'.  See docs for details. 
+//                                      - Added HDF5 support to Log::GetLogStandardRecord() (return value) and Log::LogStandardRecord() (input parameter).  This only matters
+//                                        to SSE Superrnovae file - for delayed writes.  The original implementation may have resulted in minor discrepanicies in SS Supernovae
+//                                        log records, (because of when the values were sampled (i.e. mid-timestep, or end of timestep)), which would only have been evident if
+//                                        HDF5 files were compared to e.g. CSV files for the same binary - CSV, TSV, and TXT files had values sampled mid-timestep, HDF5 files 
+//                                        at end of timestep).
+//                                      - Added Log::Write() and Log::Put() for HDF5 files (better implementation - worked around in original implementation)
+//                                      - Performance enhancement to BaseBinaryStar::CalculateTimeToCoalescence() (return early if e = 0.0)
+//                                      - Fixed a few typos in comments
 
-const std::string VERSION_STRING = "02.24.02";
+const std::string VERSION_STRING = "02.25.00";
 
 # endif // __changelog_h__

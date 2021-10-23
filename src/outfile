@@ -1,0 +1,1018 @@
+
+COMPAS v02.24.02
+Compact Object Mergers: Population Astrophysics and Statistics
+by Team COMPAS (http://compas.science/index.html)
+A binary star simulator
+
+Start generating stars at Sat Oct 23 09:43:19 2021
+
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+0: Simulation completed: RandomSeed = 0, Initial Mass = 11.2299, Metallicity = 0.0142, Neutron_Star
+1: Simulation completed: RandomSeed = 1, Initial Mass = 7.32988, Metallicity = 0.0142, Oxygen-Neon_White_Dwarf
+2: Simulation completed: RandomSeed = 2, Initial Mass = 5.67904, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+3: Simulation completed: RandomSeed = 3, Initial Mass = 5.07243, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+4: Simulation completed: RandomSeed = 4, Initial Mass = 5.6139, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+5: Simulation completed: RandomSeed = 5, Initial Mass = 7.33131, Metallicity = 0.0142, Oxygen-Neon_White_Dwarf
+6: Simulation completed: RandomSeed = 6, Initial Mass = 5.41413, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+7: Simulation completed: RandomSeed = 7, Initial Mass = 6.30779, Metallicity = 0.0142, Oxygen-Neon_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+8: Simulation completed: RandomSeed = 8, Initial Mass = 10.2096, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+9: Simulation completed: RandomSeed = 9, Initial Mass = 23.5575, Metallicity = 0.0142, Black_Hole
+10: Simulation completed: RandomSeed = 10, Initial Mass = 5.0978, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+11: Simulation completed: RandomSeed = 11, Initial Mass = 6.07102, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+12: Simulation completed: RandomSeed = 12, Initial Mass = 5.13302, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+13: Simulation completed: RandomSeed = 13, Initial Mass = 14.2032, Metallicity = 0.0142, Neutron_Star
+14: Simulation completed: RandomSeed = 14, Initial Mass = 6.04903, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+15: Simulation completed: RandomSeed = 15, Initial Mass = 5.09694, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+16: Simulation completed: RandomSeed = 16, Initial Mass = 5.67639, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+17: Simulation completed: RandomSeed = 17, Initial Mass = 5.43026, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+18: Simulation completed: RandomSeed = 18, Initial Mass = 5.04417, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+19: Simulation completed: RandomSeed = 19, Initial Mass = 5.15838, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+20: Simulation completed: RandomSeed = 20, Initial Mass = 43.0035, Metallicity = 0.0142, Black_Hole
+21: Simulation completed: RandomSeed = 21, Initial Mass = 5.69123, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+22: Simulation completed: RandomSeed = 22, Initial Mass = 25.9743, Metallicity = 0.0142, Black_Hole
+23: Simulation completed: RandomSeed = 23, Initial Mass = 5.83438, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+24: Simulation completed: RandomSeed = 24, Initial Mass = 15.8986, Metallicity = 0.0142, Neutron_Star
+25: Simulation completed: RandomSeed = 25, Initial Mass = 6.27753, Metallicity = 0.0142, Oxygen-Neon_White_Dwarf
+26: Simulation completed: RandomSeed = 26, Initial Mass = 6.0734, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+27: Simulation completed: RandomSeed = 27, Initial Mass = 19.6171, Metallicity = 0.0142, Black_Hole
+28: Simulation completed: RandomSeed = 28, Initial Mass = 5.08297, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+29: Simulation completed: RandomSeed = 29, Initial Mass = 6.78044, Metallicity = 0.0142, Oxygen-Neon_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+30: Simulation completed: RandomSeed = 30, Initial Mass = 9.98085, Metallicity = 0.0142, Neutron_Star
+31: Simulation completed: RandomSeed = 31, Initial Mass = 6.03898, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+32: Simulation completed: RandomSeed = 32, Initial Mass = 6.95905, Metallicity = 0.0142, Oxygen-Neon_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+33: Simulation completed: RandomSeed = 33, Initial Mass = 10.2278, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+34: Simulation completed: RandomSeed = 34, Initial Mass = 14.6133, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+35: Simulation completed: RandomSeed = 35, Initial Mass = 8.66301, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+36: Simulation completed: RandomSeed = 36, Initial Mass = 31.9853, Metallicity = 0.0142, Black_Hole
+37: Simulation completed: RandomSeed = 37, Initial Mass = 5.27022, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+38: Simulation completed: RandomSeed = 38, Initial Mass = 8.77173, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+39: Simulation completed: RandomSeed = 39, Initial Mass = 7.45579, Metallicity = 0.0142, Neutron_Star
+40: Simulation completed: RandomSeed = 40, Initial Mass = 5.57754, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+41: Simulation completed: RandomSeed = 41, Initial Mass = 15.9358, Metallicity = 0.0142, Neutron_Star
+42: Simulation completed: RandomSeed = 42, Initial Mass = 5.41643, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+43: Simulation completed: RandomSeed = 43, Initial Mass = 5.30392, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+44: Simulation completed: RandomSeed = 44, Initial Mass = 6.26339, Metallicity = 0.0142, Oxygen-Neon_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+45: Simulation completed: RandomSeed = 45, Initial Mass = 8.20906, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+46: Simulation completed: RandomSeed = 46, Initial Mass = 12.9633, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+47: Simulation completed: RandomSeed = 47, Initial Mass = 35.5607, Metallicity = 0.0142, Black_Hole
+48: Simulation completed: RandomSeed = 48, Initial Mass = 7.32759, Metallicity = 0.0142, Oxygen-Neon_White_Dwarf
+49: Simulation completed: RandomSeed = 49, Initial Mass = 5.14165, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+50: Simulation completed: RandomSeed = 50, Initial Mass = 45.4327, Metallicity = 0.0142, Black_Hole
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+51: Simulation completed: RandomSeed = 51, Initial Mass = 8.61341, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+52: Simulation completed: RandomSeed = 52, Initial Mass = 8.12057, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+53: Simulation completed: RandomSeed = 53, Initial Mass = 7.89148, Metallicity = 0.0142, Neutron_Star
+54: Simulation completed: RandomSeed = 54, Initial Mass = 6.17465, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+55: Simulation completed: RandomSeed = 55, Initial Mass = 8.81121, Metallicity = 0.0142, Neutron_Star
+56: Simulation completed: RandomSeed = 56, Initial Mass = 6.33896, Metallicity = 0.0142, Oxygen-Neon_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+57: Simulation completed: RandomSeed = 57, Initial Mass = 37.0016, Metallicity = 0.0142, Black_Hole
+58: Simulation completed: RandomSeed = 58, Initial Mass = 5.95946, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+59: Simulation completed: RandomSeed = 59, Initial Mass = 38.6179, Metallicity = 0.0142, Black_Hole
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+60: Simulation completed: RandomSeed = 60, Initial Mass = 8.85079, Metallicity = 0.0142, Neutron_Star
+61: Simulation completed: RandomSeed = 61, Initial Mass = 6.14086, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+62: Simulation completed: RandomSeed = 62, Initial Mass = 6.43352, Metallicity = 0.0142, Oxygen-Neon_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+63: Simulation completed: RandomSeed = 63, Initial Mass = 15.8105, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+64: Simulation completed: RandomSeed = 64, Initial Mass = 21.8969, Metallicity = 0.0142, Black_Hole
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+65: Simulation completed: RandomSeed = 65, Initial Mass = 10.8395, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+66: Simulation completed: RandomSeed = 66, Initial Mass = 32.0244, Metallicity = 0.0142, Black_Hole
+67: Simulation completed: RandomSeed = 67, Initial Mass = 5.64871, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+68: Simulation completed: RandomSeed = 68, Initial Mass = 7.08696, Metallicity = 0.0142, Oxygen-Neon_White_Dwarf
+69: Simulation completed: RandomSeed = 69, Initial Mass = 6.42334, Metallicity = 0.0142, Oxygen-Neon_White_Dwarf
+70: Simulation completed: RandomSeed = 70, Initial Mass = 5.12667, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+71: Simulation completed: RandomSeed = 71, Initial Mass = 5.91021, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+72: Simulation completed: RandomSeed = 72, Initial Mass = 10.854, Metallicity = 0.0142, Neutron_Star
+73: Simulation completed: RandomSeed = 73, Initial Mass = 5.35304, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+74: Simulation completed: RandomSeed = 74, Initial Mass = 20.283, Metallicity = 0.0142, Black_Hole
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+75: Simulation completed: RandomSeed = 75, Initial Mass = 8.26913, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+76: Simulation completed: RandomSeed = 76, Initial Mass = 9.43011, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+77: Simulation completed: RandomSeed = 77, Initial Mass = 25.2693, Metallicity = 0.0142, Black_Hole
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+78: Simulation completed: RandomSeed = 78, Initial Mass = 108.679, Metallicity = 0.0142, Black_Hole
+79: Simulation completed: RandomSeed = 79, Initial Mass = 5.83206, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+80: Simulation completed: RandomSeed = 80, Initial Mass = 13.7721, Metallicity = 0.0142, Neutron_Star
+81: Simulation completed: RandomSeed = 81, Initial Mass = 5.09598, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+82: Simulation completed: RandomSeed = 82, Initial Mass = 47.6246, Metallicity = 0.0142, Black_Hole
+83: Simulation completed: RandomSeed = 83, Initial Mass = 7.2319, Metallicity = 0.0142, Oxygen-Neon_White_Dwarf
+84: Simulation completed: RandomSeed = 84, Initial Mass = 6.3836, Metallicity = 0.0142, Oxygen-Neon_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+85: Simulation completed: RandomSeed = 85, Initial Mass = 12.1692, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+86: Simulation completed: RandomSeed = 86, Initial Mass = 7.53698, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+87: Simulation completed: RandomSeed = 87, Initial Mass = 34.1771, Metallicity = 0.0142, Black_Hole
+88: Simulation completed: RandomSeed = 88, Initial Mass = 5.55831, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+89: Simulation completed: RandomSeed = 89, Initial Mass = 6.77637, Metallicity = 0.0142, Oxygen-Neon_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+90: Simulation completed: RandomSeed = 90, Initial Mass = 15.9716, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+91: Simulation completed: RandomSeed = 91, Initial Mass = 8.97241, Metallicity = 0.0142, Neutron_Star
+92: Simulation completed: RandomSeed = 92, Initial Mass = 6.27065, Metallicity = 0.0142, Oxygen-Neon_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+93: Simulation completed: RandomSeed = 93, Initial Mass = 8.71732, Metallicity = 0.0142, Neutron_Star
+94: Simulation completed: RandomSeed = 94, Initial Mass = 5.48937, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+95: Simulation completed: RandomSeed = 95, Initial Mass = 10.9, Metallicity = 0.0142, Neutron_Star
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+96: Simulation completed: RandomSeed = 96, Initial Mass = 8.1381, Metallicity = 0.0142, Neutron_Star
+97: Simulation completed: RandomSeed = 97, Initial Mass = 5.5038, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+98: Simulation completed: RandomSeed = 98, Initial Mass = 5.33905, Metallicity = 0.0142, Carbon-Oxygen_White_Dwarf
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+DOSTASH record
+Log stashed record
+99: Simulation completed: RandomSeed = 99, Initial Mass = 66.7944, Metallicity = 0.0142, Black_Hole
+
+Generated 100 of 100 stars requested
+
+Simulation completed
+
+End generating stars at Sat Oct 23 09:43:22 2021
+
+Clock time = 2.96875 CPU seconds
+Wall time  = 00:00:02 (hh:mm:ss)

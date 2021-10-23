@@ -1,0 +1,4 @@
+bse_sysparms_rec -= { program_option::notes[2] }
+
+bse_sne_rec += {program_option::notes[1], program_option::notes[2]}
+
