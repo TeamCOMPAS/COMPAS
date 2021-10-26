@@ -1544,12 +1544,6 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         }
 	}
 
-    // RTW - this is very redundant, should just check for HasStarsTouching
-    //if HasStarsTouching()
-    //if (utils::Compare(aFinal, 0.0) <= 0 || utils::Compare(m_Star1->Radius() + m_Star2->Radius(), aFinal * AU_TO_RSOL) > 0) {
-        //m_Flags.stellarMerger = true;
-    //}
-
     // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
     if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star1->SetOmega(OrbitalAngularVelocity());
     if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star2->SetOmega(OrbitalAngularVelocity());
@@ -1557,8 +1551,6 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     m_Star1->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 1
     m_Star2->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 2
     SetPostCEEValues(aFinalRsol, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                                       // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
-    
-    // RTW - can I move this to the timestep loop at the bottom? - possibly don't want to...
     (void)PrintCommonEnvelope();
     
 }
@@ -1763,7 +1755,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     
     if (!m_Star1->IsRLOF() && !m_Star2->IsRLOF()) return;                                                                       // neither star is overflowing its Roche Lobe - no mass transfer - nothing to do
     
-    // RTW - why not just have the HasStarsTouching()? Doesn't this apply for a merger regardless of stellar type?
     if (OPTIONS->CHEMode() != CHE_MODE::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}) && HasStarsTouching()) {       // CHE enabled and both stars CH?
         m_Flags.stellarMerger = true;
         return;
@@ -2186,15 +2177,10 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) - immediate event
     }
     else {
-        //std::cout << "Hey, there's a resolve mass change call here" << std::endl;
         ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
         if (StellarMerger()) {                                                                      // CEE or merger?
-            //std::cout << "It also resulted in a stellar merger, but after the earlier check." << std::endl;
             ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
         }
-        //if (HasStarsTouching()) {                                                                                       // if stars emerged from mass transfer as touching, it's a merger
-            //m_Flags.stellarMerger = true;
-        //}
     }
 
     if (m_PrintExtraDetailedOutput == true) { (void)PrintDetailedOutput(m_Id); }                                        // print detailed output record if stellar type changed - edit: including on stellar merger
@@ -2308,12 +2294,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             }
             else if (StellarMerger() ) {                                                                                                    // have stars merged?
                 evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                         // for now, stop evolution
-                //std::cout << "Merger after SSE" << std::endl; // RTW
-                //(void)PrintCommonEnvelope();
             }
-            //else if (HasStarsTouching()) {                                                                                                  // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
-                //evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                         // yes - stop evolution
-            //}
             else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                     // binary is unbound and we don't want unbound systems?
                 m_Unbound       = true;                                                                                                     // yes - set the unbound flag (should already be set)
                 evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                                // stop evolution
@@ -2331,13 +2312,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 // check for problems
                 if (StellarMerger()) {                                                                                                      // have stars merged?
                     evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                     // for now, stop evolution
-                    //std::cout << "Merger after BSE" << std::endl; // RTW
-                    //(void)PrintDetailedOutput(m_Id);                                                                                                // print (log) detailed output for binary
-                    //(void)PrintCommonEnvelope();
                 }
-                //else if (HasStarsTouching()) {                                                                                              // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
-                    //evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                     // yes - stop evolution
-                //}
                 else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                 // binary is unbound and we don't want unbound systems?
                     evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                            // stop evolution
                 }
@@ -2384,8 +2359,6 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 stepNum++;                                                                                                                  // increment stepNum
             }
         }
-        // RTW - why are we skipping output on stellar merger?
-        //if (!StellarMerger())
         (void)PrintDetailedOutput(m_Id);                                                                                                // print (log) detailed output for binary
 
         if (evolutionStatus == EVOLUTION_STATUS::STEPS_UP) {                                                                                // stopped because max timesteps reached?
