@@ -640,6 +640,10 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
                     Squawk("ERROR: Error converting option value to correct datatype for HDF5 dataset with name " + h5DatasetName);     // announce error
                     ok = false;
                 }
+                catch (const std::invalid_argument& e) {                                                                                // type conversion failed
+                    Squawk("ERROR: Error converting option value to correct datatype for HDF5 dataset with name " + h5DatasetName);     // announce error
+                    ok = false;
+                }
             }
         }
 
@@ -1046,13 +1050,13 @@ void Log::Squawk(const string p_SquawkStr) {
  * bool DoIt(const string p_Class, const int p_Level, const std::vector<string> p_EnabledClasses, const int p_EnabledLevel)
  *
  * @param   [IN]    p_Class                     The class (logging or debug) of the record being evaluated
- * @param   [IN]    p_LogLevel                  The level (logging or debug) of the record being evaluated
+ * @param   [IN]    p_Level                     The level (logging or debug) of the record being evaluated
  * @param   [IN]    p_EnabledClasses            List of classes enabled for logging or debugging (vector<string>)
  * @param   [IN]    p_EnabledLevel              The application logging or debug level
  * @return                                      Boolean indicating whether record should be logged/debug string should be written
  */
 bool Log::DoIt(const string p_Class, const int p_Level, const std::vector<string> p_EnabledClasses, const int p_EnabledLevel) {
-
+    
     bool doIt = (p_Level <= p_EnabledLevel);                                                                    // first check level
 
     if (doIt) {                                                                                                 // now check class
@@ -1130,6 +1134,7 @@ bool Log::Write(const int p_LogfileId, const string p_LogClass, const int p_LogL
         if (DoIt(p_LogClass, p_LogLevel, m_LogClasses, m_LogLevel)) {                                               // yes - logging this class and level?
             result = Write_(p_LogfileId, p_LogStr);                                                                 // yes - log it
         }
+        else result = true;                                                                                         // not logging this class and level - but ok
     }
 
     return result;
@@ -1169,6 +1174,7 @@ bool Log::Write(const int                               p_LogfileId,
         if (DoIt(p_LogClass, p_LogLevel, m_LogClasses, m_LogLevel)) {                                               // yes - logging this class and level?
             result = Write_(p_LogfileId, p_LogRecordValues, p_Flush);                                               // yes - log it
         }
+        else result = true;                                                                                         // not logging this class and level - but ok
     }
 
     return result;
@@ -1531,6 +1537,7 @@ bool Log::Put(const int p_LogfileId, const string p_LogClass, const int p_LogLev
         if (DoIt(p_LogClass, p_LogLevel, m_LogClasses, m_LogLevel)) {                                               // yes - logging this class and level?
             result = Put_(p_LogfileId, p_LogStr, p_LogClass);                                                       // yes - log it
         }
+        else result = true;                                                                                         // not logging this class and level - but ok
     }
 
     return result;
@@ -1562,6 +1569,7 @@ bool Log::Put(const int p_LogfileId, const string p_LogClass, const int p_LogLev
         if (DoIt(p_LogClass, p_LogLevel, m_LogClasses, m_LogLevel)) {                                               // yes - logging this class and level?
             result = Put_(p_LogfileId, p_LogRecordValues);                                                          // yes - log it
         }
+        else result = true;                                                                                         // not logging this class and level - but ok
     }
 
     return result;
@@ -1672,6 +1680,7 @@ bool Log::Debug(const string p_DbgClass, const int p_DbgLevel, const string p_Db
         if (DoIt(p_DbgClass, p_DbgLevel, m_DbgClasses, m_DbgLevel)) {                                               // debugging this class and level?
             result = Debug_(p_DbgStr);                                                                              // debug it
         }
+        else result = true;                                                                                         // not logging this class and level - but ok
     }
 
     return result;
@@ -1727,6 +1736,7 @@ bool Log::DebugWait(const string p_DbgClass, const int p_DbgLevel, const string 
             std::cout << "DEBUG: Press any key to continue...";                                                     // announce
             string tmp; std::cin >> tmp;                                                                            // and wait for input
         }
+        else result = true;                                                                                         // not logging this class and level - but ok
     }
 
     return result;
@@ -2274,8 +2284,6 @@ hid_t Log::GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWid
  * Create a dataset subordinate to a group in an HDF5 file
  * 
  * 
- * 
- * 
  * hid_t Log::CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, const string p_DatasetName, const hid_t p_H5DataType, const string p_UnitsStr, const size_t p_HDF5ChunkSize)
  *
  * @param   [IN]    p_Filename                  The filename of the HDF5 file (for error logging)
@@ -2602,7 +2610,9 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     // get and format field headers for printing; get field format strings
                     if (!fileDetails.recordProperties.empty()) {
 
-                        for (auto &property : fileDetails.recordProperties) {                                                                   // for each property to be included in the log record
+                        for (auto iter = fileDetails.recordProperties.begin(); iter != fileDetails.recordProperties.end();) {                   // for each property to be included in the log record
+
+                            T_ANY_PROPERTY property = *iter;                                                                                    // this record proerty
 
                             string headerStr = "";
                             string unitsStr  = "";
@@ -2665,19 +2675,25 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                                         // as there are notes columns to add to this file.  The notes required to be written to this file
                                         // are record in fileDetails.annotations (already set).
 
-                                        for (size_t idx = 0; idx < fileDetails.annotations.size(); idx ++) {                                    // for each user-specified annotation
-                                            if (fileDetails.annotations[idx]) {                                                                 // include it?
+                                        if (fileDetails.annotations.size() == 0) {                                                              // annotations present?
+                                            iter = fileDetails.recordProperties.erase(iter);                                                    // no - remove NOTES from record properties
+                                        }
+                                        else {                                                                                                  // have annotations
+                                            for (size_t idx = 0; idx < fileDetails.annotations.size(); idx ++) {                                // for each user-specified annotation
+                                                if (fileDetails.annotations[idx]) {                                                             // include it?
                                                                                                                                                 // yes
-                                                details = ProgramOptionDetails(programOption, idx);                                             // property details
-                                                std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details);                   // format the headers
+                                                    details = ProgramOptionDetails(programOption, idx);                                         // property details
+                                                    std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details);               // format the headers
 
-                                                fileDetails.propertyTypes.push_back(std::get<0>(details));                                      // append property typename
-                                                fileDetails.stringTypes.push_back(STRING_QUALIFIER::VARIABLE_LENGTH);                           // append string type - annotations are variable length
-                                                fileDetails.hdrStrings.push_back(headerStr);                                                    // append header string for field
-                                                fileDetails.unitsStrings.push_back(unitsStr);                                                   // append units string for field
-                                                fileDetails.typeStrings.push_back(typeStr);                                                     // append type string for field
-                                                fileDetails.fmtStrings.push_back(fmtStr);                                                       // append format string for field
+                                                    fileDetails.propertyTypes.push_back(std::get<0>(details));                                  // append property typename
+                                                    fileDetails.stringTypes.push_back(STRING_QUALIFIER::VARIABLE_LENGTH);                       // append string type - annotations are variable length
+                                                    fileDetails.hdrStrings.push_back(headerStr);                                                // append header string for field
+                                                    fileDetails.unitsStrings.push_back(unitsStr);                                               // append units string for field
+                                                    fileDetails.typeStrings.push_back(typeStr);                                                 // append type string for field
+                                                    fileDetails.fmtStrings.push_back(fmtStr);                                                   // append format string for field
+                                                }
                                             }
+                                            iter++;                                                                                             // next property
                                         }
                                         push = false;                                                                                           // don't need to add property details later - already done
                                     }
@@ -2700,6 +2716,8 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                                 fileDetails.unitsStrings.push_back(unitsStr);                                                                   // append units string for field
                                 fileDetails.typeStrings.push_back(typeStr);                                                                     // append type string for field
                                 fileDetails.fmtStrings.push_back(fmtStr);                                                                       // append format string for field
+
+                                iter++;                                                                                                         // next property
                             }
                         }
 
@@ -3084,7 +3102,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
             if (p_UseDefaultProps) baseProps = SSE_SYSTEM_PARAMETERS_REC;
             baseNotes = m_SSE_SysParms_Notes;
             break;
-        default: break;                                                                                             // avoids compiler warning
+        default: break;                                                                                                 // avoids compiler warning
     }
     newNotes = baseNotes;
 
@@ -3212,6 +3230,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *     [ x ]  means x is optional: x may appear, or not
  *     <name> is a term (expression)
  *     "abc"  means literal string "abc"
+ *       n    means integer number
  *       |    means "or"
  *       #    indicates the start of a comment
  *
@@ -3240,8 +3259,10 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *
  * <props_list> ::= <prop_spec> [ <prop_delim> <props_list> ]
  *
- * <prop_spec>  ::= <prop_type> "::" <prop_name> <prop_delim>
+ * <prop_spec>  ::= <prop_type> "::" <prop_name> [ <prop_index> ] <prop_delim>
  *
+ * <prop_index> ::= "[" n "]"
+ * 
  * <spec_delim> ::= " " | EOL
  *
  * <prop_delim> ::= "," | <spec_delim>
@@ -3615,7 +3636,11 @@ bool Log::UpdateAllLogfileRecordSpecs() {
 
                                         int notesIdx = -1;                                                                      // index value for PROGRAM_OPTION::NOTES
                                         if (propNameStr.length() > 5 && utils::Equals(propNameStr.substr(0, 5), "notes")) {     // PROGRAM_OPTION::NOTES?
-                                            if (propNameStr[5] == '[' && propNameStr[propNameStr.length() - 1] == ']') {        // possibly - indexed?
+                                            if (propNameStr[5] == '[' && propNameStr[propNameStr.length() - 1] != ']') {        // wanted index, but failed?
+                                                error = ERROR::EXPECTED_POSITIVE_INTEGER;                                       // set error - expected an integer index > 0
+                                                errorPos += 22;                                                                 // caret position for error
+                                            }
+                                            else if (propNameStr[5] == '[' && propNameStr[propNameStr.length() - 1] == ']') {   // possibly - indexed?
                                                 size_t idxLen = propNameStr.length() - 7;                                       // possibly...
                                                 if (idxLen > 0) {                                                               // length of index value > 0?    
                                                     // indexed - check for valid index
@@ -3623,7 +3648,8 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                                                         size_t lastChar;                                                        // for conversion
                                                         notesIdx = std::stoi(propNameStr.substr(6, idxLen), &lastChar);         // try conversion
                                                         if (lastChar != idxLen) {                                               // valid INT only if propNameStr completely consumed
-                                                            error = ERROR::EXPECTED_INTEGER;                                    // not valid - set error - expected an integer index
+                                                            error = ERROR::EXPECTED_POSITIVE_INTEGER;                           // not valid - set error - expected an integer index > 0
+                                                            errorPos += 22;                                                     // caret position for error
                                                             notesIdx = -1;                                                      // don't want to use invalid index value
                                                         }
                                                         else {                                                                  // valid integer - valid index?
@@ -3634,6 +3660,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
 
                                                             if (notesIdx < 1 or notesIdx > (int)OPTIONS->NotesHdrs().size()) {  // index in valid range?
                                                                 error = ERROR::OUT_OF_BOUNDS;                                   // no - set error
+                                                                errorPos += 22;                                                 // caret position for error
                                                             }
                                                             else {                                                              // yes - valid index
                                                                 propNameStr = propNameStr.substr(0, 5);                         // remove index from property name
@@ -3641,7 +3668,12 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                                                         }
                                                     }
                                                     catch (const std::out_of_range& e) {                                        // conversion failed
-                                                        error = ERROR::EXPECTED_INTEGER;                                        // set error - expected an integer index
+                                                        error = ERROR::EXPECTED_POSITIVE_INTEGER;                               // set error - expected an integer index > 0
+                                                        errorPos += 22;                                                         // caret position for error
+                                                    }
+                                                    catch (const std::invalid_argument& e) {                                    // conversion failed
+                                                        error = ERROR::EXPECTED_POSITIVE_INTEGER;                               // set error - expected an integer index > 0
+                                                        errorPos += 22;                                                         // caret position for error
                                                     }
                                                 }                              
                                             }

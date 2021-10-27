@@ -733,7 +733,7 @@
 //                                      - Enhancements:
 //                                          - changed chunk size for HDF5 files to HDF5_MINIMUM_CHUNK_SIZE for Run_Details group in COMPAS_Output and for detailed output files.
 //                                              - Run_Details is a small file, and detailed output files are generally a few thousand records rather than hundreds of thousands, 
-//                                                so a smaller chunck size wastes less space and doesn't impact performance significantly
+//                                                so a smaller chunk size wastes less space and doesn't impact performance significantly
 //
 //                                      - Defect Repairs:
 //                                          - fixed issue #548 - HDF5 detailed output files not created when random-seed specified in a grid file
@@ -796,14 +796,16 @@
 // 02.24.02     JR - Oct 13, 2021   - Minor fixes:
 //                                      - Fixed a few typos in header strings
 //                                      - Changed true_anomaly to mean_anomaly in SSE SN output
-// 02.25.00     JR - Oct 23, 2021   - Enhancements and minor fixes:
+// 02.25.00     JR - Oct 27, 2021   - Enhancements and minor fixes:
 //                                      - Added ability for users to annotate log files via new program options '--notes-hdrs' and '--notes'.  See docs for details. 
+//                                      - Added a shorthand notation for vector program options (e.g. annotations, log-classes, debug-classes).  See docs for details.
 //                                      - Added HDF5 support to Log::GetLogStandardRecord() (return value) and Log::LogStandardRecord() (input parameter).  This only matters
-//                                        to SSE Superrnovae file - for delayed writes.  The original implementation may have resulted in minor discrepanicies in SS Supernovae
+//                                        to SSE Supernovae file - for delayed writes.  The original implementation may have resulted in minor discrepanicies in SSE Supernovae
 //                                        log records, (because of when the values were sampled (i.e. mid-timestep, or end of timestep)), which would only have been evident if
 //                                        HDF5 files were compared to e.g. CSV files for the same binary - CSV, TSV, and TXT files had values sampled mid-timestep, HDF5 files 
 //                                        at end of timestep).
 //                                      - Added Log::Write() and Log::Put() for HDF5 files (better implementation - worked around in original implementation)
+//                                      - Added additional checks for bad string -> number conversions throughout (for stoi(), stod(), etc.)
 //                                      - Performance enhancement to BaseBinaryStar::CalculateTimeToCoalescence() (return early if e = 0.0)
 //                                      - Fixed a few typos in comments
 

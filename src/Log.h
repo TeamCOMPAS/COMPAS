@@ -231,6 +231,90 @@ using std::string;
  *
  * 
  * JR, January 2021
+ * 
+ * 
+ * 
+ * Annotations
+ * ===========
+ * 
+ * We have added functionality to allow users to annotate log files.  The original motivation for 
+ * annotation functionality was to enable users to describe the contents of custom grid files, but
+ * annotations can be used for any reason.  With the ability to annotate the log files, the users
+ * can indicate the origin of various input data - e.g. the user could indicate what IMF was used 
+ * to draw initial mass values, or what distribution was used to draw mass ratio (q), etc.  
+ * 
+ * Annotations are written to log files as columns of data (aka datasets in HDF5 files).
+ * Annotations are specified via program options, and so can be specified on the command line as
+ * well as in grid files.  Because annotations are written to log files as columns of data, we
+ * have provided functionality to provide headers for the columns, as well as the actual data
+ * for the columns (the annotations).  Two new program options are provided:
+ * 
+ * --notes-hdrs 
+ * Allows users to specify header strings for annotation columns.  Can only be specified on the
+ * command line.  Allows users to specify one or more annotation header strings: this is a vector
+ * program option.  Usage is:
+ * 
+ *      --notes-hdrs headerstr1 headerstr2 headerstr3 ... headerstrN
+ * 
+ * Note that header strings are separated by a space character.  There is no limit to the number
+ * of header strings specified, and the number specified defines the number of annotations allowed.
+ *
+ * 
+ * --notes
+ * Allows users to specify annotations.  Can be specified on the command line and in a grid file.
+ * Allows users to specify one or more annotation strings: this is a vector program option.  Usage
+ * is:
+ * 
+ *      --notes annotation1 annotation2 annotation3 ... annotationN
+ * 
+ * Note that annotation strings are separated by a space character.  The number of annotation
+ * strings is limited to the number of annotation header strings specified (via the --notes-hdrs
+ * program option).  If more annotation strings are specified than header strings, the excess
+ * annotation strings will be ignored (and a warning displayed).  Note that when using this notation
+ * all annotation strings must be provided: there is no mechanism to allow a default annotation
+ * using the fallback method for program options (to the command-line value, then to the COMPAS
+ * default) - leaving an annotation string blank would be ambiguous (as to which annotation string
+ * had been left blank), and specifying "" as an annotation string would be ambiguous (as to whether
+ * the use wanted the annotation string to default, or just be a blank string).
+ * 
+ * Because this notation could become awkward, and to allow for default annotations, a shorthand
+ * notation for vector program options has been provided (see notes in Options.h for details).
+ * 
+ * Usage using the shorthand notation is:
+ * 
+ *     --notes-hdrs [headerstr1,headerstr2,headerstr3,...,headerStrN]
+ * 
+ *     --notes [annotation1,annotation2,annotation3,...,annotationN]
+ * 
+ * Because the parameters are bounded by the brackets, and delimited by commas (and so are now
+ * positional), users can omit specific annotations:
+ * 
+ *     --notes [,,annotation3,,annotation5]
+ * 
+ * In the example above, annotations 1, 2, 4, and those beyond annotation 5 have been omitted.
+ * Annotations 1, 2 & 4 will default - if they are specified in this manner on a grid line they will
+ * default to the correspodning annotation specified on the command line; if they are specified in 
+ * this manner on the command line they will default to the COMPAS default annotation (the empty 
+ * string).  If the number of annotations expected, as defined by the number of annotation headers 
+ * specified via the --notes-hdrs program option is more than 5, then anotations beyond annotation 5
+ * (the last annotation actually specified by the user) will default in the same manner as described
+ * above.
+ * 
+ * Note that any spaces in annotation header strings and annotation strings need to be enclosed in
+ * quotes, or the shell parser will parse them as separate arguments.  If the logfile type is
+ * specified as TXT, then any spaces in annotation header strings and annotation strings need to
+ * be enclosed in quotes to avoid the shell parser parsing them as separate arguments, but also
+ * need to have enclosing quotes propagated to the logfile, or the spaces will be interpreted as
+ * delimiters in the logfile - in this cae, the user will need to add enclosing escaped quote
+ * characters ('\"') before adding the enclosing quotes.  e.g.:
+ * 
+ *     --notes-hdrs [headerstr1,"\"header str 2\"",headerstr3,...,headerStrN]
+ * 
+ * (Note that this is true of all string program option values - spaces that are to be propagated to
+ * TXT logfiles need to be enclosed in escaped quotes).
+ * 
+ * 
+ * JR, October 2021
  */
 
 
@@ -345,11 +429,11 @@ private:
         m_TypeSwitchingTo   = STELLAR_TYPE::NONE;                                   // stellar type to which Star object is switching - default NONE
         m_PrimarySwitching  = false;                                                // Star swithcing is primary star of binary - default false
 
-        m_SSESupernova_DelayedLogRecordString = "";                                 // delayed log record (string) for SSE_Supernova file - initially empty
-        m_SSESupernova_DelayedLogRecordValues = {};                                 // delayed log record (property values) for SSE_Supernova file - initially empty
-        m_SSESupernova_LogRecordProperties    = {};                                 // SSE Supernova logfile record properties - initially empty
-        m_SSESupernova_LogRecordFmtVector     = {};                                 // SSE Supernova logfile format vector - initially empty
-        m_SSESupernova_Annotations            = {};                                 // SSE Supernova annotations vector - initially empty
+        m_SSESupernovae_DelayedWrite.logRecordString     = "";                      // delayed log record (string) for SSE_Supernovae file - initially empty
+        m_SSESupernovae_DelayedWrite.logRecordValues     = {};                      // delayed log record (property values) for SSE_Supernovae file - initially empty
+        m_SSESupernovae_DelayedWrite.logRecordProperties = {};                      // SSE Supernovae logfile record properties - initially empty
+        m_SSESupernovae_DelayedWrite.logRecordFmtVector  = {};                      // SSE Supernovae logfile format vector - initially empty
+        m_SSESupernovae_DelayedWrite.logFileAnnotations  = {};                      // SSE Supernovae annotations vector - initially empty
 
         m_OptionDetails = {};                                                       // option details retrieved from commandline - initially empty
     };
@@ -483,19 +567,23 @@ private:
     bool         m_PrimarySwitching;                                                // flag to indicate whether the primary star of the binary is switching
 
 
-    // the following block of variables support delayed writes to logfiles
+    // the following struct supports delayed writes to logfiles
     //
     // For now, only delayed writes to the SSE Supernova file is implemented, and only a single record can be delayed.
     // This functionality was introduced specifically to allow queueing a delayed write the to SSE Supernova file - see
     // the discussion in the description of Log::GetStandardLogFileRecordDetails() in Log.cpp.
     // This functionality probably shouldn't be extended to allow queueing/delaying multiple records for later writing
     // (I don't think we need it, it would probably soak up too much memory if over-used, and it might just cause confusion)
-    
-    string                            m_SSESupernova_DelayedLogRecordString;        // log record to be written to SSE Supernova log file in delayed write
-    std::vector<COMPAS_VARIABLE_TYPE> m_SSESupernova_DelayedLogRecordValues;        // log record property values be written to SSE Supernova log file in delayed write
-    ANY_PROPERTY_VECTOR               m_SSESupernova_LogRecordProperties;           // SSE Supernova logfile record properties
-    std::vector<string>               m_SSESupernova_LogRecordFmtVector;            // SSE Supernova logfile format vector
-    std::vector<bool>                 m_SSESupernova_Annotations;                   // SSE Supernova logfile annotations vector
+
+    struct delayedWriteDetailsT {                                                   // attributes of delayed writes
+        string                            logRecordString;                          // log record to be written to log file in delayed write
+        std::vector<COMPAS_VARIABLE_TYPE> logRecordValues;                          // log record property values be written to log file in delayed write
+        ANY_PROPERTY_VECTOR               logRecordProperties;                      // logfile record properties
+        std::vector<string>               logRecordFmtVector;                       // logfile format vector
+        std::vector<bool>                 logFileAnnotations;                       // logfile annotations vector
+    };
+
+    delayedWriteDetailsT m_SSESupernovae_DelayedWrite;                              // SSE_Supernovae delayed write detials    
     
   
     // the following block of variables support the run details file
@@ -569,14 +657,14 @@ private:
      * 
      *
      * template <class T1, typename T2>
-     * std::tuple<string, std::vector<COMPAS_VARIABLE_TYPE>> GetLogStandardRecord(const LOGFILE             p_LogFile,
-     *                                                                            const T1* const           p_Star,
-     *                                                                            const ANY_PROPERTY_VECTOR p_RecordProperties,
-     *                                                                            const std::vector<string> p_FmtVector,
-     *                                                                            const std::vector<bool>   p_Annotations,
-     *                                                                            const bool                p_UseSpecifiedValue,
-     *                                                                            const ANY_STAR_PROPERTY   p_SpecifiedProperty,
-     *                                                                            const T2                  p_SpecifiedPropertyValue)
+     * std::tuple<std::string, std::vector<COMPAS_VARIABLE_TYPE>> GetLogStandardRecord(const LOGFILE             p_LogFile,
+     *                                                                                 const T1* const           p_Star,
+     *                                                                                 const ANY_PROPERTY_VECTOR p_RecordProperties,
+     *                                                                                 const std::vector<string> p_FmtVector,
+     *                                                                                 const std::vector<bool>   p_Annotations,
+     *                                                                                 const bool                p_UseSpecifiedValue,
+     *                                                                                 const ANY_STAR_PROPERTY   p_SpecifiedProperty,
+     *                                                                                 const T2                  p_SpecifiedPropertyValue)
      *
      * @param   [IN]    p_LogFile                   The logfile for which the record should be constructed
      * @param   [IN]    p_Star                      The object from which the values to be used to construct the record should be retrieved
@@ -593,14 +681,14 @@ private:
      *                                                  - Vector of property values - empty vector if an error occurred
      */
     template <class T1, typename T2>
-    std::tuple<string, std::vector<COMPAS_VARIABLE_TYPE>> GetLogStandardRecord(const LOGFILE             p_LogFile,
-                                                                               const T1* const           p_Star,
-                                                                               const ANY_PROPERTY_VECTOR p_RecordProperties,
-                                                                               const std::vector<string> p_FmtVector,
-                                                                               const std::vector<bool>   p_Annotations,
-                                                                               const bool                p_UseSpecifiedValue,
-                                                                               const ANY_STAR_PROPERTY   p_SpecifiedProperty,
-                                                                               const T2                  p_SpecifiedPropertyValue) {
+    std::tuple<std::string, std::vector<COMPAS_VARIABLE_TYPE>> GetLogStandardRecord(const LOGFILE             p_LogFile,
+                                                                                    const T1* const           p_Star,
+                                                                                    const ANY_PROPERTY_VECTOR p_RecordProperties,
+                                                                                    const std::vector<string> p_FmtVector,
+                                                                                    const std::vector<bool>   p_Annotations,
+                                                                                    const bool                p_UseSpecifiedValue,
+                                                                                    const ANY_STAR_PROPERTY   p_SpecifiedProperty,
+                                                                                    const T2                  p_SpecifiedPropertyValue) {
 
         bool ok = true;                                                                                                         // initially
 
@@ -638,11 +726,11 @@ private:
             // NOTES is stored as a vector of strings, and we want to print all notes specified by the
             // annotations specification for the file
 
-            bool havePropertyValue = false;
+            bool needPropertyValue = true;
             if (thisPropertyType == ANY_PROPERTY_TYPE::T_PROGRAM_OPTION ) {                                                     // this property a PROGRAM_OPTION property?
                 PROGRAM_OPTION thisProperty = boost::get<PROGRAM_OPTION>(property);                                             // get property
-                if (thisProperty == PROGRAM_OPTION::NOTES) {
-
+                if (thisProperty == PROGRAM_OPTION::NOTES) {                                                                    // PROGRAM_OPTION::NOTES?
+                                                                                                                                // yes
                     for (size_t idx = 0; idx < p_Annotations.size(); idx ++) {                                                  // for each user-specified annotation
                         if (p_Annotations[idx]) {                                                                               // include it?
                             value = boost::variant<std::string>(OPTIONS->Notes(idx));                                           // yes - get value
@@ -656,12 +744,12 @@ private:
                             }
                         }
                     }
-                    havePropertyValue = true;                                                                                   // have property value
+                    needPropertyValue = false;                                                                                  // have property value (or don't need it)
                 }
             }
 
-            if (!havePropertyValue) {                                                                                           // have property value yet?
-                                                                                                                                // no - not PROGRAM_OPTION::NOTES
+            if (needPropertyValue) {                                                                                            // have property value yet?
+                                                                                                                                // no - need to get it
                 ANY_STAR_PROPERTY thisProperty = ANY_STAR_PROPERTY::NONE;
                 if (p_UseSpecifiedValue) {                                                                                      // replace specific value?
 
@@ -820,224 +908,12 @@ private:
      *                        const int      p_LogLevel,
      *                        const LOGFILE  p_LogFile,
      *                        const T* const p_Star,
-     *                        const string   p_LogRecord,
      *                        const string   p_FileSuffix = "")
      *
      * @param   [IN]    p_LogClass                  Class to determine if record should be written
      * @param   [IN]    p_LogLevel                  Level to determine if record should be written
      * @param   [IN]    p_LogFile                   The logfile to which the record should be written
      * @param   [IN]    p_Star                      The star object from which the field values should be retrieved
-     * @param   [IN]    p_LogRecord                 Formatted record to be written to the logfile
-     *                                                  If this parameter is supplied as an empty string the function will construct
-     *                                                  a record from current data.
-     *                                                  If this parameter is supplied as a non-empty string it will be written to the
-     *                                                  file as is (the function will not construct a record from current data)
-     *                                              This parameter is currently ignored for HDF5 files - all standard logfiles are
-     *                                              comprised of columns of values that can be written as a single, delimited, string
-     *                                              for CSV, TSV, and TXT files, but not for HDF5 files.  HDF5 files require the 
-     *                                              actual values to be written into datasets of the correct datatype.  So until we
-     *                                              introduce a standard logfile that is actually just a single string (single column),
-     *                                              p_LogRecord is ignored for HDF5 files.
-     * @param   [IN]    p_FileSuffix                String suffix to be added to the logfile name (optional, default = "")
-     * @return                                      Boolean status (true = success, false = failure)
-     */
-/*
-    template <class T>
-    bool LogStandardRecord(const string   p_LogClass,
-                           const int      p_LogLevel,
-                           const LOGFILE  p_LogFile,
-                           const T* const p_Star,
-                           const string   p_LogRecord,
-                           const string   p_FileSuffix = "") {
-
-        bool ok = true;
-
-        LogfileDetailsT fileDetails = StandardLogFileDetails(p_LogFile, p_FileSuffix);                                                  // get record details - open file (if necessary)
-        if (fileDetails.id >= 0) {                                                                                                      // file open?
-
-            string logRecord = "";                                                                                                      // for CSV, TSV, TXT files: the record to be written to the log file
-            std::vector<COMPAS_VARIABLE_TYPE> logRecordValues = {};                                                                     // for HDF5 files: vector of values to be written
-
-            if (p_LogRecord.empty() || m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                      // logfile record passed in is empty, or ignored for HDF5 files
-                                                                                                                                        // yes
-                // set delimiter based on logfile type
-                string delimiter = "";                                                                                                  // default
-                switch (m_Logfiles[fileDetails.id].filetype) {
-                    case LOGFILETYPE::HDF5: delimiter = ""; break;                                                                      // HDF5
-                    case LOGFILETYPE::CSV : delimiter = DELIMITERValue.at(DELIMITER::COMMA); break;                                     // CSV
-                    case LOGFILETYPE::TSV : delimiter = DELIMITERValue.at(DELIMITER::TAB); break;                                       // TSV
-                    case LOGFILETYPE::TXT : delimiter = DELIMITERValue.at(DELIMITER::SPACE); break;                                     // TXT
-                    default               : delimiter = ""; break;                                                                      // default
-                }
-
-                                                                                                                                        // construct log record from current data
-                ANY_PROPERTY_VECTOR properties = fileDetails.recordProperties;                                                          // vector of properties to be printed
-
-                // get values
-                //    - format for printing for CSV, TSV and TXT files
-                //    - record for HDF5 files
-                COMPAS_VARIABLE_TYPE value;                                                                                             // property value
-                string               valueStr;                                                                                          // string for formatted value
-
-                int index = 0;
-                for (auto &property : properties) {                                                                                     // for each property to be included in the log record
-                    ANY_PROPERTY_TYPE thisPropertyType = boost::apply_visitor(VariantPropertyType(), property);                         // get property type fpr this property
-            
-                    boost::variant<string> fmtStr(fileDetails.fmtStrings[index++]);                                                     // get format string for this property
-
-                    // program option NOTES is special...
-                    //
-                    // NOTES is stored as a vector of strings, and we want to print all notes specified by the
-                    // annotations specification for the file
-
-                    bool havePropertyValue = false;
-                    if (thisPropertyType == ANY_PROPERTY_TYPE::T_PROGRAM_OPTION ) {                                                     // this property a PROGRAM_OPTION property?
-                        PROGRAM_OPTION thisProperty = boost::get<PROGRAM_OPTION>(property);                                             // get property
-                        if (thisProperty == PROGRAM_OPTION::NOTES) {
-                            LogfileDetailsT fileDetails = StandardLogFileDetails(p_LogFile);                                            // need file details - file should already be open
-
-                            for (size_t idx = 0; idx < fileDetails.annotations.size(); idx ++) {                                        // for each user-specified annotation
-                                if (fileDetails.annotations[idx]) {                                                                     // include it?
-                                    value = boost::variant<std::string>(OPTIONS->Notes(idx));                                           // yes - get value
-
-                                    if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                     // HDF5 file?
-                                        logRecordValues.push_back(value);                                                               // yes - add value to vector of values
-                                    }
-                                    else {                                                                                              // no - CSV, TSV, or TXT file
-                                        valueStr = boost::apply_visitor(FormatVariantValue(), value, fmtStr);                           // format value
-                                        logRecord += valueStr + delimiter;                                                              // add value string to log record - with delimiter
-                                    }
-                                }
-                            }
-                            havePropertyValue = true;                                                                                   // have property value
-                        }
-                    }
-
-                    if (!havePropertyValue) {                                                                                           // have property value yet?
-                                                                                                                                        // no - not PROGRAM_OPTION::NOTES
-                        std::tie(ok, value) = p_Star->PropertyValue(property);                                                          // get property flag and value
-                        if (ok) {                                                                                                       // have valid property value
-                            if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                             // yes - HDF5 file?
-                                logRecordValues.push_back(value);                                                                       // add value to vector of values
-                            }
-                            else {                                                                                                      // no - CSV, TSV, or TXT file
-                                valueStr = boost::apply_visitor(FormatVariantValue(), value, fmtStr);                                   // format value
-                                logRecord += valueStr + delimiter;                                                                      // add value string to log record - with delimiter
-                            }
-                        }
-                        else {                                                                                                          // unknown property type - should never happen
-                            Squawk(ERR_MSG(ERROR::UNKNOWN_PROPERTY_TYPE) + " while writing to logfile " + fileDetails.filename);        // show warning
-                            ok = false;                                                                                                 // fail
-                            break;                                                                                                      // stop now
-                        }
-                    }
-                }
-
-                if (ok) {
-                    // if we are writing to the SSE Switch file we add two pre-defined columns
-                    // to the end of the log record.  These are:
-                    //
-                    // ( i) the stellar type from which the star is switching
-                    // (ii) the stellar type to which the star is switching
-                    //
-                    // if we are writing to the BSE Switch file we add three pre-defined columns
-                    // to the end of the log record.  These are:
-                    //
-                    // (  i) the star switching - 1 = primary, 2 = secondary
-                    // ( ii) the stellar type from which the star is switching
-                    // (iii) the stellar type to which the star is switching
-
-                    string fmtStr = "%4.1d";                                                                                            // format - all integers here
-
-                    if (p_LogFile == LOGFILE::BSE_SWITCH_LOG) {
-                        int starSwitching = m_PrimarySwitching ? 1 : 2;                                                                 // primary (1) or secondary (2)
-                        if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                                 // yes - HDF5 file?
-                            logRecordValues.push_back(starSwitching);                                                                   // add value to vector of values
-                        }
-                        else {                                                                                                          // no - CSV, TSV, or TXT file
-                            logRecord += utils::vFormat(fmtStr.c_str(), starSwitching) + delimiter;                                     // add value string to log record - with delimiter
-                        }
-                    }
-
-                    if (p_LogFile == LOGFILE::BSE_SWITCH_LOG || p_LogFile == LOGFILE::SSE_SWITCH_LOG) {
-                        STELLAR_TYPE switchingFrom = m_TypeSwitchingFrom;                                                               // switching from (stellar type)
-                        if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                                 // HDF5 file?
-                            logRecordValues.push_back(switchingFrom);                                                                   // yes - add value to vector of values
-                        }
-                        else {                                                                                                          // no - CSV, TSV, or TXT file
-                            logRecord += utils::vFormat(fmtStr.c_str(), switchingFrom) + delimiter;                                     // add value string to log record - with delimiter
-                        }
-
-                        STELLAR_TYPE switchingTo = m_TypeSwitchingTo;                                                                   // switching to (stellar type)
-                        if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                                 // HDF5 file?
-                            logRecordValues.push_back(switchingTo);                                                                     // yes - add value to vector of values
-                        }
-                        else {                                                                                                          // no - CSV, TSV, or TXT file
-                            logRecord += utils::vFormat(fmtStr.c_str(), switchingTo) + delimiter;                                       // add value string to log record - with delimiter
-                        }
-                    }
-
-                    if (m_Logfiles[fileDetails.id].filetype != LOGFILETYPE::HDF5) {                                                     // HDF5 file?
-                        logRecord = logRecord.substr(0, logRecord.size()-1);                                                            // no - remove the last character - extraneous delimiter
-                    }
-                }
-            }
-            else {                                                                                                                      // logfile record passed in is not empty
-                logRecord = p_LogRecord;                                                                                                // use logfile record passed in
-            }
-
-            if (ok) {                                                                                                                   // if all ok, write the record
-                if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                                         // HDF5 file?
-                    ok = Put(fileDetails.id, p_LogClass, p_LogLevel, logRecordValues);                                                  // yes - write the record
-                }
-                else {                                                                                                                  // no - CSV, TSV, or TXT file
-                    ok = Put(fileDetails.id, p_LogClass, p_LogLevel, logRecord);                                                        // write the record
-                }
-                if (!ok) Squawk(ERR_MSG(ERROR::FILE_WRITE_ERROR) + " while writing to logfile " + fileDetails.filename);                // show warning if record not written ok
-            }
-        }
-
-        return ok;
-    }
-*/
-
-
-    /*
-     * Write a record to a standard logfile - for non-HDF5 logfile types
-     *
-     * This function writes a log record to one of the non-HDF5 standard COMPAS logfiles.
-     * The record to be written is identified by the logfile to which it is to be written, and the data
-     * is assembled on-the-fly.  The star from which the data should be gathered is passed as a parameter,
-     * as is the logfile to which the record should be written, as well as a string suffix for the logfile
-     * name.
-     *
-     * If the logfile is not already open, it will be opened by calling this function.
-     *
-     * The logging classes and level set by program options are honoured by this function.  The log class
-     * and level for this record are passed as parameters.  If the log class for this record is not
-     * configured to be logged, this function returns without performing any logging action (i.e. the log
-     * file status (open, closed) and contents, will be unchanged by this function.  Similarly, if the
-     * log level for this record indicates that the record should not be logged, no changes will be made
-     * by this function.
-     * 
-     *
-     * template <class T>
-     * bool LogStandardRecord(const string   p_LogClass,
-     *                        const int      p_LogLevel,
-     *                        const LOGFILE  p_LogFile,
-     *                        const T* const p_Star,
-     *                        const string   p_LogRecord,
-     *                        const string   p_FileSuffix = "")
-     *
-     * @param   [IN]    p_LogClass                  Class to determine if record should be written
-     * @param   [IN]    p_LogLevel                  Level to determine if record should be written
-     * @param   [IN]    p_LogFile                   The logfile to which the record should be written
-     * @param   [IN]    p_Star                      The star object from which the field values should be retrieved
-     * @param   [IN]    p_LogRecord                 String containing the formatted record to be written to the logfile
-     *                                                  If this parameter is supplied as an empty string the function will construct
-     *                                                  a record from current data.
-     *                                                  If this parameter is supplied as a non-empty string it will be written to the
-     *                                                  file as is (the function will not construct a record from current data)
      * @param   [IN]    p_FileSuffix                String suffix to be added to the logfile name (optional, default = "")
      * @return                                      Boolean status (true = success, false = failure)
      */
@@ -1046,7 +922,6 @@ private:
                            const int      p_LogLevel,
                            const LOGFILE  p_LogFile,
                            const T* const p_Star,
-                           const string   p_LogRecord,
                            const string   p_FileSuffix = "") {
 
         bool ok = true;                                                                                                     // initially
@@ -1054,90 +929,85 @@ private:
         LogfileDetailsT fileDetails = StandardLogFileDetails(p_LogFile, p_FileSuffix);                                      // get record details - open file (if necessary)
         if (fileDetails.id >= 0) {                                                                                          // file open?
 
-            if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {
-                Squawk(ERR_MSG(ERROR::UNEXPECTED_LOG_FILE_TYPE) + " while writing to logfile " + fileDetails.filename);     // show warning: unexpected logfile type
-                ok = false;                                                                                                 // fail
-            }
-            else {
-                string logRecord = p_LogRecord;                                                                             // for CSV, TSV, TXT files: the record to be written to the log file
-                if (logRecord.empty()) {                                                                                    // logfile record passed in is empty?                                                               
-                                                                                                                            // yes - construct log record from current data
-                    std::tie(logRecord, std::ignore) = GetLogStandardRecord(p_LogFile, p_Star, fileDetails.recordProperties, fileDetails.fmtStrings, fileDetails.annotations);
-                }
+            std::string logRecordString;                                                                                    // for CSV, TSV, TXT files: the record to be written to the log file
+            std::vector<COMPAS_VARIABLE_TYPE> logRecordValues;                                                              // for HDF5 files: vector of values to be written
 
-                ok = Put(fileDetails.id, p_LogClass, p_LogLevel, logRecord);                                                // write the record
-                if (!ok) Squawk(ERR_MSG(ERROR::FILE_WRITE_ERROR) + " while writing to logfile " + fileDetails.filename);    // show warning if record not written ok
-            }
+            // construct the record - gets both string and vector of values
+            std::tie(logRecordString, logRecordValues) = GetLogStandardRecord(p_LogFile, p_Star, fileDetails.recordProperties, fileDetails.fmtStrings, fileDetails.annotations);
+
+            if (OPTIONS->LogfileType() == LOGFILETYPE::HDF5)                                                                // logging to HDF5 file?
+                ok = Put(fileDetails.id, p_LogClass, p_LogLevel, logRecordValues);                                          // yes - write the record
+            else                                                                                                            // not HDF5
+                ok = Put(fileDetails.id, p_LogClass, p_LogLevel, logRecordString);                                          // write the record
+
+            if (!ok) Squawk(ERR_MSG(ERROR::FILE_WRITE_ERROR) + " while writing to logfile " + fileDetails.filename);        // show warning if record not written ok
         }
         return ok;
     }
 
 
     /*
-     * Write a record to a standard logfile - for HDF5 logfile types
-     *
-     * This function writes a log record to one of the HDF5 standard COMPAS logfiles.
-     * The record to be written is identified by the logfile to which it is to be written, and the data
-     * is assembled on-the-fly.  The star from which the data should be gathered is passed as a parameter,
-     * as is the logfile to which the record should be written, as well as a string suffix for the logfile
-     * name.
-     *
-     * If the logfile is not already open, it will be opened by calling this function.
-     *
-     * The logging classes and level set by program options are honoured by this function.  The log class
-     * and level for this record are passed as parameters.  If the log class for this record is not
-     * configured to be logged, this function returns without performing any logging action (i.e. the log
-     * file status (open, closed) and contents, will be unchanged by this function.  Similarly, if the
-     * log level for this record indicates that the record should not be logged, no changes will be made
-     * by this function.
+     * The following two variants of LogStandardRecord() are here to allow logging records already
+     * constructed.  Parameters are the same except for an additional parameter in each case: for
+     * HDF5 files the extra parameter is a vector of values, and for non-HDF5 files the parameter
+     * is a string.
      * 
-     *
-     * template <class T>
-     * bool LogStandardRecord(const string                            p_LogClass,
-     *                        const int                               p_LogLevel,
-     *                        const LOGFILE                           p_LogFile,
-     *                        const T* const                          p_Star,
-     *                        const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues,
-     *                        const string                            p_FileSuffix = "")
-     *
-     * @param   [IN]    p_LogClass                  Class to determine if record should be written
-     * @param   [IN]    p_LogLevel                  Level to determine if record should be written
-     * @param   [IN]    p_LogFile                   The logfile to which the record should be written
-     * @param   [IN]    p_Star                      The star object from which the field values should be retrieved
-     * @param   [IN]    p_LogRecordValues           Vector containing the property values to be written to the logfile
-     *                                                  If this parameter is supplied as an empty vector the function will construct
-     *                                                  a vector of property values from current data.
-     *                                                  If this parameter is supplied as a non-empty vector it will be written to the
-     *                                                  file as is (the function will not construct a vector from current data)
-     * @param   [IN]    p_FileSuffix                String suffix to be added to the logfile name (optional, default = "")
-     * @return                                      Boolean status (true = success, false = failure)
+     * See description of GetLogStandardRecord() for functionality and parameter descriptions.
+     */
+
+    /*
+     * ... for non-HDF5 files
+     * @param   [IN]    p_LogRecordString           The previously constrcuted string to be written to the file
+     */
+    template <class T>
+    bool LogStandardRecord(const string   p_LogClass,
+                           const int      p_LogLevel,
+                           const LOGFILE  p_LogFile,
+                           const T* const p_Star,
+                           const string   p_FileSuffix,
+                           const string   p_LogRecordString) {
+
+        bool ok = true;                                                                                                     // initially
+
+        LogfileDetailsT fileDetails = StandardLogFileDetails(p_LogFile, p_FileSuffix);                                      // get record details - open file (if necessary)
+        if (fileDetails.id >= 0) {                                                                                          // file open?
+
+            if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                                 // HDF5 file?
+                Squawk(ERR_MSG(ERROR::UNEXPECTED_LOG_FILE_TYPE) + " while writing to logfile " + fileDetails.filename);     // yes - show warning: unexpected logfile type
+                ok = false;                                                                                                 // fail
+            }
+            else {                                                                                                          // not HDF5
+                ok = Put(fileDetails.id, p_LogClass, p_LogLevel, p_LogRecordString);                                        // write the record
+                if (!ok) Squawk(ERR_MSG(ERROR::FILE_WRITE_ERROR) + " while writing to logfile " + fileDetails.filename);    // show warning if record not written ok
+            }
+        }
+        return ok;
+    }
+
+    /*
+     * ... for HDF5 files
+     * @param   [IN]    p_LogRecordValues           The previously constrcuted string to be written to the file
      */
     template <class T>
     bool LogStandardRecord(const string                            p_LogClass,
                            const int                               p_LogLevel,
                            const LOGFILE                           p_LogFile,
                            const T* const                          p_Star,
-                           const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues,
-                           const string                            p_FileSuffix = "") {
+                           const string                            p_FileSuffix,
+                           const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues) {
 
         bool ok = true;                                                                                                     // initially
 
         LogfileDetailsT fileDetails = StandardLogFileDetails(p_LogFile, p_FileSuffix);                                      // get record details - open file (if necessary)
         if (fileDetails.id >= 0) {                                                                                          // file open?
 
-            if (m_Logfiles[fileDetails.id].filetype != LOGFILETYPE::HDF5) {
+            if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                                 // HDF5 file?
+                ok = Put(fileDetails.id, p_LogClass, p_LogLevel, p_LogRecordValues);                                        // yes - write the record
+                if (!ok) Squawk(ERR_MSG(ERROR::FILE_WRITE_ERROR) + " while writing to logfile " + fileDetails.filename);    // show warning if record not written ok
+            }
+            else {                                                                                                          // not HDF5
                 Squawk(ERR_MSG(ERROR::UNEXPECTED_LOG_FILE_TYPE) + " while writing to logfile " + fileDetails.filename);     // show warning: unexpected logfile type
                 ok = false;                                                                                                 // fail
-            }
-            else {
-                std::vector<COMPAS_VARIABLE_TYPE> logRecordValues = p_LogRecordValues;                                      // for HDF5 files: vector of values to be written
-                if (logRecordValues.empty()) {                                                                              // logfile record values vector passed in is empty?                                                               
-                                                                                                                            // yes - construct log record from current data
-                    std::tie(std::ignore, logRecordValues) = GetLogStandardRecord(p_LogFile, p_Star, fileDetails.recordProperties, fileDetails.fmtStrings, fileDetails.annotations);
-                }
-
-                ok = Put(fileDetails.id, p_LogClass, p_LogLevel, logRecordValues);                                          // write the record
-                if (!ok) Squawk(ERR_MSG(ERROR::FILE_WRITE_ERROR) + " while writing to logfile " + fileDetails.filename);    // show warning if record not written ok
             }
         }
         return ok;
@@ -1224,72 +1094,46 @@ public:
     std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>, std::vector<bool>> GetStandardLogFileRecordDetails(const LOGFILE p_Logfile);
 
     template <class T>
-    bool LogBeBinary(const T* const p_Binary)                               { return OPTIONS->LogfileType() == LOGFILETYPE::HDF5
-                                                                                        ? LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES)), 0, LOGFILE::BSE_BE_BINARIES, p_Binary, std::vector<COMPAS_VARIABLE_TYPE>({}))
-                                                                                        : LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES)), 0, LOGFILE::BSE_BE_BINARIES, p_Binary, std::string("")); }
+    bool LogBeBinary(const T* const p_Binary)                               { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES)), 0, LOGFILE::BSE_BE_BINARIES, p_Binary); }
 
     template <class T>
-    bool LogBSEDetailedOutput(const T* const p_Binary, const long int p_Id) { return OPTIONS->LogfileType() == LOGFILETYPE::HDF5
-                                                                                        ? LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT)), 0, LOGFILE::BSE_DETAILED_OUTPUT, p_Binary, std::vector<COMPAS_VARIABLE_TYPE>({}))
-                                                                                        : LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT)), 0, LOGFILE::BSE_DETAILED_OUTPUT, p_Binary, std::string("")); }
+    bool LogBSEDetailedOutput(const T* const p_Binary, const long int p_Id) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT)), 0, LOGFILE::BSE_DETAILED_OUTPUT, p_Binary); }
 
     template <class T>
-    bool LogBSEPulsarEvolutionParameters(const T* const p_Binary)           { return OPTIONS->LogfileType() == LOGFILETYPE::HDF5
-                                                                                        ? LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)), 0, LOGFILE::BSE_PULSAR_EVOLUTION, p_Binary, std::vector<COMPAS_VARIABLE_TYPE>({}))
-                                                                                        : LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)), 0, LOGFILE::BSE_PULSAR_EVOLUTION, p_Binary, std::string("")); }
+    bool LogBSEPulsarEvolutionParameters(const T* const p_Binary)           { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)), 0, LOGFILE::BSE_PULSAR_EVOLUTION, p_Binary); }
 
     template <class T>
-    bool LogBSESupernovaDetails(const T* const p_Binary)                    { return OPTIONS->LogfileType() == LOGFILETYPE::HDF5
-                                                                                        ? LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE)), 0, LOGFILE::BSE_SUPERNOVAE, p_Binary, std::vector<COMPAS_VARIABLE_TYPE>({}))
-                                                                                        : LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE)), 0, LOGFILE::BSE_SUPERNOVAE, p_Binary, std::string("")); }
+    bool LogBSESupernovaDetails(const T* const p_Binary)                    { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE)), 0, LOGFILE::BSE_SUPERNOVAE, p_Binary); }
     
     template <class T>
     bool LogBSESwitchLog(const T* const p_Binary, const bool p_PrimarySwitching) {
         m_PrimarySwitching = p_PrimarySwitching;        
-        return OPTIONS->LogfileType() == LOGFILETYPE::HDF5
-                ? LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG)), 0, LOGFILE::BSE_SWITCH_LOG, p_Binary, std::vector<COMPAS_VARIABLE_TYPE>({}))
-                : LogStandardRecord(get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG)), 0, LOGFILE::BSE_SWITCH_LOG, p_Binary, "");
+        return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG)), 0, LOGFILE::BSE_SWITCH_LOG, p_Binary);
     }
 
     template <class T>
-    bool LogBSESystemParameters(const T* const p_Binary)                    { return OPTIONS->LogfileType() == LOGFILETYPE::HDF5
-                                                                                        ? LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS)), 0, LOGFILE::BSE_SYSTEM_PARAMETERS, p_Binary, std::vector<COMPAS_VARIABLE_TYPE>({}))
-                                                                                        : LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS)), 0, LOGFILE::BSE_SYSTEM_PARAMETERS, p_Binary, std::string("")); }
+    bool LogBSESystemParameters(const T* const p_Binary)                    { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS)), 0, LOGFILE::BSE_SYSTEM_PARAMETERS, p_Binary); }
 
     template <class T>
-    bool LogCommonEnvelope(const T* const p_Binary)                         { return OPTIONS->LogfileType() == LOGFILETYPE::HDF5
-                                                                                        ? LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES)), 0, LOGFILE::BSE_COMMON_ENVELOPES, p_Binary, std::vector<COMPAS_VARIABLE_TYPE>({}))
-                                                                                        : LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES)), 0, LOGFILE::BSE_COMMON_ENVELOPES, p_Binary, std::string("")); }
+    bool LogCommonEnvelope(const T* const p_Binary)                         { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES)), 0, LOGFILE::BSE_COMMON_ENVELOPES, p_Binary); }
 
     template <class T>
-    bool LogDoubleCompactObject(const T* const p_Binary)                    { return OPTIONS->LogfileType() == LOGFILETYPE::HDF5
-                                                                                        ? LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS)), 0, LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, p_Binary, std::vector<COMPAS_VARIABLE_TYPE>({}))
-                                                                                        : LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS)), 0, LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, p_Binary, std::string("")); }
+    bool LogDoubleCompactObject(const T* const p_Binary)                    { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS)), 0, LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, p_Binary); }
 
     template <class T>
-    bool LogRLOFParameters(const T* const p_Binary)                         { return OPTIONS->LogfileType() == LOGFILETYPE::HDF5
-                                                                                        ? LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS)), 0, LOGFILE::BSE_RLOF_PARAMETERS, p_Binary, std::vector<COMPAS_VARIABLE_TYPE>({}))
-                                                                                        : LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS)), 0, LOGFILE::BSE_RLOF_PARAMETERS, p_Binary, std::string("")); }
+    bool LogRLOFParameters(const T* const p_Binary)                         { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS)), 0, LOGFILE::BSE_RLOF_PARAMETERS, p_Binary); }
 
     template <class T>
-    bool LogSSEDetailedOutput(const T* const p_Star, const int p_Id)        { return OPTIONS->LogfileType() == LOGFILETYPE::HDF5
-                                                                                        ? LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_DETAILED_OUTPUT)), 0, LOGFILE::SSE_DETAILED_OUTPUT, p_Star, std::vector<COMPAS_VARIABLE_TYPE>({}), "_" + std::to_string(abs(p_Id)))
-                                                                                        : LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_DETAILED_OUTPUT)), 0, LOGFILE::SSE_DETAILED_OUTPUT, p_Star, std::string(""), "_" + std::to_string(abs(p_Id))); }
+    bool LogSSEDetailedOutput(const T* const p_Star, const int p_Id)        { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_DETAILED_OUTPUT)), 0, LOGFILE::SSE_DETAILED_OUTPUT, p_Star, "_" + std::to_string(abs(p_Id))); }
 
     template <class T>
-    bool LogSSESupernovaDetails(const T* const p_Star)                      { return OPTIONS->LogfileType() == LOGFILETYPE::HDF5
-                                                                                        ? LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, p_Star, std::vector<COMPAS_VARIABLE_TYPE>({}))
-                                                                                        : LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, p_Star, std::string("")); }
+    bool LogSSESupernovaDetails(const T* const p_Star)                      { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, p_Star); }
 
     template <class T>
-    bool LogSSESwitchLog(const T* const p_Star)                             { return OPTIONS->LogfileType() == LOGFILETYPE::HDF5
-                                                                                        ? LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)), 0, LOGFILE::SSE_SWITCH_LOG, p_Star, std::vector<COMPAS_VARIABLE_TYPE>({}))
-                                                                                        : LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)), 0, LOGFILE::SSE_SWITCH_LOG, p_Star, std::string("")); }
+    bool LogSSESwitchLog(const T* const p_Star)                             { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)), 0, LOGFILE::SSE_SWITCH_LOG, p_Star); }
 
     template <class T>
-    bool LogSSESystemParameters(const T* const p_Star)                      { return OPTIONS->LogfileType() == LOGFILETYPE::HDF5
-                                                                                        ? LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS)), 0, LOGFILE::SSE_SYSTEM_PARAMETERS, p_Star, std::vector<COMPAS_VARIABLE_TYPE>({}))
-                                                                                        : LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS)), 0, LOGFILE::SSE_SYSTEM_PARAMETERS, p_Star, std::string("")); }
+    bool LogSSESystemParameters(const T* const p_Star)                      { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS)), 0, LOGFILE::SSE_SYSTEM_PARAMETERS, p_Star); }
 
 
     template <class T>
@@ -1297,20 +1141,26 @@ public:
 
         // if we don't already have the SSE Supernova log record properties that we need, get them
         // this will only need to be done once per run, so not a big overhead
-        if (m_SSESupernova_LogRecordProperties.empty() || m_SSESupernova_LogRecordFmtVector.empty() || m_SSESupernova_Annotations.empty()) {
-            std::tie(m_SSESupernova_LogRecordProperties, m_SSESupernova_LogRecordFmtVector, m_SSESupernova_Annotations) = LOGGING->GetStandardLogFileRecordDetails(LOGFILE::SSE_SUPERNOVAE);
+        if (m_SSESupernovae_DelayedWrite.logRecordProperties.empty() || 
+            m_SSESupernovae_DelayedWrite.logRecordFmtVector.empty()  || 
+            m_SSESupernovae_DelayedWrite.logFileAnnotations.empty()) {
+
+            std::tie(m_SSESupernovae_DelayedWrite.logRecordProperties, 
+                     m_SSESupernovae_DelayedWrite.logRecordFmtVector, 
+                     m_SSESupernovae_DelayedWrite.logFileAnnotations) = LOGGING->GetStandardLogFileRecordDetails(LOGFILE::SSE_SUPERNOVAE);
         }
 
         // get a formatted record with current data
         // this will replace any existing stashed record - no queue here
-        std::tie(m_SSESupernova_DelayedLogRecordString, m_SSESupernova_DelayedLogRecordValues) = GetLogStandardRecord(LOGFILE::SSE_SUPERNOVAE, 
-                                                                                                                      p_Star, 
-                                                                                                                      m_SSESupernova_LogRecordProperties, 
-                                                                                                                      m_SSESupernova_LogRecordFmtVector,
-                                                                                                                      m_SSESupernova_Annotations, 
-                                                                                                                      true, 
-                                                                                                                      (ANY_STAR_PROPERTY)STAR_PROPERTY::STELLAR_TYPE, 
-                                                                                                                      p_StellarType);
+        std::tie(m_SSESupernovae_DelayedWrite.logRecordString, 
+                 m_SSESupernovae_DelayedWrite.logRecordValues) = GetLogStandardRecord(LOGFILE::SSE_SUPERNOVAE, 
+                                                                                      p_Star, 
+                                                                                      m_SSESupernovae_DelayedWrite.logRecordProperties, 
+                                                                                      m_SSESupernovae_DelayedWrite.logRecordFmtVector,
+                                                                                      m_SSESupernovae_DelayedWrite.logFileAnnotations, 
+                                                                                      true, 
+                                                                                      (ANY_STAR_PROPERTY)STAR_PROPERTY::STELLAR_TYPE, 
+                                                                                      p_StellarType);
     }
 
     template <class T>
@@ -1319,16 +1169,16 @@ public:
 
         // if the stashed SSE Supernova record is non-empty, print it, then clear it - otherwise do nothing
 
-        if (OPTIONS->LogfileType() == LOGFILETYPE::HDF5) {          // logging to HDF5 file?
-            if (!m_SSESupernova_DelayedLogRecordValues.empty()) {   // yes - need to log?
-                result = LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, p_Star, m_SSESupernova_DelayedLogRecordValues);
-                m_SSESupernova_DelayedLogRecordValues = {};         // clear record
+        if (OPTIONS->LogfileType() == LOGFILETYPE::HDF5) {                  // logging to HDF5 file?
+            if (!m_SSESupernovae_DelayedWrite.logRecordValues.empty()) {    // yes - need to log?
+                result = LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, p_Star, "", m_SSESupernovae_DelayedWrite.logRecordValues);
+                m_SSESupernovae_DelayedWrite.logRecordValues = {};          // clear record
             }
         }
-        else {                                                      // no - not HDF5
-            if (!m_SSESupernova_DelayedLogRecordString.empty()) {   // need to log?
-                result = LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, p_Star, m_SSESupernova_DelayedLogRecordString);
-                m_SSESupernova_DelayedLogRecordString = "";         // clear record
+        else {                                                              // no - not HDF5
+            if (!m_SSESupernovae_DelayedWrite.logRecordString.empty()) {    // need to log?
+                result = LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, p_Star, "", m_SSESupernovae_DelayedWrite.logRecordString);
+                m_SSESupernovae_DelayedWrite.logRecordString = "";          // clear record
             }
         }
 
