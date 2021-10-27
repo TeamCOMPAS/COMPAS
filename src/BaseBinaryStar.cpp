@@ -1895,7 +1895,7 @@ void BaseBinaryStar::InitialiseMassTransfer() {
             // equilibrate masses and circularise (check for merger is done later)
 
             if (utils::Compare(m_Star1->Mass(), m_Star2->Mass()) != 0) {                                                        // masses already equal?
-                                                                                                                                // no - makethem equal
+                                                                                                                                // no - make them equal
                 STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                             // star 1 stellar type before updating attributes
                 STELLAR_TYPE stellarType2 = m_Star2->StellarType();                                                             // star 2 stellar type before updating attributes
 
@@ -2312,7 +2312,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 (void)PrintDetailedOutput(m_Id);                                                                                            // print (log) detailed output for binary
 
-                if (OPTIONS->RLOFPrinting()) StashRLOFProperties(MASS_TRANSFER_TIMING::PRE_MT);                                            // stash properties immediately pre-Mass Transfer 
+                if (OPTIONS->RLOFPrinting()) StashRLOFProperties(MASS_TRANSFER_TIMING::PRE_MT);                                             // stash properties immediately pre-Mass Transfer 
 
                 EvaluateBinary(dt);                                                                                                         // evaluate the binary at this timestep
 

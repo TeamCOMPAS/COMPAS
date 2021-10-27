@@ -73,7 +73,7 @@ Contents information displays, for each COMPAS file in the HDF5 file:
 
    The contents display can be limited in two ways:
 
-      (a) The --contents option takes and optional argument: an integer number of rows to display.
+      (a) The --contents option takes an optional argument: an integer number of rows to display.
           The argement to --contents can be positive or negative: a positive value indicates that
           the number of rows specified by the argument should be displayed from the start of the file;
           a negative value indicates that the number of fows specified by the (absolute value of the)

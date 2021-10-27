@@ -430,7 +430,9 @@ enum class ERROR: int {
     EXPECTED_COMMA_OR_CLOSE_BRACE,                                  // expected a comma or close brace
     EXPECTED_INTEGER,                                               // expected an integer
     EXPECTED_LOGFILE_RECORD_NAME,                                   // expected logfile record name
+    EXPECTED_NON_NEGATIVE_INTEGER,                                  // expected a non-negative integer
     EXPECTED_OPEN_BRACE,                                            // expected an open brace
+    EXPECTED_POSITIVE_INTEGER,                                      // expected a positive integer
     EXPECTED_PROPERTY_SPECIFIER,                                    // expected a valid property specifier
     EXPECTED_SN_EVENT,                                              // expected a supernova event
     EXPECTED_STELLAR_PROPERTY,                                      // expected a stellar property (STAR_PROPERTY)
@@ -564,7 +566,9 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::EXPECTED_COMMA_OR_CLOSE_BRACE,                         { ERROR_SCOPE::ALWAYS,              "Expected a comma ',' or close brace '}'" }},
     { ERROR::EXPECTED_INTEGER,                                      { ERROR_SCOPE::ALWAYS,              "Expected an integer" }},
     { ERROR::EXPECTED_LOGFILE_RECORD_NAME,                          { ERROR_SCOPE::ALWAYS,              "Expected logfile record specifier" }},
+    { ERROR::EXPECTED_NON_NEGATIVE_INTEGER,                         { ERROR_SCOPE::ALWAYS,              "Expected an integer >= 0" }},
     { ERROR::EXPECTED_OPEN_BRACE,                                   { ERROR_SCOPE::ALWAYS,              "Expected open brace '{'" }},
+    { ERROR::EXPECTED_POSITIVE_INTEGER,                             { ERROR_SCOPE::ALWAYS,              "Expected an integer > 0" }},
     { ERROR::EXPECTED_PROPERTY_SPECIFIER,                           { ERROR_SCOPE::ALWAYS,              "Expected a property specifier or close brace '}'" }},
     { ERROR::EXPECTED_SN_EVENT,                                     { ERROR_SCOPE::ALWAYS,              "Expected a supernova event" }},
     { ERROR::EXPECTED_STELLAR_PROPERTY,                             { ERROR_SCOPE::ALWAYS,              "Expected stellar logfile property: one of { STAR_PROPERTY, PROGRAM_OPTION }" }},
@@ -2251,7 +2255,7 @@ enum class PROGRAM_OPTION: int {
 //
 // Options only need to be here if they are required to be
 // available for printing in the logfiles - all keys present here
-// should also be in PROGRAM_OPTION_DETAIL
+// should also be in PROGRAM_OPTION_DETAIL ( except PROGRAM_OPTION::NOTES)
 const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::NONE,                                             "NONE" },
@@ -3325,8 +3329,8 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
     STAR_2_PROPERTY::STELLAR_TYPE,
     STAR_1_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,
     STAR_2_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,
+    BINARY_PROPERTY::ERROR,
     PROGRAM_OPTION::NOTES
-//    BINARY_PROPERTY::ERROR    // JR: todo: maybe reinstate this when error handling is improved - probably not useful until then
 };
 
 
