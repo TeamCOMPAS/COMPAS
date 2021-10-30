@@ -2335,8 +2335,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                     if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) (void)PrintPulsarEvolutionParameters();                                   // print (log) pulsar evolution parameters 
 
-                    // Serena
-                    //(void)PrintBeBinary();                                                                                                  // print (log) BeBinary properties
+                    //(void)PrintBeBinary();                                                                                                // print (log) BeBinary properties
                         
                     if (IsDCO() && !IsUnbound()) {                                                                                          // bound double compact object?
                         if (m_DCOFormationTime == DEFAULT_INITIAL_DOUBLE_VALUE) {                                                           // DCO not yet evaluated -- to ensure that the coalescence is only resolved once
