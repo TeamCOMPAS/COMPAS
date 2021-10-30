@@ -1,1 +1,0 @@
-# COMPAS-docs
