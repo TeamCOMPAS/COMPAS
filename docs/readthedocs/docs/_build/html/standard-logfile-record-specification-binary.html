@@ -1,0 +1,2873 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Binary properties &mdash; COMPAS  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/COMPAS.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Program option properties" href="standard-logfile-record-specification-options.html" />
+    <link rel="prev" title="Stellar properties" href="standard-logfile-record-specification-stellar.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> COMPAS
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user-guide.html">User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="program-options.html">Program options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grid-files.html">Grid files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random-seed.html">Random seed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running-via-cmdline.html">Running COMPAS from the command line</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running-via-python.html">Running COMPAS via Python</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running-via-docker.html">Running COMPAS via Docker</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="output.html">COMPAS Output</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="standard-logfiles.html">Standard log files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="standard-logfile-record-specifiers.html">Standard log file record specifiers</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="standard-logfile-record-specification.html">Standard log file record specification</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="standard-logfile-record-specification-stellar.html">Stellar properties</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Binary properties</a></li>
+<li class="toctree-l4"><a class="reference internal" href="standard-logfile-record-specification-options.html">Program option properties</a></li>
+<li class="toctree-l4"><a class="reference internal" href="standard-logfile-record-specification.html#log-file-definitions-file-specification">Log file definitions file specification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="standard-logfile-record-specification.html#example-definitions-file-entries">Example definitions file entries</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="standard-logfile-format.html">Standard log file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="standard-logfile-example-definitions-file.html">Example log file definitions file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="standard-logfile-default-record-specifications.html">Default log file record specifications</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="post-processing.html">Post-processing tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example-compas-run.html">Tutorial: simple COMPAS run</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developer-guide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS"> Code repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Request an enhancement</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Report a problem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact-us.html">Contact us</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">COMPAS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="user-guide.html">User guide</a> &raquo;</li>
+        
+          <li><a href="output.html">COMPAS Output</a> &raquo;</li>
+        
+          <li><a href="standard-logfile-record-specification.html">Standard log file record specification</a> &raquo;</li>
+        
+      <li>Binary properties</li>
+    
+    
+
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="binary-properties">
+<h1>Binary properties<a class="headerlink" href="#binary-properties" title="Permalink to this headline">¶</a></h1>
+<p>When specifying known properties in a log file record specification record, the property name must be prefixed with
+the property type. Currently there is a single binary property type available for use: BINARY_PROPERTY.</p>
+<p>For example, to specify the property <code class="docutils literal notranslate"><span class="pre">SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE</span></code> for a binary star being evolved in <code class="docutils literal notranslate"><span class="pre">BSE</span></code>, use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">BINARY_PROPERTY</span><span class="p">::</span><span class="n">SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE</span>
+</pre></div>
+</div>
+<p id="binary-props-top">Following is an alphabetical list of binary properties available for inclusion in log file record specifiers.</p>
+<p><strong>Jump to</strong>
+<a class="reference internal" href="#binary-props-a"><span class="std std-ref">A</span></a> <a class="reference internal" href="#binary-props-b"><span class="std std-ref">B</span></a> <a class="reference internal" href="#binary-props-c"><span class="std std-ref">C</span></a> <a class="reference internal" href="#binary-props-d"><span class="std std-ref">D</span></a>
+<a class="reference internal" href="#binary-props-e"><span class="std std-ref">E</span></a> <a class="reference internal" href="#binary-props-f"><span class="std std-ref">F</span></a> <a class="reference internal" href="#binary-props-g"><span class="std std-ref">G</span></a> <a class="reference internal" href="#binary-props-h"><span class="std std-ref">H</span></a>
+<a class="reference internal" href="#binary-props-i"><span class="std std-ref">I</span></a> <a class="reference internal" href="#binary-props-j"><span class="std std-ref">J</span></a> <a class="reference internal" href="#binary-props-k"><span class="std std-ref">K</span></a> <a class="reference internal" href="#binary-props-l"><span class="std std-ref">L</span></a>
+<a class="reference internal" href="#binary-props-m"><span class="std std-ref">M</span></a> <a class="reference internal" href="#binary-props-n"><span class="std std-ref">N</span></a> <a class="reference internal" href="#binary-props-o"><span class="std std-ref">O</span></a> <a class="reference internal" href="#binary-props-p"><span class="std std-ref">P</span></a>
+<a class="reference internal" href="#binary-props-q"><span class="std std-ref">Q</span></a> <a class="reference internal" href="#binary-props-r"><span class="std std-ref">R</span></a> <a class="reference internal" href="#binary-props-s"><span class="std std-ref">S</span></a> <a class="reference internal" href="#binary-props-t"><span class="std std-ref">T</span></a>
+<a class="reference internal" href="#binary-props-u"><span class="std std-ref">U</span></a> <a class="reference internal" href="#binary-props-v"><span class="std std-ref">V</span></a> <a class="reference internal" href="#binary-props-w"><span class="std std-ref">W</span></a> <a class="reference internal" href="#binary-props-x"><span class="std std-ref">X</span></a>
+<a class="reference internal" href="#binary-props-y"><span class="std std-ref">Y</span></a> <a class="reference internal" href="#binary-props-z"><span class="std std-ref">Z</span></a></p>
+<p>Following is the list of binary properties available for inclusion in log file record specifiers.
+Binary Properties</p>
+<span id="binary-props-b"></span><span id="binary-props-a"></span><table class="docutils align-default" id="binary-props-c">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>CIRCULARIZATION_TIMESCALE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_CircularizationTimescale</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Tidal circularisation timescale (Myr)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Tau_Circ</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>COMMON_ENVELOPE_AT_LEAST_ONCE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p><cite>derived from</cite> BaseBinaryStar::m_CEDetails.CEEcount</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag to indicate if there has been at least one common envelope event.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>CEE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>COMMON_ENVELOPE_EVENT_COUNT</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_CEDetails.CEEcount</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>The number of common envelope events.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>CE_Event_Counter</p></td>
+</tr>
+</tbody>
+</table>
+<p id="binary-props-d"><a class="reference internal" href="#binary-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>DIMENSIONLESS_KICK_MAGNITUDE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_uK</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Dimensionless kick magnitude supplied by user (see option --fix-dimensionless-kick-magnitude).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Magnitude(uK)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>DOUBLE_CORE_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_CEDetails.doubleCoreCE</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag to indicate double-core common envelope.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Double_Core_CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>DT</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_Dt</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Current timestep (Myr).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>dT</p></td>
+</tr>
+</tbody>
+</table>
+<p id="binary-props-e"><a class="reference internal" href="#binary-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ECCENTRICITY</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_Eccentricity</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Orbital eccentricity.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Eccentricity</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ECCENTRICITY_AT_DCO_FORMATION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_EccentricityAtDCOFormation</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Orbital eccentricity at DCO formation.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Eccentricity&#64;DCO</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ECCENTRICITY_INITIAL</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_EccentricityInitial</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Supplied by user via grid file or sampled from distribution (see <code class="docutils literal notranslate"><span class="pre">--eccentricity-distribution</span></code> option) (default).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Eccentricity&#64;ZAMS</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ECCENTRICITY_POST_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_CEDetails.postCEE.eccentricity</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Eccentricity immediately following common envelope event.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Eccentricity&gt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ECCENTRICITY_PRE_SUPERNOVA</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_EccentricityPreSN</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Eccentricity of the binary immediately prior to supernova event.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Eccentricity&lt;SN</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ECCENTRICITY_PRE_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_CEDetails.preCEE.eccentricity</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Eccentricity at the onset of RLOF leading to the CE.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Eccentricity&lt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ERROR</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p><cite>derived from</cite> BaseBinaryStar::m_Error</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Error number (if error condition exists, else 0).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Error</p></td>
+</tr>
+</tbody>
+</table>
+<p id="binary-props-i"><span id="binary-props-h"></span><span id="binary-props-g"></span><span id="binary-props-f"></span><a class="reference internal" href="#binary-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ID</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_ObjectId</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Unique object identifier for <code class="docutils literal notranslate"><span class="pre">C++</span></code> object – used in debugging to identify objects.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>ID</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>IMMEDIATE_RLOF_POST_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.immediateRLOFPostCEE</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag to indicate if either star overflows its Roche lobe immediately following common envelope event.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Immediate_RLOF&gt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<p id="binary-props-m"><span id="binary-props-l"></span><span id="binary-props-k"></span><span id="binary-props-j"></span><a class="reference internal" href="#binary-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MASS_1_POST_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BinaryConstituentStar::m_CEDetails.postCEE.mass</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Mass of the primary star immediately following common envelope event (<span class="math notranslate nohighlight">\(M_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Mass(1)&gt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MASS_1_PRE_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BinaryConstituentStar::m_CEDetails.preCEE.mass</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Mass of the primary star immediately prior to common envelope event (<span class="math notranslate nohighlight">\(M_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Mass(1)&lt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MASS_2_POST_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BinaryConstituentStar::m_CEDetails.postCEE.mass</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Mass of the secondary star immediately following common envelope event (<span class="math notranslate nohighlight">\(M_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Mass(2)&gt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MASS_2_PRE_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BinaryConstituentStar::m_CEDetails.preCEE.mass</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Mass of the secondary star immediately prior to common envelope event (<span class="math notranslate nohighlight">\(M_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Mass(2)&lt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MASS_ENV_1</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_MassEnv1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Envelope mass of the primary star (<span class="math notranslate nohighlight">\(M_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Mass_Env(1)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MASS_ENV_2</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_MassEnv2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Envelope mass of the secondary star (<span class="math notranslate nohighlight">\(M_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Mass_Env(2)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MASSES_EQUILIBRATED</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_MassesEquilibrated</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag to indicate whether chemically homogeneous stars had masses equilibrated and orbit circularised due to Roche lobe overflow during evolution.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Equilibrated</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MASSES_EQUILIBRATED_AT_BIRTH</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_MassesEquilibratedAtBirth</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag to indicate whether stars had masses equilibrated and orbit circularised at birth due to Roche lobe overflow.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Equilibrated_At_Birth</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MASS_TRANSFER_TRACKER_HISTORY</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p><cite>derived from</cite> BaseBinaryStar::m_MassTransferTrackerHistory</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Indicator of mass transfer history for the binary. Will be printed as one of:</p>
+<blockquote>
+<div><table class="colwidths-given aligned-text docutils align-default">
+<colgroup>
+<col style="width: 88%" />
+<col style="width: 13%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>NO MASS TRANSFER</p></td>
+<td><p>= 0</p></td>
+</tr>
+<tr class="row-even"><td><p>STABLE FROM 1 TO 2</p></td>
+<td><p>= 1</p></td>
+</tr>
+<tr class="row-odd"><td><p>STABLE FROM 2 TO 1</p></td>
+<td><p>= 2</p></td>
+</tr>
+<tr class="row-even"><td><p>CE FROM 1 TO 2</p></td>
+<td><p>= 3</p></td>
+</tr>
+<tr class="row-odd"><td><p>CE FROM 2 TO 1</p></td>
+<td><p>= 4</p></td>
+</tr>
+<tr class="row-even"><td><p>CE DOUBLE CORE</p></td>
+<td><p>= 5</p></td>
+</tr>
+<tr class="row-odd"><td><p>CE BOTH MS</p></td>
+<td><p>= 6</p></td>
+</tr>
+<tr class="row-even"><td><p>CE MS WITH CO</p></td>
+<td><p>= 7</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>MT_History</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MERGES_IN_HUBBLE_TIME</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_MergesInHubbleTime</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag to indicate if the binary compact remnants merge within a Hubble time.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Merges_Hubble_Time</p></td>
+</tr>
+</tbody>
+</table>
+<p id="binary-props-o"><span id="binary-props-n"></span><a class="reference internal" href="#binary-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>OPTIMISTIC_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_CEDetails.optimisticCE</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag that returns TRUE if we have a Hertzsprung-gap star, and we allow it to survive the CE.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Optimistic_CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ORBITAL_VELOCITY</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_OrbitalVelocity</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Orbital velocity (<span class="math notranslate nohighlight">\(km s^{-1}\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Orbital_Velocity</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ORBITAL_VELOCITY_PRE_SUPERNOVA</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_OrbitalVelocityPreSN</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Orbital velocity immediately prior to supernova event (<span class="math notranslate nohighlight">\(km s^{-1}\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Orbital_Velocity&lt;SN</p></td>
+</tr>
+</tbody>
+</table>
+<p id="binary-props-r"><span id="binary-props-q"></span><span id="binary-props-p"></span><a class="reference internal" href="#binary-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RADIUS_1_POST_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BinaryConstituentStar::m_CEDetails.postCEE.radius</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Radius of the primary star immediately following common envelope event (<span class="math notranslate nohighlight">\(R_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Radius(1)&gt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RADIUS_1_PRE_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BinaryConstituentStar::m_CEDetails.preCEE.radius</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Radius of the primary star at the onset of RLOF leading to the common-envelope episode (<span class="math notranslate nohighlight">\(R_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Radius(1)&lt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RADIUS_2_POST_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BinaryConstituentStar::m_CEDetails.postCEE.radius</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Radius of the secondary star immediately following common envelope event (<span class="math notranslate nohighlight">\(R_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Radius(2)&gt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RADIUS_2_PRE_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BinaryConstituentStar::m_CEDetails.preCEE.radius</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Radius of the secondary star at the onset of RLOF leading to the common-envelope episode (<span class="math notranslate nohighlight">\(R_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Radius(2)&lt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RANDOM_SEED</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>UNSIGNED LONG</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RandomSeed</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Seed for random number generator for this binary star. Optionally supplied by user via program option <code class="docutils literal notranslate"><span class="pre">--random-seed</span></code>; default generated from system time.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>SEED</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_POST_MT_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPostMT→isCE</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag to indicate if the RLOF leads to a common-envelope event</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>CEE&gt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_POST_MT_ECCENTRICITY</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPostMT→eccentricity</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Eccentricity immediately after RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Eccentricity&gt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_POST_MT_EVENT_COUNTER</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>UNSIGNED INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPostMT→eventCounter</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>The number of times the binary has overflowed its Roche lobe up to and including this episode</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>MT_Event_Counter</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_POST_MT_SEMI_MAJOR_AXIS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPostMT→semiMajorAxis</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Semi-major Axis(<span class="math notranslate nohighlight">\(R_\odot\)</span>) immediately after RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>SemiMajorAxis&gt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_POST_MT_STAR1_MASS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPostMT→mass1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Mass (<span class="math notranslate nohighlight">\(M_\odot\)</span>) of the primary immediately after RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Mass(1)&gt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_POST_MT_STAR2_MASS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPostMT→mass2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Mass (<span class="math notranslate nohighlight">\(M_\odot\)</span>) of the secondary immediately after RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Mass(2)&gt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_POST_MT_STAR1_RADIUS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPostMT→radius1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Radius (<span class="math notranslate nohighlight">\(R_\odot\)</span>) of the primary immediately after RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Radius(1)&gt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_POST_MT_STAR2_RADIUS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPostMT→radius2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Radius (<span class="math notranslate nohighlight">\(R_\odot\)</span>) of the secondary immediately after RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Radius(2)&gt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_POST_MT_STAR1_RLOF</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPostMT→isRLOF1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag to indicate whether the primary is overflowing its Roche Lobe.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>RLOF(1)&gt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_POST_MT_STAR2_RLOF</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPostMT→isRLOF2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag to indicate whether the secondary is overflowing its Roche Lobe.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>RLOF(2)&gt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_POST_MT_STAR1_STELLAR_TYPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m RLOFDetails.propsPostMT→stellarType1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Stellar type (per <span id="id1">[<a class="reference internal" href="references.html#id10" title="Jarrod R. Hurley, Onno R. Pols, and Christopher A. Tout. Comprehensive analytic formulae for stellar evolution as a function of mass and metallicity. \mnras , 315(3):543-569, Jul 2000. arXiv:astro-ph/0001295, doi:10.1046/j.1365-8711.2000.03426.x.">Hurley <em>et al.</em>, 2000</a>]</span>) of the primary star immediately after RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Type(1)&gt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file,
+but not both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>STRING</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p><cite>derived from</cite> BaseBinaryStar::m RLOFDetails.propsPostMT→stellarType1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Stellar type (per <span id="id2">[<a class="reference internal" href="references.html#id10" title="Jarrod R. Hurley, Onno R. Pols, and Christopher A. Tout. Comprehensive analytic formulae for stellar evolution as a function of mass and metallicity. \mnras , 315(3):543-569, Jul 2000. arXiv:astro-ph/0001295, doi:10.1046/j.1365-8711.2000.03426.x.">Hurley <em>et al.</em>, 2000</a>]</span>) of the primary star immediately after RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Type(1)&gt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as RLOF_POST_MT_STAR1_STELLAR_TYPE. It is expected that one or the other is printed in any file,
+but not both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_POST_MT_STAR2_STELLAR_TYPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPostMT→stellarType1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Stellar type (per <span id="id3">[<a class="reference internal" href="references.html#id10" title="Jarrod R. Hurley, Onno R. Pols, and Christopher A. Tout. Comprehensive analytic formulae for stellar evolution as a function of mass and metallicity. \mnras , 315(3):543-569, Jul 2000. arXiv:astro-ph/0001295, doi:10.1046/j.1365-8711.2000.03426.x.">Hurley <em>et al.</em>, 2000</a>]</span>) of the secondary star immediately after RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Type(2)&gt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file,
+but not both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>STRING</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p><cite>derived from</cite> BaseBinaryStar::m_RLOFDetails.propsPostMT→stellarType1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Stellar type (per <span id="id4">[<a class="reference internal" href="references.html#id10" title="Jarrod R. Hurley, Onno R. Pols, and Christopher A. Tout. Comprehensive analytic formulae for stellar evolution as a function of mass and metallicity. \mnras , 315(3):543-569, Jul 2000. arXiv:astro-ph/0001295, doi:10.1046/j.1365-8711.2000.03426.x.">Hurley <em>et al.</em>, 2000</a>]</span>) of the secondary star immediately after RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Type(2)&gt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as RLOF_POST_MT_STAR2_STELLAR_TYPE. It is expected that one or the other is printed in any file,
+but not both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_POST_MT_TIME</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPostMT→time</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Time since ZAMS (Myr) immediately after RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Time&gt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_PRE_MT_ECCENTRICITY</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPreMT→eccentricity</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Eccentricity at the onset of RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Eccentricity&lt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_PRE_MT_SEMI_MAJOR_AXIS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPreMT→semiMajorAxis</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Semi-major Axis (<span class="math notranslate nohighlight">\(R_\odot\)</span>) at the onset of RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>SemiMajorAxis&lt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_PRE_MT_STAR1_MASS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPreMT→mass1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Mass (<span class="math notranslate nohighlight">\(M_\odot\)</span>) of the primary at the onset of RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Mass(1)&lt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_PRE_MT_STAR2_MASS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPreMT→mass2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Mass (<span class="math notranslate nohighlight">\(M_\odot\)</span>) of the secondary at the onset of RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Mass(2)&lt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_PRE_MT_STAR1_RADIUS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPreMT→radius1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Radius (<span class="math notranslate nohighlight">\(R_\odot\)</span>) of the primary at the onset of RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Radius(1)&lt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_PRE_MT_STAR2_RADIUS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPreMT→radius2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Radius (<span class="math notranslate nohighlight">\(R_\odot\)</span>) of the secondary at the onset of RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Radius(2)&lt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_PRE_MT_STAR1_RLOF</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPreMT→isRLOF1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag to indicate whether the primary is overflowing its Roche Lobe.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>RLOF(1)&lt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_PRE_MT_STAR2_RLOF</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPreMT→isRLOF2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag to indicate whether the secondary is overflowing its Roche Lobe.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>RLOF(2)&lt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_PRE_MT_STAR1_STELLAR_TYPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPreMT→stellarType1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Stellar type (per <span id="id5">[<a class="reference internal" href="references.html#id10" title="Jarrod R. Hurley, Onno R. Pols, and Christopher A. Tout. Comprehensive analytic formulae for stellar evolution as a function of mass and metallicity. \mnras , 315(3):543-569, Jul 2000. arXiv:astro-ph/0001295, doi:10.1046/j.1365-8711.2000.03426.x.">Hurley <em>et al.</em>, 2000</a>]</span>) of the primary star at the onset of RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Type(1)&lt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file,
+but not both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>STRING</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p><cite>derived from</cite> BaseBinaryStar::m_RLOFDetails.propsPreMT→stellarType1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Stellar type (per <span id="id6">[<a class="reference internal" href="references.html#id10" title="Jarrod R. Hurley, Onno R. Pols, and Christopher A. Tout. Comprehensive analytic formulae for stellar evolution as a function of mass and metallicity. \mnras , 315(3):543-569, Jul 2000. arXiv:astro-ph/0001295, doi:10.1046/j.1365-8711.2000.03426.x.">Hurley <em>et al.</em>, 2000</a>]</span>) of the primary star at the onset of RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Type(1)&lt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as RLOF_PRE_MT_STAR1_STELLAR_TYPE. It is expected that one or the other is printed in any file,
+but not both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_PRE_MT_STAR2_STELLAR_TYPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPreMT→stellarType2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Stellar type (per <span id="id7">[<a class="reference internal" href="references.html#id10" title="Jarrod R. Hurley, Onno R. Pols, and Christopher A. Tout. Comprehensive analytic formulae for stellar evolution as a function of mass and metallicity. \mnras , 315(3):543-569, Jul 2000. arXiv:astro-ph/0001295, doi:10.1046/j.1365-8711.2000.03426.x.">Hurley <em>et al.</em>, 2000</a>]</span>) of the secondary star at the onset of RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Type(2)&lt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as RLOF_PRE_MTvSTAR2_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file,
+but not both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_PRE_MT_STAR2_STELLAR_TYPE_NAME</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>STRING</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p><cite>derived from</cite> BaseBinaryStar::m_RLOFDetails.propsPreMT→stellarType2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Stellar type (per <span id="id8">[<a class="reference internal" href="references.html#id10" title="Jarrod R. Hurley, Onno R. Pols, and Christopher A. Tout. Comprehensive analytic formulae for stellar evolution as a function of mass and metallicity. \mnras , 315(3):543-569, Jul 2000. arXiv:astro-ph/0001295, doi:10.1046/j.1365-8711.2000.03426.x.">Hurley <em>et al.</em>, 2000</a>]</span>) of the secondary star at the onset of RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Type(2)&lt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as RLOF_PRE_MT_STAR2_STELLAR_TYPE. It is expected that one or the other is printed in any file,
+but not both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RLOF_PRE_MT_TIME</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.propsPreMT→time</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Time since ZAMS (Myr) at the onset of RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Time&lt;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ROCHE_LOBE_RADIUS_1</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BinaryConstituentStar::m_RocheLobeRadius</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Roche radius of the primary star (<span class="math notranslate nohighlight">\(R_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>RocheLobe(1)|a</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ROCHE_LOBE_RADIUS_2</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BinaryConstituentStar::m_RocheLobeRadius</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Roche radius of the secondary star (<span class="math notranslate nohighlight">\(R_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>RocheLobe(2)|a</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_CEDetails.postCEE.rocheLobe1to2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Roche radius of the primary star immediately following common envelope event (<span class="math notranslate nohighlight">\(R_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>RocheLobe(1)&gt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ROCHE_LOBE_RADIUS_2_POST_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_CEDetails.postCEE.rocheLobe2to1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Roche radius of the secondary star immediately following common envelope event (<span class="math notranslate nohighlight">\(R_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>RocheLobe(2)&gt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ROCHE_LOBE_RADIUS_1_PRE_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_CEDetails.preCEE.rocheLobe1to2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Roche radius of the primary star at the onset of RLOF leading to the common-envelope episode (<span class="math notranslate nohighlight">\(R_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>RocheLobe(1)&lt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ROCHE_LOBE_RADIUS_2_PRE_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_CEDetails.preCEE.rocheLobe2to1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Roche radius of the secondary star at the onset of RLOF leading to the common-envelope episode (<span class="math notranslate nohighlight">\(R_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>RocheLobe(2)&lt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ROCHE_LOBE_TRACKER_1</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BinaryConstituentStar::m_RocheLobeTracker</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Ratio of the primary star’s stellar radius to Roche radius (R/RL), evaluated at periapsis.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Radius|RL</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ROCHE_LOBE_TRACKER_2</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BinaryConstituentStar::m_RocheLobeTracker</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Ratio of the secondary star’s stellar radius to Roche radius (R/RL), evaluated at periapsis.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Radius|RL</p></td>
+</tr>
+</tbody>
+</table>
+<p id="binary-props-s"><a class="reference internal" href="#binary-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>SEMI_MAJOR_AXIS_AT_DCO_FORMATION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_SemiMajorAxisAtDCOFormation</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Semi-major axis at DCO formation (AU).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>SemiMajorAxis&#64;DCO</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>SEMI_MAJOR_AXIS_INITIAL</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_SemiMajorAxisInitial</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Semi-major axis at ZAMS (AU).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>SemiMajorAxis&#64;ZAMS</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_CEDetails.postCEE.semiMajorAxis</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Semi-major axis immediately following common envelope event (<span class="math notranslate nohighlight">\(R_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>SemiMajorAxis&gt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>SEMI_MAJOR_AXIS_PRE_SUPERNOVA</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_SemiMajorAxisPreSN</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Semi-major axis immediately prior to supernova event (AU).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>SemiMajorAxis&lt;SN</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL. It is expected that one or the other is printed in any file,
+but not both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p><cite>derived from</cite> BaseBinaryStar::m_SemiMajorAxisPreSN</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Semi-major axis immediately prior to supernova event (<span class="math notranslate nohighlight">\(R_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>SemiMajorAxis&lt;SN</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as SEMI_MAJOR_AXIS_PRE_SUPERNOVA. It is expected that one or the other is printed in any file, but
+not both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_CEDetails.preCEE.semiMajorAxis</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Semi-major axis at the onset of RLOF leading to the common-envelope episode (<span class="math notranslate nohighlight">\(R_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>SemiMajorAxis&lt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>SEMI_MAJOR_AXIS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_SemiMajorAxis</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Semi-major axis at ZAMS (AU).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>SemiMajorAxis&#64;ZAMS</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as SEMI_MAJOR_AXIS_RSOL. It is expected that one or the other is printed in any file, but not both.
+If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>SEMI_MAJOR_AXIS_RSOL</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p><cite>derived from</cite> BaseBinaryStar::m_SemiMajorAxis</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Semi-major axis at ZAMS (<span class="math notranslate nohighlight">\(R_\odot\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>SemiMajorAxis&#64;ZAMS</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as SEMI_MAJOR_AXIS. It is expected that one or the other is printed in any file, but not both. If both
+are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>SIMULTANEOUS_RLOF</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.simultaneousRLOF</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag to indicate that both stars are undergoing RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Simultaneous_RLOF</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>STABLE_RLOF_POST_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_RLOFDetails.stableRLOFPostCEE</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag to indicate stable mass transfer after common envelope event.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stable_RLOF&gt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>STELLAR_MERGER</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_StellarMerger</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag to indicate the stars merged (were touching) during evolution.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Merger</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>STELLAR_MERGER_AT_BIRTH</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_StellarMergerAtBirth</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag to indicate the stars merged (were touching) at birth.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Merger_At_Birth</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>STELLAR_TYPE_1_POST_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BinaryConstituentStar::m_CEDetails.postCEE.stellarType</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Stellar type (per <span id="id9">[<a class="reference internal" href="references.html#id10" title="Jarrod R. Hurley, Onno R. Pols, and Christopher A. Tout. Comprehensive analytic formulae for stellar evolution as a function of mass and metallicity. \mnras , 315(3):543-569, Jul 2000. arXiv:astro-ph/0001295, doi:10.1046/j.1365-8711.2000.03426.x.">Hurley <em>et al.</em>, 2000</a>]</span>) of the primary star immediately following common envelope event.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Type(1)&gt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as STELLAR_TYPE_NAME_1_POST_COMMON_ENVELOPE. It is expected that one or the other is printed in any file,
+but not both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>STELLAR_TYPE_1_PRE_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BinaryConstituentStar::m_CEDetails.preCEE.stellarType</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Stellar type (per <span id="id10">[<a class="reference internal" href="references.html#id10" title="Jarrod R. Hurley, Onno R. Pols, and Christopher A. Tout. Comprehensive analytic formulae for stellar evolution as a function of mass and metallicity. \mnras , 315(3):543-569, Jul 2000. arXiv:astro-ph/0001295, doi:10.1046/j.1365-8711.2000.03426.x.">Hurley <em>et al.</em>, 2000</a>]</span>) of the primary star at the onset of RLOF leading to the common-envelope episode.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Type(1)&lt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE. It is expected that one or the other is printed in any file,
+but not both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>STELLAR_TYPE_2_POST_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BinaryConstituentStar::m_CEDetails.postCEE.stellarType</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Stellar type (per <span id="id11">[<a class="reference internal" href="references.html#id10" title="Jarrod R. Hurley, Onno R. Pols, and Christopher A. Tout. Comprehensive analytic formulae for stellar evolution as a function of mass and metallicity. \mnras , 315(3):543-569, Jul 2000. arXiv:astro-ph/0001295, doi:10.1046/j.1365-8711.2000.03426.x.">Hurley <em>et al.</em>, 2000</a>]</span>) of the secondary star immediately following common envelope event.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Type(2)&gt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE. It is expected that one or the other is printed in any file,
+but not both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>STELLAR_TYPE_2_PRE_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BinaryConstituentStar::m_CEDetails.preCEE.stellarType</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Stellar type (per <span id="id12">[<a class="reference internal" href="references.html#id10" title="Jarrod R. Hurley, Onno R. Pols, and Christopher A. Tout. Comprehensive analytic formulae for stellar evolution as a function of mass and metallicity. \mnras , 315(3):543-569, Jul 2000. arXiv:astro-ph/0001295, doi:10.1046/j.1365-8711.2000.03426.x.">Hurley <em>et al.</em>, 2000</a>]</span>) of the secondary star at the onset of RLOF leading to the common-envelope episode.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Type(2)&lt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE. It is expected that one or the other is printed in any file,
+but not both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>STELLAR_TYPE_NAME_1_POST_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>STRING</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p><cite>derived from</cite> BinaryConstituentStar::m_CEDetails.postCEE.stellarType</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Stellar type name (per <span id="id13">[<a class="reference internal" href="references.html#id10" title="Jarrod R. Hurley, Onno R. Pols, and Christopher A. Tout. Comprehensive analytic formulae for stellar evolution as a function of mass and metallicity. \mnras , 315(3):543-569, Jul 2000. arXiv:astro-ph/0001295, doi:10.1046/j.1365-8711.2000.03426.x.">Hurley <em>et al.</em>, 2000</a>]</span>) of the primary star immediately following common envelope event. e.g. &quot;First_Giant_Branch&quot;, &quot;Core_Helium_Burning&quot;, &quot;Helium_White_Dwarf&quot;, etc.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Type(1)&gt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as STELLAR_TYPE_1_POST_COMMON_ENVELOPE. It is expected that one or the other is printed in any file,
+but not both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>STRING</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p><cite>derived from</cite> BinaryConstituentStar::m_CEDetails.preCEE.stellarType</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Stellar type name (per <span id="id14">[<a class="reference internal" href="references.html#id10" title="Jarrod R. Hurley, Onno R. Pols, and Christopher A. Tout. Comprehensive analytic formulae for stellar evolution as a function of mass and metallicity. \mnras , 315(3):543-569, Jul 2000. arXiv:astro-ph/0001295, doi:10.1046/j.1365-8711.2000.03426.x.">Hurley <em>et al.</em>, 2000</a>]</span>) of the primary star at the onset of RLOF leading to the common-envelope episode. e.g. &quot;First_Giant_Branch&quot;, &quot;Core_Helium_Burning&quot;, &quot;Helium_White_Dwarf&quot;, etc.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Type(1)&lt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as STELLAR_TYPE_1_PRE_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, but not
+both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>STRING</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p><cite>derived from</cite> BinaryConstituentStar::m_CEDetails.postCEE.stellarType</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Stellar type name (per <span id="id15">[<a class="reference internal" href="references.html#id10" title="Jarrod R. Hurley, Onno R. Pols, and Christopher A. Tout. Comprehensive analytic formulae for stellar evolution as a function of mass and metallicity. \mnras , 315(3):543-569, Jul 2000. arXiv:astro-ph/0001295, doi:10.1046/j.1365-8711.2000.03426.x.">Hurley <em>et al.</em>, 2000</a>]</span>) of the secondary star immediately following common envelope event. e.g. &quot;First_Giant_Branch&quot;, &quot;Core_Helium_Burning&quot;, &quot;Helium_White_Dwarf&quot;, etc.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Type(2)&gt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as STELLAR_TYPE_2_POST_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, but not
+both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>STRING</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p><cite>derived from</cite> BinaryConstituentStar::m_CEDetails.preCEE.stellarType</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Stellar type name (per <span id="id16">[<a class="reference internal" href="references.html#id10" title="Jarrod R. Hurley, Onno R. Pols, and Christopher A. Tout. Comprehensive analytic formulae for stellar evolution as a function of mass and metallicity. \mnras , 315(3):543-569, Jul 2000. arXiv:astro-ph/0001295, doi:10.1046/j.1365-8711.2000.03426.x.">Hurley <em>et al.</em>, 2000</a>]</span>) of the secondary star at the onset of RLOF leading to the common-envelope episode. e.g. &quot;First_Giant_Branch&quot;, &quot;Core_Helium_Burning&quot;, &quot;Helium_White_Dwarf&quot;, etc.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Type(2)&lt;CE</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>Note that this property has the same header string as STELLAR_TYPE_2_PRE_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, but not
+both. If both are printed then the file will contain two columns with the same header string.</cite></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>SUPERNOVA_STATE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p><cite>derived from</cite> BaseBinaryStar::m_SupernovaState</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Indicates which star(s) went supernova. Will be printed as one of:</p>
+<blockquote>
+<div><table class="colwidths-given aligned-text docutils align-default">
+<colgroup>
+<col style="width: 90%" />
+<col style="width: 10%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>No supernova</p></td>
+<td><p>= 0</p></td>
+</tr>
+<tr class="row-even"><td><p>Star 1 is the supernova</p></td>
+<td><p>= 1</p></td>
+</tr>
+<tr class="row-odd"><td><p>Star 2 is the supernova</p></td>
+<td><p>= 2</p></td>
+</tr>
+<tr class="row-even"><td><p>Both stars are supernovae</p></td>
+<td><p>= 3</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Supernova_State</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>SYNCHRONIZATION_TIMESCALE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_SynchronizationTimescale</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Tidal synchronisation timescale (Myr).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Tau_Sync</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>SYSTEMIC_SPEED</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_SystemicVelocity</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Post-supernova systemic (centre-of-mass) velocity (<span class="math notranslate nohighlight">\(km s^{-1}\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Systemic_Velocity</p></td>
+</tr>
+</tbody>
+</table>
+<p id="binary-props-t"><a class="reference internal" href="#binary-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>TIME</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_Time</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Time since ZAMS (Myr).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Time</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>TIME_TO_COALESCENCE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_TimeToCoalescence</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Time between formation of double compact object and gravitational-wave driven merger (Myr).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Coalescence_Time</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>TOTAL_ANGULAR_MOMENTUM</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_TotalAngularMomentum</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Total angular momentum calculated using regular conservation of energy (<span class="math notranslate nohighlight">\(M_\odot  AU^2 y^{r−1}\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Ang_Momentum_Total</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>TOTAL_ENERGY</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_TotalEnergy</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Total energy calculated using regular conservation of energy (<span class="math notranslate nohighlight">\(M_\odot  AU^2 y^{r−1}\)</span>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Energy_Total</p></td>
+</tr>
+</tbody>
+</table>
+<p id="binary-props-u"><a class="reference internal" href="#binary-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>UNBOUND</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_Unbound</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Flag to indicate the binary is unbound (or has become unbound after a supernova event).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Unbound</p></td>
+</tr>
+</tbody>
+</table>
+<p id="binary-props-z"><span id="binary-props-y"></span><span id="binary-props-x"></span><span id="binary-props-w"></span><span id="binary-props-v"></span><a class="reference internal" href="#binary-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ZETA_LOBE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_ZetaLobe</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>The logarithmic derivative of Roche lobe radius with respect to donor mass for <span class="math notranslate nohighlight">\(q=\frac{Md}{Ma}\)</span> at the onset of the RLOF.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Zeta_Lobe</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ZETA_STAR</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>BaseBinaryStar::m_ZetaStar</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Mass-radius exponent of the star at the onset of the RLOF. Calculated differently based on the value of program option <code class="docutils literal notranslate"><span class="pre">--zeta-prescription</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Zeta_Star</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="standard-logfile-record-specification-options.html" class="btn btn-neutral float-right" title="Program option properties" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="standard-logfile-record-specification-stellar.html" class="btn btn-neutral float-left" title="Stellar properties" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The Authors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

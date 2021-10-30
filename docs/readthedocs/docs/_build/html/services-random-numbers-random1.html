@@ -1,0 +1,276 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Rand:Random() &mdash; COMPAS  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/COMPAS.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Rand::Random(p_Lower, p_Upper)" href="services-random-numbers-random2.html" />
+    <link rel="prev" title="Rand::DefaultSeed()" href="services-random-numbers-defaultSeed.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> COMPAS
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide.html">User guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="developer-guide.html">Developer guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="SSE.html">Single star evolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BSE.html">Binary star evolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="object-ids.html">Object identifiers</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="services.html">Services</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="services-program-options.html">Program options service</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="services-random-numbers.html">Random numbers service</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="services-random-numbers-initialise.html">Rand::Initialise()</a></li>
+<li class="toctree-l4"><a class="reference internal" href="services-random-numbers-free.html">Rand::Free()</a></li>
+<li class="toctree-l4"><a class="reference internal" href="services-random-numbers-seed.html">Rand::Seed(p_Seed)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="services-random-numbers-defaultSeed.html">Rand::DefaultSeed()</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Rand:Random()</a></li>
+<li class="toctree-l4"><a class="reference internal" href="services-random-numbers-random2.html">Rand::Random(p_Lower, p_Upper)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="services-random-numbers-randomGaussian.html">Rand::RandomGaussian(p_Sigma)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="services-random-numbers-randomInt1.html">Rand::RandomInt(p_Lower, p_Upper)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="services-random-numbers-randomInt2.html">Rand::RandomInt(p_Upper)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="services-logging-debugging.html">Logging &amp; debugging service</a></li>
+<li class="toctree-l3"><a class="reference internal" href="services-error-handling.html">Error handling service</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="floating-point-comparisons.html">Floating-point comparisons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants-dot-h.html">Constants source file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html">Change log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming-style.html">Programming style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer-building-compas.html">COMPAS build methods</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS"> Code repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Request an enhancement</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Report a problem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact-us.html">Contact us</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">COMPAS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="developer-guide.html">Developer guide</a> &raquo;</li>
+        
+          <li><a href="services.html">Services</a> &raquo;</li>
+        
+          <li><a href="services-random-numbers.html">Random numbers service</a> &raquo;</li>
+        
+      <li>Rand:Random()</li>
+    
+    
+
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="rand-random">
+<h1>Rand:Random()<a class="headerlink" href="#rand-random" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DOUBLE</span> <span class="n">Rand</span><span class="p">::</span><span class="n">Random</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Returns a random floating point number uniformly distributed in the range [0.0, 1.0).</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="services-random-numbers-random2.html" class="btn btn-neutral float-right" title="Rand::Random(p_Lower, p_Upper)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="services-random-numbers-defaultSeed.html" class="btn btn-neutral float-left" title="Rand::DefaultSeed()" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The Authors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

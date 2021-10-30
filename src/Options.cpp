@@ -2461,63 +2461,81 @@ std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandO
 
     std::vector<std::string> strargs = {std::string(p_ArgStrings[0])};                                                      // new args vector - command name is arg[0]
 
+    std::string  argString  = "";                                                                                           // argument string
     std::string  optionName = "";                                                                                           // option name
-    for (size_t iArg = 0; iArg < (size_t)p_ArgCount; iArg++) {                                                              // for each arg string
+    for (size_t iArg = 1; iArg < (size_t)p_ArgCount; iArg++) {                                                              // for each arg string
 
-        if (iArg <= 1) continue;                                                                                            // step over the executable name
+        argString = p_ArgStrings[iArg];                                                                                     // the argument we're processing
 
-        optionName = p_ArgStrings[iArg - 1];                                                                                // get the option name for the argument we're processing
-        optionName = utils::ToLower(utils::trim(optionName));                                                               // downshift and trim whitespace
-        if (optionName[0] != '-') {                                                                                         // is it actually an option name?
-            strargs.push_back(std::string(p_ArgStrings[iArg - 1]));                                                         // no - just add it to the new vector (unadulterated)
-            if (iArg == (size_t)p_ArgCount - 1) strargs.push_back(std::string(p_ArgStrings[iArg]));                         // and add option value to the new vector if last arg
-        }
-        else {                                                                                                              // have option name
-            strargs.push_back(p_ArgStrings[iArg - 1]);                                                                      // add option name to the new vector
+        if (argString[0] == '-') {                                                                                          // is it actually an option name?
+            strargs.push_back(argString);                                                                                   // yes - add it to the new vector (unadulterated)
+
+            optionName = argString;                                                                                         // get the option name for the argument we'll be processing
+            optionName = utils::ToLower(utils::trim(optionName));                                                           // downshift and trim whitespace
             optionName.erase(0, optionName.find_first_not_of("-"));                                                         // remove the "-" or "--"
-
-            // check if option is on the shorthand allowed list, and process it if it is
-            // presumably invalid options won't be on the list...
-            auto it = std::find_if(m_ShorthandAllowed.begin(), m_ShorthandAllowed.end(), [&optionName](const SHORTHAND_ENTRY& e) { return std::get<0>(e) == optionName; });
-            if (it == m_ShorthandAllowed.end()) {                                                                           // option in shorthand allowed list?
-                if (iArg == (size_t)p_ArgCount - 1) strargs.push_back(std::string(p_ArgStrings[iArg]));                     // no - add option value to the new vector if last arg
+        }
+        else {                                                                                                              // argument is not an option name - process it
+            if (iArg == 1) {                                                                                                // first arg (i.e. no option name)?
+                strargs.push_back(argString);                                                                               // yes - add it to the new vector (unadulterated)
             }
-            else {                                                                                                          // yes - shorthand allowed - process it
-                if (p_ArgStrings[iArg] != nullptr) {                                                                        // null arg?
+            else {                                                                                                          // no - not first arg - process it
+                // check if option is on the shorthand allowed list, and process it if it is
+                // presumably invalid options won't be on the list...
+                auto it = std::find_if(m_ShorthandAllowed.begin(), m_ShorthandAllowed.end(), [&optionName](const SHORTHAND_ENTRY& e) { return std::get<0>(e) == optionName; });
+                if (it == m_ShorthandAllowed.end()) {                                                                       // option in shorthand allowed list?
+                    strargs.push_back(argString);                                                                           // no - add option value to the new vector
+                }
+                else {                                                                                                      // yes - shorthand allowed - process it
+                    if (!argString.empty()) {                                                                               // null arg?
                                                                                                                             // no
-                    std::string str(p_ArgStrings[iArg]);                                                                    // convert char* to std::string
+                        std::string str(p_ArgStrings[iArg]);                                                                // convert char* to std::string
 
-                    if (str[0] == '[' && str[str.length()-1] == ']') {                                                      // starts with '[' and ends with ']'?
-                        str = str.substr(1, str.length() - 2);                                                              // yes - strip enclosing brackets
-
-                        bool defaultAllowed = std::get<1>(*it);                                                             // ok to omit values?
-
-                        if (str.length() == 0) {                                                                            // have null parameter?
-                            if (defaultAllowed) {                                                                           // yes, null - defaults allowed?
-                                // we don't know how many default values to put here - how many default values
-                                // we need to specify depends on the option, and possibly other option values
-                                // (e.g. 'notes-hdrs' for 'notes').  So for now we just push a single default
-                                // value and deal with it later
-
-                                strargs.push_back(NOT_PROVIDED);                                                            // "not provided" indicator"
-                            }
-                            else {                                                                                          // no - defaults not allowed
-                                errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
-                            }
+                        if (argString[0] != '[' || argString[argString.length()-1] != ']') {                                // starts with '[' and ends with ']'?
+                            strargs.push_back(argString);                                                                   // no - not shorthand - add option value to the new vector
                         }
-                        else {                                                                                              // non-null parameter
-                            size_t start = 0;                                                                               // start position
-                            size_t pos   = 0;                                                                               // current position
-                            size_t idx   = 0;                                                                               // vector index of parameter
-                            while (start < str.length() && pos != std::string::npos) {                                      // comma found before the end of the string?
-                                                                                                                            // yes
-                                pos = str.find(",", start);                                                                 // next comma
-                                if (pos == std::string::npos) pos = str.length();                                           // last character?
-                                                                                                        
-                                if ((pos - start) > 0) {                                                                    // non-zero length string?
-                                    strargs.push_back(str.substr(start, pos - start));                                      // yes - grab it
+                        else {                                                                                              // yes - shorthand - process it
+                            argString = argString.substr(1, argString.length() - 2);                                        // yes - strip enclosing brackets
+
+                            bool defaultAllowed = std::get<1>(*it);                                                         // ok to omit values?
+
+                            if (argString.empty()) {                                                                        // have null parameter?
+                                if (defaultAllowed) {                                                                       // yes, null - defaults allowed?
+                                    // we don't know how many default values to put here - how many default values
+                                    // we need to specify depends on the option, and possibly other option values
+                                    // (e.g. 'notes-hdrs' for 'notes').  So for now we just push a single default
+                                    // value and deal with it later
+
+                                    strargs.push_back(NOT_PROVIDED);                                                        // "not provided" indicator"
                                 }
-                                else {                                                                                      // empty value
+                                else {                                                                                      // no - defaults not allowed
+                                    errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
+                                }
+                            }
+                            else {                                                                                          // non-null parameter
+                                size_t start = 0;                                                                           // start position
+                                size_t pos   = 0;                                                                           // current position
+                                size_t idx   = 0;                                                                           // vector index of parameter
+                                while (start < argString.length() && pos != std::string::npos) {                            // comma found before the end of the string?
+                                                                                                                            // yes
+                                    pos = argString.find(",", start);                                                       // next comma
+                                    if (pos == std::string::npos) pos = argString.length();                                 // last character?
+                                                                                                        
+                                    if ((pos - start) > 0) {                                                                // non-zero length string?
+                                        strargs.push_back(argString.substr(start, pos - start));                            // yes - grab it
+                                    }
+                                    else {                                                                                  // empty value
+                                        if (defaultAllowed) {                                                               // defaults allowed?
+                                            strargs.push_back(NOT_PROVIDED);                                                // "not provided" indicator"
+                                        }
+                                        else {                                                                              // no - defaults not allowed
+                                            errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
+                                        }
+                                    }
+                                    start = pos + 1;                                                                        // next start
+                                    idx++;                                                                                  // next vector index
+                                }
+
+                                if (argString[argString.length() - 1] == ',') {                                             // trailing comma in shorthand values?
                                     if (defaultAllowed) {                                                                   // defaults allowed?
                                         strargs.push_back(NOT_PROVIDED);                                                    // "not provided" indicator"
                                     }
@@ -2525,20 +2543,8 @@ std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandO
                                         errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
                                     }
                                 }
-                                start = pos + 1;                                                                            // next start
-                                idx++;                                                                                      // next vector index
-                            }
-
-                            if (str[str.length() - 1] == ',') {                                                             // trailing comma in shorthand values?
-                                if (defaultAllowed) {                                                                       // defaults allowed?
-                                    strargs.push_back(NOT_PROVIDED);                                                        // "not provided" indicator"
-                                }
-                                else {                                                                                      // no - defaults not allowed
-                                    errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
-                                }
                             }
                         }
-                        iArg++;                                                                                             // skip over shorthand specification just processed
                     }
                 }
             }
@@ -2623,7 +2629,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
         COMPLEX_TYPE type              = COMPLEX_TYPE::NONE;                                                                // complex arg type (range, set, neither/none)
         std::vector<std::string> parms = {};                                                                                // the range or set parameters
 
-        for (size_t iArg = 0; iArg < (size_t)argCount; iArg++) {                                                            // for each arg string
+        for (size_t iArg = 1; iArg < (size_t)argCount; iArg++) {                                                            // for each arg string
 
             if (iArg <= 1) continue;                                                                                        // step over the executable name
 

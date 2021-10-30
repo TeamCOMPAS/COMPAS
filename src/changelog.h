@@ -796,9 +796,10 @@
 // 02.24.02     JR - Oct 13, 2021   - Minor fixes:
 //                                      - Fixed a few typos in header strings
 //                                      - Changed true_anomaly to mean_anomaly in SSE SN output
-// 02.25.00     JR - Oct 27, 2021   - Enhancements and minor fixes:
+// 02.25.00     JR - Oct 30, 2021   - Enhancements and minor fixes:
 //                                      - Added ability for users to annotate log files via new program options '--notes-hdrs' and '--notes'.  See docs for details. 
 //                                      - Added a shorthand notation for vector program options (e.g. annotations, log-classes, debug-classes).  See docs for details.
+//                                      - Added '--notes-hdrs' and '--notes' to pythonSubmit.py (default = None for both)
 //                                      - Added HDF5 support to Log::GetLogStandardRecord() (return value) and Log::LogStandardRecord() (input parameter).  This only matters
 //                                        to SSE Supernovae file - for delayed writes.  The original implementation may have resulted in minor discrepanicies in SSE Supernovae
 //                                        log records, (because of when the values were sampled (i.e. mid-timestep, or end of timestep)), which would only have been evident if
