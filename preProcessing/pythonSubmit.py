@@ -75,6 +75,11 @@ class pythonProgramOptions:
     hyperparameterList = False
     shareSeeds = False
 
+
+    notes_hdrs = None                                           # no annotations header strings (no annotations)
+    notes      = None                                           # no annotations
+
+
     mode = 'BSE'                                                # evolving single stars (SSE) or binaries (BSE)?
 
     grid_filename = None                                        # grid file name (e.g. 'mygrid.txt')
@@ -550,6 +555,8 @@ class pythonProgramOptions:
 
     def stringChoices(self):
         stringChoices = [
+            self.notes_hdrs,
+            self.notes,
             self.mode,
             self.case_BB_stability_prescription,
             self.chemically_homogeneous_evolution,
@@ -600,6 +607,8 @@ class pythonProgramOptions:
 
     def stringCommands(self):
         stringCommands = [
+            '--notes-hdrs',
+            '--notes',
             '--mode',
             '--case-BB-stability-prescription',
             '--chemically-homogeneous-evolution',
