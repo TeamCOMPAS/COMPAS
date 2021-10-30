@@ -3260,8 +3260,6 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  * <props_list> ::= <prop_spec> [ <prop_delim> <props_list> ]
  *
  * <prop_spec>  ::= <prop_type> "::" <prop_name> [ <prop_index> ] <prop_delim>
- *
- * <prop_index> ::= "[" n "]"
  * 
  * <spec_delim> ::= " " | EOL
  *
@@ -3274,6 +3272,8 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *                  "COMPANION_PROPERTY" |				# BSE only
  *                  "BINARY_PROPERTY"    |				# BSE only
  *                  "PROGRAM_OPTION"      				# SSE or BSE
+ *
+ * <prop_index> ::= "[" n "]"
  *
  * <prop_name>  ::= valid property name for specified property type
  *                  (see definitions in constants.h)

@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Standard log file format &mdash; COMPAS  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/COMPAS.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Example log file definitions file" href="standard-logfile-example-definitions-file.html" />
+    <link rel="prev" title="Program option properties" href="standard-logfile-record-specification-options.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> COMPAS
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user-guide.html">User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="program-options.html">Program options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grid-files.html">Grid files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random-seed.html">Random seed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running-via-cmdline.html">Running COMPAS from the command line</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running-via-python.html">Running COMPAS via Python</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running-via-docker.html">Running COMPAS via Docker</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="output.html">COMPAS Output</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="standard-logfiles.html">Standard log files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="standard-logfile-record-specifiers.html">Standard log file record specifiers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="standard-logfile-record-specification.html">Standard log file record specification</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Standard log file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="standard-logfile-example-definitions-file.html">Example log file definitions file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="standard-logfile-default-record-specifications.html">Default log file record specifications</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="post-processing.html">Post-processing tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example-compas-run.html">Tutorial: simple COMPAS run</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developer-guide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS"> Code repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Request an enhancement</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Report a problem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact-us.html">Contact us</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">COMPAS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="user-guide.html">User guide</a> &raquo;</li>
+        
+          <li><a href="output.html">COMPAS Output</a> &raquo;</li>
+        
+      <li>Standard log file format</li>
+    
+    
+
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="standard-log-file-format">
+<h1>Standard log file format<a class="headerlink" href="#standard-log-file-format" title="Permalink to this headline">¶</a></h1>
+<p>COMPAS can produce log files in several formats:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Hierarchical Data Format version 5 (<code class="docutils literal notranslate"><span class="pre">HDF5</span></code>)<a class="footnote-reference brackets" href="#f1" id="id1">1</a></p></li>
+<li><p>Comma Separated Values (<code class="docutils literal notranslate"><span class="pre">CSV</span></code>)</p></li>
+<li><p>Tab Separated Values (<code class="docutils literal notranslate"><span class="pre">TSV</span></code>)</p></li>
+<li><p>Plain text: space separated values (<code class="docutils literal notranslate"><span class="pre">TXT</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>The log file type is set using the <code class="docutils literal notranslate"><span class="pre">--logfile-type</span></code> program option.</p>
+<p>Standard <code class="docutils literal notranslate"><span class="pre">CSV</span></code>, <code class="docutils literal notranslate"><span class="pre">TSV</span></code>, and <code class="docutils literal notranslate"><span class="pre">TXT</span></code> log files are human-readable files, and formatted in a similar fashion. Each standard
+<code class="docutils literal notranslate"><span class="pre">CSV</span></code>, <code class="docutils literal notranslate"><span class="pre">TSV</span></code>, and <code class="docutils literal notranslate"><span class="pre">TXT</span></code> log file consists of three header records followed by data records. Header records and data records
+are delimiter separated fields, and the fields as specified by the log file record specifier.</p>
+<p>The header records for all standard <code class="docutils literal notranslate"><span class="pre">CSV</span></code>, <code class="docutils literal notranslate"><span class="pre">TSV</span></code>, and <code class="docutils literal notranslate"><span class="pre">TXT</span></code> log files are:</p>
+<blockquote>
+<div><p>Header record 1: Column Data Type Names <br />
+Header record 2: Column Units (where applicable) <br />
+Header record 3: Column Headings</p>
+</div></blockquote>
+<p>Column Data Type Names are taken from the set <strong>{ BOOL, INT, FLOAT, STRING }</strong>, where</p>
+<blockquote>
+<div><table class="colwidths-given aligned-text docutils align-default">
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 88%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>BOOL</strong></p></td>
+<td><p>indicates the data value will be a boolean value.</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>Boolean data values will be recorded in the log file in either numerical format (1 or 0, where 1 = TRUE and 0 = FALSE), or string format (&quot;TRUE&quot; or &quot;FALSE&quot;), depending upon the value of the <code class="docutils literal notranslate"><span class="pre">--print-bool-as-string</span></code> program option.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>INT</strong></p></td>
+<td><p>indicates the data value will be an integer number.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>FLOAT</strong></p></td>
+<td><p>indicates the data value will be a floating-point number.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>STRING</strong></p></td>
+<td><p>indicates the data value will be a text string.</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>Column Units is a string indicating the units of the corresponding data values (e.g. &quot;Msol*AU<sup>2</sup>*yr<sup>-1</sup>&quot;,
+&quot;Msol&quot;, &quot;AU&quot;, etc.). The Column Units value may be blank where units are not applicable, or may be one of:</p>
+<blockquote>
+<div><table class="colwidths-given aligned-text docutils align-default">
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 88%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Count</strong></p></td>
+<td><p>indicates the data value is the total of a counted entity.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>State</strong></p></td>
+<td><p>indicates the data value describes a state (e.g. &quot;Unbound&quot; state is &quot;TRUE&quot; or &quot;FALSE&quot;).</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Event</strong></p></td>
+<td><p>the data value describes an event status (e.g. &quot;Simultaneous_RLOF&quot; is &quot;TRUE&quot;).</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>Column Headings are string labels that describe the corresponding data values. The heading strings for stellar properties of
+constituent stars of a binary will have appropriate identifiers appended. That is, heading strings for:</p>
+<blockquote>
+<div><table class="colwidths-given aligned-text docutils align-default">
+<colgroup>
+<col style="width: 38%" />
+<col style="width: 62%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>STAR_1 PROPERTY::properties</p></td>
+<td><p>will have &quot;<span class="boldtext">(1)</span>&quot; appended</p></td>
+</tr>
+<tr class="row-even"><td><p>STAR_2 PROPERTY::properties</p></td>
+<td><p>will have &quot;<span class="boldtext">(2)</span>&quot; appended</p></td>
+</tr>
+<tr class="row-odd"><td><p>SUPERNOVA_PROPERTY::properties</p></td>
+<td><p>will have &quot;<span class="boldtext">(SN)</span>&quot; appended: any column with a header with a suffix of &quot;<span class="boldtext">(SN)</span>&quot; represents an attribute of the star undergoing a supernova event, either just before the supernova [e.g., <cite>Mass_Total&#64;CO(SN)</cite>] or just after the supernovae [e.g., <cite>Mass(SN)</cite>].</p></td>
+</tr>
+<tr class="row-even"><td><p>COMPANION_PROPERTY::properties</p></td>
+<td><p>will have &quot;<span class="boldtext">(CP)</span>&quot; appended: any column with a header with a suffix of &quot;<span class="boldtext">(CP)</span>&quot; represents an attribute of the the companion after the supernova event.</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files are not human-readable. The <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> file format supports large, complex, heterogeneous data, enabling the data to be stored
+in a structured way in a single file. When the <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> format is specified for COMPAS log files, a single <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> file is produced for
+non-detailed output log files, containing all non-detailed output log files described above. Detailed output files are created, as for
+other logfile types, as individual files (in this case, <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files), in the ’Detailed_Output’ container directory.</p>
+<p>Each file described above is created as a <cite>group</cite> within the <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> file, with the name of the group set to the name of the file
+(e.g. &quot;BSE_System_Parameters&quot;). Each column in the files described above is created as a <cite>dataset</cite> within its corresponding group in the
+<code class="docutils literal notranslate"><span class="pre">HDF5</span></code> file, with the name of the datset set to the column header as described above (e.g. &quot;Mass(1)&quot;). Each dataset in an <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> file
+is typed, and the dataset data types are set to the column data types as described above. The column units described above are attached to
+their corresponding datasets in the <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> file as <cite>attributes</cite>.</p>
+<p class="rubric">Footnotes</p>
+<dl class="footnote brackets">
+<dt class="label" id="f1"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p><a class="reference external" href="https://www.hdfgroup.org/">https://www.hdfgroup.org/</a></p>
+</dd>
+</dl>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="standard-logfile-example-definitions-file.html" class="btn btn-neutral float-right" title="Example log file definitions file" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="standard-logfile-record-specification-options.html" class="btn btn-neutral float-left" title="Program option properties" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The Authors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

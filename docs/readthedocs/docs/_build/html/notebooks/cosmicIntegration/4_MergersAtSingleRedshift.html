@@ -1,0 +1,866 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Rate at a single redshift &mdash; COMPAS  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/COMPAS.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="The CosmicIntegrator class" href="5_MergersAsFunctionOfRedhisft.html" />
+    <link rel="prev" title="Selection effects module" href="3_SelectionEffects.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> COMPAS
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../getting-started.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../user-guide.html">User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../program-options.html">Program options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../grid-files.html">Grid files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../random-seed.html">Random seed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../running-via-cmdline.html">Running COMPAS from the command line</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../running-via-python.html">Running COMPAS via Python</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../running-via-docker.html">Running COMPAS via Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../output.html">COMPAS Output</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../post-processing.html">Post-processing tools</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../post-processing-python-basics.html">Some Python basics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../post-processing-hdf5.html">Processing HDF5 files</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../../post-processing-cosmic-integration.html">Cosmic integration</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="1_ClassCOMPAS.html">Class COMPAS: setting the data.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="2_MSSFR-or-SFRD-prescriptions.html">Class MSSFR: choose a model and plot it.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="3_SelectionEffects.html">Selection effects module: choose the sensitivity and estimate detection probability.</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Rate at a single redshift: combine data, MSSFR, and selection effects.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="5_MergersAsFunctionOfRedhisft.html">Class CosmicIntegrator: rate as a function of redshift.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="6_FastCosmicIntegrator.html">Fast cosmic integration module: do it all in one go!</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../example-compas-run.html">Tutorial: simple COMPAS run</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer-guide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS"> Code repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Request an enhancement</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Report a problem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contact-us.html">Contact us</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">COMPAS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../user-guide.html">User guide</a> &raquo;</li>
+        
+          <li><a href="../../post-processing.html">Post-processing tools</a> &raquo;</li>
+        
+          <li><a href="../../post-processing-cosmic-integration.html">Cosmic integration</a> &raquo;</li>
+        
+      <li>Rate at a single redshift</li>
+    
+    
+
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Magic function to set the backend of matplotlib to the &#39;inline&#39; backend</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+</div>
+</div>
+<div class="section" id="Rate-at-a-single-redshift">
+<h1>Rate at a single redshift<a class="headerlink" href="#Rate-at-a-single-redshift" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="1.-Introduction">
+<h2>1. Introduction<a class="headerlink" href="#1.-Introduction" title="Permalink to this headline">¶</a></h2>
+<p>Here we show how to calculate the merger rate density of systems merging at a single redshift <span class="math notranslate nohighlight">\(\small{z}\)</span>. By now we assume you understand the indiviual pipelines of:</p>
+<p>Class COMPAS:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>-- (handling the (mock) data needed)
+</pre></div>
+</div>
+<p>Class MSSFR:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>-- defining the model for metallicity specific SFR
+</pre></div>
+</div>
+<p>Selection effects module:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>-- module to estimate the probability of detecting a system
+</pre></div>
+</div>
+<p>Here we show the additional steps required for the calculation. All these steps are done by default in the CosmicIntegrator class. We highlight the steps here outside the function for clarity, since the CosmicIntegrator class merely acts as a giant for loop over multiple redshifts, and povides a way to conveniently store the results.</p>
+<div class="section" id="1.1-Paths">
+<h3>1.1 Paths<a class="headerlink" href="#1.1-Paths" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">pathNoteBook</span>    <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+<span class="n">pathScripts</span>     <span class="o">=</span> <span class="n">pathNoteBook</span> <span class="o">+</span> <span class="s1">&#39;/PythonScripts/&#39;</span>
+
+<span class="n">pathData</span>        <span class="o">=</span> <span class="s1">&#39;../&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="1.2-Imports">
+<h3>1.2 Imports<a class="headerlink" href="#1.2-Imports" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span>   <span class="nn">astropy.cosmology</span> <span class="kn">import</span> <span class="n">WMAP9</span> <span class="k">as</span> <span class="n">cosmology</span>
+<span class="kn">from</span>   <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">newton</span>
+<span class="c1">#custom scripts</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pathScripts</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">ClassCOMPAS</span>
+<span class="kn">import</span> <span class="nn">ClassMSSFR</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="2.-Set-up-data-and-MSSFR-model">
+<h2>2. Set up data and MSSFR model<a class="headerlink" href="#2.-Set-up-data-and-MSSFR-model" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Create instance COMPAS data class</span>
+
+<span class="n">COMPAS</span> <span class="o">=</span> <span class="n">ClassCOMPAS</span><span class="o">.</span><span class="n">COMPASData</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">pathData</span><span class="p">,</span> <span class="n">fileName</span><span class="o">=</span><span class="s1">&#39;COMPAS_Output.h5&#39;</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ClassCOMPAS: Remember to self.setCOMPASDCOmask()
+                    then self.setCOMPASData()
+          and optionally self.setGridAndMassEvolved() if using a metallicity grid
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#Set the type of DCO of interest and recover their parameters</span>
+<span class="n">COMPAS</span><span class="o">.</span><span class="n">Mlower</span> <span class="o">=</span> <span class="mi">15</span>
+<span class="n">COMPAS</span><span class="o">.</span><span class="n">Mupper</span> <span class="o">=</span> <span class="mi">150</span>
+<span class="n">COMPAS</span><span class="o">.</span><span class="n">binaryFraction</span> <span class="o">=</span><span class="mf">0.7</span>
+
+<span class="n">COMPAS</span><span class="o">.</span><span class="n">setGridAndMassEvolved</span><span class="p">()</span>
+
+<span class="n">COMPAS</span><span class="o">.</span><span class="n">setCOMPASDCOmask</span><span class="p">()</span> <span class="c1">#Pessimistic BBHs</span>
+<span class="n">COMPAS</span><span class="o">.</span><span class="n">setCOMPASData</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># The MSSFR model</span>
+
+<span class="c1">#use the metallicityGrid of the Data</span>
+<span class="n">metallicityGrid</span> <span class="o">=</span> <span class="n">COMPAS</span><span class="o">.</span><span class="n">metallicityGrid</span>
+
+<span class="c1">#Create instance Class</span>
+<span class="n">MSSFR</span> <span class="o">=</span> <span class="n">ClassMSSFR</span><span class="o">.</span><span class="n">MSSFR</span><span class="p">(</span><span class="n">metallicityGrid</span><span class="o">=</span><span class="n">metallicityGrid</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ClassMSSFR: Remember to set self.SFRprescription() + sub-parts
+                            self.Zprescription()   + sub-parts
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#Set the MSSFR model</span>
+<span class="n">MSSFR</span><span class="o">.</span><span class="n">SFRprescription</span> <span class="o">=</span> <span class="s1">&#39;Neijssel et al. (2019)&#39;</span>
+<span class="n">MSSFR</span><span class="o">.</span><span class="n">Zprescription</span> <span class="o">=</span> <span class="s1">&#39;logNormal&#39;</span>
+<span class="n">MSSFR</span><span class="o">.</span><span class="n">logNormalPrescription</span> <span class="o">=</span><span class="s1">&#39;Neijssel Phenomenological&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="3.-Define-the-redshifts">
+<h2>3. Define the redshifts<a class="headerlink" href="#3.-Define-the-redshifts" title="Permalink to this headline">¶</a></h2>
+<p>The entire calculation depends on defining a redshift at which the DCOs merge. Then using the delay times and astropy you need to recover when the systems were born.</p>
+<p>First define our cosmology:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># see top notebook</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">mergerRedshift</span> <span class="o">=</span> <span class="mf">0.2</span>
+
+<span class="c1">#Define an age when the first stars formed based on redshift</span>
+<span class="n">firstSFR</span> <span class="o">=</span> <span class="n">cosmology</span><span class="o">.</span><span class="n">age</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+<span class="c1">#single value in units of Gyr</span>
+<span class="n">ageUniverseAtMergerGyr</span> <span class="o">=</span> <span class="n">cosmology</span><span class="o">.</span><span class="n">age</span><span class="p">(</span><span class="n">mergerRedshift</span><span class="p">)</span>
+<span class="c1">#Recover the array delaytimes in Units of Gyr</span>
+<span class="n">delayTimeGyr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">COMPAS</span><span class="o">.</span><span class="n">delayTimes</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="c1">#Calculate the age at which they were born</span>
+<span class="n">ageBirth</span>   <span class="o">=</span> <span class="n">ageUniverseAtMergerGyr</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">delayTimeGyr</span>
+<span class="c1">#If they are born before first SFR mask them</span>
+<span class="n">maskUnreal</span> <span class="o">=</span> <span class="n">ageBirth</span><span class="o">&lt;</span><span class="n">firstSFR</span>
+<span class="c1">#I set those to minus 1 to label them</span>
+<span class="c1">#This way we can use this as a mask everywhere instead of having</span>
+<span class="c1">#to slice the data in different ways. Useful for larger calculations</span>
+<span class="n">ageBirth</span><span class="p">[</span><span class="n">maskUnreal</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+</pre></div>
+</div>
+</div>
+<p>Note that the above might further reduce the number of DCOs in the data, despite the fact that we specified the <code class="docutils literal notranslate"><span class="pre">withinHubbleTime</span></code> flag. This is because that flag assumes redshift is zero. When we change our reference frame to higher redshifts, the universe is younger and therefore fewer systems will be able to merge in time.</p>
+<p>We set unphysical systems to -1. We do this because later when we loop over redshifts, the number of possible systems can vary. However we want to fill in the rates in a predefined 2D array of fixed shape (nr systems, nr of redshift bins), so we assume the largest array (size of nr of DCOs) and set the rate to zero in case. Note that the MSSFR class also depends on the mask of unphysical systems -1. (see returnMSSFR()).</p>
+<p>Recovering the redshift it is a bit tricky. Astropy can quickly calculate the age from redshift, but the inverse is more difficult. Our current code uses a dense, precalculated, look-up table to find the nearest value (for credits see source code for the Cosmicintegrator class). Here we use a older method which is considerably slower.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">redshiftsBirth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ageBirth</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">nr</span><span class="p">,</span> <span class="n">age</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ageBirth</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">age</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">redshiftsBirth</span><span class="p">[</span><span class="n">nr</span><span class="p">]</span> <span class="o">=</span> <span class="n">newton</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">cosmology</span><span class="o">.</span><span class="n">age</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="o">-</span><span class="n">age</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">redshiftsBirth</span><span class="p">[</span><span class="n">nr</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;nr of DCOs </span><span class="si">%s</span><span class="s2">, nr DCOs merging </span><span class="si">%s</span><span class="s2">&quot;</span>\
+     <span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">COMPAS</span><span class="o">.</span><span class="n">delayTimes</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ageBirth</span><span class="o">!=-</span><span class="mi">1</span><span class="p">)))</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+nr of DCOs 19, nr DCOs merging 19
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="4.-Calculate-the-rate-of-systems-per-metallicity">
+<h2>4. Calculate the rate of systems per metallicity<a class="headerlink" href="#4.-Calculate-the-rate-of-systems-per-metallicity" title="Permalink to this headline">¶</a></h2>
+<p>The code is structured to do the calculation per subpopulation of DCOs of a single metallicity. Note that if the system was not physically possible (age == -1), the rate is set to zero.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#create an array for rate per system merging at redshift z</span>
+<span class="n">ratePerSystem</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">COMPAS</span><span class="o">.</span><span class="n">delayTimes</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">for</span> <span class="n">nrZ</span><span class="p">,</span> <span class="n">Z</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">metallicityGrid</span><span class="p">):</span>
+    <span class="n">maskZ</span>    <span class="o">=</span> <span class="n">COMPAS</span><span class="o">.</span><span class="n">metallicitySystems</span> <span class="o">==</span> <span class="n">Z</span>
+    <span class="c1">#give MSSFR per system which has metallicity Z [Msun/dGpc3/dyr]</span>
+    <span class="n">mssfr</span>    <span class="o">=</span> <span class="n">MSSFR</span><span class="o">.</span><span class="n">returnMSSFR</span><span class="p">(</span><span class="n">metallicity</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span>\
+                                 <span class="n">agesBirth</span>  <span class="o">=</span><span class="n">ageBirth</span><span class="p">[</span><span class="n">maskZ</span><span class="p">],</span>
+                                 <span class="n">redshiftBirth</span><span class="o">=</span><span class="n">redshiftsBirth</span><span class="p">[</span><span class="n">maskZ</span><span class="p">])</span>
+    <span class="c1">#Calculate rate using amount of Msun evolved [dN/dGpc3/dyr]</span>
+    <span class="n">RatesZ</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">mssfr</span><span class="p">,</span> <span class="n">COMPAS</span><span class="o">.</span><span class="n">totalMassEvolvedPerZ</span><span class="p">[</span><span class="n">nrZ</span><span class="p">])</span>
+    <span class="c1">#Fill the rates in the defined array according to mask</span>
+    <span class="n">ratePerSystem</span><span class="p">[</span><span class="n">maskZ</span><span class="p">]</span> <span class="o">=</span> <span class="n">RatesZ</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="n">metallicityGrid</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[0.00142]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="n">ratePerSystem</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+[113.58954022  42.63850121  43.63640751  48.95943414  45.89350266
+ 103.88864283  39.28588509  40.45210129  39.75191701  47.70707998
+  71.26510367  40.79324527  39.34333569 106.02539307  53.23760513
+  39.40500536  40.51284623  40.5421396   40.18914844]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ratePerSystem</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+1037.1168344022635
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Using the rates in a histogram</span>
+
+<span class="n">chirpMasses</span> <span class="o">=</span> <span class="n">COMPAS</span><span class="o">.</span><span class="n">mChirp</span>
+
+<span class="n">binsM</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">dM</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">binsM</span><span class="p">)</span>
+<span class="n">center</span><span class="o">=</span> <span class="p">(</span><span class="n">binsM</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">+</span><span class="n">binsM</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="mf">2.</span>
+
+<span class="c1">#remember that the reight is essentially a weight per system</span>
+
+<span class="n">y</span> <span class="p">,</span> <span class="n">_</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">chirpMasses</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">binsM</span><span class="p">,</span> \
+                     <span class="n">weights</span><span class="o">=</span><span class="n">ratePerSystem</span><span class="p">)</span>
+
+<span class="n">dydMchirp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dM</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">dydMchirp</span><span class="p">)</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;chirp mass [Msun]&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;rate [yr-1 Gpc-3]&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;merger rate density at z=</span><span class="si">%s</span><span class="s1">&#39;</span>\
+               <span class="o">%</span><span class="p">(</span><span class="n">mergerRedshift</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_cosmicIntegration_4_MergersAtSingleRedshift_23_0.png" src="../../_images/notebooks_cosmicIntegration_4_MergersAtSingleRedshift_23_0.png" />
+</div>
+</div>
+<p>Here we have the chirp mass distribution at a single redshift per unit volume. The next step is to do it over a range of redshifts and get the absolute rates.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="5_MergersAsFunctionOfRedhisft.html" class="btn btn-neutral float-right" title="The CosmicIntegrator class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="3_SelectionEffects.html" class="btn btn-neutral float-left" title="Selection effects module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The Authors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

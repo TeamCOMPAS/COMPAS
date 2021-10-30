@@ -1,0 +1,355 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Error handling service &mdash; COMPAS  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/COMPAS.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Floating-point comparisons" href="floating-point-comparisons.html" />
+    <link rel="prev" title="Debugging macros" href="services-logging-debugging-macros-debugging.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> COMPAS
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide.html">User guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="developer-guide.html">Developer guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="SSE.html">Single star evolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BSE.html">Binary star evolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="object-ids.html">Object identifiers</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="services.html">Services</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="services-program-options.html">Program options service</a></li>
+<li class="toctree-l3"><a class="reference internal" href="services-random-numbers.html">Random numbers service</a></li>
+<li class="toctree-l3"><a class="reference internal" href="services-logging-debugging.html">Logging &amp; debugging service</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Error handling service</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#error-macros">Error macros</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#warning-macros">Warning macros</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="floating-point-comparisons.html">Floating-point comparisons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants-dot-h.html">Constants source file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html">Change log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming-style.html">Programming style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer-building-compas.html">COMPAS build methods</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS"> Code repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Request an enhancement</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Report a problem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact-us.html">Contact us</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">COMPAS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="developer-guide.html">Developer guide</a> &raquo;</li>
+        
+          <li><a href="services.html">Services</a> &raquo;</li>
+        
+      <li>Error handling service</li>
+    
+    
+
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="error-handling-service">
+<h1>Error handling service<a class="headerlink" href="#error-handling-service" title="Permalink to this headline">¶</a></h1>
+<p>An error handling service is provided encapsulated in a singleton object (an instantiation of the <code class="docutils literal notranslate"><span class="pre">Errors</span></code> class).</p>
+<p>The Errors service provides global error handling functionality. Following is a brief description of the Errors service
+(full documentation coming soon...):</p>
+<p>Errors are defined in the error catalog in <code class="docutils literal notranslate"><span class="pre">constants.h</span></code> (see <code class="docutils literal notranslate"><span class="pre">ERROR_CATALOG</span></code>). <br /></p>
+<p>Errors defined in the error catalog have a scope and message text. The scope is used to determine if and when an error should
+be printed.</p>
+<p>The current values for scope are:</p>
+<blockquote>
+<div><table class="colwidths-given aligned-text docutils align-default">
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 70%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>NEVER</strong></p></td>
+<td><p>the error will not be printed.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>ALWAYS</strong></p></td>
+<td><p>the error will always be printed.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>FIRST</strong></p></td>
+<td><p>the error will be printed only on the first time it is encountered anywhere in the program in the current execution of COMPAS.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>FIRST_IN_OBJECT_TYPE</strong></p></td>
+<td><p>the error will be printed only on the first time it is encountered anywhere in objects of the same type (e.g. Binary Star objects) in the current execution of COMPAS.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>FIRST_IN_STELLAR_TYPE</strong></p></td>
+<td><p>the error will be printed only on the first time it is encountered anywhere in objects of the same stellar type (e.g. HeWD Star objects) in the current execution of COMPAS.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>FIRST_IN_OBJECT_ID</strong></p></td>
+<td><p>the error will be printed only on the first time it is encountered anywhere in an object instance in the current execution of COMPAS (useful for debugging).</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>FIRST_IN_FUNCTION</strong></p></td>
+<td><p>the error will be printed only on the first time it is encountered anywhere in the same function of an object instance in the current execution of COMPAS (i.e. will print more than once if encountered in the same function name in different objects; useful for debugging).</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>The Errors service provides methods to print both warnings and errors – essentially the same thing, but warning messages are prepended with
+'<span class="boldtext">WARNING:</span> ', whereas error messages are prepended with '<span class="boldtext">ERROR:</span> '.</p>
+<p>Errors and warnings are printed by using the macros defined in <code class="docutils literal notranslate"><span class="pre">ErrorsMacros.h</span></code>. They are:</p>
+<div class="section" id="error-macros">
+<h2>Error macros<a class="headerlink" href="#error-macros" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SHOW_ERROR</span><span class="p">(</span><span class="n">error_number</span><span class="p">)</span>                         <span class="o">//</span> <span class="n">prints</span> <span class="n">the</span> <span class="n">error</span> <span class="n">message</span> <span class="n">associated</span> <span class="k">with</span> <span class="n">error</span>
+                                                 <span class="o">//</span> <span class="n">number</span> <span class="p">(</span><span class="kn">from</span> <span class="nn">the</span> <span class="n">error</span> <span class="n">catalog</span><span class="p">)</span> <span class="n">prepended</span> <span class="n">by</span>
+                                                 <span class="o">//</span> <span class="s1">&#39;ERROR: &#39;</span>
+
+<span class="n">SHOW_ERROR</span><span class="p">(</span><span class="n">error_number</span><span class="p">,</span> <span class="n">error_string</span><span class="p">)</span>           <span class="o">//</span> <span class="n">prints</span> <span class="n">the</span> <span class="n">error</span> <span class="n">message</span> <span class="n">associated</span> <span class="k">with</span> <span class="n">error</span>
+                                                 <span class="o">//</span> <span class="n">number</span> <span class="p">(</span><span class="kn">from</span> <span class="nn">the</span> <span class="n">error</span> <span class="n">catalog</span><span class="p">)</span> <span class="n">prepended</span> <span class="n">by</span>
+                                                 <span class="o">//</span> <span class="s1">&#39;ERROR: &#39;</span><span class="p">,</span> <span class="ow">and</span> <span class="n">appends</span> <span class="s1">&#39;error_string&#39;</span>
+
+<span class="n">SHOW_ERROR_IF</span><span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="n">error_number</span><span class="p">)</span>                <span class="o">//</span> <span class="k">if</span> <span class="s1">&#39;cond&#39;</span> <span class="ow">is</span> <span class="n">TRUE</span><span class="p">,</span> <span class="n">prints</span> <span class="n">the</span> <span class="n">error</span> <span class="n">message</span>
+                                                 <span class="o">//</span> <span class="n">associated</span> <span class="k">with</span> <span class="n">error</span> <span class="n">number</span> <span class="p">(</span><span class="kn">from</span> <span class="nn">the</span> <span class="n">error</span>
+                                                 <span class="o">//</span> <span class="n">catalog</span><span class="p">)</span> <span class="n">prepended</span> <span class="n">by</span> <span class="s1">&#39;ERROR: &#39;</span>
+
+<span class="n">SHOW_ERROR_IF</span><span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="n">error_number</span><span class="p">,</span> <span class="n">error_string</span><span class="p">)</span>  <span class="o">//</span> <span class="k">if</span> <span class="s1">&#39;cond&#39;</span> <span class="ow">is</span> <span class="n">TRUE</span><span class="p">,</span> <span class="n">prints</span> <span class="n">the</span> <span class="n">error</span> <span class="n">message</span>
+                                                 <span class="o">//</span> <span class="n">associated</span> <span class="k">with</span> <span class="n">error</span> <span class="n">number</span> <span class="p">(</span><span class="kn">from</span> <span class="nn">the</span> <span class="n">error</span>
+                                                 <span class="o">//</span> <span class="n">catalog</span><span class="p">)</span> <span class="n">prepended</span> <span class="n">by</span> <span class="s1">&#39;ERROR: &#39;</span><span class="p">,</span> <span class="ow">and</span> <span class="n">appends</span>
+                                                 <span class="o">//</span> <span class="s1">&#39;error_string&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="warning-macros">
+<h2>Warning macros<a class="headerlink" href="#warning-macros" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">WARNING</span></code> macros function in the same way as the <code class="docutils literal notranslate"><span class="pre">ERROR</span></code> macros, with the exception that instead of prepending the
+message with '<span class="boldtext">ERROR:</span> ', the <code class="docutils literal notranslate"><span class="pre">WARNING</span></code> macros prepend the message with '<span class="boldtext">WARNING:</span> '.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">WARNING</span></code> macros are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SHOW_WARN</span><span class="p">(</span><span class="n">error_number</span><span class="p">)</span>
+<span class="n">SHOW_WARN</span><span class="p">(</span><span class="n">error_number</span><span class="p">,</span> <span class="n">error_string</span><span class="p">)</span>
+<span class="n">SHOW_WARN_IF</span><span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="n">error_number</span><span class="p">)</span>
+<span class="n">SHOW_WARN_IF</span><span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="n">error_number</span><span class="p">,</span> <span class="n">error_string</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><br />
+Error and warning messages always contain:</p>
+<ul class="simple">
+<li><p>The object id of the calling object.</p></li>
+<li><p>The object type of the calling object.</p></li>
+<li><p>The stellar type of the calling object (will be ”NONE” if the calling object is not a star-type object).</p></li>
+<li><p>The function name of the calling function.</p></li>
+</ul>
+<p>Any object that uses the Errors service (i.e. any of the <code class="docutils literal notranslate"><span class="pre">ERROR</span></code> and <code class="docutils literal notranslate"><span class="pre">WARNING</span></code> macros) must expose the following functions:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OBJECT_ID</span> <span class="n">ObjectId</span><span class="p">()</span><span class="o">**</span> <span class="n">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">m</span> <span class="n">ObjectId</span><span class="p">;</span> <span class="p">}</span>
+<span class="n">OBJECT_TYPE</span> <span class="n">ObjectType</span><span class="p">()</span><span class="o">**</span> <span class="n">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">m</span> <span class="n">ObjectType</span><span class="p">;</span> <span class="p">}</span>
+<span class="n">STELLAR_TYPE</span> <span class="n">StellarType</span><span class="p">()</span><span class="o">**</span> <span class="n">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">m</span> <span class="n">StellarType</span><span class="p">;</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>These functions are called by the <code class="docutils literal notranslate"><span class="pre">ERROR</span></code> and <code class="docutils literal notranslate"><span class="pre">WARNING</span></code> macros. If any of the functions are not applicable to the object,
+then they must return '<span class="italictext">type</span>::NONE' (all objects should implement ObjectId() correctly).</p>
+<p>The filename to which error records are written when <code class="docutils literal notranslate"><span class="pre">Log::Start()</span></code> parameter <code class="docutils literal notranslate"><span class="pre">p_ErrorsToFile</span></code> is TRUE is declared in
+<code class="docutils literal notranslate"><span class="pre">constants.h</span></code> – see the enum class <code class="docutils literal notranslate"><span class="pre">LOGFILE</span></code> and associated descriptor map <code class="docutils literal notranslate"><span class="pre">LOGFILE_DESCRIPTOR</span></code>. Currently the name is 'Error_Log'.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="floating-point-comparisons.html" class="btn btn-neutral float-right" title="Floating-point comparisons" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="services-logging-debugging-macros-debugging.html" class="btn btn-neutral float-left" title="Debugging macros" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The Authors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
