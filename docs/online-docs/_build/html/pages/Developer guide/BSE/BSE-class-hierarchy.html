@@ -1,0 +1,298 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BSE class hierarchy &mdash; COMPAS  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/COMPAS.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="BSE evolution model" href="BSE-evolution-model.html" />
+    <link rel="prev" title="Binary star evolution" href="BSE.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> COMPAS
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Getting%20started/getting-started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../User%20guide/user-guide.html">User guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../developer-guide.html">Developer guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../SSE/SSE.html">Single star evolution</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="BSE.html">Binary star evolution</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">BSE class hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BSE-evolution-model.html">BSE evolution model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../object-ids.html">Object identifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Services/services.html">Services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../floating-point-comparisons.html">Floating-point comparisons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../constants-dot-h.html">Constants source file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html">Change log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Programming%20style/programming-style.html">Programming style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Developer%20build/developer-building-compas.html">COMPAS build methods</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS"> Code repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Request an enhancement</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Report a problem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contact-us.html">Contact us</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">COMPAS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../developer-guide.html">Developer guide</a> &raquo;</li>
+        
+          <li><a href="BSE.html">Binary star evolution</a> &raquo;</li>
+        
+      <li>BSE class hierarchy</li>
+    
+    
+
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="bse-class-hierarchy">
+<h1>BSE class hierarchy<a class="headerlink" href="#bse-class-hierarchy" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">BSE</span></code> class diagram is shown in <a class="reference internal" href="#fig-3"><span class="std std-ref">Figure 3</span></a>.</p>
+<div class="align-center figure" id="id1">
+<span id="fig-3"></span><a class="reference internal image-reference" href="../../../_images/BSE-class-diagram-compressed.svg"><img alt="BSE class diagram" height="184px" src="../../../_images/BSE-class-diagram-compressed.svg" width="600px" /></a>
+<p class="caption"><span class="caption-text">Figure 3 BSE class &amp; container diagram.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">BSE</span></code> inheritance hierarchy is as follows:</p>
+<blockquote>
+<div><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">BinaryStar</span></code></dt><dd><p><code class="docutils literal notranslate"><span class="pre">BaseBinaryStar</span></code></p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">Star</span></code> → <code class="docutils literal notranslate"><span class="pre">BinaryConstituentStar</span></code> (star1) <br />
+<code class="docutils literal notranslate"><span class="pre">Star</span></code> → <code class="docutils literal notranslate"><span class="pre">BinaryConstituentStar</span></code> (star2)</p>
+</div></blockquote>
+</dd>
+</dl>
+</div></blockquote>
+<p>The main class for binary star evolution is the <code class="docutils literal notranslate"><span class="pre">BinaryStar</span></code> class. The <code class="docutils literal notranslate"><span class="pre">BinaryStar</span></code> class is a wrapper that abstracts away the details
+of the binary star and the evolution. Internally the <code class="docutils literal notranslate"><span class="pre">BinaryStar</span></code> class maintains a pointer to an object representing the binary star being
+evolved, with that object being an instance of the <code class="docutils literal notranslate"><span class="pre">BaseBinaryStar</span></code> class. The <code class="docutils literal notranslate"><span class="pre">BinaryStar</span></code> class maintains a pointer to a second object,
+representing the saved state of the binary star being evolved, with that object also being an instance of the <code class="docutils literal notranslate"><span class="pre">BaseBinaryStar</span></code> class. The
+second object is a copy of the binary star being evolved at some earlier timestep, facilitating reverting the binary star to a previous state.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">BaseBinaryStar</span></code> class is a container class for the objects that represent the component stars of a binary system. An instance of the
+<code class="docutils literal notranslate"><span class="pre">BaseBinaryStar</span></code> class is a binary system being evolved by COMPAS, and contains a <code class="docutils literal notranslate"><span class="pre">BinaryConstituentStar</span></code> class object for each of the
+component stars (i.e. the primary and secondary stars), as well as data structures and algorithms specific to the evolution of a binary system.
+The <code class="docutils literal notranslate"><span class="pre">BaseBinaryStar</span></code> class also maintains pointers to the <code class="docutils literal notranslate"><span class="pre">BinaryConstituentStar</span></code> class objects considered to be the current donor and
+accretor during a mass transfer event, as well as pointers to the <code class="docutils literal notranslate"><span class="pre">BinaryConstituentStar</span></code> class objects considered to be the current
+supernova and companion star, should one of the stars undergo a supernova event.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">BinaryConstituentStar</span></code> class inherits from the <code class="docutils literal notranslate"><span class="pre">Star</span></code> class, so objects instantiated from the <code class="docutils literal notranslate"><span class="pre">BinaryConstituentStar</span></code> class inherit
+the characteristics of the <code class="docutils literal notranslate"><span class="pre">Star</span></code> class, particularly the stellar evolution model. The <code class="docutils literal notranslate"><span class="pre">BinaryConstituentStar</span></code> class defines member variables
+and functions that pertain specifically to a constituent star of a binary system but that do not (generally) pertain to single stars that are not
+part of a binary system (there are some functions that are defined in the <code class="docutils literal notranslate"><span class="pre">BaseStar</span></code> class and its derived classes that deal with binary star
+attributes and behaviour – in some cases the stellar attributes that are required to make these calculations reside in the <code class="docutils literal notranslate"><span class="pre">BaseStar</span></code> class so
+it is easier and cleaner to define the functions there).</p>
+<p>An instance of the <code class="docutils literal notranslate"><span class="pre">BinaryConstituentStar</span></code> class is a single component star of a binary system being evolved by COMPAS, and inhertis from the
+<code class="docutils literal notranslate"><span class="pre">Star</span></code>, so will evolve over time through various SSE classes shown in <a class="reference internal" href="../SSE/SSE-class-hierarchy.html#fig-1"><span class="std std-ref">Figure 1 SSE class &amp; container diagram.</span></a>. The <code class="docutils literal notranslate"><span class="pre">BinaryConstituentStar</span></code> class defines additional data
+structures and algorithms (to the data structures and algorithms provided by the <code class="docutils literal notranslate"><span class="pre">SSE</span></code> classes) required to support the evolution of a binary
+system component star.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">BaseBinaryStar</span></code> class is the main class for the underlying binary star object held by the <code class="docutils literal notranslate"><span class="pre">BinaryStar</span></code> class. The <code class="docutils literal notranslate"><span class="pre">BaseBinaryStar</span></code>
+class defines all member variables that pertain specifically to a binary star, and many member functions that provide binary-star specific
+functionality. Internally, the <code class="docutils literal notranslate"><span class="pre">BaseBinaryStar</span></code> class maintains pointers to the two BinaryConstituentStar class objects that constitute the
+binary star.</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="BSE-evolution-model.html" class="btn btn-neutral float-right" title="BSE evolution model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="BSE.html" class="btn btn-neutral float-left" title="Binary star evolution" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The Authors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,301 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Running COMPAS via Docker &mdash; COMPAS  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/COMPAS.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Installing the COMPAS Docker image" href="running-via-docker-installation.html" />
+    <link rel="prev" title="Running COMPAS via Python" href="running-via-python.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> COMPAS
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Getting%20started/getting-started.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../user-guide.html">User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Program%20options/program-options.html">Program options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../grid-files.html">Grid files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../random-seed.html">Random seed</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="running-compas.html">Running COMPAS</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="running-via-cmdline.html">Running COMPAS from the command line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="running-via-python.html">Running COMPAS via Python</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Running COMPAS via Docker</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="running-via-docker-installation.html">Installing the COMPAS Docker image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="running-via-docker-running.html">Running the COMPAS Docker image</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../COMPAS%20output/output.html">COMPAS output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Post-processing/post-processing.html">Post-processing tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Tutorial/example-compas-run.html">Tutorial: simple COMPAS run</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../Developer%20guide/developer-guide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS"> Code repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Request an enhancement</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Report a problem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contact-us.html">Contact us</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">COMPAS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../user-guide.html">User guide</a> &raquo;</li>
+        
+          <li><a href="running-compas.html">Running COMPAS</a> &raquo;</li>
+        
+      <li>Running COMPAS via Docker</li>
+    
+    
+
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="running-compas-via-docker">
+<h1>Running COMPAS via Docker<a class="headerlink" href="#running-compas-via-docker" title="Permalink to this headline">¶</a></h1>
+<p>Docker functionality has been added to COMPAS to reduce time and effort required to set up the COMPAS deployment environment.</p>
+<p>Instead of having to install and configure several libraries and tools (e.g. <code class="docutils literal notranslate"><span class="pre">python</span></code>/<code class="docutils literal notranslate"><span class="pre">pip</span></code>, <code class="docutils literal notranslate"><span class="pre">numpy</span></code>, <code class="docutils literal notranslate"><span class="pre">g++</span></code>, <code class="docutils literal notranslate"><span class="pre">boost</span></code>, <code class="docutils literal notranslate"><span class="pre">hdf5</span></code>)
+which can vary considerably beween operating systems and existing toolchains, users can instead opt to install <code class="docutils literal notranslate"><span class="pre">Docker</span></code> and run COMPAS
+with a single command.</p>
+<p>This also gives users the ability to run COMPAS on cloud solutions like <code class="docutils literal notranslate"><span class="pre">AWS</span> <span class="pre">EC2</span></code><a class="footnote-reference brackets" href="#f1" id="id1">1</a> or <code class="docutils literal notranslate"><span class="pre">Google</span> <span class="pre">Compute</span> <span class="pre">Engine</span></code><a class="footnote-reference brackets" href="#f2" id="id2">2</a> where hundreds
+of cores can be provisioned without having to manually configure the environment.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Docker</span></code> works by creating an isolated and standalone environment known as a <cite>container</cite><a class="footnote-reference brackets" href="#f3" id="id3">3</a>. Containers can be created or destroyed
+without affecting the host machine or other containers (containers can still interact with each other and the host machine through mounted
+directories/files or exposed ports).</p>
+<p>Containers are instances of images. An image is a pre-defined setup/environment that is instantiated when started as a container (containers
+are to images what objects are to classes in the OO paradigm)<a class="footnote-reference brackets" href="#f4" id="id4">4</a>.</p>
+<p>Containers are (almost) always run as a <code class="docutils literal notranslate"><span class="pre">Linux</span></code> environment. A major benefit of this is the ability to run Linux applications in a <code class="docutils literal notranslate"><span class="pre">Windows</span></code>
+or <code class="docutils literal notranslate"><span class="pre">macOS</span></code> environment without having to jump through hoops or have a diminished experience.</p>
+<p>Image definitions can be defined by users (e.g. <code class="docutils literal notranslate"><span class="pre">Dockerfiles</span></code>); there are also standard images publicly available on <code class="docutils literal notranslate"><span class="pre">dockerHub</span></code><a class="footnote-reference brackets" href="#f5" id="id5">5</a></p>
+<p>This following sections assume <code class="docutils literal notranslate"><span class="pre">Docker</span></code> has been installed and is running. For Windows and MacOS users, see
+<a class="reference external" href="https://www.docker.com/products/docker-desktop">Docker Desktop</a>.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="running-via-docker-installation.html">Installing the COMPAS Docker image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running-via-docker-running.html">Running the COMPAS Docker image</a></li>
+</ul>
+</div>
+<p class="rubric">Footnotes</p>
+<dl class="footnote brackets">
+<dt class="label" id="f1"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p><a class="reference external" href="https://aws.amazon.com/ec2/">https://aws.amazon.com/ec2/</a></p>
+</dd>
+<dt class="label" id="f2"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p><a class="reference external" href="https://cloud.google.com/compute">https://cloud.google.com/compute</a></p>
+</dd>
+<dt class="label" id="f3"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
+<dd><p><a class="reference external" href="https://www.docker.com/resources/what-container">https://www.docker.com/resources/what-container</a></p>
+</dd>
+<dt class="label" id="f4"><span class="brackets"><a class="fn-backref" href="#id4">4</a></span></dt>
+<dd><p><a class="reference external" href="https://stackoverflow.com/questions/23735149/what-is-the-difference-between-a-docker-image-and-a-container#:~:text=An%20instance%20of%20an%20image,of%20layers%20as%20you%20describe.&amp;text=You%20can%20see%20all%20your,an%20image%20is%20a%20container">https://stackoverflow.com/questions/23735149</a></p>
+</dd>
+<dt class="label" id="f5"><span class="brackets"><a class="fn-backref" href="#id5">5</a></span></dt>
+<dd><p><a class="reference external" href="https://hub.docker.com/">https://hub.docker.com/</a></p>
+</dd>
+</dl>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="running-via-docker-installation.html" class="btn btn-neutral float-right" title="Installing the COMPAS Docker image" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="running-via-python.html" class="btn btn-neutral float-left" title="Running COMPAS via Python" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The Authors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
