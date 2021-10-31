@@ -1,5 +1,5 @@
-Dependencies
-============
+Installing dependencies
+=======================
 
 COMPAS requires a ``C++`` compiler, and the ``gsl``, ``boost``, and ``hdf5`` libraries.  ``Python`` is required for the COMPAS post-processing tools.
 
@@ -7,8 +7,7 @@ COMPAS requires a ``C++`` compiler, and the ``gsl``, ``boost``, and ``hdf5`` lib
 .. toctree::
    :maxdepth: 1
 
-   COMPAS-dependencies-linux
-   COMPAS-dependencies-macOS
-   COMPAS-dependencies-build-compas
-   COMPAS-dependencies-python
+   ./COMPAS-dependencies-linux
+   ./COMPAS-dependencies-macOS
+   ./COMPAS-dependencies-python
 

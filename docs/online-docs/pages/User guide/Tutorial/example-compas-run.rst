@@ -11,6 +11,16 @@ To start, change to the ``examples/methods_paper_plots/detailed_evolution/`` dir
 
 where you will find the script ``pythonSubmitDemo.py`` for this demo.
 
+If you haven't yet defined the ``COMPAS_ROOT_DIR`` environment variable, do that now::
+
+    export COMPAS_ROOT_DIR=~/path-to-compas/COMPAS
+
+where `path-to-compas` should be replaced with the path to the parent directory of the directory in which the COMPAS executable resides.
+Depending upon your system, for the ``export`` command to take effect, it may be necessary to either restart your session or execute the
+following command::
+
+    source ~/.bashrc
+
 
 .. toctree::
    :maxdepth: 1
