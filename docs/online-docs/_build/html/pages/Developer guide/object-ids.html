@@ -1,0 +1,275 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Object identifiers &mdash; COMPAS  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/COMPAS.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Services" href="Services/services.html" />
+    <link rel="prev" title="BSE evolution model" href="BSE/BSE-evolution-model.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> COMPAS
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Getting%20started/getting-started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User%20guide/user-guide.html">User guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="developer-guide.html">Developer guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="SSE/SSE.html">Single star evolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BSE/BSE.html">Binary star evolution</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Object identifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Services/services.html">Services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="floating-point-comparisons.html">Floating-point comparisons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants-dot-h.html">Constants source file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html">Change log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Programming%20style/programming-style.html">Programming style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Developer%20build/developer-building-compas.html">COMPAS build methods</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS"> Code repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Request an enhancement</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Report a problem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contact-us.html">Contact us</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">COMPAS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="developer-guide.html">Developer guide</a> &raquo;</li>
+        
+      <li>Object identifiers</li>
+    
+    
+
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="object-identifiers">
+<h1>Object identifiers<a class="headerlink" href="#object-identifiers" title="Permalink to this headline">¶</a></h1>
+<p>All objects (instantiations of a class) are assigned unique object identifiers of type <code class="docutils literal notranslate"><span class="pre">OBJECT_ID</span></code> (unsigned long int - see
+<code class="docutils literal notranslate"><span class="pre">constants.h</span></code> for the typedef). The purpose of the unique object id is to aid in object tracking and debugging.</p>
+<p><strong>Note that the object id is not the same as, nor it superseded by, the RANDOM_SEED value assigned to each single or binary star</strong>.</p>
+<p>The RANDOM_SEED is used to seed the random number generator, and can be used to uniquely identify a single or binary star. The object
+id is more granular the the RANDOM_SEED. For example, each binary star is comprised of multiple objects: the <code class="docutils literal notranslate"><span class="pre">BinaryStar</span></code> object,
+which contains two <code class="docutils literal notranslate"><span class="pre">BaseBinaryStar</span></code> objects (the object undergoing evolution, and a saved copy); each <code class="docutils literal notranslate"><span class="pre">BaseBinaryStar</span></code> object
+contains two <code class="docutils literal notranslate"><span class="pre">BinaryConstituentStar</span></code> objects (one for each of the constituent stars), and each <code class="docutils literal notranslate"><span class="pre">BinaryConstituentStar</span></code> object
+inherits from the <code class="docutils literal notranslate"><span class="pre">Star</span></code> class, which contains two <code class="docutils literal notranslate"><span class="pre">BaseStar</span></code> objects (the underlying star and a saved copy). Whereas the RANDOM_SEED
+uniquely identifies (for example) a binary star, and so identifies the collection of objects that comprise the binary star, the object ids
+uniquely identify the constituent objects of the binary star.  Object tracking at this lower level cannot be achieved using the RANDOM_SEED,
+hence the need for object ids when debugging.</p>
+<p>As well as unique object ids, all objects are assigned an object type (of type <code class="docutils literal notranslate"><span class="pre">OBJECT_TYPE</span></code> – see <code class="docutils literal notranslate"><span class="pre">constants.h</span></code> for the enum class
+declaring <code class="docutils literal notranslate"><span class="pre">OBJECT_TYPE</span></code>), and a stellar type where applicable (of type <code class="docutils literal notranslate"><span class="pre">STELLAR_TYPE</span></code> – see <code class="docutils literal notranslate"><span class="pre">constants.h</span></code> for the enum class declaring
+<code class="docutils literal notranslate"><span class="pre">STELLAR_TYPE</span></code>).</p>
+<p>Objects should expose the following functions:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OBJECT_ID</span> <span class="n">ObjectId</span><span class="p">()</span> <span class="n">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">m</span> <span class="n">ObjectId</span><span class="p">;</span> <span class="p">}</span>
+<span class="n">OBJECT_TYPE</span> <span class="n">ObjectType</span><span class="p">()</span> <span class="n">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">m</span> <span class="n">ObjectType</span><span class="p">;</span> <span class="p">}</span>
+<span class="n">STELLAR_TYPE</span> <span class="n">StellarType</span><span class="p">()</span> <span class="n">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">m</span> <span class="n">StellarType</span><span class="p">;</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>If any of the functions are not applicable to the object, then they must return &quot;*::NONE&quot; (all objects should implement <code class="docutils literal notranslate"><span class="pre">ObjectId()</span></code>
+correctly).</p>
+<p>Any object that uses the Errors service (i.e. the <code class="docutils literal notranslate"><span class="pre">ERRORS</span></code> and <code class="docutils literal notranslate"><span class="pre">WARNINGS</span></code> macros) must expose these functions: the functions are
+called by the <code class="docutils literal notranslate"><span class="pre">ERRORS</span></code> and <code class="docutils literal notranslate"><span class="pre">WARNINGS</span></code> macros (<a class="reference internal" href="Services/services-error-handling.html"><span class="doc">Error handling service</span></a>).</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="Services/services.html" class="btn btn-neutral float-right" title="Services" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="BSE/BSE-evolution-model.html" class="btn btn-neutral float-left" title="BSE evolution model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The Authors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Grid files &mdash; COMPAS  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/COMPAS.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Random seed" href="random-seed.html" />
+    <link rel="prev" title="Program option list and default values" href="Program%20options/program-options-list-defaults.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> COMPAS
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Getting%20started/getting-started.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user-guide.html">User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Program%20options/program-options.html">Program options</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Grid files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#specifying-a-subset-of-the-grid-file-to-be-processed">Specifying a Subset of the Grid File to be Processed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="random-seed.html">Random seed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Running%20COMPAS/running-compas.html">Running COMPAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="COMPAS%20output/output.html">COMPAS output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Post-processing/post-processing.html">Post-processing tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/example-compas-run.html">Tutorial: simple COMPAS run</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Developer%20guide/developer-guide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS"> Code repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Request an enhancement</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Report a problem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contact-us.html">Contact us</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">COMPAS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="user-guide.html">User guide</a> &raquo;</li>
+        
+      <li>Grid files</li>
+    
+    
+
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="grid-files">
+<h1>Grid files<a class="headerlink" href="#grid-files" title="Permalink to this headline">¶</a></h1>
+<p>A grid file allows users to specify initial values for multiple systems for both Single Star Evolution (SSE) and Binary Star Evolution
+(BSE).  Each line of a grid file is used by COMPAS to set the initial conditions and evolutionary parameters for an individual single
+star (SSE) or binary star (BSE), and each single star or binary star defined by a grid file line is evolved using those values.</p>
+<p>Each line of a grid file is a set of program option specifications, with the specifications being exactly as they would appear on the
+command line if running COMPAS from the command line.</p>
+<p>For example, a grid file could contain the following two lines:</p>
+<blockquote>
+<div><p>--metallicity 0.001 --eccentricity 0.0 --remnant-mass-prescription fryer2012 <br />
+--remnant-mass-prescription mullermandel --metallicity 0.02 --semi-major-axis 45.678</p>
+</div></blockquote>
+<p>in which case COMPAS would evolve two binaries, with the option values set per the grid file lines.</p>
+<p>Grid files can have blank lines and comments. Comments begin with a hash/pound character ('#') - the hash/pound character and text
+beyond it are ignored by COMPAS.</p>
+<p>Not all program options can be specified in a grid file. Options that should remain constant for a single execution of COMPAS, such as
+options that specify the mode of evolution (e.g. <code class="docutils literal notranslate"><span class="pre">--mode</span></code>), or the name or path of output files (e.g. <code class="docutils literal notranslate"><span class="pre">--output-path</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--logfile-detailed-output</span></code> etc.) can only be specified on the command line.  COMPAS will issue an error message if an option that is
+not supported in a grid file is specified on a grid file line.</p>
+<p>COMPAS imposes no limit on the number of grid file lines: the size of a grid file is limited only by the filesystem of the host system.</p>
+<div class="section" id="specifying-a-subset-of-the-grid-file-to-be-processed">
+<h2>Specifying a Subset of the Grid File to be Processed<a class="headerlink" href="#specifying-a-subset-of-the-grid-file-to-be-processed" title="Permalink to this headline">¶</a></h2>
+<p>Users can instruct COMPAS to process only a subset of a specified grid file. This is achieved via the program options <code class="docutils literal notranslate"><span class="pre">--grid-start-line</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">--grid-lines-to-process</span></code>:</p>
+<blockquote>
+<div><p>The <code class="docutils literal notranslate"><span class="pre">--grid-start-line</span></code> program option takes a single parameter: an integer specifying the zero-based line number of the first line of
+the grid file to be processed. The default value is 0 - the first line of the grid file.  Specifying a start line beyond the end of the
+grid file will result in an UNEXPECTED-END-OF-FILE error.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--grid-lines-to-process</span></code> program option takes a single parameter: an integer specifying the number of lines of the grid file to be
+processed. The default is to process all lines in the grid file from the start line (which may have been specified by the
+<code class="docutils literal notranslate"><span class="pre">--grid-start-line</span> <span class="pre">option</span></code>) through to the end of the grid file. Specifying a number of lines to be processed that, when coupled with
+the start line, would result in attempting to process lines beyond the end of the grid file will result in an INCOMPLETE-GRID error.</p>
+<p>Note that blank lines and comments count towards the number of grid lines processed by COMPAS when deciding if the number specified by the
+user has been reached.</p>
+</div></blockquote>
+<p>Both option <code class="docutils literal notranslate"><span class="pre">--grid-start-line</span></code> and <code class="docutils literal notranslate"><span class="pre">--grid-lines-to-process</span></code> are ignored if no grid file is specified via the <code class="docutils literal notranslate"><span class="pre">--grid</span></code> program option.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="random-seed.html" class="btn btn-neutral float-right" title="Random seed" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Program%20options/program-options-list-defaults.html" class="btn btn-neutral float-left" title="Program option list and default values" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The Authors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

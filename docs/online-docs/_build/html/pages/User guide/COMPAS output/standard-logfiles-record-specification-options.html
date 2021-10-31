@@ -1,0 +1,3200 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Program option properties &mdash; COMPAS  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/COMPAS.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Standard log file format" href="standard-logfiles-format.html" />
+    <link rel="prev" title="Binary properties" href="standard-logfiles-record-specification-binary.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> COMPAS
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Getting%20started/getting-started.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../user-guide.html">User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Program%20options/program-options.html">Program options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../grid-files.html">Grid files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../random-seed.html">Random seed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Running%20COMPAS/running-compas.html">Running COMPAS</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="output.html">COMPAS output</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="standard-logfiles.html">Standard log files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="standard-logfiles-record-specifiers.html">Standard log file record specifiers</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="standard-logfiles-record-specification.html">Standard log file record specification</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="standard-logfiles-record-specification-stellar.html">Stellar properties</a></li>
+<li class="toctree-l4"><a class="reference internal" href="standard-logfiles-record-specification-binary.html">Binary properties</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Program option properties</a></li>
+<li class="toctree-l4"><a class="reference internal" href="standard-logfiles-record-specification.html#log-file-definitions-file-specification">Log file definitions file specification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="standard-logfiles-record-specification.html#example-definitions-file-entries">Example definitions file entries</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="standard-logfiles-format.html">Standard log file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="standard-logfiles-annotations.html">Log file annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="standard-logfiles-example-definitions-file.html">Example log file definitions file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="standard-logfiles-default-record-specifications.html">Default log file record specifications</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../Post-processing/post-processing.html">Post-processing tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Tutorial/example-compas-run.html">Tutorial: simple COMPAS run</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../Developer%20guide/developer-guide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS"> Code repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Request an enhancement</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Report a problem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contact-us.html">Contact us</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">COMPAS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../user-guide.html">User guide</a> &raquo;</li>
+        
+          <li><a href="output.html">COMPAS output</a> &raquo;</li>
+        
+          <li><a href="standard-logfiles-record-specification.html">Standard log file record specification</a> &raquo;</li>
+        
+      <li>Program option properties</li>
+    
+    
+
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="program-option-properties">
+<h1>Program option properties<a class="headerlink" href="#program-option-properties" title="Permalink to this headline">¶</a></h1>
+<p>When specifying known properties in a log file record specification record, the property name must be prefixed with
+the property type. Currently there is a single binary property type available for use: PROGRAM_OPTION.</p>
+<p>For example, to specify the program option property <code class="docutils literal notranslate"><span class="pre">RANDOM_SEED</span></code>, use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PROGRAM</span> <span class="n">OPTION</span><span class="p">::</span><span class="n">RANDOM_SEED</span>
+</pre></div>
+</div>
+<p id="spec-options-props-top">Following is an alphabetical list of program option properties available for inclusion in log file record specifiers.</p>
+<p><strong>Jump to</strong>
+<a class="reference internal" href="#spec-options-props-a"><span class="std std-ref">A</span></a> <a class="reference internal" href="#spec-options-props-b"><span class="std std-ref">B</span></a> <a class="reference internal" href="#spec-options-props-c"><span class="std std-ref">C</span></a> <a class="reference internal" href="#spec-options-props-d"><span class="std std-ref">D</span></a>
+<a class="reference internal" href="#spec-options-props-e"><span class="std std-ref">E</span></a> <a class="reference internal" href="#spec-options-props-f"><span class="std std-ref">F</span></a> <a class="reference internal" href="#spec-options-props-g"><span class="std std-ref">G</span></a> <a class="reference internal" href="#spec-options-props-h"><span class="std std-ref">H</span></a>
+<a class="reference internal" href="#spec-options-props-i"><span class="std std-ref">I</span></a> <a class="reference internal" href="#spec-options-props-j"><span class="std std-ref">J</span></a> <a class="reference internal" href="#spec-options-props-k"><span class="std std-ref">K</span></a> <a class="reference internal" href="#spec-options-props-l"><span class="std std-ref">L</span></a>
+<a class="reference internal" href="#spec-options-props-m"><span class="std std-ref">M</span></a> <a class="reference internal" href="#spec-options-props-n"><span class="std std-ref">N</span></a> <a class="reference internal" href="#spec-options-props-o"><span class="std std-ref">O</span></a> <a class="reference internal" href="#spec-options-props-p"><span class="std std-ref">P</span></a>
+<a class="reference internal" href="#spec-options-props-q"><span class="std std-ref">Q</span></a> <a class="reference internal" href="#spec-options-props-r"><span class="std std-ref">R</span></a> <a class="reference internal" href="#spec-options-props-s"><span class="std std-ref">S</span></a> <a class="reference internal" href="#spec-options-props-t"><span class="std std-ref">T</span></a>
+<a class="reference internal" href="#spec-options-props-u"><span class="std std-ref">U</span></a> <a class="reference internal" href="#spec-options-props-v"><span class="std std-ref">V</span></a> <a class="reference internal" href="#spec-options-props-w"><span class="std std-ref">W</span></a> <a class="reference internal" href="#spec-options-props-x"><span class="std std-ref">X</span></a>
+<a class="reference internal" href="#spec-options-props-y"><span class="std std-ref">Y</span></a> <a class="reference internal" href="#spec-options-props-z"><span class="std std-ref">Z</span></a></p>
+<table class="docutils align-default" id="spec-options-props-a">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ADD_OPTIONS_TO_SYSPARMS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_AddOptionsToSysParms</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--add-options-to-sysparms</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Add_Options_To_SysParms</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_AllowMainSequenceStarToSurviveCommonEnvelope</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--common-envelope-allow-main-sequence-survive</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Allow_MS_To_Survive_CE</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ALLOW_RLOF_AT_BIRTH</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_AllowRLOFAtBirth</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--allow-rlof-at-birth</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Allow_RLOF&#64;Birth</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ALLOW_TOUCHING_AT_BIRTH</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_AllowTouchingAtBirth</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--allow-touching-at-birth</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Allow_Touching&#64;Birth</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ANG_MOM_CONSERVATION_DURING_CIRCULARISATION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_AngularMomentumConservationDuringCircularisation</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--angular-momentum-conservation-during-circularisation</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Conserve_AngMom&#64;Circ</p></td>
+</tr>
+</tbody>
+</table>
+<p id="spec-options-props-b"><a class="reference internal" href="#spec-options-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>BLACK_HOLE_KICKS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_BlackHoleKicks</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--black-hole-kicks</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>BH_Kicks</p></td>
+</tr>
+</tbody>
+</table>
+<p id="spec-options-props-c"><a class="reference internal" href="#spec-options-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>CASE_BB_STABILITY_PRESCRIPTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_CaseBBStabilityPrescription</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--case-BB-stability-prescription</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>BB_Mass_xFer_Stblty_Prscrptn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>CHE_MODE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_CheMode</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--chemically-homogeneous-evolution</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>CHE_Mode</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>CIRCULARISE_BINARY_DURING_MT</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>BOOL</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_CirculariseBinaryDuringMassTransfer</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--circularise-binary-during-mass-transfer</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Circularise&#64;MT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>COMMON_ENVELOPE_ALPHA</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_CommonEnvelopeAlpha</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--common-envelope-alpha</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>CE_Alpha</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>COMMON_ENVELOPE_ALPHA_THERMAL</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_CommonEnvelopeAlphaThermal</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--common-envelope-alpha-thermal</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>CE_Alpha_Thermal</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>COMMON_ENVELOPE_LAMBDA</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_CommonEnvelopeLambda</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--common-envelope-lambda</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>CE_Lambda</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>COMMON_ENVELOPE_LAMBDA_MULTIPLIER</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_CommonEnvelopeLambdaMultiplier</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--common-envelope-lambda-multiplier</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>CE_Lambda_Multiplier</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>COMMON_ENVELOPE_LAMBDA_PRESCRIPTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_CommonEnvelopeLambdaPrescription</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--common-envelope-lambda-prescription</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>CE_Lambda_Prscrptn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>COMMON_ENVELOPE_MASS_ACCRETION_CONSTANT</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_CommonEnvelopeMassAccretionConstant</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--common-envelope-mass-accretion-constant</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>CE_Mass_Accr_Constant</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>COMMON_ENVELOPE_MASS_ACCRETION_MAX</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_CommonEnvelopeMassAccretionMax</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--common-envelope-mass-accretion-max</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>CE_Mass_Accr_Max</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>COMMON_ENVELOPE_MASS_ACCRETION_MIN</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_CommonEnvelopeMassAccretionMin</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--common-envelope-mass-accretion-min</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>CE_Mass_Accr_Min</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_CommonEnvelopeMassAccretionPrescription</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--common-envelope-mass-accretion-prescription</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>CE_Mass_Accr_Prscrptn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_CommonEnvelopeRecombinationEnergyDensity</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--common-envelope-recombination-energy-density</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>CE_Recomb_Enrgy_Dnsty</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>COMMON_ENVELOPE_SLOPE_KRUCKOW</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_CommonEnvelopeSlopeKruckow</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--common-envelope-slope-kruckow</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>CE_Slope_Kruckow</p></td>
+</tr>
+</tbody>
+</table>
+<p id="spec-options-props-e"><span id="spec-options-props-d"></span><a class="reference internal" href="#spec-options-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ECCENTRICITY</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_Eccentricity</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--eccentricity</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Eccentricity</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ECCENTRICITY_DISTRIBUTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_EccentricityDistribution</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--eccentricity-distribution</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Eccentricity_Dstrbtn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ECCENTRICITY_DISTRIBUTION MAX</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_EccentricityDistributionMax</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--eccentricity-max</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Eccentricity_Dstrbtn_Max</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ECCENTRICITY_DISTRIBUTION_MIN</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_EccentricityDistributionMin</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--eccentricity-min</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Eccentricity_Dstrbtn_Min</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>EDDINGTON_ACCRETION_FACTOR</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_EddingtonAccretionFactor</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--eddington-accretion-factor</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Eddington_Accr_Factor</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ENVELOPE_STATE_PRESCRIPTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_EnvelopeStatePrescription</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--envelope-state-prescription</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Envelope_State_Prscrptn</p></td>
+</tr>
+</tbody>
+</table>
+<p id="spec-options-props-f"><a class="reference internal" href="#spec-options-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>FRYER_SUPERNOVA_ENGINE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_FryerSupernovaEngine</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--fryer-supernova-engine</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Fryer_SN_Engine</p></td>
+</tr>
+</tbody>
+</table>
+<p id="spec-options-props-i"><span id="spec-options-props-h"></span><span id="spec-options-props-g"></span><a class="reference internal" href="#spec-options-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>INITIAL_MASS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_InitialMass</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--initial-mass</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Initial_Mass</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>INITIAL_MASS_1</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_InitialMass1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--initial-mass-1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Initial_Mass(1)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>INITIAL_MASS_2</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_InitialMass2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--initial-mass-2</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Initial_Mass(2)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>INITIAL_MASS_FUNCTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_InitialMassFunction</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--initial-mass-function</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Initial_Mass_Function</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>INITIAL_MASS_FUNCTION_MAX</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_InitialMassFunctionMax</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--initial-mass-max</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Initial_Mass_Func_Max</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>INITIAL_MASS_FUNCTION_MIN</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_InitialMassFunctionMin</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--initial-mass-min</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Initial_Mass_Func_Min</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>INITIAL_MASS_FUNCTION_POWER</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_InitialMassFunctionPower</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--initial-mass-power</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Initial_Mass_Func_Power</p></td>
+</tr>
+</tbody>
+</table>
+<p id="spec-options-props-k"><span id="spec-options-props-j"></span><a class="reference internal" href="#spec-options-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_DIRECTION_DISTRIBUTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickDirectionDistribution</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-direction</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Direction_Dstrbtn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_DIRECTION_POWER</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickDirectionPower</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-direction-power</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Direction_Power</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_SCALING_FACTOR</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickScalingFactor</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-scaling-factor</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Scaling_Factor</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_MAGNITUDE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickMagnitude</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-magnitude</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Magnitude</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_MAGNITUDE_1</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickMagnitude1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-magnitude-1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Magnitude(1)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_MAGNITUDE_2</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickMagnitude2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-magnitude-2</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Magnitude(2)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_MAGNITUDE_DISTRIBUTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickMagnitudeDistribution</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-magnitude-distribution</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Magnitude_Dstrbtn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_MAGNITUDE_DISTRIBUTION_MAXIMUM</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickMagnitudeDistributionMaximum</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-magnitude-max</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Magnitude_Dstrbtn_Max</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_BH</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_kickMagnitudeDistributionSigmaCCSN BH</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-magnitude-sigma-CCSN-BH</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Sigma_Kick_CCSN_BH</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_NS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_kickMagnitudeDistributionSigmaCCSN NS</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-magnitude-sigma-CCSN-NS</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Sigma_Kick_CCSN_NS</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_ECSN</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_kickMagnitudeDistributionSigmaForECSN</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-magnitude-sigma-ECSN</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Sigma_Kick_ECSN</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_USSN</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_kickMagnitudeDistributionSigmaForUSSN</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-magnitude-sigma-USSN</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Sigma_Kick_USSN</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_MEAN_ANOMALY_1</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickMeanAnomaly1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-mean-anomaly-1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Mean_Anomaly(1)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_MEAN_ANOMALY_2</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickMeanAnomaly2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-mean-anomaly-2</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Mean_Anomaly(2)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_MAGNITUDE_RANDOM</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickMagnitudeRandom</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-magnitude-random</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Magnitude_Random</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_MAGNITUDE_RANDOM_1</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickMagnitudeRandom1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-magnitude-random-1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Magnitude_Random(1)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_MAGNITUDE_RANDOM_2</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickMagnitudeRandom2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-magnitude-random-2</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Magnitude_Random(2)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_PHI_1</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickPhi1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-phi-1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Mean_Phi(1)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_PHI_2</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickPhi2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-phi-2</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Mean_Phi(2)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_THETA_1</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickTheta1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-theta-1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Mean_Theta(1)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>KICK_THETA_2</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_KickTheta2</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--kick-theta-2</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Kick_Mean_Theta(2)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>LBV_FACTOR</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_LuminousBlueVariableFactor</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--luminous-blue-variable-multiplier</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>LBV_Factor</p></td>
+</tr>
+</tbody>
+</table>
+<p id="spec-options-props-l"><a class="reference internal" href="#spec-options-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>LBV_PRESCRIPTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_LuminousBlueVariablePrescription</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--luminous-blue-variable-prescription</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>LBV_Mass_Loss_Prscrptn</p></td>
+</tr>
+</tbody>
+</table>
+<p id="spec-options-props-m"><a class="reference internal" href="#spec-options-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MASS_LOSS_PRESCRIPTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MassLossPrescription</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--mass-loss-prescription</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Mass_Loss_Prscrptn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MASS_RATIO</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MassRatio</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">-</span></code>-mass-ratio``</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Mass_Ratio</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MASS_RATIO_DISTRIBUTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MassRatioDistribution</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--mass-ratio-distribution</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Mass_Ratio_Dstrbtn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MASS_RATIO_DISTRIBUTION_MAX</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MassRatioDistributionMax</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--mass-ratio-max</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Mass_Ratio_Dstrbtn_Max</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MASS_RATIO_DISTRIBUTION_MIN</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MassRatioDistributionMin</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--mass-ratio-min</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Mass_Ratio_Dstrbtn_Min</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MAXIMUM_EVOLUTION_TIME</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MaxEvolutionTime</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--maximum-evolution-time</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Max_Evolution_Time</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MAXIMUM_DONOR_MASS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MaximumMassDonorNandezIvanova</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--maximum-mass-donor-nandez-ivanova</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Max_Donor_Mass</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MAXIMUM_NEUTRON_STAR_MASS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MaximumNeutronStarMass</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--maximum-neutron-star-mass</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Max_NS_Mass</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MAXIMUM_TIMESTEPS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MaxNumberOfTimestepIterations</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--maximum-number-timestep-iterations</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Max_Timesteps</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MCBUR1</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_mCBUR1</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--mcbur1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>MCBUR1</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>METALLICITY</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_Metallicity</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--metallicity</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Metallicity</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>METALLICITY_DISTRIBUTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MetallicityDistribution</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--metallicity-distribution</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Metallicity_Dstrbtn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>METALLICITY_DISTRIBUTION_MAX</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MetallicityDistributionMax</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--metallicity-max</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Metallicity_Dstrbtn_Max</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>METALLICITY_DISTRIBUTION_MIN</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MetallicityDistributionMin</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--metallicity-min</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Metallicity_Dstrbtn_Min</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MINIMUM_MASS_SECONDARY</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MinimumMassSecondary</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--minimum-secondary-mass</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Min_Secondary_Mass</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MT_ACCRETION_EFFICIENCY_PRESCRIPTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MassTransferAccretionEfficiencyPrescription</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--mass-transfer-accretion-efficiency-prescription</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>MT_Acc_Efficiency_Prscrptn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MT_ANG_MOM_LOSS_PRESCRIPTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MassTransferAngularMomentumLossPrescription</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--mass-transfer-angular-momentum-loss-prescription</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>MT_AngMom_Loss_Prscrptn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MT_FRACTION_ACCRETED</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MassTransferFractionAccreted</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--mass-transfer-fa</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>MT_Fraction_Accreted</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MT_JLOSS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MassTransferJloss</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--mass-transfer-jloss</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>MT_JLoss</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MT_THERMAL_LIMIT_C</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MassTransferCParameter</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--mass-transfer-thermal-limit-C</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>MT_Thermal_Limit_C</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MT_REJUVENATION_PRESCRIPTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MassTransferRejuvenationPrescription</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--mass-transfer-rejuvenation-prescription</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>MT_Rejuvenation_Prscrptn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MT_THERMALLY_LIMITED_VARIATION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MassTransferThermallyLimitedVariation</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--mass-transfer-thermal-limit-accretor</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>MT_Thermally_Lmtd_Variation</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MULLER_MANDEL_KICK_MULTIPLIER_BH</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MullerMandelKickBH</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--muller-mandel-kick-multiplier-BH</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>MM_Kick_Multiplier_BH</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>MULLER_MANDEL_KICK_MULTIPLIER_NS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_MullerMandelKickNS</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--muller-mandel-kick-multiplier-NS</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>MM_Kick_Multiplier_NS</p></td>
+</tr>
+</tbody>
+</table>
+<p id="spec-options-props-n"><a class="reference internal" href="#spec-options-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>NEUTRINO_MASS_LOSS_ASSUMPTION_BH</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_NeutrinoMassLossAssumptionBH</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--neutrino-mass-loss-BH-formation</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Neutrino_Mass_Loss_Assmptn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>NEUTRINO_MASS_LOSS_VALUE_BH</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_NeutrinoMassLossValueBH</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--neutrino-mass-loss-BH-formation-value</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Neutrino_Mass_Loss_Value</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>NOTES</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>STRING</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_Notes</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--notes</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>as specified by program option <code class="docutils literal notranslate"><span class="pre">--Notes-Hdrs</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>NS_EOS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_NeutronStarEquationOfState</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--neutron-star-equation-of-state</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>NS_EOS</p></td>
+</tr>
+</tbody>
+</table>
+<p id="spec-options-props-o"><a class="reference internal" href="#spec-options-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ORBITAL_PERIOD</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_OrbitalPeriod</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--orbital-period</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Orbital_Period</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ORBITAL_PERIOD_DISTRIBUTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_OrbitalPeriodDistribution</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--orbital-period-distribution</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Orbital_Period_Dstrbtn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ORBITAL_PERIOD_DISTRIBUTION_MAX</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_OrbitalPeriodDistributionMax</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--orbital-period-max</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Orbital_Period_Max</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ORBITAL_PERIOD_DISTRIBUTION_MIN</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_OrbitalPeriodDistributionMin</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--orbital-period-min</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Orbital_Period_Min</p></td>
+</tr>
+</tbody>
+</table>
+<p id="spec-options-props-p"><a class="reference internal" href="#spec-options-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>PISN_LOWER_LIMIT</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_PairInstabilityLowerLimit</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--PISN-lower-limit</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>PISN_Lower_Limit</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>PISN_UPPER_LIMIT</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_PairInstabilityUpperLimit</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--PISN-upper-limit</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>PISN_Upper_Limit</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>PPI_LOWER_LIMIT</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_PulsationalPairInstabilityLowerLimit</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--PPI-lower-limit</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>PPI_Lower_Limit</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>PPI_PRESCRIPTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_PulsationalPairInstabilityPrescription</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--pulsational-pair-instability-prescription</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>PPI_Prscrptn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>PPI_UPPER_LIMIT</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_PulsationalPairInstabilityUpperLimit</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--PPI-upper-limit</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>PPI_Upper_Limit</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>PULSAR_MAGNETIC_FIELD_DISTRIBUTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_PulsarBirthMagneticFieldDistribution</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--pulsar-birth-magnetic-field-distribution</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Pulsar_Mag_Field_Dstrbtn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MAX</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_PulsarBirthMagneticFieldDistributionMax</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--pulsar-birth-magnetic-field-distribution-max</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Pulsar_Mag_Field_Dstrbtn_Max</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MIN</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_PulsarBirthMagneticFieldDistributionMin</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--pulsar-birth-magnetic-field-distribution-min</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Pulsar_Mag_Field_Dstrbtn_Min</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_PulsarBirthSpinPeriodDistribution</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--pulsar-birth-spin-period-distribution</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Pulsar_Spin_Period_Dstrbtn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>PULSAR_BIRTH_SPIN_DISTRIBUTION_MAX</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_PulsarBirthSpinPeriodDistributionMax</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--pulsar-birth-spin-period-distribution-max</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Pulsar_Spin_Period_Dstrbtn_Max</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>PULSAR_BIRTH_SPIN_DISTRIBUTION_MIN</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_PulsarBirthSpinPeriodDistributionMin</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--pulsar-birth-spin-period-distribution-min</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Pulsar_Spin_Period_Dstrbtn_Min</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>PULSAR_MAGNETIC_FIELD_DECAY_MASS_SCALE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options:m_PulsarMagneticFieldDecayMassscale</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--pulsar-magnetic-field-decay-massscale</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Pulsar_Mag_Field_Decay_mScale</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options:m_PulsarMagneticFieldDecayTimescale</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--pulsar-magnetic-field-decay-timescale</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Pulsar_Mag_Field_Decay_tScale</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>PULSAR_MINIMUM_MAGNETIC_FIELD</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_PulsarLog10MinimumMagneticField</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--pulsar-minimum-magnetic-field</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Pulsar_Minimum_Mag_Field</p></td>
+</tr>
+</tbody>
+</table>
+<p id="spec-options-props-r"><span id="spec-options-props-q"></span><a class="reference internal" href="#spec-options-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RANDOM_SEED</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>UNSIGNED LONG INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_RandomSeed</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--random-seed</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>SEED(OPTION)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>RANDOM_SEED_CMDLINE</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>UNSIGNED LONG INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_FixedRandomSeed</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--random-seed</span></code> (specified on the commandline)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>SEED(CMDLINE)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>REMNANT_MASS_PRESCRIPTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_RemnantMassPrescription</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--remnant-mass-prescription</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Remnant_Mass_Prscrptn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ROTATIONAL_VELOCITY_DISTRIBUTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_RotationalVelocityDistribution</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--rotational-velocity-distribution</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Rotational_Velocity_Dstrbtn</p></td>
+</tr>
+</tbody>
+</table>
+<p id="spec-options-props-s"><a class="reference internal" href="#spec-options-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>SEMI_MAJOR_AXIS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_SemiMajorAxis</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--semi-major-axis</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Semi-Major_Axis</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>SEMI_MAJOR_AXIS_DISTRIBUTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_SemiMajorAxisDistribution</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--semi-major-axis-distribution</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Semi-Major_Axis_Dstrbtn</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>SEMI_MAJOR_AXIS_DISTRIBUTION_MAX</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_SemiMajorAxisDistributionMax</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--semi-major-axis-max</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Semi-Major_Axis_Dstrbtn_Max</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>SEMI_MAJOR_AXIS_DISTRIBUTION_MIN</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_SemiMajorAxisDistributionMin</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--semi-major-axis-min</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Semi-Major_Axis_Dstrbtn_Min</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>STELLAR_ZETA_PRESCRIPTION</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>INT</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_StellarZetaPrescription</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--stellar-zeta-prescription</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Stellar_Zeta_Prscrptn</p></td>
+</tr>
+</tbody>
+</table>
+<p id="spec-options-props-w"><span id="spec-options-props-v"></span><span id="spec-options-props-u"></span><span id="spec-options-props-t"></span><a class="reference internal" href="#spec-options-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>WR_FACTOR</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_WolfRayetFactor</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--wolf-rayet-multiplier</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>WR_Factor</p></td>
+</tr>
+</tbody>
+</table>
+<p id="spec-options-props-z"><span id="spec-options-props-y"></span><span id="spec-options-props-x"></span><a class="reference internal" href="#spec-options-props-top"><span class="std std-ref">Back to Top</span></a></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ZETA_ADIABATIC_ARBITRARY</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_ZetaAdiabaticArbitrary</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--zeta-adiabatic-arbitrary</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Zeta_Adiabatic_Arbitrary</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ZETA_MS</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_ZetaMainSequence</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--zeta-main-sequence</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Zeta_Main_Sequence_Giant</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p> <strong>ZETA_RADIATIVE_ENVELOPE_GIANT</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Data type:</p></td>
+<td colspan="3"><p>DOUBLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>COMPAS variable:</p></td>
+<td colspan="3"><p>Options::m_ZetaRadiativeEnvelopeGiant</p></td>
+</tr>
+<tr class="row-even"><td><p>Description:</p></td>
+<td colspan="3"><p>Value of program option <code class="docutils literal notranslate"><span class="pre">--zeta-radiative-envelope-giant</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Header String:</p></td>
+<td colspan="3"><p>Zeta_Radiative_Envelope_Giant</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="standard-logfiles-format.html" class="btn btn-neutral float-right" title="Standard log file format" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="standard-logfiles-record-specification-binary.html" class="btn btn-neutral float-left" title="Binary properties" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The Authors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
