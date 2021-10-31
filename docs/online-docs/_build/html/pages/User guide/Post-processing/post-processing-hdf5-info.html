@@ -1,0 +1,381 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>HDF5 basics &mdash; COMPAS  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/COMPAS.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="COMPAS HDF5 tools" href="post-processing-hdf5-tools.html" />
+    <link rel="prev" title="Processing HDF5 files" href="post-processing-hdf5.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> COMPAS
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Getting%20started/getting-started.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../user-guide.html">User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Program%20options/program-options.html">Program options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../grid-files.html">Grid files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../random-seed.html">Random seed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Running%20COMPAS/running-compas.html">Running COMPAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../COMPAS%20output/output.html">COMPAS output</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="post-processing.html">Post-processing tools</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="post-processing-python-basics.html">Some Python basics</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="post-processing-hdf5.html">Processing HDF5 files</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">HDF5 basics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="post-processing-hdf5-tools.html">COMPAS HDF5 tools</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="post-processing-cosmic-integration.html">Cosmic integration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../Tutorial/example-compas-run.html">Tutorial: simple COMPAS run</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../Developer%20guide/developer-guide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS"> Code repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Request an enhancement</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Report a problem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contact-us.html">Contact us</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">COMPAS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../user-guide.html">User guide</a> &raquo;</li>
+        
+          <li><a href="post-processing.html">Post-processing tools</a> &raquo;</li>
+        
+          <li><a href="post-processing-hdf5.html">Processing HDF5 files</a> &raquo;</li>
+        
+      <li>HDF5 basics</li>
+    
+    
+
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="hdf5-basics">
+<h1>HDF5 basics<a class="headerlink" href="#hdf5-basics" title="Permalink to this headline">¶</a></h1>
+<p>Here we provide some basic information regarding the COMPAS <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> log files, and how COMPAS interacts with <code class="docutils literal notranslate"><span class="pre">HDF5</span></code>.
+Interested readers can learn more about the <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> file format at <a class="reference external" href="https://www.hdfgroup.org/">The HDF Group</a>.</p>
+<div class="section" id="hdf5-file-chunking-and-io">
+<span id="hdf5-chunking"></span><h2>HDF5 file chunking and IO<a class="headerlink" href="#hdf5-file-chunking-and-io" title="Permalink to this headline">¶</a></h2>
+<p>Following is a brief description of <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files and <code class="docutils literal notranslate"><span class="pre">chunking</span></code>, in the COMPAS context.</p>
+<p>Data in <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files are arranged in <code class="docutils literal notranslate"><span class="pre">groups</span></code> and <code class="docutils literal notranslate"><span class="pre">datasets</span></code>:</p>
+<blockquote>
+<div><p>A COMPAS output file (e.g. <cite>BSE_System_Parameters</cite>, <cite>BSE_RLOF</cite>, etc.) maps to an <code class="docutils literal notranslate"><span class="pre">HDF5</span> <span class="pre">group</span></code> where the group name is
+the name of the COMPAS output file.</p>
+<p>A column in a COMPAS output file (e.g. <cite>SEED</cite>, <cite>Mass(1)</cite>, <cite>Radius(2)</cite>, etc.) maps to an <code class="docutils literal notranslate"><span class="pre">HDF5</span> <span class="pre">dataset</span></code>, where the
+dataset name is the column heading string.</p>
+<p>COMPAS column datatype strings are encoded in the <code class="docutils literal notranslate"><span class="pre">HDF5</span> <span class="pre">dataset</span></code> meta-details (<code class="docutils literal notranslate"><span class="pre">dataset.dtype</span></code>).</p>
+<p>COMPAS column units strings are attached to <code class="docutils literal notranslate"><span class="pre">HDF5</span> <span class="pre">datasets</span></code> as <code class="docutils literal notranslate"><span class="pre">attributes</span></code>.</p>
+</div></blockquote>
+<p>Each dataset in an <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> file is broken into <cite>chunks</cite>, where a chunk is defined as a number of dataset entries. In COMPAS,
+all datasets are 1-d arrays (columns), so a chunk is defined as a number of values in the 1-d array (or column). Chunking can
+be enabled or not, but if chunking is not enabled a dataset cannot be resized - so if chunking is not enabled the size of the
+dataset must be known at the time of creation, and the entire datset created in one go. That doesn't work for COMPAS - even
+though we know the number of systems being evolved, we don't know the number of entries we'll have in each of the output log
+files (and therefore the <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> datasests if we're logging to <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files).  So, we enable chunking.</p>
+<p>Chunking can improve, or degrade, performance depending upon how it is implemented - mostly related to the chunk size chosen.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Datasets</span></code> are stored inside an <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> file as a number of chunks - the chunks are not guaranteed (not even likely) to be
+contiguous in the file or on the storage media (HDD, SSD etc.). Chunks are mapped/indexed in the <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> file using a B-tree,
+and the size of the B-tree, and therefore the traversal time, depends directly upon the number of chunks allocated for a
+dataset - so the access time for a chunk increases as the number of chunks in the dataset increases. So many small chunks will
+degrade performance.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Chunks</span></code> are the unit of IO for <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files - all IO to <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> is performed on the basis of chunks. This means that
+whenever dataset values are accessed (read or written (i.e. changed)), if the value is not already in memory, the entire chunk
+containing the value must be read from, or written to, the storage media - even if the dataset value being accessed is the only
+value in the chunk. So few large chunks could cause empty, &quot;wasted&quot;, space in the <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files (at the end of datasets) - but
+they could also adversely affect performance by causing unecessary IO traffic (although probably not much in the way we access
+data in COMPAS files).</p>
+<p><code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files implement a chunk cache on a per-dataset basis. The default size of the chunk cache is <span class="math notranslate nohighlight">\(\small{1MB}\)</span>, and its
+maximum size is <span class="math notranslate nohighlight">\(\small{32MB}\)</span>. The purpose of the chunk cache is to reduce storage media IO - even with SSDs, memory access is
+much faster than storage media access, so the more of the file data that can be kept in memory and maipulated there, the better.
+Assuming the datatype of a particular dataset is <code class="docutils literal notranslate"><span class="pre">DOUBLE</span></code>, and therefore consumes <span class="math notranslate nohighlight">\(\small{8}\)</span> bytes of storage space, at its
+maximum size the chunk cache for that dataset could hold <span class="math notranslate nohighlight">\(\small{4,000,000}\)</span> values - so a single chunk with <span class="math notranslate nohighlight">\(\small{4,000,000}\)</span>
+values, two chunks with <span class="math notranslate nohighlight">\(\small{2,000,000}\)</span> values, four with <span class="math notranslate nohighlight">\(\small{1,000,000}\)</span>, and so on. Caching a single chunk defeats the
+purpose of the cache, so chunk sizes somewhat less that <span class="math notranslate nohighlight">\(\small{4,000,000}\)</span> would be most appropriate if the chunk cache is to be
+utilised. Chunks too big to fit in the cache simply bypass the cache and are read from, or written to, the storage media directly.</p>
+<p>However, the chunk cache is really only useful for random access of the dataset. Most, if not all, of the access in the COMPAS
+context (including post-creation analyses) is serial - the COMPAS code writes the datasets from top to bottom, and later analyses
+(generally) read the datasets the same way. Caching the chunks for serial access just introduces overhead that costs memory (not
+much, to be sure: up to <span class="math notranslate nohighlight">\(\small{32MB}\)</span> per open dataset), and degrades performace (albeit it a tiny bit). For that reason we disable
+the chunk cache in COMPAS - so all IO to/from an <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> file in COMPAS is directly to/from the storage media. (To be clear,
+post-creation analysis software can disable the cache or not when accessing <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files created by COMPAS - disabling the cache
+here does not affect how other software accesses the files post-creation).</p>
+<p>So many small chunks is not so good, and neither is just a few very large chunks. So what's the optimum chunk size? That depends
+upon several things, and probably the most important of those are the final size of the dataset and the access pattern.</p>
+<p>As mentioned above, we tend to access datasets serially, and generally from top to bottom, so larger chunks would seem appropriate,
+but not so large that we generate <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files with lots of unused space. However, disk space, even SSD space, is cheap, so
+trading space against performance is probably a good trade.</p>
+<p>Also as mentioned above, we don't know the final size of (most of) the datasets when creating the <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> in COMPAS - though we do
+know the number of systems being generated, which allows us to determine an upper bound for at least some of the datasets (though
+not for groups such as <cite>BSE_RLOF</cite>).</p>
+<p>One thing we need to keep in mind is that when we create the <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> file we write each dataset of a group in the same
+iteration - this is analagous to writing a single record in (e.g.) a <code class="docutils literal notranslate"><span class="pre">CSV</span></code> log file (the <code class="docutils literal notranslate"><span class="pre">HDF5</span> <span class="pre">group</span></code> corresponds to the <code class="docutils literal notranslate"><span class="pre">CSV</span></code>
+file, and the <code class="docutils literal notranslate"><span class="pre">HDF5</span> <span class="pre">datasets</span></code> in the group correspond to the columns in the <code class="docutils literal notranslate"><span class="pre">CSV</span></code> file). So for each iteration - typically each
+system evolved (though each timestep for detailed output files) we do as many IOs to the <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> file as there are datasets in the
+group (columns in the file). We are not bound to reading or writing a single chunk at a time - but we are bound to reading or writing
+an integral multiple of whole chunks at a time.</p>
+<p>We want to reduce the number of storage media accesses when writing (or later reading) the <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files, so larger chunk sizes are
+appropriate, but not so large that we create excessively large <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files that have lots of unused space (bearing in mind the
+trade-off mentioned above), especially when we're evolving just a few systems (rather than millions).</p>
+<p>To really optimise IO performance for <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files we'd choose chunk sizes that are close to multiples of storage media block sizes,
+but that would be too problematic given the number of disparate systems COMPAS could be run on...</p>
+<p>Based on everything written above, and some tests, we've chosen a default chunk size of <span class="math notranslate nohighlight">\(\small{100,000}\)</span> (dataset entries) for all
+datasets (<code class="docutils literal notranslate"><span class="pre">HDF5_DEFAULT_CHUNK_SIZE</span></code> in <code class="docutils literal notranslate"><span class="pre">constants.h</span></code>) for the COMPAS C++ code. This clearly trades performance against storage space.
+For the (current) default logfile record specifications, per-binary logfile space is about <span class="math notranslate nohighlight">\(\small{1K}\)</span> bytes, so in the very worst case
+we will waste some space at the end of a COMPAS <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> output file, but the performance gain, especially for post-creation analyses, is
+significant. Ensuring the number of systems evolved is an integral multiple of this fixed chunk size will minimise storage space waste.</p>
+<p>We have chosen a minimum chunk size of <span class="math notranslate nohighlight">\(\small{1,000}\)</span> (<code class="docutils literal notranslate"><span class="pre">HDF5_MINIMUM_CHUNK_SIZE</span></code> in <code class="docutils literal notranslate"><span class="pre">constants.h</span></code>) for the COMPAS C++ code. If the
+number of systems being evolved is not less than <code class="docutils literal notranslate"><span class="pre">HDF5_MINIMUM_CHUNK_SIZE</span></code> the chunk size used will be the value of the <code class="docutils literal notranslate"><span class="pre">hdf5-chunk-size</span></code>
+program option (either <code class="docutils literal notranslate"><span class="pre">HDF5_DEFAULT_CHUNK_SIZE</span></code> or a value specified by the user), but if the number of systems being evolved is less
+than <code class="docutils literal notranslate"><span class="pre">HDF5_MINIMUM_CHUNK_SIZE</span></code> the chunk size used will be <code class="docutils literal notranslate"><span class="pre">HDF5_MINIMUM_CHUNK_SIZE</span></code>. This is just so we don't waste too much storage
+space when running small tests - and if they are that small performance is probably not going to be much of an issue, so no real trade-off
+against storage space.</p>
+</div>
+<div class="section" id="copying-and-concatenating-hdf5-files-with-h5copy-py">
+<h2>Copying and concatenating HDF5 files with h5copy.py<a class="headerlink" href="#copying-and-concatenating-hdf5-files-with-h5copy-py" title="Permalink to this headline">¶</a></h2>
+<p>The chunk size chosen for the COMPAS C++ code determines the chunk size of the logfiles produced by the COMPAS C++ code.  If those files
+are only ever given to programs such as <code class="docutils literal notranslate"><span class="pre">h5copy</span></code> as input files, their chunk size only matters in that it affects the read performance
+of the files (the more chunks, and the more smaller chunks, in a dataset of an input file means locating the chunks and reading them takes
+longer).  That may not be a huge problem depending upon how many input files there are and how big they are.  If a COMPAS logfile is used
+as a base file and other files are being appended to it via <code class="docutils literal notranslate"><span class="pre">h5copy</span></code>, then the chunk size of the base output file will be the chunk size
+used for writing to the file - that could affect performance if it is too small.  We provide command-line options to specify the chunk size
+in both <code class="docutils literal notranslate"><span class="pre">h5copy</span></code> and the COMPAS C++ code so that users have some control over chunksize and performance.</p>
+<p>Writing to the output HDF5 file is buffered in both <code class="docutils literal notranslate"><span class="pre">h5copy</span></code> and the COMPAS C++ code - we buffer a number of chunks for each open dataset
+and write the buffer to the file when the buffer fills (or a partial buffer upon file close if the buffer is not full). This IO buffering is
+not <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> or filesystem buffering - this is a an internal implementation of <code class="docutils literal notranslate"><span class="pre">h5copy</span></code> and the COMPAS C++ code to improve performance.
+The IO buffer size can be changed via command-line options in both <code class="docutils literal notranslate"><span class="pre">h5copy</span></code> and the COMPAS C++ code.</p>
+<p>Users should bear in mind that the combination of <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> chunk size and <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> IO buffer size affect performance, storage space, and
+memory usage - so they may need to experiment to find a balance that suits their needs.</p>
+</div>
+<div class="section" id="a-note-on-string-values">
+<h2>A note on string values<a class="headerlink" href="#a-note-on-string-values" title="Permalink to this headline">¶</a></h2>
+<p>COMPAS writes string data to its <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> output files as C-type strings.  Python interprets C-type strings in <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files as byte
+arrays - regardless of the specified datatype when written (COMPAS writes the strings as ASCII data (as can be seen with <code class="docutils literal notranslate"><span class="pre">h5dump</span></code>), but
+Python ignores that).  Note that this affects the values in datasets (and attributes) only, not the dataset names (or group names,
+attribute names, etc.).</p>
+<p>The only real impact of this is that if the byte array is printed by Python, it will be displayed as (e.g.) &quot;b'abcde'&quot; rather than just
+&quot;abcde&quot;.  All operations on the data work as expected - it is just the output that is impacted.  If that's an issue, use <code class="docutils literal notranslate"><span class="pre">.decode('utf-8')</span></code>
+to decode the byte array as a Python string variable.</p>
+<p>For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">str</span> <span class="o">=</span> <span class="n">h5File</span><span class="p">[</span><span class="n">Group</span><span class="p">][</span><span class="n">Dataset</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Here str is a byte array and <code class="docutils literal notranslate"><span class="pre">print(str)</span></code> will display (e.g.) <code class="docutils literal notranslate"><span class="pre">b'abcde'</span></code>, but:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">str</span> <span class="o">=</span> <span class="n">h5File</span><span class="p">[</span><span class="n">Group</span><span class="p">][</span><span class="n">Dataset</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here str is a Python string and <code class="docutils literal notranslate"><span class="pre">print(str)</span></code> will display (e.g.) <code class="docutils literal notranslate"><span class="pre">abcde</span></code></p>
+<p>Note: <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files not created by COMPAS will not (necessarily) exhibit this behaviour, so for <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files created by the existing
+post-processing Python scripts the use of <code class="docutils literal notranslate"><span class="pre">.decode()</span></code> is not only not necessary, it will fail (because the strings in <code class="docutils literal notranslate"><span class="pre">HDF5</span></code> files
+created by Python are already Python strings, not byte arrays).</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="post-processing-hdf5-tools.html" class="btn btn-neutral float-right" title="COMPAS HDF5 tools" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="post-processing-hdf5.html" class="btn btn-neutral float-left" title="Processing HDF5 files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The Authors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
