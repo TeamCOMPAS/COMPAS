@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Building COMPAS &mdash; COMPAS  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/COMPAS.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Installing Python" href="COMPAS-dependencies-python.html" />
+    <link rel="prev" title="macOS installation" href="COMPAS-dependencies-macOS.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> COMPAS
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="getting-started.html">Getting started</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="git-details.html">COMPAS code repository</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="COMPAS-dependencies.html">Dependencies</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="COMPAS-dependencies-linux.html">Linux installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="COMPAS-dependencies-macOS.html">macOS installation</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Building COMPAS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="COMPAS-dependencies-python.html">Installing Python</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../User%20guide/user-guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developer%20guide/developer-guide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS"> Code repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Request an enhancement</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/TeamCOMPAS/COMPAS/issues/new"> Report a problem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contact-us.html">Contact us</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">COMPAS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="getting-started.html">Getting started</a> &raquo;</li>
+        
+          <li><a href="COMPAS-dependencies.html">Dependencies</a> &raquo;</li>
+        
+      <li>Building COMPAS</li>
+    
+    
+
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="building-compas">
+<h1>Building COMPAS<a class="headerlink" href="#building-compas" title="Permalink to this headline">¶</a></h1>
+<p>We first need to define an environment variable for the root directory of COMPAS in your shell start-up file for COMPAS to run properly. For example,
+if you use bash as your shell, open <cite>~/.bashrc</cite> with a text editor and put in the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">COMPAS_ROOT_DIR</span><span class="o">=~/</span><span class="n">codes</span><span class="o">/</span><span class="n">COMPAS</span>
+</pre></div>
+</div>
+<p>where <cite>~/codes</cite> should be replaced with the path to the directory where you cloned the COMPAS repository. For this to take effect, either restart your
+bash session or run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="o">~/.</span><span class="n">bashrc</span>
+</pre></div>
+</div>
+<p>If your shell is <code class="docutils literal notranslate"><span class="pre">zsh</span></code> (which is the default of macOS 10.15), set the environment variable as above in <cite>~/.zshrc</cite> instead of <cite>~/.bashrc</cite>. If your shell
+is <code class="docutils literal notranslate"><span class="pre">csh</span></code>, set the environment variable in <cite>~/.cshrc</cite> using:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">setenv</span> <span class="n">COMPAS_ROOT_DIR</span> <span class="o">~/</span><span class="n">codes</span><span class="o">/</span><span class="n">COMPAS</span>
+</pre></div>
+</div>
+<p>Now go to the COMPAS source code directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd $COMPAS_ROOT_DIR/src
+</pre></div>
+</div>
+<p>In this directory you will find the file <code class="docutils literal notranslate"><span class="pre">Makefile</span></code>, which you need to edit to point to your <code class="docutils literal notranslate"><span class="pre">gsl</span></code>, <code class="docutils literal notranslate"><span class="pre">boost</span></code>, and <code class="docutils literal notranslate"><span class="pre">hdf5</span></code> include files and libraries.</p>
+<p>If you installed the packages with Homebrew, the package files are likely to be found in /usr/local/opt (in directories gsl, boost, and hdf5 respectively),
+but if they are not found there you will need to use Homebrew to locate the files:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ brew info boost
+boost: stable 1.72.0 (bottled), HEAD
+Collection of portable C++ source libraries
+https://www.boost.org/
+/usr/local/Cellar/boost/1.72.0 (14,466 files, 648.5MB) *
+...
+</pre></div>
+</div>
+<p>Copy the path, which in this case is <cite>/usr/local/Cellar/boost/1.72.0</cite>, and add it to the appropriate lines of the Makefile:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">BOOSTINCDIR</span> <span class="o">=</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">Cellar</span><span class="o">/</span><span class="n">boost</span><span class="o">/</span><span class="mf">1.72.0</span><span class="o">/</span><span class="n">include</span>
+<span class="n">BOOSTLIBDIR</span> <span class="o">=</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">Cellar</span><span class="o">/</span><span class="n">boost</span><span class="o">/</span><span class="mf">1.72.0</span><span class="o">/</span><span class="n">lib</span>
+</pre></div>
+</div>
+<p>To build the COMPAS executable (compile and link) type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">-</span><span class="n">f</span> <span class="n">Makefile</span>
+</pre></div>
+</div>
+<p>The build process will run much faster if multiple processors/cores are available. To build the COMPAS executable using (e.g.) 4 cores, type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">-</span><span class="n">j</span> <span class="mi">4</span> <span class="o">-</span><span class="n">f</span> <span class="n">Makefile</span>
+</pre></div>
+</div>
+<p>Note that both <code class="docutils literal notranslate"><span class="pre">make</span></code> commands shown above will conduct incremental builds: they will only compile source files that have changed. To ensure a clean build
+in which all source files are compiled, type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">clean</span>
+<span class="n">make</span> <span class="o">-</span><span class="n">j</span> <span class="mi">4</span> <span class="o">-</span><span class="n">f</span> <span class="n">Makefile</span>
+</pre></div>
+</div>
+<p>The <cite>clean</cite> option instructs <code class="docutils literal notranslate"><span class="pre">make</span></code> to remove all existing object files (.o), and the COMPAS executable.  A subsequent <code class="docutils literal notranslate"><span class="pre">make</span></code> is then forced to compile
+all source files and link the resultant object files (and external libraries) into a new executable.</p>
+<p>See <a class="reference internal" href="../Developer%20guide/Developer%20build/COMPAS-local-build.html"><span class="doc">Building COMPAS locally</span></a> for a detailed description of <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> functionality.</p>
+<p><span class="bolditalictext">A note for Mac users:</span></p>
+<p>If you are using MacOS and running into linking issues with the boost libraries, try:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>make clean
+make CPP=clang++ -j$(sysctl -n hw.ncpu)
+</pre></div>
+</div>
+<p>In some Mac installations, the GNU C++ compiler is not installed how we might expect, so trying to compile and link with <code class="docutils literal notranslate"><span class="pre">clang++</span></code> might help.</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="COMPAS-dependencies-python.html" class="btn btn-neutral float-right" title="Installing Python" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="COMPAS-dependencies-macOS.html" class="btn btn-neutral float-left" title="macOS installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, The Authors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
