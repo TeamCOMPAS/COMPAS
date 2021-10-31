@@ -24,4 +24,4 @@ specified in the COMPAS source file `constants.h`.  While it is unlikely that th
 COMPAS runs, the possibility exists that users may want to change some of them.  Should that be the case, the user should change the 
 value(s) required in ``constanst.h`` and rebuild the COMPAS executable. A makefile is provided in the source directory.
 
-See :doc:`../Getting started/COMPAS-dependencies-build-compas` for details of how to build the COMPAS executable.
+See :doc:`../Getting started/building-COMPAS` for details of how to build the COMPAS executable.
