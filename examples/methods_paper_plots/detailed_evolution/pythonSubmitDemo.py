@@ -4,6 +4,8 @@ import sys
 import os
 import pickle
 import itertools 
+import re
+import ntpath
 from subprocess import call
 
 #### NOTE: For this demo, we use the Grid_demo.txt grid file. 
@@ -113,18 +115,28 @@ class pythonProgramOptions:
     grid_filename = 'Grid_demo.txt'                             # grid file name (e.g. 'mygrid.txt')
 
     if grid_filename != None:
-        if compas_input_path_override == None:
-            grid_filename = os.getcwd() + '/' + grid_filename
-        else:
-            grid_filename = compas_input_path_override + '/' + grid_filename
+        # if the grid filename supplied is already fully-qualified, leave it as is
+        head, tail = ntpath.split(grid_filename)                # split into pathname and base filename
+        
+        if head == '' or head == '.':                           # no path (or CWD) - add path as required
+            grid_filename = tail or ntpath.basename(head)
+            if compas_input_path_override == None:
+                grid_filename = os.getcwd() + '/' + grid_filename.strip("'\"")
+            else:
+                grid_filename = compas_input_path_override + '/' + grid_filename.strip("'\"")
 
     logfile_definitions = None                                  # logfile record definitions file name (e.g. 'logdefs.txt')
 
     if logfile_definitions != None:
-        if compas_input_path_override == None:
-            logfile_definitions = os.getcwd() + '/' + logfile_definitions
-        else:
-            logfile_definitions = compas_input_path_override + '/' + logfile_definitions
+        # if the grid filename supplied is already fully-qualified, leave it as is
+        head, tail = ntpath.split(logfile_definitions)          # split into pathname and base filename
+        
+        if head == '' or head == '.':                           # no path (or CWD) - add path as required
+            logfile_definitions = tail or ntpath.basename(head)
+            if compas_input_path_override == None:
+                logfile_definitions = os.getcwd() + '/' + logfile_definitions.strip("'\"")
+            else:
+                logfile_definitions = compas_input_path_override + '/' + logfile_definitions.strip("'\"")
 
     initial_mass    = None                                      # initial mass for SSE
     initial_mass_1  = None                                      # primary initial mass for BSE
