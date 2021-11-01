@@ -1518,13 +1518,14 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         m_MassTransferTrackerHistory = HasTwoOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_MS }) ? MT_TRACKING::CE_BOTH_MS : MT_TRACKING::CE_MS_WITH_CO; // Here MS-WD systems are flagged as CE_BOTH_MS
         m_Flags.stellarMerger        = true;
     }
-    else if ( (m_Star1->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star1->IsOneOf{ALL_MAIN_SEQUENCE}) ||
-             (m_Star2->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star2->IsOneOf{ALL_MAIN_SEQUENCE}) ) {        // check if we have a non-MS radiative-envelope star
+    else if ( (m_Star1->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) ||
+             (m_Star2->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star2->IsOneOf(ALL_MAIN_SEQUENCE)) ) {        // check if we have a non-MS radiative-envelope star
         m_CEDetails.optimisticCE = true;
-        if(!OPTIONS->AllowRadativeDonorToSurviveCommonEnvelope()) {                                                     // stellar merger
+        if(!OPTIONS->AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() ) {                                            // stellar merger
             m_MassTransferTrackerHistory = MT_TRACKING::CE_WITH_RAD_ENV;
             m_Flags.stellarMerger        = true;
         }
+    }
 	else {
 
         STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                             // star 1 stellar type before resolving envelope loss
