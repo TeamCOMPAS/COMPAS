@@ -409,7 +409,9 @@ void Options::OptionValues::Initialise() {
 	m_CommonEnvelopeSlopeKruckow                                    = -5.0 / 6.0;
 	m_CommonEnvelopeAlphaThermal                                    = 1.0;
     m_CommonEnvelopeLambdaMultiplier                                = 1.0;
+    m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope             = false;
     m_AllowMainSequenceStarToSurviveCommonEnvelope                  = true;
+    m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope               = false;
 
     // Prescription for envelope state (radiative or convective)
     m_EnvelopeStatePrescription.type                                = ENVELOPE_STATE_PRESCRIPTION::LEGACY;
@@ -611,8 +613,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Conserve angular momentum when binary is circularised when entering a Mass Transfer episode (default = " + std::string(p_Options->m_AngularMomentumConservationDuringCircularisation ? "TRUE" : "FALSE") + ")").c_str()
         )
 
-        // Serena
-        /* 
+        /*
         (
             "BE-binaries",                                                  
             po::value<bool>(&p_Options->m_BeBinaries)->default_value(p_Options->m_BeBinaries)->implicit_value(true),                                                                              
@@ -630,9 +631,19 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Circularise binary when it enters a Mass Transfer episode (default = " + std::string(p_Options->m_CirculariseBinaryDuringMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
+            "common-envelope-allow-immediate-RLOF-post-CE_survive",
+            po::value<bool>(&p_Options->m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope)->default_value(p_Options->m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope)->implicit_value(true),
+            ("Allow immediate post CE RLOF to survive common envelope evolution (default = " + std::string(p_Options->m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
             "common-envelope-allow-main-sequence-survive",                 
             po::value<bool>(&p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope)->default_value(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope)->implicit_value(true),          
             ("Allow main sequence stars to survive common envelope evolution (default = " + std::string(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "common-envelope-allow-radiative-envelope-surive",
+            po::value<bool>(&p_Options->m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope)->default_value(p_Options->m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope)->implicit_value(true),
+            ("Allow radiative envelope stars to survive common envelope evolution (default = " + std::string(p_Options->m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "cool-wind-mass-loss-multiplier",                           
@@ -1377,7 +1388,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Natal kick magnitude distribution (options: [ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL], default = " + p_Options->m_KickMagnitudeDistribution.typeString + ")").c_str()
         )
 
-        // Serena
         /*
         (
             "logfile-BE-binaries",                                     
@@ -3622,13 +3632,14 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
     switch (property) {
 
         case PROGRAM_OPTION::ADD_OPTIONS_TO_SYSPARMS                        : value = static_cast<int>(AddOptionsToSysParms());                             break;
-
         case PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE       : value = AllowMainSequenceStarToSurviveCommonEnvelope();                       break;
+        case PROGRAM_OPTION::ALLOW_RADIATIVE_ENVELOPE_STAR_TO_SURVIVE_COMMON_ENVELOPE : value = AllowRadiativeEnvelopeStarToSurviveCommonEnvelope();                       break;
+        case PROGRAM_OPTION::ALLOW_IMMEDIATE_RLOF_POST_CE_TO_SURVIVE_COMMON_ENVELOPE  : value = AllowImmediateRLOFpostCEToSurviveCommonEnvelope();
+            break;
         case PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH                            : value = AllowRLOFAtBirth();                                                   break;
         case PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH                        : value = AllowTouchingAtBirth();                                               break;
         case PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION    : value = AngularMomentumConservationDuringCircularisation();                   break;
 
-        // Serena
         //case PROGRAM_OPTION::BE_BINARIES                                    : value = BeBinaries();                                                         break;
 
         case PROGRAM_OPTION::BLACK_HOLE_KICKS                               : value = static_cast<int>(BlackHoleKicks());                                   break;
