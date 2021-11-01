@@ -15,7 +15,7 @@ import os, sys
 def main():
 
     ### Read file and create dataframe.
-    data_path = './COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
+    data_path = './COMPAS_Output/Detailed_Output/BSE_Detailed_Output.h5'
     Data = h5.File(data_path, 'r')
 
     ### Creating new column for total mass
