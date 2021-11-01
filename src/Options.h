@@ -202,7 +202,6 @@ private:
         "log-level", 
         "log-classes",
 
-        // Serena
         //"logfile-be-binaries",
 
         "logfile-common-envelopes",
@@ -295,7 +294,6 @@ private:
         "allow-touching-at-birth",
         "angular-momentum-conservation-during-circularisation", 
 
-        // Serena
         //"be-binaries",
 
         "case-BB-stability-prescription",
@@ -313,7 +311,6 @@ private:
         "common-envelope-recombination-energy-density",
         "common-envelope-slope-kruckow",
 
-        // AVG
         /*
         "critical-mass-ratio-giant-degenerate-accretor",
         "critical-mass-ratio-giant-non-degenerate-accretor",
@@ -412,7 +409,6 @@ private:
         "allow-touching-at-birth",
         "angular-momentum-conservation-during-circularisation",
 
-        // Serena
         //"be-binaries",
 
         "black-hole-kicks",
@@ -455,7 +451,6 @@ private:
         "log-level", 
         "log-classes",
 
-        // Serena
         //"logfile-be-binaries",
 
         "logfile-common-envelopes",
@@ -541,7 +536,6 @@ private:
         "log-classes",
         "log-level", 
 
-        // Serena
         //"logfile-be-binaries",
 
         "logfile-common-envelopes",
@@ -833,6 +827,8 @@ public:
             double                                              m_CommonEnvelopeAlphaThermal;                                   // lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
             double                                              m_CommonEnvelopeLambdaMultiplier;                               // Multiply common envelope lambda by some constant
             bool                                                m_AllowMainSequenceStarToSurviveCommonEnvelope;                 // Whether or not to allow a main sequence star to survive a common envelope event
+            bool                                                m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope;            // Whether or not to allow a radiative-envelope star to survive a common envelope event
+            bool                                                m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope;              // Whether or not to allow Roche Lobe Overflow immediately after a CE to survive a common envelope event
     
             // Prescription for envelope state (radiative or convective)
             ENUM_OPT<ENVELOPE_STATE_PRESCRIPTION>               m_EnvelopeStatePrescription;
@@ -1096,11 +1092,13 @@ public:
     ADD_OPTIONS_TO_SYSPARMS                     AddOptionsToSysParms() const                                            { return m_CmdLine.optionValues.m_AddOptionsToSysParms.type; }
 
     bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return OPT_VALUE("common-envelope-allow-main-sequence-survive", m_AllowMainSequenceStarToSurviveCommonEnvelope, true); }
+    bool                                        AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() const               { return OPT_VALUE("common-envelope-allow-radiative-envelope-survive", m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope, true); }
+    bool                                        AllowImmediateRLOFpostCEToSurviveCommonEnvelope() const                 { return OPT_VALUE("common-envelope-allow-immediate-rlof-post-ce-survive", m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope, true); }
+    
     bool                                        AllowRLOFAtBirth() const                                                { return OPT_VALUE("allow-rlof-at-birth", m_AllowRLOFAtBirth, true); }
     bool                                        AllowTouchingAtBirth() const                                            { return OPT_VALUE("allow-touching-at-birth", m_AllowTouchingAtBirth, true); }
     bool                                        AngularMomentumConservationDuringCircularisation() const                { return OPT_VALUE("angular-momentum-conservation-during-circularisation", m_AngularMomentumConservationDuringCircularisation, true); }
 
-// Serena
     bool                                        BeBinaries() const                                                      { return OPT_VALUE("be-binaries", m_BeBinaries, true); }
 
     BLACK_HOLE_KICKS                            BlackHoleKicks() const                                                  { return OPT_VALUE("black-hole-kicks", m_BlackHoleKicks.type, true); }
