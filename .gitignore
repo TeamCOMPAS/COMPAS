@@ -35,5 +35,10 @@ COMPAS
 *.synctex.gz
 *.synctex.gz(busy)
 
+# docs html
+*_build
+
+*.vscode
+
 Makefile-reinhold
 .gitignore
