@@ -58,7 +58,7 @@ class pythonProgramOptions:
 
     enable_warnings = False                                     # option to enable/disable warning messages
 
-    number_of_systems = 10  #number of systems per batch
+    number_of_systems = 10                                      # number of systems per batch
 
     populationPrinting = False
 
@@ -66,7 +66,7 @@ class pythonProgramOptions:
     if os.path.isfile(randomSeedFileName):
         random_seed = int(np.loadtxt(randomSeedFileName))
     else:
-        random_seed = 0 # If you want a random seed, use: np.random.randint(2,2**63-1)
+        random_seed = 0                                         # If you want a random seed, use: np.random.randint(2,2**63-1)
 
     # environment variable COMPAS_LOGS_OUTPUT_DIR_PATH is used primarily for docker runs
     # if COMPAS_LOGS_OUTPUT_DIR_PATH is set (!= None) it is used as the value for the
@@ -98,10 +98,8 @@ class pythonProgramOptions:
     hyperparameterList = False
     shareSeeds = False
 
-
     notes_hdrs = None                                           # no annotations header strings (no annotations)
     notes      = None                                           # no annotations
-
 
     mode = 'BSE'                                                # evolving single stars (SSE) or binaries (BSE)?
 
@@ -175,6 +173,8 @@ class pythonProgramOptions:
     common_envelope_mass_accretion_min = 0.04                   # For 'MACLEOD+2014' [Msol]
     common_envelope_mass_accretion_max = 0.10                   # For 'MACLEOD+2014' [Msol]
     envelope_state_prescription = 'LEGACY'
+    common_envelope_allow_radiative_envelope_surive = False
+    common_envelope_allow_immediate_RLOF_post_CE_survive = False
 
     mass_loss_prescription = 'VINK'
     luminous_blue_variable_prescription = 'HURLEY_ADD'
@@ -298,6 +298,8 @@ class pythonProgramOptions:
 
     maximum_neutron_star_mass = 2.5  #  [Msol]
 
+    add_options_to_sysparms = 'GRID'                            # should all option values be added to system parameters files? options are 'ALWAYS', 'GRID', and 'NEVER'
+
     log_level           = 0
     log_classes         = []
 
@@ -355,6 +357,8 @@ class pythonProgramOptions:
             self.pulsation_pair_instability,
             self.quiet,
             self.common_envelope_allow_main_sequence_survive,
+            self.common_envelope_allow_radiative_envelope_surive,
+            self.common_envelope_allow_immediate_RLOF_post_CE_survive,
             self.evolvePulsars,
             self.debug_to_file,
             self.errors_to_file,
@@ -382,6 +386,8 @@ class pythonProgramOptions:
             '--pulsational-pair-instability',
             '--quiet',
             '--common-envelope-allow-main-sequence-survive',
+            '--common-envelope-allow-radiative-envelope-surive',
+            '--common-envelope-allow-immediate-rlof-post-ce-survive',
             '--evolve-pulsars',
             '--debug-to-file',
             '--errors-to-file',
@@ -623,7 +629,8 @@ class pythonProgramOptions:
             self.logfile_supernovae,
             self.logfile_switch_log,
             self.logfile_system_parameters,
-            self.neutrino_mass_loss_BH_formation
+            self.neutrino_mass_loss_BH_formation,
+            self.add_options_to_sysparms
         ]
 
         return stringChoices
@@ -675,7 +682,8 @@ class pythonProgramOptions:
             '--logfile-supernovae',
             '--logfile-switch-log',
             '--logfile-system-parameters',
-            '--neutrino-mass-loss-BH-formation'
+            '--neutrino-mass-loss-BH-formation',
+            '--add-options-to-sysparms'
         ]
 
         return stringCommands
