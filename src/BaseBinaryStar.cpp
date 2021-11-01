@@ -1510,10 +1510,6 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     double lambda1 = m_Star1->LambdaAtCEE();                                                                            // measures the central concentration of the star 1
     double lambda2 = m_Star2->LambdaAtCEE();                                                                            // measures the central concentration of the star 2
 
-    if (HasOneOf(ALL_HERTZSPRUNG_GAP)) {                                                                                // check if we have an HG star
-        m_CEDetails.optimisticCE = true;
-	}
-
     m_Star1->SetPreCEEValues();                                                                                         // squirrel away pre CEE stellar values for star 1
     m_Star2->SetPreCEEValues();                                                                                         // squirrel away pre CEE stellar values for star 2
   	SetPreCEEValues(semiMajorAxisRsol, eccentricity, rRLd1Rsol, rRLd2Rsol);                                             // squirrel away pre CEE binary values
@@ -1544,6 +1540,13 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         m_MassTransferTrackerHistory = HasTwoOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_MS }) ? MT_TRACKING::CE_BOTH_MS : MT_TRACKING::CE_MS_WITH_CO; // Here MS-WD systems are flagged as CE_BOTH_MS
         m_Flags.stellarMerger        = true;
     }
+    else if ( (m_Star1->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star1->IsOneOf{ALL_MAIN_SEQUENCE}) ||
+             (m_Star2->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star2->IsOneOf{ALL_MAIN_SEQUENCE}) ) {        // check if we have a non-MS radiative-envelope star
+        m_CEDetails.optimisticCE = true;
+        if(!OPTIONS->AllowRadativeDonorToSurviveCommonEnvelope()) {                                                     // stellar merger
+            m_MassTransferTrackerHistory = MT_TRACKING::CE_WITH_RAD_ENV;
+            m_Flags.stellarMerger        = true;
+        }
 	else {
 
         STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                             // star 1 stellar type before resolving envelope loss
@@ -1579,6 +1582,10 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     m_Star1->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 1
     m_Star2->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 2
     SetPostCEEValues(aFinalRsol, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                                       // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
+    if (m_RLOFDetails.immediateRLOFPostCEE == true && !OPTIONS->AllowImmediateRLOFpostCEToSurviveCommonEnvelope()) {    // Is there immediate post-CE RLOF which is not allowed?
+            m_MassTransferTrackerHistory = MT_TRACKING::CE_IMMEDIATE_RLOF;
+            m_Flags.stellarMerger = true;
+    }
     (void)PrintCommonEnvelope();
     
 }

@@ -969,7 +969,9 @@ const COMPASUnorderedMap<MT_TRACKING, std::string> MT_TRACKING_LABEL = {
     { MT_TRACKING::CE_FROM_2_TO_1,     "MASS TRANSFER COMMON ENVELOPE STAR2 -> STAR1" },
     { MT_TRACKING::CE_DOUBLE_CORE,     "MASS TRANSFER COMMON ENVELOPE DOUBLE CORE" },
     { MT_TRACKING::CE_BOTH_MS,         "MASS TRANSFER WET MERGER: MS -> MS" },
-    { MT_TRACKING::CE_MS_WITH_CO,      "MASS TRANSFER MS -> CO" }
+    { MT_TRACKING::CE_MS_WITH_CO,      "MASS TRANSFER COMMON ENVELOPE MS -> CO" },
+    { MT_TRACKING::CE_MS_WITH_RAD_ENV, "MASS TRANSFER COMMON ENVELOPE MERGER WITH RADIATIVE ENVELOPE DONOR" },
+    { MT_TRACKING::CE_IMMEDIATE_RLOF,  "MASS TRANSFER COMMON ENVELOPE MERGER DUE TO IMMEDIATE POST-CE RLOF" }
 };
 
 
@@ -2038,7 +2040,6 @@ enum class PROGRAM_OPTION: int {
     ALLOW_TOUCHING_AT_BIRTH,
     ANG_MOM_CONSERVATION_DURING_CIRCULARISATION,
 
-    // Serena
     //BE_BINARIES,
 
     BLACK_HOLE_KICKS,
@@ -2241,11 +2242,12 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::ADD_OPTIONS_TO_SYSPARMS,                          "ADD_OPTIONS_TO_SYSPARMS" },
     { PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE,         "ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE" },
+    { PROGRAM_OPTION::ALLOW_RADIATIVE_DONOR_TO_SURVIVE_COMMON_ENVELOPE  "ALLOW_RADIATIVE_DONOR_TO_SURVIVE_COMMON_ENVELOPE" },
+    { PROGRAM_OPTION::ALLOW_IMMEDIATE_RLOF_POST_CE_TO_SURVIVE_COMMON_ENVELOPE  "ALLOW_IMMEDIATE_RLOF_POST_CE_TO_SURVIVE_COMMON_ENVELOPE" },
     { PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH,                              "ALLOW_RLOF_AT_BIRTH" },
     { PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH,                          "ALLOW_TOUCHING_AT_BIRTH" },
     { PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION,      "ANG_MOM_CONSERVATION_DURING_CIRCULARISATION" },
 
-    // Serena
     //{ PROGRAM_OPTION::BE_BINARIES,                                    "BE_BINARIES" },
 
     { PROGRAM_OPTION::BLACK_HOLE_KICKS,                                 "BLACK_HOLE_KICKS" },
@@ -2734,10 +2736,11 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
 
     { PROGRAM_OPTION::ADD_OPTIONS_TO_SYSPARMS,                              { TYPENAME::INT,            "Add_Options_To_SysParms",      "-",                 4, 1 }},
     { PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE,             { TYPENAME::BOOL,           "Allow_MS_To_Survive_CE",       "Flag",              0, 0 }},
+    { PROGRAM_OPTION::ALLOW_RADIATIVE_DONOR_TO_SURVIVE_COMMON_ENVELOPE,     { TYPENAME::BOOL,           "Allow_MS_To_Survive_CE",       "Flag",              0, 0 }},
+    { PROGRAM_OPTION::ALLOW_IMMEDIATE_RLOF_POST_CE_TO_SURVIVE_COMMON_ENVELOPE, { TYPENAME::BOOL,           "Allow_MS_To_Survive_CE",       "Flag",              0, 0 }},
     { PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH,                                  { TYPENAME::BOOL,           "Allow_RLOF@Birth",             "Flag",              0, 0 }},
     { PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH,                              { TYPENAME::BOOL,           "Allow_Touching@Birth",         "Flag",              0, 0 }},
     { PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION,          { TYPENAME::BOOL,           "Conserve_AngMom@Circ",         "Flag",              0, 0 }},
-    // Serena
     //{ PROGRAM_OPTION::BE_BINARIES,                                        { TYPENAME::BOOL,           "Be_Binaries",                  "Flag",              0, 0 }},
 
     { PROGRAM_OPTION::BLACK_HOLE_KICKS,                                     { TYPENAME::INT,            "BH_Kicks",                     "-",                 4, 1 }},
