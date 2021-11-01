@@ -655,7 +655,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Circularise binary when it enters a Mass Transfer episode (default = " + std::string(p_Options->m_CirculariseBinaryDuringMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
-            "common-envelope-allow-immediate-RLOF-post-CE_survive",
+            "common-envelope-allow-immediate-RLOF-post-CE-survive",
             po::value<bool>(&p_Options->m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope)->default_value(p_Options->m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope)->implicit_value(true),
             ("Allow immediate post CE RLOF to survive common envelope evolution (default = " + std::string(p_Options->m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str()
         )
@@ -665,7 +665,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Allow main sequence stars to survive common envelope evolution (default = " + std::string(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
-            "common-envelope-allow-radiative-envelope-surive",
+            "common-envelope-allow-radiative-envelope-survive",
             po::value<bool>(&p_Options->m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope)->default_value(p_Options->m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope)->implicit_value(true),
             ("Allow radiative envelope stars to survive common envelope evolution (default = " + std::string(p_Options->m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str()
         )
