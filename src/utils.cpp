@@ -482,6 +482,9 @@ namespace utils {
         catch (const std::out_of_range& e) {        // conversion failed
             result = false;                         // not a valid DOUBLE
         }
+        catch (const std::invalid_argument& e) {    // conversion failed
+            result = false;                         // not a valid DOUBLE
+        }
         return result;
     }
 
@@ -509,6 +512,9 @@ namespace utils {
             result = lastChar == p_Str.size();      // valid FLOAT if p_Str completely consumed
         }
         catch (const std::out_of_range& e) {        // conversion failed
+            result = false;                         // not a valid FLOAT
+        }
+        catch (const std::invalid_argument& e) {    // conversion failed
             result = false;                         // not a valid FLOAT
         }
         return result;
@@ -540,6 +546,9 @@ namespace utils {
         catch (const std::out_of_range& e) {        // conversion failed
             result = false;                         // not a valid INT
         }
+        catch (const std::invalid_argument& e) {    // conversion failed
+            result = false;                         // not a valid INT
+        }
         return result;
     }
 
@@ -567,6 +576,9 @@ namespace utils {
             result = lastChar == p_Str.size();      // valid LONG DOUBLE if p_Str completely consumed
         }
         catch (const std::out_of_range& e) {        // conversion failed
+            result = false;                         // not a valid LONG DOUBLE
+        }
+        catch (const std::invalid_argument& e) {    // conversion failed
             result = false;                         // not a valid LONG DOUBLE
         }
         return result;
@@ -598,6 +610,9 @@ namespace utils {
         catch (const std::out_of_range& e) {        // conversion failed
             result = false;                         // not a valid LONG INT
         }
+        catch (const std::invalid_argument& e) {    // conversion failed
+            result = false;                         // not a valid LONG INT
+        }
         return result;
     }
 
@@ -625,6 +640,9 @@ namespace utils {
             result = lastChar == p_Str.size();      // valid UNSIGNED LONG INT if p_Str completely consumed
         }
         catch (const std::out_of_range& e) {        // conversion failed
+            result = false;                         // not a valid UNSIGNED LONG INT
+        }
+        catch (const std::invalid_argument& e) {    // conversion failed
             result = false;                         // not a valid UNSIGNED LONG INT
         }
         return result;
@@ -717,7 +735,7 @@ namespace utils {
      *
      * std::string& trim(std::string& p_Str)
      *
-     * @param   [IN]    p_Str                       String to be timmed of whitespace
+     * @param   [IN]    p_Str                       String to be trimmed of whitespace
      * @return                                      Trimmed string
      */
     std::string& trim(std::string& p_Str) {
@@ -1015,7 +1033,7 @@ namespace utils {
                 break;
 
             default:                                                                                                // unknown IMF
-                thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER, KROUPA_MAXIMUM, KROUPA_MINIMUM);          // calculate mass using power law with default values
+                thisMass = utils::InverseSampleFromPowerLaw(SALPETER_POWER, SALPETER_MAXIMUM, SALPETER_MINIMUM);    // calculate mass using power law with default values
         }
 
         return thisMass;

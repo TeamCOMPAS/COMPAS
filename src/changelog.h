@@ -733,7 +733,7 @@
 //                                      - Enhancements:
 //                                          - changed chunk size for HDF5 files to HDF5_MINIMUM_CHUNK_SIZE for Run_Details group in COMPAS_Output and for detailed output files.
 //                                              - Run_Details is a small file, and detailed output files are generally a few thousand records rather than hundreds of thousands, 
-//                                                so a smaller chunck size wastes less space and doesn't impact performance significantly
+//                                                so a smaller chunk size wastes less space and doesn't impact performance significantly
 //
 //                                      - Defect Repairs:
 //                                          - fixed issue #548 - HDF5 detailed output files not created when random-seed specified in a grid file
@@ -773,7 +773,43 @@
 //                                      - Removed unnecessary IsPrimary() / BecomePrimary() functionality, fixed incorrect MassTransferTrackerHistory (see issue #605)
 // 02.22.03     IM - Oct 4, 2022    - Defect repair:
 //                                      - Corrected Eddington mass accretion limits, issue #612 (very minor change for WDs and NSs, factor of a few increase for BHs)
+// 02.23.00 FSB/JR - Oct 11, 2021   - Enhancement:
+//                                      - updated kelvin-helmholtz (thermal) timescale calculation with more accurate pre-factor and updated documentation.
+//                                      - rationalised parameters of, and calls to, CalculateThermalTimescale()
+// 02.23.01     JR - Oct 11, 2021   - Code cleanup:
+//                                      - Typo fixed in version for changes made on October 11, 2021
+//                                      - Changed KROUPA_POWER to SALPETER_POWER in utils:SampleInitialMass(); Removed KROUPA_POWER from constants.h
+//                                      - Removed p_Id parameter from SSE/BSE switchlog functions - leftover from debugging
+//                                      - Added CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE property to SSE_SYSTEM_PARAMETERS_REC and BSE_SYSTEM_PARAMETERS_REC (both stars)
+//                                      - Tidied up some parameters etc. to better comply with COMPAS coding guidelines
+//                                      - Typo fixed in preProcessing/COMPAS_Output_Definitions.txt
+// 02.24.00     JR - Oct 12, 2021   - Minor enhancements/optimisations:
+//                                      - Added BaseStar::CalculateThermalMassAcceptanceRate() as a first-pass to address issue #595 - can be changed/expanded as required
+//                                      - Changed BaseBinaryStar::CalculateTimeToCoalescence() to use Mandel 2021 https://iopscience.iop.org/article/10.3847/2515-5172/ac2d35, eq 5 to address issue #538
+// 02.24.01     RTW - Oct 13, 2021  - Enhancements:
+//                                      - Added units uniformly to the --help input descriptions
+//                                      - Removed the BeBinary- and RLOF-specific random seeds (which were attributes of the events and were printed with e.g <MT) and replaced with system random seed
+//                                      - In CE output, changed MASS_2_FINAL (which was sort of a wrapper for core mass) for MASS_2_POST_COMMON_ENVELOPE
+//                                      - Removed SN kick angles from SystemParameters output (they are duplicated in SN output) and changed true_anomaly to mean_anomaly in BSE SN output
+//                                      - Cosmetic typo fixes and added consistency, in the Event_Counter parameters and some function definitions
+//                                      - Added *.eps, *.png to gitignore
+// 02.24.02     JR - Oct 13, 2021   - Minor fixes:
+//                                      - Fixed a few typos in header strings
+//                                      - Changed true_anomaly to mean_anomaly in SSE SN output
+// 02.25.00     JR - Oct 30, 2021   - Enhancements and minor fixes:
+//                                      - Added ability for users to annotate log files via new program options '--notes-hdrs' and '--notes'.  See docs for details. 
+//                                      - Added a shorthand notation for vector program options (e.g. annotations, log-classes, debug-classes).  See docs for details.
+//                                      - Added '--notes-hdrs' and '--notes' to pythonSubmit.py (default = None for both)
+//                                      - Added HDF5 support to Log::GetLogStandardRecord() (return value) and Log::LogStandardRecord() (input parameter).  This only matters
+//                                        to SSE Supernovae file - for delayed writes.  The original implementation may have resulted in minor discrepanicies in SSE Supernovae
+//                                        log records, (because of when the values were sampled (i.e. mid-timestep, or end of timestep)), which would only have been evident if
+//                                        HDF5 files were compared to e.g. CSV files for the same binary - CSV, TSV, and TXT files had values sampled mid-timestep, HDF5 files 
+//                                        at end of timestep).
+//                                      - Added Log::Write() and Log::Put() for HDF5 files (better implementation - worked around in original implementation)
+//                                      - Added additional checks for bad string -> number conversions throughout (for stoi(), stod(), etc.)
+//                                      - Performance enhancement to BaseBinaryStar::CalculateTimeToCoalescence() (return early if e = 0.0)
+//                                      - Fixed a few typos in comments
 
-const std::string VERSION_STRING = "02.22.03";
+const std::string VERSION_STRING = "02.25.00";
 
 # endif // __changelog_h__

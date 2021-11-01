@@ -64,11 +64,7 @@ protected:
 
     double          CalculateTauOnPhase() const                                                                 { return m_Tau; }                                                       // NO-OP
    
-    double          CalculateThermalTimescale() const                                                           { return CalculateDynamicalTimescale(); }                               // Use dynamical timescale for mass transfer purposes
-    double          CalculateThermalTimescale(const double p_Mass,
-                                              const double p_Radius,
-                                              const double p_Luminosity,
-                                              const double p_EnvMass = 1.0) const                               { return CalculateThermalTimescale(); }                                 // Ignore parameters
+    double          CalculateThermalTimescale(const double p_Radius = 1.0) const                                { return CalculateDynamicalTimescale(); }                               // Parameter is ignored
 
     double          CalculateThermalMassLossRate() const                                                        { return BaseStar::CalculateThermalMassLossRate(); }                    // Set thermal mass gain rate to be effectively infinite, using dynamical timescale (in practice, will be Eddington limited), avoid division by zero
 

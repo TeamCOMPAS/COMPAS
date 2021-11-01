@@ -203,8 +203,6 @@ public:
     bool                IsNSandNS() const                           { return HasTwoOf({STELLAR_TYPE::NEUTRON_STAR}); }
     bool                IsUnbound() const                           { return (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || (utils::Compare(m_Eccentricity, 1.0) > 0)); }         // semi major axis <= 0.0 means unbound, presumably by SN)
     bool                IsWDandWD() const                           { return HasTwoOf({STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF}); }
-    double              Mass1Final() const                          { return m_Mass1Final; }
-    double              Mass2Final() const                          { return m_Mass2Final; }
     double              Mass1PostCEE() const                        { return m_Star1->MassPostCEE(); }
     double              Mass1PreCEE() const                         { return m_Star1->MassPreCEE(); }
     double              Mass2PostCEE() const                        { return m_Star2->MassPostCEE(); }
@@ -271,7 +269,7 @@ public:
 
             EVOLUTION_STATUS    Evolve();
 
-            bool                PrintSwitchLog(const long int p_Id, const bool p_PrimarySwitching) { return OPTIONS->SwitchLog() ? LOGGING->LogBSESwitchLog(this, p_Id, p_PrimarySwitching) : true; }
+            bool                PrintSwitchLog(const bool p_PrimarySwitching) { return OPTIONS->SwitchLog() ? LOGGING->LogBSESwitchLog(this, p_PrimarySwitching) : true; }
 
             COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
 
@@ -506,14 +504,14 @@ private:
     void    UpdateSystemicVelocity(Vector3d p_newVelocity);
 
     // printing functions
-    bool PrintRLOFParameters(const string p_Rec = "");
-    bool PrintBinarySystemParameters(const string p_Rec = "") const              { return LOGGING->LogBSESystemParameters(this, p_Rec); }
-    bool PrintDetailedOutput(const long int p_Id, const string p_Rec = "") const { return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id, p_Rec) : true; }
-    bool PrintDoubleCompactObjects(const string p_Rec = "") const                { return LOGGING->LogDoubleCompactObject(this, p_Rec); }
-    bool PrintCommonEnvelope(const string p_Rec = "") const                      { return LOGGING->LogCommonEnvelope(this, p_Rec); }
-    bool PrintBeBinary(const string p_Rec = "");
-    bool PrintPulsarEvolutionParameters(const string p_Rec = "") const           { return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this, p_Rec) : true; }
-    bool PrintSupernovaDetails(const string p_Rec = "") const                    { return LOGGING->LogBSESupernovaDetails(this, p_Rec); }
+    bool PrintRLOFParameters();
+    bool PrintBinarySystemParameters() const            { return LOGGING->LogBSESystemParameters(this); }
+    bool PrintDetailedOutput(const long int p_Id) const { return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id) : true; }
+    bool PrintDoubleCompactObjects() const              { return LOGGING->LogDoubleCompactObject(this); }
+    bool PrintCommonEnvelope() const                    { return LOGGING->LogCommonEnvelope(this); }
+    bool PrintBeBinary();
+    bool PrintPulsarEvolutionParameters() const         { return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this) : true; }
+    bool PrintSupernovaDetails() const                  { return LOGGING->LogBSESupernovaDetails(this); }
 
     
     //Functor for the boost root finder to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
