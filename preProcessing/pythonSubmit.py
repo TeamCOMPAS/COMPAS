@@ -1,9 +1,9 @@
 import numpy as np
 import sys
 import os
-from subprocess import call
 import re
 import ntpath
+from subprocess import call
 
 # Check if we are using python 3
 python_version = sys.version_info[0]
@@ -120,7 +120,7 @@ class pythonProgramOptions:
 
     if logfile_definitions != None:
         # if the grid filename supplied is already fully-qualified, leave it as is
-        head, tail = ntpath.split(grid_filename)                # split into pathname and base filename
+        head, tail = ntpath.split(logfile_definitions)          # split into pathname and base filename
         
         if head == '' or head == '.':                           # no path (or CWD) - add path as required
             logfile_definitions = tail or ntpath.basename(head)
