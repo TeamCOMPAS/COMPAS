@@ -149,6 +149,10 @@ def printEvolutionaryHistory(Data):
                 MTstring='CE: both MS'
             elif Data['MT_History'][i]==7:
                 MTstring='CE: MS with CO'
+            elif Data['MT_History'][i]==8:
+                MTstring='CE merger, rad env'
+            elif Data['MT_History'][i]==9:
+                MTstring='CE merger, >RLOF'
             else:
                 MTstring='Unknown MT'
 
