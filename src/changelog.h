@@ -809,7 +809,10 @@
 //                                      - Added additional checks for bad string -> number conversions throughout (for stoi(), stod(), etc.)
 //                                      - Performance enhancement to BaseBinaryStar::CalculateTimeToCoalescence() (return early if e = 0.0)
 //                                      - Fixed a few typos in comments
+// 02.25.01     IM - Nov 1, 2021    -  Enhancements:
+//                                      - Introduced common-envelope-allow-radiative-envelope-surive and common-envelope-allow-immediate-rlof-post-ce-survive options
+//                                      - Addresses issue # 637
 
-const std::string VERSION_STRING = "02.25.00";
+const std::string VERSION_STRING = "02.25.01";
 
 # endif // __changelog_h__
