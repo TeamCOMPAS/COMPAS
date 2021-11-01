@@ -1097,7 +1097,7 @@ public:
     bool LogBeBinary(const T* const p_Binary)                               { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES)), 0, LOGFILE::BSE_BE_BINARIES, p_Binary); }
 
     template <class T>
-    bool LogBSEDetailedOutput(const T* const p_Binary, const long int p_Id) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT)), 0, LOGFILE::BSE_DETAILED_OUTPUT, p_Binary); }
+    bool LogBSEDetailedOutput(const T* const p_Binary, const long int p_Id) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT)), 0, LOGFILE::BSE_DETAILED_OUTPUT, p_Binary, "_" + std::to_string(abs(p_Id))); }
 
     template <class T>
     bool LogBSEPulsarEvolutionParameters(const T* const p_Binary)           { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)), 0, LOGFILE::BSE_PULSAR_EVOLUTION, p_Binary); }

@@ -812,7 +812,18 @@
 // 02.25.01     IM - Nov 1, 2021    -  Enhancements:
 //                                      - Introduced common-envelope-allow-radiative-envelope-surive and common-envelope-allow-immediate-rlof-post-ce-survive options
 //                                      - Addresses issue # 637
+// 02.25.02     JR - Nov1 , 2021    - Minor fixes
+//                                      - reinstated "_n" suffix for BSE detailed filenames (inadvertently removed in v02.25.00)
+//                                      - updated pythonSubmit files:
+//                                          preProcessing/pythonSubmit.py
+//                                          examples/methods_paper_plots/detailed_evolution/pythonSubmitDemo.py
+//                                          examples/methods_paper_plots/chirpmass_distribution/pythonSubmit.py
+//                                          examples/methods_paper_plots/fig_5_HR_diagram/pythonSubmit.py
+//                                          examples/methods_paper_plots/fig_6_max_R/pythonSubmit.py
+//                                          examples/methods_paper_plots/fig_8_initial_core_final_mass_relations/pythonSubmitDefaults.py
+//                                          examples/methods_paper_plots/fig_8_initial_core_final_mass_relations/pythonSubmitFryerRapid.py
+//                                          examples/methods_paper_plots/fig_8_initial_core_final_mass_relations/pythonSubmitMandelMueller.py
 
-const std::string VERSION_STRING = "02.25.01";
+const std::string VERSION_STRING = "02.25.02";
 
 # endif // __changelog_h__
