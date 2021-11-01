@@ -3,6 +3,10 @@ COMPAS online documentation
 
 The COMPAS online documentation is available at this URL:
 
+    https://compas.science/docs
+
+which redirects to the underlying readthedocs page at:
+
     https://compas.readthedocs.io/en/latest/index.html
 
 
