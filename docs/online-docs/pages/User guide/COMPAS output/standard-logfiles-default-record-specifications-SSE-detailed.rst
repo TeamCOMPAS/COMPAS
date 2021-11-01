@@ -1,0 +1,25 @@
+SSE detailed output
+===================
+
+Default record definition for the SSE Detailed Output log file::
+
+    const ANY_PROPERTY_VECTOR SSE_DETAILED_OUTPUT_REC = {
+        STAR_PROPERTY::AGE,
+        STAR_PROPERTY::DT,
+        STAR_PROPERTY::TIME,
+        STAR_PROPERTY::STELLAR_TYPE,
+        STAR_PROPERTY::METALLICITY,
+        STAR_PROPERTY::MASS_0,
+        STAR_PROPERTY::MASS,
+        STAR_PROPERTY::RADIUS,
+        STAR_PROPERTY::RZAMS,
+        STAR_PROPERTY::LUMINOSITY,
+        STAR_PROPERTY::TEMPERATURE,
+        STAR_PROPERTY::CORE_MASS,
+        STAR_PROPERTY::CO_CORE_MASS,
+        STAR_PROPERTY::HE_CORE_MASS,
+        STAR_PROPERTY::MDOT,
+        STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE,
+        STAR_PROPERTY::TIMESCALE_MS
+    };
+

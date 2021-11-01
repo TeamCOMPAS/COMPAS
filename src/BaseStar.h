@@ -177,13 +177,13 @@ public:
 
             double          CalculateSNKickMagnitude(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType);
 
+            double          CalculateThermalMassAcceptanceRate(const double p_Radius) const;
+            double          CalculateThermalMassAcceptanceRate() const                                          { return CalculateThermalMassAcceptanceRate(m_Radius); }
+
     virtual double          CalculateThermalMassLossRate() const                                                { return m_Mass / CalculateThermalTimescale(); }                    // Use class member variables - and inheritance hierarchy
 
-    virtual double          CalculateThermalTimescale(const double p_Mass,
-                                                      const double p_Radius,
-                                                      const double p_Luminosity,
-                                                      const double p_EnvMass = 1.0) const                       { return 0.0; }                                                     // Use inheritance hierarchy
-    virtual double          CalculateThermalTimescale() const                                                   { return 0.0; }                                                     // Use inheritance hierarchy
+    virtual double          CalculateThermalTimescale(const double p_Radius) const;                                                                                                 // Use inheritance hierarchy
+    virtual double          CalculateThermalTimescale() const                                                   { return CalculateThermalTimescale(m_Radius); }                     // Use inheritance hierarchy
 
             double          CalculateTimestep();
 
@@ -223,11 +223,11 @@ public:
                                                        const double p_Epsilon) { }                                                                                                  // Default is NO-OP
 
     // printing functions
-            bool            PrintDetailedOutput(const int p_Id) const                                           { return OPTIONS->DetailedOutput() ? LOGGING->LogSSEDetailedOutput(this, p_Id, "") : true; } // Write record to SSE Detailed Output log file
-            bool            PrintSupernovaDetails() const                                                       { return LOGGING->LogSSESupernovaDetails(this, ""); }                      // Write record to SSE Supernovae log file
-            bool            PrintStashedSupernovaDetails()                                                      { return LOGGING->LogStashedSSESupernovaDetails(this); }                   // Write record to SSE Supernovae log file
-            bool            PrintSwitchLog(const long int p_Id) const                                           { return OPTIONS->SwitchLog() ? LOGGING->LogSSESwitchLog(this, p_Id, "") : true; } // Write record to SSE Switchlog log file
-            bool            PrintSystemParameters(const string p_Rec = "") const                                { return LOGGING->LogSSESystemParameters(this, p_Rec); }                   // Write record to SSE System Parameters file
+            bool            PrintDetailedOutput(const int p_Id) const                                           { return OPTIONS->DetailedOutput() ? LOGGING->LogSSEDetailedOutput(this, p_Id) : true; } // Write record to SSE Detailed Output log file
+            bool            PrintSupernovaDetails() const                                                       { return LOGGING->LogSSESupernovaDetails(this); }                   // Write record to SSE Supernovae log file
+            bool            PrintStashedSupernovaDetails()                                                      { return LOGGING->LogStashedSSESupernovaDetails(this); }            // Write record to SSE Supernovae log file
+            bool            PrintSwitchLog() const                                                              { return OPTIONS->SwitchLog() ? LOGGING->LogSSESwitchLog(this) : true; } // Write record to SSE Switchlog log file
+            bool            PrintSystemParameters() const                                                       { return LOGGING->LogSSESystemParameters(this); }                   // Write record to SSE System Parameters file
 
 protected:
 
@@ -271,7 +271,7 @@ protected:
     double                  m_Mass0;                                    // Current effective initial mass (Msol)        JR: todo: fix this one day - it is not always initial mass
     double                  m_MinimumLuminosityOnPhase;                 // JR: Only required for CHeB stars, but only needs to be calculated once per star
     double                  m_Mdot;                                     // Current mass loss rate (Msol per ?)
-    MASS_LOSS_TYPE                m_DominantMassLossRate;                                     // Current dominant mass loss rate
+    MASS_LOSS_TYPE          m_DominantMassLossRate;                     // Current dominant mass loss rate
     double                  m_Mu;                                       // Current small envelope parameter mu
     double                  m_Omega;                                    // Current angular frequency (yr-1)
     double                  m_Radius;                                   // Current radius (Rsol)

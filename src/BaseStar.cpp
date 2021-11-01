@@ -1893,7 +1893,7 @@ double BaseStar::CalculateCoreMassGivenLuminosity_Static(const double p_Luminosi
  * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)
  *
  * @param   [IN]    p_DonorMassRate             Mass transfer rate of the donor
- * @param   [IN]    p_AccretorMassRate          Thermal mass loss rate of the accretor (this star)
+ * @param   [IN]    p_AccretorMassRate          Thermal mass transfer rate of the accretor (this star)
  * @return                                      Tuple containing the Maximum Mass Acceptance Rate and the Accretion Efficiency Parameter
  */
 DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
@@ -1921,6 +1921,23 @@ DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
     }
 
     return std::make_tuple(acceptanceRate, fractionAccreted);
+}
+
+
+/*
+ * Calculate thermal mass acceptance rate
+ *
+ *
+ * double CalculateThermalMassAcceptanceRate(const double p_Radius)
+ *
+ * @param   [IN]    p_Radius                    Radius of the accretor (Rsol)
+ * @return                                      Thermal mass acceptance rate
+ */
+double BaseStar::CalculateThermalMassAcceptanceRate(const double p_Radius) const {
+        
+    return OPTIONS->MassTransferThermallyLimitedVariation() == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE
+            ? (m_Mass - m_CoreMass) / CalculateThermalTimescale(p_Radius)
+            : CalculateThermalMassLossRate();
 }
 
 
@@ -2293,6 +2310,26 @@ double BaseStar::CalculateDynamicalTimescale_Static(const double p_Mass, const d
  */
 double BaseStar::CalculateNuclearTimescale_Static(const double p_Mass, const double p_Luminosity) {
     return 1.0E10 * p_Mass * YEAR_TO_MYR / p_Luminosity;
+}
+
+
+/*
+ * Calculate thermal timescale
+ *
+ * pre-factor from Kalogera & Webbink 1996 (https://arxiv.org/abs/astro-ph/9508072), equation 2, 
+ * combined with p_Mass * p_EnvMass case from equation 61 from https://arxiv.org/abs/astro-ph/0201220 for k in {2,3,4,5,6,8,9}
+ * [note that equation 61 of BSE (https://arxiv.org/abs/astro-ph/0201220) approximates this with a value a factor of 3 smaller]
+ * 
+ * 
+ * double CalculateThermalTimescale(const double p_Radius) const
+ *
+ * @param   [IN]    p_Radius                    Radius in Rsol
+ * @return                                      Thermal timescale in Myr
+ *
+ * The p_Radius parameter is to accommodate the call (of this function) in BaseBinaryStar::CalculateMassTransfer()
+*/
+double BaseStar::CalculateThermalTimescale(const double p_Radius) const {   
+    return 31.4 * m_Mass * (m_Mass == m_CoreMass ? m_Mass : m_Mass - m_CoreMass) / (m_Radius * m_Luminosity); // G*Msol^2/(Lsol*Rsol) ~ 31.4 Myr (~ 30 Myr in Kalogera & Webbink)
 }
 
 

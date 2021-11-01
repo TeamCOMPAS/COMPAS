@@ -52,6 +52,8 @@
 /* 9. Add the new option to one or more of the following vectors in Options.h, as         */
 /*    required:                                                                           */
 /*                                                                                        */
+/*        m_ShorthandAllowed: options for which shorthand notation is allowed             */
+/*                                                                                        */
 /*        m_GridLineExcluded: option strings that may not be specified on a grid line     */
 /*                                                                                        */
 /*        m_SSEOnly         : option strings that apply to SSE only                       */
@@ -108,6 +110,9 @@ Options* Options::Instance() {
 #define COMPLAIN(complainStr)           { std::stringstream _ss; _ss << complainStr; throw _ss.str(); }
 #define COMPLAIN_IF(cond, complainStr)  { if (cond) COMPLAIN(complainStr) }
 
+#define WARNUSER(warnStr)               { std::cerr << warnStr << std::endl; }
+#define WARNUSER_IF(cond, warnStr)      { if (cond) WARNUSER(warnStr) }
+
 
 /*
  * Initialise option values
@@ -153,6 +158,11 @@ void Options::OptionValues::Initialise() {
     m_StoreInputFiles                                               = true;
 
     m_SwitchLog                                                     = false;
+
+
+    // annotations
+    m_Notes.clear();
+    m_NotesHdrs.clear();
 
 
     // Evolution mode: SSE or BSE
@@ -504,15 +514,15 @@ void Options::OptionValues::Initialise() {
     m_LogfileType.type                                              = LOGFILETYPE::HDF5;
     m_LogfileType.typeString                                        = LOGFILETYPELabel.at(m_LogfileType.type);
 
-    m_LogfileBeBinaries                                             = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));
-    m_LogfileCommonEnvelopes                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));
-    m_LogfileDetailedOutput                                         = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT));  // assume BSE - get real answer when we know mode
-    m_LogfileDoubleCompactObjects                                   = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS));
-    m_LogfilePulsarEvolution                                        = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)); // only BSE for now
-    m_LogfileRLOFParameters                                         = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS));
-    m_LogfileSupernovae                                             = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));       // assume BSE - get real answer when we know mode
-    m_LogfileSwitchLog                                              = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));       // assume BSE - get real answer when we know mode
-    m_LogfileSystemParameters                                       = get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));
+    m_LogfileBeBinaries                                             = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));
+    m_LogfileCommonEnvelopes                                        = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));
+    m_LogfileDetailedOutput                                         = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT));  // assume BSE - get real answer when we know mode
+    m_LogfileDoubleCompactObjects                                   = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS));
+    m_LogfilePulsarEvolution                                        = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)); // only BSE for now
+    m_LogfileRLOFParameters                                         = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS));
+    m_LogfileSupernovae                                             = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));       // assume BSE - get real answer when we know mode
+    m_LogfileSwitchLog                                              = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));       // assume BSE - get real answer when we know mode
+    m_LogfileSystemParameters                                       = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));
 
     m_AddOptionsToSysParms.type                                     = ADD_OPTIONS_TO_SYSPARMS::GRID;
     m_AddOptionsToSysParms.typeString                               = ADD_OPTIONS_TO_SYSPARMS_LABEL.at(m_AddOptionsToSysParms.type);
@@ -551,7 +561,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
     bool ok = true;                             // status - unless a problem occurs
 
-    // create default strings for vector<std::string> types (too hard to do inline)
+    // create default strings for std::vector<std::string> types (too hard to do inline)
 
     std::ostringstream ss;
 
@@ -560,14 +570,28 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
     ss << "";
     for (auto debugClass = p_Options->m_DebugClasses.begin(); debugClass != p_Options->m_DebugClasses.end(); ++debugClass) ss << *debugClass << ",";
     defaultDebugClasses = ss.str();
-    if (defaultDebugClasses.size() > 0) defaultDebugClasses.erase(defaultDebugClasses.size() - 1);
+    if (defaultDebugClasses.length() > 0) defaultDebugClasses.erase(defaultDebugClasses.length() - 1);
 
     // log classes
     std::string defaultLogClasses;
     ss << "";
     for (auto logClass = p_Options->m_LogClasses.begin(); logClass != p_Options->m_LogClasses.end(); ++logClass) ss << *logClass << ",";
     defaultLogClasses = ss.str();
-    if (defaultLogClasses.size() > 0) defaultLogClasses.erase(defaultLogClasses.size() - 1);
+    if (defaultLogClasses.length() > 0) defaultLogClasses.erase(defaultLogClasses.length() - 1);
+
+    // annotations
+    std::string defaultNotes;
+    ss << "";
+    for (auto note = p_Options->m_Notes.begin(); note != p_Options->m_Notes.end(); ++note) ss << *note << ",";
+    defaultNotes = ss.str();
+    if (defaultNotes.length() > 0) defaultNotes.erase(defaultNotes.length() - 1);
+
+    // annotation headers
+    std::string defaultNotesHdrs;
+    ss << "";
+    for (auto noteHdr = p_Options->m_NotesHdrs.begin(); noteHdr != p_Options->m_NotesHdrs.end(); ++noteHdr) ss << *noteHdr << ",";
+    defaultNotesHdrs = ss.str();
+    if (defaultNotesHdrs.length() > 0) defaultNotesHdrs.erase(defaultNotesHdrs.length() - 1);
 
 
     // add options
@@ -818,22 +842,22 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "common-envelope-mass-accretion-constant",                     
             po::value<double>(&p_Options->m_CommonEnvelopeMassAccretionConstant)->default_value(p_Options->m_CommonEnvelopeMassAccretionConstant),                                                
-            ("Value of mass accreted by NS/BH during common envelope evolution if assuming all NS/BH accrete same amount of mass (common-envelope-mass-accretion-prescription CONSTANT). Ignored otherwise (default = " + std::to_string(p_Options->m_CommonEnvelopeMassAccretionConstant) + ")").c_str()
+            ("Value of mass accreted by NS/BH, in Msol, during common envelope evolution, assuming all NS/BH accrete same amount of mass (common-envelope-mass-accretion-prescription CONSTANT). Ignored otherwise (default = " + std::to_string(p_Options->m_CommonEnvelopeMassAccretionConstant) + ")").c_str()
         )
         (
             "common-envelope-mass-accretion-max",                          
             po::value<double>(&p_Options->m_CommonEnvelopeMassAccretionMax)->default_value(p_Options->m_CommonEnvelopeMassAccretionMax),                                                          
-            ("Maximum amount of mass accreted by NS/BHs during common envelope evolution in solar masses (default = " + std::to_string(p_Options->m_CommonEnvelopeMassAccretionMax) + ")").c_str()
+            ("Maximum amount of mass accreted by NS/BHs, in Msol, during common envelope evolution in Msol (default = " + std::to_string(p_Options->m_CommonEnvelopeMassAccretionMax) + ")").c_str()
         )
         (
             "common-envelope-mass-accretion-min",                          
             po::value<double>(&p_Options->m_CommonEnvelopeMassAccretionMin)->default_value(p_Options->m_CommonEnvelopeMassAccretionMin),                                                          
-            ("Minimum amount of mass accreted by NS/BHs during common envelope evolution in solar masses (default = " + std::to_string(p_Options->m_CommonEnvelopeMassAccretionMin) + ")").c_str()
+            ("Minimum amount of mass accreted by NS/BHs, in Msol, during common envelope evolution in Msol (default = " + std::to_string(p_Options->m_CommonEnvelopeMassAccretionMin) + ")").c_str()
         )
         (
             "common-envelope-recombination-energy-density",                
             po::value<double>(&p_Options->m_CommonEnvelopeRecombinationEnergyDensity)->default_value(p_Options->m_CommonEnvelopeRecombinationEnergyDensity),                                      
-            ("Recombination energy density in erg/g (default = " + std::to_string(p_Options->m_CommonEnvelopeRecombinationEnergyDensity) + ")").c_str()
+            ("Recombination energy density, in erg/g (default = " + std::to_string(p_Options->m_CommonEnvelopeRecombinationEnergyDensity) + ")").c_str()
         )
         (
             "common-envelope-slope-kruckow",                               
@@ -991,22 +1015,22 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "kick-magnitude",                                          
             po::value<double>(&p_Options->m_KickMagnitude)->default_value(p_Options->m_KickMagnitude),                                                      
-            ("The magnitude of the kick velocity the star receives during the a supernova (default = " + std::to_string(p_Options->m_KickMagnitude) + " km s^-1 )").c_str()
+            ("The magnitude of the kick velocity, in km/s, that the star receives during the a supernova (default = " + std::to_string(p_Options->m_KickMagnitude) + ")").c_str()
         )
         (
             "kick-magnitude-1",                                          
             po::value<double>(&p_Options->m_KickMagnitude1)->default_value(p_Options->m_KickMagnitude1),                                                      
-            ("The magnitude of the kick velocity the primary star receives during the a supernova (default = " + std::to_string(p_Options->m_KickMagnitude1) + " km s^-1 )").c_str()
+            ("The magnitude of the kick velocity, in km/s, that the primary star receives during the a supernova (default = " + std::to_string(p_Options->m_KickMagnitude1) + ")").c_str()
         )
         (
             "kick-magnitude-2",                                          
             po::value<double>(&p_Options->m_KickMagnitude2)->default_value(p_Options->m_KickMagnitude2),                                                      
-            ("The magnitude of the kick velocity the secondary star receives during the a supernova (default = " + std::to_string(p_Options->m_KickMagnitude2) + " km s^-1 )").c_str()
+            ("The magnitude of the kick velocity, in km/s, that the secondary star receives during the a supernova (default = " + std::to_string(p_Options->m_KickMagnitude2) + ")").c_str()
         )
         (
             "kick-magnitude-max",                                          
             po::value<double>(&p_Options->m_KickMagnitudeDistributionMaximum)->default_value(p_Options->m_KickMagnitudeDistributionMaximum),                                                      
-            ("Maximum drawn kick magnitude in km s^-1. Ignored if < 0. Must be > 0 if using kick-magnitude-distribution=FLAT (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionMaximum) + ")").c_str()
+            ("Maximum drawn kick magnitude in km/s. Ignored if < 0. Must be > 0 if using kick-magnitude-distribution=FLAT (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionMaximum) + ")").c_str()
         )
         (
             "kick-magnitude-random",                                          
@@ -1026,42 +1050,42 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "kick-magnitude-sigma-CCSN-BH",                                
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH)->default_value(p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH),                                            
-            ("Sigma for chosen kick magnitude distribution for black holes (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH) + " km s^-1 )").c_str()
+            ("Sigma for chosen kick magnitude distribution, in km/s, for black holes (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH) + ")").c_str()
         )
         (
             "kick-magnitude-sigma-CCSN-NS",                                
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS)->default_value(p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS),                                            
-            ("Sigma for chosen kick magnitude distribution for neutron stars (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS) + " km s^-1 )").c_str()
+            ("Sigma for chosen kick magnitude distribution, in km/s, for neutron stars (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_NS) + ")").c_str()
         )
         (
             "kick-magnitude-sigma-ECSN",                                   
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaForECSN)->default_value(p_Options->m_KickMagnitudeDistributionSigmaForECSN),                                            
-            ("Sigma for chosen kick magnitude distribution for ECSN (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaForECSN) + " km s^-1 )").c_str()
+            ("Sigma for chosen kick magnitude distribution, in km/s, for ECSN (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaForECSN) + ")").c_str()
         )
         (
             "kick-magnitude-sigma-USSN",                                   
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaForUSSN)->default_value(p_Options->m_KickMagnitudeDistributionSigmaForUSSN),                                            
-            ("Sigma for chosen kick magnitude distribution for USSN (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaForUSSN) + " km s^-1 )").c_str()
+            ("Sigma for chosen kick magnitude distribution, in km/s, for USSN (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaForUSSN) + ")").c_str()
         )
         (
             "kick-mean-anomaly-1",
             po::value<double>(&p_Options->m_KickMeanAnomaly1)->default_value(p_Options->m_KickMeanAnomaly1),                                                                                  
-            "Mean anomaly for the primary star at instantaneous time of the supernova (default = uniform random number [0.0, 2pi))"
+            "Mean anomaly, in rad, for the primary star at instantaneous time of the supernova (default = uniform random number [0.0, 2pi))"
         )
         (
             "kick-mean-anomaly-2",
             po::value<double>(&p_Options->m_KickMeanAnomaly2)->default_value(p_Options->m_KickMeanAnomaly2),                                                                                  
-            "Mean anomaly for the secondary star at instantaneous time of the supernova (default = uniform random number [0.0, 2pi))"
+            "Mean anomaly, in rad, for the secondary star at instantaneous time of the supernova (default = uniform random number [0.0, 2pi))"
         )
         (
             "kick-phi-1",
             po::value<double>(&p_Options->m_KickPhi1)->default_value(p_Options->m_KickPhi1),                                                                                  
-            "Angle between 'x' and 'y', both in the orbital plane of the supernovae vector, for the primary star (default = drawn from kick direction distribution)"
+            "Planar angle, in rad, of the supernova vector, for the primary star (default = drawn from kick direction distribution)"
         )
         (
             "kick-phi-2",
             po::value<double>(&p_Options->m_KickPhi2)->default_value(p_Options->m_KickPhi2),                                                                                  
-            "Angle between 'x' and 'y', both in the orbital plane of the supernovae vector, for the secondary star (default = drawn from kick direction distribution)"
+            "Planar angle, in rad, of the supernova vector, for the secondary star (default = drawn from kick direction distribution)"
         )
         (
             "kick-scaling-factor",                                         
@@ -1071,12 +1095,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "kick-theta-1",                                        
             po::value<double>(&p_Options->m_KickTheta1)->default_value(p_Options->m_KickTheta1),                                                                                  
-            "Angle between the orbital plane and the 'z' axis of the supernovae vector, for the primary star (default = drawn from kick direction distribution)"
+            "Polar angle, in rad, of the supernova vector, for the primary star (default = drawn from kick direction distribution)"
         )
         (
             "kick-theta-2",                                        
             po::value<double>(&p_Options->m_KickTheta2)->default_value(p_Options->m_KickTheta2),                                                                                  
-            "Angle between the orbital plane and the 'z' axis of the supernovae vector, for the secondary star (default = drawn from kick direction distribution)"
+            "Polar angle, in rad, of the supernova vector, for the secondary star (default = drawn from kick direction distribution)"
         )
 
         (
@@ -1108,32 +1132,32 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "mass-transfer-jloss",                                         
             po::value<double>(&p_Options->m_MassTransferJloss)->default_value(p_Options->m_MassTransferJloss),                                                                                    
-            ("Specific angular momentum with which the non-accreted system leaves the system (default = " + std::to_string(p_Options->m_MassTransferJloss) + ")").c_str()
+            ("Fraction of specific angular momentum which non-accreted matter removes from the system (default = " + std::to_string(p_Options->m_MassTransferJloss) + ")").c_str()
         )
         (
             "mass-transfer-thermal-limit-C",                               
             po::value<double>(&p_Options->m_MassTransferCParameter)->default_value(p_Options->m_MassTransferCParameter),                                                                          
-            ("Mass Transfer Thermal rate factor fo the accretor (default = " + std::to_string(p_Options->m_MassTransferCParameter) + ")").c_str()
+            ("Mass Transfer Thermal rate factor of the accretor (default = " + std::to_string(p_Options->m_MassTransferCParameter) + ")").c_str()
         )
         (
             "maximum-evolution-time",                                      
             po::value<double>(&p_Options->m_MaxEvolutionTime)->default_value(p_Options->m_MaxEvolutionTime),                                                                                      
-            ("Maximum time to evolve binaries in Myr (default = " + std::to_string(p_Options->m_MaxEvolutionTime) + ")").c_str()
+            ("Maximum time to evolve binaries, in Myr (default = " + std::to_string(p_Options->m_MaxEvolutionTime) + ")").c_str()
         )
         (
             "maximum-mass-donor-nandez-ivanova",                           
             po::value<double>(&p_Options->m_MaximumMassDonorNandezIvanova)->default_value(p_Options->m_MaximumMassDonorNandezIvanova),                                                            
-            ("Maximum donor mass allowed for the revised common envelope formalism in Msol (default = " + std::to_string(p_Options->m_MaximumMassDonorNandezIvanova) + ")").c_str()
+            ("Maximum donor mass, in Msol, allowed for the revised common envelope formalism in Msol (default = " + std::to_string(p_Options->m_MaximumMassDonorNandezIvanova) + ")").c_str()
         )
         (
             "maximum-neutron-star-mass",                                   
             po::value<double>(&p_Options->m_MaximumNeutronStarMass)->default_value(p_Options->m_MaximumNeutronStarMass),                                                                          
-            ("Maximum mass of a neutron star (default = " + std::to_string(p_Options->m_MaximumNeutronStarMass) + ")").c_str()
+            ("Maximum mass of a neutron star, in Msol (default = " + std::to_string(p_Options->m_MaximumNeutronStarMass) + ")").c_str()
         )
         (
             "mcbur1",                                                      
             po::value<double>(&p_Options->m_mCBUR1)->default_value(p_Options->m_mCBUR1),                                                                                                          
-            ("MCBUR1: Min core mass at BAGB to avoid fully degenerate CO core  (default = " + std::to_string(p_Options->m_mCBUR1) + ")").c_str()
+            ("Minimum core mass at BAGB, in Msol, to avoid fully degenerate CO core  (default = " + std::to_string(p_Options->m_mCBUR1) + ")").c_str()
         )
         (
             "metallicity,z",                                               
@@ -1153,7 +1177,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "minimum-secondary-mass",                                      
             po::value<double>(&p_Options->m_MinimumMassSecondary)->default_value(p_Options->m_MinimumMassSecondary),                                                                              
-            ("Minimum mass of secondary to generate in Msol (default = " + std::to_string(p_Options->m_MinimumMassSecondary) + ")").c_str()
+            ("Minimum mass of secondary to generate, in Msol (default = " + std::to_string(p_Options->m_MinimumMassSecondary) + ")").c_str()
         )
         (
             "muller-mandel-kick-multiplier-BH",                                        
@@ -1169,23 +1193,23 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "neutrino-mass-loss-BH-formation-value",                       
             po::value<double>(&p_Options->m_NeutrinoMassLossValueBH)->default_value(p_Options->m_NeutrinoMassLossValueBH),                                                                        
-            ("Value corresponding to neutrino mass loss assumption (default = " + std::to_string(p_Options->m_NeutrinoMassLossValueBH) + ")").c_str()
+            ("Amount of BH mass lost due to neutrinos (either fraction or fixed value, depending on --neutrino-mass-loss-BH-formation) (default = " + std::to_string(p_Options->m_NeutrinoMassLossValueBH) + ")").c_str()
         )
 
         (
             "orbital-period",                                          
             po::value<double>(&p_Options->m_OrbitalPeriod)->default_value(p_Options->m_OrbitalPeriod),                                                                            
-            ("Initial orbital period in days (default = " + std::to_string(p_Options->m_OrbitalPeriod) + ")").c_str()
+            ("Initial orbital period, in days (default = " + std::to_string(p_Options->m_OrbitalPeriod) + ")").c_str()
         )
         (
             "orbital-period-max",                                          
             po::value<double>(&p_Options->m_OrbitalPeriodDistributionMax)->default_value(p_Options->m_OrbitalPeriodDistributionMax),                                                                            
-            ("Maximum period in days to generate (default = " + std::to_string(p_Options->m_OrbitalPeriodDistributionMax) + ")").c_str()
+            ("Maximum period, in days, to generate (default = " + std::to_string(p_Options->m_OrbitalPeriodDistributionMax) + ")").c_str()
         )
         (
             "orbital-period-min",                                          
             po::value<double>(&p_Options->m_OrbitalPeriodDistributionMin)->default_value(p_Options->m_OrbitalPeriodDistributionMin),                                                                            
-            ("Minimum period in days to generate (default = " + std::to_string(p_Options->m_OrbitalPeriodDistributionMin) + ")").c_str()
+            ("Minimum period, in days, to generate (default = " + std::to_string(p_Options->m_OrbitalPeriodDistributionMin) + ")").c_str()
         )
 
         (
@@ -1197,57 +1221,57 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "PISN-lower-limit",                                            
             po::value<double>(&p_Options->m_PairInstabilityLowerLimit)->default_value(p_Options->m_PairInstabilityLowerLimit),                                                                    
-            ("Minimum core mass for PISN (default = " + std::to_string(p_Options->m_PairInstabilityLowerLimit) + ")").c_str()
+            ("Minimum core mass for PISN, in Msol (default = " + std::to_string(p_Options->m_PairInstabilityLowerLimit) + ")").c_str()
         )
         (
             "PISN-upper-limit",                                            
             po::value<double>(&p_Options->m_PairInstabilityUpperLimit)->default_value(p_Options->m_PairInstabilityUpperLimit),                                                                    
-            ("Maximum core mass for PISN (default = " + std::to_string(p_Options->m_PairInstabilityUpperLimit) + ")").c_str()
+            ("Maximum core mass for PISN, in Msol (default = " + std::to_string(p_Options->m_PairInstabilityUpperLimit) + ")").c_str()
         )
         (
             "PPI-lower-limit",                                             
             po::value<double>(&p_Options->m_PulsationalPairInstabilityLowerLimit)->default_value(p_Options->m_PulsationalPairInstabilityLowerLimit),                                              
-            ("Minimum core mass for PPI (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityLowerLimit) + ")").c_str()
+            ("Minimum core mass for PPI, in Msol (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityLowerLimit) + ")").c_str()
         )
         (
             "PPI-upper-limit",                                             
             po::value<double>(&p_Options->m_PulsationalPairInstabilityUpperLimit)->default_value(p_Options->m_PulsationalPairInstabilityUpperLimit),                                              
-            ("Maximum core mass for PPI (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityUpperLimit) + ")").c_str()
+            ("Maximum core mass for PPI, in Msol (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityUpperLimit) + ")").c_str()
         )
         (
             "pulsar-birth-magnetic-field-distribution-max",                
             po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionMax)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionMax),                                        
-            ("Maximum (log10) pulsar birth magnetic field (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMax) + ")").c_str()
+            ("Maximum pulsar birth magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMax) + ")").c_str()
         )
         (
             "pulsar-birth-magnetic-field-distribution-min",                
             po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionMin)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionMin),                                        
-            ("Minimum (log10) pulsar birth magnetic field) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMin) + ")").c_str()
+            ("Minimum pulsar birth magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMin) + ")").c_str()
         )
         (
             "pulsar-birth-spin-period-distribution-max",                   
             po::value<double>(&p_Options->m_PulsarBirthSpinPeriodDistributionMax)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionMax),                                              
-            ("Maximum pulsar birth spin period in ms (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionMax) + ")").c_str()
+            ("Maximum pulsar birth spin period, in ms (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionMax) + ")").c_str()
         )
         (
             "pulsar-birth-spin-period-distribution-min",                   
             po::value<double>(&p_Options->m_PulsarBirthSpinPeriodDistributionMin)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionMin),                                              
-            ("Minimum pulsar birth spin period in ms (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionMin) + ")").c_str()
+            ("Minimum pulsar birth spin period, in ms (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionMin) + ")").c_str()
         )
         (
             "pulsar-magnetic-field-decay-massscale",                       
             po::value<double>(&p_Options->m_PulsarMagneticFieldDecayMassscale)->default_value(p_Options->m_PulsarMagneticFieldDecayMassscale),                                                    
-            ("Mass scale on which magnetic field decays during accretion in solar masses (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayMassscale) + ")").c_str()
+            ("Mass scale on which magnetic field decays during accretion, in Msol (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayMassscale) + ")").c_str()
         )
         (
             "pulsar-magnetic-field-decay-timescale",                       
             po::value<double>(&p_Options->m_PulsarMagneticFieldDecayTimescale)->default_value(p_Options->m_PulsarMagneticFieldDecayTimescale),                                                    
-            ("Timescale on which magnetic field decays in Myrs (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayTimescale) + ")").c_str()
+            ("Timescale on which magnetic field decays, in Myrs (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayTimescale) + ")").c_str()
         )
         (
             "pulsar-minimum-magnetic-field",                               
             po::value<double>(&p_Options->m_PulsarLog10MinimumMagneticField)->default_value(p_Options->m_PulsarLog10MinimumMagneticField),                                                        
-            ("log10 of the minimum pulsar magnetic field in Gauss (default = " + std::to_string(p_Options->m_PulsarLog10MinimumMagneticField) + ")").c_str()
+            ("Minimum pulsar magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarLog10MinimumMagneticField) + ")").c_str()
         )
 
         (
@@ -1271,17 +1295,17 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "semi-major-axis,a",                              
             po::value<double>(&p_Options->m_SemiMajorAxis)->default_value(p_Options->m_SemiMajorAxis),                                                        
-            ("Initial semi-major axis, a (default = " + std::to_string(p_Options->m_SemiMajorAxis) + ")").c_str()
+            ("Initial semi-major axis, in AU (default = " + std::to_string(p_Options->m_SemiMajorAxis) + ")").c_str()
         )        
         (
             "semi-major-axis-max",                                         
             po::value<double>(&p_Options->m_SemiMajorAxisDistributionMax)->default_value(p_Options->m_SemiMajorAxisDistributionMax),                                                              
-            ("Maximum semi major axis in AU to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMax) + ")").c_str()
+            ("Maximum semi-major axis, in AU, to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMax) + ")").c_str()
         )
         (
             "semi-major-axis-min",                                         
             po::value<double>(&p_Options->m_SemiMajorAxisDistributionMin)->default_value(p_Options->m_SemiMajorAxisDistributionMin),                                                              
-            ("Minimum semi major axis in AU to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMin) + ")").c_str()
+            ("Minimum semi-major axis, in AU, to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMin) + ")").c_str()
         )
 
         (
@@ -1568,13 +1592,25 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         (
             "debug-classes",                                               
-            po::value<vector<std::string>>(&p_Options->m_DebugClasses)->multitoken()->default_value(p_Options->m_DebugClasses),                                                                        
+            po::value<std::vector<std::string>>(&p_Options->m_DebugClasses)->multitoken()->default_value(p_Options->m_DebugClasses),                                                                        
             ("Debug classes enabled (default = " + defaultDebugClasses + ")").c_str()
         )
+
         (
             "log-classes",                                                 
-            po::value<vector<std::string>>(&p_Options->m_LogClasses)->multitoken()->default_value(p_Options->m_LogClasses),                                                                            
+            po::value<std::vector<std::string>>(&p_Options->m_LogClasses)->multitoken()->default_value(p_Options->m_LogClasses),                                                                            
             ("Logging classes enabled (default = " + defaultLogClasses + ")").c_str()
+        )
+
+        (
+            "notes",                                                 
+            po::value<std::vector<std::string>>(&p_Options->m_Notes)->multitoken()->default_value(p_Options->m_Notes),                                                                            
+            ("User-specified annotations (default = " + defaultNotes + ")").c_str()
+        )
+        (
+            "notes-hdrs",                                                 
+            po::value<std::vector<std::string>>(&p_Options->m_NotesHdrs)->multitoken()->default_value(p_Options->m_NotesHdrs),                                                                            
+            ("User-specified annotation header strings (default = " + defaultNotesHdrs + ")").c_str()
         )
     
         ;   // end the list of options to be added
@@ -1992,6 +2028,10 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(m_NeutrinoMassLossValueBH < 0.0 || m_NeutrinoMassLossValueBH > 1.0, "Neutrino mass loss must be between 0 and 1");
         }
 
+        if (!DEFAULTED("notes")) {                                                                                                  // user specified notes?
+            WARNUSER_IF(m_Notes.size() > Options::Instance()->NotesHdrs().size(), "WARNING: Annotations: more notes than headers - extra notes ignored"); // yes - check counts
+        }
+
         if (!DEFAULTED("output-path")) {                                                                                            // user specified output path?
                                                                                                                                     // yes
             fs::path userPath = m_OutputPathString;                                                                                 // user-specifed path
@@ -2057,6 +2097,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
 /*
  * Determine if the user specified a value for the option
+ *
  * Note that this function does not check whether the option string
  * pass as p_OptionString is a valid option string - it just checks
  * whether the user specfied it, either at the grid line level, or
@@ -2098,8 +2139,10 @@ int Options::OptionSpecified(const std::string p_OptionString) {
 
 /*
  * Retrieve the attributes of an option
- * The option for which the attributes are to be retreived is passed as an iterator
- * pointing at the option in the boost variables map
+ *
+ * The option for which the attributes are to be retreived is passed as an iterator pointing at the option in the boost
+ * variables map.  Note that this function is private to the Options class and is intended for Options internal use
+ * only.  External actors should use the public function Options::OptionValue() to get option values.
  * 
  * The attributes are returned as a tuple, described by typedef ATTR, containing
  * 
@@ -2169,8 +2212,8 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
         dataType = TYPENAME::STRING;
         typeStr  = "STRING";
         std::string tmp = p_VM[p_IT->first].as<std::string>();
-        if (tmp.size()) valueStr = "'" + tmp + "'";
-        else            valueStr = "''";
+        if (tmp.length()) valueStr = "'" + tmp + "'";
+        else              valueStr = "''";
     }
 
     else if (((boost::any)p_IT->second.value()).type() == typeid(signed                )) { dataType = TYPENAME::INT;          typeStr = "SIGNED";                 valueStr = std::to_string(p_VM[p_IT->first].as<signed                >()); }
@@ -2218,31 +2261,34 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
         valueStr = p_VM[p_IT->first].as<bool>() ? "TRUE" : "FALSE";
     } 
 
-    else {  // Assume vector<string>
+    else {  // Assume std::vector<std::string>
         try {
             std::ostringstream elemsSS;
             elemsSS << "{ ";
-            vector<std::string> tmp = p_VM[p_IT->first].as<vector<std::string>>();
+            std::vector<std::string> tmp = p_VM[p_IT->first].as<std::vector<std::string>>();
             for (std::vector<std::string>::iterator elem=tmp.begin(); elem != tmp.end(); elem++) {
                 elemsSS << "'" << (*elem) << "', ";
             }
             std::string elems = elemsSS.str();
-            if (elems.size() > 2) elems.erase(elems.size() - 2);
-            else if (elems.size() == 2) elems.erase(elems.size() - 1);
+            if (elems.length() > 2) elems.erase(elems.length() - 2);
+            else if (elems.length() == 2) elems.erase(elems.length() - 1);
             elems += " }";
 
-            // vector<string> is not supported as a data type by COMPAS, but...
-            // it is used.  Options debug-classes and log-classes are stored as
-            // vectors or strings.  This doesn't affect anything unless we want
-            // to print the values of the options (as we do sometimes), so the
-            // vector of strings is just formatted as a string here - with braces
+            // the following options are declared as std::vector<std::string>>:
+            //
+            //     debug-classes
+            //     log-classes
+            //     notes
+            //     notes-hdrs
+            // 
+            // The vector of strings is just formatted as a string here - with braces
             // sourrounding comma-separated values.
             //
-            // we return dateType = TYPENAME::STRING, but typeStr  = "VECTOR<STRING>"
+            // We return dateType = TYPENAME::STRING, but typeStr = "VECTOR<STRING>"
 
-            dataType = TYPENAME::STRING;                                                // not supported by COMPAS as an option data type            
-            typeStr  = "VECTOR<STRING>";                                                // ... but we know what type it is, and
-            valueStr = elems;                                                           // ... we can still format the value
+            dataType = TYPENAME::STRING;  
+            typeStr  = "VECTOR<STRING>";
+            valueStr = elems;
         }
         catch (const boost::bad_any_cast &) {
             dataType = TYPENAME::NONE;                                                  // unknown data type               
@@ -2257,6 +2303,7 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
 
 /*
  * Get option details for the Run_Details file
+ *
  * The parameter passed is the options descriptor - the grid line options, or
  * the commandline options.  Ordinarily we would build the Run_Details contents
  * from the commandline options, but the flexibility exists to use a set of
@@ -2369,20 +2416,176 @@ bool Options::IsSupportedNumericDataType(TYPENAME p_TypeName) {
 
 
 /*
+ * Preprocess the options provided by the user - expand any shorthand notation
+ * 
+ * Before we parse the options provided by the user, we replace/expand any shorthand devices the user has taken
+ * advantage of, so we can present the expanded form of the options to boost.
+ * 
+ * For example, we provide shorthand for users to specify annotations and annotation headers.  Both of these options
+ * are defined as boost vector options, and would typically be specified by the user thus:
+ * 
+ * ./compas --notes-hdrs hdrStr1 hdrStr2 hdrStr3 --notes "note 1" "another note" "this is note 3" --option-name option-value ...
+ * 
+ * We allow blank notes, but they must be entered as empty strings using this method.  e.g.:
+ * 
+ * ./compas --notes-hdrs hdrStr1 hdrStr2 hdrStr3 --notes "note 1" "" "this is note 3" --option-name option-value ... (note 2 is blank)
+ * 
+ * That format could become awkward, so we provide a shorthand method for specifying vector options.  The shorthand method allows
+ * users to list the comma-separated option values enclosed in square brackets "[...]", and any blank values can just be omitted.
+ * 
+ * e.g., the second example above could be specified as:
+ * 
+ * ./compas --notes-hdrs [hdrStr1,hdrStr2,hdrStr3] --notes ["note 1",,"this is note 3"] --option-name option-value ... (note 2 is omitted)
+ * ./compas --notes-hdrs [hdrStr1,hdrStr2,hdrStr3] --notes ["note 1",,] --option-name option-value ... (note 2 and note 3 are omitted)
+ * 
+ * This function will expand this shorthand to the example shown above.  There is no checking for correctness here - we just expand any
+ * shorthand necessary and pass the argument vector back - correctness checking is done elsewhere.  
+ * 
+ * The value for any omitted option values will be a string of length 1, with the char value NOT_PROVIDED (constant define in Options.h).
+ * Since at this stage the option names and values are just strings that will be parsed by boost, we don't need to worry about data type - 
+ * code processing the options can check for NOT_PROVIDED and deal with it then.  Since we may not know the maxmimum number of values
+ * expected (e.g. the number of notes-hdrs specifies the maximum number of notes expected, and we may not have that number yet), we leave
+ * it to later to pad out missing values beyond the last one specified here.  e.g. a specification shuch as:
+ * 
+ * ./compas --notes-hdrs [hdrStr1,hdrStr2,hdrStr3,hdrStr4,hdrStr5] --notes ["note 1",,"this is note 3"] --option-name option-value ...
+ * 
+ * has notes 2, 4 & 5 omitted - we specify note 2 as NOT_PROVIDED here, and notes 4 & 5 will be added later.
+ * 
+ * 
+ * std::tuple<std::string, int, std::vector<std::string>> ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[])
+ * 
+ * 
+ * @param   [IN]    p_ArgCount                  The number of argument strings. (note below for p_ArgStrings)
+ * @param   [IN]    p_ArgStrings                The argument strings.  The first argument string is expected
+ *                                              (by boost) to be the executable name (boost expects the arguments
+ *                                              to be command-line arguments passed to main())
+ * @return                                      Tuple containing:
+ *                                                  String containing an error string (if no error occurred the return string will be the empty string)
+ *                                                  The expanded arguments:
+ *                                                      - an integer indicating the number of arguments (analogous to p_ArgCount)
+ *                                                      - a vector of strings containing the arguments (analogous to p_ArgStrings)
+ */
+std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[]) {
+
+    std::string errStr = "";                                                                                                // for now
+
+    std::vector<std::string> strargs = {std::string(p_ArgStrings[0])};                                                      // new args vector - command name is arg[0]
+
+    std::string  argString  = "";                                                                                           // argument string
+    std::string  optionName = "";                                                                                           // option name
+    for (size_t iArg = 1; iArg < (size_t)p_ArgCount; iArg++) {                                                              // for each arg string
+
+        argString = p_ArgStrings[iArg];                                                                                     // the argument we're processing
+
+        if (argString[0] == '-') {                                                                                          // is it actually an option name?
+            strargs.push_back(argString);                                                                                   // yes - add it to the new vector (unadulterated)
+
+            optionName = argString;                                                                                         // get the option name for the argument we'll be processing
+            optionName = utils::ToLower(utils::trim(optionName));                                                           // downshift and trim whitespace
+            optionName.erase(0, optionName.find_first_not_of("-"));                                                         // remove the "-" or "--"
+        }
+        else {                                                                                                              // argument is not an option name - process it
+            if (iArg == 1) {                                                                                                // first arg (i.e. no option name)?
+                strargs.push_back(argString);                                                                               // yes - add it to the new vector (unadulterated)
+            }
+            else {                                                                                                          // no - not first arg - process it
+                // check if option is on the shorthand allowed list, and process it if it is
+                // presumably invalid options won't be on the list...
+                auto it = std::find_if(m_ShorthandAllowed.begin(), m_ShorthandAllowed.end(), [&optionName](const SHORTHAND_ENTRY& e) { return std::get<0>(e) == optionName; });
+                if (it == m_ShorthandAllowed.end()) {                                                                       // option in shorthand allowed list?
+                    strargs.push_back(argString);                                                                           // no - add option value to the new vector
+                }
+                else {                                                                                                      // yes - shorthand allowed - process it
+                    if (!argString.empty()) {                                                                               // null arg?
+                                                                                                                            // no
+                        std::string str(p_ArgStrings[iArg]);                                                                // convert char* to std::string
+
+                        if (argString[0] != '[' || argString[argString.length()-1] != ']') {                                // starts with '[' and ends with ']'?
+                            strargs.push_back(argString);                                                                   // no - not shorthand - add option value to the new vector
+                        }
+                        else {                                                                                              // yes - shorthand - process it
+                            argString = argString.substr(1, argString.length() - 2);                                        // yes - strip enclosing brackets
+
+                            bool defaultAllowed = std::get<1>(*it);                                                         // ok to omit values?
+
+                            if (argString.empty()) {                                                                        // have null parameter?
+                                if (defaultAllowed) {                                                                       // yes, null - defaults allowed?
+                                    // we don't know how many default values to put here - how many default values
+                                    // we need to specify depends on the option, and possibly other option values
+                                    // (e.g. 'notes-hdrs' for 'notes').  So for now we just push a single default
+                                    // value and deal with it later
+
+                                    strargs.push_back(NOT_PROVIDED);                                                        // "not provided" indicator"
+                                }
+                                else {                                                                                      // no - defaults not allowed
+                                    errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
+                                }
+                            }
+                            else {                                                                                          // non-null parameter
+                                size_t start = 0;                                                                           // start position
+                                size_t pos   = 0;                                                                           // current position
+                                size_t idx   = 0;                                                                           // vector index of parameter
+                                while (start < argString.length() && pos != std::string::npos) {                            // comma found before the end of the string?
+                                                                                                                            // yes
+                                    pos = argString.find(",", start);                                                       // next comma
+                                    if (pos == std::string::npos) pos = argString.length();                                 // last character?
+                                                                                                        
+                                    if ((pos - start) > 0) {                                                                // non-zero length string?
+                                        strargs.push_back(argString.substr(start, pos - start));                            // yes - grab it
+                                    }
+                                    else {                                                                                  // empty value
+                                        if (defaultAllowed) {                                                               // defaults allowed?
+                                            strargs.push_back(NOT_PROVIDED);                                                // "not provided" indicator"
+                                        }
+                                        else {                                                                              // no - defaults not allowed
+                                            errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
+                                        }
+                                    }
+                                    start = pos + 1;                                                                        // next start
+                                    idx++;                                                                                  // next vector index
+                                }
+
+                                if (argString[argString.length() - 1] == ',') {                                             // trailing comma in shorthand values?
+                                    if (defaultAllowed) {                                                                   // defaults allowed?
+                                        strargs.push_back(NOT_PROVIDED);                                                    // "not provided" indicator"
+                                    }
+                                    else {                                                                                  // no - defaults not allowed
+                                        errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (!errStr.empty()) break;                                                                                         // stop on error
+    }
+
+    // return arg count and arg strings to caller
+    // if there was an error the strings returned may not be the complete command line, so should not be used
+
+    return std::make_tuple(errStr, (int)strargs.size(), strargs);
+}
+
+
+/*
  * Parse the options provided by the user
  * 
- * Before we give the options to boost we need to determine if the user passed
- * any ranges or sets and, if they did, handle those - boost doesn't know anything
- * about them.
+ * We first expand any shorthand notation the user might have used (for options that allow shorthand
+ * notation).
+ * 
+ * Before we give the options to boost we need to determine if the user passed any ranges or sets and, 
+ * if they did, handle those - boost doesn't know anything about them.
  *
- * A range is allowed only for numeric options (i.e. INT or FLOAT types), but is not 
- * allowed for all numeric options (e.g. --log-level)
+ * A range is allowed only for numeric options (i.e. INT or FLOAT types), but is not  allowed for all 
+ * numeric options (e.g. --log-level)
  * A set is allowed for numeric, string, and bool options - but not all of them (e.g. --quiet)
  * 
- * We define a vector of options excluded from the range and set constructs (one vector each).
- * We don't need to exclude non-numeric options from range here - that is done later - here we 
- * just exclude options for which range/set makes no sense.  We have defined vectors of
- * option names that are excluded from ranges (m_RangeExluded) and sets (m_SetExcluded).
+ * We define a vector of options excluded from the range and set constructs (one vector each).  We don't
+ * need to exclude non-numeric options from range here - that is done later - here we just exclude options
+ * for which range/set makes no sense.  We have defined vectors of option names that are excluded from ranges
+ * (m_RangeExcluded) and sets (m_SetExcluded).
  * 
  * 
  * std::string ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], OptionsDescriptorT &p_OptionsDescriptor)
@@ -2400,8 +2603,32 @@ bool Options::IsSupportedNumericDataType(TYPENAME p_TypeName) {
  */
 std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], OptionsDescriptorT &p_OptionsDescriptor) {
 
-    bool error         = false;                                                                                             // for now...
-    std::string errStr = "";                                                                                                // also for now...
+    std::string errStr = "";                                                                                                // initially
+
+    int argCount;                                                                                                           // number or arg strings
+    std::vector<std::string> sArgStrings;                                                                                   // arg strings - as std::strings
+
+
+    //********************************************************************//
+    // first expand any shorthand notation used in the options            //
+    // if this returns an error, we return immediately from this function //
+    //********************************************************************//
+
+    std::tie(errStr, argCount, sArgStrings) = ExpandShorthandOptionValues(p_ArgCount, p_ArgStrings);                        // expand any shorthand option specifications
+
+    if (!errStr.empty()) return errStr;                                                                                     // stop on error
+
+    //********************************************************************//
+    // shorthand notation expanded - proceed with parsing                 //
+    //********************************************************************//
+
+
+    std::vector<char const *> args {};                                                                                      // copy string vector to char * vector
+    for (size_t idx = 0; idx < sArgStrings.size(); idx++) {
+        args.push_back(sArgStrings[idx].c_str());
+    }
+                 /***** << do *not* try this at home >> *****/
+    char **argStrings = const_cast<char**>(args.data());                                                                    // arg strings - as array of char*
 
     try {
 
@@ -2412,60 +2639,57 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
         COMPLEX_TYPE type              = COMPLEX_TYPE::NONE;                                                                // complex arg type (range, set, neither/none)
         std::vector<std::string> parms = {};                                                                                // the range or set parameters
 
-        for (int iArg = 0; iArg < p_ArgCount; iArg++) {                                                                     // for each arg string
+        for (size_t iArg = 1; iArg < (size_t)argCount; iArg++) {                                                            // for each arg string
 
             if (iArg <= 1) continue;                                                                                        // step over the executable name
 
             type = COMPLEX_TYPE::NONE;                                                                                      // initially
 
-            optionName = p_ArgStrings[iArg - 1];                                                                            // get the option name for the argument we're processing
+            optionName = argStrings[iArg - 1];                                                                              // get the option name for the argument we're processing
             optionName = utils::ToLower(utils::trim(optionName));                                                           // downshift and trim whitespace
             if (optionName[0] == '-') optionName.erase(0, optionName.find_first_not_of("-"));                               // remove the "-" or "--"
 
-            if (p_ArgStrings[iArg] != nullptr) {                                                                            // null arg?
+            if (argStrings[iArg] != nullptr) {                                                                              // null arg?
                                                                                                                             // no
-                std::string str(p_ArgStrings[iArg]);                                                                        // convert char* to std::string
+                std::string str(argStrings[iArg]);                                                                          // convert char* to std::string
                 str = utils::ToLower(utils::trim(str));                                                                     // downshift and trim whitespace
 
                 // check for RANGE or SET
                 // range is indicated by 'range[start,count,inc]', 'r[start,count,inc]', or just '[start,count,inc]'
 
                 if ((str[0] == '[') || (str.rfind("r[", 0) == 0) || (str.rfind("range[", 0) == 0)) {                        // starts with '[', 'r[' or 'range[', so...
-                    error = true;                                                                                           // unless set otherwise
                     if (str[str.length()-1] == ']') {                                                                       // ... needs to end with ']' to be a valid RANGE
                         type = COMPLEX_TYPE::RANGE;                                                                         // it did - so RANGE
 
                         // check for RANGE requested for option in range excluded list
-                        if (iArg > 1) {                                                                                     // range not valid for arg[1]
-                            if (std::find(m_RangeExcluded.begin(), m_RangeExcluded.end(), optionName) != m_RangeExcluded.end())
-                                errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_NOT_SUPPORTED) + std::string(" '") + optionName + std::string("'");
-                            else
-                                error = false;                                                                              // we're good
+                        if (std::find(m_RangeExcluded.begin(), m_RangeExcluded.end(), optionName) != m_RangeExcluded.end()) {
+                            errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_NOT_SUPPORTED) + std::string(" for option '") + optionName + std::string("'");
                         }
+                    }
+                    else {
+                        errStr = ERR_MSG(ERROR::MISSING_RIGHT_BRACKET) + std::string(" for option '") + optionName + std::string("'");
                     }
                 }
 
-                if (!error) {                                                                                               // still ok?
+                if (errStr.empty()) {                                                                                       // still ok?
                                                                                                                             // yes
                     // set is indicated by 'set[elem1,elem2,...,elemN]', or 's[elem1,elem2,...,elemN]'
 
                     if ((str.rfind("s[", 0) == 0) || (str.rfind("set[", 0) == 0)) {                                         // starts with 's[' or 'set[', so ...
-                        error = true;                                                                                       // unless set otherwise
                         if (str[str.length()-1] == ']') {                                                                   // ... needs to end with ']' to be a valid SET
                             type = COMPLEX_TYPE::SET;                                                                       // it did - so SET
 
                             // check for SET requested for option in set excluded list
-                            if (iArg > 1) {                                                                                 // set not valid for arg[1]
-                                if (std::find(m_SetExcluded.begin(), m_SetExcluded.end(), optionName) != m_SetExcluded.end())
-                                    errStr = ERR_MSG(ERROR::ARGUMENT_SET_NOT_SUPPORTED) + std::string(" '") + optionName + std::string("'");
-                                else
-                                    error = false;                                                                          // we're good
-                            }
+                            if (std::find(m_SetExcluded.begin(), m_SetExcluded.end(), optionName) != m_SetExcluded.end())
+                                errStr = ERR_MSG(ERROR::ARGUMENT_SET_NOT_SUPPORTED) + std::string(" for option '") + optionName + std::string("'");
+                        }
+                        else {
+                            errStr = ERR_MSG(ERROR::MISSING_RIGHT_BRACKET) + std::string(" for option '") + optionName + std::string("'");
                         }
                     }
                 }
 
-                if (!error && type != COMPLEX_TYPE::NONE) {                                                                 // range or set?
+                if (errStr.empty() && type != COMPLEX_TYPE::NONE) {                                                         // range or set?
                                                                                                                             // yes
                     // we have what looks like a 'range' or 'set' argument
                     // for now, just stash the details away and substitute the
@@ -2477,16 +2701,18 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                     if (str.rfind("range", 0) == 0) str.erase(0, 5);                                                        // strip 'range' (range indicator) if present
                     if (str.rfind("set", 0) == 0) str.erase(0, 3);                                                          // strip 'set' (set indicator) if present
                     if (str[0] == 'r' || str[0] == 's') str.erase(0, 1);                                                    // strip 'r' or 's' (range or set indicator) if present
-                    str = str.substr(1, str.size() - 2);                                                                    // strip enclosing brackets (must be present)
+                    str = str.substr(1, str.length() - 2);                                                                  // strip enclosing brackets (must be present)
 
-                    if (str.length() == 0 || str[str.length() - 1] == ',') error = true;                                    // no values, or trailing comma is an error
+                    if (str.length() == 0 || str[str.length() - 1] == ',') {
+                        errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // no values, or trailing comma is an error
+                    } 
                     else {
 
                         parms.clear();                                                                                      // start empty
 
                         size_t start = 0;                                                                                   // start position
                         size_t pos   = 0;                                                                                   // current position
-                        while (!error && start < str.length() && pos != std::string::npos) {                                // comma found before the end of the string?
+                        while (errStr.empty() && start < str.length() && pos != std::string::npos) {                        // comma found before the end of the string?
 
                             std::string value = "";                                                                         // value
 
@@ -2498,14 +2724,15 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
                                 start = pos + 1;                                                                            // next start
                             }
-                            else error = true;                                                                              // empty value - stop
+                            else {                                                                                          // empty value - stop
+                                errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
+                            }
                         }
 
-                        if (!error) {                                                                                       // still ok?
+                        if (errStr.empty()) {                                                                               // still ok?
                                                                                                                             // yes
                             if (type == COMPLEX_TYPE::RANGE && parms.size() != 3) {                                         // ranges require exactly 3 parameters
-                                error  = true;                                                                              // error
-                                errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_NUM_PARMS); 
+                                errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_NUM_PARMS);                                          // error
                             }
                             else {
                                 // if range, then we have 3 parameters (checked above)
@@ -2514,74 +2741,76 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                 RangeOrSetDescriptorT details = {type, TYPENAME::NONE, parms, {}, 0};                       // dummy values for datatype and numerical parms
                                 p_OptionsDescriptor.complexOptionValues.push_back(std::make_tuple(optionName, details));    // store the range/set
 
-                                strncpy(p_ArgStrings[iArg], parms[0].c_str(), parms[0].length());                           // replace arg value (temporarily)
-                                p_ArgStrings[iArg][parms[0].length()] = '\0';
+                                strncpy(argStrings[iArg], parms[0].c_str(), parms[0].length());                             // replace arg value (temporarily)
+                                argStrings[iArg][parms[0].length()] = '\0';
                             }
                         }
                     }
                 }          
             }
-            if (error) break;                                                                                               // stop parsing if error encountered
+            if (!errStr.empty()) break;                                                                                     // stop parsing if error encountered
         }
 
-        // boost parse_command_line() expects the first arg to be the program name
-        // (it thinks it is getting the values that were passed to main() from the 
-        // OS/shell), so for options from a grid file we insert a dummy argument as 
-        // arg[0] and set the argument count appropriately.
-        //
-        // if valid ranges or sets were specified by the user they've been temporariliy
-        // replaced for the boost parse, but if they were not valid they've been left
-        // in the argument strings that will be passed to boost - so boost will fail
-        // and complain about the offending parameter (which is what we want)
-
-        po::parsed_options const parsedOptions = po::parse_command_line(p_ArgCount, p_ArgStrings, p_OptionsDescriptor.optionDescriptions, cls::unix_style|cls::case_insensitive); // parse user-supplied options
-        po::store(parsedOptions, p_OptionsDescriptor.optionValues.m_VM);                                                    // store parsed options into variable map
-        po::notify(p_OptionsDescriptor.optionValues.m_VM);                                                                  // populate the variables with option values
-
-        // this is our opportunity to distinguish beteen "-h" and "--help" (if specified)
-        for (auto& entry : parsedOptions.options) {
-            po::option_description const& opt = p_OptionsDescriptor.optionDescriptions.find(entry.string_key, false, false, false);
-            std::string originalTok = entry.original_tokens[0];
-            std::string thisTok = utils::ToLower(utils::trim(originalTok));
-
-            if (!thisTok.empty()) {
-                std::string shortOpt = utils::ToLower(opt.canonical_display_name(cls::allow_dash_for_short));
-                std::string longOpt  = utils::ToLower(opt.canonical_display_name(cls::allow_long));
-
-                if ((shortOpt == "-h") || (longOpt == "--help")) {
-                    p_OptionsDescriptor.optionValues.m_ShortHelp = thisTok == "-h";
-                }
-
-                if (originalTok[0] == '-') originalTok.erase(0, originalTok.find_first_not_of("-"));                        // remove the "-" or "--"
-                if (thisTok[0]     == '-') thisTok.erase(0, thisTok.find_first_not_of("-"));                                // remove the "-" or "--"
-                if (longOpt[0]     == '-') longOpt.erase(0, longOpt.find_first_not_of("-"));                                // remove the "-" or "--"
-                if (shortOpt[0]    == '-') shortOpt.erase(0, shortOpt.find_first_not_of("-"));                              // remove the "-" or "--"
-
-                p_OptionsDescriptor.optionsSpecified.push_back(std::make_tuple(originalTok, thisTok, longOpt, shortOpt));        
-            }
-        }
-
-
-        // If we've made it this far then boost parsed the commandline arguments ok.
-        //
-        // If there were any ranges or sets specified by the user we can now work out the 
-        // data types of the options for which they (the ranges/sets) were specified and 
-        // sanity check them.
-        //
-        // First iterate through the specified ranges and sets to sanity check - and
-        // manually set the value for the option to the first value in the range or set.
-        // Need to check:
-        //     - ranges have not been specified for non-numeric options
-        //     - range values are all numeric
-        //     - values for ranges and sets match the data type of the option
-        //       (i.e. INTs for integer options, FLOATs for fp options, STRINGs for string options)
-        //
-        // It would be preferable to range check values against valid values for specific
-        // options here but, for now at least, too problematic - we'll just let the
-        // evolution fail if an option value is bad (we don't want to read through every
-        // record of a grid file and check...)
+        // if we've found errors, don't bother parsing
 
         if (errStr.empty()) {                                                                                               // no need if we've already flagged an error
+
+            // boost parse_command_line() expects the first arg to be the program name
+            // (it thinks it is getting the values that were passed to main() from the 
+            // OS/shell), so for options from a grid file we insert a dummy argument as 
+            // arg[0] and set the argument count appropriately.
+            //
+            // if valid ranges or sets were specified by the user they've been temporariliy
+            // replaced for the boost parse, but if they were not valid they've been left
+            // in the argument strings that will be passed to boost - so boost will fail
+            // and complain about the offending parameter (which is what we want)
+
+            po::parsed_options const parsedOptions = po::parse_command_line(argCount, argStrings, p_OptionsDescriptor.optionDescriptions, cls::unix_style|cls::case_insensitive); // parse user-supplied options
+            po::store(parsedOptions, p_OptionsDescriptor.optionValues.m_VM);                                              // store parsed options into variable map
+            po::notify(p_OptionsDescriptor.optionValues.m_VM);                                                            // populate the variables with option values
+
+            // this is our opportunity to distinguish beteen "-h" and "--help" (if specified)
+            for (auto& entry : parsedOptions.options) {
+                po::option_description const& opt = p_OptionsDescriptor.optionDescriptions.find(entry.string_key, false, false, false);
+                std::string originalTok = entry.original_tokens[0];
+                std::string thisTok = utils::ToLower(utils::trim(originalTok));
+
+                if (!thisTok.empty()) {
+                    std::string shortOpt = utils::ToLower(opt.canonical_display_name(cls::allow_dash_for_short));
+                    std::string longOpt  = utils::ToLower(opt.canonical_display_name(cls::allow_long));
+
+                    if ((shortOpt == "-h") || (longOpt == "--help")) {
+                        p_OptionsDescriptor.optionValues.m_ShortHelp = thisTok == "-h";
+                    }
+
+                    if (originalTok[0] == '-') originalTok.erase(0, originalTok.find_first_not_of("-"));                    // remove the "-" or "--"
+                    if (thisTok[0]     == '-') thisTok.erase(0, thisTok.find_first_not_of("-"));                            // remove the "-" or "--"
+                    if (longOpt[0]     == '-') longOpt.erase(0, longOpt.find_first_not_of("-"));                            // remove the "-" or "--"
+                    if (shortOpt[0]    == '-') shortOpt.erase(0, shortOpt.find_first_not_of("-"));                          // remove the "-" or "--"
+
+                    p_OptionsDescriptor.optionsSpecified.push_back(std::make_tuple(originalTok, thisTok, longOpt, shortOpt));        
+                }
+            }
+
+            // If we've made it this far then boost parsed the command-line arguments ok.
+            //
+            // If there were any ranges or sets specified by the user we can now work out the 
+            // data types of the options for which they (the ranges/sets) were specified and 
+            // sanity check them.
+            //
+            // First iterate through the specified ranges and sets to sanity check - and
+            // manually set the value for the option to the first value in the range or set.
+            // Need to check:
+            //     - ranges have not been specified for non-numeric options
+            //     - range values are all numeric
+            //     - values for ranges and sets match the data type of the option
+            //       (i.e. INTs for integer options, FLOATs for fp options, STRINGs for string options)
+            //
+            // It would be preferable to range check values against valid values for specific
+            // options here but, for now at least, too problematic - we'll just let the
+            // evolution fail if an option value is bad (we don't want to read through every
+            // record of a grid file and check...)
+
 
             // Now's a good time to pull out SSE-only/BSE-only options that we want to ignore
             // We really only need to remove the complex options - the COMPAS code naturally
@@ -2592,12 +2821,15 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
             //
             // First, loop through the complex options and identify the indices of the options
             // we want to remove.
-            std::vector<int> removeOpts = {};                                                                               // vector of option indices to be removed
+
+            bool bseMode = utils::ToLower(m_CmdLine.optionValues.m_EvolutionMode.typeString) == "bse";                      // mode
+
+            std::vector<size_t> removeOpts = {};                                                                            // vector of option indices to be removed
             for (size_t iOpt = 0; iOpt < p_OptionsDescriptor.complexOptionValues.size(); iOpt++) {                          // for each range or set specified
         
-                std::string opt = get<0>(p_OptionsDescriptor.complexOptionValues[iOpt]);                                    // option name
+                std::string opt = std::get<0>(p_OptionsDescriptor.complexOptionValues[iOpt]);                               // option name
 
-                if (utils::ToLower(m_CmdLine.optionValues.m_EvolutionMode.typeString) == "bse") {                           // BSE?
+                if (bseMode) {                                                                                              // BSE?
                     if (std::find(m_SSEOnly.begin(), m_SSEOnly.end(), opt) != m_SSEOnly.end()) removeOpts.push_back(iOpt);  // remove SSE only option
                 }
                 else {                                                                                                      // SSE
@@ -2612,9 +2844,9 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
             // in reverse order to delete elements (otherwise the index numbers would change from 
             // under me as I was deleting them)
 
-            int removeCount(removeOpts.size());
+            size_t removeCount(removeOpts.size());
             if (removeCount > 0) {                                                                                          // anything to remove?
-                for (int iOpt = removeCount - 1; iOpt >= 0; iOpt--) {                                                       // loop through all complex options identified to be removed
+                for (size_t iOpt = removeCount - 1; iOpt >= 0; iOpt--) {                                                    // loop through all complex options identified to be removed
                     p_OptionsDescriptor.complexOptionValues.erase(p_OptionsDescriptor.complexOptionValues.begin() + removeOpts[iOpt]);                                                    // erase it
                 }
             }
@@ -2627,13 +2859,11 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
             size_t count = p_OptionsDescriptor.complexOptionValues.size();                                                  // count of complex values (ranges or sets)
             for (size_t idx = 0; idx < count; idx++) {                                                                      // for each range or set specified
 
-                error = false;                                                                                              // for now...
-
-                optionName     = get<0>(p_OptionsDescriptor.complexOptionValues[idx]);                                          // the option name
+                optionName     = std::get<0>(p_OptionsDescriptor.complexOptionValues[idx]);                                 // the option name
                 longOptionName = optionName;
-                details        = get<1>(p_OptionsDescriptor.complexOptionValues[idx]);                                          // range/set details for this optionName
-                type           = details.type;                                                                                  // range or set
-                parms          = details.parameters;                                                                            // range/set parameter values (as strings)
+                details        = std::get<1>(p_OptionsDescriptor.complexOptionValues[idx]);                                 // range/set details for this optionName
+                type           = details.type;                                                                              // range or set
+                parms          = details.parameters;                                                                        // range/set parameter values (as strings)
 
                 // we want to use the long name of the option for this next bit
                 // look for the option in the options specified - if it's not 
@@ -2645,7 +2875,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                     }
                 );
                 if (thisIt != p_OptionsDescriptor.optionsSpecified.end()) {
-                    longOptionName = get<2>(*thisIt);
+                    longOptionName = std::get<2>(*thisIt);
                     p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details);
                 }
 
@@ -2659,183 +2889,218 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
                     if (type == COMPLEX_TYPE::RANGE) {                                                                      // RANGE?
                         if (!IsSupportedNumericDataType(dataType)) {                                                        // yes - numeric? 
-                            error  = true;                                                                                  // no - that's not ok
-                            errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_NOT_SUPPORTED) + std::string(" '") + optionName + std::string("'");
+                            errStr = ERR_MSG(ERROR::ARGUMENT_RANGE_NOT_SUPPORTED) + std::string(" for option '") + optionName + std::string("'"); // no - that's not ok
                         }
                         else {                                                                                              // yes - numeric
                                                                                                                             // yes - determine numerical range parameters
                             switch (dataType) {                                                                             // which data type?
 
                                 case TYPENAME::INT: {                                                                       // INT
-                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_INT) + std::string(" '") + optionName + std::string("'");
-                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName + std::string("'");
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_INT) + std::string(" for option '") + optionName + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" for option '") + optionName + std::string("'");
                                     try {
                                         RangeParameterT tmp = {0.0L};                                                       // dummy value
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
 
                                         size_t lastChar;
                                         details.rangeParms[0].iVal   = std::stoi(details.parameters[0], &lastChar);         // integer start
-                                        COMPLAIN_IF(lastChar != details.parameters[0].size(), complaint1);                  // not a valid int
+                                        COMPLAIN_IF(lastChar != details.parameters[0].length(), complaint1);                // not a valid int
                                         details.rangeParms[2].iVal   = std::stoi(details.parameters[2], &lastChar);         // integer inc
-                                        COMPLAIN_IF(lastChar != details.parameters[2].size(), complaint1);                  // not a valid int
+                                        COMPLAIN_IF(lastChar != details.parameters[2].length(), complaint1);                // not a valid int
 
                                         try {
                                             size_t lastChar;
                                             details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
-                                            COMPLAIN_IF(lastChar != details.parameters[1].size(), complaint2);              // not a valid unsigned long int
+                                            COMPLAIN_IF(lastChar != details.parameters[1].length(), complaint2);            // not a valid unsigned long int
 
                                             p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details); // reset values
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
+                                            errStr = complaint2;
+                                        }
+                                        catch (const std::invalid_argument& e) {                                            // not a valid unsigned long int
                                             errStr = complaint2;
                                         }
                                     }
                                     catch (const std::out_of_range& e) {                                                    // not a valid int
                                         errStr = complaint1;
                                     }
+                                    catch (const std::invalid_argument& e) {                                                // not a valid int
+                                        errStr = complaint1;
+                                    }
                                 } break;
 
                                 case TYPENAME::LONGINT: {                                                                   // LONG INT
-                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_LINT) + std::string(" '") + optionName + std::string("'");
-                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName + std::string("'");
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_LINT) + std::string(" for option '") + optionName + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" for option '") + optionName + std::string("'");
                                     try {
                                         RangeParameterT tmp = {0.0};                                                        // dummy value
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
 
                                         size_t lastChar;
                                         details.rangeParms[0].lVal = std::stol(details.parameters[0], &lastChar);           // unsigned long int start
-                                        COMPLAIN_IF(lastChar != details.parameters[0].size(), complaint1);                  // not a valid long int
+                                        COMPLAIN_IF(lastChar != details.parameters[0].length(), complaint1);                // not a valid long int
                                         details.rangeParms[2].lVal = std::stol(details.parameters[2], &lastChar);           // unsigned long int inc
-                                        COMPLAIN_IF(lastChar != details.parameters[2].size(), complaint1);                  // not a valid long int
+                                        COMPLAIN_IF(lastChar != details.parameters[2].length(), complaint1);                // not a valid long int
 
                                         try {
                                             size_t lastChar;
                                             details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
-                                            COMPLAIN_IF(lastChar != details.parameters[1].size(), complaint2);              // not a valid unsigned long int
+                                            COMPLAIN_IF(lastChar != details.parameters[1].length(), complaint2);            // not a valid unsigned long int
 
                                             p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details); // reset values
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
+                                            errStr = complaint2;
+                                        }
+                                        catch (const std::invalid_argument& e) {                                            // not a valid unsigned long int
                                             errStr = complaint2;
                                         }
                                     }
                                     catch (const std::out_of_range& e) {                                                    // not a valid long int
                                         errStr = complaint1;
                                     }
+                                    catch (const std::invalid_argument& e) {                                            // not a valid long int
+                                        errStr = complaint1;
+                                    }
                                 } break;
 
                                 case TYPENAME::ULONGINT: {                                                                  // UNSIGNED LONG INT
-                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_ULINT) + std::string(" '") + optionName + std::string("'");
-                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName + std::string("'");
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_ULINT) + std::string(" for option '") + optionName + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" for option '") + optionName + std::string("'");
                                     try {
                                         RangeParameterT tmp = {0.0};                                                        // dummy value
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
 
                                         size_t lastChar;
                                         details.rangeParms[0].ulVal = std::stoul(details.parameters[0], &lastChar);         // unsigned long int start
-                                        COMPLAIN_IF(lastChar != details.parameters[0].size(), complaint1);                  // not a valid unsigned long int
+                                        COMPLAIN_IF(lastChar != details.parameters[0].length(), complaint1);                // not a valid unsigned long int
                                         details.rangeParms[2].ulVal = std::stoul(details.parameters[2], &lastChar);         // unsigned long int inc
-                                        COMPLAIN_IF(lastChar != details.parameters[2].size(), complaint1);                  // not a valid unsigned long int
+                                        COMPLAIN_IF(lastChar != details.parameters[2].length(), complaint1);                // not a valid unsigned long int
 
                                         try {
                                             size_t lastChar;
                                             details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
-                                            COMPLAIN_IF(lastChar != details.parameters[2].size(), complaint2);              // not a valid unsigned long int
+                                            COMPLAIN_IF(lastChar != details.parameters[2].length(), complaint2);            // not a valid unsigned long int
 
                                             p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details); // reset values
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
+                                            errStr = complaint2;
+                                        }
+                                        catch (const std::invalid_argument& e) {                                            // not a valid unsigned long int
                                             errStr = complaint2;
                                         }
                                     }
                                     catch (const std::out_of_range& e) {                                                    // not a valid unsigned long int
                                         errStr = complaint1;
                                     }
+                                    catch (const std::invalid_argument& e) {                                                // not a valid unsigned long int
+                                        errStr = complaint1;
+                                    }
                                 } break;
 
                                 case TYPENAME::FLOAT: {                                                                     // FLOAT
-                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP) + std::string(" '") + optionName + std::string("'");
-                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName + std::string("'");
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP) + std::string(" for option '") + optionName + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" for option '") + optionName + std::string("'");
                                     try {
                                         RangeParameterT tmp = {0.0};                                                        // dummy value
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
 
                                         size_t lastChar;
                                         details.rangeParms[0].dVal = std::stof(details.parameters[0], &lastChar);           // floating point start
-                                        COMPLAIN_IF(lastChar != details.parameters[0].size(), complaint1);                  // not a valid float
+                                        COMPLAIN_IF(lastChar != details.parameters[0].length(), complaint1);                // not a valid float
                                         details.rangeParms[2].dVal = std::stof(details.parameters[2], &lastChar);           // floating point inc
-                                        COMPLAIN_IF(lastChar != details.parameters[2].size(), complaint1);                  // not a valid float
+                                        COMPLAIN_IF(lastChar != details.parameters[2].length(), complaint1);                // not a valid float
 
                                         try {
                                             size_t lastChar;
                                             details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
-                                            COMPLAIN_IF(lastChar != details.parameters[1].size(), complaint2);              // not a valid unsigned long int
+                                            COMPLAIN_IF(lastChar != details.parameters[1].length(), complaint2);            // not a valid unsigned long int
 
                                             p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details); // reset values
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
                                             errStr = complaint2;
                                         }
+                                        catch (const std::invalid_argument& e) {                                            // not a valid unsigned long int
+                                            errStr = complaint2;
+                                        }
                                     }
                                     catch (const std::out_of_range& e) {                                                    // not a valid floating point number
+                                        errStr = complaint1;
+                                    }
+                                    catch (const std::invalid_argument& e) {                                                // not a valid floating point number
                                         errStr = complaint1;
                                     }
                                 } break;
 
                                 case TYPENAME::DOUBLE: {                                                                    // DOUBLE
-                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP) + std::string(" '") + optionName + std::string("'");
-                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName + std::string("'");
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP) + std::string(" for option '") + optionName + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" for option '") + optionName + std::string("'");
                                     try {
                                         RangeParameterT tmp = {0.0};                                                        // dummy value
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
 
                                         size_t lastChar;
                                         details.rangeParms[0].dVal = std::stod(details.parameters[0], &lastChar);           // floating point start
-                                        COMPLAIN_IF(lastChar != details.parameters[0].size(), complaint1);                  // not a valid double
+                                        COMPLAIN_IF(lastChar != details.parameters[0].length(), complaint1);                // not a valid double
                                         details.rangeParms[2].dVal = std::stod(details.parameters[2], &lastChar);           // floating point inc
-                                        COMPLAIN_IF(lastChar != details.parameters[2].size(), complaint1);                  // not a valid double
+                                        COMPLAIN_IF(lastChar != details.parameters[2].length(), complaint1);                // not a valid double
 
                                         try {
                                             size_t lastChar;
                                             details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
-                                            COMPLAIN_IF(lastChar != details.parameters[1].size(), complaint2);              // not a valid unsigned long int
+                                            COMPLAIN_IF(lastChar != details.parameters[1].length(), complaint2);            // not a valid unsigned long int
 
                                             p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details); // reset values
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
+                                            errStr = complaint2;
+                                        }
+                                        catch (const std::invalid_argument& e) {                                            // not a valid unsigned long int
                                             errStr = complaint2;
                                         }
                                     }
                                     catch (const std::out_of_range& e) {                                                    // not a valid floating point number
                                         errStr = complaint1;
                                     }
+                                    catch (const std::invalid_argument& e) {                                                // not a valid floating point number
+                                        errStr = complaint1;
+                                    }
                                 } break;
 
                                 case TYPENAME::LONGDOUBLE: {                                                                // LONG DOUBLE
-                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_LFP) + std::string(" '") + optionName + std::string("'");
-                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" '") + optionName + std::string("'");
+                                    std::string complaint1 = ERR_MSG(ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_LFP) + std::string(" for option '") + optionName + std::string("'");
+                                    std::string complaint2 = ERR_MSG(ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT) + std::string(" for option '") + optionName + std::string("'");
                                     try {
                                         RangeParameterT tmp = {0.0};                                                        // dummy value
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
 
                                         size_t lastChar;
                                         details.rangeParms[0].ldVal = std::stold(details.parameters[0], &lastChar);         // long double start
-                                        COMPLAIN_IF(lastChar != details.parameters[0].size(), complaint1);                  // not a valid long double
+                                        COMPLAIN_IF(lastChar != details.parameters[0].length(), complaint1);                // not a valid long double
                                         details.rangeParms[2].ldVal = std::stold(details.parameters[2], &lastChar);         // long double inc
-                                        COMPLAIN_IF(lastChar != details.parameters[2].size(), complaint1);                  // not a valid long double
+                                        COMPLAIN_IF(lastChar != details.parameters[2].length(), complaint1);                // not a valid long double
 
                                         try {
                                             size_t lastChar;
                                             details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
-                                            COMPLAIN_IF(lastChar != details.parameters[1].size(), complaint2);              // not a valid unsigned long int
+                                            COMPLAIN_IF(lastChar != details.parameters[1].length(), complaint2);            // not a valid unsigned long int
 
                                             p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details); // reset values
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
                                             errStr = complaint2;
                                         }
+                                        catch (const std::invalid_argument& e) {                                            // not a valid unsigned long int
+                                            errStr = complaint2;
+                                        }
                                     }
-                                    catch (const std::out_of_range& e) {                                                    // not a valid long double point number
+                                    catch (const std::out_of_range& e) {                                                    // not a valid long double number
+                                        errStr = complaint1;
+                                    }
+                                    catch (const std::invalid_argument& e) {                                                // not a valid long double number
                                         errStr = complaint1;
                                     }
                                 } break;
@@ -2859,8 +3124,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                     (dataType == TYPENAME::FLOAT      && !utils::IsFLOAT(parms[ip]))       ||               // FLOAT?
                                     (dataType == TYPENAME::DOUBLE     && !utils::IsDOUBLE(parms[ip]))      ||               // DOUBLE?
                                     (dataType == TYPENAME::LONGDOUBLE && !utils::IsLONGDOUBLE(parms[ip]))) {                // LONG DOUBLE?
-                                    error  = true;                                                                          // no - that's not ok
-                                    errStr = ERR_MSG(ERROR::ARGUMENT_SET_EXPECTED_NUMERIC) + std::string(" '") + optionName + std::string("'");
+                                    errStr = ERR_MSG(ERROR::ARGUMENT_SET_EXPECTED_NUMERIC) + std::string(" for option '") + optionName + std::string("'"); // no - that's not ok
                                     break;
                                 }
                             }
@@ -2877,28 +3141,84 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                             }
 
                             int validCheck = 0;                                                                             // any valid boolean?
+                            bool errorhere = false;
                             for (size_t iChk = 0; iChk < 4; iChk++) {                                                       // for all (Boost) boolean representations
                                 validCheck += checks[iChk];                                                                 // valid booleans
                                 if (checks[iChk] != 0 && checks[iChk] != parms.size()) {                                    // all parms boolean, and consistent?
-                                    error = true;                                                                           // no - that's not ok
+                                    errorhere = true;                                                                           // no - that's not ok
                                     break;
                                 }
                             }
-                            if (error || validCheck == 0) errStr = ERR_MSG(ERROR::ARGUMENT_SET_EXPECTED_BOOL) + std::string(" '") + optionName + std::string("'");
+                            if (errorhere || validCheck == 0) errStr = ERR_MSG(ERROR::ARGUMENT_SET_EXPECTED_BOOL) + std::string(" for option '") + optionName + std::string("'");
                         }
 
-                        if (!error) {
-                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details);        // reset values
+                        if (errStr.empty()) {                                                                               // all ok?
+                            p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details);        // yes - reset values
                         }
                     }
                 }
                 else {                                                                                                      // option not found in boost variables map
-                    error  = true;                                                                                          // that can't be good...
-                    errStr = ERR_MSG(ERROR::BOOST_OPTION_INTERNAL_ERROR) + std::string(" '") + optionName + std::string("'");
+                    errStr = ERR_MSG(ERROR::BOOST_OPTION_INTERNAL_ERROR) + std::string(" for option '") + optionName + std::string("'"); // that can't be good...
                 }
 
-                if (error) break;                                                                                           // stop now
+                if (!errStr.empty()) break;                                                                                 // stop on error
             }
+
+
+            // if we've made it this far we've parsed everything, and now is the time to fix up any default values
+            // for vector options.  Any vector option values that we know were not provided will have the value
+            // NOT_PROVIDED, so they can just be replaced with whatever the default value should be.  However,
+            // we couldn't really know until now how many values we should expect for vector options like 'notes',
+            // because (in that case) the number of values expected is the number of 'notes-hdrs' specified by the
+            // user, and that we didn't really know until now (and moreover, we didn't know what the command-line
+            // values were until now, so couldn't default grid-line values to command-line values until now).
+            //
+            // but - if we've found errors, don't bother...
+
+            if (errStr.empty()) {                                                                                           // no need if we've already flagged an error
+
+                for (auto& elem: m_ShorthandAllowed) {                                                                      // for each option for which shorthand is allowed
+                    std::string optionName     = std::get<0>(elem);                                                         // option name
+                    bool        defaultAllowed = std::get<1>(elem);                                                         // omissions allowed?
+                    std::string defaultString  = std::get<2>(elem);                                                         // the COMPAS default for omissions
+
+                    if (defaultAllowed) {                                                                                   // omission allowed for this option?
+                                                                                                                            // yes
+                        switch (_(optionName.c_str())) {                                                                    // which option?
+
+                            // '--notes' is the only option affected at the moment
+
+                            case _("notes"):                                                                                // notes
+                                for (size_t idx = 0; idx < NotesHdrs().size(); idx++) {                                     // for each specified notes-hdr
+                                    if (idx < p_OptionsDescriptor.optionValues.m_Notes.size()) {                            // have parsed value?
+                                        if (p_OptionsDescriptor.optionValues.m_Notes[idx] == NOT_PROVIDED) {                // yes - notes value provided?
+                                                                                                                            // no - get default
+                                            if (p_OptionsDescriptor.optionsOrigin == OPTIONS_ORIGIN::CMDLINE) {             // from command line?
+                                                p_OptionsDescriptor.optionValues.m_Notes[idx] = defaultString;              // yes - use COMPAS default
+                                            }
+                                            else {                                                                          // no - grid file line
+                                                p_OptionsDescriptor.optionValues.m_Notes[idx] = m_CmdLine.optionValues.m_Notes[idx]; // use command-line value
+                                            }
+                                        }
+                                    }
+                                    else {                                                                                  // no parsed value
+                                        if (p_OptionsDescriptor.optionsOrigin == OPTIONS_ORIGIN::CMDLINE) {                 // from command line?
+                                            p_OptionsDescriptor.optionValues.m_Notes.push_back(defaultString);              // yes - use COMPAS default
+                                        }
+                                        else {                                                                              // no - grid file line
+                                            p_OptionsDescriptor.optionValues.m_Notes.push_back(m_CmdLine.optionValues.m_Notes[idx]); // use command-line value
+                                        }
+                                    }
+                                }
+                                break;
+
+                            default:                                                                                        // default - shouldn't happen
+                                break;                                                                                      // do nothing - the parse will fail
+                        }
+                    }
+                }
+            }
+
         }
     }
     catch (po::error& e) {                                                                                                  // program options exception
@@ -2948,6 +3268,7 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
     for (size_t idx = 0; idx < m_BSEOnly.size();          idx++) m_BSEOnly[idx]          = utils::ToLower(utils::trim(m_BSEOnly[idx]));
     for (size_t idx = 0; idx < m_RangeExcluded.size();    idx++) m_RangeExcluded[idx]    = utils::ToLower(utils::trim(m_RangeExcluded[idx]));
     for (size_t idx = 0; idx < m_SetExcluded.size();      idx++) m_SetExcluded[idx]      = utils::ToLower(utils::trim(m_SetExcluded[idx]));
+    for (size_t idx = 0; idx < m_ShorthandAllowed.size(); idx--) m_ShorthandAllowed[idx] = std::make_tuple(utils::ToLower(utils::trim(std::get<0>(m_ShorthandAllowed[idx]))), std::get<1>(m_ShorthandAllowed[idx]), std::get<2>(m_ShorthandAllowed[idx]));
 
     try {
 
@@ -2964,7 +3285,7 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
             m_CmdLine.optionDescriptions.add(programLevelOptions);                                                  // commandline options - stays static throughout the life of the program
     
             // we parse the option values before handing them over to boost
-            // boost knows nothing about ranges and sets, so we have to handlde
+            // boost knows nothing about shorthand, ranges and sets, so we have to handlde
             // them ourselves first
             m_CmdLine.complexOptionValues = {};                                                                     // no ranges or sets - unless we find them in the parse
             std::string errStr = ParseOptionValues(p_ArgCount, p_ArgStrings, m_CmdLine);                            // parse & populate the option values - specifically for ranges and sets
@@ -2992,9 +3313,9 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
                         m_GridLine.optionDescriptions.add(objectLevelOptions);                                      // grid line options - stays static throughout the life of the program
                     }
 
-                    // We now have the options the user entered at the commandline, including any ranges and/or 
-                    // sets, so this is where we stop the initialisation - from here we just play out the options 
-                    // that are specified by any ranges and sets via the AdvanceCmdLineOptionValues() function.
+                    // We now have the options the user entered at the commandline, including any expanded shorthand,
+                    // ranges and/or sets, so this is where we stop the initialisation - from here we just play out 
+                    // the options that are specified by any ranges and sets via the AdvanceCmdLineOptionValues() function.
                     //
                     // If the user has specified any ranges or sets we set the options to the first value in each
                     // range or set (already done by the time we get here).  Calls to AdvanceCmdLineOptionValues()
@@ -3082,8 +3403,8 @@ int Options::AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor) {
 
         stop = true;                                                    // assume we have what we need
 
-        std::string optionName        = get<0>(p_OptionsDescriptor.complexOptionValues[idx]);  
-        RangeOrSetDescriptorT details = get<1>(p_OptionsDescriptor.complexOptionValues[idx]);
+        std::string optionName        = std::get<0>(p_OptionsDescriptor.complexOptionValues[idx]);  
+        RangeOrSetDescriptorT details = std::get<1>(p_OptionsDescriptor.complexOptionValues[idx]);
         details.currPos++;                                              // advance iterator
 
         if (details.type == COMPLEX_TYPE::SET) {                        // SET
@@ -3287,6 +3608,7 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
         }
     
         std::vector<char const *> args {"placeHolder"};                                                             // place-holder - boost expects command name as argv[0]
+
         for (auto& arg : parsedStrings)                                                                             // iterate over the parsed strings
             args.push_back(arg.c_str());                                                                            // and grab the c_str  
 
@@ -3321,33 +3643,40 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
 
                     if (std::find(m_GridLineExcluded.begin(), m_GridLineExcluded.end(), optionName) != m_GridLineExcluded.end()) {  // on excluded list?
                         
-                        removeArgs.push_back(iArg - 1);                                                             // yes - we need to remove it and any associated value
+                        removeArgs.push_back(iArg - 1);                                                             // yes - we need to remove it and any associated values
 
-                        std::cerr << "WARNING: " << ERR_MSG(ERROR::OPTION_NOT_SUPPORTED_IN_GRID_FILE) << ": '" << optionName << "'\n";  // show warning
+                        std::cerr << "WARNING: " << ERR_MSG(ERROR::OPTION_NOT_SUPPORTED_IN_GRID_FILE) << ": '" << optionName << "': ignored\n";  // show warning
 
-                        // we need to determine if the next argument string is a value for the
-                        // option name we have, or whether it is the next option name - not all
-                        // options need to specify a value (e.g. boolean switches)
+                        // remove all option values for option to be removed
 
-                        std::string optionValue = "";
-                        if (iArg < args.size()) optionValue = std::string(args[iArg]);                              // get the (potential) option value string
+                        bool done = false;
+                        while (!done) {
 
-                        // check whether the string really is an option value
-                        // as noted above, we assume any string starting with "--" is an option name,
-                        // and any string starting with "-*", where '*' is an alphabetic character, 
-                        // is an option name
-                        bool haveOptionValue = false;                                                               // is the string really an option value - default false
-                        if (!optionValue.empty()) {                                                                 // empty string?
-                            haveOptionValue = true;                                                                 // no - we'll assume an option value, unless...
-                            if (optionValue.length() > 1 && optionValue[0] == '-') {                                // check for '--' or '-*' (* is alpha character)
-                                if (optionValue[1] == '-') haveOptionValue = false;                                 // '--' - option name, not value
-                                else if (isalpha(optionValue[1])) haveOptionValue = false;                          // '-*', where * is alpha character - option name, not value
+                            // we need to determine if the next argument string is a value for the
+                            // option name we have, or whether it is the next option name - not all
+                            // options need to specify a value (e.g. boolean switches)
+
+                            std::string optionValue = "";
+                            if (iArg < args.size()) optionValue = std::string(args[iArg]);                          // get the (potential) option value string
+
+                            // check whether the string really is an option value
+                            // as noted above, we assume any string starting with "--" is an option name,
+                            // and any string starting with "-*", where '*' is an alphabetic character, 
+                            // is an option name
+                            bool haveOptionValue = false;                                                           // is the string really an option value - default false
+                            if (!optionValue.empty()) {                                                             // empty string?
+                                haveOptionValue = true;                                                             // no - we'll assume an option value, unless...
+                                if (optionValue.length() > 1 && optionValue[0] == '-') {                            // check for '--' or '-*' (* is alpha character)
+                                    if (optionValue[1] == '-') haveOptionValue = false;                             // '--' - option name, not value
+                                    else if (isalpha(optionValue[1])) haveOptionValue = false;                      // '-*', where * is alpha character - option name, not value
+                                }
                             }
-                        }
 
-                        if (haveOptionValue) {                                                                      // do we think we have an option value?
-                            removeArgs.push_back(iArg);                                                             // yes - we need to remove it
-                            iArg++;                                                                                 // next argument string
+                            if (haveOptionValue) {                                                                  // do we think we have an option value?
+                                removeArgs.push_back(iArg);                                                         // yes - we need to remove it
+                                iArg++;                                                                             // next argument string
+                            }
+                            else done = true;
                         }
                     }
                 }
@@ -3360,16 +3689,16 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
             // in reverse order to delete elements (otherwise the index numbers
             // would change from under me as I was deleting them)
 
-            int removeCount(removeArgs.size());
+            size_t removeCount(removeArgs.size());
             if (removeCount > 0) {                                                                                  // anything to remove?
-                for (int iArg = removeCount - 1; iArg >= 0; iArg--) {                                               // loop through all args identified to be removed
-                    args.erase(args.begin() + removeArgs[iArg]);                                                    // erase it
+                for (size_t iArg = removeCount; iArg > 0; iArg--) {                                                 // loop through all args identified to be removed
+                    args.erase(args.begin() + removeArgs[iArg - 1]);                                                // erase it
                 }
             }
         }
 
         // parse the option values before handing them over to boost
-        // boost knows nothing about ranges and sets, so we have to handle
+        // boost knows nothing about shorthand, ranges and sets, so we have to handle
         // them ourselves first
         m_GridLine.complexOptionValues = {};                                                                        // no ranges or sets - unless we find them in the parse
                                                     /*****  << do *not* try this at home >> *****/
@@ -3777,6 +4106,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH               : value = static_cast<int>(NeutrinoMassLossAssumptionBH());                     break;
         case PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH                    : value = NeutrinoMassLossValueBH();                                            break;
+
+        case PROGRAM_OPTION::NOTES                                          : value = Notes();                                                              break;
 
         case PROGRAM_OPTION::NS_EOS                                         : value = static_cast<int>(NeutronStarEquationOfState());                       break;
 

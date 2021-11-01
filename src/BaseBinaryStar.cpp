@@ -413,7 +413,6 @@ void BaseBinaryStar::SetRemainingValues() {
 
 	// RLOF details - properties 1
     m_RLOFDetails.props1.id                      = -1l;
-    m_RLOFDetails.props1.randomSeed              = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_RLOFDetails.props1.stellarType1            = STELLAR_TYPE::NONE;
     m_RLOFDetails.props1.stellarType2            = STELLAR_TYPE::NONE;
@@ -437,7 +436,6 @@ void BaseBinaryStar::SetRemainingValues() {
 
 	// RLOF details - properties 2
     m_RLOFDetails.props2.id = -1l;
-    m_RLOFDetails.props2.randomSeed              = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_RLOFDetails.props2.stellarType1            = STELLAR_TYPE::NONE;
     m_RLOFDetails.props2.stellarType2            = STELLAR_TYPE::NONE;
@@ -466,7 +464,6 @@ void BaseBinaryStar::SetRemainingValues() {
 
     // BeBinary details - properties 1
     m_BeBinaryDetails.props1.id                  = -1l;
-    m_BeBinaryDetails.props1.randomSeed          = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_BeBinaryDetails.props1.dt                  = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_BeBinaryDetails.props1.totalTime           = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -483,7 +480,6 @@ void BaseBinaryStar::SetRemainingValues() {
 
     // BeBinary details - properties 2
     m_BeBinaryDetails.props2.id                  = -1l;
-    m_BeBinaryDetails.props2.randomSeed          = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_BeBinaryDetails.props2.dt                  = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_BeBinaryDetails.props2.totalTime           = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -563,7 +559,6 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::BE_BINARY_CURRENT_ECCENTRICITY:                       value = BeBinaryDetails().currentProps->eccentricity;                       break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_ID:                                 value = BeBinaryDetails().currentProps->id;                                 break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_NS_MASS:                            value = BeBinaryDetails().currentProps->massNS;                             break;
-        case BINARY_PROPERTY::BE_BINARY_CURRENT_RANDOM_SEED:                        value = BeBinaryDetails().currentProps->randomSeed;                         break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_SEMI_MAJOR_AXIS:                    value = BeBinaryDetails().currentProps->semiMajorAxis;                      break;
         case BINARY_PROPERTY::BE_BINARY_CURRENT_TOTAL_TIME:                         value = BeBinaryDetails().currentProps->totalTime;                          break;
         case BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE:                            value = CircularizationTimescale();                                         break;
@@ -582,10 +577,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::ERROR:                                                value = Error();                                                            break;
         case BINARY_PROPERTY::ID:                                                   value = ObjectId();                                                         break;
         case BINARY_PROPERTY::IMMEDIATE_RLOF_POST_COMMON_ENVELOPE:                  value = ImmediateRLOFPostCEE();                                             break;
-        case BINARY_PROPERTY::MASS_1_FINAL:                                         value = Mass1Final();                                                       break;
         case BINARY_PROPERTY::MASS_1_POST_COMMON_ENVELOPE:                          value = Mass1PostCEE();                                                     break;
         case BINARY_PROPERTY::MASS_1_PRE_COMMON_ENVELOPE:                           value = Mass1PreCEE();                                                      break;
-        case BINARY_PROPERTY::MASS_2_FINAL:                                         value = Mass2Final();                                                       break;
         case BINARY_PROPERTY::MASS_2_POST_COMMON_ENVELOPE:                          value = Mass2PostCEE();                                                     break;
         case BINARY_PROPERTY::MASS_2_PRE_COMMON_ENVELOPE:                           value = Mass2PreCEE();                                                      break;
         case BINARY_PROPERTY::MASS_ENV_1:                                           value = MassEnv1();                                                         break;
@@ -606,7 +599,6 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_POST_MT_ECCENTRICITY:                            value = RLOFDetails().propsPostMT->eccentricity;                            break;
         case BINARY_PROPERTY::RLOF_POST_MT_EVENT_COUNTER:                           value = RLOFDetails().propsPostMT->eventCounter;                            break;
         case BINARY_PROPERTY::RLOF_POST_MT_ID:                                      value = RLOFDetails().propsPostMT->id;                                      break;
-        case BINARY_PROPERTY::RLOF_POST_MT_RANDOM_SEED:                             value = RLOFDetails().propsPostMT->randomSeed;                              break;
         case BINARY_PROPERTY::RLOF_POST_MT_SEMI_MAJOR_AXIS:                         value = RLOFDetails().propsPostMT->semiMajorAxis;                           break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR1_MASS:                              value = RLOFDetails().propsPostMT->mass1;                                   break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS:                              value = RLOFDetails().propsPostMT->mass2;                                   break;
@@ -795,13 +787,12 @@ bool BaseBinaryStar::HasTwoOf(STELLAR_TYPE_LIST p_List) const {
  * Write RLOF parameters to RLOF logfile if RLOF printing is enabled and at least one of the stars is in RLOF
  *
  *
- * bool PrintRLOFParameters(const string p_Rec)
+ * bool PrintRLOFParameters()
  * 
- * @param   [IN]    p_Rec                       pre-formatted record to be written to file (default is empty string)
  * @return                                      Boolean status (true = success, false = failure)
  * 
  */
-bool BaseBinaryStar::PrintRLOFParameters(const string p_Rec) {
+bool BaseBinaryStar::PrintRLOFParameters() {
 
     bool ok = true;
 
@@ -811,7 +802,7 @@ bool BaseBinaryStar::PrintRLOFParameters(const string p_Rec) {
 
     if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {               // print if either star is in RLOF
         m_RLOFDetails.propsPostMT->eventCounter += 1;           // every time we print a MT event happened, increment counter
-        ok = LOGGING->LogRLOFParameters(this, p_Rec);           // yes - write to log file
+        ok = LOGGING->LogRLOFParameters(this);                  // yes - write to log file
     }
 
     return ok;
@@ -821,19 +812,18 @@ bool BaseBinaryStar::PrintRLOFParameters(const string p_Rec) {
  * Write Be binary parameters to logfile if required
  *
  *
- * bool PrintBeBinary(const string p_Rec)
+ * bool PrintBeBinary()
  * 
- * @param   [IN]    p_Rec                       pre-formatted record to be written to file (default is empty string)
  * @return                                      Boolean status (true = success, false = failure)
  * 
  */
-bool BaseBinaryStar::PrintBeBinary(const string p_Rec) {
+bool BaseBinaryStar::PrintBeBinary() {
     
     if (!OPTIONS->BeBinaries()) return true;                    // do not print if printing option off
     
     StashBeBinaryProperties();                                  // stash Be binary properties
     
-    return LOGGING->LogBeBinary(this, p_Rec);                   // write to log file
+    return LOGGING->LogBeBinary(this);                          // write to log file
 }
 
 
@@ -862,7 +852,6 @@ void BaseBinaryStar::StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which) {
 
     // update properites for appropriate timestep
     rlofPropertiesToReset->id            = m_ObjectId;
-    rlofPropertiesToReset->randomSeed    = m_RandomSeed;
     rlofPropertiesToReset->mass1         = m_Star1->Mass();
     rlofPropertiesToReset->mass2         = m_Star2->Mass();
     rlofPropertiesToReset->radius1       = m_Star1->Radius();
@@ -900,7 +889,6 @@ void BaseBinaryStar::StashBeBinaryProperties() {
 
     // now save (new) current
     m_BeBinaryDetails.currentProps->id            = m_ObjectId;                                                      // object id
-    m_BeBinaryDetails.currentProps->randomSeed    = m_RandomSeed;                                                    // random seed
     m_BeBinaryDetails.currentProps->dt            = m_Dt;                                                            // timestep
     m_BeBinaryDetails.currentProps->totalTime     = m_BeBinaryDetails.previousProps->dt + m_Dt;                      // total time - accumulate, don't just replace
     m_BeBinaryDetails.currentProps->semiMajorAxis = m_SemiMajorAxis * AU_TO_RSOL;                                    // semi-major axis - change units to Rsol
@@ -986,9 +974,12 @@ void BaseBinaryStar::SetPostCEEValues(const double p_SemiMajorAxis,
 
 
 /*
- * Calculate the time to coalescence for a binary with arbitrary eccentricity using interpolation
+ * Calculate the time to coalescence for a binary with arbitrary eccentricity
  *
- * Peters 1964 http://journals.aps.org/pr/pdf/10.1103/PhysRev.136.B1224, eq 5.14
+ * Mandel 2021 https://iopscience.iop.org/article/10.3847/2515-5172/ac2d35, eq 5
+ * 
+ * Accurate to within 3% over the full range of initial eccentricities up to 0.99999
+ * Will return time = 0.0 for eccentricities < 0.0 and >= 1.0
  *
  *
  * double CalculateTimeToCoalescence(const double p_SemiMajorAxis,
@@ -1000,47 +991,34 @@ void BaseBinaryStar::SetPostCEEValues(const double p_SemiMajorAxis,
  * @param   [IN]    p_Eccentricity              Initial eccentricity
  * @param   [IN]    p_Mass1                     Primary mass in SI units
  * @param   [IN]    p_Mass2                     Secondary mass in SI units
- * @return                                      Time to coalescence in SI units (s)
+ * @return                                      Time to coalescence in SI units (s): returns 0.0 if p_Eccentricity < 0 or p_Eccentricity >= 1
  */
 double BaseBinaryStar::CalculateTimeToCoalescence(const double p_SemiMajorAxis,
                                                   const double p_Eccentricity,
                                                   const double p_Mass1,
                                                   const double p_Mass2) const {
 
-    double beta    = (64.0 / 5.0) * G * G * G * p_Mass1 * p_Mass2 * (p_Mass1 + p_Mass2) / (C * C * C * C * C);  // defined in Equation 5.9 in Peters 1964 http://journals.aps.org/pr/pdf/10.1103/PhysRev.136.B1224
-    double _4_beta = 4.0 * beta;
+    if (p_Eccentricity < 0.0 || p_Eccentricity >= 1.0) return 0.0;                                      // save some cpu cycles...
 
-    double tC = p_SemiMajorAxis * p_SemiMajorAxis * p_SemiMajorAxis * p_SemiMajorAxis / _4_beta;                // time for a circular binary to merge
+    // pow() is slow - use multiplication where possible
 
-    // calculate t/tc using the interpolated function
+    // calculate time for a circular binary to merge - Mandel 2021, eq 2
+    double numerator = 5.0 * C * C * C * C * C * p_SemiMajorAxis * p_SemiMajorAxis * p_SemiMajorAxis * p_SemiMajorAxis;
+    double denominator = 256.0 * G * G * G * p_Mass1 * p_Mass2 * (p_Mass1 + p_Mass2);
 
-    if (utils::Compare(p_Eccentricity, 0) != 0) {
+    double tC = numerator / denominator;                                                                // time for a circular binary to merge
 
-        double e0_2  = p_Eccentricity * p_Eccentricity;
-        double c0    = p_SemiMajorAxis * (1.0 - e0_2) * PPOW(p_Eccentricity, -12.0/19.0) * PPOW(1.0 + (121.0 * e0_2 / 304.0), -870.0/2299.0);
-
-		double _4_c0 = c0 * c0 * c0 * c0;
-
-        if (utils::Compare(p_Eccentricity, 0.01) < 0) {
-            tC = _4_c0 *PPOW(p_Eccentricity, 48.0/19.0) / _4_beta;
-        }
-        else if (utils::Compare(p_Eccentricity, 0.99) > 0) {
-
-            double _1_e0_2 = 1.0 - e0_2;
-            tC *= (768.0 / 425.0) * (_1_e0_2 * _1_e0_2 * _1_e0_2 * sqrt(_1_e0_2));                              // approximation of eq. 5.14 of Peters 1964, for high eccentricities
-        }
-        else {
-
-            double sum = 0.0;
-            double de  = p_Eccentricity / 10000;
-
-            for (double e = 0.0; utils::Compare(e, p_Eccentricity) < 0; e += de) {
-                double _1_e_2 = 1.0 - (e * e);
-                sum += de * PPOW(e, 29.0 / 19.0) * PPOW((1.0 + (121.0 / 304.0) * e * e), 1181.0 / 2299.0) / ( _1_e_2 * sqrt( _1_e_2));
-            }
-
-            tC = (12.0 / 19.0) * (_4_c0 / beta) * sum;
-        }
+    if (utils::Compare(p_Eccentricity, 0.0) > 0) {                                                      // eccentricity > 0.0?
+                                                                                                        // yes - not circular
+        // calculate time for eccentric binary to merge - Mandel 2021, eq 5
+        double e0     = p_Eccentricity;
+        double e0_10  = e0 * e0 * e0 * e0 * e0 * e0 * e0 * e0 * e0 * e0;
+        double e0_20  = e0_10 * e0_10;
+        double e0_100 = e0_10 * e0_10 * e0_10 * e0_10 * e0_10 * e0_10 * e0_10 * e0_10 * e0_10 * e0_10;
+        double f      = 1.0 - (e0 * e0);
+        double f_3    = f * f * f;
+    
+        tC = f <= 0.0 ? 0.0 : tC * (1.0 + 0.27 * e0_10 + 0.33 * e0_20 + 0.2 * e0_100) * f_3 * sqrt(f);  // check f <= 0.0 just in case a rounding error hurts us
     }
 
     return tC;
@@ -1626,7 +1604,7 @@ double BaseBinaryStar::CalculateRocheLobeRadius_Static(const double p_MassPrimar
  * double CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass)
  *
  * @param   [IN]    p_DonorMass                 The mass of the donor (Msol)
- * @param   [IN]    p_JLoss                     The mass of the accretor (Msol)
+ * @param   [IN]    p_AccretorMass              The mass of the accretor (Msol)
  * @return                                      The fraction of specific angular momentum with which the non-accreted mass leaves the system
  */
 double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass) {
@@ -1825,12 +1803,11 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     else {
 
 		// Begin Mass Transfer
-        double thermalRateDonor    = m_Donor->CalculateThermalMassLossRate();
-        double thermalRateAccretor = OPTIONS->MassTransferThermallyLimitedVariation() == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE
-                                        ? (m_Accretor->Mass() - m_Accretor->CoreMass()) / m_Accretor->CalculateThermalTimescale(m_Accretor->Mass(), CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL, m_Accretor->Luminosity(), m_Accretor->Mass() - m_Accretor->CoreMass())                                                  // assume accretor radius = accretor Roche Lobe radius
-                                        : m_Accretor->CalculateThermalMassLossRate();
                 
-        std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(thermalRateDonor, thermalRateAccretor);
+        // Calculate accretion fraction
+        // Assume accretor radius = accretor Roche Lobe radius to calculate accretor acceptance rate
+        std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(),
+                                                                                            m_Accretor->CalculateThermalMassAcceptanceRate(CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL));
 
         if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {       // arbitrary angular momentum loss prescription?
             jLoss = CalculateGammaAngularMomentumLoss();                                                                        // no - re-calculate angular momentum
@@ -1925,7 +1902,7 @@ void BaseBinaryStar::InitialiseMassTransfer() {
             // equilibrate masses and circularise (check for merger is done later)
 
             if (utils::Compare(m_Star1->Mass(), m_Star2->Mass()) != 0) {                                                        // masses already equal?
-                                                                                                                                // no - makethem equal
+                                                                                                                                // no - make them equal
                 STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                             // star 1 stellar type before updating attributes
                 STELLAR_TYPE stellarType2 = m_Star2->StellarType();                                                             // star 2 stellar type before updating attributes
 
@@ -2342,7 +2319,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 (void)PrintDetailedOutput(m_Id);                                                                                            // print (log) detailed output for binary
 
-                if (OPTIONS->RLOFPrinting()) StashRLOFProperties(MASS_TRANSFER_TIMING::PRE_MT);                                            // stash properties immediately pre-Mass Transfer 
+                if (OPTIONS->RLOFPrinting()) StashRLOFProperties(MASS_TRANSFER_TIMING::PRE_MT);                                             // stash properties immediately pre-Mass Transfer 
 
                 EvaluateBinary(dt);                                                                                                         // evaluate the binary at this timestep
 
@@ -2365,7 +2342,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                     if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) (void)PrintPulsarEvolutionParameters();                                   // print (log) pulsar evolution parameters 
 
-                    (void)PrintBeBinary();                                                                                                  // print (log) BeBinary properties
+                    //(void)PrintBeBinary();                                                                                                // print (log) BeBinary properties
                         
                     if (IsDCO() && !IsUnbound()) {                                                                                          // bound double compact object?
                         if (m_DCOFormationTime == DEFAULT_INITIAL_DOUBLE_VALUE) {                                                           // DCO not yet evaluated -- to ensure that the coalescence is only resolved once
