@@ -176,6 +176,7 @@ class pythonProgramOptions:
     common_envelope_allow_radiative_envelope_surive = False
     common_envelope_allow_immediate_RLOF_post_CE_survive = False
 
+    
     mass_loss_prescription = 'VINK'
     luminous_blue_variable_prescription = 'HURLEY_ADD'
     luminous_blue_variable_multiplier = 1.5
