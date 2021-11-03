@@ -827,7 +827,10 @@
 //                                      - fixed typo in Options.cpp for option --common-envelope-allow-immediate-RLOF-post-CE-survive (was typed common-envelope-allow-immediate-RLOF-post-CE_survive)
 //                                      - fixed typo in Options.cpp for option --common-envelope-allow-radiative-envelope-survive (was typed common-envelope-allow-radiative-envelope-surive)
 //                                        (neither of these caused problems because Boost matches only as many characters as necessary to determine the option name - would have if the names were not unique up to the typos)
+// 02.25.04     IM - Nov 4, 2021     - Minor fixes
+//                                      - More surive->survive typo fixes in python files to address issue #660
+//                                      - Documentation edits to reflect new options common-envelope-allow-radiative-envelope-survive and common-envelope-allow-immediate-rlof-post-ce-survive options
 
-const std::string VERSION_STRING = "02.25.03";
+const std::string VERSION_STRING = "02.25.04";
 
 # endif // __changelog_h__
