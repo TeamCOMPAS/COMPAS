@@ -812,7 +812,22 @@
 // 02.25.01     IM - Nov 1, 2021    -  Enhancements:
 //                                      - Introduced common-envelope-allow-radiative-envelope-survive and common-envelope-allow-immediate-rlof-post-ce-survive options
 //                                      - Addresses issue # 637
+// 02.25.02     JR - Nov 1 , 2021    - Minor fixes:
+//                                      - reinstated "_n" suffix for BSE detailed filenames (inadvertently removed in v02.25.00)
+//                                      - updated pythonSubmit files:
+//                                          preProcessing/pythonSubmit.py
+//                                          examples/methods_paper_plots/detailed_evolution/pythonSubmitDemo.py
+//                                          examples/methods_paper_plots/chirpmass_distribution/pythonSubmit.py
+//                                          examples/methods_paper_plots/fig_5_HR_diagram/pythonSubmit.py
+//                                          examples/methods_paper_plots/fig_6_max_R/pythonSubmit.py
+//                                          examples/methods_paper_plots/fig_8_initial_core_final_mass_relations/pythonSubmitDefaults.py
+//                                          examples/methods_paper_plots/fig_8_initial_core_final_mass_relations/pythonSubmitFryerRapid.py
+//                                          examples/methods_paper_plots/fig_8_initial_core_final_mass_relations/pythonSubmitMandelMueller.py
+// 02.25.03     JR - Nov 1 , 2021    - Minor fixes:
+//                                      - fixed typo in Options.cpp for option --common-envelope-allow-immediate-RLOF-post-CE-survive (was typed common-envelope-allow-immediate-RLOF-post-CE_survive)
+//                                      - fixed typo in Options.cpp for option --common-envelope-allow-radiative-envelope-survive (was typed common-envelope-allow-radiative-envelope-surive)
+//                                        (neither of these caused problems because Boost matches only as many characters as necessary to determine the option name - would have if the names were not unique up to the typos)
 
-const std::string VERSION_STRING = "02.25.01";
+const std::string VERSION_STRING = "02.25.03";
 
 # endif // __changelog_h__

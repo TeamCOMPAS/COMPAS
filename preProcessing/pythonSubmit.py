@@ -1,9 +1,9 @@
 import numpy as np
 import sys
 import os
-from subprocess import call
 import re
 import ntpath
+from subprocess import call
 
 # Check if we are using python 3
 python_version = sys.version_info[0]
@@ -58,7 +58,7 @@ class pythonProgramOptions:
 
     enable_warnings = False                                     # option to enable/disable warning messages
 
-    number_of_systems = 10  #number of systems per batch
+    number_of_systems = 10                                      # number of systems per batch
 
     populationPrinting = False
 
@@ -66,7 +66,7 @@ class pythonProgramOptions:
     if os.path.isfile(randomSeedFileName):
         random_seed = int(np.loadtxt(randomSeedFileName))
     else:
-        random_seed = 0 # If you want a random seed, use: np.random.randint(2,2**63-1)
+        random_seed = 0                                         # If you want a random seed, use: np.random.randint(2,2**63-1)
 
     # environment variable COMPAS_LOGS_OUTPUT_DIR_PATH is used primarily for docker runs
     # if COMPAS_LOGS_OUTPUT_DIR_PATH is set (!= None) it is used as the value for the
@@ -98,10 +98,8 @@ class pythonProgramOptions:
     hyperparameterList = False
     shareSeeds = False
 
-
     notes_hdrs = None                                           # no annotations header strings (no annotations)
     notes      = None                                           # no annotations
-
 
     mode = 'BSE'                                                # evolving single stars (SSE) or binaries (BSE)?
 
@@ -122,7 +120,7 @@ class pythonProgramOptions:
 
     if logfile_definitions != None:
         # if the grid filename supplied is already fully-qualified, leave it as is
-        head, tail = ntpath.split(grid_filename)                # split into pathname and base filename
+        head, tail = ntpath.split(logfile_definitions)          # split into pathname and base filename
         
         if head == '' or head == '.':                           # no path (or CWD) - add path as required
             logfile_definitions = tail or ntpath.basename(head)
@@ -300,6 +298,8 @@ class pythonProgramOptions:
     pulsational_pair_instability_prescription = 'MARCHANT'
 
     maximum_neutron_star_mass = 2.5  #  [Msol]
+
+    add_options_to_sysparms = 'GRID'                            # should all option values be added to system parameters files? options are 'ALWAYS', 'GRID', and 'NEVER'
 
     log_level           = 0
     log_classes         = []
@@ -630,7 +630,8 @@ class pythonProgramOptions:
             self.logfile_supernovae,
             self.logfile_switch_log,
             self.logfile_system_parameters,
-            self.neutrino_mass_loss_BH_formation
+            self.neutrino_mass_loss_BH_formation,
+            self.add_options_to_sysparms
         ]
 
         return stringChoices
@@ -682,7 +683,8 @@ class pythonProgramOptions:
             '--logfile-supernovae',
             '--logfile-switch-log',
             '--logfile-system-parameters',
-            '--neutrino-mass-loss-BH-formation'
+            '--neutrino-mass-loss-BH-formation',
+            '--add-options-to-sysparms'
         ]
 
         return stringCommands
