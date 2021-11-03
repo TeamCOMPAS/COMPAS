@@ -810,7 +810,7 @@
 //                                      - Performance enhancement to BaseBinaryStar::CalculateTimeToCoalescence() (return early if e = 0.0)
 //                                      - Fixed a few typos in comments
 // 02.25.01     IM - Nov 1, 2021    -  Enhancements:
-//                                      - Introduced common-envelope-allow-radiative-envelope-surive and common-envelope-allow-immediate-rlof-post-ce-survive options
+//                                      - Introduced common-envelope-allow-radiative-envelope-survive and common-envelope-allow-immediate-rlof-post-ce-survive options
 //                                      - Addresses issue # 637
 
 const std::string VERSION_STRING = "02.25.01";
