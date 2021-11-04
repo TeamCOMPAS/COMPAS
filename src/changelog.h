@@ -830,7 +830,9 @@
 // 02.25.04     IM - Nov 4, 2021     - Minor fixes
 //                                      - More surive->survive typo fixes in python files to address issue #660
 //                                      - Documentation edits to reflect new options common-envelope-allow-radiative-envelope-survive and common-envelope-allow-immediate-rlof-post-ce-survive options
+// 02.25.05     IM - Nov 4, 2021     - Defect repair:
+//                                      - Changed GiantBranch::CalculateRemnantMassByMullerMandel() to ensure that the remnant mass is no greater than the He core mass
 
-const std::string VERSION_STRING = "02.25.04";
+const std::string VERSION_STRING = "02.25.05";
 
 # endif // __changelog_h__
