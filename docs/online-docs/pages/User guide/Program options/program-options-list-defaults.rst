@@ -100,16 +100,16 @@ Default = PESSIMISTIC
 Circularise binary when it enters a Mass Transfer episode. |br|
 Default = TRUE
 
-**--common_envelope_allow_immediate_RLOF_post_CE_survive** |br|
-Allow binaries that experience Roche lobe overflow immediately at the end of the CE phase to surve. |br|
+**--common-envelope-allow-immediate-RLOF-post-CE-survive** |br|
+Allow binaries that experience Roche lobe overflow immediately at the end of the CE phase to survive. |br|
 Default = FALSE
 
 **--common-envelope-allow-main-sequence-survive** |br|
 Allow main sequence donors to survive common envelope evolution. |br|
 Default = TRUE
 
-**--common_envelope_allow_radiative_envelope_survive** |br| 
-Allow binaries that with radiative envelope evolved stars to survive the common envelope phase. |br|
+**--common-envelope-allow-radiative-envelope-survive** |br| 
+Allow binaries with an evolved component with a radiative envelope to survive the common envelope phase. |br|
 Deafult = FALSE
 
 **--common-envelope-alpha** |br|
