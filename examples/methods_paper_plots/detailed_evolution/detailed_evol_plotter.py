@@ -190,7 +190,7 @@ def printEvolutionaryHistory(Data):
         beta=64/5*G**3*Data['Mass(1)'][i]*Data['Mass(2)'][i]*(Data['Mass(1)'][i]+Data['Mass(2)'][i])*Msunkg**3/c**5
         T0=(Data['SemiMajorAxis'][i]*Rsun)**4/4/beta
         e=Data['Eccentricity'][i]
-        Tdelay=T0*(1-e**2)**(7/2)*(1+0.31*e**10 + 0.27*e**20 +  0.2*e**1000)/3.15e7/1e6
+        Tdelay=T0*(1-e**2)**(7/2)*(1+0.27*e**10 + 0.33*e**20 +  0.2*e**1000)/3.15e7/1e6
         printFormattedEvolutionLine( Data['Time'][i]+Tdelay, 'GW merger in {:.1f} Myr'.format(Tdelay),
                                      Data['Mass(1)'][i], Data['Stellar_Type(1)'][i],  
                                      Data['Mass(2)'][i], Data['Stellar_Type(2)'][i],  
