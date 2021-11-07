@@ -152,7 +152,7 @@ Default = 0.04
 
 **--common-envelope-mass-accretion-prescription** |br|
 Assumption about whether NS/BHs can accrete mass during common envelope evolution. |br|
-``ZERO`` is no accretion; ``CONSTANT`` means a fixed amount of accretion determined by ``--common-envelope-mass-accretion-constant''; ``UNIFORM`` means a uniform random draw between ``--common-envelope-mass-accretion-min`` and ``--common-envelope-mass-accretion-max`` (Oslowski et al., 2011); and ``MACLEOD`` follows the prescription of MacLeod et al., 2015 |br|
+``ZERO`` is no accretion; ``CONSTANT`` means a fixed amount of accretion determined by ``--common-envelope-mass-accretion-constant``; ``UNIFORM`` means a uniform random draw between ``--common-envelope-mass-accretion-min`` and ``--common-envelope-mass-accretion-max`` (Oslowski et al., 2011); and ``MACLEOD`` follows the prescription of MacLeod et al., 2015 |br|
 Options: { ZERO, CONSTANT, UNIFORM, MACLEOD } |br|
 Default = ZERO
 
@@ -223,7 +223,7 @@ Default = FALSE
 **--envelope-state-prescription** |br|
 Prescription for determining whether the envelope of the star is convective or radiative. |br|
 Options: { LEGACY, HURLEY, FIXED_TEMPERATURE } |br|
-``LEGACY'' refers to the model used in Stevenson et al., 2017; ``HURLEY`` refers to the model of Hurley, Pols, Tout, 2002; and ``FIXED_TEMPERATURE'' assumes that a deep convective envelope developes only when the temperature drops below ``CONVECTIVE_BOUNDARY_TEMPERATURE`` (Klencki et al., 2020) |br|
+``LEGACY`` refers to the model used in Stevenson et al., 2017; ``HURLEY`` refers to the model of Hurley, Pols, Tout, 2002; and ``FIXED_TEMPERATURE`` assumes that a deep convective envelope developes only when the temperature drops below ``CONVECTIVE_BOUNDARY_TEMPERATURE`` (Klencki et al., 2020) |br|
 Default = LEGACY
 
 
@@ -302,7 +302,7 @@ Default = Sampled from IMF
 **--initial-mass-function [ -i ]** |br|
 Initial mass function. |br|
 Options: { SALPETER, POWERLAW, UNIFORM, KROUPA } |br|
-``SALPETER'' and ``KROUPA`` use the IMFs of Salpeter 1955 and Kroupa 2001, ``POWERLAW`` samples from a single power law with sloppe ``--initial-mass-power``, and ``UNIFORM'' samples uniformly between ``--initial-mass-min`` and ``--initial-mass-min`` |br|
+``SALPETER`` and ``KROUPA`` use the IMFs of Salpeter 1955 and Kroupa 2001, ``POWERLAW`` samples from a single power law with slope ``--initial-mass-power``, and ``UNIFORM`` samples uniformly between ``--initial-mass-min`` and ``--initial-mass-min`` |br|
 Default = KROUPA
 
 **--initial-mass-max** |br|
@@ -589,7 +589,7 @@ Default = 0.0142
 **--metallicity-distribution** |br|
 Metallicity distribution. |br|
 Options: { ZSOLAR, LOGUNIFORM } |br|
-``ZSOLAR`` uses ``ZSOL_ASPLUND`` for all initial metallicities, ``LOGUNIFORM`` draws the metallicity uniformly in the log between ``--metallicity-min`` and ``--metallicity-max``
+``ZSOLAR`` uses ``ZSOL_ASPLUND`` for all initial metallicities, ``LOGUNIFORM`` draws the metallicity uniformly in the log between ``--metallicity-min`` and ``--metallicity-max`` |br|
 Default = ZSOLAR
 
 **--metallicity-max** |br|
