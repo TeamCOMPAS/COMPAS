@@ -832,7 +832,11 @@
 //                                      - Documentation edits to reflect new options common-envelope-allow-radiative-envelope-survive and common-envelope-allow-immediate-rlof-post-ce-survive options
 // 02.25.05     IM - Nov 4, 2021     - Defect repair:
 //                                      - Changed GiantBranch::CalculateRemnantMassByMullerMandel() to ensure that the remnant mass is no greater than the He core mass
+// 02.25.06     IM - Nov 7, 2021     - Enhancements:
+//                                      - Clarified program option documentation
+//                                      - Removed unused CUSTOM semi-major axis initial distribution
+//                                      - Removed unused STARTRACK zeta prescription
 
-const std::string VERSION_STRING = "02.25.05";
+const std::string VERSION_STRING = "02.25.06";
 
 # endif // __changelog_h__
