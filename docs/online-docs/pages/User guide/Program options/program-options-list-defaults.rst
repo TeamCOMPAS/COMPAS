@@ -84,6 +84,7 @@ Default = FALLBACK
 **--case-bb-stability-prescription** |br|
 Prescription for the stability of case BB/BC mass transfer. |br|
 Options: { ALWAYS_STABLE, ALWAYS_STABLE_ONTO_NSBH, TREAT_AS_OTHER_MT, ALWAYS_UNSTABLE } |br|
+Case BB mass transfer is treated as always stable, always stable only for mass transfer onto neutron stars or black holes, with stability as determined for all other mass transfer, or always unstable, respectively |br|
 Default = ALWAYS_STABLE
 
 **--check-photon-tiring-limit** |br|
@@ -105,7 +106,7 @@ Allow binaries that experience Roche lobe overflow immediately at the end of the
 Default = FALSE
 
 **--common-envelope-allow-main-sequence-survive** |br|
-Allow main sequence donors to survive common envelope evolution. |br|
+Allow main sequence accretors to survive common envelope evolution if other criteria point to survival. |br|
 Default = TRUE
 
 **--common-envelope-allow-radiative-envelope-survive** |br| 
@@ -123,15 +124,17 @@ Default = 1.0
 
 **--common-envelope-lambda** |br|
 Common Envelope lambda. |br|
+Only used when ``--common-envelope-lambda-prescription = LAMBDA_FIXED``. |br|
 Default = 0.1
 
 **--common-envelope-lambda-multiplier** |br|
-Multiplication constant to be applied to the common envelope lambda parameter. |br|
+Multiplicative constant to be applied to the common envelope lambda parameter for any prescription. |br|
 Default = 1.0
 
 **--common-envelope-lambda-prescription** |br|
-CE lambda prescription. |br|
+CE lambda (envelope binding energy) prescription. |br|
 Options: { LAMBDA_FIXED, LAMBDA_LOVERIDGE, LAMBDA_NANJING, LAMBDA_KRUCKOW, LAMBDA_DEWI } |br|
+``LAMBDA_FIXED`` is a constant; ``LAMBDA_LOVERIDGE`` is the prescription from Loveridge et al., 2011; ``LAMBDA_NANJING`` is from Xu & Li, 2010; ``LAMBDA_KRUCKOW`` is from Kruckow et al., 2016; and ``LAMBDA_DEWI`` is the fit from Appendix A in Claeys et al. 2014, based on Dewi & Tauris 2000 |br|
 Default = LAMBDA_NANJING
 
 **--common-envelope-mass-accretion-constant** |br|
@@ -149,6 +152,7 @@ Default = 0.04
 
 **--common-envelope-mass-accretion-prescription** |br|
 Assumption about whether NS/BHs can accrete mass during common envelope evolution. |br|
+``ZERO`` is no accretion; ``CONSTANT`` means a fixed amount of accretion determined by ``--common-envelope-mass-accretion-constant``; ``UNIFORM`` means a uniform random draw between ``--common-envelope-mass-accretion-min`` and ``--common-envelope-mass-accretion-max`` (Oslowski et al., 2011); and ``MACLEOD`` follows the prescription of MacLeod et al., 2015 |br|
 Options: { ZERO, CONSTANT, UNIFORM, MACLEOD } |br|
 Default = ZERO
 
@@ -157,7 +161,7 @@ Recombination energy density (erg g−1). |br|
 Default = :math:`1.5 \times 10^{13}`
 
 **--common-envelope-slope-kruckow** |br|
-Common Envelope slope for Kruckow lambda. |br|
+Slope for the Kruckow lambda (see Kruckow et al. 2016 as implemented by Vigna-Gomez et al. 2018). |br|
 Default = −0.833333
 
 **--cool-wind-mass-loss-multiplier** |br|
@@ -171,7 +175,7 @@ Default = 1.0
 :ref:`Back to Top <options-props-top>`
 
 **--debug-classes** |br|
-Debug classes enabled to be enable (vactor). |br|
+Developer-defined debug classes to enable (vector). |br|
 Default = `All debug classes enabled (e.g. no filtering)`
 
 **--debug-level** |br|
@@ -197,6 +201,7 @@ Default = 0.0 |br|
 **--eccentricity-distribution** |br|
 Initial eccentricity distribution. |br|
 Options: { ZERO, FLAT, GELLER+2013, THERMAL, DUQUENNOYMAYOR1991, SANA2012 } |br|
+``ZERO`` always circular, ``FLAT`` is uniform on [``--eccentricity-min``,``--eccentricity-max``], ``THERMAL`` is p(e) proportional to e, and the other options refer to the distributions of Geller et al. 2013, Duqennoy & Mayor 1991, and Sana et al. 2012. |br|
 Default = ZERO
 
 **--eccentricity-max** |br|
@@ -218,7 +223,9 @@ Default = FALSE
 **--envelope-state-prescription** |br|
 Prescription for determining whether the envelope of the star is convective or radiative. |br|
 Options: { LEGACY, HURLEY, FIXED_TEMPERATURE } |br|
+``LEGACY`` refers to the model used in Stevenson et al., 2017; ``HURLEY`` refers to the model of Hurley, Pols, Tout, 2002; and ``FIXED_TEMPERATURE`` assumes that a deep convective envelope developes only when the temperature drops below ``CONVECTIVE_BOUNDARY_TEMPERATURE`` (Klencki et al., 2020) |br|
 Default = LEGACY
+
 
 **--errors-to-file** |br|
 Write error messages to file. |br|
@@ -274,7 +281,7 @@ The ``HDF5`` dataset chunk size to be used when creating ``HDF5`` logfiles (numb
 Default = 100000
 
 **--help [ -h ]** |br|
-Prints COMPAS help.
+Prints COMPAS help (-h is short form, --help includes more information).
 
 .. _options-props-I:
 
@@ -295,6 +302,7 @@ Default = Sampled from IMF
 **--initial-mass-function [ -i ]** |br|
 Initial mass function. |br|
 Options: { SALPETER, POWERLAW, UNIFORM, KROUPA } |br|
+``SALPETER`` and ``KROUPA`` use the IMFs of Salpeter 1955 and Kroupa 2001, ``POWERLAW`` samples from a single power law with slope ``--initial-mass-power``, and ``UNIFORM`` samples uniformly between ``--initial-mass-min`` and ``--initial-mass-min`` |br|
 Default = KROUPA
 
 **--initial-mass-max** |br|
@@ -306,7 +314,7 @@ Minimum mass to generate using given IMF (:math:`M_\odot`). |br|
 Default = 5.0
 
 **--initial-mass-power** |br|
-Single power law power to generate primary mass using POWERLAW IMF. |br|
+Single power law power to generate primary mass using ``POWERLAW`` IMF. |br|
 Default = 0.0
 
 .. _options-props-J:
@@ -318,6 +326,7 @@ Default = 0.0
 **--kick-direction** |br|
 Natal kick direction distribution. |br|
 Options: { ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW, WEDGE, POLES } |br|
+Kick angles are defined relative to the spin axis.  ``INPLANE`` and ``PERPENDICULAR`` are strictly in the equatorial plane or in polar directions, while ``WEDGE`` and ``POLES`` are preferentially but exactly in the equatorial plane or in polar directions with 1 degree scales, respectively;  ``POWERLAW`` quantifies the preference for polar vs planar kicks with the ``--kick-direction-power`` parameter. |br|
 Default = ISOTROPIC
 
 **--kick-direction-power** |br|
@@ -345,6 +354,7 @@ Default = 0.0
 **--kick-magnitude-distribution** |br|
 Natal kick magnitude distribution. |br|
 Options: { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL } |br|
+``ZERO`` assigns kick magnitudes of 0, ``FIXED`` always sets the magnitude to a fixed value based on supernova type, ``FLAT`` and ``MAXWELLIAN`` draw kicks from uniform or Maxwellian (e.g., Hobbs et al., 2005) distributions, respectively, ``BRAYELDRIDGE`` and ``MULLERMANDEL`` use momenum-preserving kicks from Bray & Eldrigde 2018 and Mandel & Mueller 2020, respectively, and ``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 (reduced by a factor of sqrt(3) in the latter case). |br|
 Default = MAXWELLIAN
 
 **--kick-magnitude-max** |br|
@@ -353,40 +363,37 @@ Must be > 0 if using ``--kick-magnitude-distribution = FLAT``. |br|
 Default = −1.0
 
 **--kick-magnitude-random** |br|
-Value to be used to draw the kick magnitude for a single star when evolving in SSE mode, should the star
-undergo a supernova event. |br|
+CDF value to be used to draw the kick magnitude for a single star when evolving in SSE mode, should the star undergo a supernova event and should the chosen distribution sample from a cumulative distribution function. |br|
 Must be a floating-point number in the range :math:`[0.0, 1.0)`. |br|
 The specified value for this option will be used in preference to any specified value for ``--kick-magnitude``. |br|
 Default = Random number drawn uniformly from :math:`[0.0, 1.0)`
 
 **--kick-magnitude-random-1** |br|
-Value to be used to draw the kick magnitude for the primary star of a binary system when evolving in BSE
-mode, should the star undergo a supernova event. |br|
+CDF value to be used to draw the kick magnitude for the primary star of a binary system when evolving in BSE mode, should the star undergo a supernova event and should the chosen distribution sample from a cumulative distribution function. |br|
 Must be a floating-point number in the range :math:`[0.0, 1.0)`. |br|
 The specified value for this option will be used in preference to any specified value for ``--kick-magnitude-1``. |br|
 Default = Random number drawn uniformly from :math:`[0.0, 1.0)`
 
 **--kick-magnitude-random-2** |br|
-Value to be used to draw the kick magnitude for the secondary star of a binary system when evolving in
-BSE mode, should the star undergo a supernova event. |br|
+CDF value to be used to draw the kick magnitude for the secondary star of a binary system when evolving in BSE mode, should the star undergo a supernova event and should the chosen distribution sample from a cumulative distribution function. |br|
 Must be a floating-point number in the range :math:`[0.0, 1.0)`. |br|
 The specified value for this option will be used in preference to any specified value for ``--kick-magnitude-2``. |br|
 Default = Random number drawn uniformly from :math:`[0.0, 1.0)`
 
 **--kick-magnitude-sigma-CCSN-BH** |br|
-Sigma for chosen kick magnitude distribution for black holes (:math:`km s^{−1}`). |br|
+Sigma for chosen kick magnitude distribution for black holes (:math:`km s^{−1}`); ignored if not needed for the chosen kick magnitude distribution. |br|
 Default = 265.0
 
 **--kick-magnitude-sigma-CCSN-NS** |br|
-Sigma for chosen kick magnitude distribution for neutron stars (:math:`km s^{−1}`). |br|
+Sigma for chosen kick magnitude distribution for neutron stars (:math:`km s^{−1}`); ignored if not needed for the chosen kick magnitude distribution. |br|
 Default = 265.0
 
 **--kick-magnitude-sigma-ECSN** |br|
-Sigma for chosen kick magnitude distribution for ECSN (:math:`km s^{−1}`). |br|
+Sigma for chosen kick magnitude distribution for ECSN (:math:`km s^{−1}`); ignored if not needed for the chosen kick magnitude distribution. |br|
 Default = 30.0
 
 **--kick-magnitude-sigma-USSN** |br|
-Sigma for chosen kick magnitude distribution for USSN (:math:`km s^{−1}`). |br|
+Sigma for chosen kick magnitude distribution for USSN (:math:`km s^{−1}`); ignored if not needed for the chosen kick magnitude distribution. |br|
 Default = 30.0
 
 **--kick-mean-anomaly-1** |br|
@@ -402,12 +409,12 @@ Must be a floating-point number in the range :math:`[0.0, 2\pi)`. |br|
 Default = Random number drawn uniformly from :math:`[0.0, 2\pi)`
 
 **--kick-phi-1** |br|
-The angle between ’x’ and ’y’, both in the orbital plane of the supernova vector, for the for the primary star
+The angle between ’x’ and ’y’, both in the orbital plane of the supernova vector, for the primary star
 of a binary system when evolving in BSE mode, should it undergo a supernova event (radians). |br|
 Default = Random number drawn uniformly from :math:`[0.0, 2\pi)`
 
 **--kick-phi-2** |br|
-The angle between ’x’ and ’y’, both in the orbital plane of the supernova vector, for the for the secondary
+The angle between ’x’ and ’y’, both in the orbital plane of the supernova vector, for the secondary
 star of a binary system when evolving in BSE mode, should it undergo a supernova event (radians). |br|
 Default = Random number drawn uniformly from :math:`[0.0, 2\pi)`
 
@@ -484,6 +491,7 @@ Default = 1.5
 **--luminous-blue-variable-prescription** |br|
 Luminous blue variable mass loss prescription. |br|
 Options: { NONE, HURLEY, HURLEY_ADD, BELCZYNSKI } |br|
+No LBV winds for ``NONE``,  Hurley, Pols, Tout (2000) LBV winds only for ``HURLEY`` LBV stars (or in addition to other winds for ``HURLEY_ADD``, Belzcynski et al. 2010 winds for ``BELCZYNSKI`` |br|
 Default = HURLEY_ADD
 
 .. _options-props-M:
@@ -502,6 +510,7 @@ Default = Value is sampled if option not specified.
 **--mass-ratio-distribution** |br|
 Initial mass ratio distribution for :math:`q = \frac{m2}{m1}`. |br|
 Options: { FLAT, DUQUENNOYMAYOR1991, SANA2012 } |br|
+``FLAT`` is uniform in the mass ratio between ``--mass-ratio-min`` and ``--mass-ratio-max``, the other prescriptions follow Duquennoy & Mayor 1991 and Sana et al. 2012 |br|
 Default = FLAT
 
 **--mass-ratio-max** |br|
@@ -539,6 +548,7 @@ Default = 1.0
 **--mass-transfer-rejuvenation-prescription** |br|
 Mass Transfer Rejuvenation prescription. |br|
 Options: { NONE, STARTRACK } |br|
+``NONE`` uses the Hurley, Pols, Tout (2000) model, ``STARTRACK`` uses the model from Belczynski et al. 2008 |br|
 Default = STARTRACK
 
 **--mass-transfer-thermal-limit-accretor** |br|
@@ -579,6 +589,7 @@ Default = 0.0142
 **--metallicity-distribution** |br|
 Metallicity distribution. |br|
 Options: { ZSOLAR, LOGUNIFORM } |br|
+``ZSOLAR`` uses ``ZSOL_ASPLUND`` for all initial metallicities, ``LOGUNIFORM`` draws the metallicity uniformly in the log between ``--metallicity-min`` and ``--metallicity-max`` |br|
 Default = ZSOLAR
 
 **--metallicity-max** |br|
@@ -616,8 +627,7 @@ Options: { FIXED_FRACTION, FIXED_MASS } |br|
 Default = FIXED_MASS
 
 **--neutrino-mass-loss-BH-formation-value** |br|
-Amount of mass lost in neutrinos during BH formation (either as fraction or in solar masses, |br|
-depending on the value of ``--neutrino-mass-loss-bh-formation``). |br|
+Amount of mass lost in neutrinos during BH formation (either as fraction or in solar masses, depending on the value of ``--neutrino-mass-loss-bh-formation``). |br|
 Default = 0.1
 
 **--neutron-star-equation-of-state** |br|
@@ -757,6 +767,7 @@ Default = TRUE
 **--pulsational-pair-instability-prescription** |br|
 Pulsational pair instability prescription. |br|
 Options: { COMPAS, STARTRACK, MARCHANT, FARMER } |br|
+``COMPAS``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, all as implemented in Stevenson et al. 2019, ``FARMER`` follows Farmer et al. 2019 |br|
 Default = MARCHANT
 
 .. _options-props-Q:
@@ -778,6 +789,7 @@ Default = 0
 **--remnant-mass-prescription** |br|
 Remnant mass prescription. |br|
 Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT } |br|
+Remnant mass recipes from Hurley, Pols, Tout (2000) for ``HURLEY2000``, Belczynski et al. 2002, Fryer et al. 2012, Mueller 2016, Mandel & Mueller 2020, and Schneider et al. 2020 (with the alternative prescription for effectively single stars from the same paper in the ``SCHNEIDER2020ALT`` case) |br|
 Default = FRYER2012
 
 **--revised-energy-formalism-nandez-ivanova** |br|
@@ -803,6 +815,7 @@ Default = 0.0 (``--rotational-velocity-distribution`` used if ``--rotational-fre
 **--rotational-velocity-distribution** |br|
 Initial rotational velocity distribution. |br|
 Options: { ZERO, HURLEY, VLTFLAMES } |br|
+``ZERO`` sets all initial rotational velocities to 0, while ``HURLEY`` and ``VLTFLAMES`` sample them from the Hurley, Pols, Tout (2000) and Ramirez-Agudelo et al. (2013,2015), respectively |br|
 Default = ZERO
 
 .. _options-props-S:
@@ -815,7 +828,8 @@ Default = 0.1
 
 **--semi-major-axis-distribution [ -a ]** |br|
 Initial semi-major axis distribution. |br|
-Options: { FLATINLOG, CUSTOM, DUQUENNOYMAYOR1991, SANA2012 } |br|
+Options: { FLATINLOG, DUQUENNOYMAYOR1991, SANA2012 } |br|
+Flat-in-log (Opik 1924), Duquennoy & Mayor (1991) or Sana et al. (2012) distributions |BR|
 Default = FLATINLOG
 
 **--semi-major-axis-max** |br|
@@ -828,7 +842,8 @@ Default = 0.01
 
 **--stellar-zeta-prescription** |br|
 Prescription for stellar zeta. |br|
-Options: { STARTRACK, SOBERMAN, HURLEY, ARBITRARY } |br|
+Options: { SOBERMAN, HURLEY, ARBITRARY } |br|
+Use Soberman, Phinney, and van den Heuvel (1997) or Hurley, Pols, Tout (2002) or the fixed value specified via ``--zeta-adiabatic-arbitrary`` for the stellar radial response to mass loss for convective-envelope giant-like stars |br|
 Default = SOBERMAN
 
 **--store-input-files** |br|
