@@ -12,7 +12,7 @@ Any program options that are not specified take default values.
 
 The full list of program options with brief explanations and their default values is shown below.  We also include a listing of options (this time, by name only) grouped by category.
 
-**Jump to**
+**Alphabetical listing: jump to**
 :ref:`A <options-props-A>` :ref:`B <options-props-B>` :ref:`C <options-props-C>` :ref:`D <options-props-D>`
 :ref:`E <options-props-E>` :ref:`F <options-props-F>` :ref:`G <options-props-G>` :ref:`H <options-props-H>`
 :ref:`I <options-props-I>` :ref:`J <options-props-J>` :ref:`K <options-props-K>` :ref:`L <options-props-L>`
@@ -21,7 +21,7 @@ The full list of program options with brief explanations and their default value
 :ref:`U <options-props-U>` :ref:`V <options-props-V>` :ref:`W <options-props-W>` :ref:`X <options-props-X>`
 :ref:`Y <options-props-Y>` :ref:`Z <options-props-Z>`
 
-**Jump to**
+**Category listing: jump to**
 :ref:`Initial conditions <options-initial-conditions>`
 :ref:`Stellar evolution and winds <options-stellar-evolution>`
 :ref:`Mass transfer physics <options-mass-transfer>`
@@ -919,7 +919,6 @@ Category listing
 
 Go to :ref:`the top of this page <options-props-top>` for the full alphabetical list of options with explanations and default values
 
-:ref:`
 .. _options-initial-conditions:
 
 **Initial conditions**
@@ -938,7 +937,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 :ref:`Back to Top <options-props-top>`
 
-.. _options-stellar-evolution
+.. _options-stellar-evolution:
 
 **Stellar evolution and winds**
 
