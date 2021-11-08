@@ -1579,7 +1579,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "semi-major-axis-distribution",                              
             po::value<std::string>(&p_Options->m_SemiMajorAxisDistribution.typeString)->default_value(p_Options->m_SemiMajorAxisDistribution.typeString),                                                        
-            ("Initial semi-major axis distribution (options: [FLATINLOG, CUSTOM, DUQUENNOYMAYOR1991, SANA2012], default = " + p_Options->m_SemiMajorAxisDistribution.typeString + ")").c_str()
+            ("Initial semi-major axis distribution (options: [FLATINLOG, DUQUENNOYMAYOR1991, SANA2012], default = " + p_Options->m_SemiMajorAxisDistribution.typeString + ")").c_str()
         )        
         (
             "stellar-zeta-prescription",                                   

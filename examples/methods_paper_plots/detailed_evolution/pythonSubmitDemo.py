@@ -180,7 +180,7 @@ class pythonProgramOptions:
     common_envelope_mass_accretion_min = 0.04                   # For 'MACLEOD+2014' [Msol]
     common_envelope_mass_accretion_max = 0.10                   # For 'MACLEOD+2014' [Msol]
     envelope_state_prescription = 'LEGACY'
-    common_envelope_allow_radiative_envelope_surive = False
+    common_envelope_allow_radiative_envelope_survive = False
     common_envelope_allow_immediate_RLOF_post_CE_survive = False
 
     mass_loss_prescription = 'VINK'
@@ -365,7 +365,7 @@ class pythonProgramOptions:
             self.pulsation_pair_instability,
             self.quiet,
             self.common_envelope_allow_main_sequence_survive,
-            self.common_envelope_allow_radiative_envelope_surive,
+            self.common_envelope_allow_radiative_envelope_survive,
             self.common_envelope_allow_immediate_RLOF_post_CE_survive,
             self.evolvePulsars,
             self.debug_to_file,
@@ -393,7 +393,7 @@ class pythonProgramOptions:
             '--pulsational-pair-instability',
             '--quiet',
             '--common-envelope-allow-main-sequence-survive',
-            '--common-envelope-allow-radiative-envelope-surive',
+            '--common-envelope-allow-radiative-envelope-survive',
             '--common-envelope-allow-immediate-rlof-post-ce-survive',
             '--evolve-pulsars',
             '--debug-to-file',

@@ -240,7 +240,7 @@ namespace utils {
                 phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
                 break;
 
-            case KICK_DIRECTION_DISTRIBUTION::WEDGE:                                                                // WEDGE: Direct kick into a wedge around the horizon (theta = 0)
+            case KICK_DIRECTION_DISTRIBUTION::WEDGE:                                                                // WEDGE: Direct kick into a wedge around the equator (theta = 0)
                 theta = RAND->RandomGaussian(delta);                                                                // Gaussian around 0 with a deviation delta
                 phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
                 break;
@@ -1168,7 +1168,7 @@ namespace utils {
      * @param   [IN]    p_Adist                     The distribution to use to draw semi-major axis
      * @param   [IN]    p_AdistMax                  Semi-major axis distribution maximum
      * @param   [IN]    p_AdistMin                  Semi-major axis distribution minimum
-     * @param   [IN]    p_AdistPower                Semi-major axis distribution power (for CUSTOM distribution)
+     * @param   [IN]    p_AdistPower                Semi-major axis distribution power
      * @param   [IN]    p_PdistMax                  Period distribution maximum (for SANA2012 distribution)
      * @param   [IN]    p_PdistMin                  Period distribution minimum (for SANA2012 distribution)
      * @param   [IN]    p_Mass1                     Mass of the primary
@@ -1205,11 +1205,6 @@ namespace utils {
                     double periodInDays = PPOW(10.0, 2.3 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 4.8);
                     semiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(p_Mass1, p_Mass2, periodInDays);      // convert period in days to semi-major axis in AU
                 } while (semiMajorAxis < p_AdistMin || semiMajorAxis > p_AdistMax);                                     // JR: don't use utils::Compare() here
-                break;
-
-            case SEMI_MAJOR_AXIS_DISTRIBUTION::CUSTOM:                                                                  // CUSTOM
-
-                semiMajorAxis = utils::InverseSampleFromPowerLaw(p_AdistPower, p_AdistMax, p_AdistMin);
                 break;
 
             case SEMI_MAJOR_AXIS_DISTRIBUTION::SANA2012: {                                                              // Sana et al 2012
