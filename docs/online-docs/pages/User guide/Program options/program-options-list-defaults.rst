@@ -10,7 +10,7 @@ Any program options that are not specified take default values.
 
 .. _options-props-top:
 
-The full list of program options, and their default values is shown below.
+The full list of program options with brief explanations and their default values is shown below.  We also include a listing of options (this time, by name only) grouped by category.
 
 **Jump to**
 :ref:`A <options-props-A>` :ref:`B <options-props-B>` :ref:`C <options-props-C>` :ref:`D <options-props-D>`
@@ -21,6 +21,12 @@ The full list of program options, and their default values is shown below.
 :ref:`U <options-props-U>` :ref:`V <options-props-V>` :ref:`W <options-props-W>` :ref:`X <options-props-X>`
 :ref:`Y <options-props-Y>` :ref:`Z <options-props-Z>`
 
+**Jump to**
+:ref:`Initial conditions <options-initial-conditions>`
+:ref:`Stellar evolution and winds <options-stellar-evolution>`
+:ref:`Mass transfer physics <options-mass-transfer>`
+:ref:`Supernovae <options-supernovae>`
+:ref:`Administrative <options-admin>`
 
 COMPAS information
 ------------------
@@ -409,23 +415,25 @@ Must be a floating-point number in the range :math:`[0.0, 2\pi)`. |br|
 Default = Random number drawn uniformly from :math:`[0.0, 2\pi)`
 
 **--kick-phi-1** |br|
-The angle between ’x’ and ’y’, both in the orbital plane of the supernova vector, for the primary star
-of a binary system when evolving in BSE mode, should it undergo a supernova event (radians). |br|
-Default = Random number drawn uniformly from :math:`[0.0, 2\pi)`
+The angle between ’x’ and ’y’, both in the orbital plane of the supernova vector, for the primary star of a binary system when evolving in BSE mode, should it undergo a supernova event (radians). |br|
+Default = Drawn according to specified ``--kick-direction`` distribution
 
 **--kick-phi-2** |br|
 The angle between ’x’ and ’y’, both in the orbital plane of the supernova vector, for the secondary
 star of a binary system when evolving in BSE mode, should it undergo a supernova event (radians). |br|
-Default = Random number drawn uniformly from :math:`[0.0, 2\pi)`
+Default = Drawn according to specified ``--kick-direction`` distribution
 
 **--kick-scaling-factor** |br|
 Arbitrary factor used to scale kicks. |br|
 Default = 1.0
 
 **--kick-theta-1** |br|
-The angle between the orbital plane and the ’z’ axis of the supernova vector for the for the primary star of a
-binary system when evolving in BSE mode, should it undergo a supernova event (radians). |br|
-Default = Random number drawn uniformly from :math:`[0.0, 2\pi)`
+The angle between the orbital plane and the ’z’ axis of the supernova vector for the primary star of a binary system when evolving in BSE mode, should it undergo a supernova event (radians). |br|
+Default = Drawn according to specified ``--kick-direction`` distribution
+
+**--kick-theta-2** |br|
+The angle between the orbital plane and the ’z’ axis of the supernova vector for the secondary star of a binary system when evolving in BSE mode, should it undergo a supernova event (radians). |br|
+Default = Drawn according to specified ``--kick-direction`` distribution
 
 .. _options-props-L:
 
@@ -904,4 +912,82 @@ Default = 2.0
 Value of logarithmic derivative of radius with respect to mass, :math:`\zeta` for radiative-envelope giant-like stars
 (including Hertzsprung Gap (HG) stars). |br|
 Default = 6.5
+
+
+Category listing
+--------------------
+
+Go to :ref:`the top of this page <options-props-top>` for the full alphabetical list of options with explanations and default values
+
+:ref:`
+.. _options-initial-conditions:
+
+**Initial conditions**
+
+--initial-mass-function, --initial-mass, --initial-mass-1, --initial-mass-2, --initial-mass-min, --initial-mass-max, --initial-mass-power
+
+--mass-ratio-distribution, --mass-ratio, --mass-ratio-min, --mass-ratio-max, --minimum-secondary-mass
+
+--eccentricity-distribution, --eccentricity, --eccentricity-min, --eccentricity-max
+
+--metallicity-distribution, --metallicity, --metallicity-min, --metallicity-max
+
+--orbital-period-distribution, --orbital-period, --orbital-period-min, --orbital-period-max, --semi-major-axis-distribution, --semi-major-axis, --semi-major-axis-min, --semi-major-axis-max, --allow-rlof-at-birth, --allow-touching-at-birth
+
+--rotational-velocity-distribution, --rotational-frequency, --rotational-frequency-1, --rotational-frequency-2
+
+:ref:`Back to Top <options-props-top>`
+
+.. _options-stellar-evolution
+
+**Stellar evolution and winds**
+
+--use-mass-loss, --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --luminous-blue-variable-multiplier, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier
+
+--chemically-homogeneous-evolution
+
+:ref:`Back to Top <options-props-top>`
+
+.. _options-mass-transfer:
+
+**Mass transfer physics**
+
+--mass-transfer, --mass-transfer-accretion-efficiency-prescription, --mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-C, --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star, --case-bb-stability-prescription, --eddington-accretion-factor
+
+--circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation
+
+--envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-lambda-prescription, --common-envelope-lambda, --common-envelope-slope-kruckow, --common-envelope-lambda-multiplier, --common-envelope-allow-main-sequence-survive, --common-envelope-allow-radiative-envelope-survive*, --common-envelope-allow-immediate-RLOF-post-CE-survive, --common-envelope-mass-accretion-prescription, --common-envelope-mass-accretion-constant, --common-envelope-mass-accretion-min, --common-envelope-mass-accretion-max, --common-envelope-recombination-energy-density, --maximum-mass-donor-nandez-ivanova, --revised-energy-formalism-nandez-ivanova
+
+:ref:`Back to Top <options-props-top>`
+
+.. _options-supernovae:
+
+**Supernovae**
+
+--remnant-mass-prescription, --fryer-supernova-engine, --maximum-neutron-star-mass, --mcbur1, --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state
+
+--pair-instability-supernovae, --PISN-lower-limit, --PISN-upper-limit, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
+
+--pulsar-birth-magnetic-field-distribution, --pulsar-birth-magnetic-field-distribution-min, --pulsar-birth-magnetic-field-distribution-max, --pulsar-birth-spin-period-distribution, --pulsar-birth-spin-period-distribution-min, --pulsar-birth-spin-period-distribution-max, --pulsar-magnetic-field-decay-massscale, --pulsar-magnetic-field-decay-timescale, --pulsar-minimum-magnetic-field
+
+--kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, --black-hole-kicks, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max, --kick-magnitude-random, --kick-magnitude-random-1, --kick-magnitude-random-2, --kick-scaling-factor, -muller-mandel-kick-multiplier-BH, --muller-mandel-kick-multiplier-NS
+
+--kick-direction, --kick-direction-power, --kick-mean-anomaly-1, --kick-mean-anomaly-2, --kick-phi-1, --kick-phi-2, --kick-theta-1, --kick-theta-2
+
+:ref:`Back to Top <options-props-top>`
+
+.. _options-admin:
+
+**Administrative**
+
+--mode, --number-of-systems, --evolve-pulsars, --evolve-unbound-systems, --maximum-evolution-time, --maximum-number-timestep-iterations, --random-seed, --timestep-multiplier
+
+--grid, --grid-start-line, --grid-lines-to-process
+
+--add-options-to-sysparms, --debug-classes, --debug-level, --debug-to-file, --detailed-output, --enable-warnings, --errors-to-file, --help, --notes, --notes-hdrs, --population-data-printing, --print-bool-as-string, --quiet, --version
+
+--log-classes, --logfile-definitions, --logfile-name-prefix, --logfile-type, --log-level, --logfile-common-envelopes, --logfile-detailed-output, --logfile-double-compact-objects, --logfile-pulsar-evolution, --logfile-rlof-parameters, --logfile-supernovae, --logfile-switch-log, --logfile-system-parameters, --output-container, --output-path, --rlof-printing, --store-input-files, --switch-log, --hdf5-buffer-size, --hdf5-chunk-size
+
+:ref:`Back to Top <options-props-top>`
+
 
