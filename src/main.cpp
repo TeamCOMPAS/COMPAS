@@ -632,7 +632,7 @@ std::tuple<int, int> EvolveBinaryStars() {
  * - starts the Log service (for logging and debugging)
  * - starts the Rand service (random number generator)
  *
- * Then evolves either a single or binary star (single star only at the moment...)
+ * Then evolves either a single or binary star
  *
  */
 int main(int argc, char * argv[]) {
