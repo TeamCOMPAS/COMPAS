@@ -837,7 +837,7 @@
 //                                      - Removed unused CUSTOM semi-major axis initial distribution
 //                                      - Removed unused STARTRACK zeta prescription
 // 02.25.07     IM - Nov 12, 2021    - Defect repair:
-//                                      - Changed EAGB::CalculateLuminosityOnPhase() and EAGB::CalculateLuminosityAtPhaseEnd() to use the helium core mass rather than the CO core mass (see Eq. in second paragraph of section 4 of Hurley+, 2000); this fixes a downward step in luminosity and radius on transition to EAGB
+//                                      - Changed EAGB::CalculateLuminosityOnPhase() and EAGB::CalculateLuminosityAtPhaseEnd() to use the helium core mass rather than the CO core mass (see Eq. in second paragraph of section 5.4 of Hurley+, 2000); this fixes a downward step in luminosity and radius on transition to EAGB
 
 const std::string VERSION_STRING = "02.25.07";
 
