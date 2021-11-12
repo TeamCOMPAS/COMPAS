@@ -733,7 +733,7 @@
 //                                      - Enhancements:
 //                                          - changed chunk size for HDF5 files to HDF5_MINIMUM_CHUNK_SIZE for Run_Details group in COMPAS_Output and for detailed output files.
 //                                              - Run_Details is a small file, and detailed output files are generally a few thousand records rather than hundreds of thousands, 
-//                                                so a smaller chunck size wastes less space and doesn't impact performance significantly
+//                                                so a smaller chunk size wastes less space and doesn't impact performance significantly
 //
 //                                      - Defect Repairs:
 //                                          - fixed issue #548 - HDF5 detailed output files not created when random-seed specified in a grid file
@@ -796,7 +796,47 @@
 // 02.24.02     JR - Oct 13, 2021   - Minor fixes:
 //                                      - Fixed a few typos in header strings
 //                                      - Changed true_anomaly to mean_anomaly in SSE SN output
+// 02.25.00     JR - Oct 30, 2021   - Enhancements and minor fixes:
+//                                      - Added ability for users to annotate log files via new program options '--notes-hdrs' and '--notes'.  See docs for details. 
+//                                      - Added a shorthand notation for vector program options (e.g. annotations, log-classes, debug-classes).  See docs for details.
+//                                      - Added '--notes-hdrs' and '--notes' to pythonSubmit.py (default = None for both)
+//                                      - Added HDF5 support to Log::GetLogStandardRecord() (return value) and Log::LogStandardRecord() (input parameter).  This only matters
+//                                        to SSE Supernovae file - for delayed writes.  The original implementation may have resulted in minor discrepanicies in SSE Supernovae
+//                                        log records, (because of when the values were sampled (i.e. mid-timestep, or end of timestep)), which would only have been evident if
+//                                        HDF5 files were compared to e.g. CSV files for the same binary - CSV, TSV, and TXT files had values sampled mid-timestep, HDF5 files 
+//                                        at end of timestep).
+//                                      - Added Log::Write() and Log::Put() for HDF5 files (better implementation - worked around in original implementation)
+//                                      - Added additional checks for bad string -> number conversions throughout (for stoi(), stod(), etc.)
+//                                      - Performance enhancement to BaseBinaryStar::CalculateTimeToCoalescence() (return early if e = 0.0)
+//                                      - Fixed a few typos in comments
+// 02.25.01     IM - Nov 1, 2021    -  Enhancements:
+//                                      - Introduced common-envelope-allow-radiative-envelope-survive and common-envelope-allow-immediate-rlof-post-ce-survive options
+//                                      - Addresses issue # 637
+// 02.25.02     JR - Nov 1 , 2021    - Minor fixes:
+//                                      - reinstated "_n" suffix for BSE detailed filenames (inadvertently removed in v02.25.00)
+//                                      - updated pythonSubmit files:
+//                                          preProcessing/pythonSubmit.py
+//                                          examples/methods_paper_plots/detailed_evolution/pythonSubmitDemo.py
+//                                          examples/methods_paper_plots/chirpmass_distribution/pythonSubmit.py
+//                                          examples/methods_paper_plots/fig_5_HR_diagram/pythonSubmit.py
+//                                          examples/methods_paper_plots/fig_6_max_R/pythonSubmit.py
+//                                          examples/methods_paper_plots/fig_8_initial_core_final_mass_relations/pythonSubmitDefaults.py
+//                                          examples/methods_paper_plots/fig_8_initial_core_final_mass_relations/pythonSubmitFryerRapid.py
+//                                          examples/methods_paper_plots/fig_8_initial_core_final_mass_relations/pythonSubmitMandelMueller.py
+// 02.25.03     JR - Nov 1 , 2021    - Minor fixes:
+//                                      - fixed typo in Options.cpp for option --common-envelope-allow-immediate-RLOF-post-CE-survive (was typed common-envelope-allow-immediate-RLOF-post-CE_survive)
+//                                      - fixed typo in Options.cpp for option --common-envelope-allow-radiative-envelope-survive (was typed common-envelope-allow-radiative-envelope-surive)
+//                                        (neither of these caused problems because Boost matches only as many characters as necessary to determine the option name - would have if the names were not unique up to the typos)
+// 02.25.04     IM - Nov 4, 2021     - Minor fixes
+//                                      - More surive->survive typo fixes in python files to address issue #660
+//                                      - Documentation edits to reflect new options common-envelope-allow-radiative-envelope-survive and common-envelope-allow-immediate-rlof-post-ce-survive options
+// 02.25.05     IM - Nov 4, 2021     - Defect repair:
+//                                      - Changed GiantBranch::CalculateRemnantMassByMullerMandel() to ensure that the remnant mass is no greater than the He core mass
+// 02.25.06     IM - Nov 7, 2021     - Enhancements:
+//                                      - Clarified program option documentation
+//                                      - Removed unused CUSTOM semi-major axis initial distribution
+//                                      - Removed unused STARTRACK zeta prescription
 
-const std::string VERSION_STRING = "02.24.02";
+const std::string VERSION_STRING = "02.25.06";
 
 # endif // __changelog_h__
