@@ -648,7 +648,6 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
         }
 
         // update run details text file
-
         string filename = m_LogBasePath + "/" + m_LogContainerName + "/" + RUN_DETAILS_FILE_NAME;                                       // run details filename with container name
         try {  
             m_RunDetailsFile << utils::SplashScreen(false) << std::endl;                                                                // write splash string with version number to file
@@ -713,7 +712,6 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
             }
 
             m_RunDetailsFile << "Actual random seed = " << actualRandomSeed  << ", CALCULATED, UNSIGNED_LONG" << std::endl;             // actual random seed
-
 
             // done writing - flush and close the file
             try {
