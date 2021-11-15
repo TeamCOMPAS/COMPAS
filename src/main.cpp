@@ -596,9 +596,7 @@ std::tuple<int, int> EvolveBinaryStars() {
 
     // close BSE logfiles
     // don't check result here - let log system handle it
-
     (void)LOGGING->CloseAllStandardFiles();
-
 
     double cpuSeconds = (clock() - clockStart) / (double) CLOCKS_PER_SEC;                                       // stop CPU timer and calculate seconds
 
