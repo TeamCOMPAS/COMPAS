@@ -771,8 +771,13 @@ private:
 
                 if (ok && p_UseSpecifiedValue && (thisProperty == p_SpecifiedProperty)) {                                       // replace specified property?
                     value    = p_SpecifiedPropertyValue;                                                                        // yes - use value passed as parameter
-                    valueStr = boost::apply_visitor(FormatVariantValue(), value, fmtStr);                                       // format value
-                    logRecord += valueStr + delimiter;                                                                          // add value string to log record - with delimiter
+                    if (hdf5) {                                                                                             // yes - HDF5 file?
+                        logRecordValues.push_back(value);                                                                   // yes - add value to vector of values
+                    }
+                    else {                                                                                                  // no - CSV, TSV, or TXT file
+                        valueStr = boost::apply_visitor(FormatVariantValue(), value, fmtStr);                                       // format value
+                        logRecord += valueStr + delimiter;                                                                          // add value string to log record - with delimiter
+                    }
                 }
                 else {                                                                                                          // use current value
                     std::tie(ok, value) = p_Star->PropertyValue(property);                                                      // get property flag and value
