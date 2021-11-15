@@ -600,7 +600,7 @@ private:
 
     void ClearEntry(const int p_LogfileId) {
         if (IsValidId(p_LogfileId)) {
-            m_Logfiles[p_LogfileId].active          = false;                       // not active
+            m_Logfiles[p_LogfileId].active          = false;                        // not active
             m_Logfiles[p_LogfileId].logfiletype     = LOGFILE::NONE;
             m_Logfiles[p_LogfileId].filetype        = LOGFILETYPE::NONE;
             m_Logfiles[p_LogfileId].name            = "";
@@ -771,12 +771,12 @@ private:
 
                 if (ok && p_UseSpecifiedValue && (thisProperty == p_SpecifiedProperty)) {                                       // replace specified property?
                     value    = p_SpecifiedPropertyValue;                                                                        // yes - use value passed as parameter
-                    if (hdf5) {                                                                                             // yes - HDF5 file?
-                        logRecordValues.push_back(value);                                                                   // yes - add value to vector of values
+                    if (hdf5) {                                                                                                 // yes - HDF5 file?
+                        logRecordValues.push_back(value);                                                                       // yes - add value to vector of values
                     }
-                    else {                                                                                                  // no - CSV, TSV, or TXT file
-                        valueStr = boost::apply_visitor(FormatVariantValue(), value, fmtStr);                                       // format value
-                        logRecord += valueStr + delimiter;                                                                          // add value string to log record - with delimiter
+                    else {                                                                                                      // no - CSV, TSV, or TXT file
+                        valueStr = boost::apply_visitor(FormatVariantValue(), value, fmtStr);                                   // format value
+                        logRecord += valueStr + delimiter;                                                                      // add value string to log record - with delimiter
                     }
                 }
                 else {                                                                                                          // use current value
