@@ -63,9 +63,9 @@ protected:
     double          CalculateLifetimeTo2ndDredgeUp(const double p_Tinf1_FAGB, const double p_Tinf2_FAGB) const;
 
     double          CalculateLuminosityAtPhaseEnd(const double p_CoreMass) const                    { return CalculateLuminosityOnPhase(p_CoreMass); }                  // Same as on phase
-    double          CalculateLuminosityAtPhaseEnd() const                                           { return CalculateLuminosityAtPhaseEnd(m_HeCoreMass); }             // Use class member variables
+    double          CalculateLuminosityAtPhaseEnd() const                                           { return CalculateLuminosityAtPhaseEnd(m_COCoreMass); }             // Use class member variables
     double          CalculateLuminosityOnPhase(const double p_CoreMass) const;
-    double          CalculateLuminosityOnPhase() const                                              { return CalculateLuminosityOnPhase(m_HeCoreMass); }
+    double          CalculateLuminosityOnPhase() const                                              { return CalculateLuminosityOnPhase(m_COCoreMass); }
 
     double          CalculateMassLossRateHurley();
 
