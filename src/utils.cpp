@@ -495,10 +495,39 @@ namespace utils {
 
 
     /*
+     * Determines if the string passed as p_Str is a valid DOUBLE
+     *
+     * In this context, to be a valid DOUBLE the string must convert to a
+     * double succussfully via the std::stod() function
+     * 
+     * 
+     * int IsDOUBLE(const std::string p_Str)
+     *
+     * @param   [IN]    p_Str                       String to check
+     * @return                                      Result - TRUE if string is a valid DOUBLE, else FALSE
+     */
+    bool IsDOUBLE(const std::string p_Str) {
+
+        bool result = false;                        // default result
+
+        try {
+            size_t lastChar;
+            (void)std::stod(p_Str, &lastChar);      // try conversion
+
+            result = lastChar == p_Str.size();      // valid DOUBLE if p_Str completely consumed
+        }
+        catch (const std::out_of_range& e) {        // conversion failed
+            result = false;                         // not a valid DOUBLE
+        }
+        return result;
+    }
+
+
+    /*
      * Determines if the string passed as p_Str is a valid FLOAT
      *
      * In this context, to be a valid FLOAT the string must convert to a
-     * double succussfully via the std::stod() function
+     * double succussfully via the std::stof() function
      * 
      * 
      * int IsFLOAT(const std::string p_Str)
@@ -512,7 +541,7 @@ namespace utils {
 
         try {
             size_t lastChar;
-            (void)std::stod(p_Str, &lastChar);      // try conversion
+            (void)std::stof(p_Str, &lastChar);      // try conversion
 
             result = lastChar == p_Str.size();      // valid FLOAT if p_Str completely consumed
         }
@@ -659,17 +688,33 @@ namespace utils {
      * Pads string to specified length by prepending the string with "0"
      *
      * This only works with ASCII data, but I think that's all we need
-     * Note that std::string has an == operator to test for equality (actually calls std::strcmp)
      *
      *
      * std::string PadLeadingZeros(const std::string p_Str, const std::size_t p_MaxLength)
      *
      * @param   [IN]    p_Str                       String to be padded with leading "0"s
-     * @param   [IN]    p_MaxLength                 The required length of the resultant string compared
+     * @param   [IN]    p_MaxLength                 The required length of the resultant string
      * @return                                      String padded with leading "0"s - will be unchanged from input string if length alread >= required length
      */
     std::string PadLeadingZeros(const std::string p_Str, const std::size_t p_MaxLength) {
         return (p_Str.length() < p_MaxLength) ? std::string(p_MaxLength - p_Str.length(), '0') + p_Str : p_Str;
+    }
+
+
+    /*
+     * Pads string to specified length by appending the string with " "
+     *
+     * This only works with ASCII data, but I think that's all we need
+     *
+     *
+     * std::string PadTrailingSpaces(const std::string p_Str, const std::size_t p_MaxLength)
+     *
+     * @param   [IN]    p_Str                       String to be padded with trailing " "s
+     * @param   [IN]    p_MaxLength                 The required length of the resultant string
+     * @return                                      String padded with leading "0"s - will be unchanged from input string if length alread >= required length
+     */
+    std::string PadTrailingSpaces(const std::string p_Str, const std::size_t p_MaxLength) {
+        return (p_Str.length() < p_MaxLength) ? p_Str + std::string(p_MaxLength - p_Str.length(), ' ') : p_Str;
     }
 
 
@@ -1039,14 +1084,14 @@ namespace utils {
 
                 do {                                                                                            // JR: todo: catch non-convergence?
                     q = 0.42 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.23;
-                } while (q < p_Min || q > p_Max);                                                                   // JR: don't use utils::Compare() here
+                } while (q < p_Min || q > p_Max);                                                               // JR: don't use utils::Compare() here
                 break;
 
-            case MASS_RATIO_DISTRIBUTION::SANA2012:                                                                                     // Sana et al 2012 (http://science.sciencemag.org/content/sci/337/6093/444.full.pdf) distribution of eccentricities.
+            case MASS_RATIO_DISTRIBUTION::SANA2012:                                                             // Sana et al 2012 (http://science.sciencemag.org/content/sci/337/6093/444.full.pdf) distribution of eccentricities.
                 // Taken from table S3 in http://science.sciencemag.org/content/sci/suppl/2012/07/25/337.6093.444.DC1/1223344.Sana.SM.pdf
                 // See also de Mink and Belczynski 2015 http://arxiv.org/pdf/1506.03573v2.pdf
 
-                q = utils::InverseSampleFromPowerLaw(-0.1, p_Max, p_Min);   // de Mink and Belczynski use min = 0.1, max = 1.0
+                q = utils::InverseSampleFromPowerLaw(-0.1, p_Max, p_Min);                                       // de Mink and Belczynski use min = 0.1, max = 1.0
                 break;
 
             default:                                                                                            // unknown q-distribution
@@ -1075,7 +1120,7 @@ namespace utils {
         switch (p_Zdist) {                                                                              // which distribution?
 
             case METALLICITY_DISTRIBUTION::ZSOLAR:                                                      // ZSOLAR - all systems have Z = ZSOLAR
-                metallicity = ZSOL;
+                metallicity = ZSOL_ASPLUND;
                 break;
 
             case METALLICITY_DISTRIBUTION::LOGUNIFORM: {                                                // LOGUNIFORM - sample Z uniformly in the log
