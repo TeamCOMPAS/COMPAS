@@ -843,7 +843,9 @@
 //                                        Defect introduced was omission of code for HDF5 file support if a specified property is supplied to GetLogStandardRecord(), causing a boost::bad_get error.
 //                                        The defect only affected HDF5 SSE_Supernovae files.  This fix adds the omitted code.
 //                                      - Changed Options::PrintOptionHelp() to print help (-h/--h) to stdout instead of stderr.
+// 02.25.09     IM - Nov 16, 2021    - Defect repair:
+//                                      -Revert EAGB treatment to 02.25.06 until a proper fix is introduced
 
-const std::string VERSION_STRING = "02.25.08";
+const std::string VERSION_STRING = "02.25.09";
 
 # endif // __changelog_h__
