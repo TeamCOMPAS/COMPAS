@@ -68,7 +68,8 @@ protected:
             double          CalculateHeCoreMassAtPhaseEnd()                                                  { return CalculateHeCoreMassOnPhase(); }                               // Same as on phase
             double          CalculateHeCoreMassOnPhase()                                                     { return m_Mass; }                                               // NO-OP
 
-            double          CalculateLambdaNanjing(const int p_MassInd, const int p_Zind);
+            double          CalculateLambdaNanjing();
+            double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)            { return CalculateLambdaNanjing(); }
 
             double          CalculateLuminosityOnPhase();
             double          CalculateLuminosityAtPhaseEnd()                                                  { return m_Luminosity; }                                                                                                // NO-OP

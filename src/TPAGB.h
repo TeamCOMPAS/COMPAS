@@ -51,6 +51,7 @@ protected:
 
             double          CalculateLambdaDewi();
             double          CalculateLambdaNanjing(const int p_MassInd, const int p_Zind);
+            double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind);
 
             double          CalculateLuminosityOnPhase(const double p_Time);
             double          CalculateLuminosityOnPhase()                                                     { return CalculateLuminosityOnPhase(m_Age); }                                                   // Use class member variables

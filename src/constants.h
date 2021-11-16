@@ -3674,9 +3674,9 @@ const std::map<double, double> ARP3MassRadiusRelation = {
 // Mass / Msun of stellar models computed by Xu & Li (2010), with additional unpublished 50 and 100 Msun models
 const DBL_VECTOR NANJING_MASSES = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 20.0, 50.0, 100.0 };
 
-// vector NANJING_MASSES_OLD
-// Mass / Msun bin edges of Xu & Li (2010) lambda prescription as implemented in StarTrack. Roughly the midpoints of NANJING_MASSES
-const DBL_VECTOR NANJING_MASSES_OLD = { 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 11.0, 13.0, 15.0, 18.0, 35.0, 75.0 };
+// vector NANJING_MASSES_MIDPOINTS
+// Mass / Msun bin edges of Xu & Li (2010) lambda prescription as implemented in StarTrack. These are the midpoints between the masses in NANJING_MASSES
+const DBL_VECTOR NANJING_MASSES_MIDPOINTS = { 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 11.0, 13.0, 15.0, 18.0, 35.0, 75.0 };
 
 // Coefficients for calculating binding and recombination energy as described in Loveridge et al. 2011
 // Electronic tables, program and further information in: http://astro.ru.nl/~sluys/index.php?title=BE

@@ -64,7 +64,8 @@ protected:
     double       CalculateHeCoreMassOnPhase()                                   { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
 
     double       CalculateLambdaDewi();
-    double       CalculateLambdaNanjing(const int p_MassInd, const int p_Zind);
+    double       CalculateLambdaNanjing();
+    double       CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind);
 
     double       CalculateLuminosityAtPhaseEnd(const double p_Mass);
     double       CalculateLuminosityAtPhaseEnd()                                { return CalculateLuminosityAtPhaseEnd(m_Mass0);}                                           // Use class member variables

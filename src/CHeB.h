@@ -72,7 +72,8 @@ protected:
     double          CalculateGyrationRadius() const                              { return 0.21; }                                                               // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 
     double          CalculateLambdaDewi();
-    double          CalculateLambdaNanjing(const int p_MassInd, const int p_Zind);
+    double          CalculateLambdaNanjing();
+    double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind);
 
     double          CalculateLifetimeOnBluePhase(const double p_Mass);
     double          CalculateLifetimeOnPhase(const double p_Mass);
