@@ -2903,7 +2903,7 @@ double BaseStar::CalculateTimestep() {
 
     double dt = ChooseTimestep(m_Age);
 
-    return LimitTimestep(dt);
+    return max(LimitTimestep(dt), NUCLEAR_MINIMUM_TIMESTEP);                            // clamp timestep to minimum NUCLEAR_MINIMUM_TIMESTEP
 }
 
 
