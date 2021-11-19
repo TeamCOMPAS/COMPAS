@@ -3056,6 +3056,7 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
  * @param   [IN]    p_DeltaTime                 Timestep in Myr
  */
 void BaseStar::AgeOneTimestepPreamble(const double p_DeltaTime) {
+	
     if (p_DeltaTime > 0.0) {                        // if dt > 0    (don't use utils::Compare() here)
         m_Time += p_DeltaTime;                      // advance physical simulation time
         m_Age  += p_DeltaTime;                      // advance age of star
