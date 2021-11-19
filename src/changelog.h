@@ -845,7 +845,10 @@
 //                                      - Changed Options::PrintOptionHelp() to print help (-h/--h) to stdout instead of stderr.
 // 02.25.09     IM - Nov 16, 2021    - Defect repair:
 //                                      -Revert EAGB treatment to 02.25.06 until a proper fix is introduced
+// 02.25.10     JR - Nov 19, 2021    - Defect repairs:
+//                                      - clamp timestep returned in BaseStar::CalculateTimestep() to NUCLEAR_MINIMUM_TIMESTEP
+//                                      - change NUCLEAR_MINIMUM_TIMESTEP to 1 year (from 100 years) in constants.h
 
-const std::string VERSION_STRING = "02.25.09";
+const std::string VERSION_STRING = "02.25.10";
 
 # endif // __changelog_h__
