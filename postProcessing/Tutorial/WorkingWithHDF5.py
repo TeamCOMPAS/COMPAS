@@ -21,15 +21,15 @@
 
 # ## Material
 #
-# ### [1. Producing HDF5 output:](#1.-Producing-HDF5-output)
+# ### [1. Producing HDF5 output ](#1.-Producing-HDF5-output)
 # How to run default COMPAS and produce a simple output file.
 #         
 #         
-# ### [2. Reading HDF5 files:](#2.-Reading-HDF5-files)
+# ### [2. Reading HDF5 files ](#2.-Reading-HDF5-files)
 # The basics and syntax of loading an HDF5 file.
 #         
 #         
-# ### [3. Rewriting HDF5 files:](#3.-Rewriting-HDF5-files)
+# ### [3. Rewriting HDF5 files ](#3.-Rewriting-HDF5-files)
 # How to rewrite/reduce the HDF5 data.
 
 
@@ -48,8 +48,8 @@ tutorialDir = compasRootDir + '/postProcessing/Tutorial/'
 
 # Import useful COMPAS scripts for later use
 sys.path.append(compasRootDir + 'postProcessing/PythonScripts')
-from printCompasDetails import printCompasDetails
-import rewrite_H5
+from compasUtils import printCompasDetails
+import h5rewrite
 
 
 # -
@@ -219,7 +219,7 @@ Data.close()
 # ## Call the function which creates the h5 file
 
 # +
-rewrite_H5.reduceH5(pathToOld = pathToDataInput, pathToNew = pathToDataOutput,\
+h5rewrite.reduceH5(pathToOld = pathToDataInput, pathToNew = pathToDataOutput,\
                      dictColumns=columnsOfInterest, dictSeeds=seedsOfInterest)
 
-rewrite_H5.printAllColumnsInH5(pathToDataOutput)
+h5rewrite.printAllColumnsInH5(pathToDataOutput)

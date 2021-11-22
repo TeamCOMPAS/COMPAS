@@ -15,21 +15,26 @@
 
 # # Introduction
 #
-# Most of the post-processing material here uses python code.
-# Here we show two important basics of python code in the context
-# of investigating your COMPAS simulation.
+# Most of the post-processing material presented here is written in python, and makes extensive use of the numpy package for rapid computation on large data arrays.
+# Here we show two important basics of python/numpy in the context of investigating your COMPAS simulation.
 
 
 # ## Material
 #
-# ### [1. Slicing the data](#1.-Slicing-the-data)
-# How to select specific systems and their parameters using seeds.
+# ### [1. Inspecting the data ](#1.-Inspecting-the-data)
+# TODO:! Look at the raw hdf5 data to see which parameters are available and check that it matches expectations.
 #
-# ### [2. Visualizing the data](#2.-Visualizing-the-data)
-# The basics of binning and visualising your data.
+# ### [1. Slicing the data ](#1.-Slicing-the-data)
+# Select specific systems and their parameters using seeds.
+#
+# ### [2. Visualizing the data ](#2.-Visualizing-the-data)
+# Binning and visualising your data.
 
 
 
+
+# ### For the following sections, you will need to have the following packages installed.
+# ### `numpy, h5py, time, matplotlib`
 
 # +
 #python libraries
@@ -38,6 +43,7 @@ import h5py as h5                # for reading the COMPAS data
 import time                      # for finding computation time
 import matplotlib.pyplot as plt  #for plotting
 
+# This is known as an ipython magic command, and allows plots to be produced within the notebook
 # %matplotlib inline
 
 # Choose an output hdf5 file to work with
@@ -48,7 +54,7 @@ pathToData = compasRootDir + 'postProcessing/Tutorial/COMPAS_Output/COMPAS_Outpu
 
 # # 1. Slicing the data
 #
-# One of the most important numbers in the COMPAS output is the system seed. The seed represents the unique identifier to a specific system in a simulation. It is also used as the seed value in random number generation, which is useful when trying to reproduce an identical system. Therefore the properties of a single system can be recovered by looking at its seed across different output categories. 
+# One of the most important numbers in the COMPAS output is the system seed. The seed represents the unique identifier to a specific system in a simulation. It is also used as the seed value in random number generation, which is useful when trying to reproduce a given system identically. Therefore the properties and events of a single binary system can be recovered by looking at its seed across different output categories. 
 #
 # Here we introduce the basics of manipulating the data using the seeds. We provide an example on how we get the initial parameters of systems that ended up forming double compact objects.
 #
