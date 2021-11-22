@@ -836,7 +836,19 @@
 //                                      - Clarified program option documentation
 //                                      - Removed unused CUSTOM semi-major axis initial distribution
 //                                      - Removed unused STARTRACK zeta prescription
+// 02.25.07     IM - Nov 12, 2021    - Defect repair:
+//                                      - Changed EAGB::CalculateLuminosityOnPhase() and EAGB::CalculateLuminosityAtPhaseEnd() to use the helium core mass rather than the CO core mass (see Eq. in second paragraph of section 5.4 of Hurley+, 2000); this fixes a downward step in luminosity and radius on transition to EAGB
+// 02.25.08     JR - Nov 15, 2021    - Defect repair:
+//                                      - Fixed error introduced in v02.25.00: Added HDF5 support to GetLogStandardRecord().
+//                                        Defect introduced was omission of code for HDF5 file support if a specified property is supplied to GetLogStandardRecord(), causing a boost::bad_get error.
+//                                        The defect only affected HDF5 SSE_Supernovae files.  This fix adds the omitted code.
+//                                      - Changed Options::PrintOptionHelp() to print help (-h/--h) to stdout instead of stderr.
+// 02.25.09     IM - Nov 16, 2021    - Defect repair:
+//                                      -Revert EAGB treatment to 02.25.06 until a proper fix is introduced
+// 02.25.10     JR - Nov 19, 2021    - Defect repairs:
+//                                      - clamp timestep returned in BaseStar::CalculateTimestep() to NUCLEAR_MINIMUM_TIMESTEP
+//                                      - change NUCLEAR_MINIMUM_TIMESTEP to 1 year (from 100 years) in constants.h
 
-const std::string VERSION_STRING = "02.25.06";
+const std::string VERSION_STRING = "02.25.10";
 
 # endif // __changelog_h__
