@@ -848,7 +848,9 @@
 // 02.25.10     JR - Nov 19, 2021    - Defect repairs:
 //                                      - clamp timestep returned in BaseStar::CalculateTimestep() to NUCLEAR_MINIMUM_TIMESTEP
 //                                      - change NUCLEAR_MINIMUM_TIMESTEP to 1 year (from 100 years) in constants.h
+// 02.25.11     RTW - Nov 23, 2021   - Minor fixes
+//                                      - Changed RLOF(X)>MT to RLOF(X) for clarity
 
-const std::string VERSION_STRING = "02.25.10";
+const std::string VERSION_STRING = "02.25.11";
 
 # endif // __changelog_h__
