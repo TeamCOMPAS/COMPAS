@@ -16,10 +16,11 @@ from matplotlib.legend import Legend
 from matplotlib import rcParams, transforms, patches
 import matplotlib.gridspec as gridspec
 
+compasRootDir = os.environ['COMPAS_ROOT_DIR']
+
 def main():
     ### Read file and create dataframe.
-    data_path = '/home/rwillcox/astro/compas/COMPAS/output/detailed_evol_vanDenHeuval_plots/COMPAS_Output_2/Detailed_Output/BSE_Detailed_Output_0.h5'
-    # data_path = '/Users/13lauy1/git/compas2/COMPAS/postProcessing/BSE_Detailed_Output_0.h5'
+    data_path = 'COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
 
     Data = h5.File(data_path, 'r')
 
@@ -424,8 +425,7 @@ class Event(object):
         on the stellar types, to get the van Den Heuval diagrams.
         """
 
-        # self.imgFile = '/home/rwillcox/astro/compas/COMPAS/docs/media/vanDenHeuval_figures/{}.png'.format(image_num)
-        self.imgFile = '/Users/13lauy1/git/compas2/COMPAS/docs/media/vanDenHeuval_figures/{}.png'.format(image_num)
+        self.imgFile = compasRootDir + '/docs/media/vanDenHeuval_figures/{}.png'.format(image_num)
         img = plt.imread(self.imgFile) # import image
         if rotate_image:
             img = img[:,::-1,:] # flip across y-axis
