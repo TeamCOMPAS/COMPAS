@@ -16,7 +16,7 @@ from matplotlib.legend import Legend
 from matplotlib import rcParams, transforms, patches
 import matplotlib.gridspec as gridspec
 
-compasRootDir = os.environ['COMPAS_ROOT_DIR']
+compasRootDir = os.path.expandvars(os.environ['COMPAS_ROOT_DIR'])
 
 def main():
     ### Read file and create dataframe.
@@ -32,7 +32,7 @@ def main():
     ### Produce the two plots
     makeDetailedPlots(Data, events)
     plotVanDenHeuval(events=events)
-    plt.savefig('vanDenHeuvalPlot.eps', format='eps')
+    plt.savefig('vanDenHeuvalPlot.eps', bbox_inches='tight',pad_inches = 0, format='eps')
     plt.show()
 
 
@@ -56,7 +56,6 @@ fontparams = {
 
 def makeDetailedPlots(Data=None, events=None):
 
-    #listOfPlots = [ plotMassAttributes, plotLengthAttributes, plotStellarTypeAttributesAndEccentricity ]
     listOfPlots = [ plotMassAttributes, plotLengthAttributes, plotStellarTypeAttributes, plotEccentricity]
 
     events = [event for event in events if event.eventClass != 'Stype'] # want to ignore simple stellar type changes
@@ -70,10 +69,6 @@ def makeDetailedPlots(Data=None, events=None):
     for ii, specificPlot in enumerate(listOfPlots): # exclude the last one
 
         ax = axes[ii]
-        if ii == 0:
-            ax0 = ax
-        else:
-            ax.sharex(ax0)
 
         # TODO: Set the reverse log scale for time
 
@@ -87,11 +82,15 @@ def makeDetailedPlots(Data=None, events=None):
         # Add vertical lines for specific event times
         [ax.axvline(time, ymin=0.975, zorder=0) for time in event_times]
 
-        # On all plots, add the event letters
-        spaced_out_event_times = space_out(event_times, min_separation=ax.get_xlim()[1]/75) # min_separation of xmax/50 was found to fit the letter sizes well
-        for jj in range(num_events):
-            yOffsetFactor = 3 if (ax.get_yscale() == 'log') else 1.1
-            ax.text(x=spaced_out_event_times[jj], y=ax.get_ylim()[1]*yOffsetFactor, s=chr(ord('@')+1+jj)) # The unicode representation of the capital letters - works as long as there are less than 26 images to show
+        # Add the event letters to the first plot
+        if ii == 0:
+            spaced_out_event_times = space_out(event_times, min_separation=ax.get_xlim()[1]/75) # min_separation of xmax/50 was found to fit the letter sizes well
+            for jj in range(num_events):
+                yOffsetFactor = 1.5 if (ax.get_yscale() == 'log') else 1.02
+                ax.text(x=spaced_out_event_times[jj], y=ax.get_ylim()[1]*yOffsetFactor, s=chr(ord('@')+1+jj)) # The unicode representation of the capital letters - works as long as there are less than 26 images to show
+        
+        if ii < len(listOfPlots):
+            ax.axes.xaxis.set_ticklabels([])
 
         if handles is not None:
             ax.legend(handles=handles, labels=labels, loc='center left', bbox_to_anchor=(1.03,0.5), fancybox=True)
@@ -100,11 +99,10 @@ def makeDetailedPlots(Data=None, events=None):
             ax.set_xlabel('Time / Myr')
 
 
-
     #### Finalize the boundaries, save, and show
-    fig.suptitle('Detailed evolution for seed={}'.format(Data['SEED'][()][0]), fontsize=24) 
-    fig.tight_layout(h_pad=8, rect= (0, .08, 1, .95)) # (left, bottom, right, top) 
-    plt.savefig('detailedEvolutionPlot.eps', format='eps')
+    fig.suptitle('Detailed evolution for seed = {}'.format(Data['SEED'][()][0]), fontsize=18) 
+    fig.tight_layout(h_pad=1, rect= (0., 0.08, 1., .98), pad=0.) # (left, bottom, right, top) 
+    plt.savefig('detailedEvolutionPlot.eps', bbox_inches='tight',pad_inches = 0, format='eps')
 
 
 
@@ -335,14 +333,14 @@ class Event(object):
             self.eventSubClass = mtValue
             
             if mtValue == 1:
-                eventString = r'Stable mass transfer: 1 to 2'
+                eventString = r'Stable mass transfer from 1 to 2'
                 if self.stype2 < 13:
                     image_num = 26
                 else:
                     image_num = 44
                     rotate_image = True
             elif mtValue == 2:
-                eventString = r'Stable mass transfer: 2 to 1'
+                eventString = r'Stable mass transfer from 2 to 1'
                 if self.stype1 < 13:
                     image_num = 26
                     rotate_image = True
