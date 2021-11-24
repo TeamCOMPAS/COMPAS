@@ -20,8 +20,7 @@ compasRootDir = os.environ['COMPAS_ROOT_DIR']
 
 def main():
     ### Read file and create dataframe.
-    #data_path = 'COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
-    data_path = '/home/rwillcox/astro/compas/COMPAS/output/detailed_evol_vanDenHeuval_plots/COMPAS_Output_2/Detailed_Output/BSE_Detailed_Output_0.h5'
+    data_path = 'COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
 
     Data = h5.File(data_path, 'r')
 
