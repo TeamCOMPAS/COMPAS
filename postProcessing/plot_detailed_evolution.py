@@ -17,16 +17,11 @@ from matplotlib import rcParams, transforms, patches
 import matplotlib.gridspec as gridspec
 
 def main():
-
     ### Read file and create dataframe.
-    #data_path = './COMPAS_Output/Detailed_Output/BSE_Detailed_Output_{}.h5'.format(sys.argv[1])
-    #data_path = '/home/rwillcox/astro/compas/COMPAS/examples/methods_paper_plots/detailed_evolution/COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
-    #data_path = '/home/rwillcox/astro/compas/COMPAS/examples/methods_paper_plots/detailed_evolution/COMPAS_Output_2/Detailed_Output/BSE_Detailed_Output_0.h5'
-    data_path = '/home/rwillcox/astro/compas/COMPAS/output/detailed_evol_vanDenHeuval_plots/COMPAS_Output_2/Detailed_Output/BSE_Detailed_Output_0.h5'
+    # data_path = '/home/rwillcox/astro/compas/COMPAS/output/detailed_evol_vanDenHeuval_plots/COMPAS_Output_2/Detailed_Output/BSE_Detailed_Output_0.h5'
+    data_path = '/Users/13lauy1/git/compas2/COMPAS/postProcessing/BSE_Detailed_Output_0.h5'
 
     Data = h5.File(data_path, 'r')
-
-    #testing(Data)
 
     ### Collect the important events in the detailed evolution
     events = getAllEvents(Data) # Calculate the events here, for use in plot sizing parameters
@@ -34,8 +29,10 @@ def main():
     events = [event for event in events if event.eventClass != 'Stype'] # want to ignore simple stellar type changes
 
     ### Produce the two plots
-    makeDetailedPlots(Data, events)
-    makeVanDenHeuvalPlot(Data, events)
+    # makeDetailedPlots(Data, events)
+    plotVanDenHeuval(events=events)
+    plt.savefig('vanDenHeuvalPlot.eps', format='eps')
+    plt.show()
 
 
 fontparams = {
@@ -110,27 +107,7 @@ def makeDetailedPlots(Data=None, events=None):
     fig.suptitle('Detailed evolution for seed={}'.format(Data['SEED'][()][0]), fontsize=24) #, y=1)
     fig.tight_layout(h_pad=8, rect= (0, .08, 1, .95)) #, h_pad=8) # (left, bottom, right, top) 
     plt.savefig('detailedEvolutionPlot.eps', format='eps')
-    #plt.show()
-
-
-def makeVanDenHeuvalPlot(Data=None, events=None):
-
-    num_events = len(events)
-
-    # The figure size should increase to account for the number of events
-    #nPlots = len(listOfPlots) # do I need this?
-    #nEventsColumns = 3 # vary this as desired
-    #nRows = nPlots + math.ceil(num_events/nEventsColumns)
-    #height_ratios=[1]*nPlots + [0.8]*(nRows-nPlots)
-    figHeight = 3*num_events + .5*(num_events-1)
-    fig, axes = plt.subplots(nrows=num_events, figsize=(4, figHeight)) # W, H  # constrained_layout=True, 
-
-    plotVanDenHeuval(fig=fig, axes=axes, events=events) #, figHeight=20):
-
-    #fig.tight_layout()
-    fig.tight_layout(h_pad=8, rect= (0, .05, 1, .95) ) # (left, bottom, right, top)  
-    plt.savefig('vanDenHeuvalPlot.eps', format='eps')
-    plt.show()
+    #plt.show()    
 
 
 
@@ -243,46 +220,25 @@ def plotStellarTypeAttributesAndEccentricity(fig=None, ax=None, Data=None):
     return handles, labels
 
 
-#def plotVanDenHeuval(fig=None, events=None, grid_spec=None, nRows=1, nEventsColumns=1, nPlots=0, imgH=1): #, figHeight=20):
-def plotVanDenHeuval(fig=None, axes=None, events=None): 
-    #gs = grid_spec
+def plotVanDenHeuval(events=None):
     num_events = len(events)
-
-    for ii in range(num_events): 
+    fig, axs = plt.subplots(num_events, 1)
+    plt.rcParams["text.usetex"] = True  # Use latex
     
-        #imgRow = nPlots + (ii//nEventsColumns)
-        #imgCol = ii%nEventsColumns
-
-        #ax = fig.add_subplot(gs[imgRow, imgCol])     
-        ax = axes[ii]
-        ax.xaxis.set_visible(True)
-        ax.yaxis.set_visible(False)
-        ax.set_xticks([])
-        ax.spines['top'].set_visible(False)
-        ax.spines['left'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.spines['bottom'].set_visible(False)
-        ax.grid(False)
-
-        # TODO fix this
-        imgH = 1 #figHeight/4 / (nRows-nPlots)
-        #imgAspectHW = 0.5622188905547226 # hard-coded, this applies to Serena's images
-        imgAspectWH = 1.7786666666666666 # inverse of above
-
-        ax.set_xlim([0, imgH*imgAspectWH])
-        ax.set_ylim([0, imgH])
-
-        #nImg = [2, 10, 26, 28][ii%4]
-        #fname = 'drawings/'+str(nImg)+'.png'
+    for ii in range(num_events):
         img = events[ii].eventImage
-        #img = plt.imread(fname) # import image
-    
-        x0, xF = ax.get_xlim()
-        y0, yF = ax.get_ylim()
-        ax.imshow(img, extent=(x0, xF, y0, yF)) # l, r, b, t 
+        axs[ii].imshow(img)
+        axs[ii].set_xticks([])
+        axs[ii].set_yticks([])
+        axs[ii].yaxis.set_label_position("right")
+        plt.subplots_adjust(hspace=0)
 
-        ax.text(x=-0.1*(xF-x0), y=0.9*(yF-y0), s=chr(ord('@')+1+ii), fontweight='bold') # The unicode representation of the capital letters - works as long as there are less than 26 images to show
-        ax.set_xlabel(events[ii].eventString) #, pad=-100)
+        pltString = "$t$ = {:.1f} Myr, $a = {:.1f}$ $R_\odot$ \n $M_1$ = {:.1f} $M_\odot$, $M_2$ = {:.1f} $M_\odot$ \n"+events[ii].eventString
+        pltString = pltString.format(events[ii].time,events[ii].a,events[ii].m1,events[ii].m2)
+        
+        pad = 5
+        axs[ii].annotate(pltString, xy=(0,0.5), xytext=(-axs[ii].yaxis.labelpad + pad,0),xycoords=axs[ii].yaxis.label,fontsize=8,textcoords='offset points', ha='left', va='center')
+        axs[ii].annotate(chr(ord('@')+1+ii), xy=(-0.15,0.8),xycoords='axes fraction',fontsize=8,fontweight='bold')
 
 
 
@@ -369,7 +325,7 @@ class Event(object):
         image_num = None
 
         if eventClass == 'Beg': # TODO
-            eventString = r'ZAMS: {:4.1f}+{:4.1f}'.format(self.m1, self.m2)
+            eventString = r'Zero-age main-sequence'
             image_num = 2 
 
         elif eventClass == 'MT':
@@ -377,33 +333,33 @@ class Event(object):
             self.eventSubClass = mtValue
             
             if mtValue == 1:
-                eventString = r'Stable MT: 1 to 2'
+                eventString = r'Stable mass transfer: 1 to 2'
                 if self.stype2 < 13:
                     image_num = 26
                 else:
                     image_num = 44
                     rotate_image = True
             elif mtValue == 2:
-                eventString = r'Stable MT: 2 to 1'
+                eventString = r'Stable mass transfer: 2 to 1'
                 if self.stype1 < 13:
                     image_num = 26
                     rotate_image = True
                 else:
                     image_num = 44
             elif mtValue == 3:
-                eventString = r'CE: 1 to 2'
+                eventString = r'Common envelope initiated by 1'
                 if (self.stype1 < 13) & (self.stype2 < 13):
                     image_num = 28
                 else:
                     image_num = 49
             elif mtValue == 4:
-                eventString = r'CE: 2 to 1'
+                eventString = r'Common envelope initiated by 2'
                 if (self.stype1 < 13) & (self.stype2 < 13):
                     image_num = 28
                 else:
                     image_num = 49
             elif mtValue == 5:
-                eventString = r'CE: Double Core'
+                eventString = r'Double-core common envelope'
                 image_num = 28
             elif mtValue == 6:
                 eventString = r'CE: both MS'
@@ -419,7 +375,7 @@ class Event(object):
             remnantType = 'NS' if (Data['Stellar_Type({})'.format(whichStar)][ii] == 13) else 'BH'
             compType = Data['Stellar_Type({})'.format(2 if whichStar==1 else 1)][ii]
             status = 'unbound' if (Data['Eccentricity'][ii]>1 or Data['SemiMajorAxis'][ii]<0) else 'intact'
-            eventString = r'Star {} SN-$>${}, {}'.format(whichStar, remnantType, status)
+            eventString = r'Star {} undergoes supernova and forms a {}, {}'.format(whichStar, remnantType, status)
             if compType < 13:
                 image_num = 13 # 13 for normal companion
             else:
@@ -448,7 +404,7 @@ class Event(object):
                 beta=64/5*G**3*m1*m2*(m1+m2)*Msunkg**3/c**5
                 T0=a**4/4/beta 
                 Tdelay=T0*(1-e**2)**(7/2)*(1+0.31*e**10 + 0.27*e**20 +  0.2*e**1000)/3.15e7/1e6
-                eventString = r'DCO: {}+{} Tmrg={:.2e} Myr'.format(stype1, stype1, Tdelay)
+                eventString = r'Double compact object ({}+{}) merging in {:.1f} Myr'.format(stype1, stype1, Tdelay)
 
                 if (stype1 == 13) & (stype2 == 13):
                     image_num = 55
@@ -486,7 +442,8 @@ class Event(object):
         on the stellar types, to get the van Den Heuval diagrams.
         """
 
-        self.imgFile = '/home/rwillcox/astro/compas/COMPAS/docs/media/vanDenHeuval_figures/{}.png'.format(image_num)
+        # self.imgFile = '/home/rwillcox/astro/compas/COMPAS/docs/media/vanDenHeuval_figures/{}.png'.format(image_num)
+        self.imgFile = '/Users/13lauy1/git/compas2/COMPAS/docs/media/vanDenHeuval_figures/{}.png'.format(image_num)
         img = plt.imread(self.imgFile) # import image
         if rotate_image:
             img = img[:,::-1,:] # flip across y-axis
