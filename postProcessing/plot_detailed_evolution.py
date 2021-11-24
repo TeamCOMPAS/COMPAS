@@ -2,7 +2,7 @@
 #                                                                 #                                                               
 #  Example of plotting detailed output COMPAS with python         #
 #                                                                 #
-# ##################################################################
+###################################################################
 
 import os, sys
 import math
@@ -16,7 +16,7 @@ from matplotlib.legend import Legend
 from matplotlib import rcParams, transforms, patches
 import matplotlib.gridspec as gridspec
 
-compasRootDir = os.environ['COMPAS_ROOT_DIR']
+compasRootDir = os.path.expandvars(os.environ['COMPAS_ROOT_DIR'])
 
 def main():
     ### Read file and create dataframe.
@@ -32,7 +32,7 @@ def main():
     ### Produce the two plots
     makeDetailedPlots(Data, events)
     plotVanDenHeuval(events=events)
-    plt.savefig('vanDenHeuvalPlot.eps', format='eps')
+    plt.savefig('vanDenHeuvalPlot.eps', bbox_inches='tight',pad_inches = 0, format='eps')
     plt.show()
 
 
@@ -48,7 +48,6 @@ fontparams = {
     "ytick.labelsize": "10",
     "xtick.labelbottom": "True", 
     "legend.framealpha": "1",
-    #"legend.fontsize": "None",
 }
 
 
@@ -57,7 +56,6 @@ fontparams = {
 
 def makeDetailedPlots(Data=None, events=None):
 
-    #listOfPlots = [ plotMassAttributes, plotLengthAttributes, plotStellarTypeAttributesAndEccentricity ]
     listOfPlots = [ plotMassAttributes, plotLengthAttributes, plotStellarTypeAttributes, plotEccentricity]
 
     events = [event for event in events if event.eventClass != 'Stype'] # want to ignore simple stellar type changes
@@ -67,16 +65,10 @@ def makeDetailedPlots(Data=None, events=None):
 
     rcParams.update(fontparams) # Set configurations for uniform plot output
     fig, axes = plt.subplots(nrows=len(listOfPlots), figsize=(10, 20)) # W, H
-    #gs = gridspec.GridSpec(ncols=nEventsColumns, nrows=nRows, figure=fig, height_ratios=height_ratios)
 
     for ii, specificPlot in enumerate(listOfPlots): # exclude the last one
 
-        #ax = fig.add_subplot(gs[ii,:])     
         ax = axes[ii]
-        if ii == 0:
-            ax0 = ax
-        else:
-            ax.sharex(ax0)
 
         # TODO: Set the reverse log scale for time
 
@@ -90,11 +82,15 @@ def makeDetailedPlots(Data=None, events=None):
         # Add vertical lines for specific event times
         [ax.axvline(time, ymin=0.975, zorder=0) for time in event_times]
 
-        # On all plots, add the event letters
-        # TODO: find a way to not let them overlap
-        #if ii == 0:
-        for jj in range(num_events):
-            ax.text(x=event_times[jj], y=ax.get_ylim()[1]*1.05, s=chr(ord('@')+1+jj)) # The unicode representation of the capital letters - works as long as there are less than 26 images to show
+        # Add the event letters to the first plot
+        if ii == 0:
+            spaced_out_event_times = space_out(event_times, min_separation=ax.get_xlim()[1]/75) # min_separation of xmax/50 was found to fit the letter sizes well
+            for jj in range(num_events):
+                yOffsetFactor = 1.5 if (ax.get_yscale() == 'log') else 1.02
+                ax.text(x=spaced_out_event_times[jj], y=ax.get_ylim()[1]*yOffsetFactor, s=chr(ord('@')+1+jj)) # The unicode representation of the capital letters - works as long as there are less than 26 images to show
+        
+        if ii < len(listOfPlots):
+            ax.axes.xaxis.set_ticklabels([])
 
         if handles is not None:
             ax.legend(handles=handles, labels=labels, loc='center left', bbox_to_anchor=(1.03,0.5), fancybox=True)
@@ -103,12 +99,11 @@ def makeDetailedPlots(Data=None, events=None):
             ax.set_xlabel('Time / Myr')
 
 
-
     #### Finalize the boundaries, save, and show
-    fig.suptitle('Detailed evolution for seed={}'.format(Data['SEED'][()][0]), fontsize=24) #, y=1)
-    fig.tight_layout(h_pad=8, rect= (0, .08, 1, .95)) #, h_pad=8) # (left, bottom, right, top) 
-    plt.savefig('detailedEvolutionPlot.eps', format='eps')
-    #plt.show()    
+    fig.suptitle('Detailed evolution for seed = {}'.format(Data['SEED'][()][0]), fontsize=18) 
+    fig.tight_layout(h_pad=1, rect= (0., 0.08, 1., .98), pad=0.) # (left, bottom, right, top) 
+    plt.savefig('detailedEvolutionPlot.eps', bbox_inches='tight',pad_inches = 0, format='eps')
+
 
 
 
@@ -160,10 +155,8 @@ def plotEccentricity(fig=None, ax=None, Data=None):
     ax.set_ylabel('Eccentricity')
 
     ax.set_ylim(-0.05, 1.05)
-    #ax.legend(framealpha=1, prop={'size':8} ) 
     ax.grid(linestyle=':', c='gray')
     
-    #return ax.get_legend_handles_labels()
     return None, None
     
 def plotStellarTypeAttributes(fig=None, ax=None, Data=None):
@@ -178,7 +171,6 @@ def plotStellarTypeAttributes(fig=None, ax=None, Data=None):
     ax.legend(prop={'size':8}) #, loc='lower left')
     ax.set_yticks(range(useTypes.shape[0]))
     ax.set_yticklabels([stellarTypes[typeNum] for typeNum in useTypes])
-    #ax.tick_params(width=2, labelsize=10)
     ax.yaxis.grid(True)
 
     ax.legend(framealpha=1, prop={'size':8} ) 
@@ -263,6 +255,32 @@ def getStellarTypes(Data):
     return stellarTypes, useTypes, typeNameMap
 
 
+def space_out(original_vals, min_separation=None):
+    """
+    This function takes a sorted array of floats (in this case, event times)
+    and spaces them out from each other to have a minimum separation min_separation.
+    
+    The purpose of this is so that the event letters don't overlap on the plot.
+
+    Idea of this function: for each pair which is too close, subtract off 
+    some amount (nudge) from the lower, add the same amount to the upper, 
+    and do this over the whole range. For big clumps, the middle ones won't move 
+    (+/- will cancel out), but as the outer ones move away, the inner ones will 
+    have room to stretch out.
+    """
+
+    vals = np.array(original_vals).copy()
+    if min_separation == None:
+        min_separation = np.max(vals)/50 # is this a good value?
+    nudge = min_separation/10 # keep the nudge small so that you don't overdo the jump
+
+    while(np.min(np.diff(vals))) < min_separation:
+        maskTooClose = np.diff(vals) < min_separation
+        vals[:-1][maskTooClose] -= nudge
+        vals[1:][maskTooClose]  += nudge
+
+    return vals
+        
 
 
 ###########################################################
@@ -306,8 +324,8 @@ class Event(object):
         rotate_image = False # Set to True if event goes from 2->1
         image_num = None
 
-        if eventClass == 'Beg': # TODO
-            eventString = r'Zero-age main-sequence'
+        if eventClass == 'Beg': 
+            eventString = r'Zero-age main-sequence: {:4.1f}+{:4.1f}'.format(self.m1, self.m2)
             image_num = 2 
 
         elif eventClass == 'MT':
@@ -315,14 +333,14 @@ class Event(object):
             self.eventSubClass = mtValue
             
             if mtValue == 1:
-                eventString = r'Stable mass transfer: 1 to 2'
+                eventString = r'Stable mass transfer from 1 to 2'
                 if self.stype2 < 13:
                     image_num = 26
                 else:
                     image_num = 44
                     rotate_image = True
             elif mtValue == 2:
-                eventString = r'Stable mass transfer: 2 to 1'
+                eventString = r'Stable mass transfer from 2 to 1'
                 if self.stype1 < 13:
                     image_num = 26
                     rotate_image = True
@@ -356,7 +374,6 @@ class Event(object):
             whichStar = kwargs['whichStar']
             remnantTypeName = self.stellarTypeMap[Data['Stellar_Type({})'.format(whichStar)][ii]] 
             compType = Data['Stellar_Type({})'.format(2 if whichStar==1 else 1)][ii]
-            #compType = Data['Stellar_Type({})'.format()][ii]
             status = '. Orbit becomes unbound' if (Data['Eccentricity'][ii]>1 or Data['SemiMajorAxis'][ii]<0) else ''
             eventString = r'Star {} undergoes supernova and forms a {}{}'.format(whichStar, remnantTypeName, status)
             if compType < 13:
