@@ -2,7 +2,7 @@
 #                                                                 #                                                               
 #  Example of plotting detailed output COMPAS with python         #
 #                                                                 #
-# ##################################################################
+###################################################################
 
 import os, sys
 import math
@@ -19,14 +19,9 @@ import matplotlib.gridspec as gridspec
 def main():
 
     ### Read file and create dataframe.
-    #data_path = './COMPAS_Output/Detailed_Output/BSE_Detailed_Output_{}.h5'.format(sys.argv[1])
-    #data_path = '/home/rwillcox/astro/compas/COMPAS/examples/methods_paper_plots/detailed_evolution/COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
-    #data_path = '/home/rwillcox/astro/compas/COMPAS/examples/methods_paper_plots/detailed_evolution/COMPAS_Output_2/Detailed_Output/BSE_Detailed_Output_0.h5'
-    data_path = '/home/rwillcox/astro/compas/COMPAS/output/detailed_evol_vanDenHeuval_plots/COMPAS_Output_2/Detailed_Output/BSE_Detailed_Output_0.h5'
+    data_path = 'COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
 
     Data = h5.File(data_path, 'r')
-
-    #testing(Data)
 
     ### Collect the important events in the detailed evolution
     events = allEvents(Data).allEvents # Calculate the events here, for use in plot sizing parameters
@@ -50,7 +45,6 @@ fontparams = {
     "ytick.labelsize": "10",
     "xtick.labelbottom": "True", 
     "legend.framealpha": "1",
-    #"legend.fontsize": "None",
 }
 
 
@@ -69,11 +63,9 @@ def makeDetailedPlots(Data=None, events=None):
 
     rcParams.update(fontparams) # Set configurations for uniform plot output
     fig, axes = plt.subplots(nrows=len(listOfPlots), figsize=(10, 20)) # W, H
-    #gs = gridspec.GridSpec(ncols=nEventsColumns, nrows=nRows, figure=fig, height_ratios=height_ratios)
 
     for ii, specificPlot in enumerate(listOfPlots): # exclude the last one
 
-        #ax = fig.add_subplot(gs[ii,:])     
         ax = axes[ii]
         if ii == 0:
             ax0 = ax
@@ -93,10 +85,10 @@ def makeDetailedPlots(Data=None, events=None):
         [ax.axvline(time, ymin=0.975, zorder=0) for time in event_times]
 
         # On all plots, add the event letters
-        # TODO: find a way to not let them overlap
-        #if ii == 0:
+        spaced_out_event_times = space_out(event_times, min_separation=ax.get_xlim()[1]/75) # min_separation of xmax/50 was found to fit the letter sizes well
         for jj in range(num_events):
-            ax.text(x=event_times[jj], y=ax.get_ylim()[1]*1.05, s=chr(ord('@')+1+jj)) # The unicode representation of the capital letters - works as long as there are less than 26 images to show
+            yOffsetFactor = 3 if (ax.get_yscale() == 'log') else 1.1
+            ax.text(x=spaced_out_event_times[jj], y=ax.get_ylim()[1]*yOffsetFactor, s=chr(ord('@')+1+jj)) # The unicode representation of the capital letters - works as long as there are less than 26 images to show
 
         if handles is not None:
             ax.legend(handles=handles, labels=labels, loc='center left', bbox_to_anchor=(1.03,0.5), fancybox=True)
@@ -107,27 +99,20 @@ def makeDetailedPlots(Data=None, events=None):
 
 
     #### Finalize the boundaries, save, and show
-    fig.suptitle('Detailed evolution for seed={}'.format(Data['SEED'][()][0]), fontsize=24) #, y=1)
-    fig.tight_layout(h_pad=8, rect= (0, .08, 1, .95)) #, h_pad=8) # (left, bottom, right, top) 
+    fig.suptitle('Detailed evolution for seed={}'.format(Data['SEED'][()][0]), fontsize=24) 
+    fig.tight_layout(h_pad=8, rect= (0, .08, 1, .95)) # (left, bottom, right, top) 
     plt.savefig('detailedEvolutionPlot.eps', format='eps')
-    #plt.show()
 
 
 def makeVanDenHeuvalPlot(Data=None, events=None):
 
     num_events = len(events)
 
-    # The figure size should increase to account for the number of events
-    #nPlots = len(listOfPlots) # do I need this?
-    #nEventsColumns = 3 # vary this as desired
-    #nRows = nPlots + math.ceil(num_events/nEventsColumns)
-    #height_ratios=[1]*nPlots + [0.8]*(nRows-nPlots)
     figHeight = 3*num_events + .5*(num_events-1)
-    fig, axes = plt.subplots(nrows=num_events, figsize=(4, figHeight)) # W, H  # constrained_layout=True, 
+    fig, axes = plt.subplots(nrows=num_events, figsize=(4, figHeight)) # W, H  
 
     plotVanDenHeuval(fig=fig, axes=axes, events=events) #, figHeight=20):
 
-    #fig.tight_layout()
     fig.tight_layout(h_pad=8, rect= (0, .05, 1, .95) ) # (left, bottom, right, top)  
     plt.savefig('vanDenHeuvalPlot.eps', format='eps')
     plt.show()
@@ -182,10 +167,8 @@ def plotEccentricity(fig=None, ax=None, Data=None):
     ax.set_ylabel('Eccentricity')
 
     ax.set_ylim(-0.05, 1.05)
-    #ax.legend(framealpha=1, prop={'size':8} ) 
     ax.grid(linestyle=':', c='gray')
     
-    #return ax.get_legend_handles_labels()
     return None, None
     
 def plotStellarTypeAttributes(fig=None, ax=None, Data=None):
@@ -200,7 +183,6 @@ def plotStellarTypeAttributes(fig=None, ax=None, Data=None):
     ax.legend(prop={'size':8}) #, loc='lower left')
     ax.set_yticks(range(useTypes.shape[0]))
     ax.set_yticklabels([stellarTypes[typeNum] for typeNum in useTypes])
-    #ax.tick_params(width=2, labelsize=10)
     ax.yaxis.grid(True)
 
     ax.legend(framealpha=1, prop={'size':8} ) 
@@ -243,17 +225,11 @@ def plotStellarTypeAttributesAndEccentricity(fig=None, ax=None, Data=None):
     return handles, labels
 
 
-#def plotVanDenHeuval(fig=None, events=None, grid_spec=None, nRows=1, nEventsColumns=1, nPlots=0, imgH=1): #, figHeight=20):
 def plotVanDenHeuval(fig=None, axes=None, events=None): 
-    #gs = grid_spec
     num_events = len(events)
 
     for ii in range(num_events): 
     
-        #imgRow = nPlots + (ii//nEventsColumns)
-        #imgCol = ii%nEventsColumns
-
-        #ax = fig.add_subplot(gs[imgRow, imgCol])     
         ax = axes[ii]
         ax.xaxis.set_visible(True)
         ax.yaxis.set_visible(False)
@@ -264,13 +240,11 @@ def plotVanDenHeuval(fig=None, axes=None, events=None):
         ax.spines['bottom'].set_visible(False)
         ax.grid(False)
 
-        # TODO fix this
-        imgH = 1 #figHeight/4 / (nRows-nPlots)
         #imgAspectHW = 0.5622188905547226 # hard-coded, this applies to Serena's images
         imgAspectWH = 1.7786666666666666 # inverse of above
 
-        ax.set_xlim([0, imgH*imgAspectWH])
-        ax.set_ylim([0, imgH])
+        ax.set_xlim([0, imgAspectWH])
+        ax.set_ylim([0, 1])
 
         img = events[ii].eventImage
     
@@ -307,6 +281,32 @@ def getStellarTypes(Data):
     return stellarTypes, useTypes, typeNameMap
 
 
+def space_out(original_vals, min_separation=None):
+    """
+    This function takes a sorted array of floats (in this case, event times)
+    and spaces them out from each other to have a minimum separation min_separation.
+    
+    The purpose of this is so that the event letters don't overlap on the plot.
+
+    Idea of this function: for each pair which is too close, subtract off 
+    some amount (nudge) from the lower, add the same amount to the upper, 
+    and do this over the whole range. For big clumps, the middle ones won't move 
+    (+/- will cancel out), but as the outer ones move away, the inner ones will 
+    have room to stretch out.
+    """
+
+    vals = np.array(original_vals).copy()
+    if min_separation == None:
+        min_separation = np.max(vals)/50 # is this a good value?
+    nudge = min_separation/10 # keep the nudge small so that you don't overdo the jump
+
+    while(np.min(np.diff(vals))) < min_separation:
+        maskTooClose = np.diff(vals) < min_separation
+        vals[:-1][maskTooClose] -= nudge
+        vals[1:][maskTooClose]  += nudge
+
+    return vals
+        
 
 
 ###########################################################
@@ -350,7 +350,7 @@ class Event(object):
         rotate_image = False # Set to True if event goes from 2->1
         image_num = None
 
-        if eventClass == 'Beg': # TODO
+        if eventClass == 'Beg': 
             eventString = r'ZAMS: {:4.1f}+{:4.1f}'.format(self.m1, self.m2)
             image_num = 2 
 
@@ -400,7 +400,6 @@ class Event(object):
             whichStar = kwargs['whichStar']
             remnantTypeName = self.stellarTypeMap[Data['Stellar_Type({})'.format(whichStar)][ii]] 
             compType = Data['Stellar_Type({})'.format(2 if whichStar==1 else 1)][ii]
-            #compType = Data['Stellar_Type({})'.format()][ii]
             status = 'unbound' if (Data['Eccentricity'][ii]>1 or Data['SemiMajorAxis'][ii]<0) else 'intact'
             eventString = r'Star {} SN-$>${}, {}'.format(whichStar, remnantTypeName, status)
             if compType < 13:
