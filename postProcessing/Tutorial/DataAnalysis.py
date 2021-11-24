@@ -24,10 +24,10 @@
 # ### [1. Inspecting the data ](#1.-Inspecting-the-data)
 # TODO:! Look at the raw hdf5 data to see which parameters are available and check that it matches expectations.
 #
-# ### [1. Slicing the data ](#1.-Slicing-the-data)
+# ### [2. Slicing the data ](#2.-Slicing-the-data)
 # Select specific systems and their parameters using seeds.
 #
-# ### [2. Visualizing the data ](#2.-Visualizing-the-data)
+# ### [3. Visualizing the data ](#3.-Visualizing-the-data)
 # Binning and visualising your data.
 
 
@@ -52,15 +52,11 @@ pathToData = compasRootDir + 'postProcessing/Tutorial/COMPAS_Output/COMPAS_Outpu
 
 # -
 
-# # 1. Slicing the data
+
+
+# # 1. Inspecting the data
 #
-# One of the most important numbers in the COMPAS output is the system seed. The seed represents the unique identifier to a specific system in a simulation. It is also used as the seed value in random number generation, which is useful when trying to reproduce a given system identically. Therefore the properties and events of a single binary system can be recovered by looking at its seed across different output categories. 
-#
-# Here we introduce the basics of manipulating the data using the seeds. We provide an example on how we get the initial parameters of systems that ended up forming double compact objects.
-#
-# Naively, we might try to use For Loops with Conditions to extract systems of interest to a list. However, this can potentially be computationally expensive.
-#
-# Here we present a method to more efficiently 'slice' the data using numpy and boolean masks. These are slightly more involved but are computationally quick and use intuitive logic.
+# Often the first thing you want to do with new data is simply to look at it! Getting familiar with the data, including available parameters, size of the data file, etc. will help to inform how best to proceed with the analysis. We provide a useful function for looking at the data from different output categories, `printCompasDetails`. 
 #
 # --
 #
@@ -71,12 +67,29 @@ pathToData = compasRootDir + 'postProcessing/Tutorial/COMPAS_Output/COMPAS_Outpu
 Data  = h5.File(pathToData)
 print(list(Data.keys()))
 
-
-# The print statement shows the different categories that are combined in your h5file.
+# The output above represents the event categories available from the particular run. If you used the output produced in the previous tutorial, you should see `['BSE_Common_Envelopes', 'BSE_Double_Compact_Objects', 'BSE_RLOF', 'BSE_Supernovae', 'BSE_System_Parameters', 'Run_Details']`. Note that for smaller runs which do not produce any of a particular type of output, the output category will not be created. 
 #
-# The system seed links, e.g, information about the Supernovae to information about the initial SystemParameters.
+# Brief description of the categories:
+# - 'BSE_System_Parameters': Initial state of the binary
+# - 'BSE_RLOF': Any mass transfer events that occured within the binary
+# - 'BSE_Common_Envelopes': If any of the mass transfer events were unstable, details will be included here.
+# - 'BSE_Supernovae': Parameters and outcome of any supernovae that occured in the binary
+# - 'BSE_Double_Compact_Objects': If the binary ends as an intact pair of compact objects, it will be here
+# - 'Run_Details'
 
-# # Question: What were the initial total masses of the double compact objects?
+
+
+# # 2. Slicing the data
+#
+# One of the most important numbers in the COMPAS output is the system seed. The seed represents the unique identifier to a specific system in a simulation. It is also used as the seed value in random number generation, which is useful when trying to reproduce a given system identically. Therefore the properties and events of a single binary system can be recovered by looking at its seed across different output categories. 
+#
+# Here we introduce the basics of manipulating the data using the seeds. We provide an example on how we get the initial parameters of systems that ended up forming double compact objects.
+#
+# Naively, we might try to use For Loops with Conditions to extract systems of interest to a list. However, this can potentially be computationally expensive.
+#
+# Here we present a method to more efficiently 'slice' the data using numpy and boolean masks. These are slightly more involved but are computationally quick and use intuitive logic.
+
+# ## Question: What were the initial total masses of the double compact objects?
 
 def calculateTotalMassesNaive(pathData=None):
     Data  = h5.File(pathToData)
@@ -322,7 +335,7 @@ Data.close()
 #     name: python3
 # ---
 
-# # 2. Visualizing the data
+# # 3. Visualizing the data
 #
 # Although math is the fundamental basis of physics and astrophysics, we cannot always easily convert numbers and equations into a coherent picture. Plotting is therefore a vital tool in bridging the gap between raw data and a deeper scientific understanding. 
 #
