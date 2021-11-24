@@ -20,7 +20,8 @@ compasRootDir = os.environ['COMPAS_ROOT_DIR']
 
 def main():
     ### Read file and create dataframe.
-    data_path = 'COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
+    #data_path = 'COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
+    data_path = '/home/rwillcox/astro/compas/COMPAS/output/detailed_evol_vanDenHeuval_plots/COMPAS_Output_2/Detailed_Output/BSE_Detailed_Output_0.h5'
 
     Data = h5.File(data_path, 'r')
 
@@ -31,7 +32,7 @@ def main():
 
     ### Produce the two plots
     makeDetailedPlots(Data, events)
-    makeVanDenHeuvalPlot(Data, events)
+    plotVanDenHeuval(events=events)
     plt.savefig('vanDenHeuvalPlot.eps', format='eps')
     plt.show()
 
@@ -106,19 +107,6 @@ def makeDetailedPlots(Data=None, events=None):
     fig.tight_layout(h_pad=8, rect= (0, .08, 1, .95)) # (left, bottom, right, top) 
     plt.savefig('detailedEvolutionPlot.eps', format='eps')
 
-
-def makeVanDenHeuvalPlot(Data=None, events=None):
-
-    num_events = len(events)
-
-    figHeight = 3*num_events + .5*(num_events-1)
-    fig, axes = plt.subplots(nrows=num_events, figsize=(4, figHeight)) # W, H  
-
-    plotVanDenHeuval(fig=fig, axes=axes, events=events) #, figHeight=20):
-
-    fig.tight_layout(h_pad=8, rect= (0, .05, 1, .95) ) # (left, bottom, right, top)  
-    plt.savefig('vanDenHeuvalPlot.eps', format='eps')
-    #plt.show()
 
 
 
@@ -228,7 +216,7 @@ def plotStellarTypeAttributesAndEccentricity(fig=None, ax=None, Data=None):
     return handles, labels
 
 
-def plotVanDenHeuval(fig=None, axes=None, events=None): 
+def plotVanDenHeuval(events=None):
     num_events = len(events)
     fig, axs = plt.subplots(num_events, 1)
     plt.rcParams["text.usetex"] = True  # Use latex
