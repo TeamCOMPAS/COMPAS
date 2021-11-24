@@ -18,18 +18,18 @@ import matplotlib.gridspec as gridspec
 
 def main():
     ### Read file and create dataframe.
-    # data_path = '/home/rwillcox/astro/compas/COMPAS/output/detailed_evol_vanDenHeuval_plots/COMPAS_Output_2/Detailed_Output/BSE_Detailed_Output_0.h5'
-    data_path = '/Users/13lauy1/git/compas2/COMPAS/postProcessing/BSE_Detailed_Output_0.h5'
+    data_path = '/home/rwillcox/astro/compas/COMPAS/output/detailed_evol_vanDenHeuval_plots/COMPAS_Output_2/Detailed_Output/BSE_Detailed_Output_0.h5'
+    # data_path = '/Users/13lauy1/git/compas2/COMPAS/postProcessing/BSE_Detailed_Output_0.h5'
 
     Data = h5.File(data_path, 'r')
 
     ### Collect the important events in the detailed evolution
-    events = getAllEvents(Data) # Calculate the events here, for use in plot sizing parameters
+    events = allEvents(Data).allEvents # Calculate the events here, for use in plot sizing parameters
     printEvolutionaryHistory(events=events)
     events = [event for event in events if event.eventClass != 'Stype'] # want to ignore simple stellar type changes
 
     ### Produce the two plots
-    # makeDetailedPlots(Data, events)
+    makeDetailedPlots(Data, events)
     plotVanDenHeuval(events=events)
     plt.savefig('vanDenHeuvalPlot.eps', format='eps')
     plt.show()
@@ -241,10 +241,6 @@ def plotVanDenHeuval(events=None):
         axs[ii].annotate(chr(ord('@')+1+ii), xy=(-0.15,0.8),xycoords='axes fraction',fontsize=8,fontweight='bold')
 
 
-
-
-
-
 ### Helper functions
 
 def getStellarTypes(Data):
@@ -275,28 +271,14 @@ def getStellarTypes(Data):
 ###########################################################
 
 
-def testing(Data):
-    event = Event(Data, 0, 'Beg')
-    img = event.getEventImage(2, True)
-
-    fig, ax = plt.subplots()
-
-    imgAspectWH = 1.7786666666666666 # inverse of above
-    ax.set_xlim([0, imgAspectWH])
-    ax.set_ylim([0, 1])
-    x0, xF = ax.get_xlim()
-    y0, yF = ax.get_ylim()
-    ax.imshow(img, extent=(x0, xF, y0, yF)) # l, r, b, t 
-    plt.show()
-
-
 class Event(object):
 
-    def __init__(self, Data, index, eventClass, **kwargs):
+    def __init__(self, Data, index, eventClass, stellarTypeMap, **kwargs):
 
         self.Data   = Data
         self.index  = index
         self.eventClass = eventClass # Can be any of 'Beg', 'End', 'MT', 'SN', 'Stype'
+        self.stellarTypeMap = stellarTypeMap
 
         ii = index
         self.time   = Data['Time'][ii] 
@@ -304,13 +286,12 @@ class Event(object):
         self.m2     = Data['Mass(2)'][ii] 
         self.stype1 = Data['Stellar_Type(1)'][ii] 
         self.stype2 = Data['Stellar_Type(2)'][ii] 
+        self.stypeName1 = stellarTypeMap[self.stype1]
+        self.stypeName2 = stellarTypeMap[self.stype2]
         self.a      = Data['SemiMajorAxis'][ii]
         self.e      = Data['Eccentricity'][ii]
 
-
         self.eventString = self.getEventDetails(**kwargs)
-        #self.eventImage = getEventImage(image_num)
-        #self.eventImage = self.getEventImage()
 
 
     def getEventDetails(self, **kwargs):
@@ -372,10 +353,11 @@ class Event(object):
 
         elif eventClass == 'SN':
             whichStar = kwargs['whichStar']
-            remnantType = 'NS' if (Data['Stellar_Type({})'.format(whichStar)][ii] == 13) else 'BH'
+            remnantTypeName = self.stellarTypeMap[Data['Stellar_Type({})'.format(whichStar)][ii]] 
             compType = Data['Stellar_Type({})'.format(2 if whichStar==1 else 1)][ii]
-            status = 'unbound' if (Data['Eccentricity'][ii]>1 or Data['SemiMajorAxis'][ii]<0) else 'intact'
-            eventString = r'Star {} undergoes supernova and forms a {}, {}'.format(whichStar, remnantType, status)
+            #compType = Data['Stellar_Type({})'.format()][ii]
+            status = '. Orbit becomes unbound' if (Data['Eccentricity'][ii]>1 or Data['SemiMajorAxis'][ii]<0) else ''
+            eventString = r'Star {} undergoes supernova and forms a {}{}'.format(whichStar, remnantTypeName, status)
             if compType < 13:
                 image_num = 13 # 13 for normal companion
             else:
@@ -383,16 +365,16 @@ class Event(object):
 
         elif eventClass == 'Stype':
             whichStar = kwargs['whichStar']
-            stypePre = str(Data['Stellar_Type({})'.format(whichStar)][ii-1])
-            stypePost= str(Data['Stellar_Type({})'.format(whichStar)][ii])
+            stypePre = self.stellarTypeMap[Data['Stellar_Type({})'.format(whichStar)][ii-1]]
+            stypePost= self.stellarTypeMap[Data['Stellar_Type({})'.format(whichStar)][ii]]
             eventString = r'Star {}: {}-$>${}'.format(whichStar, stypePre, stypePost)
 
         elif eventClass == 'End':
             state = kwargs['state']
-            stype1 = Data['Stellar_Type(1)'][-1]
-            stype2 = Data['Stellar_Type(2)'][-1]
-            m1 = Data['Mass(1)'][-1]
-            m2 = Data['Mass(2)'][-1]
+            stype1 = self.stype1 
+            stype2 = self.stype2 
+            m1     = self.m1 
+            m2     = self.m2 
 
             if state == 'DCO':
                 Msunkg=1.98892e30
@@ -404,7 +386,7 @@ class Event(object):
                 beta=64/5*G**3*m1*m2*(m1+m2)*Msunkg**3/c**5
                 T0=a**4/4/beta 
                 Tdelay=T0*(1-e**2)**(7/2)*(1+0.31*e**10 + 0.27*e**20 +  0.2*e**1000)/3.15e7/1e6
-                eventString = r'Double compact object ({}+{}) merging in {:.1f} Myr'.format(stype1, stype1, Tdelay)
+                eventString = r'Double compact object ({}+{}) merging in {:.1f} Myr'.format(self.stypeName1, self.stypeName2, Tdelay)
 
                 if (stype1 == 13) & (stype2 == 13):
                     image_num = 55
@@ -414,19 +396,19 @@ class Event(object):
                     image_num = 53
 
             elif state == "Unbound":
-                eventString = r'Unbound: {}+{}'.format(stype1, stype2)
+                eventString = r'Unbound: {}+{}'.format(self.stypeName1, self.stypeName2)
                 image_num = None
 
             elif state == "Merger":
                 mTot = m1+m2 
                 mHe = Data['Mass_He_Core(1)'][-1] + Data['Mass_He_Core(2)'][-1]
                 mCO = Data['Mass_CO_Core(1)'][-1] + Data['Mass_CO_Core(2)'][-1]
-                eventString = r'Stellar Merger: {}+{}'.format(stype1, stype2)
+                eventString = r'Stellar Merger: {}+{}'.format(self.stypeName1, self.stypeName2)
                 image_num = 37
 
             else:
                 #raise ValueError("Unknown event state: {}".format(state))
-                eventString = r'Unspecified endstate: {}+{}'.format(stype1, stype2)
+                eventString = r'Unspecified endstate: {}+{}'.format(self.stypeName1, self.stypeName2) 
 
         else:
             raise ValueError("Unknown event class: {}".format(self.eventClass))
@@ -451,72 +433,81 @@ class Event(object):
 
 
 
+class allEvents(object):
+    def __init__(self, Data):
+
+        self.Data   = Data
+        self.stellarTypeMap, _, _ = getStellarTypes(Data)
+
+        # Collect all events into allEvents list
+        self.allEvents = []
+        self.getAllEvents()
 
 
-
-
-### Collecting events
-
-def addEvent(allEvents, Data, ii, eventClass, **kwargs):
-
-    newEvent = Event(Data, ii, eventClass, **kwargs)
-    allEvents.append(newEvent)
-
-
-def getAllEvents(Data):
-
-    allEvents = []
-
-    ### Add first timestep
-    addEvent(allEvents, Data, 0, eventClass='Beg')
-
-    ### Get all intermediary events
-    for ii in range(Data['Time'].size):
-
-        # Ignore first timestep, it's accounted for above
-        if ii == 0:
-            continue 
-
-        # Note: These should all be if clauses, not elif/else, because they are not mutually exclusive
-
-        ### Mass transfer happened
-        if (Data['MT_History'][ii]>0) and not (Data['MT_History'][ii]==Data['MT_History'][ii-1]): # Not a repeated entry
-            addEvent(allEvents, Data, ii, eventClass='MT')
-
-        ### Type of star 1 changed
-        if Data['Stellar_Type(1)'][ii]!=Data['Stellar_Type(1)'][ii-1]:    
-            if (Data['Stellar_Type(1)'][ii] in [13, 14]): # SN star 1
-                addEvent(allEvents, Data, ii, eventClass='SN', whichStar=1)
-            else:
-                addEvent(allEvents, Data, ii, eventClass='Stype', whichStar=1)
-
-        ### Type of star 2 changed
-        if Data['Stellar_Type(2)'][ii]!=Data['Stellar_Type(2)'][ii-1]:    
-            if (Data['Stellar_Type(2)'][ii] in [13, 14]): # SN star 2
-                addEvent(allEvents, Data, ii, eventClass='SN', whichStar=2)
-            else:
-                addEvent(allEvents, Data, ii, eventClass='Stype', whichStar=2)
-
-    ### Add an event for final state of the binary
-    isDCO = (Data['Stellar_Type(1)'][-1] in np.arange(10, 15)) and (Data['Stellar_Type(2)'][-1] in np.arange(10, 15)) # Both stars are WDs, NSs, or BHs
-    isUnbound = (Data['Eccentricity'][-1]>1 or Data['SemiMajorAxis'][-1]<0)
-    isMerger = (Data['Time'][-1]<14000) and not isDCO and not isUnbound     # System must have merged with at least one standard component
-
-    if isDCO:
-        state = "DCO" 
-    elif isUnbound:
-        state = "Unbound" 
-    elif isMerger:
-        state = "Merger"
-    else:
-        state = "Undef"
-    addEvent(allEvents, Data, -1, eventClass='End', state=state)
+    def getAllEvents(self):
     
-    return allEvents
-
-
+        Data = self.Data
     
+        ### Add first timestep
+        self.addEvent(0, eventClass='Beg')
+    
+        ### Get all intermediary events
+        for ii in range(Data['Time'].size):
+    
+            # Ignore first timestep, it's accounted for above
+            if ii == 0:
+                continue 
+    
+            # Note: These should all be if clauses, not elif/else, because they are not mutually exclusive
+    
+            ### Mass transfer happened
+            if (Data['MT_History'][ii]>0) and not (Data['MT_History'][ii]==Data['MT_History'][ii-1]): # Not a repeated entry
+                self.addEvent(ii, eventClass='MT')
+    
+            ### Type of star 1 changed
+            if Data['Stellar_Type(1)'][ii]!=Data['Stellar_Type(1)'][ii-1]:    
+                if (Data['Stellar_Type(1)'][ii] in [13, 14]): # SN star 1
+                    self.addEvent(ii, eventClass='SN', whichStar=1)
+                else:
+                    self.addEvent(ii, eventClass='Stype', whichStar=1)
+    
+            ### Type of star 2 changed
+            if Data['Stellar_Type(2)'][ii]!=Data['Stellar_Type(2)'][ii-1]:    
+                if (Data['Stellar_Type(2)'][ii] in [13, 14]): # SN star 2
+                    self.addEvent(ii, eventClass='SN', whichStar=2)
+                else:
+                    self.addEvent(ii, eventClass='Stype', whichStar=2)
+    
+        ### Add an event for final state of the binary
+        isDCO = (Data['Stellar_Type(1)'][-1] in np.arange(10, 15)) and (Data['Stellar_Type(2)'][-1] in np.arange(10, 15)) # Both stars are WDs, NSs, or BHs
+        isUnbound = (Data['Eccentricity'][-1]>1 or Data['SemiMajorAxis'][-1]<0)
+        isMerger = (Data['Time'][-1]<14000) and not isDCO and not isUnbound     # System must have merged with at least one standard component
+    
+        if isDCO:
+            state = "DCO" 
+        elif isUnbound:
+            state = "Unbound" 
+        elif isMerger:
+            state = "Merger"
+        else:
+            state = "Undef"
+        self.addEvent(-1, eventClass='End', state=state)
+        
+        return allEvents
+
+
+    def addEvent(self, ii, eventClass, **kwargs):
+    
+        newEvent = Event(self.Data, ii, eventClass, self.stellarTypeMap, **kwargs)
+        self.allEvents.append(newEvent)
+
+
+
+###########################################################
+### 
 ### Printing events
+### 
+###########################################################
 
 
 def printEvolutionaryHistory(Data=None, events=None):
