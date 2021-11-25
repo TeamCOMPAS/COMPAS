@@ -309,6 +309,7 @@ class Event(object):
         self.stypeName2 = stellarTypeMap[self.stype2]
         self.a      = Data['SemiMajorAxis'][ii]
         self.e      = Data['Eccentricity'][ii]
+        self.Z1     = Data['Metallicity@ZAMS(1)'][ii]
 
         self.eventString = self.getEventDetails(**kwargs)
 
@@ -325,7 +326,7 @@ class Event(object):
         image_num = None
 
         if eventClass == 'Beg': 
-            eventString = r'Zero-age main-sequence: {:4.1f}+{:4.1f}'.format(self.m1, self.m2)
+            eventString = r'Zero-age main-sequence, metallicity Z={:5.4f}'.format(self.Z1)
             image_num = 2 
 
         elif eventClass == 'MT':
