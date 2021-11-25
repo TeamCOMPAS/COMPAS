@@ -38,10 +38,15 @@
 
 # +
 #python libraries
+import os, sys
 import numpy as np               # for handling arrays
 import h5py as h5                # for reading the COMPAS data
 import time                      # for finding computation time
 import matplotlib.pyplot as plt  #for plotting
+
+# Import COMPAS specific scripts
+sys.path.append(compasRootDir + 'postProcessing/PythonScripts')
+from compasUtils import printCompasDetails
 
 # This is known as an ipython magic command, and allows plots to be produced within the notebook
 # %matplotlib inline
@@ -56,7 +61,7 @@ pathToData = compasRootDir + 'postProcessing/Tutorial/COMPAS_Output/COMPAS_Outpu
 
 # # 1. Inspecting the data
 #
-# Often the first thing you want to do with new data is simply to look at it! Getting familiar with the data, including available parameters, size of the data file, etc. will help to inform how best to proceed with the analysis. We provide a useful function for looking at the data from different output categories, `printCompasDetails`. 
+# Often the first thing you want to do with new data is simply to look at it! Getting familiar with the data, including available parameters, size of the data file, etc. will help to inform how best to proceed with the analysis. We provide several useful functions for inspecting the data, `printCompasDetails`, `getEventHistory`, and `getEventStrings`.
 #
 # --
 #
@@ -74,8 +79,46 @@ print(list(Data.keys()))
 # - 'BSE_RLOF': Any mass transfer events that occured within the binary
 # - 'BSE_Common_Envelopes': If any of the mass transfer events were unstable, details will be included here.
 # - 'BSE_Supernovae': Parameters and outcome of any supernovae that occured in the binary
-# - 'BSE_Double_Compact_Objects': If the binary ends as an intact pair of compact objects, it will be here
-# - 'Run_Details'
+# - 'BSE_Double_Compact_Objects': Includes key information of all binaries which end their lives as an intact pair of compact obects (either neutron stars or black holes)
+# - 'Run_Details': Information on the input settings supplied to the Compas run
+#
+# To extract the data from these categories, we use the following syntax
+
+SPs = Data['BSE_System_Parameters']
+MTs = Data['BSE_RLOF']
+CEs = Data['BSE_Common_Envelopes']
+SNe = Data['BSE_Supernovae']
+DCs = Data['BSE_Double_Compact_Objects']
+
+# Each of these is a dictionary mapping parameter names (keys) to an array of values
+
+print(SPs.keys())
+
+# If we want to view, say, the random seeds in the system parameters file, we run
+
+spSeeds = SPs['SEED'][()]
+print(spSeeds)
+
+# This is useful for extracting the arrays of single parameters, but for a more convenient view of the whole system parameters file, we can use the `printCompasDetails` function.
+
+printCompasDetails(SPs) # Note - the output of this is a pandas dataframe
+
+# PrintCompasDetails optionally also takes seeds and/or a boolean mask as arguments, to help filter the data.
+#
+# Some of the output categories have multiple events for a single seed (e.g `BSE_RLOF` if there are multiple mass transfer events). Using both seeds and mask inputs can help to extract a specifc event from several for that seed. 
+
+# +
+# Example: out of the first 20 seeds, only show systems which end as a merger
+
+mtSeeds = MTs['SEED'][()]
+sds, cts = np.unique(mtSeeds, return_counts=True)
+sds[cts>5]
+printCompasDetails(MTs, 1636090318)
+# -
+
+#
+
+
 
 
 
