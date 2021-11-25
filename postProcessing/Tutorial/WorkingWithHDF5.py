@@ -46,9 +46,8 @@ import h5py as h5  #for handling data format
 compasRootDir = os.environ['COMPAS_ROOT_DIR'] 
 tutorialDir = compasRootDir + '/postProcessing/Tutorial/'
 
-# Import useful COMPAS scripts for later use
+# Import COMPAS specific scripts
 sys.path.append(compasRootDir + 'postProcessing/PythonScripts')
-from compasUtils import printCompasDetails
 import h5rewrite
 
 
@@ -110,10 +109,6 @@ print(SPs['Mass@ZAMS(1)'].attrs['units']) # attrs refers to attributes
 mZams1 = SPs['Mass@ZAMS(1)'][()]
 print(mZams1.shape)                   # number of systems in this file
 print(mZams1[:10])                    # the values of the first 10 entries
-
-# ### To view all of the contents of a given HDF5 group, use the printCompasDetails function
-
-printCompasDetails(SPs) # Note - the output of this is a pandas dataframe
 
 # ## Closing the Data
 #
