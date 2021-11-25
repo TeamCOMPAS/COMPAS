@@ -59,7 +59,7 @@ To run the COMPAS executable from the command line (i.e. without ``pythonSubmit.
         -v $(pwd)/compas-logs:/app/COMPAS/logs  \
         teamcompas/compas                       \
         bin/COMPAS                              \
-        --number-of-binaries=5                  \
+        --number-of-systems=5                  \
         --output-path=/app/COMPAS/logs
 
 
@@ -85,7 +85,7 @@ the image to run.
 **bin/COMPAS** |br|
 the command to run when the container starts.
 
-**--number-of-binaries=5** |br|
+**--number-of-systems=5** |br|
 the flag to set the number of binaries.
 
 **--output-path=/app/COMPAS/logs** |br|
