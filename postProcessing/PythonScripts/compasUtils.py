@@ -195,7 +195,7 @@ def getSNevents(SNe):
     return returnedSeeds, returnedEvents, returnedTimes     # see above for description
 
 
-def getEventsHistory(h5file, exclude_null=False):
+def getEventHistory(h5file, exclude_null=False):
     """
     Get the event history for all seeds, including both RLOF and SN events, in chronological order.
     IN:
@@ -267,13 +267,13 @@ def buildEventString(events):
     """
     Function to produce a string representing the event history of a single binary for quick readability.
     IN:
-        events (list of tuples): events output from getEventsHistory()
+        events (list of tuples): events output from getEventHistory()
     OUT:
         eventString (string): string representing the event history of the binary
     
     MT strings look like: 
-        P>S where P is primary type, S is secondary type, and 
-        >, < is RLOF (1->2 or 1<-2) or = for CEE
+        P>S, P<S, or P=S where P is primary type, S is secondary type, 
+        and >, < is RLOF (1->2 or 1<-2) or = for CEE
 
     SN strings look like:
         P*SR for star1 the SN progenitor,or 
@@ -319,7 +319,7 @@ def getEventStrings(h5file=None, allEvents=None):
     if (h5file == None) & (allEvents == None):
         return 
     elif (allEvents == None):
-        _, allEvents = getEventsHistory(h5file)
+        _, allEvents = getEventHistory(h5file)
     
     eventStrings = []                                                        # array of event strings to be returned
     for eventsForGivenSeed in allEvents:  
