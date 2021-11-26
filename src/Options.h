@@ -25,15 +25,15 @@
 #include "Rand.h"
 #include "changelog.h"
 
-using std::string;
-using std::vector;
-using std::get;
-
 namespace po = boost::program_options;
+
+
+const std::string NOT_PROVIDED = std::to_string(255);
+
 
 // OPT_VALUE macro
 //
-// getter functions return the value of the class member variable - the class
+// Getter functions return the value of the class member variable - the class
 // member variable is set to a value depending upon the value of the corresponding
 // option enetered by the user.
 // 
@@ -115,7 +115,10 @@ class Options {
 private:
 
     // The following vectors are used to constrain which options can be specified
-    // when.  There are three groups of two vectors:
+    // when:
+    //
+    // m_ShorthandAllowed records option strings that may be specified using the
+    // shorthand notation described in Options::PreprocessOptionValues()
     //
     // m_GridLineExcluded records option strings that may not be specified on a grid line
     //
@@ -128,6 +131,39 @@ private:
     // Each of these is described in more detail below
 
 
+    // m_ShorthandAllowed records option strings that may be specified using the
+    // shorthand notation described in Options::ExpandShorthandOptionValues() and
+    // in Log.h.
+    //
+    // Furthermore, the vector records whether option values for such options can be
+    // defaulted (i.e. some or all values need not be specified), and if so, what
+    // string should be substituted for the unspecified values (at this stage there is
+    // no type associated with the options - what is being manipulated is the command-line
+    // or grid-line string that will be parsed to determine options specified and their
+    // values).
+    //
+    // This vector is checked immediately prior to the command line or grid line being parsed
+    // for ranges and sets - i.e. before the command line or grid line is passed to boost
+    // for final parsing.  If any option strings not in this vector are specified using
+    // shorthand notation, boost will parse them as usual and likely (though not necessarily)
+    // complain (boost will only complain if the option/value pair is malformed or unknown,
+    // which would almost certainly be the case - but it isn't guaranteed to be). 
+
+    typedef std::tuple<std::string, bool, std::string> SHORTHAND_ENTRY;         // option name, default allowed (i.e. can be omitted), default string
+    std::vector<SHORTHAND_ENTRY> m_ShorthandAllowed = {
+
+        // trying to keep entries alphabetical so easier to find specific entries
+
+        // option name          default allowed     default string
+        { "debug-classes",      false,              "" },                       // don't allow defaults - we don't know how many classes to specify
+
+        { "log-classes",        false,              "" },                       // don't allow defaults - we don't know how many classes to specify
+
+        { "notes",              true,               "" },                       // allow defaults - number of notes is 0..#notes-hdrs
+        { "notes-hdrs",         false,              "" }                        // don't allow defaults - we don't know how many headers to specify
+    };
+
+
     // m_GridLineExcluded records option strings that may not be specified on a grid line
     //
     // This vector is checked when the grid line is parsed - if any option strings are 
@@ -137,7 +173,7 @@ private:
     // think of a good reason to exclude options from the commandline, so I haven't 
     // implemented that functionality (though it wouldn't be too difficult to add it).
     //
-    // I coupld probably have done this using a different set of options in Boost for
+    // I could probably have done this using a different set of options in Boost for
     // the commandline and gridfile, but in the end I decided this way was actually
     // easier, cleaner, and gives us a bit more control.
 
@@ -148,7 +184,7 @@ private:
         "add-options-to-sysparms",
 
         "debug-level",
-        "debug_classes",
+        "debug-classes",
         "debug-to-file",
         "detailed-output",
 
@@ -166,7 +202,6 @@ private:
         "log-level", 
         "log-classes",
 
-        // Serena
         //"logfile-be-binaries",
 
         "logfile-common-envelopes",
@@ -185,6 +220,7 @@ private:
         "maximum-number-timestep-iterations",
         "mode",
 
+        "notes-hdrs",
         "number-of-systems",
 
         "output-container", "c",
@@ -209,7 +245,7 @@ private:
     // m_SSEOnly records option strings that apply to SSE only
     // m_BSEOnly records option strings that apply to BSE only
     //
-    // These vectors are checked when the commandline or grid line are parsed for
+    // These vectors are checked when the commandline or grid line is parsed for
     // ranges and sets.  Ranges and sets are played out, and stars/binaries evolved
     // based on the grid of options defined by any ranges and sets specified by the
     // user.
@@ -258,7 +294,6 @@ private:
         "allow-touching-at-birth",
         "angular-momentum-conservation-during-circularisation", 
 
-        // Serena
         //"be-binaries",
 
         "case-BB-stability-prescription",
@@ -276,7 +311,6 @@ private:
         "common-envelope-recombination-energy-density",
         "common-envelope-slope-kruckow",
 
-        // AVG
         /*
         "critical-mass-ratio-giant-degenerate-accretor",
         "critical-mass-ratio-giant-non-degenerate-accretor",
@@ -357,7 +391,7 @@ private:
     // m_RangeExcluded records option strings that apply to SSE only
     // m_SetExcluded records option strings that apply to BSE only
     //
-    // These vectors are checked when the commandline or grid line are parsed for
+    // These vectors are checked when the commandline or grid line is parsed for
     // ranges and sets.  Ranges can only be specified for numerical options - other
     // data types are not ordered, so ranges don't make sense (what would the
     // increment be...).  Sets can be specified for options of all data types,
@@ -375,7 +409,6 @@ private:
         "allow-touching-at-birth",
         "angular-momentum-conservation-during-circularisation",
 
-        // Serena
         //"be-binaries",
 
         "black-hole-kicks",
@@ -388,7 +421,7 @@ private:
         "common-envelope-lambda-prescription",
         "common-envelope-mass-accretion-prescription",
 
-        "debug_classes",
+        "debug-classes",
         "debug-level",
         "debug-to-file",
         "detailed-output",
@@ -418,7 +451,6 @@ private:
         "log-level", 
         "log-classes",
 
-        // Serena
         //"logfile-be-binaries",
 
         "logfile-common-envelopes",
@@ -444,6 +476,8 @@ private:
         "metallicity-distribution",
         "mode",
 
+        "notes",
+        "notes-hdrs",
         "neutrino-mass-loss-BH-formation",
         "neutron-star-equation-of-state",
 
@@ -483,7 +517,7 @@ private:
 
         "add-options-to-sysparms",
 
-        "debug_classes",
+        "debug-classes",
         "debug-level",
         "debug-to-file",
         "detailed-output",
@@ -502,7 +536,6 @@ private:
         "log-classes",
         "log-level", 
 
-        // Serena
         //"logfile-be-binaries",
 
         "logfile-common-envelopes",
@@ -518,6 +551,9 @@ private:
         "logfile-type",
 
         "mode",
+
+        "notes",
+        "notes-hdrs",
 
         "output-container", "c",
         "outputPath", "o",
@@ -569,6 +605,9 @@ public:
             bool                                                m_ErrorsToFile;                                                 // Flag used to determine whether error statements should also be written to a log file
 
             bool                                                m_EnableWarnings;                                               // Flag used to determine if warnings (via SHOW_WARN macros) should be displayed
+
+            std::vector<std::string>                            m_Notes;                                                        // Notes contents - for user-defined annotations
+            std::vector<std::string>                            m_NotesHdrs;                                                    // Notes header strings - for user-defined annotations
 
 	        bool                                                m_BeBinaries;													// Flag if we want to print BeBinaries (main.cpp)
             bool                                                m_EvolvePulsars;                                                // Whether to evolve pulsars or not
@@ -706,10 +745,10 @@ public:
 	        double                                              m_MaximumNeutronStarMass;						                // Maximum mass of a neutron star allowed, set to default in StarTrack
 
             // Setup default output directory and desired output directory
-            string                                              m_OutputPathString;                                             // String to hold the output directory
+            std::string                                         m_OutputPathString;                                             // String to hold the output directory
             boost::filesystem::path                             m_DefaultOutputPath;                                            // Default output location
             boost::filesystem::path                             m_OutputPath;                                                   // Desired output location
-            string                                              m_OutputContainerName;                                          // Name of output container (directory)
+            std::string                                         m_OutputContainerName;                                          // Name of output container (directory)
 
             // Mass loss options
             bool                                                m_UseMassLoss;                                                  // Whether to activate mass loss (default = True)
@@ -788,6 +827,8 @@ public:
             double                                              m_CommonEnvelopeAlphaThermal;                                   // lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
             double                                              m_CommonEnvelopeLambdaMultiplier;                               // Multiply common envelope lambda by some constant
             bool                                                m_AllowMainSequenceStarToSurviveCommonEnvelope;                 // Whether or not to allow a main sequence star to survive a common envelope event
+            bool                                                m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope;            // Whether or not to allow a radiative-envelope star to survive a common envelope event
+            bool                                                m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope;              // Whether or not to allow Roche Lobe Overflow immediately after a CE to survive a common envelope event
     
             // Prescription for envelope state (radiative or convective)
             ENUM_OPT<ENVELOPE_STATE_PRESCRIPTION>               m_EnvelopeStatePrescription;
@@ -851,32 +892,32 @@ public:
 
 	        // grids
 
-            string                                              m_GridFilename;                                                 // Grid filename
+            std::string                                         m_GridFilename;                                                 // Grid filename
 
 
             // debug and logging options
 
             int                                                 m_DebugLevel;                                                   // Debug level - used to determine which debug statements are actually written
-            vector<string>                                      m_DebugClasses;                                                 // Debug classes - used to determine which debug statements are actually written
+            std::vector<std::string>                            m_DebugClasses;                                                 // Debug classes - used to determine which debug statements are actually written
 
             int                                                 m_LogLevel;                                                     // Logging level - used to determine which logging statements are actually written
-            vector<string>                                      m_LogClasses;                                                   // Logging classes - used to determine which logging statements are actually written
+            std::vector<std::string>                            m_LogClasses;                                                   // Logging classes - used to determine which logging statements are actually written
 
 
             // Logfiles
-            string                                              m_LogfileDefinitionsFilename;                                   // Filename for the logfile record definitions
-            string                                              m_LogfileNamePrefix;                                            // Prefix for log file names
+            std::string                                         m_LogfileDefinitionsFilename;                                   // Filename for the logfile record definitions
+            std::string                                         m_LogfileNamePrefix;                                            // Prefix for log file names
             ENUM_OPT<LOGFILETYPE>                               m_LogfileType;                                                  // File type log files
 
-            string                                              m_LogfileSystemParameters;                                      // output file name: system parameters
-            string                                              m_LogfileDetailedOutput;                                        // output file name: detailed output
-            string                                              m_LogfileDoubleCompactObjects;                                  // output file name: double compact objects
-            string                                              m_LogfileSupernovae;                                            // output file name: supernovae
-            string                                              m_LogfileCommonEnvelopes;                                       // output file name: common envelopes
-            string                                              m_LogfileRLOFParameters;                                        // output file name: Roche Lobe overflow
-            string                                              m_LogfileBeBinaries;                                            // output file name: Be Binaries
-            string                                              m_LogfilePulsarEvolution;                                       // output file name: pulsar evolution
-            string                                              m_LogfileSwitchLog;                                             // output file name: switch log
+            std::string                                         m_LogfileSystemParameters;                                      // output file name: system parameters
+            std::string                                         m_LogfileDetailedOutput;                                        // output file name: detailed output
+            std::string                                         m_LogfileDoubleCompactObjects;                                  // output file name: double compact objects
+            std::string                                         m_LogfileSupernovae;                                            // output file name: supernovae
+            std::string                                         m_LogfileCommonEnvelopes;                                       // output file name: common envelopes
+            std::string                                         m_LogfileRLOFParameters;                                        // output file name: Roche Lobe overflow
+            std::string                                         m_LogfileBeBinaries;                                            // output file name: Be Binaries
+            std::string                                         m_LogfilePulsarEvolution;                                       // output file name: pulsar evolution
+            std::string                                         m_LogfileSwitchLog;                                             // output file name: switch log
 
             ENUM_OPT<ADD_OPTIONS_TO_SYSPARMS>                   m_AddOptionsToSysParms;                                         // Whether/when to add program option columns to BSE/SSE sysparms file
 
@@ -943,18 +984,18 @@ public:
     } RangeParameterT; 
 
     typedef struct RangeOrSetDescriptor {
-        COMPLEX_TYPE                 type;          // RANGE or SET
-        TYPENAME                     dataType;      // the option datatype
-        std::vector<std::string>     parameters;    // the range or set parameters
-        std::vector<RangeParameterT> rangeParms;    // range parameters numerical values
-        int                          currPos;       // current position of iterator - count for RANGE, pos for SET                                             
+        COMPLEX_TYPE                 type;                                              // RANGE or SET
+        TYPENAME                     dataType;                                          // the option datatype
+        std::vector<std::string>     parameters;                                        // the range or set parameters
+        std::vector<RangeParameterT> rangeParms;                                        // range parameters numerical values
+        int                          currPos;                                           // current position of iterator - count for RANGE, pos for SET                                             
     } RangeOrSetDescriptorT;
 
     typedef std::vector<std::tuple<std::string, RangeOrSetDescriptorT>> COMPLEX_OPTION_VALUES;
 
-    typedef std::tuple<TYPENAME, bool, std::string, std::string> ATTR;  // <dataType, defaulted, typeStr, valueStr>
+    typedef std::tuple<TYPENAME, bool, std::string, std::string> ATTR;                  // <dataType, defaulted, typeStr, valueStr>
 
-    typedef std::tuple<std::string, std::string, std::string, std::string> OPTIONSTR;  // option strings for specified options: <asEntered, asEnteredDownshifted, longName, shortName>
+    typedef std::tuple<std::string, std::string, std::string, std::string> OPTIONSTR;   // option strings for specified options: <asEntered, asEnteredDownshifted, longName, shortName>
 
     // we have two structs:
     //    one for the commandline (program-level) options, and 
@@ -962,12 +1003,14 @@ public:
     //
     // each struct contains:
     //
+    //    an OPTIONS_ORIGIN variable to indicate whether this struct is for command-line or grid file options (so the struct can be queried)
     //    an OptionValues object - holds the values of the options 
-    //    a  Boost options_decsriptions object
+    //    a  Boost options_descriptions object
     //    a  COMPLEX_OPTION_VALUES object - holds the complex option values (ranges, sets)
     //    a  struct containing the option strings of the specified options
 
     typedef struct OptionsDescriptor {
+        OPTIONS_ORIGIN          optionsOrigin;
         OptionValues            optionValues;
         po::options_description optionDescriptions;
         COMPLEX_OPTION_VALUES   complexOptionValues;
@@ -990,16 +1033,18 @@ private:
 
     GridfileT           m_Gridfile = {"", ERROR::EMPTY_FILENAME};
 
-    OptionsDescriptorT  m_CmdLine;
-    OptionsDescriptorT  m_GridLine;
+    OptionsDescriptorT  m_CmdLine = {OPTIONS_ORIGIN::CMDLINE, {}, {}, {}, {}};
+    OptionsDescriptorT  m_GridLine = {OPTIONS_ORIGIN::GRIDFILE, {}, {}, {}, {}};
 
-    std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPENAME>> m_CmdLineOptionsDetails;  // for Run_Details file
+    std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPENAME>> m_CmdLineOptionsDetails;   // for Run_Details file
 
 
     // member functions
 
     bool            AddOptions(OptionValues *p_Options, po::options_description *p_OptionsDescription);
     int             AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor);
+
+    std::tuple<std::string, int, std::vector<std::string>> ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[]);
 
     bool            IsSupportedNumericDataType(TYPENAME p_TypeName);
 
@@ -1047,11 +1092,13 @@ public:
     ADD_OPTIONS_TO_SYSPARMS                     AddOptionsToSysParms() const                                            { return m_CmdLine.optionValues.m_AddOptionsToSysParms.type; }
 
     bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return OPT_VALUE("common-envelope-allow-main-sequence-survive", m_AllowMainSequenceStarToSurviveCommonEnvelope, true); }
+    bool                                        AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() const               { return OPT_VALUE("common-envelope-allow-radiative-envelope-survive", m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope, true); }
+    bool                                        AllowImmediateRLOFpostCEToSurviveCommonEnvelope() const                 { return OPT_VALUE("common-envelope-allow-immediate-rlof-post-ce-survive", m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope, true); }
+    
     bool                                        AllowRLOFAtBirth() const                                                { return OPT_VALUE("allow-rlof-at-birth", m_AllowRLOFAtBirth, true); }
     bool                                        AllowTouchingAtBirth() const                                            { return OPT_VALUE("allow-touching-at-birth", m_AllowTouchingAtBirth, true); }
     bool                                        AngularMomentumConservationDuringCircularisation() const                { return OPT_VALUE("angular-momentum-conservation-during-circularisation", m_AngularMomentumConservationDuringCircularisation, true); }
 
-// Serena
     bool                                        BeBinaries() const                                                      { return OPT_VALUE("be-binaries", m_BeBinaries, true); }
 
     BLACK_HOLE_KICKS                            BlackHoleKicks() const                                                  { return OPT_VALUE("black-hole-kicks", m_BlackHoleKicks.type, true); }
@@ -1082,7 +1129,7 @@ public:
 
     double                                      CoolWindMassLossMultiplier() const                                      { return OPT_VALUE("cool-wind-mass-loss-multiplier", m_CoolWindMassLossMultiplier, true); }
 
-    vector<string>                              DebugClasses() const                                                    { return m_CmdLine.optionValues.m_DebugClasses; }
+    std::vector<std::string>                    DebugClasses() const                                                    { return m_CmdLine.optionValues.m_DebugClasses; }
     int                                         DebugLevel() const                                                      { return m_CmdLine.optionValues.m_DebugLevel; }
     bool                                        DebugToFile() const                                                     { return m_CmdLine.optionValues.m_DebugToFile; }
     bool                                        DetailedOutput() const                                                  { return m_CmdLine.optionValues.m_DetailedOutput; }
@@ -1104,7 +1151,7 @@ public:
     double                                      FixedUK() const                                                         { return m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_FixedUK; }
     SN_ENGINE                                   FryerSupernovaEngine() const                                            { return OPT_VALUE("fryer-supernova-engine", m_FryerSupernovaEngine.type, true); }
 
-    string                                      GridFilename() const                                                    { return m_CmdLine.optionValues.m_GridFilename; }
+    std::string                                 GridFilename() const                                                    { return m_CmdLine.optionValues.m_GridFilename; }
     std::streamsize                             GridStartLine() const                                                   { return m_CmdLine.optionValues.m_GridStartLine; }
     std::streamsize                             GridLinesToProcess() const                                              { return m_CmdLine.optionValues.m_GridLinesToProcess; }
 
@@ -1140,44 +1187,44 @@ public:
     double                                      KickMagnitudeRandom1() const                                            { return OPT_VALUE("kick-magnitude-random-1", m_KickMagnitudeRandom1, false); }
     double                                      KickMagnitudeRandom2() const                                            { return OPT_VALUE("kick-magnitude-random-2", m_KickMagnitudeRandom2, false); }
 
-    vector<string>                              LogClasses() const                                                      { return m_CmdLine.optionValues.m_LogClasses; }
-    string                                      LogfileBeBinaries() const                                               { return m_CmdLine.optionValues.m_LogfileBeBinaries; }
-    string                                      LogfileCommonEnvelopes() const                                          { return m_CmdLine.optionValues.m_LogfileCommonEnvelopes; }
-    string                                      LogfileDefinitionsFilename() const                                      { return m_CmdLine.optionValues.m_LogfileDefinitionsFilename; }
-    string                                      LogfileDetailedOutput() const                                           { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-detailed-output"].defaulted()
+    std::vector<std::string>                    LogClasses() const                                                      { return m_CmdLine.optionValues.m_LogClasses; }
+    std::string                                 LogfileBeBinaries() const                                               { return m_CmdLine.optionValues.m_LogfileBeBinaries; }
+    std::string                                 LogfileCommonEnvelopes() const                                          { return m_CmdLine.optionValues.m_LogfileCommonEnvelopes; }
+    std::string                                 LogfileDefinitionsFilename() const                                      { return m_CmdLine.optionValues.m_LogfileDefinitionsFilename; }
+    std::string                                 LogfileDetailedOutput() const                                           { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-detailed-output"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileDetailedOutput
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
-                                                                                                                                        ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_DETAILED_OUTPUT))
-                                                                                                                                        : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT))
+                                                                                                                                        ? std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_DETAILED_OUTPUT))
+                                                                                                                                        : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT))
                                                                                                                                       );
                                                                                                                         }
-    string                                      LogfileDoubleCompactObjects() const                                     { return m_CmdLine.optionValues.m_LogfileDoubleCompactObjects; }
-    string                                      LogfileNamePrefix() const                                               { return m_CmdLine.optionValues.m_LogfileNamePrefix; }
-    string                                      LogfilePulsarEvolution() const                                          { return m_CmdLine.optionValues.m_LogfilePulsarEvolution; }
-    string                                      LogfileRLOFParameters() const                                           { return m_CmdLine.optionValues.m_LogfileRLOFParameters; }
-    string                                      LogfileSupernovae() const                                               { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-supernovae"].defaulted()
+    std::string                                 LogfileDoubleCompactObjects() const                                     { return m_CmdLine.optionValues.m_LogfileDoubleCompactObjects; }
+    std::string                                 LogfileNamePrefix() const                                               { return m_CmdLine.optionValues.m_LogfileNamePrefix; }
+    std::string                                 LogfilePulsarEvolution() const                                          { return m_CmdLine.optionValues.m_LogfilePulsarEvolution; }
+    std::string                                 LogfileRLOFParameters() const                                           { return m_CmdLine.optionValues.m_LogfileRLOFParameters; }
+    std::string                                 LogfileSupernovae() const                                               { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-supernovae"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileSupernovae
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
-                                                                                                                                        ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE))
-                                                                                                                                        : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE))
+                                                                                                                                        ? std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE))
+                                                                                                                                        : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE))
                                                                                                                                       );
                                                                                                                         }
-    string                                      LogfileSwitchLog() const                                                { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-switch-log"].defaulted()
+    std::string                                 LogfileSwitchLog() const                                                { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-switch-log"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileSwitchLog
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
-                                                                                                                                        ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG))
-                                                                                                                                        : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG))
+                                                                                                                                        ? std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG))
+                                                                                                                                        : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG))
                                                                                                                                       );
                                                                                                                         }
-    string                                      LogfileSystemParameters() const                                         { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-system-parameters"].defaulted()
+    std::string                                 LogfileSystemParameters() const                                         { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-system-parameters"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileSystemParameters
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
-                                                                                                                                        ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS))
-                                                                                                                                        : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS))
+                                                                                                                                        ? std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS))
+                                                                                                                                        : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS))
                                                                                                                                       );
                                                                                                                         }
     LOGFILETYPE                                 LogfileType() const                                                     { return m_CmdLine.optionValues.m_LogfileType.type; }
-    string                                      LogfileTypeString() const                                               { return m_CmdLine.optionValues.m_LogfileType.typeString; }
+    std::string                                 LogfileTypeString() const                                               { return m_CmdLine.optionValues.m_LogfileType.typeString; }
     int                                         LogLevel() const                                                        { return m_CmdLine.optionValues.m_LogLevel; }
 
     double                                      LuminousBlueVariableFactor() const                                      { return OPT_VALUE("luminous-blue-variable-multiplier", m_LuminousBlueVariableFactor, true); }
@@ -1245,6 +1292,11 @@ public:
 
     NS_EOS                                      NeutronStarEquationOfState() const                                      { return OPT_VALUE("neutron-star-equation-of-state", m_NeutronStarEquationOfState.type, true); }
 
+    std::string                                 Notes(const size_t p_Idx) const                                         { return OPT_VALUE("notes", m_Notes[p_Idx], true); }
+    std::vector<std::string>                    Notes() const                                                           { return OPT_VALUE("notes", m_Notes, true); }
+    std::string                                 NotesHdrs(const size_t p_Idx) const                                     { return m_CmdLine.optionValues.m_NotesHdrs[p_Idx]; }
+    std::vector<std::string>                    NotesHdrs() const                                                       { return m_CmdLine.optionValues.m_NotesHdrs; }
+ 
     size_t                                      nObjectsToEvolve() const                                                { return m_CmdLine.optionValues.m_ObjectsToEvolve; }
     bool                                        OptimisticCHE() const                                                   { CHE_MODE che = OPT_VALUE("chemically-homogeneous-evolution", m_CheMode.type, true); return che == CHE_MODE::OPTIMISTIC; }
 
@@ -1253,8 +1305,8 @@ public:
     double                                      OrbitalPeriodDistributionMax() const                                    { return OPT_VALUE("orbital-period-max", m_OrbitalPeriodDistributionMax, true); }
     double                                      OrbitalPeriodDistributionMin() const                                    { return OPT_VALUE("orbital-period-min", m_OrbitalPeriodDistributionMin, true); }
 
-    string                                      OutputContainerName() const                                             { return m_CmdLine.optionValues.m_OutputContainerName; }
-    string                                      OutputPathString() const                                                { return m_CmdLine.optionValues.m_OutputPath.string(); }
+    std::string                                 OutputContainerName() const                                             { return m_CmdLine.optionValues.m_OutputContainerName; }
+    std::string                                 OutputPathString() const                                                { return m_CmdLine.optionValues.m_OutputPath.string(); }
 
     double                                      OverallWindMassLossMultiplier() const                                   { return OPT_VALUE("overall-wind-mass-loss-multiplier", m_OverallWindMassLossMultiplier, true); }
 
